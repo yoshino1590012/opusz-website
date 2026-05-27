@@ -3,3 +3,4 @@
 *.log
 node_modules/
 .env
+assets/videos/fp60.mp4
