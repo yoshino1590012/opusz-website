@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Musicians — OPUS.Z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--black:#0a0a0a;--white:#fff;--gray:#f5f5f5;--mid:#888;--radius:12px;}
+body{font-family:'Inter',sans-serif;color:var(--black);background:#fff;-webkit-font-smoothing:antialiased;}
+
+/* ── NAV ── */
+nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.92); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(0,0,0,0.06); }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: var(--black); }
+.orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
+.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 50%; transform: translateX(-50%); }
+.nav-links a { text-decoration: none; color: var(--black); font-size: 15px; position: relative; padding: 11px 22px; border-radius: 50px; display: inline-flex; align-items: center; justify-content: center; line-height: 1; vertical-align: middle; transition: none; z-index: 0; }
+.nav-links a::before { content: ''; position: absolute; inset: 0; border-radius: 50px; background: rgba(255,255,255,0.72); backdrop-filter: blur(6px); border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 2px 10px rgba(0,0,0,0.07), inset 0 1.5px 1.5px rgba(255,255,255,0.95), inset 0 -1px 1px rgba(0,0,0,0.04); transform: scaleX(0); transform-origin: left center; transition: none; z-index: -1; }
+.nav-links a:hover::before { transform: scaleX(1); transition: transform 0.48s cubic-bezier(0.34, 1.18, 0.64, 1); }
+.nav-links a:hover { opacity: 1; }
+.nav-links a.nav-active::before { transform: scaleX(1); }
+.hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
+.hamburger span { display: block; width: 26px; height: 2px; background: var(--black); transition: opacity .2s; }
+.hamburger:hover span { opacity: .5; }
+.nav-drawer { position: fixed; top: 0; right: -260px; bottom: 0; width: 260px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.10); padding: 90px 40px 48px; display: flex; flex-direction: column; gap: 4px; transition: right 0.18s ease; z-index: 300; pointer-events: none; }
+.nav-drawer.nd-visible { right: 0; pointer-events: auto; transition: right 0.42s cubic-bezier(0.22,1,0.36,1); }
+.nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: var(--black); text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nav-drawer a:last-child { border-bottom: none; }
+.nav-drawer a:hover { color: rgba(0,0,0,0.4); }
+.nav-drawer.nd-visible a { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
+.nav-drawer.nd-visible a:nth-child(1){transition-delay:0.07s;}.nav-drawer.nd-visible a:nth-child(2){transition-delay:0.11s;}.nav-drawer.nd-visible a:nth-child(3){transition-delay:0.15s;}.nav-drawer.nd-visible a:nth-child(4){transition-delay:0.19s;}.nav-drawer.nd-visible a:nth-child(5){transition-delay:0.23s;}
+.mega-menu { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-top: 1px solid rgba(0,0,0,0.05); box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05); padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 0; opacity: 0; transform: translateY(-22px); pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; z-index: 199; }
+.mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; transition: opacity 0.46s cubic-bezier(0.22,1,0.36,1), transform 0.46s cubic-bezier(0.22,1,0.36,1); }
+.mega-col { padding: 0 18px 0 0; border-right: 1px solid rgba(0,0,0,0.055); margin-right: 18px; opacity: 0; transform: translateY(-14px); transition: opacity 0.14s ease, transform 0.14s ease; }
+.mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); transition: opacity 0.4s cubic-bezier(0.22,1,0.36,1), transform 0.4s cubic-bezier(0.22,1,0.36,1); }
+.mega-menu.mm-visible .mega-col:nth-child(1){transition-delay:0.05s;}.mega-menu.mm-visible .mega-col:nth-child(2){transition-delay:0.08s;}.mega-menu.mm-visible .mega-col:nth-child(3){transition-delay:0.11s;}.mega-menu.mm-visible .mega-col:nth-child(4){transition-delay:0.14s;}.mega-menu.mm-visible .mega-col:nth-child(5){transition-delay:0.17s;}.mega-menu.mm-visible .mega-col:nth-child(6){transition-delay:0.20s;}.mega-menu.mm-visible .mega-col:nth-child(7){transition-delay:0.23s;}.mega-menu.mm-visible .mega-col:nth-child(8){transition-delay:0.26s;}
+.mega-col-title { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(0,0,0,0.35); text-decoration: none; margin-bottom: 16px; padding-bottom: 10px; width: 100%; border-bottom: 1px solid rgba(0,0,0,0.07); position: relative; cursor: pointer; transition: color 0.2s ease; }
+.mega-col-title::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 1.5px; background: var(--black); transform: scaleX(0); transform-origin: left center; transition: none; }
+.mega-col-title:hover { color: rgba(0,0,0,0.75); }
+.mega-col-title:hover::after { transform: scaleX(1); transition: transform 0.38s cubic-bezier(0.22,1,0.36,1); }
+.mega-col ul { list-style: none; display: flex; flex-direction: column; gap: 1px; }
+.mega-col ul li a { display: block; padding: 5px 0; font-size: 13.5px; font-weight: 450; color: var(--black); text-decoration: none; border-radius: 6px; transition: opacity 0.18s ease; }
+.mega-col ul li a:hover { opacity: 0.45; }
+#musicians-nav-item > a.mm-active::before { transform: scaleX(1) !important; }
+.lang-toggle { display: flex; align-items: center; gap: 2px; background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--black); }
+.lang-toggle .lt-opt { padding: 3px 8px; border-radius: 5px; transition: background .2s, color .2s; }
+.lang-toggle .lt-opt.active { background: var(--black); color: var(--white); }
+.lang-toggle .lt-sep { opacity: .25; font-weight: 400; }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.nav-fav-btn { position:relative; background:none; border:none; cursor:pointer; padding:6px; display:flex; align-items:center; color:var(--black); transition:color .15s; }
+.nav-fav-btn:hover { color:#e05; }
+.nav-fav-btn svg { display:block; }
+.nav-fav-count { position:absolute; top:0; right:0; background:#e05; color:#fff; font-size:9px; font-weight:700; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; line-height:1; }
+.nav-login-btn { display: inline-flex; align-items: center; gap: 6px; background: transparent; color: var(--black); border: 1.5px solid var(--black); border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; position: relative; z-index: 0; transition: none; line-height: 1; }
+.nav-login-btn::before { content: ''; position: absolute; inset: 0; border-radius: 6px; background: rgba(255,255,255,0.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); box-shadow: inset 0 1.5px 1.5px rgba(255,255,255,.95); transform: scaleX(0); transform-origin: left center; transition: none; z-index: -1; }
+.nav-login-btn:hover::before { transform: scaleX(1); transition: transform 0.48s cubic-bezier(0.34, 1.18, 0.64, 1); }
+.nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; flex-shrink: 0; position: relative; z-index: 1; }
+.nav-login-btn span.login-label { position: relative; z-index: 1; }
+.nav-login-btn.open svg { transform: rotate(180deg); }
+.nav-login-dropdown { position: absolute; top: calc(100% + 8px); right: 0; background: #fff; border-radius: 10px; box-shadow: 0 6px 32px rgba(0,0,0,.13), 0 0 0 1px rgba(0,0,0,.07); padding: 0; min-width: 0; opacity: 0; pointer-events: none; transform: translateY(-4px); transition: opacity .15s, transform .15s; z-index: 999; white-space: nowrap; display: flex; align-items: stretch; }
+.nav-login-btn.open .nav-login-dropdown { opacity: 1; pointer-events: auto; transform: translateY(0); }
+.nav-login-dropdown a { display: flex; align-items: center; justify-content: center; padding: 13px 22px; font-size: 13.5px; font-weight: 600; color: #111; text-decoration: none; transition: background .15s; }
+.nav-login-dropdown a:first-child { border-radius: 10px 0 0 10px; }
+.nav-login-dropdown a:last-of-type { border-radius: 0 10px 10px 0; }
+.nav-login-dropdown a:hover { background: #f5f5f5; }
+.nav-login-vsep { width: 1px; background: #e8e8e8; flex-shrink: 0; margin: 8px 0; }
+.login-modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.35); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.login-modal-overlay.open { opacity: 1; pointer-events: auto; }
+.login-modal { background: #fff; border-radius: 18px; padding: 40px 36px 32px; width: 360px; max-width: 92vw; box-shadow: 0 24px 80px rgba(0,0,0,.22); transform: translateY(12px); transition: transform .2s; position: relative; }
+.login-modal-overlay.open .login-modal { transform: translateY(0); }
+.login-modal-close { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 50%; background: #f0f0f0; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #555; transition: background .15s; }
+.login-modal-close:hover { background: #e0e0e0; }
+.login-modal-title { font-size: 22px; font-weight: 900; letter-spacing: -.03em; margin-bottom: 24px; }
+.login-modal-input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid #e0e0e0; font-size: 14px; font-family: inherit; outline: none; transition: border-color .15s; box-sizing: border-box; display: block; margin-bottom: 12px; }
+.login-modal-input:focus { border-color: #111; }
+.login-modal-btn { width: 100%; padding: 13px; border-radius: 10px; background: #111; color: #fff; border: none; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 4px; }
+.login-modal-footer { text-align: center; margin-top: 16px; font-size: 13px; color: #888; }
+.login-modal-footer a { color: #111; font-weight: 600; text-decoration: none; margin-left: 4px; }
+
+/* ── HERO ── */
+.hero{margin-top:64px;position:relative;min-height:300px;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%);overflow:hidden;display:flex;align-items:flex-end;}
+.hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.35;}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.2) 60%,transparent 100%);}
+.hero-content{position:relative;z-index:2;padding:48px 48px 40px;width:100%;max-width:900px;}
+.hero-breadcrumb{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.hero-breadcrumb a{color:rgba(255,255,255,.5);text-decoration:none;}
+.hero-breadcrumb a:hover{color:#fff;}
+.hero-title{font-size:clamp(28px,4vw,52px);font-weight:800;color:#fff;line-height:1.15;letter-spacing:-.02em;margin-bottom:10px;}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.65);max-width:500px;line-height:1.6;margin-bottom:28px;}
+.hero-search-wrap{display:flex;gap:0;max-width:560px;}
+.hero-search{flex:1;padding:14px 20px;border:none;border-radius:8px 0 0 8px;font-size:15px;font-family:inherit;outline:none;background:#fff;}
+.hero-search-btn{padding:14px 26px;background:var(--black);color:#fff;border:none;border-radius:0 8px 8px 0;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s;}
+.hero-search-btn:hover{background:#333;}
+
+/* ── FILTER BAR ── */
+.filter-bar{background:#fff;border-bottom:1px solid #eee;padding:16px 48px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;position:sticky;top:64px;z-index:99;}
+.filter-label{font-size:12px;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:.06em;margin-right:4px;}
+.filter-select{padding:8px 32px 8px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;font-weight:500;color:var(--black);background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 10px center;-webkit-appearance:none;appearance:none;cursor:pointer;outline:none;transition:border-color .15s;}
+.filter-select:focus{border-color:var(--black);}
+.filter-sort{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.filter-count{font-size:13px;color:var(--mid);white-space:nowrap;}
+
+/* ── GRID ── */
+.grid-section{padding:40px 48px 80px;}
+.musician-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+@media(max-width:900px){.musician-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.musician-grid{grid-template-columns:1fr;} .filter-bar{padding:12px 20px;} .grid-section{padding:24px 20px 60px;} .hero-content{padding:32px 20px 28px;} .hero-search-wrap{max-width:100%;}}
+
+/* ── CARD ── */
+.mcard{border-radius:var(--radius);overflow:hidden;background:#fff;border:1.5px solid #efefef;transition:box-shadow .25s,transform .25s;cursor:pointer;position:relative;}
+.mcard:hover{box-shadow:0 14px 44px rgba(0,0,0,.13);transform:translateY(-3px);}
+.mcard-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#f0f0f0;}
+.mcard-photo img{object-fit:contain;}
+/* Photo zoom wrapper — scales contents on hover without affecting absolute overlays */
+.mcard-photo-zoom{position:absolute;inset:0;transition:transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);transform-origin:center center;}
+.mcard:hover .mcard-photo-zoom{transform:scale(1.06);}
+.mcard-photo-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;}
+/* Heart */
+.mcard-heart{position:absolute;top:10px;right:10px;width:34px;height:34px;background:rgba(255,255,255,.9);backdrop-filter:blur(4px);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;transition:background .15s,transform .15s;}
+.mcard-heart:hover{background:#fff;transform:scale(1.12);}
+.mcard-heart svg{transition:fill .15s,stroke .15s;}
+.mcard-heart.active svg{fill:#e05;stroke:#e05;}
+/* Explore pill — bottom-right corner, long oval, bubble-spring on hover */
+.mcard-explore-photo{
+  position:absolute;bottom:12px;right:14px;
+  transform:translateY(6px) scale(0.85);transform-origin:bottom right;
+  z-index:5;opacity:0;pointer-events:none;
+  transition:opacity .24s ease, transform .38s cubic-bezier(0.34,1.35,0.64,1);
+  background:rgba(255,255,255,0.96);backdrop-filter:blur(8px);
+  color:#000;font-family:inherit;font-size:11.5px;font-weight:700;
+  padding:7px 18px;border-radius:50px;
+  white-space:nowrap;letter-spacing:.04em;
+  box-shadow:0 2px 12px rgba(0,0,0,.12);
+}
+.mcard:hover .mcard-explore-photo{opacity:1;transform:translateY(0) scale(1);}
+/* Photo area play button — bottom-left overlay, frosted grey */
+.mcard-play-photo{
+  position:absolute;bottom:12px;left:14px;z-index:5;
+  width:42px;height:42px;
+  background:rgba(200,200,200,0.55);backdrop-filter:blur(12px);
+  border:1.5px solid rgba(255,255,255,0.5);
+  border-radius:50%;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .2s, transform .18s, border-color .2s;
+}
+.mcard-play-photo:hover{background:rgba(200,200,200,0.82);transform:scale(1.1);}
+.mcard-play-photo svg{display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25));}
+.mcard-playing .mcard-play-photo{background:rgba(220,0,85,0.75);border-color:rgba(255,255,255,.35);}
+/* Photo wrapper as link */
+.mcard-photo-link{display:block;text-decoration:none;color:inherit;}
+/* Card Body */
+.mcard-body{padding:16px;}
+.mcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.mcard-rating{display:flex;align-items:center;gap:4px;}
+.mcard-stars{color:#f5a623;font-size:12px;letter-spacing:1px;}
+.mcard-rating-val{font-size:12px;font-weight:600;color:#555;}
+.mcard-reviews{font-size:11px;color:var(--mid);}
+.mcard-location{font-size:12px;color:var(--mid);display:flex;align-items:center;gap:3px;margin-bottom:8px;}
+.mcard-location svg{flex-shrink:0;}
+.mcard-name{font-size:15px;font-weight:700;margin-bottom:3px;line-height:1.3;}
+.mcard-instrument{font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.mcard-bio{font-size:12.5px;color:#555;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+/* Footer: no separator line */
+.mcard-footer{display:none;}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:80px 20px;color:var(--mid);}
+.empty-state p{font-size:16px;margin-top:8px;}
+
+/* ── FAV MODAL ── */
+.fav-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:9999;display:flex;align-items:flex-start;justify-content:flex-end;opacity:0;pointer-events:none;transition:opacity .2s;}
+.fav-modal-overlay.open{opacity:1;pointer-events:auto;}
+.fav-modal{background:#fff;width:360px;max-height:calc(100vh - 80px);margin-top:72px;margin-right:24px;border-radius:14px;box-shadow:0 16px 60px rgba(0,0,0,.18);overflow:hidden;display:flex;flex-direction:column;}
+.fav-modal-head{padding:20px 20px 16px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;}
+.fav-modal-head h3{font-size:15px;font-weight:700;}
+.fav-modal-close{background:none;border:none;cursor:pointer;font-size:18px;color:#888;line-height:1;}
+.fav-modal-body{overflow-y:auto;flex:1;padding:12px;}
+.fav-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:8px;transition:background .15s;cursor:pointer;}
+.fav-item:hover{background:#f8f8f8;}
+.fav-avatar{width:44px;height:44px;border-radius:50%;overflow:hidden;background:#eee;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:20px;}
+.fav-avatar img{width:100%;height:100%;object-fit:cover;}
+.fav-info{flex:1;}
+.fav-name{font-size:13px;font-weight:600;}
+.fav-inst{font-size:11px;color:var(--mid);}
+.fav-remove{background:none;border:none;cursor:pointer;color:#ccc;padding:4px;border-radius:4px;transition:color .15s;}
+.fav-remove:hover{color:#e05;}
+.fav-empty{text-align:center;padding:40px 20px;color:var(--mid);font-size:14px;}
+
+/* ── PLAYING AUDIO BAR ── */
+.audio-bar{position:fixed;bottom:0;left:0;right:0;background:var(--black);color:#fff;padding:12px 32px;display:flex;align-items:center;gap:16px;z-index:9000;transform:translateY(100%);transition:transform .3s;}
+.audio-bar.visible{transform:translateY(0);}
+.audio-bar-name{font-size:13px;font-weight:600;flex:1;}
+.audio-bar-inst{font-size:12px;color:rgba(255,255,255,.5);}
+.audio-bar-stop{background:none;border:1px solid rgba(255,255,255,.3);border-radius:6px;color:#fff;padding:6px 14px;font-size:12px;cursor:pointer;font-family:inherit;}
+
+/* ── NO RESULTS ── */
+.no-results{text-align:center;padding:64px 20px;color:var(--mid);}
+.no-results svg{opacity:.3;margin-bottom:12px;}
+
+/* ── MUSICIAN EDITOR (P key) ── */
+.med-overlay{position:fixed;inset:0;z-index:10000;pointer-events:none;opacity:0;transition:opacity .2s;}
+.med-overlay.open{opacity:1;}
+.med-panel{
+  position:fixed;top:80px;right:24px;
+  background:#1a1a1a;color:#fff;
+  width:320px;max-height:calc(100vh - 100px);
+  overflow-y:auto;display:flex;flex-direction:column;
+  border-radius:14px;box-shadow:0 12px 48px rgba(0,0,0,.5);
+  pointer-events:auto;
+  user-select:none;-webkit-user-select:none;
+}
+.med-head{padding:14px 16px 12px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#1a1a1a;z-index:2;cursor:grab;border-radius:14px 14px 0 0;}
+.med-head:active{cursor:grabbing;}
+.med-drag-dots{display:flex;flex-direction:column;gap:3px;margin-right:10px;opacity:.35;}
+.med-drag-dots span{display:block;width:14px;height:2px;background:#fff;border-radius:2px;}
+.med-head h3{font-size:14px;font-weight:700;}
+.med-head-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;}
+.med-close{background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:13px;padding:5px 8px;border-radius:6px;transition:background .15s;flex-shrink:0;}
+.med-close:hover{background:rgba(255,255,255,.18);}
+.med-body{padding:16px;flex:1;}
+.med-card{margin-bottom:20px;border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden;}
+.med-card-head{display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,.04);}
+.med-thumb{width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.med-thumb img{width:100%;height:100%;object-fit:cover;}
+.med-thumb video{width:100%;height:100%;object-fit:cover;}
+.med-card-name{font-size:13px;font-weight:700;}
+.med-card-inst{font-size:11px;color:rgba(255,255,255,.4);}
+.med-card-body{padding:12px;}
+.med-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;}
+.med-upload-btn{width:100%;padding:8px;border:1.5px dashed rgba(255,255,255,.2);border-radius:6px;background:transparent;color:rgba(255,255,255,.6);font-size:11px;font-family:inherit;cursor:pointer;text-align:center;margin-bottom:8px;transition:border-color .15s;}
+.med-upload-btn:hover{border-color:rgba(255,255,255,.5);}
+.med-url-input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:7px 10px;color:#fff;font-size:11px;box-sizing:border-box;outline:none;margin-bottom:6px;font-family:inherit;}
+.med-url-input::placeholder{color:rgba(255,255,255,.25);}
+.med-url-input:focus{border-color:rgba(255,255,255,.3);}
+.med-save-btn{width:100%;padding:8px;border:none;border-radius:6px;background:#fff;color:#000;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;}
+.med-save-btn:hover{background:#eee;}
+.med-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:99999;opacity:0;transition:opacity .2s;pointer-events:none;}
+.med-toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="musician-platform.html" class="nav-logo"><div class="orb"></div><span>OPUS.Z</span></a>
+  <ul class="nav-links">
+    <li><a href="musician-platform.html">Home</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li id="musicians-nav-item"><a href="musicians.html" class="nav-active">Musicians</a></li>
+    <li><a href="recent-jobs.html">Recent Jobs</a></li>
+    <li><a href="shows.html">Shows</a></li>
+    <li><a href="musician-platform.html#contact">Contact</a></li>
+  </ul>
+  <!-- MEGA MENU -->
+  <div class="mega-menu" id="artistsMegaMenu">
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a>
+      <ul>
+        <li><a href="musicians.html?cat=violin"     data-i18n="menu.violin">Violin</a></li>
+        <li><a href="musicians.html?cat=viola"      data-i18n="menu.viola">Viola</a></li>
+        <li><a href="musicians.html?cat=cello"      data-i18n="menu.cello">Cello</a></li>
+        <li><a href="musicians.html?cat=doublebass" data-i18n="menu.doublebass">Double Bass</a></li>
+        <li><a href="musicians.html?cat=harp"       data-i18n="menu.harp">Harp</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a>
+      <ul>
+        <li><a href="musicians.html?cat=flute"      data-i18n="menu.flute">Flute</a></li>
+        <li><a href="musicians.html?cat=piccolo"    data-i18n="menu.piccolo">Piccolo</a></li>
+        <li><a href="musicians.html?cat=oboe"       data-i18n="menu.oboe">Oboe</a></li>
+        <li><a href="musicians.html?cat=clarinet"   data-i18n="menu.clarinet">Clarinet</a></li>
+        <li><a href="musicians.html?cat=saxophone"  data-i18n="menu.saxophone">Saxophone</a></li>
+        <li><a href="musicians.html?cat=bassoon"    data-i18n="menu.bassoon">Bassoon</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a>
+      <ul>
+        <li><a href="musicians.html?cat=frenchhorn" data-i18n="menu.frenchhorn">French Horn</a></li>
+        <li><a href="musicians.html?cat=trumpet"    data-i18n="menu.trumpet">Trumpet</a></li>
+        <li><a href="musicians.html?cat=trombone"   data-i18n="menu.trombone">Trombone</a></li>
+        <li><a href="musicians.html?cat=euphonium"  data-i18n="menu.euphonium">Euphonium</a></li>
+        <li><a href="musicians.html?cat=tuba"       data-i18n="menu.tuba">Tuba</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=percussion" data-i18n="menu.percussion">Percussion</a>
+      <ul>
+        <li><a href="musicians.html?cat=timpani"    data-i18n="menu.timpani">Timpani</a></li>
+        <li><a href="musicians.html?cat=marimba"    data-i18n="menu.marimba">Marimba</a></li>
+        <li><a href="musicians.html?cat=vibraphone" data-i18n="menu.vibraphone">Vibraphone</a></li>
+        <li><a href="musicians.html?cat=xylophone"  data-i18n="menu.xylophone">Xylophone</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=keyboard" data-i18n="menu.keyboard">Keyboard</a>
+      <ul>
+        <li><a href="musicians.html?cat=piano"      data-i18n="menu.piano">Piano</a></li>
+        <li><a href="musicians.html?cat=pipeorgan"  data-i18n="menu.pipeorgan">Pipe Organ</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a>
+      <ul>
+        <li><a href="musicians.html?cat=soprano"      data-i18n="menu.soprano">Soprano</a></li>
+        <li><a href="musicians.html?cat=mezzosoprano" data-i18n="menu.mezzosoprano">Mezzo-soprano</a></li>
+        <li><a href="musicians.html?cat=tenor"        data-i18n="menu.tenor">Tenor</a></li>
+        <li><a href="musicians.html?cat=baritone"     data-i18n="menu.baritone">Baritone</a></li>
+        <li><a href="musicians.html?cat=choral"       data-i18n="menu.choral">Choral</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a>
+      <ul>
+        <li><a href="musicians.html?cat=stringquartet" data-i18n="menu.stringquartet">String Quartet</a></li>
+        <li><a href="musicians.html?cat=pianotrio"     data-i18n="menu.pianotrio">Piano Trio</a></li>
+        <li><a href="musicians.html?cat=stringtrio"    data-i18n="menu.stringtrio">String Trio</a></li>
+        <li><a href="musicians.html?cat=windquintet"   data-i18n="menu.windquintet">Wind Quintet</a></li>
+        <li><a href="musicians.html?cat=brassquintet"  data-i18n="menu.brassquintet">Brass Quintet</a></li>
+        <li><a href="musicians.html?cat=pianoquintet"  data-i18n="menu.pianoquintet">Piano Quintet</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html" data-i18n="menu.all">All</a>
+      <ul>
+        <li><a href="musicians.html"                    data-i18n="menu.allmusicians">All Musicians</a></li>
+        <li><a href="musicians.html?cat=strings"        data-i18n="menu.strings">Strings</a></li>
+        <li><a href="musicians.html?cat=woodwinds"      data-i18n="menu.woodwinds">Woodwinds</a></li>
+        <li><a href="musicians.html?cat=brass"          data-i18n="menu.brass">Brass</a></li>
+        <li><a href="musicians.html?cat=voice"          data-i18n="menu.voice">Voice</a></li>
+        <li><a href="musicians.html?cat=chamber"        data-i18n="menu.chamber">Chamber</a></li>
+        <li><a href="musicians.html?cat=conductor"      data-i18n="menu.conductor">Conductor</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
+    </button>
+    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
+      <span class="login-label">Log in</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="nav-login-dropdown">
+        <a href="#" id="openCustomerLogin">Customer login</a>
+        <div class="nav-login-vsep"></div>
+        <a href="#" id="openMusicianLogin">Musician login</a>
+      </div>
+    </button>
+    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+      <span class="lt-opt active" data-l="en">EN</span>
+      <span class="lt-sep">/</span>
+      <span class="lt-opt" data-l="zh">中文</span>
+    </button>
+    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
+  </div>
+</nav>
+<div class="nav-drawer" id="navDrawer">
+  <a href="musician-platform.html">Home</a>
+  <a href="blog.html">Blog</a>
+  <a href="musicians.html">Musicians</a>
+  <a href="recent-jobs.html">Recent Jobs</a>
+  <a href="shows.html">Shows</a>
+  <a href="musician-platform.html#contact">Contact</a>
+</div>
+<!-- Login Modal -->
+<div class="login-modal-overlay" id="loginModalOverlay">
+  <div class="login-modal">
+    <button class="login-modal-close" id="loginModalClose">✕</button>
+    <div class="login-modal-title" id="loginModalTitle">Customer Login</div>
+    <input class="login-modal-input" type="email" placeholder="Email" autocomplete="email"/>
+    <input class="login-modal-input" type="password" placeholder="Password" autocomplete="current-password"/>
+    <button class="login-modal-btn">Log in</button>
+    <div class="login-modal-footer">
+      <span>No account?</span>
+      <a href="musician-platform.html#contact">Sign up →</a>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="heroSection">
+  <div class="hero-bg" id="heroBg" style="overflow:hidden;position:absolute;inset:0;">
+    <div id="heroBgMedia" style="position:absolute;inset:0;overflow:hidden;"></div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-breadcrumb">
+      <a href="musician-platform.html">Home</a>
+      <span>›</span>
+      <a href="musicians.html">Musicians</a>
+      <span>›</span>
+      <span id="heroBreCat">All</span>
+    </div>
+    <h1 class="hero-title" id="heroTitle">Musicians for Hire</h1>
+    <p class="hero-sub" id="heroSub">Find world-class musicians for your event, recording, or project.</p>
+    <div class="hero-search-wrap">
+      <input class="hero-search" type="text" id="searchInput" placeholder="Search musicians...">
+      <button class="hero-search-btn" onclick="doSearch()" id="searchBtn">Search</button>
+    </div>
+  </div>
+</section>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <span class="filter-label" id="filterLabel">Filter</span>
+  <select class="filter-select" id="filterCountry" onchange="onCountryChange()">
+    <option value="">All Regions</option>
+    <option value="Taiwan">Taiwan</option>
+    <option value="USA">USA</option>
+  </select>
+  <select class="filter-select" id="filterCity" onchange="applyFilters()" style="display:none;">
+    <option value="">All Cities</option>
+  </select>
+  <select class="filter-select" id="filterStyle" onchange="applyFilters()">
+    <option value="">All Styles</option>
+    <option value="Classical">Classical</option>
+    <option value="Jazz">Jazz</option>
+    <option value="Pop">Pop / Commercial</option>
+    <option value="Film">Film / TV Scoring</option>
+    <option value="Wedding">Wedding</option>
+    <option value="Contemporary">Contemporary</option>
+  </select>
+  <div class="filter-sort">
+    <select class="filter-select" id="filterSort" onchange="applyFilters()">
+      <option value="rating">Top Rated</option>
+      <option value="newest">Newest</option>
+      <option value="reviews">Most Reviews</option>
+    </select>
+    <span class="filter-count" id="filterCount"></span>
+  </div>
+</div>
+
+<!-- GRID -->
+<section class="grid-section">
+  <div class="musician-grid" id="musicianGrid"></div>
+  <div class="no-results" id="noResults" style="display:none">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <p id="noResultsText">No musicians found. Try adjusting your filters.</p>
+  </div>
+</section>
+
+<!-- PLAYING AUDIO BAR -->
+<div class="audio-bar" id="audioBar">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+  <div>
+    <div class="audio-bar-name" id="audioBarName">—</div>
+    <div class="audio-bar-inst" id="audioBarInst">—</div>
+  </div>
+  <button class="audio-bar-stop" onclick="stopAudio()">■ Stop</button>
+</div>
+
+<!-- FAVOURITES MODAL -->
+<div class="fav-modal-overlay" id="favModal">
+  <div class="fav-modal">
+    <div class="fav-modal-head">
+      <h3 id="favModalTitle">My Favourites</h3>
+      <button class="fav-modal-close" id="favModalClose">✕</button>
+    </div>
+    <div class="fav-modal-body" id="favModalBody"></div>
+  </div>
+</div>
+
+<script>
+// ── Data ──────────────────────────────────────────────────────────────────────
+var MUSICIANS = [
+  {id:1, name:'Martin', instrument:'Violin', country:'Taiwan', region:'台北', style:'Classical', level:'Professional', rating:4.9, reviews:148, bio:'Principal violinist with 15 years of orchestral experience. Specialises in Romantic and Contemporary repertoire.', emoji:'🎻', color:'#1a1a2e', profileUrl:'musician-profile.html'},
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+var currentCat = '';
+var currentLang = 'en';
+var currentAudio = null;
+var currentPlayingId = null;
+var favourites = [];
+
+// ── Category Map ──────────────────────────────────────────────────────────────
+var CAT_MAP = {
+  violin:      {en:'Violinists for Hire Near You',        zh:'在您附近尋找小提琴手',  inst:'Violin',    sub:'en:Find world-class violinists for your event, recording session, or performance.|zh:為您的活動、錄音或演出尋找世界級小提琴手。', bg:'#1a1a2e'},
+  viola:       {en:'Viola Players for Hire Near You',     zh:'在您附近尋找中提琴手',  inst:'Viola',     sub:'en:Discover professional viola players for orchestras, chamber music, and events.|zh:探索專業中提琴手，適合管弦樂、室內樂及活動。', bg:'#1e1a0a'},
+  cello:       {en:'Cellists for Hire Near You',          zh:'在您附近尋找大提琴手',  inst:'Cello',     sub:'en:Book exceptional cellists for recordings, concerts, and private events.|zh:為錄音、音樂會及私人活動預約出色的大提琴手。', bg:'#1a0c0c'},
+  doublebass:  {en:'Double Bass Players for Hire',        zh:'尋找低音大提琴手',      inst:'Double Bass',sub:'en:Find skilled double bass players for jazz, orchestral, and session work.|zh:尋找爵士樂、管弦樂及錄音工作的低音大提琴手。', bg:'#0a1010'},
+  harp:        {en:'Harpists for Hire Near You',          zh:'在您附近尋找豎琴手',    inst:'Harp',      sub:'en:Elegant harpists for weddings, corporate events, and private concerts.|zh:為婚禮、企業活動及私人音樂會尋找優雅的豎琴手。', bg:'#1a0a1a'},
+  piano:       {en:'Pianists for Hire Near You',          zh:'在您附近尋找鋼琴家',    inst:'Piano',     sub:'en:World-class pianists for concerts, recordings, events, and lessons.|zh:為音樂會、錄音、活動及課程尋找世界級鋼琴家。', bg:'#0a1a0a'},
+  flute:       {en:'Flautists for Hire Near You',         zh:'在您附近尋找長笛手',    inst:'Flute',     sub:'en:Talented flautists for classical, contemporary, and fusion performances.|zh:為古典、當代及融合風格演出尋找才華橫溢的長笛手。', bg:'#101a2e'},
+  saxophone:   {en:'Saxophonists for Hire Near You',      zh:'在您附近尋找薩克斯風手',inst:'Saxophone', sub:'en:Jazz and classical saxophonists for live events, recordings, and sessions.|zh:為現場活動、錄音及演奏尋找爵士和古典薩克斯風手。', bg:'#0a1a10'},
+  trumpet:     {en:'Trumpet Players for Hire Near You',   zh:'在您附近尋找小號手',    inst:'Trumpet',   sub:'en:Versatile trumpet players for jazz, orchestral, and commercial recordings.|zh:為爵士樂、管弦樂及商業錄音尋找多才多藝的小號手。', bg:'#1a150a'},
+  strings:       {en:'String Musicians for Hire',              zh:'尋找弦樂音樂家',         inst:'',               sub:'en:Discover exceptional string players for any occasion.|zh:探索出色的弦樂演奏家，適合任何場合。', bg:'#1a1a2e'},
+  woodwinds:     {en:'Woodwind Musicians for Hire',            zh:'尋找木管音樂家',         inst:'',               sub:'en:Find talented woodwind players for your project.|zh:為您的項目尋找才華橫溢的木管樂器演奏家。', bg:'#101a2e'},
+  brass:         {en:'Brass Musicians for Hire',               zh:'尋找銅管音樂家',         inst:'',               sub:'en:Book professional brass players for any event or recording.|zh:為任何活動或錄音預約專業銅管樂器演奏家。', bg:'#1a150a'},
+  percussion:    {en:'Percussionists for Hire',                zh:'尋找打擊樂手',           inst:'',               sub:'en:Dynamic percussionists for orchestras, events, and session work.|zh:為管弦樂、活動及錄音工作尋找充滿活力的打擊樂手。', bg:'#0a0a1a'},
+  keyboard:      {en:'Keyboard Musicians for Hire',            zh:'尋找鍵盤音樂家',         inst:'',               sub:'en:Find skilled keyboard and piano players for any genre.|zh:尋找適合任何風格的鍵盤及鋼琴演奏家。', bg:'#0a1a0a'},
+  voice:         {en:'Vocalists for Hire Near You',            zh:'在您附近尋找聲樂家',     inst:'',               sub:'en:Discover professional vocalists for concerts, events, and recordings.|zh:為音樂會、活動及錄音探索專業聲樂家。', bg:'#1a0a1a'},
+  chamber:       {en:'Chamber Musicians for Hire',             zh:'尋找室內樂音樂家',       inst:'',               sub:'en:Discover top chamber ensembles and musicians for concerts and private events.|zh:探索頂尖室內樂合奏及音樂家，適合音樂會及私人活動。', bg:'#1a1020'},
+  stringquartet: {en:'String Quartets for Hire',               zh:'尋找弦樂四重奏',         inst:'String Quartet', sub:'en:Professional string quartets for weddings, concerts and events.|zh:為婚禮、音樂會及活動尋找專業弦樂四重奏。', bg:'#1a1a2e'},
+  pianotrio:     {en:'Piano Trios for Hire',                   zh:'尋找鋼琴三重奏',         inst:'Piano Trio',     sub:'en:Find skilled piano trio ensembles for your event.|zh:為您的活動尋找出色的鋼琴三重奏。', bg:'#0a1a0a'},
+  stringtrio:    {en:'String Trios for Hire',                  zh:'尋找弦樂三重奏',         inst:'String Trio',    sub:'en:Book professional string trios for concerts and private events.|zh:為音樂會及私人活動預約專業弦樂三重奏。', bg:'#1a1020'},
+  windquintet:   {en:'Wind Quintets for Hire',                 zh:'尋找木管五重奏',         inst:'Wind Quintet',   sub:'en:Talented wind quintets for concerts and corporate events.|zh:為音樂會及企業活動尋找才華橫溢的木管五重奏。', bg:'#101a2e'},
+  brassquintet:  {en:'Brass Quintets for Hire',                zh:'尋找銅管五重奏',         inst:'Brass Quintet',  sub:'en:Dynamic brass quintets for any occasion.|zh:為任何場合尋找充滿活力的銅管五重奏。', bg:'#1a150a'},
+  pianoquintet:  {en:'Piano Quintets for Hire',                zh:'尋找鋼琴五重奏',         inst:'Piano Quintet',  sub:'en:Exceptional piano quintets for concerts and events.|zh:為音樂會及活動尋找出色的鋼琴五重奏。', bg:'#0a1a0a'},
+};
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(function init(){
+  var params = new URLSearchParams(window.location.search);
+  currentCat = params.get('cat') || '';
+  favourites = JSON.parse(localStorage.getItem('mono-favs') || '[]');
+  updateFavBtn();
+  setHero();
+  renderGrid();
+
+  // Fav modal
+  document.getElementById('navFavBtn').addEventListener('click', function(){ document.getElementById('favModal').classList.toggle('open'); renderFavModal(); });
+  document.getElementById('favModalClose').addEventListener('click', function(){ document.getElementById('favModal').classList.remove('open'); });
+  document.getElementById('favModal').addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open'); });
+
+  // Search on enter
+  document.getElementById('searchInput').addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch(); });
+})();
+
+var MENU_I18N = {
+  en: {
+    'menu.strings':'Strings','menu.woodwinds':'Woodwinds','menu.brass':'Brass',
+    'menu.percussion':'Percussion','menu.keyboard':'Keyboard','menu.voice':'Voice',
+    'menu.chamber':'Chamber','menu.all':'All','menu.allmusicians':'All Musicians',
+    'menu.violin':'Violin','menu.viola':'Viola','menu.cello':'Cello',
+    'menu.doublebass':'Double Bass','menu.harp':'Harp',
+    'menu.flute':'Flute','menu.piccolo':'Piccolo','menu.oboe':'Oboe',
+    'menu.clarinet':'Clarinet','menu.saxophone':'Saxophone','menu.bassoon':'Bassoon',
+    'menu.frenchhorn':'French Horn','menu.trumpet':'Trumpet','menu.trombone':'Trombone',
+    'menu.euphonium':'Euphonium','menu.tuba':'Tuba',
+    'menu.timpani':'Timpani','menu.marimba':'Marimba','menu.vibraphone':'Vibraphone','menu.xylophone':'Xylophone',
+    'menu.piano':'Piano','menu.pipeorgan':'Pipe Organ',
+    'menu.soprano':'Soprano','menu.mezzosoprano':'Mezzo-soprano','menu.tenor':'Tenor',
+    'menu.baritone':'Baritone','menu.choral':'Choral','menu.conductor':'Conductor',
+    'menu.stringquartet':'String Quartet','menu.pianotrio':'Piano Trio','menu.stringtrio':'String Trio',
+    'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet','menu.pianoquintet':'Piano Quintet'
+  },
+  zh: {
+    'menu.strings':'弦樂','menu.woodwinds':'木管','menu.brass':'銅管',
+    'menu.percussion':'打擊樂','menu.keyboard':'鍵盤','menu.voice':'聲樂',
+    'menu.chamber':'室內樂','menu.all':'全部','menu.allmusicians':'所有音樂家',
+    'menu.violin':'小提琴','menu.viola':'中提琴','menu.cello':'大提琴',
+    'menu.doublebass':'低音大提琴','menu.harp':'豎琴',
+    'menu.flute':'長笛','menu.piccolo':'短笛','menu.oboe':'雙簧管',
+    'menu.clarinet':'單簧管','menu.saxophone':'薩克斯風','menu.bassoon':'巴松管',
+    'menu.frenchhorn':'法國號','menu.trumpet':'小號','menu.trombone':'長號',
+    'menu.euphonium':'上低音號','menu.tuba':'大號',
+    'menu.timpani':'定音鼓','menu.marimba':'馬林巴','menu.vibraphone':'顫音琴','menu.xylophone':'木琴',
+    'menu.piano':'鋼琴','menu.pipeorgan':'管風琴',
+    'menu.soprano':'女高音','menu.mezzosoprano':'次女高音','menu.tenor':'男高音',
+    'menu.baritone':'男中音','menu.choral':'合唱','menu.conductor':'指揮',
+    'menu.stringquartet':'弦樂四重奏','menu.pianotrio':'鋼琴三重奏','menu.stringtrio':'弦樂三重奏',
+    'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏','menu.pianoquintet':'鋼琴五重奏'
+  }
+};
+
+function setLang(l){
+  currentLang = l;
+  document.querySelectorAll('#langToggle .lt-opt').forEach(function(o){ o.classList.toggle('active', o.dataset.l===l); });
+  // Apply mega menu translations
+  var dict = MENU_I18N[l] || MENU_I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var v = dict[el.getAttribute('data-i18n')];
+    if (v !== undefined) el.textContent = v;
+  });
+  setHero();
+  renderGrid();
+  document.getElementById('favModalTitle').textContent = l==='zh' ? '我的收藏' : 'My Favourites';
+  document.getElementById('searchBtn').textContent = l==='zh' ? '搜尋' : 'Search';
+  document.getElementById('filterLabel').textContent = l==='zh' ? '篩選' : 'Filter';
+  document.getElementById('filterCountry').options[0].text = l==='zh' ? '所有地區' : 'All Regions';
+  document.getElementById('filterCountry').options[1].text = l==='zh' ? '台灣' : 'Taiwan';
+  document.getElementById('filterCountry').options[2].text = l==='zh' ? '美國' : 'USA';
+  document.getElementById('filterStyle').options[0].text  = l==='zh' ? '所有風格' : 'All Styles';
+}
+
+function setHero(){
+  var cat = CAT_MAP[currentCat];
+  var title, sub, bg;
+  if(cat){
+    title = currentLang==='zh' ? cat.zh : cat.en;
+    var subParts = cat.sub.split('|');
+    sub = currentLang==='zh' ? subParts[1].replace('zh:','') : subParts[0].replace('en:','');
+    bg = cat.bg;
+    document.getElementById('heroBreCat').textContent = currentLang==='zh' ? cat.zh : cat.en;
+  } else {
+    title = currentLang==='zh' ? '尋找音樂家' : 'Musicians for Hire';
+    sub   = currentLang==='zh' ? '為您的活動、錄音或計劃尋找世界級音樂家。' : 'Find world-class musicians for your event, recording, or project.';
+    bg    = '#1a1a2e';
+    document.getElementById('heroBreCat').textContent = currentLang==='zh' ? '所有' : 'All';
+  }
+  document.getElementById('heroTitle').textContent = title;
+  document.getElementById('heroSub').textContent = sub;
+  document.getElementById('heroBg').style.background = 'linear-gradient(135deg, ' + bg + ' 0%, #0a0a0a 100%)';
+  document.getElementById('searchInput').placeholder = currentLang==='zh' ? '搜尋音樂家...' : 'Search musicians...';
+}
+
+// ── Filter & Render ───────────────────────────────────────────────────────────
+var searchQuery = '';
+function doSearch(){
+  searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+  applyFilters();
+}
+
+var TAIWAN_CITIES = ['台北','台中','台南','高雄','新竹','嘉義','花蓮'];
+var USA_CITIES    = ['New York','Los Angeles','Boston','Houston','Seattle','Chicago'];
+
+function onCountryChange(){
+  var country = document.getElementById('filterCountry').value;
+  var citySelect = document.getElementById('filterCity');
+  citySelect.innerHTML = '';
+  var allOpt = document.createElement('option');
+  allOpt.value = '';
+  allOpt.textContent = currentLang==='zh' ? '所有城市' : 'All Cities';
+  citySelect.appendChild(allOpt);
+  var cities = country==='Taiwan' ? TAIWAN_CITIES : country==='USA' ? USA_CITIES : [];
+  cities.forEach(function(c){
+    var o = document.createElement('option');
+    o.value = c; o.textContent = c;
+    citySelect.appendChild(o);
+  });
+  citySelect.style.display = country ? 'inline-block' : 'none';
+  citySelect.value = '';
+  applyFilters();
+}
+
+function applyFilters(){
+  renderGrid();
+}
+
+function getFiltered(){
+  var country = document.getElementById('filterCountry').value;
+  var city    = document.getElementById('filterCity').value;
+  var style   = document.getElementById('filterStyle').value;
+  var sort    = document.getElementById('filterSort').value;
+  var cat     = CAT_MAP[currentCat];
+  var instFilter = cat && cat.inst ? cat.inst : '';
+
+  var list = MUSICIANS.filter(function(m){
+    if(instFilter && m.instrument !== instFilter) return false;
+    if(country && m.country !== country) return false;
+    if(city    && m.region  !== city)    return false;
+    if(style   && m.style   !== style)   return false;
+    if(searchQuery && m.name.toLowerCase().indexOf(searchQuery)===-1 && m.instrument.toLowerCase().indexOf(searchQuery)===-1 && m.bio.toLowerCase().indexOf(searchQuery)===-1) return false;
+    return true;
+  });
+
+  list.sort(function(a,b){
+    if(sort==='rating')  return b.rating - a.rating;
+    if(sort==='reviews') return b.reviews - a.reviews;
+    return b.id - a.id;
+  });
+  return list;
+}
+
+function renderGrid(){
+  var list = getFiltered();
+  var grid = document.getElementById('musicianGrid');
+  var noRes = document.getElementById('noResults');
+  document.getElementById('filterCount').textContent = list.length + (currentLang==='zh' ? ' 位音樂家' : ' musicians');
+
+  if(!list.length){
+    grid.innerHTML = '';
+    noRes.style.display = 'block';
+    document.getElementById('noResultsText').textContent = currentLang==='zh' ? '找不到符合條件的音樂家，請嘗試調整篩選條件。' : 'No musicians found. Try adjusting your filters.';
+    return;
+  }
+  noRes.style.display = 'none';
+
+  grid.innerHTML = list.map(function(m){
+    var isFav = favourites.indexOf(m.id) !== -1;
+    var stars = renderStars(m.rating);
+    // Load saved media
+    var savedPhoto = localStorage.getItem('mono-mphoto-'+m.id) || '';
+    var savedVideo = localStorage.getItem('mono-mvideo-'+m.id) || '';
+    var mediaHtml;
+    var mx = localStorage.getItem('mxys-x-'+m.id)||'0';
+    var my = localStorage.getItem('mxys-y-'+m.id)||'0';
+    var ms = localStorage.getItem('mxys-s-'+m.id)||'1';
+    var xysStyle = 'transform:translate('+mx+'px,'+my+'px) scale('+ms+');transform-origin:center center;';
+    if(savedPhoto){
+      mediaHtml = '<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'">' +
+        '<img src="'+savedPhoto+'" alt="'+m.name+'" style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;">' +
+        '</div>';
+    } else if(savedVideo){
+      mediaHtml = '<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'">' +
+        '<video src="'+savedVideo+'" muted loop autoplay playsinline style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;"></video>' +
+        '</div>';
+    } else {
+      mediaHtml = '<div class="mcard-photo-placeholder" style="background:linear-gradient(135deg,'+m.color+',#1a1a1a);color:rgba(255,255,255,.15);font-size:56px;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">'+m.emoji+'</div>';
+    }
+    var isPlaying = currentPlayingId===m.id;
+    var playIcon = isPlaying
+      ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+      : '<svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><polygon points="7 3 21 12 7 21 7 3"/></svg>';
+    var photoLink = m.profileUrl || '#';
+    var photoLinkExtra = m.profileUrl ? '' : ' onclick="return false;"';
+    return '<div class="mcard' + (isPlaying?' mcard-playing':'') + '" data-id="'+m.id+'">' +
+      '<a href="'+photoLink+'" class="mcard-photo-link"'+photoLinkExtra+'>' +
+        '<div class="mcard-photo" style="position:relative;">' +
+          '<div class="mcard-photo-zoom">' + mediaHtml + '</div>' +
+          '<button class="mcard-heart'+(isFav?' active':'')+'" onclick="toggleFav(event,'+m.id+')" aria-label="Favourite" style="position:absolute;top:10px;right:10px;z-index:6;">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
+          '</button>' +
+          '<span class="mcard-explore-photo">Explore →</span>' +
+          '<button class="mcard-play-photo" onclick="togglePlay(event,'+m.id+')" title="Preview">'+playIcon+'</button>' +
+        '</div>' +
+      '</a>' +
+      '<div class="mcard-body">' +
+        '<div class="mcard-top">' +
+          '<div class="mcard-rating">' +
+            '<span class="mcard-stars">'+stars+'</span>' +
+            '<span class="mcard-rating-val">'+m.rating.toFixed(1)+'</span>' +
+            '<span class="mcard-reviews">('+m.reviews+')</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="mcard-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+m.region+'</div>' +
+        '<div class="mcard-name">'+m.name+'</div>' +
+        '<div class="mcard-instrument">'+m.instrument+'</div>' +
+        '<div class="mcard-bio">'+m.bio+'</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function renderStars(r){
+  var full = Math.floor(r), half = (r-full)>=0.5;
+  var s = '';
+  for(var i=0;i<full;i++) s+='★';
+  if(half) s+='½';
+  return s;
+}
+
+// ── Favourites ────────────────────────────────────────────────────────────────
+function toggleFav(e, id){
+  e.stopPropagation();
+  var idx = favourites.indexOf(id);
+  if(idx===-1){ favourites.push(id); } else { favourites.splice(idx,1); }
+  localStorage.setItem('mono-favs', JSON.stringify(favourites));
+  updateFavBtn();
+  // update heart in card
+  var card = document.querySelector('.mcard[data-id="'+id+'"]');
+  if(card){
+    var heart = card.querySelector('.mcard-heart');
+    if(heart) heart.classList.toggle('active', favourites.indexOf(id)!==-1);
+  }
+  // update fav modal if open
+  if(document.getElementById('favModal').classList.contains('open')) renderFavModal();
+}
+
+function updateFavBtn(){
+  var count = favourites.length;
+  var el = document.getElementById('navFavCount');
+  if(el){ el.textContent = count; el.style.display = count ? 'flex' : 'none'; }
+  // also update main page fav btn if exists
+  var mainEl = document.getElementById('navFavCount');
+  if(mainEl){ mainEl.textContent = count; mainEl.style.display = count ? 'flex' : 'none'; }
+}
+
+function renderFavModal(){
+  var body = document.getElementById('favModalBody');
+  if(!favourites.length){
+    body.innerHTML = '<div class="fav-empty">'+(currentLang==='zh'?'還沒有收藏的音樂家':'No favourite musicians yet')+'</div>';
+    return;
+  }
+  body.innerHTML = favourites.map(function(id){
+    var m = MUSICIANS.find(function(x){ return x.id===id; });
+    if(!m) return '';
+    return '<div class="fav-item" onclick="scrollToCard('+m.id+')">' +
+      '<div class="fav-avatar" style="background:linear-gradient(135deg,'+m.color+',#1a1a1a);color:rgba(255,255,255,.15);">'+m.emoji+'</div>' +
+      '<div class="fav-info"><div class="fav-name">'+m.name+'</div><div class="fav-inst">'+m.instrument+' · '+m.region+'</div></div>' +
+      '<button class="fav-remove" onclick="removeFav(event,'+m.id+')" title="Remove">✕</button>' +
+    '</div>';
+  }).join('');
+}
+
+function removeFav(e, id){
+  e.stopPropagation();
+  toggleFav({stopPropagation:function(){}}, id);
+}
+
+function scrollToCard(id){
+  document.getElementById('favModal').classList.remove('open');
+  var card = document.querySelector('.mcard[data-id="'+id+'"]');
+  if(card) card.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+// ── Audio Play ────────────────────────────────────────────────────────────────
+function togglePlay(e, id){
+  e.stopPropagation();
+  if(currentPlayingId === id){
+    stopAudio();
+    return;
+  }
+  stopAudio();
+  currentPlayingId = id;
+  var m = MUSICIANS.find(function(x){ return x.id===id; });
+  if(!m) return;
+  document.getElementById('audioBarName').textContent = m.name;
+  document.getElementById('audioBarInst').textContent = m.instrument + ' · ' + m.region;
+  document.getElementById('audioBar').classList.add('visible');
+  renderGrid(); // re-render to show pause icon
+}
+
+function stopAudio(){
+  currentPlayingId = null;
+  document.getElementById('audioBar').classList.remove('visible');
+  renderGrid();
+}
+
+// ── Nav JS (same as main page) ────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  // Lang toggle
+  var lt = document.getElementById('langToggle');
+  if(lt) lt.addEventListener('click', function(e){
+    var opt = e.target.closest('[data-l]');
+    var lang = opt ? opt.dataset.l : (currentLang==='en'?'zh':'en');
+    setLang(lang);
+    document.querySelectorAll('#langToggle .lt-opt').forEach(function(o){ o.classList.toggle('active', o.dataset.l===lang); });
+  });
+  // Login dropdown
+  var loginBtn = document.getElementById('navLoginBtn');
+  if(loginBtn){
+    loginBtn.addEventListener('click', function(e){ e.stopPropagation(); this.classList.toggle('open'); });
+    document.addEventListener('click', function(){ loginBtn.classList.remove('open'); });
+  }
+  // Login modal
+  var overlay = document.getElementById('loginModalOverlay');
+  var modalClose = document.getElementById('loginModalClose');
+  var modalTitle = document.getElementById('loginModalTitle');
+  function openModal(type){ if(overlay){ modalTitle.textContent = type==='customer'?'Customer Login':'Musician Login'; overlay.classList.add('open'); document.body.style.overflow='hidden'; } }
+  function closeModal(){ if(overlay){ overlay.classList.remove('open'); document.body.style.overflow=''; } }
+  var custBtn = document.getElementById('openCustomerLogin');
+  var musBtn  = document.getElementById('openMusicianLogin');
+  if(custBtn) custBtn.addEventListener('click', function(e){ e.preventDefault(); loginBtn.classList.remove('open'); openModal('customer'); });
+  if(musBtn)  musBtn.addEventListener('click',  function(e){ e.preventDefault(); loginBtn.classList.remove('open'); openModal('musician'); });
+  if(modalClose) modalClose.addEventListener('click', closeModal);
+  if(overlay) overlay.addEventListener('click', function(e){ if(e.target===overlay) closeModal(); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
+  // Hamburger drawer
+  var hamburgerBtn = document.getElementById('hamburgerBtn');
+  var navDrawer    = document.getElementById('navDrawer');
+  var drawerTimeout;
+  if(hamburgerBtn && navDrawer){
+    function openDrawer(){ clearTimeout(drawerTimeout); navDrawer.classList.add('nd-visible'); }
+    function closeDrawer(){ drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); }, 80); }
+    hamburgerBtn.addEventListener('mouseenter', openDrawer);
+    hamburgerBtn.addEventListener('mouseleave', closeDrawer);
+    navDrawer.addEventListener('mouseenter', openDrawer);
+    navDrawer.addEventListener('mouseleave', closeDrawer);
+  }
+  // Mega menu
+  var musiciansTrigger = document.getElementById('musicians-nav-item');
+  var megaMenu = document.getElementById('artistsMegaMenu');
+  if(musiciansTrigger && megaMenu){
+    var musLink = musiciansTrigger.querySelector('a');
+    var mmTimeout;
+    function openMega(){ clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); if(musLink) musLink.classList.add('mm-active'); }
+    function closeMega(){ mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if(musLink) musLink.classList.remove('mm-active'); }, 80); }
+    musiciansTrigger.addEventListener('mouseenter', openMega);
+    musiciansTrigger.addEventListener('mouseleave', closeMega);
+    megaMenu.addEventListener('mouseenter', openMega);
+    megaMenu.addEventListener('mouseleave', closeMega);
+  }
+});
+
+// ── Image Compress Helper ─────────────────────────────────────────────────────
+function compressImage(file, maxPx, quality, callback){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var w = img.width, h = img.height;
+      if(w > maxPx || h > maxPx){
+        var ratio = Math.min(maxPx/w, maxPx/h);
+        w = Math.round(w*ratio); h = Math.round(h*ratio);
+      }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── XYS slider row builder ────────────────────────────────────────────────────
+function xysRow(prefix, id){
+  var isHero = (prefix === 'hero-');
+  var x = parseFloat(localStorage.getItem(prefix+'x-'+id)||'0');
+  var y = parseFloat(localStorage.getItem(prefix+'y-'+id)||'0');
+  var s = parseFloat(localStorage.getItem(prefix+'s-'+id)||(isHero?'1':'1'));
+  var xyMin = isHero ? '-600' : '-200';
+  var xyMax = isHero ? '600' : '200';
+  var sMin  = isHero ? '0.1' : '0.3';
+  var sMax  = isHero ? '5.0' : '2.5';
+  var sStep = isHero ? '0.05' : '0.05';
+  var sl = 'width:100%;accent-color:#fff;cursor:pointer;';
+  return '<div style="display:grid;grid-template-columns:16px 1fr 36px;align-items:center;gap:4px;margin-bottom:3px;">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.3)">X</span>' +
+    '<input type="range" min="'+xyMin+'" max="'+xyMax+'" step="1" value="'+x+'" style="'+sl+'" oninput="liveXYS(\''+prefix+'\',\''+id+'\',\'x\',this.value)" id="'+prefix+'xr-'+id+'">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.4);text-align:right" id="'+prefix+'xv-'+id+'">'+x+'</span></div>' +
+    '<div style="display:grid;grid-template-columns:16px 1fr 36px;align-items:center;gap:4px;margin-bottom:3px;">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.3)">Y</span>' +
+    '<input type="range" min="'+xyMin+'" max="'+xyMax+'" step="1" value="'+y+'" style="'+sl+'" oninput="liveXYS(\''+prefix+'\',\''+id+'\',\'y\',this.value)" id="'+prefix+'yr-'+id+'">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.4);text-align:right" id="'+prefix+'yv-'+id+'">'+y+'</span></div>' +
+    '<div style="display:grid;grid-template-columns:16px 1fr 36px;align-items:center;gap:4px;margin-bottom:6px;">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.3)">S</span>' +
+    '<input type="range" min="'+sMin+'" max="'+sMax+'" step="'+sStep+'" value="'+s+'" style="'+sl+'" oninput="liveXYS(\''+prefix+'\',\''+id+'\',\'s\',this.value)" id="'+prefix+'sr-'+id+'">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.4);text-align:right" id="'+prefix+'sv-'+id+'">'+s+'×</span></div>';
+}
+
+function liveXYS(prefix, id, axis, val){
+  document.getElementById(prefix+(axis==='s'?'sv':''+axis+'v')+'-'+id).textContent = axis==='s' ? parseFloat(val).toFixed(2)+'×' : val;
+  applyXYS(prefix, id);
+}
+
+function applyXYS(prefix, id){
+  var xEl = document.getElementById(prefix+'xr-'+id);
+  var yEl = document.getElementById(prefix+'yr-'+id);
+  var sEl = document.getElementById(prefix+'sr-'+id);
+  if(!xEl) return;
+  var x = xEl.value, y = yEl.value, s = sEl.value;
+  var t = 'translate('+x+'px,'+y+'px) scale('+s+')';
+  if(prefix==='hero-'){
+    var bgm = document.getElementById('heroBgMedia');
+    var target = bgm ? bgm.querySelector('.hero-media-el') : null;
+    if(target) target.style.transform = t;
+  } else {
+    // musician card photo-pan wrapper
+    var card = document.querySelector('.mcard[data-id="'+id+'"] .mcard-photo .photo-pan');
+    if(card){ card.style.transform = t; card.style.transformOrigin = 'center center'; }
+  }
+}
+
+function saveXYS(prefix, id){
+  var x = (document.getElementById(prefix+'xr-'+id)||{}).value||'0';
+  var y = (document.getElementById(prefix+'yr-'+id)||{}).value||'0';
+  var s = (document.getElementById(prefix+'sr-'+id)||{}).value||'1';
+  localStorage.setItem(prefix+'x-'+id, x);
+  localStorage.setItem(prefix+'y-'+id, y);
+  localStorage.setItem(prefix+'s-'+id, s);
+}
+
+// ── Apply saved XYS on page load ──────────────────────────────────────────────
+function applyAllSavedXYS(){
+  // Hero
+  var hx = localStorage.getItem('hero-x-hero')||'0';
+  var hy = localStorage.getItem('hero-y-hero')||'0';
+  var hs = localStorage.getItem('hero-s-hero')||'1';
+  // Apply hero media (applyHeroMedia reads saved XYS and applies it to .hero-pan)
+  applyHeroMedia();
+  // Musicians
+  MUSICIANS.forEach(function(m){
+    var x = localStorage.getItem('mxys-x-'+m.id)||'0';
+    var y = localStorage.getItem('mxys-y-'+m.id)||'0';
+    var s = localStorage.getItem('mxys-s-'+m.id)||'1';
+    // will be applied on renderGrid via inline style
+  });
+}
+
+function applyHeroMedia(){
+  var photo = localStorage.getItem('mono-hero-photo')||'';
+  var video = localStorage.getItem('mono-hero-video')||'';
+  var bgm = document.getElementById('heroBgMedia');
+  if(!bgm) return;
+  bgm.innerHTML = '';
+  bgm.style.backgroundImage = '';
+  var hx = localStorage.getItem('hero-x-hero')||'0';
+  var hy = localStorage.getItem('hero-y-hero')||'0';
+  var hs = localStorage.getItem('hero-s-hero')||'1';
+  var savedT = 'translate('+hx+'px,'+hy+'px) scale('+hs+')';
+  // object-fit:contain = full media visible at S=1; scale up to fill hero
+  var mediaStyle = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:center center;transform:'+savedT+';';
+  if(photo){
+    var img = document.createElement('img');
+    img.className = 'hero-media-el';
+    img.src = photo;
+    img.style.cssText = mediaStyle;
+    bgm.appendChild(img);
+  } else if(video){
+    var vid = document.createElement('video');
+    vid.className = 'hero-media-el';
+    vid.src = video; vid.muted = true; vid.loop = true; vid.autoplay = true; vid.playsInline = true;
+    vid.style.cssText = mediaStyle;
+    bgm.appendChild(vid);
+    vid.play().catch(function(){});
+  }
+}
+
+// ── Editor ────────────────────────────────────────────────────────────────────
+function openEditor(){
+  var list = getFiltered();
+  var body  = document.getElementById('medBody');
+  var title = document.getElementById('medTitle');
+  var sub   = document.getElementById('medSub');
+  var cat = CAT_MAP[currentCat];
+  title.textContent = (cat ? (currentLang==='zh'?cat.zh:cat.en) : 'All Musicians') + ' — Editor';
+  sub.textContent = list.length + ' musician' + (list.length!==1?'s':'') + ' · Esc to close';
+
+  // ── Hero Banner section ──
+  var heroPhoto = localStorage.getItem('mono-hero-photo')||'';
+  var heroVideo = localStorage.getItem('mono-hero-video')||'';
+  var heroHtml =
+    '<div class="med-card" style="border-color:rgba(255,255,255,.2);">' +
+    '<div class="med-card-head" style="background:rgba(255,255,255,.08);">' +
+      '<div class="med-thumb" style="background:#333;font-size:16px;display:flex;align-items:center;justify-content:center;">🖼</div>' +
+      '<div><div class="med-card-name">Hero Banner</div><div class="med-card-inst">Page header photo / video</div></div>' +
+    '</div>' +
+    '<div class="med-card-body">' +
+      '<div class="med-label">Photo (upload)</div>' +
+      '<input type="file" accept="image/*" id="hero-photo-file" style="display:none" onchange="handleUpload(\'hero\',this)">' +
+      '<button class="med-upload-btn" onclick="document.getElementById(\'hero-photo-file\').click()">'+(heroPhoto?'✓ Photo set — click to change':'⬆ Upload Photo')+'</button>' +
+      '<div class="med-label">or Video URL</div>' +
+      '<input class="med-url-input" id="hero-video-url" value="'+heroVideo+'" placeholder="https://res.cloudinary.com/…/video.mp4">' +
+      '<div class="med-label" style="margin-top:8px;">Position & Scale</div>' +
+      xysRow('hero-','hero') +
+      '<div style="display:flex;gap:6px;margin-bottom:0;">' +
+        '<button class="med-save-btn" style="flex:1;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);" onclick="resetXYS(\'hero-\',\'hero\')">↺ Reset</button>' +
+        '<button class="med-save-btn" style="flex:2;" onclick="saveHero()">💾 Save Banner</button>' +
+      '</div>' +
+    '</div></div>';
+
+  // ── Musician sections ──
+  var musHtml = list.map(function(m){
+    var photo = localStorage.getItem('mono-mphoto-'+m.id)||'';
+    var audio = localStorage.getItem('mono-maudio-'+m.id)||'';
+    var thumbHtml = photo ? '<img src="'+photo+'" style="width:100%;height:100%;object-fit:cover;">' : '<span style="font-size:22px;">'+m.emoji+'</span>';
+    return '<div class="med-card" id="medc-'+m.id+'">' +
+      '<div class="med-card-head">' +
+        '<div class="med-thumb" id="medthumb-'+m.id+'" style="background:linear-gradient(135deg,'+m.color+',#111);">'+thumbHtml+'</div>' +
+        '<div><div class="med-card-name">'+m.name+'</div><div class="med-card-inst">'+m.instrument+' · '+m.region+'</div></div>' +
+      '</div>' +
+      '<div class="med-card-body">' +
+        '<div class="med-label">Photo <span style="color:rgba(255,255,255,.25);font-weight:400;text-transform:none;letter-spacing:0;">(auto-compressed)</span></div>' +
+        '<input type="file" accept="image/*" id="medphoto-'+m.id+'" style="display:none" onchange="handleUpload('+m.id+',this)">' +
+        '<button class="med-upload-btn" id="medbtn-'+m.id+'" onclick="document.getElementById(\'medphoto-'+m.id+'\').click()">'+(photo?'✓ Photo set — click to change':'⬆ Upload Photo')+'</button>' +
+        '<div class="med-label" style="margin-top:4px;">Position & Scale</div>' +
+        xysRow('mxys-', m.id) +
+        '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
+          '<button class="med-save-btn" style="flex:1;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);" onclick="resetXYS(\'mxys-\','+m.id+')">↺ Reset</button>' +
+        '</div>' +
+        '<div class="med-label">Audio Recording URL</div>' +
+        '<input class="med-url-input" id="medaudio-'+m.id+'" value="'+audio+'" placeholder="https://res.cloudinary.com/…/audio.mp3">' +
+        '<button class="med-save-btn" onclick="saveMusician('+m.id+')">💾 Save</button>' +
+      '</div></div>';
+  }).join('');
+
+  body.innerHTML = heroHtml + musHtml;
+  // Reset panel position to default (top-right)
+  var panel = document.getElementById('medPanel');
+  if(panel){ panel.style.left=''; panel.style.top='80px'; panel.style.right='24px'; }
+  document.getElementById('medOverlay').classList.add('open');
+}
+
+function closeEditor(){
+  document.getElementById('medOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── Draggable editor panel ────────────────────────────────────────────────────
+(function(){
+  var panel, handle, dragging=false, ox=0, oy=0;
+  document.addEventListener('DOMContentLoaded', function(){
+    panel  = document.getElementById('medPanel');
+    handle = document.getElementById('medDragHandle');
+    if(!panel || !handle) return;
+    handle.addEventListener('mousedown', function(e){
+      if(e.target.closest('.med-close')) return;
+      dragging = true;
+      var rect = panel.getBoundingClientRect();
+      ox = e.clientX - rect.left;
+      oy = e.clientY - rect.top;
+      panel.style.transition = 'none';
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e){
+      if(!dragging) return;
+      var x = e.clientX - ox;
+      var y = e.clientY - oy;
+      // clamp inside viewport
+      x = Math.max(0, Math.min(window.innerWidth  - panel.offsetWidth,  x));
+      y = Math.max(0, Math.min(window.innerHeight - panel.offsetHeight, y));
+      panel.style.left = x + 'px';
+      panel.style.top  = y + 'px';
+      panel.style.right = 'auto';
+    });
+    document.addEventListener('mouseup', function(){
+      dragging = false;
+      document.body.style.userSelect = '';
+    });
+  });
+})();
+
+// Generic upload handler — compresses to max 900px, 75% JPEG quality
+function handleUpload(id, input){
+  if(!input.files || !input.files[0]) return;
+  var isHero = (id === 'hero');
+  compressImage(input.files[0], isHero ? 1400 : 900, 0.78, function(dataUrl){
+    if(isHero){
+      input.dataset.dataUrl = dataUrl;
+      document.querySelector('#hero-photo-file').dataset.dataUrl = dataUrl;
+      var btn = document.querySelector('[onclick="document.getElementById(\'hero-photo-file\').click()"]');
+      if(btn) btn.textContent = '✓ Photo set — click to change';
+    } else {
+      var thumb = document.getElementById('medthumb-'+id);
+      if(thumb) thumb.innerHTML = '<img src="'+dataUrl+'" style="width:100%;height:100%;object-fit:cover;">';
+      var btn = document.getElementById('medbtn-'+id);
+      if(btn) btn.textContent = '✓ Photo set — click to change';
+      var inp = document.getElementById('medphoto-'+id);
+      if(inp) inp.dataset.dataUrl = dataUrl;
+    }
+  });
+}
+
+function saveHero(){
+  var photoInp = document.getElementById('hero-photo-file');
+  var videoUrl = (document.getElementById('hero-video-url')||{}).value||'';
+  if(photoInp && photoInp.dataset.dataUrl){
+    try{ localStorage.setItem('mono-hero-photo', photoInp.dataset.dataUrl);
+         localStorage.removeItem('mono-hero-video'); }
+    catch(e){ showMedToast('⚠ Image too large even after compression'); return; }
+  }
+  if(videoUrl.trim()){
+    localStorage.setItem('mono-hero-video', videoUrl.trim());
+    localStorage.removeItem('mono-hero-photo');
+  } else if(!photoInp || !photoInp.dataset.dataUrl){
+    localStorage.removeItem('mono-hero-photo');
+    localStorage.removeItem('mono-hero-video');
+  }
+  saveXYS('hero-','hero');
+  applyHeroMedia();
+  applyXYS('hero-','hero');
+  showMedToast('Banner saved ✓');
+}
+
+function saveMusician(id){
+  var photoInp = document.getElementById('medphoto-'+id);
+  var audioVal = (document.getElementById('medaudio-'+id)||{}).value||'';
+  if(photoInp && photoInp.dataset.dataUrl){
+    try{ localStorage.setItem('mono-mphoto-'+id, photoInp.dataset.dataUrl); }
+    catch(e){ showMedToast('⚠ Storage full — try clearing some photos'); return; }
+  }
+  if(audioVal.trim()) localStorage.setItem('mono-maudio-'+id, audioVal.trim());
+  else localStorage.removeItem('mono-maudio-'+id);
+  saveXYS('mxys-', id);
+  showMedToast(MUSICIANS.find(function(m){return m.id===id;}).name + ' saved ✓');
+  renderGrid();
+}
+
+function resetXYS(prefix, id){
+  localStorage.setItem(prefix+'x-'+id, '0');
+  localStorage.setItem(prefix+'y-'+id, '0');
+  localStorage.setItem(prefix+'s-'+id, '1');
+  var xEl = document.getElementById(prefix+'xr-'+id);
+  var yEl = document.getElementById(prefix+'yr-'+id);
+  var sEl = document.getElementById(prefix+'sr-'+id);
+  if(xEl){ xEl.value = 0; var xv=document.getElementById(prefix+'xv-'+id); if(xv) xv.textContent='0'; }
+  if(yEl){ yEl.value = 0; var yv=document.getElementById(prefix+'yv-'+id); if(yv) yv.textContent='0'; }
+  if(sEl){ sEl.value = 1; var sv=document.getElementById(prefix+'sv-'+id); if(sv) sv.textContent='1×'; }
+  applyXYS(prefix, id);
+  if(prefix==='hero-') showMedToast('Hero position reset ✓');
+  else showMedToast('Position reset ✓');
+}
+
+function showMedToast(msg){
+  var t = document.getElementById('medToast');
+  if(!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2400);
+}
+
+// P key
+document.addEventListener('keydown', function(e){
+  if(e.key==='p'||e.key==='P'){
+    if(['INPUT','TEXTAREA','SELECT'].indexOf((document.activeElement||{}).tagName||'')!==-1) return;
+    openEditor();
+  }
+  if(e.key==='Escape') closeEditor();
+});
+
+// Apply XYS on load
+window.addEventListener('load', applyAllSavedXYS);
+</script>
+
+<!-- ── Load real musicians from Firestore ── -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
+    authDomain: "opusz-45280.firebaseapp.com",
+    projectId: "opusz-45280",
+    storageBucket: "opusz-45280.firebasestorage.app",
+    messagingSenderId: "304745430147",
+    appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // Dark gradient colours to cycle through for musician cards
+  const CARD_COLORS = ['#1a1a2e','#16213e','#0f3460','#1a0c0c','#0a2a1a','#1a150a','#101a2e','#1e1a0a','#0a1a10','#1a0a1a'];
+
+  try {
+    const snap = await getDocs(collection(db, 'musicians'));
+    if (snap.empty) return; // keep hardcoded fallback if no real data
+
+    const realMusicians = [];
+    let colorIdx = 0;
+    snap.forEach((d, i) => {
+      const p = d.data();
+      if (p.status === 'suspended') return; // skip suspended accounts
+      const insts = Array.isArray(p.instruments) ? p.instruments : (p.instrument ? [p.instrument] : []);
+      const primaryInst = insts[0] || '—';
+      realMusicians.push({
+        id:         d.id,            // use Firebase UID as id
+        uid:        d.id,
+        name:       p.name || p.email.split('@')[0],
+        instrument: primaryInst,
+        instruments: insts,
+        country:    (p.primaryRegion || '').split(' · ')[0] || 'Taiwan',
+        region:     (p.primaryRegion || '').split(' · ').slice(1).join(' · ') || p.primaryRegion || '—',
+        style:      'Classical',
+        level:      'Professional',
+        rating:     0,
+        reviews:    0,
+        bio:        p.bio || '',
+        emoji:      '🎵',
+        color:      CARD_COLORS[colorIdx++ % CARD_COLORS.length],
+        profileUrl: 'musician-profile.html?uid=' + d.id
+      });
+    });
+
+    if (realMusicians.length > 0) {
+      // Replace the hardcoded array with real data
+      window.MUSICIANS = realMusicians;
+      renderGrid(); // re-render with real data
+    }
+  } catch(e) {
+    console.log('Firestore load error:', e);
+  }
+</script>
+
+<!-- MUSICIAN EDITOR PANEL -->
+<div class="med-overlay" id="medOverlay">
+  <div class="med-panel" id="medPanel">
+    <div class="med-head" id="medDragHandle">
+      <div class="med-drag-dots"><span></span><span></span><span></span></div>
+      <div style="flex:1;min-width:0;">
+        <div id="medTitle" style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Editor</div>
+        <div id="medSub" class="med-head-sub"></div>
+      </div>
+      <button class="med-close" onclick="closeEditor()">✕</button>
+    </div>
+    <div class="med-body" id="medBody"></div>
+  </div>
+</div>
+
+<div class="med-toast" id="medToast"></div>
+
+</body>
+</html>

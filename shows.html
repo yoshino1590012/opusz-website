@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Upcoming Shows — OPUS.Z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+<style>
+:root{--white:#fff;--black:#000;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
+html{scroll-behavior:auto;}
+body{font-family:'Inter','Helvetica Neue',sans-serif;background:#0a0a0a;color:#fff;overflow-x:hidden;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:300;display:flex;align-items:center;justify-content:space-between;padding:18px 40px;background:rgba(10,10,10,0);}
+.nav-logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;text-decoration:none;color:#fff;}
+.orb{width:36px;height:36px;background:url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat;border-radius:50%;}
+.nav-links{display:flex;gap:6px;list-style:none;position:absolute;left:50%;transform:translateX(-50%);}
+.nav-links a{text-decoration:none;color:rgba(255,255,255,.6);font-size:15px;padding:10px 20px;border-radius:50px;border:1px solid transparent;transition:color .15s,border-color .15s;}
+.nav-links a:hover,.nav-links a.active{color:#fff;border-color:rgba(255,255,255,.28);}
+.nav-links a.active{background:none;}
+.nav-right{display:flex;align-items:center;gap:12px;}
+.nav-login-btn{padding:9px 20px;border-radius:50px;border:1px solid rgba(255,255,255,.2);background:none;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;transition:border-color .15s;}
+.nav-login-btn:hover{border-color:rgba(255,255,255,.5);}
+.lang-toggle{background:none;border:none;cursor:pointer;font-size:13px;font-family:inherit;display:flex;align-items:center;gap:4px;}
+.lt-opt{color:rgba(255,255,255,.35);}.lt-opt.active{color:#fff;font-weight:600;}.lt-sep{color:rgba(255,255,255,.2);}
+@media(max-width:900px){.nav-links{display:none;}}
+
+/* ══ HERO — fixed, never scrolls ══ */
+.sh-hero{position:fixed;inset:0;z-index:0;height:100vh;overflow:hidden;display:flex;align-items:flex-end;padding:0 clamp(40px,7vw,100px) clamp(60px,8vh,100px);}
+.sh-hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3;pointer-events:none;}
+.sh-hero-overlay{position:absolute;inset:0;transition:background .3s;}
+.sh-hero-content{position:relative;z-index:1;}
+.sh-hero-eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:20px;}
+.sh-hero-title{font-size:clamp(56px,9vw,130px);font-weight:800;line-height:.92;letter-spacing:-.04em;color:#fff;}
+.sh-hero-right{position:absolute;bottom:clamp(60px,8vh,100px);right:clamp(40px,7vw,100px);z-index:1;text-align:right;color:rgba(255,255,255,.35);font-size:13px;line-height:1.8;}
+
+/* ══ FIXED POSTER — hidden on hero, revealed by Show 1 sliding up.
+   clip-path tracks Show 1's top edge (no CSS transition on clip — real-time).
+   Once any section becomes "stuck", clip stays at 0% forever.
+   Only opacity transitions (fade-out after all shows pass). ══ */
+#fixedPosterFrame{
+  position:fixed;top:50%;left:50%;
+  transform:translate(-50%,-50%);
+  z-index:50;
+  width:clamp(450px,48vw,720px);
+  aspect-ratio:2/3;
+  border-radius:10px;overflow:hidden;
+  box-shadow:0 48px 120px rgba(0,0,0,.8),0 8px 32px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.1);
+  clip-path:inset(100% 0 0 0);
+  pointer-events:none;
+  transition:opacity .5s ease;
+}
+.fp-slide{position:absolute;inset:0;overflow:hidden;clip-path:inset(100% 0 0 0);}
+.fp-slide-bg{position:absolute;inset:0;background-size:cover;background-position:center;}
+.fp-slide-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform-origin:center;display:none;}
+
+/* ══ FIXED TEXT PANEL — same reveal + wipe logic as poster ══ */
+#fixedTextPanel{
+  position:fixed;top:50%;left:clamp(40px,7vw,100px);
+  transform:translateY(-50%);
+  z-index:50;
+  width:clamp(220px,26vw,340px);
+  clip-path:inset(100% 0 0 0);
+  pointer-events:none;
+  transition:opacity .5s ease;
+  display:grid;        /* stack all slides in same cell */
+  overflow:hidden;
+}
+.ftp-slide{
+  grid-area:1/1;       /* all slides overlap */
+  clip-path:inset(100% 0 0 0);
+  pointer-events:none;
+}
+.ftp-slide.ftp-active{ pointer-events:auto; }
+
+/* ══ PAGE SCROLLER — slides up over fixed hero ══ */
+.page-scroller{position:relative;z-index:1;margin-top:100vh;}
+
+/* ══ SHOWS TRACK ══ */
+.shows-track{position:relative;}
+.show-item{position:relative;min-height:100vh;}
+.show-item:nth-child(1){z-index:1;}
+.show-item:nth-child(2){z-index:2;}
+.show-item:nth-child(3){z-index:3;}
+.show-item:nth-child(4){z-index:4;}
+.show-item:nth-child(5){z-index:5;}
+.show-sticky{position:sticky;top:0;height:100vh;overflow:hidden;}
+.show-blur-bg{position:absolute;inset:0;background-size:cover;background-position:center;transform:scale(1.18);}
+.show-blur-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.18);transform-origin:center;display:none;}
+.show-sticky::after{content:'';position:absolute;inset:0;z-index:1;background:linear-gradient(to right,rgba(0,0,0,.72) 0%,rgba(0,0,0,0) 30%,rgba(0,0,0,0) 70%,rgba(0,0,0,.55) 100%);}
+
+/* ══ SHOW TEXT CONTENT ══ */
+.show-content{position:absolute;inset:0;z-index:2;pointer-events:none;padding:0 clamp(40px,7vw,100px);}
+.show-left{position:absolute;top:50%;left:clamp(40px,7vw,100px);transform:translateY(-50%);max-width:clamp(220px,26vw,340px);pointer-events:auto;}
+.show-seq{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:32px;display:flex;align-items:center;gap:14px;}
+.show-seq::before{content:'';display:block;width:28px;height:1px;background:rgba(255,255,255,.2);}
+.show-artist{font-size:clamp(28px,4vw,56px);font-weight:700;letter-spacing:-.025em;line-height:1.0;color:#fff;margin-bottom:18px;}
+.show-title{font-size:clamp(13px,1.2vw,16px);font-weight:500;color:rgba(255,255,255,.75);line-height:1.45;margin-bottom:14px;}
+.show-details{font-size:12px;color:rgba(255,255,255,.35);line-height:1.9;margin-bottom:38px;}
+.show-details span{display:block;}
+.show-cta{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.7);font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:3px;transition:color .2s,border-color .2s,gap .2s;pointer-events:auto;}
+.show-cta:hover{color:#fff;border-color:rgba(255,255,255,.7);gap:12px;}
+.show-right{position:absolute;top:50%;right:clamp(40px,7vw,100px);transform:translateY(-50%);text-align:right;}
+.show-year{font-size:13px;letter-spacing:.1em;color:rgba(255,255,255,.3);}
+
+/* ══ END CTA ══ */
+.sh-end{padding:clamp(80px,12vh,140px) clamp(40px,7vw,100px);display:flex;align-items:center;justify-content:space-between;gap:48px;border-top:1px solid rgba(255,255,255,.07);background:#0a0a0a;}
+.sh-end-text{font-size:clamp(26px,3.8vw,52px);font-weight:700;line-height:1.15;letter-spacing:-.02em;}
+.sh-end-text span{color:rgba(255,255,255,.3);}
+.sh-post-cta{display:inline-flex;align-items:center;gap:10px;padding:16px 36px;border-radius:50px;flex-shrink:0;background:#fff;color:#0a0a0a;font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;text-decoration:none;transition:background .15s,transform .15s;}
+.sh-post-cta:hover{background:#e8e8e8;transform:translateY(-2px);}
+
+@media(max-width:700px){
+  .show-left{max-width:60vw;}
+  .show-right{display:none;}
+  .sh-end{flex-direction:column;}
+
+  /* ── 海報：85% 大小 ── */
+  #fixedPosterFrame{
+    width:clamp(204px,64vw,280px);
+    top:40%;
+    left:50%;
+    transform:translate(-50%,-50%);
+  }
+
+  /* ── 文字面板：緊貼海報下方、置中、字距內縮 ── */
+  #fixedTextPanel{
+    top:auto;
+    bottom:3%;
+    left:50%;
+    transform:translateX(-50%);
+    width:88vw;
+    text-align:center;
+  }
+  #fixedTextPanel .show-seq{justify-content:center;margin-bottom:10px;}
+  #fixedTextPanel .show-artist{margin-bottom:6px;}
+  #fixedTextPanel .show-title{margin-bottom:6px;}
+  #fixedTextPanel .show-details{line-height:1.5;margin-bottom:14px;}
+  #fixedTextPanel .show-details span{display:inline;}
+  #fixedTextPanel .show-details span:not(:last-child)::after{content:' · ';}
+}
+
+/* ══════════════════════════════════════════
+   PHOTO EDITOR
+══════════════════════════════════════════ */
+#editorToggle{
+  position:fixed;bottom:24px;left:24px;z-index:400;
+  width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.12);backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.2);
+  color:#fff;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:background .15s;
+}
+#editorToggle:hover{background:rgba(255,255,255,.22);}
+
+#editorPanel{
+  position:fixed;bottom:80px;left:24px;z-index:400;
+  width:320px;
+  background:rgba(18,18,18,.96);backdrop-filter:blur(16px);
+  border:1px solid rgba(255,255,255,.12);border-radius:16px;
+  display:none;flex-direction:column;overflow:hidden;
+  box-shadow:0 24px 60px rgba(0,0,0,.6);
+  max-height:80vh;
+  user-select:none;
+}
+#editorPanel.ep-open{display:flex;}
+#ep-drag-handle{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px 10px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  cursor:grab;flex-shrink:0;
+}
+#ep-drag-handle:active{cursor:grabbing;}
+#ep-drag-handle .ep-drag-title{font-size:12px;font-weight:700;color:#fff;letter-spacing:.04em;}
+#ep-drag-handle .ep-drag-hint{font-size:10px;color:rgba(255,255,255,.3);}
+
+/* Tab bar */
+.ep-tabs-row{display:flex;align-items:stretch;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;}
+.ep-tab-arrow{flex-shrink:0;width:28px;background:none;border:none;color:rgba(255,255,255,.5);font-size:16px;cursor:pointer;padding:0;transition:color .15s;display:flex;align-items:center;justify-content:center;}
+.ep-tab-arrow:hover{color:#fff;}
+.ep-tab-arrow:disabled{color:rgba(255,255,255,.15);cursor:default;}
+.ep-tabs{display:flex;overflow-x:auto;flex:1;scrollbar-width:none;}
+.ep-tabs::-webkit-scrollbar{display:none;}
+.ep-tab{padding:10px 12px;font-size:11px;font-weight:600;color:rgba(255,255,255,.4);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:color .15s,border-color .15s;letter-spacing:.04em;text-transform:uppercase;flex-shrink:0;}
+.ep-tab.et-active{color:#fff;border-bottom-color:#fff;}
+
+/* Tab panels */
+.ep-body{overflow-y:auto;flex:1;padding:16px;scrollbar-width:thin;}
+.ep-pane{display:none;flex-direction:column;gap:14px;}
+.ep-pane.ep-visible{display:flex;}
+
+/* Controls */
+.ep-label{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.4);margin-bottom:4px;}
+.ep-row{display:flex;flex-direction:column;gap:5px;}
+.ep-row-h{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.ep-val{font-size:11px;color:rgba(255,255,255,.5);min-width:34px;text-align:right;}
+input[type=range].ep-range{width:100%;accent-color:#fff;height:3px;cursor:pointer;}
+input[type=text].ep-input,input[type=url].ep-input{
+  width:100%;padding:8px 10px;background:rgba(255,255,255,.07);
+  border:1px solid rgba(255,255,255,.1);border-radius:8px;
+  color:#fff;font-size:12px;font-family:inherit;outline:none;
+  transition:border-color .15s;
+}
+input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba(255,255,255,.35);}
+.ep-upload-btn{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  padding:9px 14px;border-radius:8px;font-size:12px;font-weight:600;
+  background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.1);
+  color:#fff;cursor:pointer;transition:background .15s;font-family:inherit;
+  width:100%;
+}
+.ep-upload-btn:hover{background:rgba(255,255,255,.16);}
+.ep-thumb{width:100%;aspect-ratio:2/3;border-radius:6px;object-fit:cover;border:1px solid rgba(255,255,255,.1);display:none;margin-top:4px;}
+.ep-divider{height:1px;background:rgba(255,255,255,.07);margin:2px 0;}
+
+/* Save button */
+.ep-save{
+  margin:12px 16px 16px;padding:10px;border-radius:10px;
+  background:#fff;color:#0a0a0a;font-size:13px;font-weight:700;
+  cursor:pointer;border:none;font-family:inherit;
+  transition:background .15s,transform .1s;flex-shrink:0;
+}
+.ep-save:hover{background:#e0e0e0;transform:translateY(-1px);}
+.ep-saved-badge{
+  font-size:11px;color:rgba(255,255,255,.4);text-align:center;
+  padding-bottom:8px;display:none;
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="musician-platform.html" class="nav-logo">
+    <div class="orb"></div><span>OPUS.Z</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="musician-platform.html">Home</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="musicians.html">Musicians</a></li>
+    <li><a href="recent-jobs.html">Recent Jobs</a></li>
+    <li><a href="shows.html" class="active">Shows</a></li>
+    <li><a href="musician-platform.html#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <button class="nav-login-btn">Log in</button>
+    <button class="lang-toggle">
+      <span class="lt-opt active">EN</span><span class="lt-sep">/</span><span class="lt-opt">中文</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══ HERO (fixed) ══ -->
+<section class="sh-hero">
+  <video class="sh-hero-video" id="heroVideo" autoplay muted loop playsinline>
+    <source id="heroVideoSrc" src="https://res.cloudinary.com/drbhm0xlw/video/upload/v1779382491/13552010_1920_1080_100fps_mzk2hj.mp4" type="video/mp4">
+  </video>
+  <div class="sh-hero-overlay" id="heroOverlay"></div>
+  <div class="sh-hero-content">
+    <p class="sh-hero-eyebrow">OPUS.Z · 近期演出</p>
+    <h1 class="sh-hero-title">Upcoming<br>Shows</h1>
+  </div>
+  <div class="sh-hero-right">Musicians sharing<br>their upcoming<br>performances</div>
+</section>
+
+<!-- ══ FIXED POSTER FRAME — z-index 50, always viewport-center, revealed by clip-path ══ -->
+<div id="fixedPosterFrame">
+  <div class="fp-slide fp-active" id="fpSlide0">
+    <div class="fp-slide-bg" id="fpBg0" style="background:linear-gradient(160deg,#1a0030,#3d0070,#28005a)"></div>
+    <img class="fp-slide-img" id="fpImg0" alt="">
+  </div>
+  <div class="fp-slide" id="fpSlide1">
+    <div class="fp-slide-bg" id="fpBg1" style="background:linear-gradient(160deg,#001830,#003060,#001848)"></div>
+    <img class="fp-slide-img" id="fpImg1" alt="">
+  </div>
+  <div class="fp-slide" id="fpSlide2">
+    <div class="fp-slide-bg" id="fpBg2" style="background:linear-gradient(160deg,#1a1000,#3a2400,#281800)"></div>
+    <img class="fp-slide-img" id="fpImg2" alt="">
+  </div>
+  <div class="fp-slide" id="fpSlide3">
+    <div class="fp-slide-bg" id="fpBg3" style="background:linear-gradient(160deg,#001414,#002c2c,#001c1c)"></div>
+    <img class="fp-slide-img" id="fpImg3" alt="">
+  </div>
+  <div class="fp-slide" id="fpSlide4">
+    <div class="fp-slide-bg" id="fpBg4" style="background:linear-gradient(160deg,#1a0010,#3d0030,#28001a)"></div>
+    <img class="fp-slide-img" id="fpImg4" alt="">
+  </div>
+</div>
+
+<!-- ══ FIXED TEXT PANEL — left side, same reveal as poster ══ -->
+<div id="fixedTextPanel">
+  <div class="ftp-slide ftp-active" id="ftpSlide0">
+    <div class="show-seq">01 · 2025</div>
+    <h2 class="show-artist">Chen Wei-Chen</h2>
+    <p class="show-title">Piano Recital — Reflections</p>
+    <div class="show-details">
+      <span>National Concert Hall, Taipei</span>
+      <span>July 18, 2025 · 7:30 PM</span>
+      <span>Chopin · Debussy · Ravel</span>
+    </div>
+    <a href="#" class="show-cta">View Details →</a>
+  </div>
+  <div class="ftp-slide" id="ftpSlide1">
+    <div class="show-seq">02 · 2025</div>
+    <h2 class="show-artist">Taipei Piano Trio</h2>
+    <p class="show-title">Midsummer Gala Night</p>
+    <div class="show-details">
+      <span>Eslite Performance Hall, Taipei</span>
+      <span>August 3, 2025 · 7:00 PM</span>
+      <span>Beethoven · Schubert</span>
+    </div>
+    <a href="#" class="show-cta">View Details →</a>
+  </div>
+  <div class="ftp-slide" id="ftpSlide2">
+    <div class="show-seq">03 · 2025</div>
+    <h2 class="show-artist">Lin Hui-Chun</h2>
+    <p class="show-title">Violin & Orchestra — Homecoming</p>
+    <div class="show-details">
+      <span>Kaohsiung Music Center</span>
+      <span>September 12, 2025 · 7:30 PM</span>
+      <span>Brahms Concerto in D major, Op. 77</span>
+    </div>
+    <a href="#" class="show-cta">View Details →</a>
+  </div>
+  <div class="ftp-slide" id="ftpSlide3">
+    <div class="show-seq">04 · 2025</div>
+    <h2 class="show-artist">Wu Ching-Yu</h2>
+    <p class="show-title">Cello Suite — Solitude & Light</p>
+    <div class="show-details">
+      <span>Chimei Museum, Tainan</span>
+      <span>October 5, 2025 · 3:00 PM</span>
+      <span>Bach Cello Suites Nos. 1–3</span>
+    </div>
+    <a href="#" class="show-cta">View Details →</a>
+  </div>
+  <div class="ftp-slide" id="ftpSlide4">
+    <div class="show-seq">05 · 2025</div>
+    <h2 class="show-artist">Chang Shu-Fen</h2>
+    <p class="show-title">Harp Recital — Luminescence</p>
+    <div class="show-details">
+      <span>Chiang Kai-shek Memorial Hall</span>
+      <span>November 22, 2025 · 7:30 PM</span>
+      <span>Ravel · Debussy · Fauré</span>
+    </div>
+    <a href="#" class="show-cta">View Details →</a>
+  </div>
+</div>
+
+<!-- ══ PAGE SCROLLER ══ -->
+<div class="page-scroller">
+  <div class="shows-track">
+
+    <!-- SHOW 1 — background only; text lives in #fixedTextPanel -->
+    <div class="show-item" data-show-index="0">
+      <div class="show-sticky">
+        <div class="show-blur-bg" id="sbg0" style="background:linear-gradient(160deg,#1a0030,#3d0070,#28005a)"></div>
+        <img class="show-blur-img" id="sbi0" alt="">
+      </div>
+    </div>
+
+    <!-- SHOW 2 -->
+    <div class="show-item" data-show-index="1">
+      <div class="show-sticky">
+        <div class="show-blur-bg" id="sbg1" style="background:linear-gradient(160deg,#001830,#003060,#001848)"></div>
+        <img class="show-blur-img" id="sbi1" alt="">
+      </div>
+    </div>
+
+    <!-- SHOW 3 -->
+    <div class="show-item" data-show-index="2">
+      <div class="show-sticky">
+        <div class="show-blur-bg" id="sbg2" style="background:linear-gradient(160deg,#1a1000,#3a2400,#281800)"></div>
+        <img class="show-blur-img" id="sbi2" alt="">
+      </div>
+    </div>
+
+    <!-- SHOW 4 -->
+    <div class="show-item" data-show-index="3">
+      <div class="show-sticky">
+        <div class="show-blur-bg" id="sbg3" style="background:linear-gradient(160deg,#001414,#002c2c,#001c1c)"></div>
+        <img class="show-blur-img" id="sbi3" alt="">
+      </div>
+    </div>
+
+    <!-- SHOW 5 -->
+    <div class="show-item" data-show-index="4">
+      <div class="show-sticky">
+        <div class="show-blur-bg" id="sbg4" style="background:linear-gradient(160deg,#1a0010,#3d0030,#28001a)"></div>
+        <img class="show-blur-img" id="sbi4" alt="">
+      </div>
+    </div>
+
+  </div><!-- /shows-track -->
+
+  <div class="sh-end">
+    <div class="sh-end-text">Have an upcoming performance?<br><span>Share it with the world.</span></div>
+    <a href="musician-platform.html#contact" class="sh-post-cta">Post Your Show →</a>
+  </div>
+</div><!-- /page-scroller -->
+
+<!-- ══ PHOTO EDITOR ══ -->
+<button id="editorToggle" title="Edit photos">✎</button>
+
+<div id="editorPanel">
+  <!-- Drag handle -->
+  <div id="ep-drag-handle">
+    <span class="ep-drag-title">✎ Photo Editor</span>
+    <span class="ep-drag-hint">P 關閉 · 拖曳移動</span>
+  </div>
+  <!-- Tabs -->
+  <div class="ep-tabs-row">
+    <button class="ep-tab-arrow" id="epTabPrev" disabled>‹</button>
+    <div class="ep-tabs" id="epTabs">
+      <div class="ep-tab et-active" data-pane="hero">Hero</div>
+      <div class="ep-tab" data-pane="show0">Show 1</div>
+      <div class="ep-tab" data-pane="show1">Show 2</div>
+      <div class="ep-tab" data-pane="show2">Show 3</div>
+      <div class="ep-tab" data-pane="show3">Show 4</div>
+      <div class="ep-tab" data-pane="show4">Show 5</div>
+    </div>
+    <button class="ep-tab-arrow" id="epTabNext">›</button>
+  </div>
+
+  <div class="ep-body">
+
+    <!-- HERO pane -->
+    <div class="ep-pane ep-visible" id="pane-hero">
+      <div class="ep-row">
+        <div class="ep-label">Video URL</div>
+        <input type="url" class="ep-input" id="heroUrlInput" placeholder="https://...">
+      </div>
+      <div class="ep-divider"></div>
+      <div class="ep-row">
+        <div class="ep-row-h"><div class="ep-label">Overlay Darkness</div><span class="ep-val" id="heroOverlayVal">88%</span></div>
+        <input type="range" class="ep-range" id="heroOverlayRange" min="0" max="100" value="88">
+      </div>
+    </div>
+
+    <!-- SHOW panes (0–3) -->
+    <div class="ep-pane" id="pane-show0"></div>
+    <div class="ep-pane" id="pane-show1"></div>
+    <div class="ep-pane" id="pane-show2"></div>
+    <div class="ep-pane" id="pane-show3"></div>
+    <div class="ep-pane" id="pane-show4"></div>
+
+  </div>
+
+  <button class="ep-save" id="epSave">Save</button>
+  <div class="ep-saved-badge" id="epSavedBadge">Saved ✓</div>
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  POSTER + TEXT — split-wipe reveal
+//
+//  Hero (no section in view):
+//    Panel hidden. No slides visible.
+//
+//  Initial reveal (show 1 entering, nothing stuck yet):
+//    Panel clip tracks section's top edge → poster/text appear from below.
+//    Slide 0 fully open inside panel.
+//
+//  Show-to-show wipe (section N stuck, section N+1 entering):
+//    Panel fully open.
+//    Stuck slide  → clip from BOTTOM: inset(0 0 [100-split]% 0)  — top portion
+//    Entering slide → clip from TOP:  inset([split]% 0 0 0)       — bottom portion
+//    Where split% = how far the entering section's top edge has
+//                   crossed through the poster (0%=not reached, 100%=past it).
+//    Result: the boundary line of the incoming section acts as a "wipe" line,
+//    showing the new content below and keeping old content above.
+//
+//  After all shows past:
+//    Fade out via opacity.
+// ══════════════════════════════════════════
+(function(){
+  const frame      = document.getElementById('fixedPosterFrame');
+  const textPanel  = document.getElementById('fixedTextPanel');
+  const slides     = Array.from(document.querySelectorAll('.fp-slide'));
+  const textSlides = Array.from(document.querySelectorAll('.ftp-slide'));
+
+  // Hide all slides / show one fully
+  function showOnly(idx){
+    slides.forEach((s,i)     => s.style.clipPath = i===idx ? 'inset(0% 0 0 0)' : 'inset(100% 0 0 0)');
+    textSlides.forEach((s,i) => s.style.clipPath = i===idx ? 'inset(0% 0 0 0)' : 'inset(100% 0 0 0)');
+  }
+  function hideAll(){
+    slides.forEach(s     => s.style.clipPath = 'inset(100% 0 0 0)');
+    textSlides.forEach(s => s.style.clipPath = 'inset(100% 0 0 0)');
+  }
+
+  function onScroll(){
+    const vh    = window.innerHeight;
+    const items = document.querySelectorAll('.show-item');
+    const shEnd = document.querySelector('.sh-end');
+
+    // All past → keep hidden
+    const last = items[items.length - 1];
+    if(last && last.getBoundingClientRect().bottom < 0){
+      frame.style.opacity     = '0';
+      textPanel.style.opacity = '0';
+      return;
+    }
+    frame.style.opacity     = '1';
+    textPanel.style.opacity = '1';
+
+    // Find stuck section (top ≤ 0, bottom > 0)
+    let stuckIdx = -1;
+    for(let i = 0; i < items.length; i++){
+      const r = items[i].getBoundingClientRect();
+      if(r.top <= 0 && r.bottom > 0) stuckIdx = i;
+    }
+
+    // Find entering section (top between 0 and vh)
+    let enterIdx = -1, enterTop = vh;
+    for(let i = 0; i < items.length; i++){
+      const t = items[i].getBoundingClientRect().top;
+      if(t > 0 && t < vh){ enterIdx = i; enterTop = t; break; }
+    }
+
+    // ── Nothing visible: pure hero ──
+    if(stuckIdx === -1 && enterIdx === -1){
+      frame.style.clipPath     = 'inset(100% 0 0 0)';
+      textPanel.style.clipPath = 'inset(100% 0 0 0)';
+      hideAll();
+      return;
+    }
+
+    // ── Initial reveal: show 1 entering, nothing stuck ──
+    if(stuckIdx === -1){
+      const pr   = frame.getBoundingClientRect();
+      const rawP = pr.height > 0 ? (enterTop - pr.top) / pr.height * 100 : 100;
+      frame.style.clipPath     = `inset(${Math.max(0,Math.min(100,rawP)).toFixed(2)}% 0 0 0)`;
+      const tr   = textPanel.getBoundingClientRect();
+      const rawT = tr.height > 0 ? (enterTop - tr.top) / tr.height * 100 : 100;
+      textPanel.style.clipPath = `inset(${Math.max(0,Math.min(100,rawT)).toFixed(2)}% 0 0 0)`;
+      showOnly(enterIdx);
+      return;
+    }
+
+    // ── Panels fully open from here on ──
+    frame.style.clipPath     = 'inset(0% 0 0 0)';
+    textPanel.style.clipPath = 'inset(0% 0 0 0)';
+
+    // ── Exit: last show stuck + footer wipes poster from below (mirror of entrance) ──
+    // Works for any number of shows — always checks the last item.
+    if(stuckIdx === items.length - 1 && enterIdx === -1 && shEnd){
+      const er = shEnd.getBoundingClientRect();
+      const pr = frame.getBoundingClientRect();
+      const tr = textPanel.getBoundingClientRect();
+      if(er.top < pr.bottom){
+        // Mirror entrance formula: inset(0 0 clip% 0) where clip grows as footer rises
+        const clipF = pr.height > 0
+          ? Math.max(0, Math.min(100, (pr.bottom - er.top) / pr.height * 100))
+          : 0;
+        const clipT = tr.height > 0
+          ? Math.max(0, Math.min(100, (tr.bottom - er.top) / tr.height * 100))
+          : 0;
+        frame.style.clipPath     = `inset(0 0 ${clipF.toFixed(2)}% 0)`;
+        textPanel.style.clipPath = `inset(0 0 ${clipT.toFixed(2)}% 0)`;
+        showOnly(stuckIdx);
+        return;
+      }
+    }
+
+    // ── Only stuck, nothing entering ──
+    if(enterIdx === -1){
+      showOnly(stuckIdx);
+      return;
+    }
+
+    // ── WIPE: stuck section visible in top portion, entering in bottom portion ──
+    const pr = frame.getBoundingClientRect();
+    const sp = pr.height > 0
+      ? Math.max(0, Math.min(100, (enterTop - pr.top) / pr.height * 100))
+      : 0;
+
+    const tr = textPanel.getBoundingClientRect();
+    const st = tr.height > 0
+      ? Math.max(0, Math.min(100, (enterTop - tr.top) / tr.height * 100))
+      : 0;
+
+    slides.forEach((s, i) => {
+      if(i === stuckIdx)      s.style.clipPath = `inset(0 0 ${(100-sp).toFixed(2)}% 0)`;
+      else if(i === enterIdx) s.style.clipPath = `inset(${sp.toFixed(2)}% 0 0 0)`;
+      else                    s.style.clipPath = 'inset(100% 0 0 0)';
+    });
+    textSlides.forEach((s, i) => {
+      if(i === stuckIdx)      s.style.clipPath = `inset(0 0 ${(100-st).toFixed(2)}% 0)`;
+      else if(i === enterIdx) s.style.clipPath = `inset(${st.toFixed(2)}% 0 0 0)`;
+      else                    s.style.clipPath = 'inset(100% 0 0 0)';
+    });
+  }
+
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+})();
+
+// ══════════════════════════════════════════
+//  SMOOTH SCROLL  (RAF lerp)
+//  滾輪決定「目的地」，每幀用插值靠近目的地。
+//  → 永遠 60fps，不跳格。
+//  → 越靠近目的地速度越慢，自然產生滑停感。
+//  → 不累積速度，滾多少算多少。
+// ══════════════════════════════════════════
+(function(){
+  const EASE    = 0.09;  // 每幀走剩餘距離的比例（越小越滑順）
+  const LINE_PX = 40;    // deltaMode=1（行）換算像素
+
+  let targetY = window.scrollY;
+  let rafId   = null;
+
+  function loop(){
+    const cur  = window.scrollY;
+    const diff = targetY - cur;
+
+    if(Math.abs(diff) < 0.5){
+      window.scrollTo(0, targetY);
+      rafId = null;
+      return;
+    }
+
+    window.scrollTo(0, cur + diff * EASE);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  window.addEventListener('wheel', function(e){
+    if(e.ctrlKey) return;
+    e.preventDefault();
+
+    let d = e.deltaY;
+    if(e.deltaMode === 1)      d *= LINE_PX;
+    else if(e.deltaMode === 2) d *= window.innerHeight;
+
+    const maxY = document.documentElement.scrollHeight - window.innerHeight;
+    targetY    = Math.max(0, Math.min(targetY + d, maxY));
+
+    if(!rafId) rafId = requestAnimationFrame(loop);
+  }, { passive: false });
+})();
+
+// ══════════════════════════════════════════
+//  HERO OVERLAY INIT
+// ══════════════════════════════════════════
+function applyHeroOverlay(v){
+  // v = 0..100
+  const o = v/100;
+  document.getElementById('heroOverlay').style.background =
+    `linear-gradient(to top,rgba(10,10,10,${(o).toFixed(2)}) 0%,rgba(10,10,10,${(o*0.25).toFixed(2)}) 55%,transparent 100%)`;
+}
+applyHeroOverlay(88);
+
+// ══════════════════════════════════════════
+//  EDITOR STATE
+//  Settings (position/scale/blur/urls) → localStorage  (fast, small)
+//  Image binary data (base64)          → IndexedDB     (large capacity)
+// ══════════════════════════════════════════
+const SHOW_N = 5;
+const LS_KEY = 'opusz-shows-editor-v2';   // v2: no imgData in LS
+
+// ── IndexedDB helper (robust) ──
+const IDB = (() => {
+  let _db = null;
+  function open(){
+    return new Promise((res, rej) => {
+      if(_db){ res(_db); return; }
+      const req = indexedDB.open('opusz-shows-images', 1);
+      req.onupgradeneeded = e => {
+        const db = e.target.result;
+        if(!db.objectStoreNames.contains('imgs')) db.createObjectStore('imgs');
+      };
+      req.onsuccess = e => { _db = e.target.result; res(_db); };
+      req.onerror   = e => rej(e.target.error);
+    });
+  }
+  async function get(key){
+    try{
+      const db = await open();
+      return new Promise((res, rej) => {
+        const tx = db.transaction('imgs','readonly');
+        const r  = tx.objectStore('imgs').get(key);
+        r.onsuccess = () => res(r.result || null);
+        r.onerror   = () => rej(r.error);
+      });
+    }catch(e){ return null; }
+  }
+  async function set(key, val){
+    try{
+      const db = await open();
+      return new Promise((res, rej) => {
+        const tx    = db.transaction('imgs','readwrite');
+        const store = tx.objectStore('imgs');
+        // Delete key if val is falsy, otherwise upsert
+        val ? store.put(val, key) : store.delete(key);
+        tx.oncomplete = res;
+        tx.onerror    = () => rej(tx.error);
+      });
+    }catch(e){}
+  }
+  return { get, set };
+})();
+
+// ── Auto-save one show's image immediately to IDB ──
+async function saveImageNow(i){
+  await IDB.set('show-img-'+i, ST.shows[i].imgData || null);
+}
+
+// Default state
+const DEF_STATE = {
+  heroVideoUrl: '',
+  heroOverlay: 88,
+  shows: Array.from({length:SHOW_N}, ()=>({
+    imgData: '',   // loaded from IDB, never written to localStorage
+    x:0, y:0, scale:1.0, blur:52
+  }))
+};
+
+let ST = JSON.parse(JSON.stringify(DEF_STATE));
+
+// Load settings from localStorage + images from IndexedDB (async)
+async function loadState(){
+  try{
+    const raw = localStorage.getItem(LS_KEY);
+    if(raw){
+      const saved = JSON.parse(raw);
+      ST.heroVideoUrl = saved.heroVideoUrl || '';
+      ST.heroOverlay  = saved.heroOverlay  ?? 88;
+      if(saved.shows){
+        saved.shows.forEach((s,i)=>{
+          if(!ST.shows[i]) return;
+          ST.shows[i].x     = s.x     ?? 0;
+          ST.shows[i].y     = s.y     ?? 0;
+          ST.shows[i].scale = s.scale ?? 1.0;
+          ST.shows[i].blur  = s.blur  ?? 52;
+        });
+      }
+    }
+  }catch(e){}
+  // Load images separately from IndexedDB
+  for(let i=0; i<SHOW_N; i++){
+    try{
+      const img = await IDB.get('show-img-'+i);
+      if(img) ST.shows[i].imgData = img;
+    }catch(e){}
+  }
+}
+
+// Save settings to localStorage + images to IndexedDB (async)
+async function saveState(){
+  // Only non-image settings go to localStorage
+  const toLS = {
+    heroVideoUrl: ST.heroVideoUrl,
+    heroOverlay:  ST.heroOverlay,
+    shows: ST.shows.map(s=>({ x:s.x, y:s.y, scale:s.scale, blur:s.blur }))
+  };
+  try{ localStorage.setItem(LS_KEY, JSON.stringify(toLS)); }catch(e){}
+  // Images go to IndexedDB (handles large base64 / URLs)
+  for(let i=0; i<SHOW_N; i++){
+    try{ await IDB.set('show-img-'+i, ST.shows[i].imgData || null); }catch(e){}
+  }
+}
+
+// ══════════════════════════════════════════
+//  APPLY STATE → DOM
+// ══════════════════════════════════════════
+function applyAll(){
+  // Hero video
+  if(ST.heroVideoUrl){
+    const src = document.getElementById('heroVideoSrc');
+    const vid = document.getElementById('heroVideo');
+    if(src.src !== ST.heroVideoUrl){ src.src = ST.heroVideoUrl; vid.load(); }
+  }
+  applyHeroOverlay(ST.heroOverlay);
+
+  // Shows
+  for(let i=0;i<SHOW_N;i++){
+    const s     = ST.shows[i];
+    const fpImg = document.getElementById('fpImg'+i);
+    const fpBg  = document.getElementById('fpBg'+i);
+    const sbi   = document.getElementById('sbi'+i);
+    const sbg   = document.getElementById('sbg'+i);
+
+    if(s.imgData){
+      // Fixed poster frame
+      fpImg.src = s.imgData;
+      fpImg.style.display = 'block';
+      fpImg.style.transform = `translate(${s.x}px,${s.y}px) scale(${s.scale})`;
+      fpBg.style.display = 'none';
+      // Blurred full-bleed section background
+      sbi.src = s.imgData;
+      sbi.style.display = 'block';
+      sbi.style.filter = `blur(${s.blur}px) brightness(.38) saturate(.65)`;
+      sbg.style.display = 'none';
+    } else {
+      fpImg.style.display = 'none';
+      fpBg.style.display = 'block';
+      sbi.style.display = 'none';
+      sbg.style.display = 'block';
+      sbg.style.filter = `blur(${s.blur}px) brightness(.38) saturate(.65)`;
+    }
+  }
+}
+
+// ══════════════════════════════════════════
+//  BUILD SHOW PANES
+// ══════════════════════════════════════════
+function buildShowPane(i){
+  const pane = document.getElementById('pane-show'+i);
+  const s = ST.shows[i];
+  pane.innerHTML = `
+    <div class="ep-row">
+      <div class="ep-label">Poster Image</div>
+      <button class="ep-upload-btn" id="upBtn${i}">⬆ Upload Image</button>
+      <input type="file" id="upFile${i}" accept="image/*" style="display:none">
+      <img class="ep-thumb" id="upThumb${i}" src="${s.imgData||''}" style="${s.imgData?'display:block':''}">
+      <div class="ep-label" style="margin-top:6px">or paste URL</div>
+      <input type="url" class="ep-input" id="upUrl${i}" value="${s.imgData&&!s.imgData.startsWith('data:')?s.imgData:''}" placeholder="https://...">
+    </div>
+    <div class="ep-divider"></div>
+    <div class="ep-row">
+      <div class="ep-row-h"><div class="ep-label">X Position</div><span class="ep-val" id="xVal${i}">${s.x}</span></div>
+      <input type="range" class="ep-range" id="xRange${i}" min="-200" max="200" value="${s.x}">
+    </div>
+    <div class="ep-row">
+      <div class="ep-row-h"><div class="ep-label">Y Position</div><span class="ep-val" id="yVal${i}">${s.y}</span></div>
+      <input type="range" class="ep-range" id="yRange${i}" min="-200" max="200" value="${s.y}">
+    </div>
+    <div class="ep-row">
+      <div class="ep-row-h"><div class="ep-label">Scale</div><span class="ep-val" id="scVal${i}">${s.scale.toFixed(2)}</span></div>
+      <input type="range" class="ep-range" id="scRange${i}" min="50" max="200" value="${Math.round(s.scale*100)}">
+    </div>
+    <div class="ep-divider"></div>
+    <div class="ep-row">
+      <div class="ep-row-h"><div class="ep-label">Background Blur</div><span class="ep-val" id="blurVal${i}">${s.blur}px</span></div>
+      <input type="range" class="ep-range" id="blurRange${i}" min="0" max="80" value="${s.blur}">
+    </div>
+  `;
+
+  // Upload button
+  document.getElementById('upBtn'+i).addEventListener('click',()=>document.getElementById('upFile'+i).click());
+  document.getElementById('upFile'+i).addEventListener('change',function(){
+    const file = this.files[0]; if(!file) return;
+    const reader = new FileReader();
+    reader.onload = async e=>{
+      ST.shows[i].imgData = e.target.result;
+      document.getElementById('upThumb'+i).src = e.target.result;
+      document.getElementById('upThumb'+i).style.display='block';
+      document.getElementById('upUrl'+i).value='';
+      applyAll();
+      await saveImageNow(i);   // ← auto-save immediately
+    };
+    reader.readAsDataURL(file);
+  });
+
+  // URL input — live preview on 'input', auto-save on 'change' (when user finishes typing)
+  document.getElementById('upUrl'+i).addEventListener('input',function(){
+    ST.shows[i].imgData = this.value;
+    if(this.value){
+      document.getElementById('upThumb'+i).src = this.value;
+      document.getElementById('upThumb'+i).style.display='block';
+    } else {
+      document.getElementById('upThumb'+i).style.display='none';
+    }
+    applyAll();
+  });
+  // URL 'change' fires when user tabs out / presses Enter → auto-save to IDB
+  document.getElementById('upUrl'+i).addEventListener('change', async function(){
+    await saveImageNow(i);
+  });
+
+  // X slider
+  document.getElementById('xRange'+i).addEventListener('input',function(){
+    ST.shows[i].x = +this.value;
+    document.getElementById('xVal'+i).textContent = this.value;
+    applyAll();
+  });
+  // Y slider
+  document.getElementById('yRange'+i).addEventListener('input',function(){
+    ST.shows[i].y = +this.value;
+    document.getElementById('yVal'+i).textContent = this.value;
+    applyAll();
+  });
+  // Scale slider
+  document.getElementById('scRange'+i).addEventListener('input',function(){
+    ST.shows[i].scale = this.value/100;
+    document.getElementById('scVal'+i).textContent = (this.value/100).toFixed(2);
+    applyAll();
+  });
+  // Blur slider
+  document.getElementById('blurRange'+i).addEventListener('input',function(){
+    ST.shows[i].blur = +this.value;
+    document.getElementById('blurVal'+i).textContent = this.value+'px';
+    applyAll();
+  });
+}
+
+// ══════════════════════════════════════════
+//  WIRE HERO CONTROLS
+// ══════════════════════════════════════════
+function wireHero(){
+  const urlInput = document.getElementById('heroUrlInput');
+  urlInput.value = ST.heroVideoUrl;
+  urlInput.addEventListener('change',function(){
+    ST.heroVideoUrl = this.value;
+    applyAll();
+  });
+
+  const overlayRange = document.getElementById('heroOverlayRange');
+  const overlayVal   = document.getElementById('heroOverlayVal');
+  overlayRange.value = ST.heroOverlay;
+  overlayVal.textContent = ST.heroOverlay + '%';
+  overlayRange.addEventListener('input',function(){
+    ST.heroOverlay = +this.value;
+    overlayVal.textContent = this.value + '%';
+    applyHeroOverlay(+this.value);
+  });
+}
+
+// ══════════════════════════════════════════
+//  EDITOR TABS & TOGGLE
+// ══════════════════════════════════════════
+function toggleEditorPanel(){
+  document.getElementById('editorPanel').classList.toggle('ep-open');
+}
+document.getElementById('editorToggle').addEventListener('click', toggleEditorPanel);
+
+// ── Drag to move editor panel ──
+(function(){
+  const panel  = document.getElementById('editorPanel');
+  const handle = document.getElementById('ep-drag-handle');
+  let dragging = false, offX = 0, offY = 0;
+
+  handle.addEventListener('mousedown', function(e){
+    dragging = true;
+    const r = panel.getBoundingClientRect();
+    // Switch from bottom/left anchoring to top/left so we can freely position
+    panel.style.bottom = 'auto';
+    panel.style.top    = r.top  + 'px';
+    panel.style.left   = r.left + 'px';
+    offX = e.clientX - r.left;
+    offY = e.clientY - r.top;
+    handle.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+
+  document.addEventListener('mousemove', function(e){
+    if(!dragging) return;
+    panel.style.left = (e.clientX - offX) + 'px';
+    panel.style.top  = (e.clientY - offY) + 'px';
+  });
+
+  document.addEventListener('mouseup', function(){
+    if(!dragging) return;
+    dragging = false;
+    handle.style.cursor = 'grab';
+  });
+})();
+
+// Press P to open / close the photo editor
+document.addEventListener('keydown', function(e){
+  if((e.key === 'p' || e.key === 'P') &&
+     document.activeElement.tagName !== 'INPUT' &&
+     document.activeElement.tagName !== 'TEXTAREA'){
+    toggleEditorPanel();
+  }
+  if(e.key === 'Escape'){
+    document.getElementById('editorPanel').classList.remove('ep-open');
+  }
+});
+
+document.getElementById('epTabs').addEventListener('click',function(e){
+  const tab = e.target.closest('.ep-tab'); if(!tab) return;
+  const pane = tab.dataset.pane;
+  document.querySelectorAll('.ep-tab').forEach(t=>t.classList.remove('et-active'));
+  tab.classList.add('et-active');
+  document.querySelectorAll('.ep-pane').forEach(p=>p.classList.remove('ep-visible'));
+  document.getElementById('pane-'+pane).classList.add('ep-visible');
+});
+
+// Tab arrow — navigate & activate prev/next tab
+(function(){
+  const bar  = document.getElementById('epTabs');
+  const prev = document.getElementById('epTabPrev');
+  const next = document.getElementById('epTabNext');
+  const tabs = () => Array.from(bar.querySelectorAll('.ep-tab'));
+
+  function activateTab(tab){
+    tabs().forEach(t => t.classList.remove('et-active'));
+    tab.classList.add('et-active');
+    document.querySelectorAll('.ep-pane').forEach(p => p.classList.remove('ep-visible'));
+    document.getElementById('pane-' + tab.dataset.pane).classList.add('ep-visible');
+    tab.scrollIntoView({block:'nearest', inline:'nearest', behavior:'smooth'});
+    updateArrows();
+  }
+
+  function updateArrows(){
+    const all     = tabs();
+    const active  = all.findIndex(t => t.classList.contains('et-active'));
+    prev.disabled = active <= 0;
+    next.disabled = active >= all.length - 1;
+  }
+
+  prev.addEventListener('click', () => {
+    const all    = tabs();
+    const active = all.findIndex(t => t.classList.contains('et-active'));
+    if(active > 0) activateTab(all[active - 1]);
+  });
+
+  next.addEventListener('click', () => {
+    const all    = tabs();
+    const active = all.findIndex(t => t.classList.contains('et-active'));
+    if(active < all.length - 1) activateTab(all[active + 1]);
+  });
+
+  updateArrows();
+})();
+
+document.getElementById('epSave').addEventListener('click', async function(){
+  this.textContent = 'Saving…';
+  this.disabled = true;
+  await saveState();
+  this.textContent = 'Save';
+  this.disabled = false;
+  const badge = document.getElementById('epSavedBadge');
+  badge.style.display='block';
+  setTimeout(()=>badge.style.display='none', 2000);
+});
+
+// ══════════════════════════════════════════
+//  INIT  (async — waits for IndexedDB images before rendering)
+// ══════════════════════════════════════════
+(async function(){
+  await loadState();
+  wireHero();
+  for(let i=0;i<SHOW_N;i++) buildShowPane(i);
+  applyAll();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPUS.Z · Admin</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --sb-w: 248px;
+      --sb-bg: #0f0f0f;
+      --bg: #f4f4f4;
+      --white: #fff;
+      --black: #111;
+      --mid: #888;
+      --border: #ebebeb;
+      --radius: 12px;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+      --admin: #7c3aed;
+    }
+    html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--black); font-size: 14px; }
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar { width: var(--sb-w); flex-shrink: 0; background: var(--sb-bg); display: flex; flex-direction: column; height: 100vh; overflow-y: auto; scrollbar-width: none; }
+    .sidebar::-webkit-scrollbar { display: none; }
+    .sb-logo { padding: 22px 20px 16px; border-bottom: 1px solid rgba(255,255,255,.06); }
+    .sb-logo-inner { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+    .sb-logo-orb { width: 32px; height: 32px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
+    .sb-logo-text { font-size: 16px; font-weight: 800; color: #fff; }
+    .admin-badge { font-size: 9px; font-weight: 800; letter-spacing: .08em; background: var(--admin); color: #fff; padding: 2px 6px; border-radius: 4px; text-transform: uppercase; margin-left: 2px; }
+    .sb-section { padding: 16px 12px 0; }
+    .sb-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.22); padding: 0 8px; margin-bottom: 6px; }
+    .sb-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: 8px; color: rgba(255,255,255,.5); text-decoration: none; font-size: 13px; font-weight: 500; cursor: pointer; border: none; background: none; width: 100%; text-align: left; transition: background .15s, color .15s; }
+    .sb-item:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.8); }
+    .sb-item.active { background: rgba(255,255,255,.1); color: #fff; font-weight: 600; }
+    .sb-item svg { flex-shrink: 0; opacity: .65; }
+    .sb-item.active svg { opacity: 1; }
+    .sb-badge { margin-left: auto; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; line-height: 1.4; }
+    .sb-badge-red { background: var(--red); color: #fff; }
+    .sb-badge-amber { background: var(--amber); color: #fff; }
+    .sb-badge-purple { background: var(--admin); color: #fff; }
+    .sb-spacer { flex: 1; }
+    .sb-footer { padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.06); font-size: 11.5px; color: rgba(255,255,255,.25); }
+
+    /* ── Main ── */
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+    .topbar { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 32px; height: 58px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; }
+    .topbar-title { font-size: 15px; font-weight: 700; }
+    .topbar-right { display: flex; align-items: center; gap: 10px; }
+    .admin-chip { font-size: 11px; font-weight: 700; background: #ede9fe; color: var(--admin); padding: 4px 10px; border-radius: 20px; letter-spacing: .04em; }
+    .topbar-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--admin); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; cursor: pointer; }
+
+    /* ── Page wrap ── */
+    .page-wrap { flex: 1; overflow-y: auto; padding: 28px 32px; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .page-header { margin-bottom: 24px; }
+    .page-header h1 { font-size: 20px; font-weight: 800; letter-spacing: -.02em; }
+    .page-header p { font-size: 13px; color: var(--mid); margin-top: 3px; }
+
+    /* ── Stat cards ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; margin-bottom: 24px; }
+    @media(max-width:1100px){ .stats-grid { grid-template-columns: repeat(2,1fr); } }
+    .stat-card { background: var(--white); border-radius: var(--radius); padding: 18px 20px; border: 1px solid var(--border); }
+    .stat-icon { width: 34px; height: 34px; border-radius: 9px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+    .si-green { background: #dcfce7; color: #16a34a; }
+    .si-blue  { background: #dbeafe; color: #2563eb; }
+    .si-amber { background: #fef3c7; color: #d97706; }
+    .si-purple{ background: #ede9fe; color: var(--admin); }
+    .stat-label { font-size: 11.5px; color: var(--mid); font-weight: 500; margin-bottom: 6px; }
+    .stat-value { font-size: 26px; font-weight: 800; letter-spacing: -.02em; line-height: 1; margin-bottom: 4px; }
+    .stat-sub { font-size: 11px; color: var(--mid); }
+
+    /* ── Alert banner ── */
+    .alert-bar { background: #fef3c7; border: 1px solid #fde68a; border-radius: 10px; padding: 12px 16px; display: flex; align-items: center; gap: 10px; font-size: 13px; margin-bottom: 20px; }
+    .alert-bar strong { font-weight: 700; }
+    .alert-bar a { color: var(--black); font-weight: 700; text-decoration: underline; cursor: pointer; }
+
+    /* ── Grid ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media(max-width:960px){ .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── Cards ── */
+    .card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    .card-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .card-head-title { font-size: 13.5px; font-weight: 700; }
+    .card-pad { padding: 18px 20px; }
+
+    /* ── Buttons ── */
+    .btn { display: inline-flex; align-items: center; gap: 5px; padding: 7px 14px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: background .15s, transform .1s; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--black); color: #fff; }
+    .btn-primary:hover { background: #333; }
+    .btn-outline { background: transparent; color: var(--black); border: 1.5px solid #ddd; }
+    .btn-outline:hover { border-color: var(--black); }
+    .btn-green { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+    .btn-green:hover { background: #bbf7d0; }
+    .btn-red { background: #fee2e2; color: var(--red); border: 1px solid #fecaca; }
+    .btn-red:hover { background: #fecaca; }
+    .btn-purple { background: #ede9fe; color: var(--admin); }
+    .btn-purple:hover { background: #ddd6fe; }
+    .btn-sm { padding: 5px 10px; font-size: 11.5px; }
+    .btn-xs { padding: 4px 8px; font-size: 11px; }
+
+    /* ── Table ── */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th { text-align: left; font-size: 11px; font-weight: 700; color: var(--mid); text-transform: uppercase; letter-spacing: .06em; padding: 10px 14px; border-bottom: 1px solid var(--border); white-space: nowrap; background: #fafafa; }
+    .data-table td { padding: 13px 14px; border-bottom: 1px solid #f8f8f8; font-size: 13px; vertical-align: middle; }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: #fafafa; }
+    .td-name { font-weight: 600; }
+    .td-sub { font-size: 11.5px; color: var(--mid); margin-top: 1px; }
+
+    /* ── Status badges ── */
+    .badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 20px; }
+    .badge-active   { background: #dcfce7; color: #16a34a; }
+    .badge-pending  { background: #fef3c7; color: #b45309; }
+    .badge-inactive { background: #f5f5f5; color: #888; }
+    .badge-verified { background: #dbeafe; color: #1d4ed8; }
+    .badge-new      { background: #ede9fe; color: var(--admin); }
+    .badge-rejected { background: #fee2e2; color: var(--red); }
+
+    /* ── Search bar ── */
+    .search-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+    .search-input-wrap { position: relative; flex: 1; max-width: 340px; }
+    .search-input { width: 100%; padding: 9px 12px 9px 36px; border: 1.5px solid var(--border); border-radius: 9px; font-family: inherit; font-size: 13px; outline: none; transition: border-color .15s; background: var(--white); }
+    .search-input:focus { border-color: #aaa; }
+    .search-icon { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--mid); pointer-events: none; }
+    .filter-select { padding: 9px 12px; border: 1.5px solid var(--border); border-radius: 9px; font-family: inherit; font-size: 13px; outline: none; background: var(--white); cursor: pointer; }
+
+    /* ── Review queue item ── */
+    .review-item { display: flex; align-items: flex-start; gap: 14px; padding: 16px 20px; border-bottom: 1px solid #f5f5f5; }
+    .review-item:last-child { border-bottom: none; }
+    .review-thumb { width: 72px; height: 72px; border-radius: 9px; background: #f0f0f0; flex-shrink: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 24px; object-fit: cover; }
+    .review-body { flex: 1; min-width: 0; }
+    .review-name { font-size: 13.5px; font-weight: 700; margin-bottom: 2px; }
+    .review-meta { font-size: 12px; color: var(--mid); margin-bottom: 8px; }
+    .review-type { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; background: #fef3c7; color: #b45309; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; }
+    .review-actions { display: flex; gap: 6px; }
+
+    /* ── Finance ── */
+    .finance-summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 24px; }
+    .fin-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
+    .fin-main { background: var(--black); color: #fff; }
+    .fin-label { font-size: 11.5px; color: var(--mid); margin-bottom: 6px; }
+    .fin-main .fin-label { color: rgba(255,255,255,.5); }
+    .fin-value { font-size: 24px; font-weight: 800; letter-spacing: -.02em; }
+    .fin-sub { font-size: 11.5px; color: var(--mid); margin-top: 5px; }
+    .fin-main .fin-sub { color: rgba(255,255,255,.4); }
+
+    /* ── Payout row ── */
+    .payout-row { display: flex; align-items: center; gap: 14px; padding: 14px 20px; border-bottom: 1px solid #f5f5f5; }
+    .payout-row:last-child { border-bottom: none; }
+    .payout-avatar { width: 36px; height: 36px; border-radius: 50%; background: #1a1a2e; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .payout-info { flex: 1; }
+    .payout-name { font-size: 13px; font-weight: 600; }
+    .payout-detail { font-size: 11.5px; color: var(--mid); }
+    .payout-amount { font-size: 14px; font-weight: 800; margin-right: 12px; }
+
+    /* ── Announcement form ── */
+    .announce-wrap { max-width: 680px; }
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 12.5px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .form-input, .form-select, .form-textarea { width: 100%; padding: 11px 13px; border: 1.5px solid var(--border); border-radius: 9px; font-family: inherit; font-size: 13.5px; outline: none; background: var(--white); transition: border-color .15s; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--black); }
+    .form-textarea { resize: vertical; min-height: 120px; }
+    .char-count { font-size: 11.5px; color: var(--mid); text-align: right; margin-top: 4px; }
+    .preview-box { background: #fafafa; border: 1.5px dashed var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 18px; }
+    .preview-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--mid); margin-bottom: 10px; }
+    .preview-msg { background: var(--white); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+    .preview-msg-title { font-size: 14px; font-weight: 700; margin-bottom: 6px; }
+    .preview-msg-body { font-size: 13px; color: #444; line-height: 1.6; }
+    .sent-count { display: inline-flex; align-items: center; gap: 6px; background: #fafafa; border: 1px solid var(--border); border-radius: 8px; padding: 8px 14px; font-size: 13px; color: var(--mid); margin-bottom: 16px; }
+
+    /* ── Support inbox ── */
+    .support-layout { display: grid; grid-template-columns: 300px 1fr; height: calc(100vh - 130px); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--white); }
+    .support-list { border-right: 1px solid var(--border); overflow-y: auto; }
+    .support-list-head { padding: 14px 18px; border-bottom: 1px solid var(--border); font-size: 13.5px; font-weight: 700; }
+    .support-item { display: flex; align-items: flex-start; gap: 10px; padding: 13px 16px; border-bottom: 1px solid #f8f8f8; cursor: pointer; transition: background .12s; }
+    .support-item:hover { background: #f8f8f8; }
+    .support-item.active { background: #f1f1f1; }
+    .support-item.unread .si-name { font-weight: 700; }
+    .si-avatar { width: 36px; height: 36px; border-radius: 50%; background: #1a1a2e; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0; }
+    .si-body { flex: 1; min-width: 0; }
+    .si-name { font-size: 13px; }
+    .si-preview { font-size: 11.5px; color: var(--mid); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .si-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+    .si-time { font-size: 11px; color: var(--mid); white-space: nowrap; }
+    .si-dot { width: 8px; height: 8px; background: var(--admin); border-radius: 50%; }
+
+    .support-thread { display: flex; flex-direction: column; }
+    .support-thread-head { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .sth-left { display: flex; align-items: center; gap: 10px; }
+    .sth-avatar { width: 34px; height: 34px; border-radius: 50%; background: #1a1a2e; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; }
+    .sth-name { font-size: 14px; font-weight: 700; }
+    .sth-sub { font-size: 11.5px; color: var(--mid); }
+    .support-bubbles { flex: 1; overflow-y: auto; padding: 18px 20px; display: flex; flex-direction: column; gap: 14px; }
+    .sbubble-wrap { display: flex; gap: 8px; }
+    .sbubble-wrap.mine { flex-direction: row-reverse; }
+    .sbubble-av { width: 28px; height: 28px; border-radius: 50%; background: #f0f0f0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+    .sbubble { padding: 10px 13px; border-radius: 16px; font-size: 13px; line-height: 1.55; max-width: 72%; }
+    .sbubble.theirs { background: #f0f0f0; border-bottom-left-radius: 4px; }
+    .sbubble.mine { background: var(--admin); color: #fff; border-bottom-right-radius: 4px; }
+    .sbubble-time { font-size: 10.5px; color: var(--mid); margin-top: 3px; }
+    .sbubble-wrap.mine .sbubble-time { text-align: right; }
+    .support-input-wrap { padding: 12px 16px; border-top: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-end; }
+    .support-input { flex: 1; border: 1.5px solid var(--border); border-radius: 20px; padding: 9px 15px; font-family: inherit; font-size: 13.5px; resize: none; outline: none; min-height: 40px; max-height: 100px; transition: border-color .15s; }
+    .support-input:focus { border-color: var(--admin); }
+    .support-send { width: 38px; height: 38px; background: var(--admin); color: #fff; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .15s; }
+    .support-send:hover { background: #6d28d9; }
+
+    /* ── Tab bar ── */
+    .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 20px; }
+    .tab-btn { padding: 9px 16px; background: none; border: none; font-size: 13px; font-weight: 500; color: var(--mid); cursor: pointer; border-bottom: 2px solid transparent; transition: color .15s, border-color .15s; margin-bottom: -1px; }
+    .tab-btn.active { color: var(--black); font-weight: 700; border-bottom-color: var(--black); }
+
+    /* ── Pending action items ── */
+    .action-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #f5f5f5; }
+    .action-item:last-child { border-bottom: none; }
+    .action-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .dot-red { background: var(--red); }
+    .dot-amber { background: var(--amber); }
+    .dot-purple { background: var(--admin); }
+    .action-text { flex: 1; font-size: 13px; }
+    .action-text strong { font-weight: 600; }
+
+    /* ── Notif banner ── */
+    .notif-banner { position: fixed; top: 16px; right: 16px; z-index: 9999; background: var(--black); color: #fff; padding: 11px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; box-shadow: 0 8px 32px rgba(0,0,0,.25); transform: translateY(-80px); opacity: 0; transition: transform .35s cubic-bezier(.34,1.2,.64,1), opacity .3s; max-width: 300px; }
+    .notif-banner.show { transform: translateY(0); opacity: 1; }
+
+    /* ── Empty ── */
+    .empty { text-align: center; padding: 48px 20px; color: var(--mid); }
+    .empty-icon { font-size: 36px; margin-bottom: 10px; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <a href="musician-platform.html" class="sb-logo-inner" style="text-decoration:none;">
+        <div class="sb-logo-orb"></div>
+        <span class="sb-logo-text">OPUS.Z</span>
+        <span class="admin-badge">Admin</span>
+      </a>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-label">Overview</div>
+      <button class="sb-item active" data-page="overview" onclick="navigate('overview',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+    </div>
+
+    <div class="sb-section" style="margin-top:8px;">
+      <div class="sb-label">Management</div>
+      <button class="sb-item" data-page="musicians" onclick="navigate('musicians',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Musicians
+        <span class="sb-badge sb-badge-amber">24</span>
+      </button>
+      <button class="sb-item" data-page="review" onclick="navigate('review',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Review Queue
+        <span class="sb-badge sb-badge-red">6</span>
+      </button>
+      <button class="sb-item" data-page="jobs" onclick="navigate('jobs',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        Jobs
+      </button>
+    </div>
+
+    <div class="sb-section" style="margin-top:8px;">
+      <div class="sb-label">Finance & Comms</div>
+      <button class="sb-item" data-page="finance" onclick="navigate('finance',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        Finance
+      </button>
+      <button class="sb-item" data-page="announce" onclick="navigate('announce',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13"/><path d="M22 2L15 22 11 13 2 9l20-7z"/></svg>
+        Announcements
+      </button>
+      <button class="sb-item" data-page="support" onclick="navigate('support',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Support Inbox
+        <span class="sb-badge sb-badge-purple">3</span>
+      </button>
+    </div>
+
+    <div class="sb-spacer"></div>
+    <div class="sb-footer">
+      <div style="margin-bottom:10px;opacity:.6;">Logged in as Platform Admin</div>
+      <button onclick="adminLogout()" style="width:100%;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.25);color:#f87171;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;transition:background .2s;" onmouseover="this.style.background='rgba(239,68,68,0.22)'" onmouseout="this.style.background='rgba(239,68,68,0.12)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <div class="topbar-right">
+        <span class="admin-chip">ADMIN MODE</span>
+        <a href="musician-platform.html" style="font-size:12.5px;color:var(--mid);text-decoration:none;">← View Platform</a>
+        <div class="topbar-avatar">A</div>
+      </div>
+    </header>
+
+    <div class="page-wrap">
+
+      <!-- ══════════ OVERVIEW ══════════ -->
+      <div class="page active" id="page-overview">
+        <div class="page-header">
+          <h1>Dashboard</h1>
+          <p>Platform overview — <span id="todayDate"></span></p>
+        </div>
+
+        <div class="alert-bar">
+          <span>⚠️</span>
+          <span><strong>6 items need your attention:</strong> 3 new photo submissions and 3 identity verifications pending. <a onclick="navigate('review',document.querySelector('[data-page=review]'))">Review now →</a></span>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon si-blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+            <div class="stat-label">Total Musicians</div>
+            <div class="stat-value">24</div>
+            <div class="stat-sub">+3 this week</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
+            <div class="stat-label">Active Jobs</div>
+            <div class="stat-value">8</div>
+            <div class="stat-sub">3 matched this month</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-amber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+            <div class="stat-label">Commission (Jun)</div>
+            <div class="stat-value">NT$8.4K</div>
+            <div class="stat-sub">From 7 completed gigs</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+            <div class="stat-label">Support Messages</div>
+            <div class="stat-value">3</div>
+            <div class="stat-sub">2 unread</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-head">
+              <div class="card-head-title">⏳ Pending Actions</div>
+              <span class="badge badge-pending">6 total</span>
+            </div>
+            <div class="card-pad">
+              <div class="action-item">
+                <div class="action-dot dot-red"></div>
+                <div class="action-text"><strong>3 photo submissions</strong> waiting for approval</div>
+                <button class="btn btn-sm btn-red" onclick="navigate('review',document.querySelector('[data-page=review]'))">Review</button>
+              </div>
+              <div class="action-item">
+                <div class="action-dot dot-amber"></div>
+                <div class="action-text"><strong>3 identity verifications</strong> submitted by musicians</div>
+                <button class="btn btn-sm btn-outline" onclick="navigate('review',document.querySelector('[data-page=review]'))">Review</button>
+              </div>
+              <div class="action-item">
+                <div class="action-dot dot-amber"></div>
+                <div class="action-text"><strong>NT$32,400</strong> in pending payouts awaiting approval</div>
+                <button class="btn btn-sm btn-outline" onclick="navigate('finance',document.querySelector('[data-page=finance]'))">Process</button>
+              </div>
+              <div class="action-item">
+                <div class="action-dot dot-purple"></div>
+                <div class="action-text"><strong>2 support messages</strong> from musicians unread</div>
+                <button class="btn btn-sm btn-purple" onclick="navigate('support',document.querySelector('[data-page=support]'))">Reply</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><div class="card-head-title">🆕 Recently Registered</div></div>
+            <div class="card-pad" style="padding:0;">
+              <table class="data-table">
+                <thead><tr><th>Musician</th><th>Joined</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td><div class="td-name">Sarah Lin</div><div class="td-sub">Flute · 台北</div></td><td style="color:var(--mid);">Today</td><td><span class="badge badge-new">New</span></td></tr>
+                  <tr><td><div class="td-name">Kevin Wu</div><div class="td-sub">Cello · 台中</div></td><td style="color:var(--mid);">Yesterday</td><td><span class="badge badge-pending">Pending</span></td></tr>
+                  <tr><td><div class="td-name">Amy Chen</div><div class="td-sub">Piano · 高雄</div></td><td style="color:var(--mid);">Jun 20</div></td><td><span class="badge badge-active">Active</span></td></tr>
+                  <tr><td><div class="td-name">James Huang</div><div class="td-sub">Violin · 新北</div></td><td style="color:var(--mid);">Jun 18</td><td><span class="badge badge-verified">Verified</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ MUSICIANS ══════════ -->
+      <div class="page" id="page-musicians">
+        <div class="page-header">
+          <h1>Musician Management</h1>
+          <p>All registered musician accounts.</p>
+        </div>
+
+        <div class="search-wrap">
+          <div class="search-input-wrap">
+            <svg class="search-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input class="search-input" type="text" placeholder="Search by name, instrument, region...">
+          </div>
+          <select class="filter-select">
+            <option>All instruments</option>
+            <option>Violin</option><option>Cello</option><option>Piano</option><option>Flute</option>
+          </select>
+          <select class="filter-select">
+            <option>All status</option>
+            <option>Active</option><option>Pending</option><option>Suspended</option>
+          </select>
+        </div>
+
+        <div class="card">
+          <table class="data-table">
+            <thead>
+              <tr><th>Musician</th><th>Instrument</th><th>Region</th><th>Joined</th><th>Status</th><th>Gigs</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="musicianTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════ REVIEW QUEUE ══════════ -->
+      <div class="page" id="page-review">
+        <div class="page-header">
+          <h1>Review Queue</h1>
+          <p>Approve or reject submitted photos, videos and identity verifications.</p>
+        </div>
+
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchTab('review','photos',this)">📷 Photo / Video <span style="background:#fee2e2;color:var(--red);font-size:10px;padding:2px 6px;border-radius:8px;margin-left:4px;font-weight:700;">3</span></button>
+          <button class="tab-btn" onclick="switchTab('review','identity',this)">🪪 Identity Verification <span style="background:#fef3c7;color:#b45309;font-size:10px;padding:2px 6px;border-radius:8px;margin-left:4px;font-weight:700;">3</span></button>
+        </div>
+
+        <!-- Photo review -->
+        <div id="review-photos">
+          <div class="card">
+            <div class="review-item">
+              <div class="review-thumb">🎻</div>
+              <div class="review-body">
+                <div class="review-name">Martin Chen</div>
+                <div class="review-meta">Violin · 台北 · Submitted Jun 23, 2025 at 14:32</div>
+                <div class="review-type">📷 Profile Photo</div>
+                <div style="font-size:12.5px;color:var(--mid);margin-bottom:10px;">New headshot photo replacing previous placeholder.</div>
+                <div class="review-actions">
+                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Photo approved and live ✓')">✓ Approve</button>
+                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
+                  <button class="btn btn-outline btn-sm">Preview</button>
+                </div>
+              </div>
+            </div>
+            <div class="review-item">
+              <div class="review-thumb">🎹</div>
+              <div class="review-body">
+                <div class="review-name">Amy Chen</div>
+                <div class="review-meta">Piano · 高雄 · Submitted Jun 22, 2025 at 09:15</div>
+                <div class="review-type">🎥 Demo Video</div>
+                <div style="font-size:12.5px;color:var(--mid);margin-bottom:10px;">30-second performance clip. Chopin Nocturne Op.9 No.2.</div>
+                <div class="review-actions">
+                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Video approved and live ✓')">✓ Approve</button>
+                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
+                  <button class="btn btn-outline btn-sm">▶ Preview</button>
+                </div>
+              </div>
+            </div>
+            <div class="review-item">
+              <div class="review-thumb">🪈</div>
+              <div class="review-body">
+                <div class="review-name">Sarah Lin</div>
+                <div class="review-meta">Flute · 台北 · Submitted Jun 23, 2025 at 10:44</div>
+                <div class="review-type">📷 Profile Photo</div>
+                <div style="font-size:12.5px;color:var(--mid);margin-bottom:10px;">First-time photo submission. New account registered today.</div>
+                <div class="review-actions">
+                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Photo approved and live ✓')">✓ Approve</button>
+                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
+                  <button class="btn btn-outline btn-sm">Preview</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Identity review -->
+        <div id="review-identity" style="display:none;">
+          <div class="card">
+            <div class="review-item">
+              <div class="review-thumb" style="background:#e0e7ff;font-size:28px;">🪪</div>
+              <div class="review-body">
+                <div class="review-name">Kevin Wu</div>
+                <div class="review-meta">Cello · 台中 · Submitted Jun 23, 2025</div>
+                <div class="review-type">🪪 Identity Verification</div>
+                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">Full name:</span> <strong>吳建宏 (Kevin Wu)</strong></div>
+                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">ID Number:</span> <strong>A123456789</strong></div>
+                <div style="font-size:13px;margin-bottom:10px;"><span style="color:var(--mid);">Phone:</span> <strong>0912-345-678</strong></div>
+                <div class="review-actions">
+                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Identity verified ✓')">✓ Verify</button>
+                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
+                </div>
+              </div>
+            </div>
+            <div class="review-item">
+              <div class="review-thumb" style="background:#e0e7ff;font-size:28px;">🪪</div>
+              <div class="review-body">
+                <div class="review-name">Sarah Lin</div>
+                <div class="review-meta">Flute · 台北 · Submitted Jun 23, 2025</div>
+                <div class="review-type">🪪 Identity Verification</div>
+                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">Full name:</span> <strong>林筱萱 (Sarah Lin)</strong></div>
+                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">ID Number:</span> <strong>F234567890</strong></div>
+                <div style="font-size:13px;margin-bottom:10px;"><span style="color:var(--mid);">Phone:</span> <strong>0923-456-789</strong></div>
+                <div class="review-actions">
+                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Identity verified ✓')">✓ Verify</button>
+                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
+                </div>
+              </div>
+            </div>
+            <div class="review-item">
+              <div class="review-thumb" style="background:#e0e7ff;font-size:28px;">🪪</div>
+              <div class="review-body">
+                <div class="review-name">James Huang</div>
+                <div class="review-meta">Violin · 新北 · Submitted Jun 21, 2025</div>
+                <div class="review-type">🪪 Identity Verification</div>
+                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">Full name:</span> <strong>黃彥銘 (James Huang)</strong></div>
+                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">ID Number:</span> <strong>H345678901</strong></div>
+                <div style="font-size:13px;margin-bottom:10px;"><span style="color:var(--mid);">Phone:</span> <strong>0934-567-890</strong></div>
+                <div class="review-actions">
+                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Identity verified ✓')">✓ Verify</button>
+                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ JOBS ══════════ -->
+      <div class="page" id="page-jobs">
+        <div class="page-header"><h1>Jobs Overview</h1><p>All active and completed gigs on the platform.</p></div>
+        <div class="card">
+          <table class="data-table">
+            <thead><tr><th>Event</th><th>Client</th><th>Date</th><th>Budget</th><th>Status</th><th>Applicants</th></tr></thead>
+            <tbody>
+              <tr><td><div class="td-name">Piano Trio — Corporate Gala</div><div class="td-sub">Cathay Life Insurance</div></td><td>企業客戶</td><td>Aug 3</td><td>NT$30,000</td><td><span class="badge badge-new">Open</span></td><td>2</td></tr>
+              <tr><td><div class="td-name">Solo Violin — Wedding Ceremony</div><div class="td-sub">Lin Family</div></td><td>個人客戶</td><td>Sep 14</td><td>NT$12,000</td><td><span class="badge badge-new">Open</span></td><td>3</td></tr>
+              <tr><td><div class="td-name">String Quartet — Hotel Lobby</div><div class="td-sub">W Taipei Hotel</div></td><td>企業客戶</td><td>Every Fri/Sat</td><td>NT$25,000</td><td><span class="badge badge-pending">Matching</span></td><td>8</td></tr>
+              <tr><td><div class="td-name">Solo Violin — Wedding</div><div class="td-sub">Chen Jia-Yu</div></td><td>個人客戶</td><td>Jun 20</td><td>NT$16,000</td><td><span class="badge badge-active">Confirmed</span></td><td>—</td></tr>
+              <tr><td><div class="td-name">Corporate Dinner — Duo</div><div class="td-sub">TSMC Ltd.</div></td><td>企業客戶</td><td>May 28</td><td>NT$30,000</td><td><span class="badge badge-verified">Completed</span></td><td>—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════ FINANCE ══════════ -->
+      <div class="page" id="page-finance">
+        <div class="page-header"><h1>Finance</h1><p>Platform commission and musician payouts.</p></div>
+        <div class="finance-summary">
+          <div class="fin-card fin-main">
+            <div class="fin-label">Total Revenue (2025)</div>
+            <div class="fin-value">NT$17,600</div>
+            <div class="fin-sub">10% commission from NT$176,000 total gig value</div>
+          </div>
+          <div class="fin-card">
+            <div class="fin-label">Pending Payouts</div>
+            <div class="fin-value" style="color:var(--amber);">NT$32,400</div>
+            <div class="fin-sub">3 musicians awaiting payout</div>
+          </div>
+          <div class="fin-card">
+            <div class="fin-label">This Month Commission</div>
+            <div class="fin-value">NT$8,400</div>
+            <div class="fin-sub">From 7 completed gigs in June</div>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-head">
+            <div class="card-head-title">💸 Pending Payouts — Action Required</div>
+            <span class="badge badge-pending">NT$32,400 total</span>
+          </div>
+          <div id="payoutList">
+            <div class="payout-row" id="payout-0">
+              <div class="payout-avatar">M</div>
+              <div class="payout-info">
+                <div class="payout-name">Martin</div>
+                <div class="payout-detail">Bank: 玉山銀行 · 帳號: ****5678 · Jun 20 Wedding</div>
+              </div>
+              <div class="payout-amount">NT$14,400</div>
+              <button class="btn btn-green btn-sm" onclick="processPayout(0)">Confirm Payout</button>
+            </div>
+            <div class="payout-row" id="payout-1">
+              <div class="payout-avatar">A</div>
+              <div class="payout-info">
+                <div class="payout-name">Amy Chen</div>
+                <div class="payout-detail">Bank: 國泰銀行 · 帳號: ****1234 · May 28 Corporate</div>
+              </div>
+              <div class="payout-amount">NT$13,500</div>
+              <button class="btn btn-green btn-sm" onclick="processPayout(1)">Confirm Payout</button>
+            </div>
+            <div class="payout-row" id="payout-2">
+              <div class="payout-avatar">J</div>
+              <div class="payout-info">
+                <div class="payout-name">James Huang</div>
+                <div class="payout-detail">Bank: 台新銀行 · 帳號: ****9012 · Jun 8 Birthday</div>
+              </div>
+              <div class="payout-amount">NT$4,500</div>
+              <button class="btn btn-green btn-sm" onclick="processPayout(2)">Confirm Payout</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-head-title">Commission History</div></div>
+          <table class="data-table">
+            <thead><tr><th>Date</th><th>Musician</th><th>Event</th><th>Gig Value</th><th>Commission (10%)</th></tr></thead>
+            <tbody>
+              <tr><td style="color:var(--mid);">Jun 20</td><td>Martin</td><td>Wedding · Solo Violin</td><td>NT$16,000</td><td style="font-weight:700;color:var(--green);">NT$1,600</td></tr>
+              <tr><td style="color:var(--mid);">May 28</td><td>Amy Chen</td><td>Corporate Dinner</td><td>NT$30,000</td><td style="font-weight:700;color:var(--green);">NT$3,000</td></tr>
+              <tr><td style="color:var(--mid);">May 10</td><td>Martin</td><td>Birthday Gala</td><td>NT$15,000</td><td style="font-weight:700;color:var(--green);">NT$1,500</td></tr>
+              <tr><td style="color:var(--mid);">Apr 22</td><td>James Huang</td><td>Hotel Lobby · 4 sessions</td><td>NT$50,000</td><td style="font-weight:700;color:var(--green);">NT$5,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════ ANNOUNCEMENTS ══════════ -->
+      <div class="page" id="page-announce">
+        <div class="page-header"><h1>Announcements</h1><p>Send a message to all musicians on the platform.</p></div>
+
+        <div class="grid-2">
+          <div class="announce-wrap" style="max-width:100%;">
+            <div class="sent-count">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              Will be sent to <strong style="color:var(--black);">24 musicians</strong>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">Announcement Title</label>
+              <input class="form-input" type="text" id="announceTitle" placeholder="e.g. Summer Festival Applications Open" oninput="updatePreview()">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Message</label>
+              <textarea class="form-textarea" id="announceBody" placeholder="Write your message here..." oninput="updatePreview();updateCharCount()" style="min-height:150px;"></textarea>
+              <div class="char-count"><span id="charCount">0</span> / 500</div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Urgency</label>
+              <select class="form-select" id="announceUrgency">
+                <option value="normal">📢 Normal announcement</option>
+                <option value="important">⚠️ Important notice</option>
+                <option value="urgent">🔴 Urgent</option>
+              </select>
+            </div>
+
+            <div style="display:flex;gap:10px;">
+              <button class="btn btn-primary" onclick="sendAnnouncement()" style="flex:1;justify-content:center;padding:12px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Send to All Musicians
+              </button>
+              <button class="btn btn-outline" onclick="clearAnnouncement()">Clear</button>
+            </div>
+          </div>
+
+          <div>
+            <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);margin-bottom:12px;">Preview</div>
+            <div class="preview-msg" id="previewMsg">
+              <div class="preview-msg-title" id="previewTitle" style="color:#bbb;">Announcement title will appear here</div>
+              <div class="preview-msg-body" id="previewBody" style="color:#ccc;">Your message will appear here...</div>
+            </div>
+
+            <div style="margin-top:24px;">
+              <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);margin-bottom:12px;">Past Announcements</div>
+              <div class="card">
+                <div style="padding:14px 16px;border-bottom:1px solid #f5f5f5;">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">Summer Festival Applications Open</span><span style="font-size:11px;color:var(--mid);">Jun 21</span></div>
+                  <div style="font-size:12px;color:var(--mid);">Sent to 24 musicians · 18 opened</div>
+                </div>
+                <div style="padding:14px 16px;border-bottom:1px solid #f5f5f5;">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">Platform Update: New Payout Schedule</span><span style="font-size:11px;color:var(--mid);">Jun 10</span></div>
+                  <div style="font-size:12px;color:var(--mid);">Sent to 21 musicians · 15 opened</div>
+                </div>
+                <div style="padding:14px 16px;">
+                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">Welcome to OPUS.Z! Getting Started Guide</span><span style="font-size:11px;color:var(--mid);">May 1</span></div>
+                  <div style="font-size:12px;color:var(--mid);">Sent to 12 musicians · 12 opened</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════ SUPPORT INBOX ══════════ -->
+      <div class="page" id="page-support">
+        <div class="page-header" style="margin-bottom:16px;"><h1>Support Inbox</h1></div>
+        <div class="support-layout">
+          <!-- Left -->
+          <div class="support-list">
+            <div class="support-list-head">Messages <span style="font-size:11px;font-weight:400;color:var(--mid);">(5)</span></div>
+            <div class="support-item active unread" onclick="openSupportThread(0)">
+              <div class="si-avatar">M</div>
+              <div class="si-body">
+                <div class="si-name">Martin</div>
+                <div class="si-preview">When will my payout arrive?</div>
+              </div>
+              <div class="si-meta"><div class="si-time">1h ago</div><div class="si-dot"></div></div>
+            </div>
+            <div class="support-item unread" onclick="openSupportThread(1)">
+              <div class="si-avatar">S</div>
+              <div class="si-body">
+                <div class="si-name">Sarah Lin</div>
+                <div class="si-preview">How do I update my profile photo?</div>
+              </div>
+              <div class="si-meta"><div class="si-time">3h ago</div><div class="si-dot"></div></div>
+            </div>
+            <div class="support-item" onclick="openSupportThread(2)">
+              <div class="si-avatar">K</div>
+              <div class="si-body">
+                <div class="si-name">Kevin Wu</div>
+                <div class="si-preview">Thank you for verifying my account!</div>
+              </div>
+              <div class="si-meta"><div class="si-time">Yesterday</div></div>
+            </div>
+            <div class="support-item" onclick="openSupportThread(3)">
+              <div class="si-avatar">A</div>
+              <div class="si-body">
+                <div class="si-name">Amy Chen</div>
+                <div class="si-preview">Can I list multiple instruments?</div>
+              </div>
+              <div class="si-meta"><div class="si-time">Jun 21</div></div>
+            </div>
+            <div class="support-item" onclick="openSupportThread(4)">
+              <div class="si-avatar">J</div>
+              <div class="si-body">
+                <div class="si-name">James Huang</div>
+                <div class="si-preview">Great platform, thanks for building this!</div>
+              </div>
+              <div class="si-meta"><div class="si-time">Jun 19</div></div>
+            </div>
+          </div>
+
+          <!-- Right: thread -->
+          <div class="support-thread">
+            <div class="support-thread-head">
+              <div class="sth-left">
+                <div class="sth-avatar" id="sthAvatar">M</div>
+                <div>
+                  <div class="sth-name" id="sthName">Martin</div>
+                  <div class="sth-sub" id="sthSub">Violin · 台北</div>
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;">
+                <button class="btn btn-outline btn-sm">View Profile</button>
+                <button class="btn btn-sm btn-red" onclick="showNotif('Conversation flagged')">Flag</button>
+              </div>
+            </div>
+            <div class="support-bubbles" id="supportBubbles"></div>
+            <div class="support-input-wrap">
+              <textarea class="support-input" id="supportInputBox" placeholder="Reply as OPUS.Z support..." rows="1" onkeydown="handleSupportKey(event)"></textarea>
+              <button class="support-send" onclick="sendSupportMsg()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-wrap -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<div class="notif-banner" id="notifBanner"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
+    authDomain: "opusz-45280.firebaseapp.com",
+    projectId: "opusz-45280",
+    storageBucket: "opusz-45280.firebasestorage.app",
+    messagingSenderId: "304745430147",
+    appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  // ── Auth guard ──
+  if (localStorage.getItem('opusz_admin_loggedIn') !== 'true') {
+    window.location.href = 'admin-login.html';
+  }
+
+  window.adminLogout = function() {
+    localStorage.removeItem('opusz_admin_loggedIn');
+    localStorage.removeItem('opusz_admin_email');
+    window.location.href = 'admin-login.html';
+  }
+
+  // ── Load real musicians from Firestore ──
+  var MUSICIANS = [];
+
+  async function loadMusicians() {
+    try {
+      const snap = await getDocs(collection(db, 'musicians'));
+      MUSICIANS = [];
+      snap.forEach(d => {
+        var data = d.data();
+        MUSICIANS.push({
+          uid:    d.id,
+          name:   data.name || data.email || '(Unknown)',
+          inst:   data.instrument || '—',
+          region: data.region || '—',
+          joined: data.joinedAt ? new Date(data.joinedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—',
+          status: data.status || 'new',
+          gigs:   data.gigs || 0
+        });
+      });
+    } catch(e) {
+      console.log('Firestore load error:', e);
+    }
+    renderMusicians();
+    // Update stat
+    var el = document.getElementById('statTotalMusicians');
+    if (el) el.textContent = MUSICIANS.length;
+  }
+
+  loadMusicians();
+
+  // ── Page titles ──
+  const TITLES = { overview:'Dashboard', musicians:'Musician Management', review:'Review Queue', jobs:'Jobs Overview', finance:'Finance', announce:'Announcements', support:'Support Inbox' };
+
+  window.navigate = function(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+    else { var t = document.querySelector('[data-page="'+id+'"]'); if(t) t.classList.add('active'); }
+    document.getElementById('topbarTitle').textContent = TITLES[id] || id;
+  }
+
+  window.switchTab = function(page, tab, btn) {
+    btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (page === 'review') {
+      document.getElementById('review-photos').style.display = tab === 'photos' ? '' : 'none';
+      document.getElementById('review-identity').style.display = tab === 'identity' ? '' : 'none';
+    }
+  }
+
+  // ── Musicians table ──
+  var MUSICIANS = [
+    { name:'Martin',       inst:'Violin',  region:'台北', joined:'Jan 12', status:'active',   gigs:12 },
+    { name:'Amy Chen',     inst:'Piano',   region:'高雄', joined:'Mar 5',  status:'active',   gigs:6  },
+    { name:'James Huang',  inst:'Violin',  region:'新北', joined:'Mar 18', status:'verified', gigs:8  },
+    { name:'Kevin Wu',     inst:'Cello',   region:'台中', joined:'Jun 22', status:'pending',  gigs:0  },
+    { name:'Sarah Lin',    inst:'Flute',   region:'台北', joined:'Jun 23', status:'new',      gigs:0  },
+    { name:'Wang Fang',    inst:'Erhu',    region:'台南', joined:'Apr 2',  status:'active',   gigs:3  },
+    { name:'Linda Tsai',   inst:'Harp',    region:'台北', joined:'Apr 14', status:'active',   gigs:5  },
+    { name:'Su Ching-Yao', inst:'Piano',   region:'嘉義', joined:'Feb 28', status:'verified', gigs:9  },
+  ];
+
+  var STATUS_BADGES = {
+    active:   '<span class="badge badge-active">Active</span>',
+    verified: '<span class="badge badge-verified">Verified</span>',
+    pending:  '<span class="badge badge-pending">Pending</span>',
+    new:      '<span class="badge badge-new">New</span>',
+    suspended:'<span class="badge badge-rejected">Suspended</span>'
+  };
+
+  window.renderMusicians = function() {
+    var tbody = document.getElementById('musicianTableBody');
+    if (!tbody) return;
+    if (MUSICIANS.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--mid);padding:32px;">No musicians registered yet.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = MUSICIANS.map(function(m, i) {
+      return '<tr>' +
+        '<td><div class="td-name">'+m.name+'</div></td>' +
+        '<td>'+m.inst+'</td>' +
+        '<td>'+m.region+'</td>' +
+        '<td style="color:var(--mid)">'+m.joined+'</td>' +
+        '<td>'+(STATUS_BADGES[m.status]||'')+'</td>' +
+        '<td style="font-weight:600;">'+m.gigs+'</td>' +
+        '<td><div style="display:flex;gap:6px;">' +
+          '<button class="btn btn-outline btn-xs" onclick="showNotif(\'Viewing '+m.name+'\\\'s profile\')">View</button>' +
+          (m.status==='suspended'
+            ? '<button class="btn btn-green btn-xs" onclick="toggleStatus('+i+',\'active\')">Reinstate</button>'
+            : '<button class="btn btn-red btn-xs" onclick="toggleStatus('+i+',\'suspended\')">Suspend</button>') +
+        '</div></td>' +
+      '</tr>';
+    }).join('');
+  }
+
+  window.toggleStatus = async function(idx, newStatus) {
+    var m = MUSICIANS[idx];
+    MUSICIANS[idx].status = newStatus;
+    renderMusicians();
+    showNotif(m.name + ' ' + (newStatus === 'suspended' ? 'suspended' : 'reinstated'));
+    // Write back to Firestore
+    try {
+      await updateDoc(doc(db, 'musicians', m.uid), { status: newStatus });
+    } catch(e) { console.log('Update error:', e); }
+  }
+
+  // ── Review ──
+  window.approveItem = function(btn, msg) {
+    var item = btn.closest('.review-item');
+    item.style.opacity = '0.4';
+    item.style.pointerEvents = 'none';
+    btn.textContent = '✓ Approved';
+    showNotif(msg || 'Approved ✓');
+  }
+
+  window.rejectItem = function(btn) {
+    var item = btn.closest('.review-item');
+    item.style.opacity = '0.4';
+    item.style.pointerEvents = 'none';
+    showNotif('Rejected — musician will be notified');
+  }
+
+  // ── Finance: payout ──
+  window.processPayout = function(idx) {
+    var row = document.getElementById('payout-' + idx);
+    if (!row) return;
+    row.style.opacity = '0.4';
+    row.style.pointerEvents = 'none';
+    row.querySelector('.btn').textContent = '✓ Paid';
+    showNotif('Payout confirmed and processed ✓');
+  }
+
+  // ── Announcements ──
+  window.updatePreview = function() {
+    var title = document.getElementById('announceTitle').value;
+    var body  = document.getElementById('announceBody').value;
+    document.getElementById('previewTitle').textContent = title || 'Announcement title will appear here';
+    document.getElementById('previewTitle').style.color = title ? 'var(--black)' : '#bbb';
+    document.getElementById('previewBody').textContent  = body  || 'Your message will appear here...';
+    document.getElementById('previewBody').style.color  = body  ? '#444' : '#ccc';
+  }
+
+  window.updateCharCount = function() {
+    var len = document.getElementById('announceBody').value.length;
+    document.getElementById('charCount').textContent = len;
+  }
+
+  window.sendAnnouncement = function() {
+    var title = document.getElementById('announceTitle').value.trim();
+    var body  = document.getElementById('announceBody').value.trim();
+    if (!title || !body) { showNotif('Please fill in both title and message'); return; }
+    showNotif('📣 Announcement sent to 24 musicians!');
+    document.getElementById('announceTitle').value = '';
+    document.getElementById('announceBody').value = '';
+    updatePreview();
+    updateCharCount();
+  }
+
+  window.clearAnnouncement = function() {
+    document.getElementById('announceTitle').value = '';
+    document.getElementById('announceBody').value = '';
+    updatePreview(); updateCharCount();
+  }
+
+  // ── Support ──
+  var SUPPORT_THREADS = [
+    { av:'M', name:'Martin', sub:'Violin · 台北', msgs:[
+      {mine:false, text:"Hi, I completed a gig on June 20 and I was wondering when my payout will arrive? It's been 3 days.", time:'1h ago'},
+    ]},
+    { av:'S', name:'Sarah Lin', sub:'Flute · 台北', msgs:[
+      {mine:false, text:"Hello! I just registered and I'm not sure how to upload my profile photo. Where do I do that?", time:'3h ago'},
+    ]},
+    { av:'K', name:'Kevin Wu', sub:'Cello · 台中', msgs:[
+      {mine:false, text:"Thank you for verifying my account! I can now apply for jobs. Really appreciate the quick response.", time:'Yesterday'},
+      {mine:true, text:"You're welcome Kevin! Good luck with your applications. Don't hesitate to reach out if you need anything.", time:'Yesterday'},
+    ]},
+    { av:'A', name:'Amy Chen', sub:'Piano · 高雄', msgs:[
+      {mine:false, text:"Can I list both Piano and Vocals as my instruments? I perform both professionally.", time:'Jun 21'},
+      {mine:true, text:"Hi Amy! Yes absolutely — you can add multiple instruments in your profile settings under Specialties.", time:'Jun 21'},
+      {mine:false, text:"Great, thank you!", time:'Jun 21'},
+    ]},
+    { av:'J', name:'James Huang', sub:'Violin · 新北', msgs:[
+      {mine:false, text:"Just wanted to say this platform is really well designed! The booking process is so smooth.", time:'Jun 19'},
+      {mine:true, text:"Thank you so much James, that really means a lot! We're always working to make it better.", time:'Jun 19'},
+    ]},
+  ];
+
+  window.openSupportThread = function(idx) {
+    var t = SUPPORT_THREADS[idx];
+    document.querySelectorAll('.support-item').forEach(function(el,i){ el.classList.toggle('active', i===idx); });
+    document.getElementById('sthAvatar').textContent = t.av;
+    document.getElementById('sthName').textContent = t.name;
+    document.getElementById('sthSub').textContent = t.sub;
+    var bubbles = document.getElementById('supportBubbles');
+    bubbles.innerHTML = t.msgs.map(function(b){
+      return '<div class="sbubble-wrap '+(b.mine?'mine':'')+'">' +
+        (!b.mine ? '<div class="sbubble-av">'+t.av+'</div>' : '') +
+        '<div><div class="sbubble '+(b.mine?'mine':'theirs')+'">'+b.text+'</div><div class="sbubble-time">'+b.time+'</div></div>' +
+        (b.mine ? '<div class="sbubble-av" style="background:var(--admin);color:#fff;">A</div>' : '') +
+        '</div>';
+    }).join('');
+    bubbles.scrollTop = bubbles.scrollHeight;
+  }
+
+  window.sendSupportMsg = function() {
+    var input = document.getElementById('supportInputBox');
+    var text = input.value.trim();
+    if (!text) return;
+    var bubbles = document.getElementById('supportBubbles');
+    var now = new Date();
+    var time = now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
+    bubbles.innerHTML += '<div class="sbubble-wrap mine"><div><div class="sbubble mine">'+text+'</div><div class="sbubble-time">'+time+'</div></div><div class="sbubble-av" style="background:var(--admin);color:#fff;">A</div></div>';
+    input.value = ''; input.style.height = 'auto';
+    bubbles.scrollTop = bubbles.scrollHeight;
+    showNotif('Reply sent ✓');
+  }
+
+  window.handleSupportKey = function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendSupportMsg(); }
+  }
+
+  document.getElementById('supportInputBox').addEventListener('input', function(){
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+  });
+
+  // ── Notif ──
+  var notifTimer;
+  window.showNotif = function(msg) {
+    var el = document.getElementById('notifBanner');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(notifTimer);
+    notifTimer = setTimeout(function(){ el.classList.remove('show'); }, 3000);
+  }
+
+  // ── Date ──
+  document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+
+  // Init
+  openSupportThread(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPUS.Z · Sign In</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --black: #0f0f0f;
+      --white: #fff;
+      --mid: #888;
+      --border: #e5e5e5;
+      --radius: 12px;
+      --red: #ef4444;
+      --green: #22c55e;
+    }
+    html, body {
+      height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-size: 14px; color: var(--black);
+    }
+    body {
+      display: grid; grid-template-columns: 1fr 1fr;
+      min-height: 100vh;
+    }
+    @media(max-width:768px){ body { grid-template-columns: 1fr; } }
+
+    /* ── Left panel ── */
+    .left-panel {
+      background: var(--black);
+      display: flex; flex-direction: column;
+      justify-content: space-between;
+      padding: 40px 48px;
+      position: relative; overflow: hidden;
+    }
+    @media(max-width:768px){ .left-panel { display: none; } }
+    .lp-logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+    .lp-logo-orb { width: 34px; height: 34px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; }
+    .lp-logo-text { font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+    .lp-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+    .lp-headline {
+      font-size: clamp(28px, 3.5vw, 42px); font-weight: 900;
+      color: #fff; line-height: 1.15; letter-spacing: -.03em;
+      margin-bottom: 20px;
+    }
+    .lp-headline span { color: rgba(255,255,255,.35); }
+    .lp-desc { font-size: 15px; color: rgba(255,255,255,.5); line-height: 1.7; max-width: 340px; }
+    .lp-stats { display: flex; gap: 32px; }
+    .lp-stat-val { font-size: 26px; font-weight: 800; color: #fff; }
+    .lp-stat-label { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 2px; }
+    .lp-bg-circle {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,.03);
+      pointer-events: none;
+    }
+
+    /* ── Right panel ── */
+    .right-panel {
+      background: #fafafa;
+      display: flex; align-items: center; justify-content: center;
+      padding: 40px 24px;
+    }
+    .form-box {
+      width: 100%; max-width: 420px;
+    }
+
+    /* Mobile logo */
+    .mobile-logo {
+      display: none; align-items: center; gap: 8px;
+      text-decoration: none; color: var(--black);
+      margin-bottom: 32px;
+    }
+    .mobile-logo-orb { width: 28px; height: 28px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; }
+    @media(max-width:768px){ .mobile-logo { display: flex; } }
+
+    /* Steps */
+    .step { display: none; }
+    .step.active { display: block; }
+
+    .step-title { font-size: 22px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 6px; }
+    .step-sub { font-size: 13.5px; color: var(--mid); margin-bottom: 28px; line-height: 1.6; }
+
+    /* Progress dots */
+    .progress-dots { display: flex; gap: 6px; margin-bottom: 28px; }
+    .pd { width: 6px; height: 6px; border-radius: 50%; background: var(--border); transition: background .3s, width .3s; }
+    .pd.active { background: var(--black); width: 20px; border-radius: 3px; }
+    .pd.done { background: var(--black); }
+
+    /* Form elements */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 12.5px; font-weight: 600; color: #333; margin-bottom: 6px; }
+    .form-input, .form-select {
+      width: 100%; padding: 12px 14px;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: inherit; font-size: 14px; outline: none;
+      background: var(--white); color: var(--black);
+      transition: border-color .15s, box-shadow .15s;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--black);
+      box-shadow: 0 0 0 3px rgba(0,0,0,.06);
+    }
+    .form-input.error { border-color: var(--red); }
+    .form-hint { font-size: 11.5px; color: var(--mid); margin-top: 5px; }
+    .form-error { font-size: 12px; color: var(--red); margin-top: 5px; display: none; }
+    .form-error.show { display: block; }
+
+    /* Password toggle */
+    .pw-wrap { position: relative; }
+    .pw-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; cursor: pointer; color: var(--mid);
+      padding: 4px; display: flex; align-items: center;
+    }
+    .pw-toggle:hover { color: var(--black); }
+
+    /* Password strength */
+    .pw-strength { display: flex; gap: 4px; margin-top: 8px; }
+    .pws-bar { flex: 1; height: 3px; border-radius: 2px; background: var(--border); transition: background .3s; }
+    .pws-label { font-size: 11px; color: var(--mid); margin-top: 4px; }
+    .strength-1 .pws-bar:nth-child(1) { background: var(--red); }
+    .strength-2 .pws-bar:nth-child(-n+2) { background: #f59e0b; }
+    .strength-3 .pws-bar:nth-child(-n+3) { background: #22c55e; }
+    .strength-4 .pws-bar { background: #16a34a; }
+
+    /* OTP input */
+    .otp-wrap { display: flex; gap: 10px; justify-content: center; margin: 8px 0; }
+    .otp-input {
+      width: 52px; height: 56px; text-align: center;
+      font-size: 22px; font-weight: 700;
+      border: 1.5px solid var(--border); border-radius: 10px;
+      outline: none; transition: border-color .15s;
+      font-family: inherit;
+    }
+    .otp-input:focus { border-color: var(--black); box-shadow: 0 0 0 3px rgba(0,0,0,.06); }
+
+    /* Instrument selector */
+    /* Instrument group */
+    .inst-group-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--mid); margin-bottom: 6px; }
+    .inst-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+    .inst-chip {
+      padding: 6px 13px; border: 1.5px solid var(--border); border-radius: 50px;
+      background: var(--white); cursor: pointer; text-align: center;
+      font-family: inherit; font-size: 12.5px; font-weight: 500; color: #444;
+      transition: border-color .15s, background .15s, color .15s;
+    }
+    .inst-chip:hover { border-color: #aaa; }
+    .inst-chip.selected { border-color: var(--black); background: var(--black); color: #fff; }
+
+    /* Primary button */
+    .btn-main {
+      width: 100%; padding: 14px;
+      background: var(--black); color: #fff;
+      border: none; border-radius: 10px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; letter-spacing: .01em;
+      transition: background .15s, transform .1s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-main:hover { background: #222; }
+    .btn-main:active { transform: scale(.98); }
+    .btn-main:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* Secondary button */
+    .btn-sec {
+      width: 100%; padding: 12px;
+      background: transparent; color: var(--mid);
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-family: inherit; font-size: 13.5px; font-weight: 500;
+      cursor: pointer; margin-top: 10px;
+      transition: border-color .15s, color .15s;
+    }
+    .btn-sec:hover { border-color: #aaa; color: var(--black); }
+
+    /* Divider */
+    .divider { display: flex; align-items: center; gap: 12px; margin: 20px 0; }
+    .divider::before, .divider::after { content:''; flex:1; height:1px; background:var(--border); }
+    .divider span { font-size: 12px; color: var(--mid); white-space: nowrap; }
+
+    /* Switch link */
+    .switch-link { text-align: center; font-size: 13px; color: var(--mid); margin-top: 20px; }
+    .switch-link a { color: var(--black); font-weight: 700; text-decoration: none; }
+    .switch-link a:hover { text-decoration: underline; }
+
+    /* Terms */
+    .terms { font-size: 11.5px; color: var(--mid); text-align: center; margin-top: 14px; line-height: 1.6; }
+    .terms a { color: var(--mid); }
+
+    /* Back button */
+    .back-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: none; border: none; font-family: inherit;
+      font-size: 13px; color: var(--mid); cursor: pointer;
+      padding: 0; margin-bottom: 20px;
+      transition: color .15s;
+    }
+    .back-btn:hover { color: var(--black); }
+
+    /* Success state */
+    .success-icon { width: 64px; height: 64px; background: #dcfce7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; margin: 0 auto 20px; }
+    .success-check { text-align: center; }
+
+    /* Resend */
+    .resend-wrap { text-align: center; margin-top: 16px; font-size: 13px; color: var(--mid); }
+    .resend-link { color: var(--black); font-weight: 600; text-decoration: none; cursor: pointer; }
+    .resend-link:hover { text-decoration: underline; }
+
+    /* Alert */
+    .alert {
+      padding: 11px 14px; border-radius: 8px;
+      font-size: 13px; margin-bottom: 16px;
+      display: none;
+    }
+    .alert.show { display: block; }
+    .alert-error { background: #fee2e2; color: #b91c1c; }
+    .alert-success { background: #dcfce7; color: #15803d; }
+
+    /* Loading spinner */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner { width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.3); border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite; }
+  </style>
+</head>
+<body>
+
+<!-- ── LEFT PANEL ── -->
+<div class="left-panel">
+  <div class="lp-bg-circle" style="width:400px;height:400px;top:-100px;right:-100px;"></div>
+  <div class="lp-bg-circle" style="width:200px;height:200px;bottom:80px;left:-60px;"></div>
+
+  <a href="musician-platform.html" class="lp-logo">
+    <div class="lp-logo-orb"></div>
+    <span class="lp-logo-text">OPUS.Z</span>
+  </a>
+
+  <div class="lp-body">
+    <div class="lp-headline">
+      Your music.<br>
+      <span>Your stage.</span><br>
+      Your platform.
+    </div>
+    <div class="lp-desc">
+      Join Taiwan's premier classical musician platform. Connect with clients, manage bookings, and build your career — all in one place.
+    </div>
+  </div>
+
+  <div class="lp-stats">
+    <div>
+      <div class="lp-stat-val">500+</div>
+      <div class="lp-stat-label">Musicians</div>
+    </div>
+    <div>
+      <div class="lp-stat-val">2,400+</div>
+      <div class="lp-stat-label">Bookings</div>
+    </div>
+    <div>
+      <div class="lp-stat-val">4.9★</div>
+      <div class="lp-stat-label">Avg. Rating</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── RIGHT PANEL ── -->
+<div class="right-panel">
+  <div class="form-box">
+
+    <a href="musician-platform.html" class="mobile-logo">
+      <div class="mobile-logo-orb"></div>
+      <span style="font-size:16px;font-weight:800;">OPUS.Z</span>
+    </a>
+
+    <!-- ═══════════ STEP 0: LOGIN ═══════════ -->
+    <div class="step active" id="step-login">
+      <div class="step-title">Welcome back</div>
+      <div class="step-sub">Sign in to your OPUS.Z musician account.</div>
+
+      <div class="alert alert-error" id="loginError">Email or password is incorrect.</div>
+
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" type="password" id="loginPw" placeholder="Enter your password" autocomplete="current-password">
+          <button class="pw-toggle" onclick="togglePw('loginPw',this)" tabindex="-1">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+      <div style="text-align:right;margin-bottom:20px;">
+        <a href="#" style="font-size:12.5px;color:var(--mid);text-decoration:none;" onclick="goStep('forgot');return false;">Forgot password?</a>
+      </div>
+
+      <button class="btn-main" onclick="doLogin()">Sign In</button>
+
+      <div class="divider"><span>or</span></div>
+
+      <button class="btn-sec" onclick="goStep('register-email')">Create a musician account</button>
+
+      <div class="switch-link" style="margin-top:16px;">
+        <a href="musician-platform.html">← Back to OPUS.Z</a>
+      </div>
+    </div>
+
+    <!-- ═══════════ STEP: FORGOT PASSWORD ═══════════ -->
+    <div class="step" id="step-forgot">
+      <button class="back-btn" onclick="goStep('login')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+      <div class="step-title">Reset password</div>
+      <div class="step-sub">Enter your email and we'll send you a reset link.</div>
+      <div class="alert alert-success" id="forgotSuccess">Reset link sent! Check your inbox.</div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input class="form-input" type="email" id="forgotEmail" placeholder="your@email.com">
+      </div>
+      <button class="btn-main" onclick="doForgot()">Send Reset Link</button>
+    </div>
+
+    <!-- ═══════════ STEP 1: REGISTER EMAIL ═══════════ -->
+    <div class="step" id="step-register-email">
+      <button class="back-btn" onclick="goStep('login')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+        Back to sign in
+      </button>
+
+      <div class="progress-dots">
+        <div class="pd active"></div>
+        <div class="pd"></div>
+        <div class="pd"></div>
+      </div>
+
+      <div class="step-title">Create your account</div>
+      <div class="step-sub">Just your email and a password to get started.</div>
+
+      <div class="alert alert-error" id="regError"></div>
+
+      <div class="form-group">
+        <label class="form-label">Email address</label>
+        <input class="form-input" type="email" id="regEmail" placeholder="your@email.com" autocomplete="email">
+        <div class="form-error" id="regEmailErr">Please enter a valid email.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <div class="pw-wrap">
+          <input class="form-input" type="password" id="regPw" placeholder="At least 8 characters" oninput="checkStrength(this.value)" autocomplete="new-password">
+          <button class="pw-toggle" onclick="togglePw('regPw',this)" tabindex="-1">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="pw-strength" id="pwStrength">
+          <div class="pws-bar"></div><div class="pws-bar"></div>
+          <div class="pws-bar"></div><div class="pws-bar"></div>
+        </div>
+        <div class="pws-label" id="pwStrLabel"></div>
+        <div class="form-error" id="regPwErr">Password must be at least 8 characters.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm password</label>
+        <div class="pw-wrap">
+          <input class="form-input" type="password" id="regPwConfirm" placeholder="Re-enter password" autocomplete="new-password">
+          <button class="pw-toggle" onclick="togglePw('regPwConfirm',this)" tabindex="-1">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+        <div class="form-error" id="regPwMatchErr">Passwords do not match.</div>
+      </div>
+
+      <button class="btn-main" id="regBtn" onclick="doRegister()">Continue</button>
+
+      <div class="terms">
+        By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+      </div>
+    </div>
+
+    <!-- ═══════════ STEP 2: VERIFY EMAIL ═══════════ -->
+    <div class="step" id="step-verify">
+      <div class="progress-dots">
+        <div class="pd done"></div>
+        <div class="pd active"></div>
+        <div class="pd"></div>
+      </div>
+
+      <div style="text-align:center;margin-bottom:24px;">
+        <div style="width:56px;height:56px;background:#f0f9ff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        </div>
+        <div class="step-title" style="margin-bottom:8px;">Check your inbox</div>
+        <div class="step-sub">We sent a verification link to<br><strong id="verifyEmail" style="color:#0f0f0f;"></strong></div>
+      </div>
+
+      <div class="alert alert-error" id="otpError" style="display:none;"></div>
+      <div class="alert alert-success" id="verifySuccess" style="display:none;">✓ Email verified! Continuing to profile setup…</div>
+
+      <div style="background:#f8f8f8;border-radius:10px;padding:16px;margin-bottom:20px;font-size:13px;color:#555;line-height:1.6;">
+        1. Open the email from OPUS.Z<br>
+        2. Click the <strong>verification link</strong><br>
+        3. Come back here and click the button below
+      </div>
+
+      <button class="btn-main" onclick="checkVerified()">I've verified my email ✓</button>
+
+      <div style="margin-top:16px;text-align:center;">
+        <span style="font-size:12.5px;color:var(--mid);">Didn't receive it? </span>
+        <span class="resend-link" onclick="resendVerification()" style="font-size:12.5px;cursor:pointer;color:#0f0f0f;font-weight:600;text-decoration:underline;">Resend email</span>
+      </div>
+    </div>
+
+    <!-- ═══════════ STEP 3: PROFILE SETUP ═══════════ -->
+    <div class="step" id="step-setup">
+      <div class="progress-dots">
+        <div class="pd done"></div>
+        <div class="pd done"></div>
+        <div class="pd active"></div>
+      </div>
+
+      <div class="step-title">Almost there!</div>
+      <div class="step-sub">Tell us a bit about yourself so clients can find you.</div>
+
+      <div class="form-group">
+        <label class="form-label">Your name (display name)</label>
+        <input class="form-input" type="text" id="setupName" placeholder="e.g. Martin Chen">
+        <div class="form-error" id="setupNameErr">Please enter your name.</div>
+      </div>
+
+      <!-- Instruments -->
+      <div class="form-group">
+        <label class="form-label">Instruments <span style="font-weight:400;color:var(--mid);">— select all that apply</span></label>
+        <div id="instGrid" style="display:flex;flex-direction:column;gap:12px;margin-top:6px;"></div>
+        <div class="form-error" id="setupInstErr">Please select at least one instrument.</div>
+      </div>
+
+      <!-- Primary Region -->
+      <div class="form-group">
+        <label class="form-label">Primary Region</label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <select class="form-select" id="primaryCountry" onchange="updateCities('primary')">
+            <option value="">Country</option>
+          </select>
+          <select class="form-select" id="primaryCity" disabled>
+            <option value="">City / Region</option>
+          </select>
+        </div>
+        <div class="form-error" id="setupRegionErr">Please select your primary region.</div>
+      </div>
+
+      <!-- Secondary Region -->
+      <div class="form-group">
+        <label class="form-label">Secondary Region <span style="font-weight:400;color:var(--mid);">— optional</span></label>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <select class="form-select" id="secondaryCountry" onchange="updateCities('secondary')">
+            <option value="">Country</option>
+          </select>
+          <select class="form-select" id="secondaryCity" disabled>
+            <option value="">City / Region</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-main btn-primary" id="setupBtn" onclick="doSetup()">
+        Go to my Dashboard
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+      <div class="terms" style="margin-top:16px;">You can complete your full profile (photo, bio, bank account) inside your dashboard.</div>
+    </div>
+
+    <!-- ═══════════ STEP: SUCCESS ═══════════ -->
+    <div class="step" id="step-success">
+      <div class="success-check">
+        <div class="success-icon">🎉</div>
+        <div class="step-title" style="text-align:center;">You're all set!</div>
+        <div class="step-sub" style="text-align:center;">Welcome to OPUS.Z. Redirecting to your dashboard...</div>
+        <div style="display:flex;justify-content:center;margin-top:20px;">
+          <div class="spinner" style="border-color:rgba(0,0,0,.15);border-top-color:var(--black);"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, onAuthStateChanged, reload } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
+    authDomain: "opusz-45280.firebaseapp.com",
+    projectId: "opusz-45280",
+    storageBucket: "opusz-45280.firebasestorage.app",
+    messagingSenderId: "304745430147",
+    appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // ── State ──
+  var currentStep = 'login';
+  var regData = { email:'', name:'', instruments:[], primaryRegion:'', secondaryRegion:'' };
+  var selectedInsts = new Set();
+
+  // ── Instrument data ──
+  const INSTRUMENTS = {
+    'Strings':     ['Violin','Viola','Cello','Double Bass','Harp','Classical Guitar'],
+    'Woodwinds':   ['Flute','Piccolo','Oboe','English Horn','Clarinet','Bass Clarinet','Bassoon','Contrabassoon','Saxophone'],
+    'Brass':       ['French Horn','Trumpet','Cornet','Trombone','Bass Trombone','Euphonium','Tuba'],
+    'Percussion':  ['Timpani','Snare Drum','Bass Drum','Marimba','Xylophone','Vibraphone','Glockenspiel','Tambourine','Cymbals'],
+    'Keyboard':    ['Piano','Organ','Harpsichord','Accordion','Celesta'],
+    'Voice':       ['Soprano','Mezzo-Soprano','Alto','Tenor','Baritone','Bass-Baritone','Bass'],
+    'Other':       ['Conductor','Composer','Arranger','Electric Guitar','Electric Bass','Drums']
+  };
+
+  // ── Region data ──
+  const REGIONS = {
+    'Taiwan': ['台北市 Taipei City','新北市 New Taipei City','桃園市 Taoyuan City','台中市 Taichung City','台南市 Tainan City','高雄市 Kaohsiung City','基隆市 Keelung City','新竹市 Hsinchu City','新竹縣 Hsinchu County','苗栗縣 Miaoli County','彰化縣 Changhua County','南投縣 Nantou County','雲林縣 Yunlin County','嘉義市 Chiayi City','嘉義縣 Chiayi County','屏東縣 Pingtung County','宜蘭縣 Yilan County','花蓮縣 Hualien County','台東縣 Taitung County','澎湖縣 Penghu County','金門縣 Kinmen County'],
+    'United States': ['New York, NY','Los Angeles, CA','Chicago, IL','Boston, MA','Philadelphia, PA','San Francisco, CA','Washington D.C.','Seattle, WA','Houston, TX','Dallas, TX','Atlanta, GA','Miami, FL','Denver, CO','Minneapolis, MN','Cleveland, OH','Cincinnati, OH','Pittsburgh, PA','Baltimore, MD','Detroit, MI','St. Louis, MO','Nashville, TN','Indianapolis, IN','Portland, OR','Salt Lake City, UT','Phoenix, AZ','San Diego, CA'],
+    'United Kingdom': ['London','Birmingham','Manchester','Glasgow','Edinburgh','Cardiff','Liverpool','Leeds','Bristol','Nottingham'],
+    'Germany': ['Berlin','Munich','Hamburg','Frankfurt','Cologne','Stuttgart','Dresden','Leipzig','Düsseldorf','Hannover'],
+    'France': ['Paris','Lyon','Marseille','Bordeaux','Toulouse','Strasbourg','Nantes','Lille','Nice','Montpellier'],
+    'Japan': ['Tokyo 東京','Osaka 大阪','Kyoto 京都','Yokohama 横浜','Nagoya 名古屋','Kobe 神戸','Fukuoka 福岡','Sapporo 札幌','Sendai 仙台'],
+    'Hong Kong': ['Hong Kong Island','Kowloon','New Territories'],
+    'Singapore': ['Singapore'],
+    'Australia': ['Sydney','Melbourne','Brisbane','Perth','Adelaide','Canberra'],
+    'Canada': ['Toronto','Montreal','Vancouver','Calgary','Ottawa','Edmonton'],
+    'Netherlands': ['Amsterdam','Rotterdam','The Hague','Utrecht','Eindhoven'],
+    'Austria': ['Vienna','Salzburg','Graz','Linz','Innsbruck'],
+    'Switzerland': ['Zurich','Geneva','Basel','Bern','Lausanne']
+  };
+
+  // ── Build instrument grid ──
+  function buildInstrumentGrid() {
+    var grid = document.getElementById('instGrid');
+    if (!grid) return;
+    grid.innerHTML = Object.entries(INSTRUMENTS).map(([group, list]) =>
+      '<div>' +
+        '<div class="inst-group-label">' + group + '</div>' +
+        '<div class="inst-chips">' +
+          list.map(inst =>
+            '<button type="button" class="inst-chip" onclick="toggleInst(this,\'' + inst + '\')">' + inst + '</button>'
+          ).join('') +
+        '</div>' +
+      '</div>'
+    ).join('');
+  }
+
+  // ── Build country dropdowns ──
+  function buildCountryDropdowns() {
+    var countries = Object.keys(REGIONS);
+    var opts = '<option value="">Country</option>' + countries.map(c => '<option value="'+c+'">'+c+'</option>').join('');
+    document.getElementById('primaryCountry').innerHTML = opts;
+    document.getElementById('secondaryCountry').innerHTML = opts;
+  }
+
+  window.updateCities = function(type) {
+    var country = document.getElementById(type + 'Country').value;
+    var citySelect = document.getElementById(type + 'City');
+    if (!country) {
+      citySelect.innerHTML = '<option value="">City / Region</option>';
+      citySelect.disabled = true;
+      return;
+    }
+    var cities = REGIONS[country] || [];
+    citySelect.innerHTML = '<option value="">Select city</option>' + cities.map(c => '<option value="'+c+'">'+c+'</option>').join('');
+    citySelect.disabled = false;
+  }
+
+  // Init grids
+  buildInstrumentGrid();
+  buildCountryDropdowns();
+
+  // ── Check if already logged in ──
+  onAuthStateChanged(auth, (user) => {
+    if (user && currentStep === 'login') {
+      window.location.href = 'musician-dashboard.html';
+    }
+  });
+
+  // ── Navigation ──
+  window.goStep = function(id) {
+    document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step-' + id).classList.add('active');
+    currentStep = id;
+    document.querySelectorAll('.alert').forEach(a => a.classList.remove('show'));
+    document.querySelectorAll('.form-error').forEach(e => e.classList.remove('show'));
+    document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
+  }
+
+  // ── Login ──
+  window.doLogin = async function() {
+    var email = document.getElementById('loginEmail').value.trim();
+    var pw    = document.getElementById('loginPw').value;
+    var err   = document.getElementById('loginError');
+    var btn   = document.querySelector('#step-login .btn-main');
+
+    if (!email || !pw) { err.textContent = 'Please fill in all fields.'; err.classList.add('show'); return; }
+
+    btn.textContent = 'Signing in…'; btn.disabled = true;
+    try {
+      await signInWithEmailAndPassword(auth, email, pw);
+      window.location.href = 'musician-dashboard.html';
+    } catch(e) {
+      btn.textContent = 'Sign in'; btn.disabled = false;
+      err.textContent = 'Incorrect email or password.';
+      err.classList.add('show');
+    }
+  }
+
+  // ── Forgot password ──
+  window.doForgot = async function() {
+    var email = document.getElementById('forgotEmail').value.trim();
+    if (!email || !email.includes('@')) return;
+    try {
+      await sendPasswordResetEmail(auth, email);
+    } catch(e) { /* silently ignore — don't reveal if email exists */ }
+    document.getElementById('forgotSuccess').classList.add('show');
+  }
+
+  // ── Register step 1 ──
+  window.doRegister = async function() {
+    var email   = document.getElementById('regEmail').value.trim();
+    var pw      = document.getElementById('regPw').value;
+    var pwConf  = document.getElementById('regPwConfirm').value;
+    var ok = true;
+
+    if (!email || !email.includes('@')) {
+      document.getElementById('regEmailErr').classList.add('show');
+      document.getElementById('regEmail').classList.add('error');
+      ok = false;
+    }
+    if (pw.length < 8) {
+      document.getElementById('regPwErr').classList.add('show');
+      document.getElementById('regPw').classList.add('error');
+      ok = false;
+    }
+    if (pw !== pwConf) {
+      document.getElementById('regPwMatchErr').classList.add('show');
+      document.getElementById('regPwConfirm').classList.add('error');
+      ok = false;
+    }
+    if (!ok) return;
+
+    regData.email    = email;
+    regData._pw      = pw;
+
+    // Create Firebase account first, then send verification email
+    var btn = document.getElementById('regBtn');
+    btn.textContent = 'Sending…'; btn.disabled = true;
+    try {
+      var cred = await createUserWithEmailAndPassword(auth, email, pw);
+      regData._user = cred.user;
+      await sendEmailVerification(cred.user);
+      document.getElementById('verifyEmail').textContent = email;
+      goStep('verify');
+    } catch(e) {
+      btn.textContent = 'Continue'; btn.disabled = false;
+      var errEl = document.getElementById('regError');
+      errEl.textContent = e.code === 'auth/email-already-in-use'
+        ? 'This email is already registered. Please sign in instead.'
+        : 'Something went wrong. Please try again.';
+      errEl.classList.add('show');
+    }
+  }
+
+  // ── Check if email verified ──
+  window.checkVerified = async function() {
+    var btn = document.querySelector('#step-verify .btn-main');
+    btn.textContent = 'Checking…'; btn.disabled = true;
+    try {
+      await reload(regData._user);
+      if (regData._user.emailVerified) {
+        var successEl = document.getElementById('verifySuccess');
+        successEl.style.display = 'block';
+        setTimeout(() => goStep('setup'), 1200);
+      } else {
+        var errEl = document.getElementById('otpError');
+        errEl.textContent = 'Email not verified yet. Please click the link in your inbox first.';
+        errEl.style.display = 'block';
+        btn.textContent = "I've verified my email ✓"; btn.disabled = false;
+      }
+    } catch(e) {
+      btn.textContent = "I've verified my email ✓"; btn.disabled = false;
+    }
+  }
+
+  // ── Resend verification email ──
+  window.resendVerification = async function() {
+    try {
+      await sendEmailVerification(regData._user);
+      var sub = document.querySelector('#step-verify .step-sub');
+      sub.innerHTML = '✓ New verification email sent to <strong>' + regData.email + '</strong>';
+    } catch(e) {
+      console.log('Resend error:', e);
+    }
+  }
+
+  // ── Instrument toggle (multi-select) ──
+  window.toggleInst = function(btn, name) {
+    if (selectedInsts.has(name)) {
+      selectedInsts.delete(name);
+      btn.classList.remove('selected');
+    } else {
+      selectedInsts.add(name);
+      btn.classList.add('selected');
+    }
+  }
+
+  // ── Profile setup + Firebase account creation ──
+  window.doSetup = async function() {
+    var name          = document.getElementById('setupName').value.trim();
+    var primaryCountry = document.getElementById('primaryCountry').value;
+    var primaryCity    = document.getElementById('primaryCity').value;
+    var secondaryCountry = document.getElementById('secondaryCountry').value;
+    var secondaryCity  = document.getElementById('secondaryCity').value;
+    var ok = true;
+
+    if (!name)                    { document.getElementById('setupNameErr').classList.add('show'); ok = false; }
+    if (selectedInsts.size === 0) { document.getElementById('setupInstErr').classList.add('show'); ok = false; }
+    if (!primaryCountry || !primaryCity) { document.getElementById('setupRegionErr').classList.add('show'); ok = false; }
+    if (!ok) return;
+
+    var primaryRegion   = primaryCity + ', ' + primaryCountry;
+    var secondaryRegion = (secondaryCountry && secondaryCity) ? secondaryCity + ', ' + secondaryCountry : '';
+
+    var btn = document.querySelector('#step-setup .btn-primary');
+    btn.textContent = 'Saving…'; btn.disabled = true;
+
+    try {
+      // Account already created in step 1 — just save the profile
+      var user = regData._user || auth.currentUser;
+      var uid  = user.uid;
+
+      await setDoc(doc(db, 'musicians', uid), {
+        uid:             uid,
+        email:           regData.email,
+        name:            name,
+        instruments:     Array.from(selectedInsts),
+        primaryRegion:   primaryRegion,
+        secondaryRegion: secondaryRegion,
+        status:          'active',
+        verified:        false,
+        joinedAt:        new Date().toISOString(),
+        profileComplete: 30
+      });
+
+      goStep('success');
+      setTimeout(() => { window.location.href = 'musician-dashboard.html'; }, 2000);
+
+    } catch(e) {
+      btn.textContent = 'Complete Setup'; btn.disabled = false;
+      document.getElementById('setupNameErr').textContent = 'Something went wrong. Please try again.';
+      document.getElementById('setupNameErr').classList.add('show');
+    }
+  }
+
+  // ── Password visibility ──
+  window.togglePw = function(inputId, btn) {
+    var input = document.getElementById(inputId);
+    var show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.innerHTML = show
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+  }
+
+  // ── Password strength ──
+  window.checkStrength = function(pw) {
+    var s = 0;
+    if (pw.length >= 8) s++;
+    if (/[A-Z]/.test(pw)) s++;
+    if (/[0-9]/.test(pw)) s++;
+    if (/[^A-Za-z0-9]/.test(pw)) s++;
+    var wrap = document.getElementById('pwStrength');
+    var label = document.getElementById('pwStrLabel');
+    wrap.className = 'pw-strength strength-' + s;
+    var labels = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+    var colors = ['','#ef4444','#f59e0b','#22c55e','#16a34a'];
+    label.textContent = pw.length ? labels[s] : '';
+    label.style.color = colors[s];
+  }
+
+  // ── Enter key submit ──
+  document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Enter') return;
+    if (currentStep === 'login') doLogin();
+    else if (currentStep === 'register-email') doRegister();
+    else if (currentStep === 'forgot') doForgot();
+  });
+</script>
+</body>
+</html>

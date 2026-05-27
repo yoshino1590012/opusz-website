@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Subscribed — OPUS.Z</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', 'Helvetica Neue', sans-serif;
+      background: #0f0f0f;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .logo { font-size: 20px; font-weight: 700; letter-spacing: -.03em; margin-bottom: 60px; opacity: .5; }
+    .check {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      border: 2px solid rgba(255,255,255,.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      margin: 0 auto 32px;
+    }
+    h1 { font-size: clamp(28px, 5vw, 48px); font-weight: 300; letter-spacing: -.03em; margin-bottom: 16px; }
+    p { font-size: 15px; color: rgba(255,255,255,.5); line-height: 1.7; max-width: 400px; margin: 0 auto 48px; }
+    .back-btn {
+      display: inline-block;
+      padding: 14px 36px;
+      border: 1px solid rgba(255,255,255,.2);
+      color: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      transition: border-color .2s;
+    }
+    .back-btn:hover { border-color: rgba(255,255,255,.6); }
+  </style>
+</head>
+<body>
+  <div class="logo">OPUS.Z</div>
+  <div class="check">✓</div>
+  <h1>You're subscribed.</h1>
+  <p>Thank you for joining the OPUS.Z newsletter. We'll keep you updated on new musicians, upcoming shows, and music industry insights.</p>
+  <a class="back-btn" href="musician-platform.html">← Back to OPUS.Z</a>
+</body>
+</html>

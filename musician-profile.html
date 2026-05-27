@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Martin Liao — OPUS.Z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
+:root{--black:#000;--white:#fff;--gray:#f0f0f0;}
+body{font-family:'Inter','Helvetica Neue',sans-serif;background:var(--gray);overflow-x:hidden;}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:22px 40px;
+}
+.nav-logo{font-size:16px;font-weight:800;text-decoration:none;color:#fff;letter-spacing:-.02em;text-shadow:0 1px 8px rgba(0,0,0,.4);}
+.nav-back{font-size:13px;font-weight:600;color:#fff;text-decoration:none;opacity:.75;transition:opacity .2s;text-shadow:0 1px 8px rgba(0,0,0,.4);}
+.nav-back:hover{opacity:1;}
+.nav-back::before{content:'← ';}
+
+/* ── HERO ── */
+.hero{
+  position:relative;width:100%;height:100vh;
+  overflow:hidden;
+}
+
+/* Background fallback */
+.hero-bg{
+  position:absolute;inset:0;
+  background:#222;
+  z-index:0;
+}
+
+/* Photo — full screen */
+.hero-photo-wrap{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  cursor:pointer;
+  overflow:hidden;
+}
+.hero-photo-bg{
+  width:100%;height:100%;
+  background:#888 center/cover no-repeat;
+  background-position:50% 30%;
+}
+.hero-photo-placeholder{
+  position:absolute;inset:0;
+  background:linear-gradient(160deg,#444,#222);
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:12px;
+  transition:opacity .3s;
+}
+.hero-photo-placeholder span{font-size:14px;color:rgba(255,255,255,.55);font-weight:500;}
+.hero-photo-placeholder.hidden{opacity:0;pointer-events:none;}
+
+/* Edit hint */
+.photo-edit-hint{
+  position:absolute;top:20px;right:20px;
+  background:rgba(0,0,0,.55);backdrop-filter:blur(8px);
+  color:white;font-size:12px;font-weight:600;
+  padding:7px 14px;border-radius:20px;
+  opacity:0;transition:opacity .25s;
+  pointer-events:none;
+  letter-spacing:.04em;
+}
+.hero-photo-wrap:hover .photo-edit-hint{opacity:1;}
+
+/* Gradient overlay — darkens bottom for text legibility */
+.hero-overlay{
+  position:absolute;inset:0;
+  background:linear-gradient(to top,
+    rgba(0,0,0,.75) 0%,
+    rgba(0,0,0,.35) 30%,
+    transparent 60%);
+  z-index:2;
+  pointer-events:none;
+}
+
+/* Big name text — at the very bottom, above overlay */
+.hero-name{
+  position:absolute;
+  bottom:-0.12em;left:0;right:0;
+  font-size:clamp(100px,16vw,220px);
+  font-weight:900;
+  color:#fff;
+  letter-spacing:-0.04em;
+  line-height:1;
+  white-space:nowrap;
+  padding:0 40px;
+  z-index:3;
+  pointer-events:none;
+  user-select:none;
+}
+
+/* Info card — above the big name, bottom-left */
+.hero-info{
+  position:absolute;
+  bottom:calc(clamp(100px,16vw,220px) * 0.88 + 36px);
+  left:48px;
+  z-index:4;
+}
+.info-title{
+  font-size:clamp(18px,1.8vw,26px);
+  font-weight:700;
+  color:#fff;
+  margin-bottom:14px;
+  letter-spacing:.01em;
+}
+.info-rating{
+  display:flex;align-items:center;gap:8px;
+  font-size:17px;color:#fff;
+  margin-bottom:12px;
+}
+.stars{color:#f5a623;font-size:19px;letter-spacing:1px;}
+.rating-num{font-weight:700;}
+.reviews{opacity:.85;font-size:15px;}
+.info-location{
+  font-size:17px;font-weight:700;
+  color:#fff;
+  letter-spacing:.02em;
+}
+
+/* ── SECTIONS BELOW HERO ── */
+.content{background:white;}
+
+.section{
+  max-width:1100px;margin:0 auto;
+  padding:80px 48px;
+  border-bottom:1px solid #f0f0f0;
+}
+.section:last-child{border-bottom:none;}
+
+.section-label{
+  font-size:11px;font-weight:700;letter-spacing:.12em;
+  text-transform:uppercase;color:#999;
+  margin-bottom:20px;
+}
+.section-label.label-about{
+  font-size:14px;font-weight:800;letter-spacing:.16em;
+  color:#111;margin-bottom:24px;
+}
+.section-title{
+  font-size:clamp(28px,3vw,42px);font-weight:800;
+  letter-spacing:-.02em;color:var(--black);
+  margin-bottom:24px;
+}
+
+/* Bio */
+.bio-text{
+  font-size:17px;line-height:1.75;color:#333;
+  max-width:680px;
+}
+
+/* ── Brand Marquee ── */
+.marquee-section{
+  padding:52px 0 0;
+  background:#fff;
+}
+.marquee-divider{
+  max-width:1100px;margin:0 auto;
+  padding:0 48px;
+  border-bottom:1px solid #f0f0f0;
+  margin-top:52px;
+}
+.marquee-label{
+  text-align:center;
+  font-size:11px;font-weight:700;letter-spacing:.14em;
+  text-transform:uppercase;color:#bbb;
+  margin-bottom:32px;
+}
+.marquee-track-wrap{
+  position:relative;
+  overflow:hidden;
+  max-width:68%;
+  margin:0 auto;
+}
+/* fade masks left + right */
+.marquee-track-wrap::before,
+.marquee-track-wrap::after{
+  content:'';
+  position:absolute;top:0;bottom:0;
+  width:160px;z-index:2;pointer-events:none;
+}
+.marquee-track-wrap::before{
+  left:0;
+  background:linear-gradient(to right, #fff 0%, transparent 100%);
+}
+.marquee-track-wrap::after{
+  right:0;
+  background:linear-gradient(to left, #fff 0%, transparent 100%);
+}
+.marquee-track{
+  display:flex;align-items:center;
+  gap:0;
+  width:max-content;
+  animation:marqueeScroll 28s linear infinite;
+}
+.marquee-track:hover{ animation-play-state:paused; }
+@keyframes marqueeScroll{
+  0%   { transform:translateX(0); }
+  100% { transform:translateX(-50%); }
+}
+.marquee-logo{
+  display:flex;align-items:center;justify-content:center;
+  padding:0 52px;
+  opacity:.22;
+  transition:opacity .3s;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.marquee-logo:hover{ opacity:.65; }
+.marquee-logo svg{
+  display:block;
+  height:28px;width:auto;
+  fill:#000;
+}
+.marquee-logo .logo-text{
+  font-size:20px;font-weight:800;letter-spacing:-.03em;
+  color:#000;font-family:'Inter',sans-serif;
+}
+
+/* Stats row */
+.stats-row{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:32px;
+  margin-top:20px;
+}
+.stat{padding:28px 0;text-align:center;}
+.stat-num{font-size:clamp(44px,5vw,72px);font-weight:900;color:var(--black);letter-spacing:-.04em;line-height:1;}
+.stat-label{font-size:13px;color:#999;margin-top:8px;font-weight:500;}
+.stat-num .count-val{display:inline-block;}
+.stat-num .count-suffix{display:inline-block;}
+
+/* Specialties */
+.tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px;}
+.tag{
+  padding:9px 18px;border-radius:50px;
+  font-size:13px;font-weight:600;
+  background:#f5f5f5;color:var(--black);
+  border:1px solid #e0e0e0;
+}
+
+/* ── Career Highlights ── */
+.highlights-section { max-width:1100px; margin:0 auto; padding:80px 48px; border-bottom:1px solid #f0f0f0; }
+.highlights-title { font-size:clamp(28px,3vw,42px); font-weight:800; letter-spacing:-.02em; color:var(--black); margin-bottom:40px; }
+.highlights-body { display:flex; gap:56px; align-items:flex-start; }
+
+/* Left list — matches "Recognized for Excellence" style */
+.highlights-list { flex:1; min-width:0; }
+.hl-item {
+  display:flex; align-items:baseline; justify-content:space-between; gap:24px;
+  padding:18px 0;
+  border-bottom:1px solid #ebebeb;
+  cursor:default;
+  transition:background .15s;
+  border-radius:0;
+}
+.hl-item:first-child { border-top:1px solid #ebebeb; }
+.hl-item:hover { background:transparent; }
+.hl-item.hl-active .hl-title { color:#000; }
+.hl-item.hl-active .hl-detail { color:#555; }
+.hl-title {
+  font-size:15px; font-weight:400; color:#222;
+  line-height:1.4; flex:1; min-width:0;
+  transition:color .15s;
+}
+.hl-detail {
+  font-size:15px; font-weight:400; color:#999;
+  white-space:nowrap; flex-shrink:0;
+  text-align:right;
+  transition:color .15s;
+}
+
+/* Right frame — portrait 3×4, large */
+.highlights-frame { width:340px; flex-shrink:0; position:sticky; top:110px; }
+.hl-frame-box {
+  position:relative; width:100%; aspect-ratio:3/4;
+  border-radius:12px; overflow:hidden;
+  background:#f0f0f0;
+  box-shadow:0 12px 48px rgba(0,0,0,.13);
+}
+.hl-photo {
+  position:absolute; inset:0; opacity:0;
+  transition:opacity .4s ease;
+  display:flex; align-items:flex-end;
+}
+.hl-photo.hl-ph-active { opacity:1; }
+.hl-photo-bg { position:absolute; inset:0; }
+.hl-photo-caption {
+  position:relative; z-index:2;
+  width:100%; padding:48px 20px 22px;
+  background:linear-gradient(to top, rgba(0,0,0,.78) 0%, transparent 100%);
+  color:#fff;
+}
+.hl-photo-caption-title { font-size:14px; font-weight:700; line-height:1.35; }
+.hl-photo-caption-year  { font-size:12px; opacity:.55; margin-top:4px; }
+.hl-frame-idle {
+  position:absolute; inset:0; z-index:1;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+  background:#f8f8f8; transition:opacity .3s;
+}
+.hl-frame-idle svg { opacity:.18; }
+.hl-frame-idle span { font-size:11px; font-weight:600; color:#ccc; letter-spacing:.07em; text-transform:uppercase; }
+.hl-frame-idle.hidden { opacity:0; pointer-events:none; }
+
+@media(max-width:900px){
+  .highlights-body { flex-direction:column-reverse; }
+  .highlights-frame { width:100%; max-width:340px; position:static; }
+}
+@media(max-width:640px){ .highlights-section { padding:60px 20px; } }
+
+/* ── Client Reviews ── */
+.reviews-section { max-width:1100px; margin:0 auto; padding:80px 48px; border-bottom:1px solid #f0f0f0; }
+.reviews-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:32px; }
+.reviews-summary { display:flex; align-items:center; gap:12px; }
+.reviews-big-score { font-size:52px; font-weight:900; letter-spacing:-.04em; color:var(--black); line-height:1; }
+.reviews-big-stars { color:#f5a623; font-size:22px; letter-spacing:2px; }
+.reviews-big-count { font-size:13px; color:#999; font-weight:600; margin-top:2px; }
+.reviews-count-label { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#999; }
+
+.review-list { display:flex; flex-direction:column; gap:0; }
+.review-item {
+  padding:24px 0;
+  border-bottom:1px solid #f5f5f5;
+}
+.review-item:last-child { border-bottom:none; }
+.review-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.review-left { display:flex; align-items:center; gap:12px; }
+.review-avatar {
+  width:36px; height:36px; border-radius:50%;
+  background:var(--black); color:#fff;
+  font-size:13px; font-weight:800;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; letter-spacing:-.01em;
+}
+.review-name { font-size:14px; font-weight:700; color:var(--black); }
+.review-stars { color:#f5a623; font-size:13px; letter-spacing:1px; margin-top:2px; }
+.review-date { font-size:12px; color:#bbb; font-weight:600; }
+.review-body { font-size:15px; line-height:1.7; color:#444; padding-left:48px; }
+
+@media(max-width:640px){
+  .reviews-section { padding:60px 20px; }
+  .reviews-header { flex-direction:column; gap:16px; }
+  .review-body { padding-left:0; }
+}
+
+/* CTA */
+.cta-bar{
+  max-width:1100px;margin:0 auto;
+  padding:60px 48px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-wrap:wrap;gap:24px;
+}
+.cta-text h2{font-size:clamp(24px,2.5vw,36px);font-weight:800;letter-spacing:-.02em;}
+.cta-text p{font-size:15px;color:#666;margin-top:6px;}
+.cta-btns{display:flex;gap:12px;}
+.btn-primary{
+  padding:16px 36px;background:var(--black);color:white;
+  border-radius:8px;font-size:15px;font-weight:700;
+  text-decoration:none;transition:background .2s;
+}
+.btn-primary:hover{background:#222;}
+.btn-outline{
+  padding:16px 36px;background:transparent;color:var(--black);
+  border:2px solid var(--black);border-radius:8px;
+  font-size:15px;font-weight:700;text-decoration:none;
+  transition:background .2s,color .2s;
+}
+.btn-outline:hover{background:var(--black);color:white;}
+button.btn-outline{font-family:inherit;cursor:pointer;}
+
+/* ── CHECK AVAILABILITY MODAL ── */
+.avail-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+.avail-overlay.open{opacity:1;pointer-events:auto;}
+.avail-modal{background:#fff;width:100%;max-width:560px;max-height:90vh;overflow-y:auto;padding:48px 48px 32px;position:relative;display:flex;flex-direction:column;gap:0;}
+.avail-close{position:absolute;top:20px;right:24px;background:none;border:none;font-size:20px;cursor:pointer;color:#999;font-weight:300;line-height:1;transition:color .15s;}
+.avail-close:hover{color:#000;}
+.avail-progress{height:4px;background:#e8e8e8;margin-bottom:36px;width:100%;}
+.avail-progress-fill{height:4px;background:#000;transition:width .4s cubic-bezier(.4,0,.2,1);}
+.avail-step-badge{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:12px;}
+.avail-q{font-size:clamp(20px,2.5vw,26px);font-weight:800;letter-spacing:-.03em;line-height:1.2;margin-bottom:28px;}
+.avail-hint{font-size:13px;color:#888;margin-top:16px;line-height:1.6;}
+
+/* Calendar */
+.avail-cal-wrap{border:1.5px solid #e0e0e0;padding:20px;}
+.avail-cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.avail-cal-nav{background:none;border:none;font-size:18px;cursor:pointer;color:#000;padding:4px 8px;transition:opacity .15s;}
+.avail-cal-nav:hover{opacity:.5;}
+.avail-cal-month{font-size:15px;font-weight:700;}
+.avail-cal-year-row{display:flex;gap:8px;margin-bottom:16px;}
+.avail-cal-year{padding:4px 10px;font-size:12px;font-weight:600;border:1.5px solid #e0e0e0;background:none;cursor:pointer;color:#999;transition:all .15s;}
+.avail-cal-year.active{background:#000;color:#fff;border-color:#000;}
+.avail-cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.avail-cal-dow{font-size:11px;font-weight:600;color:#999;text-align:center;padding:4px 0;}
+.avail-cal-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;cursor:pointer;transition:background .1s;border:none;background:none;}
+.avail-cal-day:hover:not(.other-month):not(.past){background:#f0f0f0;}
+.avail-cal-day.today{color:#000;font-weight:800;}
+.avail-cal-day.selected{background:#000;color:#fff;}
+.avail-cal-day.other-month{color:#ccc;cursor:default;}
+.avail-cal-day.past{color:#ddd;cursor:default;}
+.avail-cal-day.available{color:#0070f3;}
+
+/* Time */
+.avail-time-row{display:flex;align-items:center;gap:16px;margin-bottom:24px;}
+.avail-time-field{display:flex;align-items:center;gap:4px;border:1.5px solid #e0e0e0;padding:10px 16px;font-size:18px;font-weight:600;}
+.avail-time-field input{width:36px;border:none;outline:none;font-size:18px;font-weight:600;font-family:inherit;text-align:center;}
+.avail-ampm{display:flex;}
+.avail-ampm-btn{padding:10px 18px;border:1.5px solid #e0e0e0;background:none;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s;}
+.avail-ampm-btn.active{background:#000;color:#fff;border-color:#000;}
+.avail-pop-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#999;margin-bottom:12px;}
+.avail-times-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.avail-time-chip{padding:12px 8px;border:1.5px solid #e0e0e0;background:none;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;text-align:center;transition:all .15s;}
+.avail-time-chip:hover{border-color:#000;}
+.avail-time-chip.selected{background:#000;color:#fff;border-color:#000;}
+
+/* Duration */
+.avail-tabs{display:flex;margin-bottom:20px;border:1.5px solid #e0e0e0;}
+.avail-tab{flex:1;padding:12px;border:none;background:none;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;}
+.avail-tab.active{background:#000;color:#fff;}
+.avail-dur-list{display:flex;flex-direction:column;gap:0;}
+.avail-dur-opt{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border:1.5px solid #e0e0e0;margin-bottom:-1px;cursor:pointer;transition:all .15s;background:#fff;font-family:inherit;width:100%;text-align:left;}
+.avail-dur-opt:hover{background:#f8f8f8;}
+.avail-dur-opt.selected{background:#000;color:#fff;z-index:1;position:relative;}
+.avail-dur-name{font-size:15px;font-weight:600;}
+.avail-dur-note{font-size:12px;font-weight:400;opacity:.6;margin-left:6px;}
+.avail-dur-price{font-size:15px;font-weight:700;}
+.avail-addons-label{font-size:13px;font-weight:700;margin:24px 0 12px;}
+.avail-addon-card{border:1.5px solid #e0e0e0;padding:16px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+.avail-addon-title{font-size:14px;font-weight:700;margin-bottom:4px;}
+.avail-addon-desc{font-size:12px;color:#888;line-height:1.5;}
+.avail-addon-btn{padding:8px 16px;border:1.5px solid #000;background:none;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;flex-shrink:0;transition:all .15s;}
+.avail-addon-btn.added{background:#000;color:#fff;}
+
+/* Options list (event type, attendees) */
+.avail-options-list{display:flex;flex-direction:column;gap:0;}
+.avail-opt{padding:16px 20px;border:1.5px solid #e0e0e0;margin-bottom:-1px;cursor:pointer;font-size:15px;font-weight:500;background:#fff;transition:all .15s;text-align:left;font-family:inherit;width:100%;}
+.avail-opt:hover{background:#f8f8f8;}
+.avail-opt.selected{background:#000;color:#fff;z-index:1;position:relative;}
+
+/* Location */
+.avail-text-input{width:100%;padding:14px 16px;border:1.5px solid #e0e0e0;font-size:15px;font-family:inherit;outline:none;transition:border-color .15s;}
+.avail-text-input:focus{border-color:#000;}
+
+/* Venue details */
+.avail-sub-q{font-size:14px;font-weight:600;margin:20px 0 10px;}
+.avail-yn{display:flex;gap:0;}
+.avail-yn-btn{flex:1;padding:12px;border:1.5px solid #e0e0e0;background:none;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;}
+.avail-yn-btn.selected{background:#000;color:#fff;border-color:#000;}
+.avail-yn3{display:flex;gap:0;}
+.avail-yn3-btn{flex:1;padding:12px;border:1.5px solid #e0e0e0;background:none;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;transition:all .15s;}
+.avail-yn3-btn.selected{background:#000;color:#fff;border-color:#000;}
+
+/* Notes */
+.avail-textarea{width:100%;height:120px;padding:14px 16px;border:1.5px solid #e0e0e0;font-size:14px;font-family:inherit;outline:none;resize:vertical;transition:border-color .15s;line-height:1.6;}
+.avail-textarea:focus{border-color:#000;}
+.avail-hint-list{font-size:13px;color:#888;margin-top:14px;line-height:2;}
+
+/* Contact */
+.avail-sub-q2{font-size:18px;font-weight:700;margin-bottom:8px;}
+.avail-field{margin-bottom:16px;}
+.avail-field label{display:block;font-size:13px;font-weight:700;margin-bottom:6px;}
+.avail-field input{width:100%;padding:12px 14px;border:1.5px solid #e0e0e0;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s;}
+.avail-field input:focus{border-color:#000;}
+.avail-field small{display:block;font-size:12px;color:#888;margin-top:6px;}
+.avail-check{margin-bottom:12px;}
+.avail-check label{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:500;cursor:pointer;}
+.avail-check input[type=checkbox]{width:16px;height:16px;accent-color:#000;}
+
+/* Footer nav */
+.avail-footer{display:flex;justify-content:space-between;align-items:center;margin-top:36px;padding-top:24px;border-top:1px solid #e8e8e8;}
+.avail-back-btn{background:none;border:none;font-size:14px;font-weight:600;color:#888;cursor:pointer;font-family:inherit;padding:4px 0;transition:color .15s;}
+.avail-back-btn:hover{color:#000;}
+.avail-next-btn{padding:14px 36px;background:#000;color:#fff;border:none;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s;}
+.avail-next-btn:hover{background:#333;}
+.avail-next-btn:disabled{background:#ccc;cursor:default;}
+.avail-step{display:none;}
+.avail-step.active{display:block;}
+
+/* upload-drop-icon used in placeholder */
+.upload-drop-icon{font-size:36px;margin-bottom:12px;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="musicians.html" class="nav-back">Musicians</a>
+  <a href="musician-platform.html" class="nav-logo">OPUS.Z</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+
+  <!-- Photo — full screen -->
+  <div class="hero-photo-wrap" id="photoWrap">
+    <div class="hero-photo-bg" id="photoBg"></div>
+    <div class="hero-photo-placeholder" id="photoPlaceholder">
+      <div class="upload-drop-icon">📷</div>
+      <span>Press <strong>P</strong> to add photo</span>
+    </div>
+    <div class="photo-edit-hint">Press P to edit</div>
+  </div>
+
+  <!-- Gradient overlay -->
+  <div class="hero-overlay"></div>
+
+  <!-- Big decorative name at the very bottom -->
+  <div class="hero-name" id="heroNameBig">Martin</div>
+
+  <!-- Info card — above the big name -->
+  <div class="hero-info">
+    <div class="info-title">Violinist &amp; Composer</div>
+    <div class="info-rating">
+      <span class="stars">★★★★★</span>
+      <span class="rating-num">4.9</span>
+      <span class="reviews">· 148 Reviews (124 Verified)</span>
+    </div>
+    <div class="info-location">Taipei, Taiwan</div>
+  </div>
+</section>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- Bio -->
+  <div class="section">
+    <div class="section-label label-about">About</div>
+    <p class="bio-text">
+      Principal violinist with over 15 years of orchestral and chamber music experience. Specialising in Romantic and Contemporary repertoire, Martin brings a rare combination of technical precision and emotional depth to every performance. Graduate of the National Taiwan University of the Arts, with guest appearances at Carnegie Hall and the National Concert Hall Taipei.
+    </p>
+  </div>
+
+  <!-- Brand Marquee -->
+  <div class="marquee-section">
+    <div class="marquee-label">Trusted &amp; worked with</div>
+    <div class="marquee-track-wrap">
+      <div class="marquee-track" id="marqueeTrack">
+        <!-- Set A -->
+        <div class="marquee-logo"><span class="logo-text">Carnegie Hall</span></div>
+        <div class="marquee-logo">
+          <!-- Sony Music wordmark-style -->
+          <svg viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="26" fill="#000">SONY</text></svg>
+        </div>
+        <div class="marquee-logo"><span class="logo-text">National Concert Hall</span></div>
+        <div class="marquee-logo">
+          <svg viewBox="0 0 140 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="22" fill="#000">Universal Music</text></svg>
+        </div>
+        <div class="marquee-logo"><span class="logo-text">NTUA</span></div>
+        <div class="marquee-logo">
+          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="24" fill="#000">Warner</text></svg>
+        </div>
+        <div class="marquee-logo"><span class="logo-text">Steinway &amp; Sons</span></div>
+        <div class="marquee-logo">
+          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="26" fill="#000">Yamaha</text></svg>
+        </div>
+        <div class="marquee-logo"><span class="logo-text">Cloud Gate</span></div>
+        <div class="marquee-logo">
+          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="24" fill="#000">Spotify</text></svg>
+        </div>
+        <!-- Set B — exact duplicate so the loop is seamless -->
+        <div class="marquee-logo"><span class="logo-text">Carnegie Hall</span></div>
+        <div class="marquee-logo">
+          <svg viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="26" fill="#000">SONY</text></svg>
+        </div>
+        <div class="marquee-logo"><span class="logo-text">National Concert Hall</span></div>
+        <div class="marquee-logo">
+          <svg viewBox="0 0 140 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="22" fill="#000">Universal Music</text></svg>
+        </div>
+        <div class="marquee-logo"><span class="logo-text">NTUA</span></div>
+        <div class="marquee-logo">
+          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="24" fill="#000">Warner</text></svg>
+        </div>
+        <div class="marquee-logo"><span class="logo-text">Steinway &amp; Sons</span></div>
+        <div class="marquee-logo">
+          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="26" fill="#000">Yamaha</text></svg>
+        </div>
+        <div class="marquee-logo"><span class="logo-text">Cloud Gate</span></div>
+        <div class="marquee-logo">
+          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="24" fill="#000">Spotify</text></svg>
+        </div>
+      </div>
+    </div>
+    <div class="marquee-divider"></div>
+  </div>
+
+  <!-- Stats -->
+  <div class="section" id="statsSection">
+    <div class="section-label">By the numbers</div>
+    <div class="stats-row">
+      <div class="stat">
+        <div class="stat-num" data-count="15" data-suffix="+"><span class="count-val">15</span><span class="count-suffix">+</span></div>
+        <div class="stat-label">Years of experience</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" data-count="400" data-suffix="+"><span class="count-val">400</span><span class="count-suffix">+</span></div>
+        <div class="stat-label">Performances worldwide</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num" data-count="148" data-suffix=""><span class="count-val">148</span><span class="count-suffix"></span></div>
+        <div class="stat-label">Client reviews</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Specialties -->
+  <div class="section">
+    <div class="section-label">Specialties</div>
+    <div class="tags">
+      <span class="tag">Classical</span>
+      <span class="tag">Contemporary</span>
+      <span class="tag">Chamber Music</span>
+      <span class="tag">Solo Performance</span>
+      <span class="tag">Studio Recording</span>
+      <span class="tag">Private Lessons</span>
+      <span class="tag">Corporate Events</span>
+      <span class="tag">Wedding Music</span>
+    </div>
+  </div>
+
+  <!-- Career Highlights -->
+  <div class="highlights-section">
+    <div class="highlights-title">Career Highlights</div>
+    <div class="highlights-body">
+
+      <!-- Left: list -->
+      <div class="highlights-list" id="hlList">
+
+        <div class="hl-item" data-hl="0">
+          <div class="hl-title">Guest Soloist — Berlin Philharmonic</div>
+          <div class="hl-detail">Brahms Violin Concerto (2023)</div>
+        </div>
+
+        <div class="hl-item" data-hl="1">
+          <div class="hl-title">Carnegie Hall Debut Recital</div>
+          <div class="hl-detail">Weill Recital Hall, New York (2022)</div>
+        </div>
+
+        <div class="hl-item" data-hl="2">
+          <div class="hl-title">BBC Proms — Guest Soloist</div>
+          <div class="hl-detail">Royal Albert Hall, London (2022)</div>
+        </div>
+
+        <div class="hl-item" data-hl="3">
+          <div class="hl-title">Verbier Festival Young Artist</div>
+          <div class="hl-detail">Masterclass with Maxim Vengerov (2023)</div>
+        </div>
+
+        <div class="hl-item" data-hl="4">
+          <div class="hl-title">Golden Melody Award — Best Classical Album</div>
+          <div class="hl-detail">Nominee, Taiwan (2023)</div>
+        </div>
+
+        <div class="hl-item" data-hl="5">
+          <div class="hl-title">Principal Violinist — National Symphony Orchestra</div>
+          <div class="hl-detail">NSO Taiwan, 2019–Present</div>
+        </div>
+
+        <div class="hl-item" data-hl="6">
+          <div class="hl-title">Menuhin Competition — Semi-Finalist</div>
+          <div class="hl-detail">International Violin Competition, Geneva (2021)</div>
+        </div>
+
+        <div class="hl-item" data-hl="7">
+          <div class="hl-title">Marlboro Music Festival</div>
+          <div class="hl-detail">Chamber Music Residency, Vermont (2022)</div>
+        </div>
+
+        <div class="hl-item" data-hl="8">
+          <div class="hl-title">Guest Soloist — London Symphony Orchestra</div>
+          <div class="hl-detail">Sibelius Violin Concerto, Barbican (2023)</div>
+        </div>
+
+        <div class="hl-item" data-hl="9">
+          <div class="hl-title">Concertmaster — Taipei Philharmonic Orchestra</div>
+          <div class="hl-detail">National Concert Hall Taipei, 2018–2021</div>
+        </div>
+
+        <div class="hl-item" data-hl="10">
+          <div class="hl-title">Aspen Music Festival — Featured Artist</div>
+          <div class="hl-detail">Summer Residency, Colorado (2021)</div>
+        </div>
+
+        <div class="hl-item" data-hl="11">
+          <div class="hl-title">Taiwan National Concerto Competition — 1st Prize</div>
+          <div class="hl-detail">Ministry of Culture, Taipei (2018)</div>
+        </div>
+
+        <div class="hl-item" data-hl="12">
+          <div class="hl-title">Annual Solo Recital — National Concert Hall Taipei</div>
+          <div class="hl-detail">Sold-Out Series, 2020–Present</div>
+        </div>
+
+        <div class="hl-item" data-hl="13">
+          <div class="hl-title">Pacific Music Festival — Invited Young Artist</div>
+          <div class="hl-detail">Sapporo, Japan (2019)</div>
+        </div>
+
+        <div class="hl-item" data-hl="14">
+          <div class="hl-title">Seoul International Music Competition — Laureate</div>
+          <div class="hl-detail">Violin Category, 2nd Prize (2017)</div>
+        </div>
+
+      </div><!-- /highlights-list -->
+
+      <!-- Right: photo frame -->
+      <div class="highlights-frame">
+        <div class="hl-frame-box" id="hlFrameBox">
+
+          <!-- idle state -->
+          <div class="hl-frame-idle" id="hlIdle">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+            <span>Hover to preview</span>
+          </div>
+
+          <!-- photo 0: Berlin Philharmonic -->
+          <div class="hl-photo" data-ph="0">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#0a1628 0%,#1a3a6b 50%,#0d2044 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Berlin Philharmonic · 2023</div><div class="hl-photo-caption-year">Brahms Violin Concerto</div></div>
+          </div>
+          <!-- photo 1: Carnegie Hall -->
+          <div class="hl-photo" data-ph="1">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#2a1500 0%,#7a3a00 50%,#5c2800 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Carnegie Hall Debut · 2022</div><div class="hl-photo-caption-year">Weill Recital Hall, New York</div></div>
+          </div>
+          <!-- photo 2: BBC Proms -->
+          <div class="hl-photo" data-ph="2">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#1a0000 0%,#8b0000 50%,#3d0000 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">BBC Proms · 2022</div><div class="hl-photo-caption-year">Royal Albert Hall, London</div></div>
+          </div>
+          <!-- photo 3: Verbier -->
+          <div class="hl-photo" data-ph="3">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#071a12 0%,#0d5c32 50%,#0a3d22 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Verbier Festival · 2023</div><div class="hl-photo-caption-year">Masterclass, Switzerland</div></div>
+          </div>
+          <!-- photo 4: Golden Melody -->
+          <div class="hl-photo" data-ph="4">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#1a1200 0%,#7a5c00 50%,#c49a00 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Golden Melody Award · 2023</div><div class="hl-photo-caption-year">Best Classical Album Nominee</div></div>
+          </div>
+          <!-- photo 5: NSO -->
+          <div class="hl-photo" data-ph="5">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#1a0820 0%,#5c1a7a 50%,#3d0f52 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">NSO Taiwan · 2019–Present</div><div class="hl-photo-caption-year">Principal Violinist</div></div>
+          </div>
+          <!-- photo 6: Menuhin -->
+          <div class="hl-photo" data-ph="6">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#0f0020 0%,#3d0080 50%,#1a0040 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Menuhin Competition · 2021</div><div class="hl-photo-caption-year">Semi-Finalist, Geneva</div></div>
+          </div>
+          <!-- photo 7: Marlboro -->
+          <div class="hl-photo" data-ph="7">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#071510 0%,#1a4d2e 50%,#0d3320 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Marlboro Music Festival · 2022</div><div class="hl-photo-caption-year">Chamber Music Residency, Vermont</div></div>
+          </div>
+          <!-- photo 8: LSO -->
+          <div class="hl-photo" data-ph="8">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#080c1a 0%,#1a2a5c 50%,#0d1840 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">London Symphony Orchestra · 2023</div><div class="hl-photo-caption-year">Sibelius Violin Concerto, Barbican</div></div>
+          </div>
+          <!-- photo 9: Taipei Philharmonic -->
+          <div class="hl-photo" data-ph="9">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#100818 0%,#3a1258 50%,#200840 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Taipei Philharmonic · 2018–2021</div><div class="hl-photo-caption-year">Concertmaster</div></div>
+          </div>
+          <!-- photo 10: Aspen -->
+          <div class="hl-photo" data-ph="10">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#091520 0%,#1a4870 50%,#0d3050 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Aspen Music Festival · 2021</div><div class="hl-photo-caption-year">Featured Artist, Colorado</div></div>
+          </div>
+          <!-- photo 11: Taiwan Competition -->
+          <div class="hl-photo" data-ph="11">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#200000 0%,#8b1a1a 50%,#5c0000 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Taiwan National Concerto Competition · 2018</div><div class="hl-photo-caption-year">1st Prize, Ministry of Culture</div></div>
+          </div>
+          <!-- photo 12: NCH Taipei -->
+          <div class="hl-photo" data-ph="12">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#1a1008 0%,#5c3018 50%,#3d2010 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">National Concert Hall Taipei · 2020–Present</div><div class="hl-photo-caption-year">Annual Solo Recital Series</div></div>
+          </div>
+          <!-- photo 13: Pacific Music Festival -->
+          <div class="hl-photo" data-ph="13">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#001820 0%,#005c7a 50%,#003d52 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Pacific Music Festival · 2019</div><div class="hl-photo-caption-year">Invited Young Artist, Sapporo</div></div>
+          </div>
+          <!-- photo 14: Seoul Competition -->
+          <div class="hl-photo" data-ph="14">
+            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#200008 0%,#8b001a 50%,#5c0010 100%);"></div>
+            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Seoul International Music Competition · 2017</div><div class="hl-photo-caption-year">Violin Laureate · 2nd Prize</div></div>
+          </div>
+
+        </div><!-- /hl-frame-box -->
+      </div><!-- /highlights-frame -->
+
+    </div><!-- /highlights-body -->
+  </div><!-- /highlights-section -->
+
+  <!-- Client Reviews -->
+  <div class="reviews-section">
+    <div class="reviews-header">
+      <div class="reviews-summary">
+        <div class="reviews-big-score">4.9</div>
+        <div>
+          <div class="reviews-big-stars">★★★★★</div>
+          <div class="reviews-big-count">148 Reviews · 124 Verified</div>
+        </div>
+      </div>
+      <div class="reviews-count-label">Client Reviews</div>
+    </div>
+
+    <div class="review-list">
+
+      <div class="review-item">
+        <div class="review-top">
+          <div class="review-left">
+            <div class="review-avatar" style="background:#1a1a1a;">YC</div>
+            <div>
+              <div class="review-name">Y.C.</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-date">3 天前</div>
+        </div>
+        <div class="review-body">Martin 在我們的婚禮上表現出色，從排練到正式演出都非常專業。現場氣氛感人至深，所有賓客都讚不絕口。非常推薦！</div>
+      </div>
+
+      <div class="review-item">
+        <div class="review-top">
+          <div class="review-left">
+            <div class="review-avatar" style="background:#2c2c2c;">JL</div>
+            <div>
+              <div class="review-name">J.L.</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-date">1 週前</div>
+        </div>
+        <div class="review-body">We hired Martin for our company gala and he absolutely exceeded our expectations. His stage presence and musicianship were world-class. Will definitely book again.</div>
+      </div>
+
+      <div class="review-item">
+        <div class="review-top">
+          <div class="review-left">
+            <div class="review-avatar" style="background:#333;">SH</div>
+            <div>
+              <div class="review-name">S.H.</div>
+              <div class="review-stars">★★★★☆</div>
+            </div>
+          </div>
+          <div class="review-date">2 週前</div>
+        </div>
+        <div class="review-body">錄音工作坊進行得非常順利，Martin 的技術指導讓整個團隊受益良多。課程內容深入淺出，節奏掌握得很好。唯一建議是時間可以再安排寬裕一些。</div>
+      </div>
+
+      <div class="review-item">
+        <div class="review-top">
+          <div class="review-left">
+            <div class="review-avatar" style="background:#111;">MW</div>
+            <div>
+              <div class="review-name">M.W.</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-date">1 個月前</div>
+        </div>
+        <div class="review-body">Breathtaking performance at the chamber music concert. The way Martin interpreted Brahms was deeply moving — you could feel every phrase. A true artist.</div>
+      </div>
+
+      <div class="review-item">
+        <div class="review-top">
+          <div class="review-left">
+            <div class="review-avatar" style="background:#222;">AT</div>
+            <div>
+              <div class="review-name">A.T.</div>
+              <div class="review-stars">★★★★★</div>
+            </div>
+          </div>
+          <div class="review-date">1 個月前</div>
+        </div>
+        <div class="review-body">私人小提琴課非常有收穫，Martin 對學生的程度判斷精準，給的練習建議實用又有針對性。短短幾堂課就感受到明顯進步，很感謝。</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-bar">
+    <div class="cta-text">
+      <h2>Book Martin for your next event</h2>
+      <p>Available for performances, recordings, and private sessions.</p>
+    </div>
+    <div class="cta-btns">
+      <a href="#contact" class="btn-primary">Send Enquiry</a>
+      <button class="btn-outline" id="openAvailBtn" onclick="openAvail()">Check Availability</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var STORE_IMG = 'martin-profile-img';
+  var STORE_POS = 'martin-profile-pos';
+
+  // ── State ──
+  var state = { x:50, y:50, zoom:0, url:'' };
+
+  // ── Load from localStorage ──
+  (function loadSaved(){
+    var img = localStorage.getItem(STORE_IMG);
+    var pos;
+    try { pos = JSON.parse(localStorage.getItem(STORE_POS)||'{}'); } catch(e){ pos={}; }
+    if(img) state.url = img;
+    if(pos.x != null) state.x = pos.x;
+    if(pos.y != null) state.y = pos.y;
+    if(pos.zoom != null) state.zoom = pos.zoom;
+    applyPhoto();
+  })();
+
+  // ── Apply photo + position to the bg div ──
+  function applyPhoto(){
+    var bg = document.getElementById('photoBg');
+    var ph = document.getElementById('photoPlaceholder');
+    if(!bg) return;
+    if(state.url){
+      bg.style.backgroundImage = "url('" + state.url + "')";
+      bg.style.backgroundPosition = state.x + '% ' + state.y + '%';
+      var zf = 1 + state.zoom/100;
+      bg.style.backgroundSize = zf <= 1 ? 'cover' : Math.round(zf*100) + '%';
+      if(ph) ph.classList.add('hidden');
+    } else {
+      bg.style.backgroundImage = '';
+      bg.style.backgroundSize = 'cover';
+      bg.style.backgroundPosition = state.x + '% ' + state.y + '%';
+      if(ph) ph.classList.remove('hidden');
+    }
+  }
+
+  // ── Compress image before storing ──
+  function compressImg(dataUrl, cb){
+    var img = new Image();
+    img.onload = function(){
+      var MAX=1600, w=img.naturalWidth, h=img.naturalHeight;
+      var scale = Math.min(1, MAX/Math.max(w,h));
+      var cv = document.createElement('canvas');
+      cv.width  = Math.round(w*scale);
+      cv.height = Math.round(h*scale);
+      cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+      cb(cv.toDataURL('image/jpeg',0.85));
+    };
+    img.onerror = function(){ cb(dataUrl); };
+    img.src = dataUrl;
+  }
+
+  // ── Save positions ──
+  function savePos(){
+    try { localStorage.setItem(STORE_POS, JSON.stringify({x:state.x, y:state.y, zoom:state.zoom})); } catch(e){}
+  }
+
+  // ── Highlights slot titles (must match data-hl order) ──
+  var HL_TITLES = [
+    'Berlin Philharmonic', 'Carnegie Hall Debut', 'BBC Proms',
+    'Verbier Festival', 'Golden Melody Award', 'NSO Taiwan Principal',
+    'Menuhin Competition', 'Marlboro Music Festival', 'London Symphony Orchestra',
+    'Taipei Philharmonic Concertmaster', 'Aspen Music Festival',
+    'Taiwan Concerto Competition', 'NCH Taipei Solo Recital',
+    'Pacific Music Festival', 'Seoul International Competition'
+  ];
+
+  // ── Load saved highlight images and apply to DOM ──
+  function applyHlImg(idx, dataUrl) {
+    var bg = document.querySelector('.hl-photo[data-ph="'+idx+'"] .hl-photo-bg');
+    if (!bg) return;
+    if (dataUrl) {
+      bg.style.background = 'none';
+      bg.style.backgroundImage  = 'url(' + dataUrl + ')';
+      bg.style.backgroundSize   = 'cover';
+      bg.style.backgroundPosition = 'center';
+    } else {
+      // restore original gradient
+      var grads = [
+        'linear-gradient(145deg,#0a1628,#1a3a6b,#0d2044)',
+        'linear-gradient(145deg,#2a1500,#7a3a00,#5c2800)',
+        'linear-gradient(145deg,#1a0000,#8b0000,#3d0000)',
+        'linear-gradient(145deg,#071a12,#0d5c32,#0a3d22)',
+        'linear-gradient(145deg,#1a1200,#7a5c00,#c49a00)',
+        'linear-gradient(145deg,#1a0820,#5c1a7a,#3d0f52)',
+        'linear-gradient(145deg,#0f0020,#3d0080,#1a0040)',
+        'linear-gradient(145deg,#071510,#1a4d2e,#0d3320)',
+        'linear-gradient(145deg,#080c1a,#1a2a5c,#0d1840)',
+        'linear-gradient(145deg,#100818,#3a1258,#200840)',
+        'linear-gradient(145deg,#091520,#1a4870,#0d3050)',
+        'linear-gradient(145deg,#200000,#8b1a1a,#5c0000)',
+        'linear-gradient(145deg,#1a1008,#5c3018,#3d2010)',
+        'linear-gradient(145deg,#001820,#005c7a,#003d52)',
+        'linear-gradient(145deg,#200008,#8b001a,#5c0010)'
+      ];
+      bg.style.backgroundImage = 'none';
+      bg.style.background = grads[idx] || '#333';
+    }
+  }
+
+  // Init: load all 15 highlight images from localStorage
+  for (var _i = 0; _i < 15; _i++) {
+    var _saved = localStorage.getItem('hl-img-' + _i);
+    if (_saved) applyHlImg(_i, _saved);
+  }
+
+  // ── Build floating editor panel ──
+  var panel = document.createElement('div');
+  panel.id = 'martin-photo-editor';
+  panel.style.cssText = 'position:fixed;top:50%;right:20px;transform:translateY(-50%);z-index:99999;background:rgba(10,10,10,0.96);color:#fff;border-radius:16px;width:300px;font-family:-apple-system,sans-serif;font-size:12px;box-shadow:0 8px 40px rgba(0,0,0,.7);display:none;flex-direction:column;backdrop-filter:blur(12px);user-select:none;overflow:hidden;';
+
+  // Build highlight rows HTML
+  var hlRows = HL_TITLES.map(function(title, i){
+    return [
+      '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);">',
+        '<div id="hl-thumb-'+i+'" style="width:32px;height:42px;border-radius:5px;background:#2a2a2a;flex-shrink:0;overflow:hidden;border:1px solid rgba(255,255,255,.1);background-size:cover;background-position:center;"></div>',
+        '<div style="flex:1;min-width:0;font-size:11px;color:rgba(255,255,255,.65);line-height:1.35;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">'+title+'</div>',
+        '<label style="flex-shrink:0;cursor:pointer;background:rgba(255,255,255,.12);border-radius:6px;padding:5px 9px;font-size:10px;font-weight:700;white-space:nowrap;letter-spacing:.03em;transition:background .15s;" onmouseover="this.style.background=\'rgba(255,255,255,.22)\'" onmouseout="this.style.background=\'rgba(255,255,255,.12)\'">',
+          '換圖',
+          '<input type="file" accept="image/*" data-hl="'+i+'" style="display:none;">',
+        '</label>',
+        '<button data-hl-reset="'+i+'" style="flex-shrink:0;background:transparent;border:1px solid rgba(255,255,255,.15);border-radius:6px;padding:4px 7px;font-size:10px;color:rgba(255,255,255,.3);cursor:pointer;transition:color .15s;" onmouseover="this.style.color=\'rgba(255,255,255,.6)\'" onmouseout="this.style.color=\'rgba(255,255,255,.3)\'">✕</button>',
+      '</div>'
+    ].join('');
+  }).join('');
+
+  panel.innerHTML = [
+    // Drag header
+    '<div id="mpe-drag" style="padding:14px 16px 12px;cursor:grab;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08);">',
+      '<div style="display:flex;justify-content:space-between;align-items:center;">',
+        '<span style="font-weight:700;font-size:13px;">📷 Photo Editor</span>',
+        '<span style="opacity:.35;font-size:10px;">P 關閉 · 拖曳移動</span>',
+      '</div>',
+    '</div>',
+    // Tab bar
+    '<div style="display:flex;flex-shrink:0;border-bottom:1px solid rgba(255,255,255,.08);">',
+      '<button id="mpe-tab-hero" style="flex:1;padding:9px 0;background:transparent;border:none;color:#fff;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.04em;opacity:1;border-bottom:2px solid #fff;">封面照</button>',
+      '<button id="mpe-tab-hl" style="flex:1;padding:9px 0;background:transparent;border:none;color:#fff;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.04em;opacity:.35;border-bottom:2px solid transparent;">Career Highlights</button>',
+    '</div>',
+    // Hero tab body
+    '<div id="mpe-body-hero" style="padding:16px;display:flex;flex-direction:column;">',
+      '<div style="margin-bottom:14px;">',
+        '<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><label style="font-size:10px;font-weight:600;opacity:.6;text-transform:uppercase;letter-spacing:.08em;">X 位置</label><span id="mpe-xval" style="font-size:10px;opacity:.5;">50%</span></div>',
+        '<input id="mpe-x" type="range" min="0" max="100" step="0.5" value="50" style="width:100%;accent-color:#fff;">',
+      '</div>',
+      '<div style="margin-bottom:14px;">',
+        '<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><label style="font-size:10px;font-weight:600;opacity:.6;text-transform:uppercase;letter-spacing:.08em;">Y 位置</label><span id="mpe-yval" style="font-size:10px;opacity:.5;">50%</span></div>',
+        '<input id="mpe-y" type="range" min="0" max="100" step="0.5" value="50" style="width:100%;accent-color:#fff;">',
+      '</div>',
+      '<div style="margin-bottom:18px;">',
+        '<div style="display:flex;justify-content:space-between;margin-bottom:5px;"><label style="font-size:10px;font-weight:600;opacity:.6;text-transform:uppercase;letter-spacing:.08em;">縮放</label><span id="mpe-zval" style="font-size:10px;opacity:.5;">0%</span></div>',
+        '<input id="mpe-z" type="range" min="-30" max="150" step="1" value="0" style="width:100%;accent-color:#fff;">',
+      '</div>',
+      '<label id="mpe-upload-btn" style="display:block;width:100%;padding:9px;box-sizing:border-box;text-align:center;border:1px dashed rgba(255,255,255,.3);border-radius:8px;cursor:pointer;font-size:11px;font-weight:600;margin-bottom:8px;transition:border-color .2s;" onmouseover="this.style.borderColor=\'rgba(255,255,255,.7)\'" onmouseout="this.style.borderColor=\'rgba(255,255,255,.3)\'">',
+        '🖼 選擇照片',
+        '<input id="mpe-file" type="file" accept="image/*" style="display:none;">',
+      '</label>',
+      '<button id="mpe-save" style="width:100%;padding:9px;border:none;border-radius:8px;background:#fff;color:#000;font-weight:700;font-size:12px;cursor:pointer;margin-bottom:6px;">💾 儲存位置</button>',
+      '<button id="mpe-reset" style="width:100%;padding:7px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:rgba(255,255,255,.4);font-size:11px;cursor:pointer;">重置照片</button>',
+    '</div>',
+    // Highlights tab body
+    '<div id="mpe-body-hl" style="padding:4px 14px 14px;display:none;max-height:460px;overflow-y:auto;flex-direction:column;">',
+      '<div style="padding:10px 0 6px;font-size:10px;font-weight:700;opacity:.4;letter-spacing:.1em;text-transform:uppercase;">各項目照片</div>',
+      hlRows,
+    '</div>',
+    // Toast
+    '<div id="mpe-toast" style="position:absolute;bottom:-44px;left:50%;transform:translateX(-50%);background:#fff;color:#000;border-radius:8px;padding:7px 16px;font-size:12px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3);"></div>'
+  ].join('');
+
+  document.body.appendChild(panel);
+
+  // ── Sync sliders to state ──
+  function syncSliders(){
+    document.getElementById('mpe-x').value = state.x;
+    document.getElementById('mpe-y').value = state.y;
+    document.getElementById('mpe-z').value = state.zoom;
+    document.getElementById('mpe-xval').textContent = Math.round(state.x) + '%';
+    document.getElementById('mpe-yval').textContent = Math.round(state.y) + '%';
+    document.getElementById('mpe-zval').textContent = (state.zoom > 0 ? '+' : '') + Math.round(state.zoom) + '%';
+  }
+  syncSliders();
+
+  // ── Slider events ──
+  document.getElementById('mpe-x').addEventListener('input', function(){
+    state.x = parseFloat(this.value);
+    document.getElementById('mpe-xval').textContent = Math.round(state.x) + '%';
+    applyPhoto();
+  });
+  document.getElementById('mpe-y').addEventListener('input', function(){
+    state.y = parseFloat(this.value);
+    document.getElementById('mpe-yval').textContent = Math.round(state.y) + '%';
+    applyPhoto();
+  });
+  document.getElementById('mpe-z').addEventListener('input', function(){
+    state.zoom = parseFloat(this.value);
+    document.getElementById('mpe-zval').textContent = (state.zoom > 0 ? '+' : '') + Math.round(state.zoom) + '%';
+    applyPhoto();
+  });
+
+  // ── File upload ──
+  document.getElementById('mpe-file').addEventListener('change', function(e){
+    var file = e.target.files[0];
+    if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      compressImg(ev.target.result, function(compressed){
+        state.url = compressed;
+        try { localStorage.setItem(STORE_IMG, compressed); } catch(err){
+          showToast('⚠️ 儲存空間不足');
+        }
+        applyPhoto();
+        showToast('照片已上傳 ✓');
+      });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
+  // ── Save button ──
+  document.getElementById('mpe-save').addEventListener('click', function(){
+    savePos();
+    showToast('位置已儲存 ✓');
+  });
+
+  // ── Reset button ──
+  document.getElementById('mpe-reset').addEventListener('click', function(){
+    localStorage.removeItem(STORE_IMG);
+    localStorage.removeItem(STORE_POS);
+    state = { x:50, y:50, zoom:0, url:'' };
+    syncSliders();
+    applyPhoto();
+    showToast('已重置');
+  });
+
+  // ── Tab switching ──
+  var tabHeroBtn = document.getElementById('mpe-tab-hero');
+  var tabHlBtn   = document.getElementById('mpe-tab-hl');
+  var bodyHero   = document.getElementById('mpe-body-hero');
+  var bodyHl     = document.getElementById('mpe-body-hl');
+
+  tabHeroBtn.addEventListener('click', function(){
+    bodyHero.style.display = 'flex';
+    bodyHl.style.display   = 'none';
+    tabHeroBtn.style.opacity = '1';
+    tabHeroBtn.style.borderBottomColor = '#fff';
+    tabHlBtn.style.opacity = '.35';
+    tabHlBtn.style.borderBottomColor = 'transparent';
+  });
+  tabHlBtn.addEventListener('click', function(){
+    bodyHero.style.display = 'none';
+    bodyHl.style.display   = 'flex';
+    tabHlBtn.style.opacity = '1';
+    tabHlBtn.style.borderBottomColor = '#fff';
+    tabHeroBtn.style.opacity = '.35';
+    tabHeroBtn.style.borderBottomColor = 'transparent';
+    refreshHlThumbs();
+  });
+
+  // ── Sync thumbnails in Highlights tab ──
+  function refreshHlThumbs(){
+    for (var i = 0; i < 15; i++) {
+      var thumb = document.getElementById('hl-thumb-' + i);
+      if (!thumb) continue;
+      var saved = localStorage.getItem('hl-img-' + i);
+      if (saved) {
+        thumb.style.backgroundImage = 'url(' + saved + ')';
+        thumb.style.backgroundSize = 'cover';
+        thumb.style.backgroundPosition = 'center';
+        thumb.style.background = 'none'; // clear fallback
+        thumb.style.backgroundImage = 'url(' + saved + ')';
+        thumb.style.backgroundSize = 'cover';
+      } else {
+        thumb.style.backgroundImage = '';
+        thumb.style.background = '#2a2a2a';
+      }
+    }
+  }
+
+  // ── Highlight file uploads (event delegation) ──
+  document.getElementById('mpe-body-hl').addEventListener('change', function(e){
+    var input = e.target;
+    if (input.tagName !== 'INPUT' || !input.dataset.hl) return;
+    var idx = parseInt(input.dataset.hl, 10);
+    var file = input.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      compressImg(ev.target.result, function(compressed){
+        try { localStorage.setItem('hl-img-' + idx, compressed); } catch(err){
+          showToast('⚠️ 儲存空間不足'); return;
+        }
+        applyHlImg(idx, compressed);
+        refreshHlThumbs();
+        showToast('第 ' + (idx+1) + ' 項照片已儲存 ✓');
+      });
+    };
+    reader.readAsDataURL(file);
+    input.value = '';
+  });
+
+  // ── Highlight reset buttons (event delegation) ──
+  document.getElementById('mpe-body-hl').addEventListener('click', function(e){
+    var btn = e.target.closest('[data-hl-reset]');
+    if (!btn) return;
+    var idx = parseInt(btn.dataset.hlReset, 10);
+    localStorage.removeItem('hl-img-' + idx);
+    applyHlImg(idx, null);
+    refreshHlThumbs();
+    showToast('第 ' + (idx+1) + ' 項已重置');
+  });
+
+  // ── Toast ──
+  var _toastT;
+  function showToast(msg){
+    var t = document.getElementById('mpe-toast');
+    t.textContent = msg; t.style.opacity = '1';
+    clearTimeout(_toastT);
+    _toastT = setTimeout(function(){ t.style.opacity = '0'; }, 1800);
+  }
+
+  // ── Toggle panel ──
+  var panelOpen = false;
+  function openPanel(){
+    panelOpen = true;
+    panel.style.display = 'flex';
+    syncSliders();
+  }
+  function closePanel(){
+    panelOpen = false;
+    panel.style.display = 'none';
+  }
+  function togglePanel(){
+    panelOpen ? closePanel() : openPanel();
+  }
+
+  // ── Press P ──
+  document.addEventListener('keydown', function(e){
+    if((e.key === 'p' || e.key === 'P') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
+      togglePanel();
+    }
+    if(e.key === 'Escape') closePanel();
+  });
+
+  // ── Click photo area to open ──
+  document.getElementById('photoWrap').addEventListener('click', function(){
+    openPanel();
+  });
+
+  // ── Drag panel ──
+  var dragHandle = document.getElementById('mpe-drag');
+  var dragging = false, dragOffX=0, dragOffY=0;
+  dragHandle.addEventListener('mousedown', function(e){
+    dragging = true;
+    var r = panel.getBoundingClientRect();
+    dragOffX = e.clientX - r.left;
+    dragOffY = e.clientY - r.top;
+    panel.style.transform = 'none';
+    panel.style.top  = r.top + 'px';
+    panel.style.right = 'auto';
+    panel.style.left = r.left + 'px';
+    dragHandle.style.cursor = 'grabbing';
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', function(e){
+    if(!dragging) return;
+    panel.style.left = (e.clientX - dragOffX) + 'px';
+    panel.style.top  = (e.clientY - dragOffY) + 'px';
+  });
+  document.addEventListener('mouseup', function(){
+    dragging = false;
+    dragHandle.style.cursor = 'grab';
+  });
+
+})();
+</script>
+<!-- CHECK AVAILABILITY MODAL -->
+<div class="avail-overlay" id="availOverlay">
+  <div class="avail-modal" id="availModal">
+    <button class="avail-close" id="availClose">✕</button>
+    <div class="avail-progress"><div class="avail-progress-fill" id="availProgressFill"></div></div>
+
+    <!-- Step 1: Date -->
+    <div class="avail-step active" id="avStep1">
+      <div class="avail-step-badge">Check availability</div>
+      <h3 class="avail-q">When is the event?</h3>
+      <div class="avail-cal-wrap">
+        <div class="avail-cal-year-row" id="calYearRow"></div>
+        <div class="avail-cal-head">
+          <button class="avail-cal-nav" id="calPrev">←</button>
+          <span class="avail-cal-month" id="calMonthLabel"></span>
+          <button class="avail-cal-nav" id="calNext">→</button>
+        </div>
+        <div class="avail-cal-grid" id="calGrid"></div>
+      </div>
+      <p class="avail-hint">No date yet? Pick the most likely date — you can change it later.</p>
+    </div>
+
+    <!-- Step 2: Time -->
+    <div class="avail-step" id="avStep2">
+      <div class="avail-step-badge" id="s2badge"></div>
+      <h3 class="avail-q">What time would you like the musician to start?</h3>
+      <div class="avail-time-row">
+        <div class="avail-time-field">
+          <input type="text" id="timeHour" placeholder="—" maxlength="2" oninput="syncTimeFromInput()">
+          <span>:</span>
+          <input type="text" id="timeMin" placeholder="—" maxlength="2" oninput="syncTimeFromInput()">
+        </div>
+        <div class="avail-ampm">
+          <button class="avail-ampm-btn" id="btnAM" onclick="setAMPM('AM')">AM</button>
+          <button class="avail-ampm-btn active" id="btnPM" onclick="setAMPM('PM')">PM</button>
+        </div>
+      </div>
+      <div class="avail-pop-label">Popular start times:</div>
+      <div class="avail-times-grid" id="timesGrid"></div>
+      <p class="avail-hint">Not sure? Put your best guess — you can change it later.</p>
+    </div>
+
+    <!-- Step 3: Duration -->
+    <div class="avail-step" id="avStep3">
+      <div class="avail-step-badge" id="s3badge"></div>
+      <h3 class="avail-q">How long would you like the musician to play for?</h3>
+      <div class="avail-tabs" id="durTabs">
+        <button class="avail-tab active" onclick="setDurTab('hour',this)">Per hour</button>
+        <button class="avail-tab" onclick="setDurTab('package',this)">Packages</button>
+      </div>
+      <div class="avail-dur-list" id="durOptions"></div>
+      <div class="avail-addons-label">Add-ons (optional)</div>
+      <div class="avail-addon-card">
+        <div>
+          <div class="avail-addon-title">Arrangement of a piece of music</div>
+          <div class="avail-addon-desc">Customised repertoire arranged specifically for your event. Prices from NT$1,500.</div>
+        </div>
+        <button class="avail-addon-btn" id="addonBtn" onclick="toggleAddon(this)">Add</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Event type -->
+    <div class="avail-step" id="avStep4">
+      <h3 class="avail-q">What's the event?</h3>
+      <div class="avail-options-list" id="eventTypeList"></div>
+    </div>
+
+    <!-- Step 5: Location -->
+    <div class="avail-step" id="avStep5">
+      <div class="avail-step-badge" id="s5badge"></div>
+      <h3 class="avail-q" id="s5q">Where is the event?</h3>
+      <input type="text" class="avail-text-input" id="locationInput" placeholder="District or city (e.g. 大安區, Manhattan)">
+      <p class="avail-hint">Please be as specific as you can.</p>
+    </div>
+
+    <!-- Step 6: Venue details -->
+    <div class="avail-step" id="avStep6">
+      <div class="avail-step-badge" id="s6badge"></div>
+      <h3 class="avail-q">Have you got a venue booked?</h3>
+      <div class="avail-yn" id="ynVenue">
+        <button class="avail-yn-btn" onclick="pickYN('ynVenue',this)">Yes</button>
+        <button class="avail-yn-btn" onclick="pickYN('ynVenue',this)">No</button>
+      </div>
+      <div class="avail-sub-q">Is there a sound system included with your venue?</div>
+      <div class="avail-yn3" id="ynSound">
+        <button class="avail-yn3-btn" onclick="pickYN3('ynSound',this)">Yes</button>
+        <button class="avail-yn3-btn" onclick="pickYN3('ynSound',this)">No</button>
+        <button class="avail-yn3-btn" onclick="pickYN3('ynSound',this)">Not sure</button>
+      </div>
+      <div class="avail-sub-q">Is stage lighting included with your venue?</div>
+      <div class="avail-yn3" id="ynLight">
+        <button class="avail-yn3-btn" onclick="pickYN3('ynLight',this)">Yes</button>
+        <button class="avail-yn3-btn" onclick="pickYN3('ynLight',this)">No</button>
+        <button class="avail-yn3-btn" onclick="pickYN3('ynLight',this)">Not sure</button>
+      </div>
+      <div class="avail-sub-q">Is there a piano at the venue?</div>
+      <div class="avail-yn3" id="ynPiano">
+        <button class="avail-yn3-btn" onclick="pickYN3('ynPiano',this)">Yes</button>
+        <button class="avail-yn3-btn" onclick="pickYN3('ynPiano',this)">No</button>
+        <button class="avail-yn3-btn" onclick="pickYN3('ynPiano',this)">Not sure</button>
+      </div>
+      <div class="avail-sub-q">How many attendees will be at the event?</div>
+      <div class="avail-options-list" id="attendeeList"></div>
+    </div>
+
+    <!-- Step 7: Notes -->
+    <div class="avail-step" id="avStep7">
+      <div class="avail-step-badge" id="s7badge"></div>
+      <h3 class="avail-q">Tell us a little more about your event <span style="font-weight:400;font-size:75%;">(optional)</span></h3>
+      <textarea class="avail-textarea" id="eventNotes" placeholder="Write a short message"></textarea>
+      <p class="avail-hint-list">Help the musician give you a more accurate quote:<br>· Song requests &nbsp;· Type of venue<br>· Indoor / Outdoor &nbsp;· Size of performance space</p>
+    </div>
+
+    <!-- Step 8: Contact -->
+    <div class="avail-step" id="avStep8">
+      <h3 class="avail-q">Thanks, that's all we need!</h3>
+      <div class="avail-sub-q2">Where shall we send their reply?</div>
+      <p class="avail-hint" style="margin-bottom:24px;">We need your contact details to send you the musician's response.</p>
+      <div class="avail-field">
+        <label>Full name</label>
+        <input type="text" id="contactName" placeholder="Your name">
+      </div>
+      <div class="avail-field">
+        <label>Email</label>
+        <input type="email" id="contactEmail" placeholder="example@email.com">
+      </div>
+      <div class="avail-field">
+        <label>Phone number</label>
+        <input type="tel" id="contactPhone" placeholder="+886 912 345 678">
+        <small>We'll notify you when the musician responds.</small>
+      </div>
+      <div class="avail-check">
+        <label><input type="checkbox" id="chkSimilar"> Send me similar musicians if Martin isn't available</label>
+      </div>
+      <div class="avail-check">
+        <label><input type="checkbox" id="chkBiz"> I'm booking for a business</label>
+      </div>
+    </div>
+
+    <div class="avail-footer">
+      <button class="avail-back-btn" id="availBackBtn">Back</button>
+      <button class="avail-next-btn" id="availNextBtn">Next</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Check Availability Modal ──────────────────────────────────────────────────
+(function(){
+  var TOTAL_STEPS = 8;
+  var currentStep = 1;
+  var state = {
+    date: null, hour: null, min: null, ampm: 'PM',
+    durTab: 'hour', duration: null, addon: false,
+    eventType: null, location: '', venueBooked: null,
+    sound: null, lighting: null, piano: null, attendees: null, notes: ''
+  };
+
+  var MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  var DAYS   = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+  var calYear, calMonth;
+
+  var DUR_HOUR = [
+    {label:'1 hour', note:'', price:'NT$6,000'},
+    {label:'2 hours', note:'(includes breaks)', price:'NT$10,800'},
+    {label:'3 hours', note:'(includes breaks)', price:'NT$15,000'}
+  ];
+  var DUR_PKG = [
+    {label:'Ceremony only', note:'~45 min', price:'NT$8,500'},
+    {label:'Reception package', note:'2–3 hrs', price:'NT$14,000'},
+    {label:'Full-day package', note:'up to 6 hrs', price:'NT$24,000'}
+  ];
+  var EVENT_TYPES = ['Wedding','Private event','Corporate event','Bar / Club / Venue event','Concert / Recital','Other'];
+  var ATTENDEES   = ['Less than 50','50–100','100–250','250–500','More than 500'];
+  var POP_TIMES   = ['11am','12pm','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm','10pm'];
+
+  // Init
+  var overlay  = document.getElementById('availOverlay');
+  var progress = document.getElementById('availProgressFill');
+  var backBtn  = document.getElementById('availBackBtn');
+  var nextBtn  = document.getElementById('availNextBtn');
+
+  // Define functions FIRST before adding listeners
+  function closeAvail(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  window.openAvail = function(){
+    // Reset calendar to current month every time modal opens
+    var now = new Date();
+    calYear  = now.getFullYear();
+    calMonth = now.getMonth();
+    currentStep = 1;
+    renderStep();
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+
+  document.getElementById('availClose').addEventListener('click', closeAvail);
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) closeAvail(); });
+  backBtn.addEventListener('click', prevStep);
+  nextBtn.addEventListener('click', nextStep);
+
+  function updateProgress(){
+    progress.style.width = ((currentStep-1)/(TOTAL_STEPS-1)*100) + '%';
+  }
+
+  function showStep(n){
+    for(var i=1;i<=TOTAL_STEPS;i++){
+      var el=document.getElementById('avStep'+i);
+      if(el) el.classList.toggle('active', i===n);
+    }
+    backBtn.style.visibility = n===1 ? 'hidden' : 'visible';
+    nextBtn.textContent = n===TOTAL_STEPS ? 'Check availability' : 'Next';
+    updateProgress();
+  }
+
+  function renderStep(){
+    showStep(currentStep);
+    if(currentStep===1) renderCal();
+    if(currentStep===2) renderTimeStep();
+    if(currentStep===3) renderDurStep();
+    if(currentStep===4) renderEventTypes();
+    if(currentStep===5) renderLocation();
+    if(currentStep===6) renderVenueDetails();
+    if(currentStep===7) renderNotes();
+  }
+
+  function nextStep(){
+    if(currentStep===TOTAL_STEPS){ submitAvail(); return; }
+    currentStep++;
+    renderStep();
+    document.getElementById('availModal').scrollTop = 0;
+  }
+  function prevStep(){
+    if(currentStep===1) return;
+    currentStep--;
+    renderStep();
+    document.getElementById('availModal').scrollTop = 0;
+  }
+
+  // ── Step 1: Calendar ─────────────────────────────────────────────────────
+  function renderCal(){
+    var now = new Date();
+    var baseYear = now.getFullYear(); // always anchor to current real year
+
+    // Year tabs: show current year + next 2 years, fixed (not drifting)
+    var yearRow = document.getElementById('calYearRow');
+    yearRow.innerHTML = '';
+    [baseYear, baseYear+1, baseYear+2].forEach(function(y){
+      var btn = document.createElement('button');
+      btn.className = 'avail-cal-year' + (y===calYear?' active':'');
+      btn.textContent = y;
+      btn.onclick = function(){ calYear=y; calMonth=0; renderCal(); };
+      yearRow.appendChild(btn);
+    });
+
+    document.getElementById('calMonthLabel').textContent = MONTHS[calMonth] + ' ' + calYear;
+    document.getElementById('calPrev').onclick = function(){
+      calMonth--;
+      if(calMonth<0){ calMonth=11; calYear--; }
+      // Don't go before current month
+      if(calYear < baseYear || (calYear === baseYear && calMonth < now.getMonth())) {
+        calYear = baseYear; calMonth = now.getMonth();
+      }
+      renderCal();
+    };
+    document.getElementById('calNext').onclick = function(){ calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCal(); };
+
+    var grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+    DAYS.forEach(function(d){ var el=document.createElement('div'); el.className='avail-cal-dow'; el.textContent=d; grid.appendChild(el); });
+
+    var firstDay = new Date(calYear, calMonth, 1).getDay();
+    var daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
+    var today = new Date(); today.setHours(0,0,0,0);
+
+    for(var i=0;i<firstDay;i++){
+      var blank=document.createElement('button'); blank.className='avail-cal-day other-month'; grid.appendChild(blank);
+    }
+    for(var d=1;d<=daysInMonth;d++){
+      (function(day){
+        var btn=document.createElement('button');
+        var thisDate=new Date(calYear,calMonth,day);
+        var isPast=thisDate<today;
+        var isSel=state.date && state.date.getTime()===thisDate.getTime();
+        var isToday=thisDate.getTime()===today.getTime();
+        btn.className='avail-cal-day'+(isPast?' past':'')+(isSel?' selected':'')+(isToday&&!isSel?' today':'');
+        btn.textContent=day;
+        if(!isPast) btn.onclick=function(){ state.date=thisDate; renderCal(); };
+        grid.appendChild(btn);
+      })(d);
+    }
+  }
+
+  // ── Step 2: Time ─────────────────────────────────────────────────────────
+  function renderTimeStep(){
+    var d=state.date;
+    var s2=document.getElementById('s2badge');
+    if(d) s2.textContent = d.getDate()+'th '+MONTHS[d.getMonth()]+' '+d.getFullYear();
+
+    window.setAMPM = function(v){
+      state.ampm=v;
+      document.getElementById('btnAM').classList.toggle('active',v==='AM');
+      document.getElementById('btnPM').classList.toggle('active',v==='PM');
+    };
+    window.syncTimeFromInput = function(){
+      state.hour=document.getElementById('timeHour').value;
+      state.min=document.getElementById('timeMin').value;
+    };
+
+    var grid=document.getElementById('timesGrid');
+    grid.innerHTML='';
+    POP_TIMES.forEach(function(t){
+      var btn=document.createElement('button');
+      btn.className='avail-time-chip'+(state.hour&&(state.hour+state.ampm.toLowerCase()===t||state.hour+'pm'===t||state.hour+'am'===t)?' selected':'');
+      btn.textContent=t;
+      btn.onclick=function(){
+        var isAM=t.indexOf('am')>-1;
+        var h=parseInt(t);
+        state.hour=h+''; state.min='00'; state.ampm=isAM?'AM':'PM';
+        document.getElementById('timeHour').value=h;
+        document.getElementById('timeMin').value='00';
+        document.getElementById('btnAM').classList.toggle('active',isAM);
+        document.getElementById('btnPM').classList.toggle('active',!isAM);
+        grid.querySelectorAll('.avail-time-chip').forEach(function(b){b.classList.remove('selected');});
+        btn.classList.add('selected');
+      };
+      grid.appendChild(btn);
+    });
+  }
+
+  // ── Step 3: Duration ─────────────────────────────────────────────────────
+  function renderDurStep(){
+    var h=state.hour||'—'; var ap=state.ampm;
+    document.getElementById('s3badge').textContent='Music starting at '+h+':'+('00'+(state.min||'00')).slice(-2)+ap.toLowerCase();
+    renderDurOptions();
+    window.setDurTab=function(tab,btn){
+      state.durTab=tab; state.duration=null;
+      document.querySelectorAll('.avail-tab').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      renderDurOptions();
+    };
+  }
+  function renderDurOptions(){
+    var list=document.getElementById('durOptions');
+    list.innerHTML='';
+    var opts=state.durTab==='hour'?DUR_HOUR:DUR_PKG;
+    opts.forEach(function(o){
+      var btn=document.createElement('button');
+      btn.className='avail-dur-opt'+(state.duration===o.label?' selected':'');
+      btn.innerHTML='<span class="avail-dur-name">'+o.label+'<span class="avail-dur-note">'+o.note+'</span></span><span class="avail-dur-price">'+o.price+'</span>';
+      btn.onclick=function(){
+        state.duration=o.label;
+        list.querySelectorAll('.avail-dur-opt').forEach(function(b){b.classList.remove('selected');});
+        btn.classList.add('selected');
+      };
+      list.appendChild(btn);
+    });
+  }
+  window.toggleAddon=function(btn){
+    state.addon=!state.addon;
+    btn.textContent=state.addon?'Remove':'Add';
+    btn.classList.toggle('added',state.addon);
+  };
+
+  // ── Step 4: Event types ───────────────────────────────────────────────────
+  function renderEventTypes(){
+    var list=document.getElementById('eventTypeList');
+    list.innerHTML='';
+    EVENT_TYPES.forEach(function(t){
+      var btn=document.createElement('button');
+      btn.className='avail-opt'+(state.eventType===t?' selected':'');
+      btn.textContent=t;
+      btn.onclick=function(){
+        state.eventType=t;
+        list.querySelectorAll('.avail-opt').forEach(function(b){b.classList.remove('selected');});
+        btn.classList.add('selected');
+        setTimeout(nextStep,180);
+      };
+      list.appendChild(btn);
+    });
+  }
+
+  // ── Step 5: Location ──────────────────────────────────────────────────────
+  function renderLocation(){
+    var et=state.eventType||'event';
+    document.getElementById('s5badge').textContent=et;
+    document.getElementById('s5q').textContent='Where is the '+et.toLowerCase()+'?';
+    document.getElementById('locationInput').value=state.location;
+    document.getElementById('locationInput').oninput=function(){ state.location=this.value; };
+  }
+
+  // ── Step 6: Venue details ─────────────────────────────────────────────────
+  function renderVenueDetails(){
+    var et=state.eventType||'Event'; var loc=state.location||'';
+    document.getElementById('s6badge').textContent=et+(loc?' in '+loc:'');
+    window.pickYN=function(id,btn){
+      var val=btn.textContent;
+      if(id==='ynVenue') state.venueBooked=val;
+      document.getElementById(id).querySelectorAll('.avail-yn-btn').forEach(function(b){b.classList.toggle('selected',b===btn);});
+    };
+    window.pickYN3=function(id,btn){
+      var val=btn.textContent;
+      if(id==='ynSound') state.sound=val;
+      if(id==='ynLight') state.lighting=val;
+      if(id==='ynPiano') state.piano=val;
+      document.getElementById(id).querySelectorAll('.avail-yn3-btn').forEach(function(b){b.classList.toggle('selected',b===btn);});
+    };
+    var list=document.getElementById('attendeeList');
+    list.innerHTML='';
+    ATTENDEES.forEach(function(a){
+      var btn=document.createElement('button');
+      btn.className='avail-opt'+(state.attendees===a?' selected':'');
+      btn.textContent=a;
+      btn.onclick=function(){
+        state.attendees=a;
+        list.querySelectorAll('.avail-opt').forEach(function(b){b.classList.remove('selected');});
+        btn.classList.add('selected');
+      };
+      list.appendChild(btn);
+    });
+  }
+
+  // ── Step 7: Notes ─────────────────────────────────────────────────────────
+  function renderNotes(){
+    var et=state.eventType||'Event'; var loc=state.location||'';
+    document.getElementById('s7badge').textContent=et+(loc?' in '+loc:'');
+    document.getElementById('eventNotes').value=state.notes;
+    document.getElementById('eventNotes').oninput=function(){ state.notes=this.value; };
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+  function submitAvail(){
+    var name=document.getElementById('contactName').value.trim();
+    var email=document.getElementById('contactEmail').value.trim();
+    if(!name||!email){ alert('Please fill in your name and email.'); return; }
+    // In production: send state + contact to backend
+    alert('✓ Enquiry sent! We\'ll notify you when Martin responds.');
+    closeAvail();
+  }
+
+})();
+</script>
+
+<script>
+/* ── Count-up animation ─────────────────────────────────────────────────── */
+(function(){
+  var stats = document.querySelectorAll('.stat-num[data-count]');
+  if(!stats.length) return;
+
+  var animated = false;
+
+  function easeOutExpo(t){ return t===1 ? 1 : 1 - Math.pow(2, -10*t); }
+
+  function runCountUp(){
+    if(animated) return;
+    animated = true;
+
+    stats.forEach(function(el){
+      var target  = parseInt(el.getAttribute('data-count'), 10);
+      var suffix  = el.getAttribute('data-suffix') || '';
+      var valEl   = el.querySelector('.count-val');
+      var sufEl   = el.querySelector('.count-suffix');
+      if(!valEl) return;
+
+      var duration = 1400; // ms
+      var startTs  = null;
+
+      // brief delay so they stagger slightly
+      var delay = Array.prototype.indexOf.call(stats, el) * 120;
+
+      setTimeout(function(){
+        function tick(ts){
+          if(!startTs) startTs = ts;
+          var elapsed = ts - startTs;
+          var progress = Math.min(elapsed / duration, 1);
+          var eased    = easeOutExpo(progress);
+          var current  = Math.round(eased * target);
+          valEl.textContent = current;
+          if(sufEl) sufEl.textContent = suffix;
+          if(progress < 1){
+            requestAnimationFrame(tick);
+          } else {
+            valEl.textContent = target;
+            if(sufEl) sufEl.textContent = suffix;
+          }
+        }
+        requestAnimationFrame(tick);
+      }, delay);
+    });
+  }
+
+  // Trigger when stats section enters the viewport
+  var section = document.getElementById('statsSection');
+  if(!section){ return; }
+
+  if('IntersectionObserver' in window){
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){ runCountUp(); observer.disconnect(); }
+      });
+    }, { threshold: 0.25 });
+    observer.observe(section);
+  } else {
+    // Fallback: run immediately
+    runCountUp();
+  }
+})();
+
+// ── Career Highlights — hover photo frame ──────────────────────────────────
+(function(){
+  var items   = document.querySelectorAll('.hl-item');
+  var photos  = document.querySelectorAll('.hl-photo');
+  var idle    = document.getElementById('hlIdle');
+  var current = -1;
+
+  function showPhoto(idx) {
+    if (idx === current) return;
+    current = idx;
+    // hide idle
+    if (idle) idle.classList.add('hidden');
+    // swap photos
+    photos.forEach(function(p){
+      p.classList.toggle('hl-ph-active', +p.dataset.ph === idx);
+    });
+  }
+
+  function clearPhoto() {
+    current = -1;
+    photos.forEach(function(p){ p.classList.remove('hl-ph-active'); });
+    if (idle) idle.classList.remove('hidden');
+  }
+
+  items.forEach(function(item){
+    item.addEventListener('mouseenter', function(){
+      var idx = +this.dataset.hl;
+      showPhoto(idx);
+      items.forEach(function(i){ i.classList.remove('hl-active'); });
+      item.classList.add('hl-active');
+    });
+    item.addEventListener('mouseleave', function(){
+      item.classList.remove('hl-active');
+    });
+  });
+
+  // When mouse leaves the whole list, clear
+  var list = document.getElementById('hlList');
+  if (list) {
+    list.addEventListener('mouseleave', function(){
+      clearPhoto();
+    });
+  }
+})();
+</script>
+
+<!-- ── Load real musician data from Firestore if ?uid= is in URL ── -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const uid = new URLSearchParams(window.location.search).get('uid');
+  if (!uid) return; // no uid = show hardcoded Martin profile as-is
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
+    authDomain: "opusz-45280.firebaseapp.com",
+    projectId: "opusz-45280",
+    storageBucket: "opusz-45280.firebasestorage.app",
+    messagingSenderId: "304745430147",
+    appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+
+  try {
+    const snap = await getDoc(doc(db, 'musicians', uid));
+    if (!snap.exists()) return;
+
+    const p = snap.data();
+    const name = p.name || p.email?.split('@')[0] || 'Musician';
+    const insts = Array.isArray(p.instruments) ? p.instruments : (p.instrument ? [p.instrument] : []);
+    const instLabel = insts.join(' · ') || '—';
+    const region = p.primaryRegion || '';
+    const bio = p.bio || '';
+
+    // ── Update page title ──
+    document.title = name + ' — OPUS.Z';
+
+    // ── Hero: big decorative name ──
+    const heroName = document.getElementById('heroNameBig');
+    if (heroName) heroName.textContent = name;
+
+    // ── Hero info card ──
+    const infoTitle = document.querySelector('.info-title');
+    if (infoTitle) infoTitle.textContent = instLabel;
+
+    const infoLoc = document.querySelector('.info-location');
+    if (infoLoc) infoLoc.textContent = region;
+
+    // ── Bio section ──
+    const bioText = document.querySelector('.bio-text');
+    if (bioText && bio) bioText.textContent = bio;
+
+    // ── Booking sidebar: name ──
+    document.querySelectorAll('.book-name, [id="bookName"]').forEach(el => el.textContent = name);
+
+    // ── "Book X for your next event" heading ──
+    document.querySelectorAll('h2').forEach(el => {
+      if (el.textContent.includes('Book') && el.textContent.includes('event')) {
+        el.textContent = 'Book ' + name + ' for your next event';
+      }
+    });
+
+    // ── Rating: hide stars if no reviews yet ──
+    const ratingEl = document.querySelector('.info-rating');
+    if (ratingEl) ratingEl.style.display = 'none';
+
+  } catch(e) {
+    console.log('Profile load error:', e);
+  }
+</script>
+</body>
+</html>

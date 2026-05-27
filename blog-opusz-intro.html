@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OPUS.Z：我們正在重新定義音樂家的工作方式 — OPUS.Z Blog</title>
+  <meta name="description" content="OPUS.Z 是一個專為古典與當代音樂家打造的專業平台，連結音樂家與真正需要他們的客戶。" />
+  <link rel="icon" href="favicon.ico" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --black: #111; --white: #fff; --gray: #888; --accent: #c8321a; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--white); color: var(--black); }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 40px; height: 64px;
+      background: rgba(255,255,255,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid #e8e8e8;
+    }
+    .nav-logo { font-size: 20px; font-weight: 900; letter-spacing: -1px; text-decoration: none; color: var(--black); }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a { text-decoration: none; color: var(--black); font-size: 15px; font-weight: 500; }
+    .nav-links a:hover { opacity: 0.6; }
+
+    /* ARTICLE HEADER */
+    .article-header {
+      margin-top: 64px;
+      padding: 80px 80px 60px;
+      max-width: 900px;
+      margin-left: auto; margin-right: auto;
+    }
+    .article-back { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--gray); font-size: 14px; margin-bottom: 40px; }
+    .article-back:hover { color: var(--black); }
+    .article-tag { font-size: 12px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
+    .article-title { font-size: clamp(32px, 5vw, 58px); font-weight: 900; letter-spacing: -2px; line-height: 1.1; margin-bottom: 24px; }
+    .article-meta { display: flex; align-items: center; gap: 20px; color: var(--gray); font-size: 14px; padding-bottom: 40px; border-bottom: 1px solid #e8e8e8; }
+
+    /* HERO IMAGE */
+    .article-hero-img {
+      width: 100%; max-width: 900px;
+      margin: 0 auto 60px;
+      aspect-ratio: 16/7;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      border-radius: 16px; overflow: hidden;
+      display: block;
+    }
+
+    /* BODY */
+    .article-body {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 40px 80px;
+      font-size: 18px;
+      line-height: 1.8;
+      color: #333;
+    }
+    .article-body h2 {
+      font-size: 26px; font-weight: 800; color: var(--black);
+      letter-spacing: -0.5px; margin: 48px 0 16px;
+    }
+    .article-body p { margin-bottom: 24px; }
+    .article-body strong { color: var(--black); font-weight: 700; }
+    .article-body blockquote {
+      border-left: 4px solid var(--black);
+      padding: 8px 24px;
+      margin: 32px 0;
+      font-size: 20px; font-weight: 600; color: var(--black);
+      font-style: italic;
+    }
+    .article-body ul { padding-left: 24px; margin-bottom: 24px; }
+    .article-body li { margin-bottom: 10px; }
+
+    /* CTA BOX */
+    .article-cta {
+      max-width: 680px; margin: 0 auto 80px;
+      padding: 0 40px;
+    }
+    .cta-box {
+      background: var(--black); color: var(--white);
+      border-radius: 20px; padding: 48px 52px;
+      display: flex; justify-content: space-between; align-items: center; gap: 32px;
+    }
+    .cta-box-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
+    .cta-box-sub { font-size: 15px; opacity: 0.7; }
+    .cta-box-btn {
+      display: inline-block; white-space: nowrap;
+      background: var(--white); color: var(--black);
+      padding: 16px 32px; border-radius: 50px;
+      font-size: 15px; font-weight: 700; text-decoration: none;
+      flex-shrink: 0;
+    }
+    .cta-box-btn:hover { opacity: 0.85; }
+
+    /* MORE ARTICLES */
+    .more-articles {
+      border-top: 1px solid #e8e8e8;
+      padding: 60px 80px;
+    }
+    .more-title { font-size: 20px; font-weight: 700; margin-bottom: 32px; }
+    .more-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    .more-card { text-decoration: none; color: inherit; }
+    .more-card:hover .more-card-title { opacity: 0.6; }
+    .more-img { width: 100%; aspect-ratio: 3/2; border-radius: 12px; margin-bottom: 14px; }
+    .more-img-1 { background: #d4cfc8; }
+    .more-img-2 { background: #c8321a; }
+    .more-img-3 { background: #1a1a1a; }
+    .more-card-date { font-size: 12px; color: var(--gray); margin-bottom: 6px; }
+    .more-card-title { font-size: 15px; font-weight: 600; line-height: 1.4; transition: opacity .2s; }
+
+    footer {
+      padding: 40px 80px; border-top: 1px solid #e8e8e8;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .footer-logo { font-size: 18px; font-weight: 900; letter-spacing: -1px; }
+    .footer-copy { font-size: 13px; color: var(--gray); }
+
+    @media (max-width: 768px) {
+      nav { padding: 0 20px; }
+      .article-header { padding: 48px 24px 40px; }
+      .article-body { padding: 0 24px 60px; font-size: 16px; }
+      .article-cta { padding: 0 24px; }
+      .cta-box { flex-direction: column; padding: 36px 32px; }
+      .more-articles { padding: 40px 24px; }
+      .more-grid { grid-template-columns: 1fr; }
+      footer { flex-direction: column; gap: 12px; padding: 32px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="musician-platform.html">OPUS.Z</a>
+  <ul class="nav-links">
+    <li><a href="musician-platform.html">Home</a></li>
+    <li><a href="blog.html">Blog</a></li>
+    <li><a href="musicians.html">Musicians</a></li>
+    <li><a href="shows.html">Shows</a></li>
+    <li><a href="musician-platform.html#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="article-header">
+  <a class="article-back" href="blog.html">← Back to Blog</a>
+  <div class="article-tag">About OPUS.Z</div>
+  <h1 class="article-title">OPUS.Z：我們正在重新定義音樂家的工作方式</h1>
+  <div class="article-meta">
+    <span>May 28, 2026</span>
+    <span>·</span>
+    <span>5 min read</span>
+    <span>·</span>
+    <span>OPUS.Z Team</span>
+  </div>
+</div>
+
+<div class="article-hero-img"></div>
+
+<div class="article-body">
+
+  <p>
+    音樂產業正在改變。但大多數音樂家接案的方式，還停留在十年前——靠口耳相傳、靠人脈介紹、靠運氣。<strong>OPUS.Z 想改變這件事。</strong>
+  </p>
+
+  <blockquote>
+    「No generic gigs. No empty promises. Only real musicians and smart connections that drive careers and build lasting brands.」
+  </blockquote>
+
+  <p>
+    這是我們從一開始就堅持的理念。OPUS.Z 不是一個什麼人都可以登記的接案網站——我們是一個專為古典與當代音樂家打造的專業平台，讓真正有實力的音樂家，遇到真正適合他們的機會。
+  </p>
+
+  <h2>我們在做什麼？</h2>
+
+  <p>
+    OPUS.Z 提供幾個核心服務，讓音樂家和客戶都能在這個平台上找到他們需要的東西：
+  </p>
+
+  <ul>
+    <li><strong>現場演出媒合</strong>——企業活動、婚禮、音樂會、開幕典禮，我們幫你找到最適合的音樂家陣容</li>
+    <li><strong>錄音工作</strong>——需要弦樂、鋼琴或管樂錄音？我們有專業的 session musician 資源</li>
+    <li><strong>音樂課程與大師班</strong>——私人課程到企業工作坊，連結優秀教師與學員</li>
+    <li><strong>藝人品牌建立</strong>——幫助音樂家建立個人品牌，讓更多人認識你</li>
+  </ul>
+
+  <h2>為什麼是 OPUS.Z？</h2>
+
+  <p>
+    台灣有很多優秀的古典音樂家。他們在頂尖音樂院受過嚴格訓練，技術一流，卻往往不知道如何把自己的才華轉化為穩定的事業。演出機會分散、收入不穩定、沒有品牌曝光——這是很多音樂家共同的困境。
+  </p>
+
+  <p>
+    同時，企業和活動主辦方也有他們的問題：他們需要高品質的音樂演出，但找人費時費力，品質也難以保證。
+  </p>
+
+  <p>
+    <strong>OPUS.Z 就是那個橋樑。</strong> 我們精心篩選每一位加入平台的音樂家，建立他們的專業檔案，讓客戶可以一目了然地了解每位音樂家的背景、風格和演出影片。然後，我們讓媒合變得簡單、快速、可靠。
+  </p>
+
+  <h2>接下來的方向</h2>
+
+  <p>
+    我們剛剛起步。目前 OPUS.Z 以台灣市場為主，主要服務古典音樂領域的音樂家和客戶。但我們的目標不止於此——我們相信，這套系統可以幫助整個亞洲的音樂家建立更好的職涯。
+  </p>
+
+  <p>
+    如果你是音樂家，歡迎申請加入 OPUS.Z。如果你是需要音樂演出的客戶，歡迎聯絡我們，讓我們幫你找到最合適的人選。
+  </p>
+
+  <p>
+    音樂值得被認真對待。音樂家值得被好好支持。這就是 OPUS.Z 存在的原因。
+  </p>
+
+</div>
+
+<!-- CTA BOX -->
+<div class="article-cta">
+  <div class="cta-box">
+    <div>
+      <div class="cta-box-title">加入 OPUS.Z</div>
+      <div class="cta-box-sub">音樂家申請加入或聯絡我們了解更多</div>
+    </div>
+    <a class="cta-box-btn" href="musician-platform.html#contact">立即聯絡 →</a>
+  </div>
+</div>
+
+<!-- MORE ARTICLES -->
+<div class="more-articles">
+  <div class="more-title">More from OPUS.Z Blog</div>
+  <div class="more-grid">
+    <a class="more-card" href="#">
+      <div class="more-img more-img-1"></div>
+      <div class="more-card-date">November 11, 2025</div>
+      <div class="more-card-title">The power of authenticity in modern music branding</div>
+    </a>
+    <a class="more-card" href="#">
+      <div class="more-img more-img-2"></div>
+      <div class="more-card-date">July 10, 2025</div>
+      <div class="more-card-title">From bedroom producer to booked artist: building momentum</div>
+    </a>
+    <a class="more-card" href="#">
+      <div class="more-img more-img-3"></div>
+      <div class="more-card-date">May 10, 2025</div>
+      <div class="more-card-title">Why great artists are discovered through clarity, not volume</div>
+    </a>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-logo">OPUS.Z</div>
+  <div class="footer-copy">© 2026 OPUS.Z. All rights reserved.</div>
+</footer>
+
+</body>
+</html>

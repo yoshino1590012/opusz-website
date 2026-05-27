@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OPUS.Z · Dashboard</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --sb-w: 240px;
+      --sb-bg: #0f0f0f;
+      --sb-text: rgba(255,255,255,.55);
+      --sb-active: #fff;
+      --bg: #f4f4f4;
+      --white: #fff;
+      --black: #111;
+      --mid: #888;
+      --border: #ebebeb;
+      --radius: 12px;
+      --green: #22c55e;
+      --amber: #f59e0b;
+      --red: #ef4444;
+      --blue: #3b82f6;
+    }
+
+    html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--black); font-size: 14px; }
+
+    /* ── Layout ── */
+    .app { display: flex; height: 100vh; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: var(--sb-w); flex-shrink: 0;
+      background: var(--sb-bg);
+      display: flex; flex-direction: column;
+      height: 100vh; overflow-y: auto;
+      scrollbar-width: none;
+      position: relative; z-index: 10;
+    }
+    .sidebar::-webkit-scrollbar { display: none; }
+
+    .sb-logo {
+      padding: 24px 20px 20px;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      flex-shrink: 0;
+    }
+    .sb-logo-link {
+      display: flex; align-items: center; gap: 10px;
+      text-decoration: none; color: #fff;
+      font-size: 16px; font-weight: 800; letter-spacing: -.01em;
+    }
+    .sb-logo-orb {
+      width: 32px; height: 32px; flex-shrink: 0;
+      background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat;
+    }
+
+    .sb-section { padding: 20px 12px 0; }
+    .sb-section-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.22);
+      padding: 0 8px; margin-bottom: 6px;
+    }
+
+    .sb-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 10px; border-radius: 8px;
+      color: var(--sb-text); text-decoration: none;
+      font-size: 13.5px; font-weight: 500;
+      cursor: pointer; border: none; background: none;
+      width: 100%; text-align: left;
+      transition: background .15s, color .15s;
+      position: relative;
+    }
+    .sb-item:hover { background: rgba(255,255,255,.06); color: rgba(255,255,255,.8); }
+    .sb-item.active { background: rgba(255,255,255,.1); color: #fff; font-weight: 600; }
+    .sb-item svg { flex-shrink: 0; opacity: .7; }
+    .sb-item.active svg { opacity: 1; }
+    .sb-badge {
+      margin-left: auto; background: var(--red);
+      color: #fff; font-size: 10px; font-weight: 700;
+      padding: 2px 6px; border-radius: 10px; line-height: 1.4;
+    }
+    .sb-badge.green { background: var(--green); }
+
+    .sb-spacer { flex: 1; }
+
+    .sb-user {
+      padding: 14px 16px; border-top: 1px solid rgba(255,255,255,.06);
+      display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    .sb-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      background: linear-gradient(135deg,#1a1a2e,#16213e);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; font-weight: 700; color: #fff; flex-shrink: 0;
+      overflow: hidden;
+    }
+    .sb-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .sb-user-info { flex: 1; min-width: 0; }
+    .sb-user-name { font-size: 13px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sb-user-role { font-size: 11px; color: rgba(255,255,255,.35); }
+
+    /* ── Main ── */
+    .main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* ── Topbar ── */
+    .topbar {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 0 32px; height: 60px;
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .topbar-title { font-size: 16px; font-weight: 700; }
+    .topbar-right { display: flex; align-items: center; gap: 12px; }
+    .topbar-btn {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: var(--bg); border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; transition: background .15s;
+      color: #555;
+    }
+    .topbar-btn:hover { background: #e8e8e8; }
+    .notif-dot {
+      position: absolute; top: 6px; right: 6px;
+      width: 8px; height: 8px; background: var(--red);
+      border-radius: 50%; border: 2px solid var(--white);
+    }
+    .topbar-profile {
+      display: flex; align-items: center; gap: 8px;
+      padding: 6px 10px; border-radius: 8px;
+      cursor: pointer; transition: background .15s;
+    }
+    .topbar-profile:hover { background: var(--bg); }
+    .tp-avatar { width: 30px; height: 30px; border-radius: 50%; background: #1a1a2e; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; color: #fff; overflow: hidden; }
+    .tp-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ── Page container ── */
+    .page-wrap { flex: 1; overflow-y: auto; padding: 32px; }
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* ── Stat cards ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 28px; }
+    @media(max-width:1100px){ .stats-grid { grid-template-columns: repeat(2,1fr); } }
+    .stat-card {
+      background: var(--white); border-radius: var(--radius);
+      padding: 20px 22px; border: 1px solid var(--border);
+    }
+    .stat-label { font-size: 12px; color: var(--mid); font-weight: 500; margin-bottom: 10px; }
+    .stat-value { font-size: 28px; font-weight: 800; letter-spacing: -.02em; line-height: 1; margin-bottom: 8px; }
+    .stat-sub { font-size: 11.5px; color: var(--mid); }
+    .stat-icon {
+      width: 36px; height: 36px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 14px;
+    }
+    .si-green { background: #dcfce7; color: #16a34a; }
+    .si-blue  { background: #dbeafe; color: #2563eb; }
+    .si-amber { background: #fef3c7; color: #d97706; }
+    .si-purple{ background: #ede9fe; color: #7c3aed; }
+    .stat-trend { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; font-weight: 600; }
+    .trend-up { color: var(--green); }
+    .trend-dn { color: var(--red); }
+
+    /* ── Section headers ── */
+    .sec-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .sec-title { font-size: 15px; font-weight: 700; }
+    .sec-link { font-size: 12px; color: var(--mid); text-decoration: none; font-weight: 500; }
+    .sec-link:hover { color: var(--black); }
+
+    /* ── Grid 2 col ── */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media(max-width:960px){ .grid-2 { grid-template-columns: 1fr; } }
+
+    /* ── Card ── */
+    .card { background: var(--white); border-radius: var(--radius); border: 1px solid var(--border); overflow: hidden; }
+    .card-pad { padding: 20px 22px; }
+
+    /* ── Activity feed ── */
+    .activity-list { display: flex; flex-direction: column; }
+    .activity-item { display: flex; align-items: flex-start; gap: 12px; padding: 14px 0; border-bottom: 1px solid #f5f5f5; }
+    .activity-item:last-child { border-bottom: none; }
+    .act-icon { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 15px; }
+    .act-body { flex: 1; }
+    .act-text { font-size: 13px; line-height: 1.5; }
+    .act-text strong { font-weight: 600; }
+    .act-time { font-size: 11px; color: var(--mid); margin-top: 2px; }
+
+    /* ── Upcoming jobs mini ── */
+    .mini-job { display: flex; align-items: center; gap: 14px; padding: 13px 0; border-bottom: 1px solid #f5f5f5; }
+    .mini-job:last-child { border-bottom: none; }
+    .mini-job-date { width: 44px; text-align: center; flex-shrink: 0; }
+    .mjd-month { font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--mid); }
+    .mjd-day { font-size: 22px; font-weight: 800; line-height: 1; }
+    .mini-job-info { flex: 1; }
+    .mji-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+    .mji-sub { font-size: 11.5px; color: var(--mid); }
+    .mji-badge { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
+    .badge-confirm { background: #dcfce7; color: #16a34a; }
+    .badge-pending { background: #fef3c7; color: #b45309; }
+    .badge-new     { background: #dbeafe; color: #1d4ed8; }
+
+    /* ── Jobs page ── */
+    .tab-bar { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+    .tab-btn {
+      padding: 10px 18px; background: none; border: none;
+      font-size: 13.5px; font-weight: 500; color: var(--mid);
+      cursor: pointer; border-bottom: 2px solid transparent;
+      transition: color .15s, border-color .15s; margin-bottom: -1px;
+    }
+    .tab-btn.active { color: var(--black); font-weight: 700; border-bottom-color: var(--black); }
+
+    .job-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 20px 22px;
+      margin-bottom: 12px; transition: box-shadow .2s;
+    }
+    .job-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.07); }
+    .jc-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+    .jc-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+    .jc-sub { font-size: 12px; color: var(--mid); }
+    .jc-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+    .jc-tag { display: flex; align-items: center; gap: 5px; font-size: 12px; color: #555; background: #f5f5f5; padding: 4px 10px; border-radius: 20px; }
+    .jc-foot { display: flex; align-items: center; justify-content: space-between; }
+    .jc-budget { font-size: 15px; font-weight: 800; }
+    .jc-actions { display: flex; gap: 8px; }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 12.5px; font-weight: 600; cursor: pointer; border: none; font-family: inherit; transition: background .15s, transform .1s; }
+    .btn:active { transform: scale(.97); }
+    .btn-primary { background: var(--black); color: #fff; }
+    .btn-primary:hover { background: #333; }
+    .btn-outline { background: transparent; color: var(--black); border: 1.5px solid #ddd; }
+    .btn-outline:hover { border-color: var(--black); }
+    .btn-ghost { background: transparent; color: var(--mid); }
+    .btn-ghost:hover { color: var(--black); background: #f5f5f5; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; }
+    .btn-danger { background: #fee2e2; color: var(--red); }
+    .btn-danger:hover { background: #fecaca; }
+
+    /* ── Inquiry card ── */
+    .inq-card {
+      background: var(--white); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px 20px;
+      margin-bottom: 10px; display: flex; gap: 14px;
+      transition: box-shadow .2s;
+    }
+    .inq-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.06); }
+    .inq-card.unread { border-left: 3px solid var(--black); }
+    .inq-avatar { width: 42px; height: 42px; border-radius: 50%; background: #f0f0f0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #555; overflow: hidden; }
+    .inq-body { flex: 1; min-width: 0; }
+    .inq-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; }
+    .inq-name { font-size: 13.5px; font-weight: 700; }
+    .inq-time { font-size: 11px; color: var(--mid); }
+    .inq-event { font-size: 12px; color: var(--mid); margin-bottom: 6px; }
+    .inq-preview { font-size: 13px; color: #444; line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .inq-foot { display: flex; gap: 6px; margin-top: 10px; }
+
+    /* ── Messages page ── */
+    .msg-layout { display: grid; grid-template-columns: 300px 1fr; gap: 0; height: calc(100vh - 124px); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--white); }
+    .msg-list { border-right: 1px solid var(--border); overflow-y: auto; }
+    .msg-list-head { padding: 16px 18px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 700; }
+    .msg-item { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; border-bottom: 1px solid #f8f8f8; transition: background .12s; }
+    .msg-item:hover { background: #f8f8f8; }
+    .msg-item.active { background: #f1f1f1; }
+    .msg-item.unread .mi-name { font-weight: 700; }
+    .mi-avatar { width: 40px; height: 40px; border-radius: 50%; background: #f0f0f0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 700; color: #555; }
+    .mi-body { flex: 1; min-width: 0; }
+    .mi-name { font-size: 13px; font-weight: 500; }
+    .mi-preview { font-size: 12px; color: var(--mid); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+    .mi-time { font-size: 11px; color: var(--mid); flex-shrink: 0; }
+    .mi-dot { width: 8px; height: 8px; background: var(--black); border-radius: 50%; flex-shrink: 0; }
+
+    .msg-thread { display: flex; flex-direction: column; }
+    .msg-thread-head { padding: 16px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+    .mth-avatar { width: 36px; height: 36px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #555; }
+    .mth-info .mth-name { font-size: 14px; font-weight: 700; }
+    .mth-info .mth-sub { font-size: 11.5px; color: var(--mid); }
+    .msg-bubbles { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+    .bubble-wrap { display: flex; gap: 10px; }
+    .bubble-wrap.mine { flex-direction: row-reverse; }
+    .bubble-avatar { width: 30px; height: 30px; border-radius: 50%; background: #f0f0f0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #555; }
+    .bubble { padding: 10px 14px; border-radius: 18px; font-size: 13.5px; line-height: 1.5; max-width: 68%; }
+    .bubble.theirs { background: #f0f0f0; border-bottom-left-radius: 4px; }
+    .bubble.mine { background: var(--black); color: #fff; border-bottom-right-radius: 4px; }
+    .bubble-time { font-size: 10.5px; color: var(--mid); margin-top: 4px; text-align: right; }
+    .bubble-wrap:not(.mine) .bubble-time { text-align: left; }
+    .system-msg { text-align: center; font-size: 11.5px; color: var(--mid); padding: 4px 0; }
+    .msg-input-wrap { padding: 14px 18px; border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-end; }
+    .msg-input { flex: 1; border: 1.5px solid var(--border); border-radius: 22px; padding: 10px 16px; font-family: inherit; font-size: 13.5px; resize: none; outline: none; min-height: 42px; max-height: 100px; line-height: 1.4; transition: border-color .15s; }
+    .msg-input:focus { border-color: #aaa; }
+    .msg-send-btn { width: 40px; height: 40px; background: var(--black); color: #fff; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background .15s; }
+    .msg-send-btn:hover { background: #333; }
+
+    /* ── Earnings page ── */
+    .earnings-summary { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
+    @media(max-width:800px){ .earnings-summary { grid-template-columns: 1fr; } }
+    .earn-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; }
+    .earn-label { font-size: 12px; color: var(--mid); font-weight: 500; margin-bottom: 8px; }
+    .earn-value { font-size: 26px; font-weight: 800; letter-spacing: -.02em; }
+    .earn-sub { font-size: 11.5px; color: var(--mid); margin-top: 6px; }
+    .earn-main { background: var(--black); color: #fff; }
+    .earn-main .earn-label { color: rgba(255,255,255,.55); }
+    .earn-main .earn-sub { color: rgba(255,255,255,.45); }
+
+    /* Bar chart */
+    .chart-wrap { padding: 22px; }
+    .chart-bars { display: flex; align-items: flex-end; gap: 8px; height: 120px; margin-bottom: 8px; }
+    .chart-bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; height: 100%; justify-content: flex-end; }
+    .chart-bar { width: 100%; border-radius: 6px 6px 0 0; background: #e8e8e8; min-height: 4px; transition: background .2s; position: relative; }
+    .chart-bar.this-month { background: var(--black); }
+    .chart-bar:hover { opacity: .8; }
+    .chart-bar-val { font-size: 10px; font-weight: 600; color: var(--mid); }
+    .chart-labels { display: flex; gap: 8px; }
+    .chart-label { flex: 1; text-align: center; font-size: 11px; color: var(--mid); }
+
+    /* Transaction table */
+    .tx-table { width: 100%; border-collapse: collapse; }
+    .tx-table th { text-align: left; font-size: 11.5px; font-weight: 600; color: var(--mid); text-transform: uppercase; letter-spacing: .05em; padding: 10px 16px; border-bottom: 1px solid var(--border); }
+    .tx-table td { padding: 14px 16px; border-bottom: 1px solid #f5f5f5; font-size: 13px; vertical-align: middle; }
+    .tx-table tr:last-child td { border-bottom: none; }
+    .tx-status { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 20px; }
+    .tx-paid    { background: #dcfce7; color: #16a34a; }
+    .tx-pending { background: #fef3c7; color: #b45309; }
+    .tx-amount  { font-weight: 700; font-size: 14px; }
+
+    /* ── Profile page ── */
+    .profile-layout { display: grid; grid-template-columns: 1fr 320px; gap: 24px; }
+    @media(max-width:900px){ .profile-layout { grid-template-columns: 1fr; } }
+    .form-section { margin-bottom: 28px; }
+    .form-section-title { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--mid); margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+    .form-row.full { grid-template-columns: 1fr; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-label { font-size: 12px; font-weight: 600; color: #333; display: flex; align-items: center; gap: 6px; }
+    .review-badge { font-size: 10px; background: #fef3c7; color: #b45309; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
+    .form-input, .form-select, .form-textarea {
+      border: 1.5px solid var(--border); border-radius: 8px;
+      padding: 10px 12px; font-family: inherit; font-size: 13.5px;
+      outline: none; transition: border-color .15s; background: var(--white);
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--black); }
+    .form-textarea { resize: vertical; min-height: 90px; }
+    .profile-photo-wrap { position: relative; margin-bottom: 20px; }
+    .profile-photo-box {
+      width: 100%; aspect-ratio: 4/3; border-radius: var(--radius);
+      background: linear-gradient(135deg,#1a1a2e,#16213e);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 48px; overflow: hidden; position: relative; cursor: pointer;
+    }
+    .profile-photo-box img { width: 100%; height: 100%; object-fit: cover; }
+    .photo-overlay {
+      position: absolute; inset: 0; background: rgba(0,0,0,.5);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .2s;
+    }
+    .profile-photo-box:hover .photo-overlay { opacity: 1; }
+    .photo-overlay span { color: #fff; font-size: 13px; font-weight: 600; }
+    .profile-status-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px; margin-bottom: 16px; }
+    .psc-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+    .psc-item { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
+    .psc-item:last-child { border-bottom: none; }
+    .psc-check { color: var(--green); font-size: 16px; }
+    .psc-x     { color: #ddd; font-size: 16px; }
+
+    /* ── Settings page ── */
+    .settings-wrap { max-width: 620px; }
+    .setting-section { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; margin-bottom: 20px; }
+    .setting-head { padding: 16px 20px; border-bottom: 1px solid var(--border); font-size: 14px; font-weight: 700; }
+    .setting-row { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #f8f8f8; }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-info .sr-title { font-size: 13.5px; font-weight: 500; }
+    .setting-info .sr-desc { font-size: 12px; color: var(--mid); margin-top: 2px; }
+
+    /* Toggle */
+    .toggle { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle-track {
+      position: absolute; inset: 0; border-radius: 12px;
+      background: #ddd; cursor: pointer; transition: background .2s;
+    }
+    .toggle input:checked + .toggle-track { background: var(--black); }
+    .toggle-thumb {
+      position: absolute; top: 3px; left: 3px;
+      width: 18px; height: 18px; border-radius: 50%;
+      background: #fff; transition: transform .2s;
+      pointer-events: none; box-shadow: 0 1px 3px rgba(0,0,0,.2);
+    }
+    .toggle input:checked ~ .toggle-thumb { transform: translateX(20px); }
+
+    /* ── Empty state ── */
+    .empty { text-align: center; padding: 60px 20px; color: var(--mid); }
+    .empty-icon { font-size: 40px; margin-bottom: 12px; }
+    .empty p { font-size: 14px; margin-top: 6px; }
+
+    /* ── Notification banner ── */
+    .notif-banner {
+      position: fixed; top: 16px; right: 16px; z-index: 9999;
+      background: var(--black); color: #fff;
+      padding: 12px 18px; border-radius: 10px;
+      font-size: 13.5px; font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,.25);
+      transform: translateY(-80px); opacity: 0;
+      transition: transform .35s cubic-bezier(.34,1.2,.64,1), opacity .3s;
+      max-width: 320px;
+    }
+    .notif-banner.show { transform: translateY(0); opacity: 1; }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #ddd; border-radius: 3px; }
+
+    /* ── Page header ── */
+    .page-header { margin-bottom: 28px; }
+    .page-header h1 { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+    .page-header p { font-size: 13.5px; color: var(--mid); margin-top: 4px; }
+
+    /* ── Profile tab page ── */
+    .profile-tabs-wrap { max-width: 680px; }
+    .profile-photo-area {
+      display: flex; align-items: center; gap: 20px;
+      padding-bottom: 22px; margin-bottom: 22px;
+      border-bottom: 1px solid var(--border);
+    }
+    .profile-avatar-lg {
+      width: 76px; height: 76px; border-radius: 50%;
+      background: linear-gradient(135deg,#1a1a2e,#16213e);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; font-weight: 800; color: #fff;
+      flex-shrink: 0; position: relative; cursor: pointer; overflow: hidden;
+    }
+    .profile-avatar-lg img { width: 100%; height: 100%; object-fit: cover; }
+    .avatar-upload-layer {
+      position: absolute; inset: 0; background: rgba(0,0,0,.55);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; transition: opacity .2s;
+      font-size: 11px; font-weight: 700; color: #fff; letter-spacing: .04em;
+    }
+    .profile-avatar-lg:hover .avatar-upload-layer { opacity: 1; }
+    .avatar-meta { flex: 1; }
+    .avatar-display-name { font-size: 19px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 3px; }
+    .avatar-email-text { font-size: 12.5px; color: var(--mid); }
+    .instruments-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .inst-pill {
+      background: #f2f2f2; color: #333; border: 1px solid #e5e5e5;
+      padding: 3px 11px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    }
+    .field-readonly {
+      background: #fafafa !important; color: var(--mid) !important; cursor: default !important;
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── SIDEBAR ── -->
+  <aside class="sidebar">
+    <div class="sb-logo">
+      <a href="musician-platform.html" class="sb-logo-link">
+        <div class="sb-logo-orb"></div>
+        <div>
+          <div style="font-size:15px;font-weight:800;letter-spacing:-.01em;">OPUS.Z</div>
+          <div style="font-size:10px;font-weight:600;color:rgba(255,255,255,.35);letter-spacing:.06em;text-transform:uppercase;margin-top:1px;">樂手後台</div>
+        </div>
+      </a>
+    </div>
+
+    <div class="sb-section">
+      <div class="sb-section-label">Main</div>
+      <button class="sb-item active" data-page="overview" onclick="navigate('overview',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Overview</span>
+      </button>
+      <button class="sb-item" data-page="jobs" onclick="navigate('jobs',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+        <span>Jobs & Inquiries</span>
+        <span class="sb-badge">5</span>
+      </button>
+      <button class="sb-item" data-page="messages" onclick="navigate('messages',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span>Messages</span>
+        <span class="sb-badge">2</span>
+      </button>
+      <button class="sb-item" data-page="earnings" onclick="navigate('earnings',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span>Earnings</span>
+      </button>
+    </div>
+
+    <div class="sb-section" style="margin-top:10px;">
+      <div class="sb-section-label">Profile</div>
+      <button class="sb-item" data-page="profile" onclick="navigate('profile',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span>My Profile</span>
+        <span class="sb-badge green">!</span>
+      </button>
+      <button class="sb-item" data-page="settings" onclick="navigate('settings',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span>Settings</span>
+      </button>
+    </div>
+
+    <div class="sb-spacer"></div>
+
+    <div class="sb-user">
+      <div class="sb-avatar" id="sbAvatar">M</div>
+      <div class="sb-user-info">
+        <div class="sb-user-name" id="sbUserName">Martin</div>
+        <div class="sb-user-role" id="sbUserEmail">—</div>
+      </div>
+    </div>
+    <div style="padding:10px 14px 16px;">
+      <button onclick="doLogout()" style="width:100%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .2s;" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sign Out
+      </button>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ── -->
+  <div class="main">
+
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-title" id="topbarTitle">Overview</div>
+      <div class="topbar-right">
+        <button class="topbar-btn" onclick="showNotif('You have 2 new messages')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          <div class="notif-dot"></div>
+        </button>
+        <div class="topbar-profile">
+          <div class="tp-avatar" id="tpAvatar">M</div>
+          <span style="font-size:13px;font-weight:600;" id="tpName">Martin</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- Page wrap -->
+    <div class="page-wrap">
+
+      <!-- ══════════════ OVERVIEW ══════════════ -->
+      <div class="page active" id="page-overview">
+        <div class="page-header">
+          <h1 id="welcomeMsg">Good morning, Martin 👋</h1>
+          <p>Here's what's happening with your profile today.</p>
+        </div>
+
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon si-blue">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+            </div>
+            <div class="stat-label">新詢問</div>
+            <div class="stat-value" id="statInquiries">0</div>
+            <div class="stat-sub" id="statInquiriesSub">本週尚無新詢問</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-purple">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div class="stat-label">個人頁瀏覽數</div>
+            <div class="stat-value" id="statViews">0</div>
+            <div class="stat-sub">本月累計</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-amber">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
+            <div class="stat-label">待撥款金額</div>
+            <div class="stat-value" id="statPayout">NT$0</div>
+            <div class="stat-sub">完成演出後撥款</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon si-green">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="stat-label">已確認演出</div>
+            <div class="stat-value" id="statGigs">0</div>
+            <div class="stat-sub" id="statGigsSub">目前尚無確認演出</div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <!-- Upcoming gigs -->
+          <div>
+            <div class="sec-head">
+              <div class="sec-title">即將到來的演出</div>
+              <a href="#" class="sec-link" onclick="navigate('jobs',document.querySelector('[data-page=jobs]'));return false;">查看全部 →</a>
+            </div>
+            <div class="card">
+              <div class="card-pad" id="upcomingGigsList">
+                <div style="text-align:center;padding:32px 0;color:#aaa;">
+                  <div style="font-size:28px;margin-bottom:8px;">🎵</div>
+                  <div style="font-size:13px;font-weight:600;margin-bottom:4px;">尚無演出</div>
+                  <div style="font-size:12px;">當客戶確認預約後，演出會顯示在這裡</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent activity -->
+          <div>
+            <div class="sec-head">
+              <div class="sec-title">最近動態</div>
+            </div>
+            <div class="card">
+              <div class="card-pad" id="recentActivityList">
+                <div style="text-align:center;padding:32px 0;color:#aaa;">
+                  <div style="font-size:28px;margin-bottom:8px;">📭</div>
+                  <div style="font-size:13px;font-weight:600;margin-bottom:4px;">尚無動態</div>
+                  <div style="font-size:12px;">詢問、訊息、付款紀錄都會顯示在這裡</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ JOBS ══════════════ -->
+      <div class="page" id="page-jobs">
+        <div class="page-header">
+          <h1>Jobs & Inquiries</h1>
+          <p>Public gig board and direct client inquiries.</p>
+        </div>
+
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchTab('jobs','public',this)">📋 公開工作板</button>
+          <button class="tab-btn" onclick="switchTab('jobs','direct',this)">💬 直接詢問</button>
+        </div>
+
+        <!-- Public board -->
+        <div id="jobs-public">
+          <div style="text-align:center;padding:60px 0;color:#aaa;">
+            <div style="font-size:36px;margin-bottom:12px;">📋</div>
+            <div style="font-size:15px;font-weight:700;color:#555;margin-bottom:6px;">目前沒有公開工作</div>
+            <div style="font-size:13px;">當平台上有新演出需求時，會顯示在這裡</div>
+          </div>
+        </div>
+
+        <!-- Direct inquiries -->
+        <div id="jobs-direct" style="display:none;">
+          <div style="text-align:center;padding:60px 0;color:#aaa;">
+            <div style="font-size:36px;margin-bottom:12px;">💬</div>
+            <div style="font-size:15px;font-weight:700;color:#555;margin-bottom:6px;">尚無直接詢問</div>
+            <div style="font-size:13px;">當客戶直接聯繫你時，詢問會出現在這裡</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ MESSAGES ══════════════ -->
+      <div class="page" id="page-messages">
+        <div class="page-header" style="margin-bottom:20px;">
+          <h1>Messages</h1>
+        </div>
+        <div class="msg-layout">
+          <!-- Left: list -->
+          <div class="msg-list">
+            <div class="msg-list-head">對話</div>
+            <div id="msgListEmpty" style="padding:40px 16px;text-align:center;color:#aaa;font-size:12.5px;">
+              <div style="font-size:28px;margin-bottom:8px;">💬</div>
+              尚無對話
+            </div>
+          </div>
+
+          <!-- Right: thread -->
+          <div class="msg-thread" id="msgThread">
+            <div id="msgEmptyState" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#aaa;gap:8px;">
+              <div style="font-size:36px;">✉️</div>
+              <div style="font-size:14px;font-weight:600;color:#777;">選擇對話開始聊天</div>
+              <div style="font-size:12px;">當客戶傳訊息給你時，會出現在左側</div>
+            </div>
+            <div class="msg-bubbles" id="msgBubbles" style="display:none;"></div>
+            <div class="msg-input-wrap" id="msgInputWrap" style="display:none;">
+              <textarea class="msg-input" id="msgInputBox" placeholder="輸入訊息..." rows="1" onkeydown="handleMsgKey(event)"></textarea>
+              <button class="msg-send-btn" onclick="sendMsg()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ══════════════ EARNINGS ══════════════ -->
+      <div class="page" id="page-earnings">
+        <div class="page-header">
+          <h1>Earnings</h1>
+          <p>Your income, payouts, and transaction history.</p>
+        </div>
+
+        <div class="earnings-summary">
+          <div class="earn-card earn-main">
+            <div class="earn-label">今年總收入</div>
+            <div class="earn-value" id="earnTotal">NT$0</div>
+            <div class="earn-sub">扣除 10% 平台服務費後</div>
+          </div>
+          <div class="earn-card">
+            <div class="earn-label">待撥款金額</div>
+            <div class="earn-value" style="color:var(--amber);" id="earnPending">NT$0</div>
+            <div class="earn-sub">完成演出後撥款</div>
+          </div>
+          <div class="earn-card">
+            <div class="earn-label">已完成演出</div>
+            <div class="earn-value" id="earnGigs">0</div>
+            <div class="earn-sub">累計場次</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:24px;">
+          <div class="card">
+            <div class="chart-wrap">
+              <div class="sec-title" style="margin-bottom:16px;">Monthly Income</div>
+              <div class="chart-bars">
+                <div class="chart-bar-col">
+                  <div class="chart-bar-val">28K</div>
+                  <div class="chart-bar" style="height:47%;"></div>
+                </div>
+                <div class="chart-bar-col">
+                  <div class="chart-bar-val">35K</div>
+                  <div class="chart-bar" style="height:59%;"></div>
+                </div>
+                <div class="chart-bar-col">
+                  <div class="chart-bar-val">42K</div>
+                  <div class="chart-bar" style="height:71%;"></div>
+                </div>
+                <div class="chart-bar-col">
+                  <div class="chart-bar-val">18K</div>
+                  <div class="chart-bar this-month" style="height:30%;"></div>
+                </div>
+                <div class="chart-bar-col">
+                  <div class="chart-bar-val">—</div>
+                  <div class="chart-bar" style="height:4%;background:#f0f0f0;"></div>
+                </div>
+                <div class="chart-bar-col">
+                  <div class="chart-bar-val">—</div>
+                  <div class="chart-bar" style="height:4%;background:#f0f0f0;"></div>
+                </div>
+              </div>
+              <div class="chart-labels">
+                <div class="chart-label">Mar</div>
+                <div class="chart-label">Apr</div>
+                <div class="chart-label">May</div>
+                <div class="chart-label" style="font-weight:700;color:#111;">Jun</div>
+                <div class="chart-label">Jul</div>
+                <div class="chart-label">Aug</div>
+              </div>
+            </div>
+          </div>
+          <div class="card card-pad">
+            <div class="sec-title" style="margin-bottom:16px;">Commission Breakdown</div>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;justify-content:space-between;font-size:13.5px;">
+                <span style="color:var(--mid);">Gross earnings (May)</span>
+                <span style="font-weight:600;">NT$46,667</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;font-size:13.5px;">
+                <span style="color:var(--mid);">OPUS.Z commission (10%)</span>
+                <span style="font-weight:600;color:var(--red);">— NT$4,667</span>
+              </div>
+              <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;justify-content:space-between;font-size:14.5px;">
+                <span style="font-weight:700;">Net payout</span>
+                <span style="font-weight:800;color:var(--green);">NT$42,000</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-pad" style="padding-bottom:0;">
+            <div class="sec-title">Transaction History</div>
+          </div>
+          <table class="tx-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Event</th>
+                <th>Client</th>
+                <th>Amount</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color:var(--mid);">Jun 20</td>
+                <td>Wedding Ceremony · Solo Violin</td>
+                <td>Chen Jia-Yu</td>
+                <td class="tx-amount">NT$14,400</td>
+                <td><span class="tx-status tx-paid">✓ Paid</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--mid);">May 28</td>
+                <td>Corporate Dinner · Duo</td>
+                <td>TSMC Ltd.</td>
+                <td class="tx-amount">NT$27,000</td>
+                <td><span class="tx-status tx-paid">✓ Paid</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--mid);">May 10</td>
+                <td>Birthday Gala · Solo Violin</td>
+                <td>Wang Family</td>
+                <td class="tx-amount">NT$15,000</td>
+                <td><span class="tx-status tx-paid">✓ Paid</span></td>
+              </tr>
+              <tr>
+                <td style="color:var(--mid);">Jul 08</td>
+                <td>Birthday Gala · String Duo</td>
+                <td>Li Xiao-Ming</td>
+                <td class="tx-amount">NT$18,000</td>
+                <td><span class="tx-status tx-pending">⏳ Pending</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══════════════ MY PROFILE ══════════════ -->
+      <div class="page" id="page-profile">
+        <div class="page-header">
+          <h1>我的資料</h1>
+          <p>管理你的公開資料與帳號設定</p>
+        </div>
+
+        <!-- Profile tab bar (reuses existing .tab-bar / .tab-btn styles) -->
+        <div class="tab-bar" style="margin-bottom:24px;">
+          <button class="tab-btn active" onclick="switchProfileTab('info',this)">個人資料</button>
+          <button class="tab-btn" onclick="switchProfileTab('notif',this)">通知設定</button>
+          <button class="tab-btn" onclick="switchProfileTab('account',this)">帳號</button>
+        </div>
+
+        <!-- ─── Tab 1: 個人資料 ─── -->
+        <div id="profile-tab-info" class="profile-tabs-wrap">
+          <div class="card card-pad">
+
+            <!-- Avatar + name row -->
+            <div class="profile-photo-area">
+              <div class="profile-avatar-lg" id="profileAvatarLg">
+                <span id="profileAvatarInitial">?</span>
+                <div class="avatar-upload-layer">更換</div>
+              </div>
+              <div class="avatar-meta">
+                <div class="avatar-display-name" id="profileDisplayNameBig">—</div>
+                <div class="avatar-email-text" id="profileEmailDisplay">—</div>
+              </div>
+            </div>
+
+            <!-- Basic info -->
+            <div class="form-section">
+              <div class="form-section-title">基本資料</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">顯示名稱</label>
+                  <input class="form-input" type="text" id="pfName" placeholder="你的名字">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">聯絡電話</label>
+                  <input class="form-input" type="tel" id="pfPhone" placeholder="+886 912 345 678">
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label class="form-label">個人簡介</label>
+                  <textarea class="form-textarea" id="pfBio" placeholder="介紹你自己、演奏風格、代表作品…" style="min-height:110px;"></textarea>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">最低報價（NTD）</label>
+                  <input class="form-input" type="text" id="pfRateMin" placeholder="例如 8,000">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">最高報價（NTD）</label>
+                  <input class="form-input" type="text" id="pfRateMax" placeholder="例如 30,000">
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label class="form-label">個人網站 / 作品集</label>
+                  <input class="form-input" type="url" id="pfWebsite" placeholder="https://…">
+                </div>
+              </div>
+            </div>
+
+            <!-- Instruments & region (read-only, set at registration) -->
+            <div class="form-section" style="margin-bottom:0;border-bottom:none;">
+              <div class="form-section-title">
+                樂器與地區
+                <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--mid);margin-left:6px;">
+                  （註冊時填寫，如需修改請聯繫客服）
+                </span>
+              </div>
+              <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label">已選樂器</label>
+                <div class="instruments-pills" id="pfInstruments">
+                  <span style="color:var(--mid);font-size:13px;">尚未設定</span>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">主要地區</label>
+                  <input class="form-input field-readonly" id="pfRegion1" readonly>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">次要地區</label>
+                  <input class="form-input field-readonly" id="pfRegion2" readonly>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:flex;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);">
+              <button class="btn btn-primary" onclick="saveProfile()">儲存變更</button>
+              <button class="btn btn-outline" onclick="loadProfileFields()">取消</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Tab 2: 通知設定 ─── -->
+        <div id="profile-tab-notif" class="profile-tabs-wrap" style="display:none;">
+          <div class="setting-section">
+            <div class="setting-head">通知設定</div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">新詢問通知</div>
+                <div class="sr-desc">客戶直接傳訊給你時通知</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">新訊息</div>
+                <div class="sr-desc">收到聊天訊息時通知你</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">新演出機會</div>
+                <div class="sr-desc">有符合你樂器的新案子發布時通知你</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">收款通知</div>
+                <div class="sr-desc">付款撥款完成時通知你</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">平台公告</div>
+                <div class="sr-desc">OPUS.Z 的最新消息與功能更新</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- ─── Tab 3: 帳號 ─── -->
+        <div id="profile-tab-account" class="profile-tabs-wrap" style="display:none;">
+          <div class="setting-section" style="margin-bottom:16px;">
+            <div class="setting-head">帳號資訊</div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">電子信箱</div>
+                <div class="sr-desc" id="accountEmailDisp">—</div>
+              </div>
+              <span style="font-size:11.5px;color:var(--mid);padding:6px 12px;background:#f5f5f5;border-radius:6px;">無法更改</span>
+            </div>
+          </div>
+
+          <div class="setting-section" style="margin-bottom:16px;">
+            <div class="setting-head">密碼</div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">重設密碼</div>
+                <div class="sr-desc">發送密碼重設連結到你的信箱</div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="sendPasswordReset()">發送重設信</button>
+            </div>
+          </div>
+
+          <div class="setting-section">
+            <div class="setting-head" style="color:var(--red);">危險操作</div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">停用帳號</div>
+                <div class="sr-desc">如需停用帳號，請聯繫 OPUS.Z 客服</div>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="showNotif('請聯絡客服：support@opusz.com')">聯絡客服</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ══════════════ SETTINGS ══════════════ -->
+      <div class="page" id="page-settings">
+        <div class="page-header">
+          <h1>Settings</h1>
+          <p>Manage your account preferences and notifications.</p>
+        </div>
+
+        <div class="settings-wrap">
+          <div class="setting-section">
+            <div class="setting-head">Account</div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">Email</div>
+                <div class="sr-desc">martin.violin@gmail.com</div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="showNotif('Email change request sent')">Change</button>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">Password</div>
+                <div class="sr-desc">Last changed 3 months ago</div>
+              </div>
+              <button class="btn btn-outline btn-sm" onclick="showNotif('Password reset email sent')">Reset</button>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">Profile Visibility</div>
+                <div class="sr-desc">Your profile is currently visible to all clients</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked onchange="showNotif(this.checked?'Profile is now visible':'Profile is now hidden')">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+          </div>
+
+          <div class="setting-section">
+            <div class="setting-head">Notifications</div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">New direct inquiry</div>
+                <div class="sr-desc">When a client sends you a personal message</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">New public gig posted</div>
+                <div class="sr-desc">When a new job matching your instrument is listed</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">Payment received</div>
+                <div class="sr-desc">When a payout is processed to your account</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" checked>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">Platform announcements</div>
+                <div class="sr-desc">News and updates from OPUS.Z</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+          </div>
+
+          <div class="setting-section">
+            <div class="setting-head">Danger Zone</div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">Deactivate Account</div>
+                <div class="sr-desc">Temporarily hide your profile from clients</div>
+              </div>
+              <button class="btn btn-danger btn-sm" onclick="showNotif('Please contact support to deactivate')">Deactivate</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /page-wrap -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- Notification banner -->
+<div class="notif-banner" id="notifBanner"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
+    authDomain: "opusz-45280.firebaseapp.com",
+    projectId: "opusz-45280",
+    storageBucket: "opusz-45280.firebasestorage.app",
+    messagingSenderId: "304745430147",
+    appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
+  };
+
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // ── Auth guard + load user profile ──
+  let _currentUser  = null;
+  let _currentProfile = null;
+
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      window.location.href = 'musician-login.html';
+      return;
+    }
+    _currentUser = user;
+
+    // Load profile from Firestore
+    try {
+      const snap = await getDoc(doc(db, 'musicians', user.uid));
+      _currentProfile = snap.exists() ? snap.data() : {};
+      const name = _currentProfile.name || user.email.split('@')[0];
+
+      // Greeting
+      const hour = new Date().getHours();
+      const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+      const el = document.getElementById('welcomeMsg');
+      if (el) el.textContent = greeting + ', ' + name + ' 👋';
+
+      // Sidebar
+      const sbName = document.getElementById('sbUserName');
+      if (sbName) sbName.textContent = name;
+      const sbEmail = document.getElementById('sbUserEmail');
+      if (sbEmail) sbEmail.textContent = user.email;
+
+      // Populate profile tab fields
+      loadProfileFields();
+    } catch(e) {
+      console.log('Profile load error:', e);
+    }
+  });
+
+  // ── Populate My Profile tab fields from Firestore data ──
+  window.loadProfileFields = function() {
+    if (!_currentUser || !_currentProfile) return;
+    const p = _currentProfile;
+    const email = _currentUser.email;
+    const name  = p.name || email.split('@')[0];
+
+    // Avatar header
+    const initial = name.charAt(0).toUpperCase();
+    const avatarInit = document.getElementById('profileAvatarInitial');
+    if (avatarInit) avatarInit.textContent = initial;
+    const bigName = document.getElementById('profileDisplayNameBig');
+    if (bigName) bigName.textContent = name;
+    const emailDisp = document.getElementById('profileEmailDisplay');
+    if (emailDisp) emailDisp.textContent = email;
+
+    // Form inputs
+    const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    set('pfName',    p.name    || name);
+    set('pfPhone',   p.phone   || '');
+    set('pfBio',     p.bio     || '');
+    set('pfRateMin', p.rateMin || '');
+    set('pfRateMax', p.rateMax || '');
+    set('pfWebsite', p.website || '');
+    set('pfRegion1', p.primaryRegion   || '');
+    set('pfRegion2', p.secondaryRegion || '');
+
+    // Instruments pills
+    const pillsEl = document.getElementById('pfInstruments');
+    if (pillsEl) {
+      const insts = p.instruments || [];
+      pillsEl.innerHTML = '';
+      if (insts.length === 0) {
+        const empty = document.createElement('span');
+        empty.style.cssText = 'color:var(--mid);font-size:13px;';
+        empty.textContent = '尚未設定';
+        pillsEl.appendChild(empty);
+      } else {
+        insts.forEach(i => {
+          const pill = document.createElement('span');
+          pill.className = 'inst-pill';
+          pill.textContent = i;
+          pillsEl.appendChild(pill);
+        });
+      }
+    }
+
+    // Account tab email
+    const accEmail = document.getElementById('accountEmailDisp');
+    if (accEmail) accEmail.textContent = email;
+  };
+
+  // ── Save profile to Firestore ──
+  window.saveProfile = async function() {
+    if (!_currentUser) return;
+    const name    = document.getElementById('pfName').value.trim();
+    const phone   = document.getElementById('pfPhone').value.trim();
+    const bio     = document.getElementById('pfBio').value.trim();
+    const rateMin = document.getElementById('pfRateMin').value.trim();
+    const rateMax = document.getElementById('pfRateMax').value.trim();
+    const website = document.getElementById('pfWebsite').value.trim();
+
+    if (!name) { showNotif('請輸入顯示名稱'); return; }
+
+    try {
+      const ref = doc(db, 'musicians', _currentUser.uid);
+      await updateDoc(ref, { name, phone, bio, rateMin, rateMax, website });
+      _currentProfile = { ..._currentProfile, name, phone, bio, rateMin, rateMax, website };
+
+      // Refresh sidebar & avatar
+      const sbName = document.getElementById('sbUserName');
+      if (sbName) sbName.textContent = name;
+      const bigName = document.getElementById('profileDisplayNameBig');
+      if (bigName) bigName.textContent = name;
+      const avatarInit = document.getElementById('profileAvatarInitial');
+      if (avatarInit) avatarInit.textContent = name.charAt(0).toUpperCase();
+
+      showNotif('資料已儲存 ✓');
+    } catch(e) {
+      console.error('Save error:', e);
+      showNotif('儲存失敗，請稍後再試');
+    }
+  };
+
+  // ── Switch profile tab ──
+  window.switchProfileTab = function(tab, btn) {
+    ['info','notif','account'].forEach(t => {
+      const el = document.getElementById('profile-tab-' + t);
+      if (el) el.style.display = t === tab ? '' : 'none';
+    });
+    btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+  };
+
+  // ── Send password reset email ──
+  window.sendPasswordReset = async function() {
+    if (!_currentUser) return;
+    try {
+      await sendPasswordResetEmail(auth, _currentUser.email);
+      showNotif('密碼重設信已寄出，請查收信箱 ✓');
+    } catch(e) {
+      showNotif('寄送失敗，請稍後再試');
+    }
+  };
+
+  // ── Logout ──
+  window.doLogout = async function() {
+    await signOut(auth);
+    window.location.href = 'musician-login.html';
+  }
+
+  // ── Navigation ──
+  const PAGE_TITLES = {
+    overview: 'Overview', jobs: 'Jobs & Inquiries',
+    messages: 'Messages', earnings: 'Earnings',
+    profile: '我的資料', settings: 'Settings'
+  };
+  window.navigate = function(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
+    document.getElementById('page-' + id).classList.add('active');
+    if (btn) btn.classList.add('active');
+    else {
+      const target = document.querySelector('[data-page="' + id + '"]');
+      if (target) target.classList.add('active');
+    }
+    document.getElementById('topbarTitle').textContent = PAGE_TITLES[id] || id;
+  };
+
+  // ── Tab switching (jobs page) ──
+  window.switchTab = function(page, tab, btn) {
+    btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    if (page === 'jobs') {
+      document.getElementById('jobs-public').style.display = tab === 'public' ? '' : 'none';
+      document.getElementById('jobs-direct').style.display = tab === 'direct' ? '' : 'none';
+    }
+  };
+
+  // ── Messages ──
+  const THREADS = [
+    { avatar:'陳', name:'Chen Wei', sub:'Graduation · Sep 14', bubbles:[
+      {mine:false, text:"Hi, I came across your profile on OPUS.Z and I'm very impressed by your background.", time:'2:14 PM'},
+      {mine:false, text:"We are looking for a solo violinist for my daughter's graduation ceremony on Sep 14. Budget NT$8,000–10,000. Are you available?", time:'2:15 PM'}
+    ]},
+    { avatar:'林', name:'Lin Mei-Hua', sub:'Charity Concert · Oct 5', bubbles:[
+      {mine:false, text:"Hello! We are organizing a charity concert to benefit children's education and would love to invite you as a guest soloist.", time:'Yesterday 4:30 PM'}
+    ]},
+    { avatar:'OZ', name:'OPUS.Z Platform', sub:'Platform Announcement', bubbles:[
+      {mine:false, text:"📣 Summer Music Festival 2025 — Applications are now open! This is a great opportunity to perform at National Concert Hall in August.", time:'2 days ago'}
+    ]},
+    { avatar:'王', name:'Wang Jing', sub:'Thank you · May 28', bubbles:[
+      {mine:false, text:"Thank you so much for the wonderful performance at our event last week. Everyone loved it!", time:'1 week ago'},
+      {mine:true,  text:"Thank you so much! It was a pleasure performing for your event. Hope to work with you again!", time:'1 week ago'}
+    ]}
+  ];
+
+  window.openThread = function(idx) {
+    const t = THREADS[idx];
+    document.querySelectorAll('.msg-item').forEach((el,i) => el.classList.toggle('active', i===idx));
+    document.getElementById('threadAvatar').textContent = t.avatar;
+    document.getElementById('threadName').textContent = t.name;
+    document.getElementById('threadSub').textContent = t.sub;
+    const bubbles = document.getElementById('msgBubbles');
+    bubbles.innerHTML = t.bubbles.map(b => `
+      <div class="bubble-wrap ${b.mine?'mine':''}">
+        ${!b.mine ? `<div class="bubble-avatar">${t.avatar}</div>` : ''}
+        <div>
+          <div class="bubble ${b.mine?'mine':'theirs'}">${b.text}</div>
+          <div class="bubble-time">${b.time}</div>
+        </div>
+        ${b.mine ? `<div class="bubble-avatar" style="background:#1a1a2e;color:#fff;">M</div>` : ''}
+      </div>
+    `).join('');
+    bubbles.scrollTop = bubbles.scrollHeight;
+  };
+
+  window.sendMsg = function() {
+    const input = document.getElementById('msgInputBox');
+    const text = input.value.trim();
+    if (!text) return;
+    const bubbles = document.getElementById('msgBubbles');
+    const now = new Date();
+    const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ' ' + (now.getHours()>=12?'PM':'AM');
+    bubbles.innerHTML += `
+      <div class="bubble-wrap mine">
+        <div>
+          <div class="bubble mine">${text}</div>
+          <div class="bubble-time">${time}</div>
+        </div>
+        <div class="bubble-avatar" style="background:#1a1a2e;color:#fff;">M</div>
+      </div>`;
+    input.value = '';
+    input.style.height = 'auto';
+    bubbles.scrollTop = bubbles.scrollHeight;
+  };
+
+  window.handleMsgKey = function(e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.sendMsg(); }
+  };
+
+  // Auto-resize textarea
+  document.getElementById('msgInputBox').addEventListener('input', function() {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+  });
+
+  // ── Notification ──
+  let notifTimer = null;
+  window.showNotif = function(msg) {
+    const el = document.getElementById('notifBanner');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(notifTimer);
+    notifTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  };
+
+  // Init
+  window.openThread(0);
+</script>
+</body>
+</html>

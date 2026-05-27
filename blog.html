@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blog — OPUS.Z</title>
+  <meta name="description" content="Insights on classical music, live performance, artist branding, and the music industry from OPUS.Z." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:    #edece9;
+      --dark:  #0f0f0f;
+      --mid:   #888;
+      --line:  rgba(0,0,0,0.11);
+      --white: #ffffff;
+      --font:  'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      --pad:   clamp(28px, 5.5vw, 88px);
+    }
+
+    html { scroll-behavior: auto; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--dark);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+    /* ── LIGHTS-OFF OVERLAY ── */
+    #lightsOverlay {
+      position: fixed;
+      inset: 0;
+      background: #000;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 998;
+      will-change: opacity;
+      transition: opacity 0.45s ease; /* snap-like, not ultra-slow */
+    }
+
+    /* ── HEADER ── */
+    .site-header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px var(--pad);
+      pointer-events: none;
+    }
+    .site-header.scrolled {
+      background: rgba(237,236,233,0.94);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--line);
+    }
+    .site-header__logo {
+      font-size: 18px; font-weight: 700; letter-spacing: -.02em;
+      color: #fff; pointer-events: all; transition: color .3s;
+    }
+    .site-header.scrolled .site-header__logo { color: var(--dark); }
+    .site-header__menu {
+      font-size: 11px; font-weight: 500; letter-spacing: .18em;
+      text-transform: uppercase; color: #fff;
+      background: none; border: none; cursor: pointer;
+      pointer-events: all; transition: color .3s;
+    }
+    .site-header.scrolled .site-header__menu { color: var(--dark); }
+    .site-header__menu:hover { opacity: .6; }
+
+    /* ── NAV OVERLAY ── */
+    .site-nav {
+      position: fixed; inset: 0; z-index: 300;
+      background: var(--dark); color: #fff;
+      display: flex; flex-direction: column;
+      padding: 20px var(--pad) 40px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .site-nav.open { opacity: 1; pointer-events: all; }
+    .site-nav__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 56px; }
+    .site-nav__logo { font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
+    .site-nav__close { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; background: none; border: none; color: #fff; cursor: pointer; }
+    .site-nav__close:hover { opacity: .5; }
+    .site-nav__links { display: flex; flex-direction: column; gap: 0; flex: 1; }
+    .site-nav__links a {
+      font-size: clamp(28px, 4.5vw, 52px); font-weight: 200;
+      letter-spacing: -.02em; line-height: 1.2; color: #fff;
+      border-bottom: 1px solid rgba(255,255,255,.08); padding: 14px 0;
+      transition: opacity .2s;
+    }
+    .site-nav__links a:hover { opacity: .4; }
+    .site-nav__bottom { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.3); }
+
+    /* ── HERO ── */
+    .home-hero { position: relative; height: 100svh; background: var(--dark); overflow: hidden; }
+    .hero-slide { position: absolute; inset: 0; opacity: 0; transition: opacity .8s ease; }
+    .hero-slide.active { opacity: 1; }
+    .hero-slide__bg { position: absolute; inset: 0; background-size: cover; background-position: center; transform: scale(1.04); transition: transform 7s ease; }
+    .hero-slide.active .hero-slide__bg { transform: scale(1); }
+    .hero-slide__overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,.78) 0%, rgba(0,0,0,.08) 55%, transparent 100%); }
+    .hbg-1 { background: linear-gradient(135deg,#1a1a2e,#16213e,#0f3460); }
+    .hbg-2 { background: linear-gradient(135deg,#1a0a0a,#3d1515,#1a0a0a); }
+    .hbg-3 { background: linear-gradient(135deg,#0a1a0a,#153d15,#0a1a0a); }
+    .hbg-4 { background: linear-gradient(135deg,#1a1505,#3d3015,#1a1505); }
+    .hero-text-wrap {
+      position: absolute; bottom: 0; left: var(--pad); right: var(--pad);
+      padding-bottom: 44px; z-index: 2; color: #fff; max-width: 600px;
+    }
+    .hero-eyebrow { font-size: 10px; font-weight: 500; letter-spacing: .22em; text-transform: uppercase; margin-bottom: 14px; opacity: .65; }
+    .hero-title { font-size: clamp(22px, 3vw, 42px); font-weight: 200; line-height: 1.15; letter-spacing: -.03em; margin-bottom: 12px; }
+    .hero-excerpt { font-size: 13px; opacity: .65; line-height: 1.55; }
+    .hero-dots { display: flex; gap: 8px; margin-top: 20px; }
+    .hero-dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,.55); background: transparent; cursor: pointer; padding: 0; transition: background .2s; }
+    .hero-dot.active { background: #fff; border-color: #fff; }
+    .hero-next { position: absolute; bottom: 44px; right: var(--pad); z-index: 2; color: #fff; text-align: right; min-width: 180px; }
+    .hero-next__label { font-size: 10px; letter-spacing: .2em; text-transform: uppercase; opacity: .5; margin-bottom: 6px; }
+    .hero-next__title { font-size: 13px; font-weight: 300; margin-bottom: 12px; opacity: .8; line-height: 1.35; }
+    .hero-progress { height: 1px; background: rgba(255,255,255,.18); width: 160px; margin-left: auto; overflow: hidden; }
+    .hero-progress__bar { height: 100%; background: #fff; width: 0%; transition: width linear; }
+    @media (max-width: 700px) { .hero-next { display: none; } }
+
+    /* ── MAGAZINE SECTION LABEL ── */
+    .mag-label {
+      display: flex; align-items: center; gap: 20px;
+      padding: 36px var(--pad) 22px;
+    }
+    .mag-label span {
+      font-size: 10px; font-weight: 600; letter-spacing: .22em;
+      text-transform: uppercase; color: var(--mid); white-space: nowrap; flex-shrink: 0;
+    }
+    .mag-label__rule { flex: 1; height: 1px; background: var(--line); }
+
+    /* ── FEATURED 3-COL GRID ── */
+    .mag-grid-3 {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    @media (max-width: 860px) {
+      .mag-grid-3 { grid-template-columns: 1fr; }
+      .mag-card { border-right: none !important; border-bottom: 1px solid var(--line); }
+      .mag-card:last-child { border-bottom: none; }
+    }
+    .mag-card {
+      padding: var(--pad); border-right: 1px solid var(--line);
+      display: flex; flex-direction: column; gap: 14px;
+      text-decoration: none; color: var(--dark);
+      transition: background .2s;
+    }
+    .mag-card:last-child { border-right: none; }
+    .mag-card:hover { background: rgba(0,0,0,.025); }
+    .mag-card__img { width: 100%; aspect-ratio: 4/3; overflow: hidden; background: #ccc; }
+    .mag-card__img-inner { width: 100%; height: 100%; background-size: cover; background-position: center; transition: transform .6s ease; }
+    .mag-card:hover .mag-card__img-inner { transform: scale(1.03); }
+    .mag-card__tag { font-size: 10px; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; color: var(--mid); }
+    .mag-card__title { font-size: clamp(15px, 1.5vw, 21px); font-weight: 300; line-height: 1.3; letter-spacing: -.02em; }
+    .mag-card__excerpt { font-size: 12.5px; color: var(--mid); line-height: 1.65; margin-top: auto; }
+
+    /* ── MIXED LAYOUT (thumbnail list + 2 large cards) ── */
+    .mag-mixed {
+      display: grid; grid-template-columns: 300px 1fr 1fr;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      min-height: 480px;
+    }
+    @media (max-width: 960px) {
+      .mag-mixed { grid-template-columns: 1fr; min-height: auto; }
+      .mag-mixed__list { border-right: none; border-bottom: 1px solid var(--line); }
+      .mag-large-card { min-height: 300px; border-right: none !important; border-bottom: 1px solid var(--line); }
+    }
+    .mag-mixed__list { border-right: 1px solid var(--line); display: flex; flex-direction: column; }
+    .mag-mini {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 20px var(--pad); border-bottom: 1px solid var(--line);
+      text-decoration: none; color: var(--dark); transition: background .2s;
+    }
+    .mag-mini:last-child { border-bottom: none; }
+    .mag-mini:hover { background: rgba(0,0,0,.03); }
+    .mag-mini__img { width: 68px; height: 68px; flex-shrink: 0; overflow: hidden; background: #ccc; }
+    .mag-mini__img-inner { width: 100%; height: 100%; background-size: cover; background-position: center; }
+    .mag-mini__body { flex: 1; min-width: 0; }
+    .mag-mini__tag { font-size: 10px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--mid); margin-bottom: 5px; }
+    .mag-mini__title { font-size: 13px; font-weight: 400; line-height: 1.4; }
+    .mag-large-card {
+      position: relative; overflow: hidden;
+      border-right: 1px solid var(--line);
+      text-decoration: none; color: #fff;
+      display: block; min-height: 380px;
+    }
+    .mag-large-card:last-child { border-right: none; }
+    .mag-large-card__bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      transition: transform .6s ease;
+    }
+    .mag-large-card:hover .mag-large-card__bg { transform: scale(1.03); }
+    .mag-large-card__overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.05) 55%, transparent 100%);
+    }
+    .mag-large-card__body { position: absolute; bottom: 0; left: 0; right: 0; padding: 28px; z-index: 1; }
+    .mag-large-card__tag { font-size: 10px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.6); margin-bottom: 7px; }
+    .mag-large-card__title { font-size: clamp(14px, 1.3vw, 19px); font-weight: 300; line-height: 1.3; letter-spacing: -.01em; }
+
+    /* ── HOME BREAKER (lights-off section) ── */
+    /* Background stays cream (same as the whole page).
+       The fixed #lightsOverlay (z-index 998) dims the entire page including this section.
+       .home-breaker__content sits at z-index 1001 so the TEXT floats above the overlay. */
+    .home-breaker {
+      background: var(--bg);   /* always cream — overlay handles the darkness */
+      padding: clamp(80px, 12vh, 140px) var(--pad);
+      position: relative;
+      /* NO z-index — stays below the overlay so the whole page dims together */
+    }
+    /* Inner content wrapper floats ABOVE the overlay so text stays legible */
+    .home-breaker__content {
+      position: relative;
+      z-index: 1001;
+    }
+
+    /* Text defaults: dark (matches cream bg) */
+    .home-breaker__content { color: var(--dark); transition: color 0.4s ease; }
+    .home-breaker.is-dark .home-breaker__content { color: #fff; }
+
+    .home-breaker__inner {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: clamp(48px, 8vw, 100px);
+      align-items: center;
+      margin-bottom: clamp(60px, 8vw, 100px);
+    }
+    @media (max-width: 700px) { .home-breaker__inner { grid-template-columns: 1fr; } }
+    .home-breaker__headline {
+      font-size: clamp(28px, 4vw, 54px);
+      font-weight: 200;
+      line-height: 1.1;
+      letter-spacing: -.04em;
+      text-transform: uppercase;
+    }
+    .home-breaker__headline em { font-style: italic; opacity: .45; }
+    .home-breaker__body {
+      font-size: clamp(14px, 1.3vw, 17px);
+      font-weight: 300;
+      line-height: 1.75;
+      color: rgba(15,15,15,.55);
+      transition: color 0.4s ease;
+    }
+    .home-breaker.is-dark .home-breaker__body { color: rgba(255,255,255,.6); }
+
+    .home-breaker__label {
+      font-size: 10px; font-weight: 600; letter-spacing: .22em;
+      text-transform: uppercase; color: rgba(15,15,15,.4);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 16px;
+      transition: color 0.4s ease;
+    }
+    .home-breaker.is-dark .home-breaker__label { color: rgba(255,255,255,.35); }
+    .home-breaker__label::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,.12); transition: background 0.4s ease; }
+    .home-breaker.is-dark .home-breaker__label::after { background: rgba(255,255,255,.15); }
+
+    .home-breaker__grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px;
+      background: rgba(0,0,0,.08);
+      transition: background 0.4s ease;
+    }
+    .home-breaker.is-dark .home-breaker__grid { background: rgba(255,255,255,.08); }
+    @media (max-width: 700px) { .home-breaker__grid { grid-template-columns: 1fr; } }
+
+    .breaker-item {
+      background: rgba(255,255,255,.6);
+      padding: 32px 28px;
+      border: 1px solid rgba(0,0,0,.09);
+      transition: background 0.4s ease, border-color 0.4s ease;
+    }
+    .home-breaker.is-dark .breaker-item { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.07); }
+
+    .breaker-item__num { font-size: 10px; letter-spacing: .18em; color: rgba(15,15,15,.3); margin-bottom: 14px; transition: color 0.4s ease; }
+    .home-breaker.is-dark .breaker-item__num { color: rgba(255,255,255,.3); }
+
+    .breaker-item__title { font-size: 16px; font-weight: 300; margin-bottom: 8px; letter-spacing: -.01em; }
+
+    .breaker-item__sub { font-size: 12.5px; color: rgba(15,15,15,.5); line-height: 1.6; transition: color 0.4s ease; }
+    .home-breaker.is-dark .breaker-item__sub { color: rgba(255,255,255,.45); }
+
+    /* ── MORE ARTICLES 4-COL GRID ── */
+    .mag-grid-4 {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+    @media (max-width: 860px) { .mag-grid-4 { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .mag-grid-4 { grid-template-columns: 1fr; } }
+    .mag-small {
+      padding: 28px var(--pad); border-right: 1px solid var(--line);
+      display: flex; flex-direction: column; gap: 12px;
+      text-decoration: none; color: var(--dark);
+      transition: background .2s;
+    }
+    .mag-small:last-child { border-right: none; }
+    .mag-small:hover { background: rgba(0,0,0,.025); }
+    .mag-small__img { width: 100%; aspect-ratio: 4/3; overflow: hidden; background: #ccc; }
+    .mag-small__img-inner { width: 100%; height: 100%; background-size: cover; background-position: center; transition: transform .6s ease; }
+    .mag-small:hover .mag-small__img-inner { transform: scale(1.04); }
+    .mag-small__tag { font-size: 10px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--mid); }
+    .mag-small__title { font-size: 13.5px; font-weight: 400; line-height: 1.4; }
+    .mag-small__date { font-size: 11.5px; color: var(--mid); margin-top: auto; }
+
+    /* ── FOOTER ── */
+    .site-footer {
+      background: var(--dark); color: #fff;
+      padding: clamp(60px, 8vw, 100px) var(--pad) 32px;
+      position: relative; z-index: 1001; /* above overlay so footer is always clear */
+    }
+    .footer-grid {
+      display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 48px;
+      border-bottom: 1px solid rgba(255,255,255,.09);
+      padding-bottom: 48px; margin-bottom: 24px;
+    }
+    @media (max-width: 700px) { .footer-grid { grid-template-columns: 1fr; gap: 36px; } }
+    .footer-col__label { font-size: 10px; letter-spacing: .22em; text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: 18px; }
+    .footer-col__body { font-size: 13px; line-height: 1.85; color: rgba(255,255,255,.6); }
+    .footer-col__body a { transition: opacity .2s; }
+    .footer-col__body a:hover { opacity: .45; }
+    .footer-col__links { display: flex; flex-direction: column; gap: 8px; }
+    .footer-col__links a { font-size: 13px; color: rgba(255,255,255,.6); transition: opacity .2s; }
+    .footer-col__links a:hover { opacity: .45; }
+    .footer-subscribe { display: flex; margin-top: 16px; }
+    .footer-subscribe input { flex: 1; padding: 10px 14px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.12); border-right: none; color: #fff; font-size: 12.5px; font-family: var(--font); outline: none; }
+    .footer-subscribe input::placeholder { color: rgba(255,255,255,.3); }
+    .footer-subscribe button { padding: 10px 18px; background: #fff; color: var(--dark); border: none; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; cursor: pointer; font-family: var(--font); transition: opacity .2s; }
+    .footer-subscribe button:hover { opacity: .8; }
+    .footer-bottom { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,.25); letter-spacing: .04em; }
+
+    /* ── SCROLL REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(18px); transition: opacity .6s ease, transform .6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* placeholder image bg colours */
+    .c1  { background: linear-gradient(135deg,#1e2d4a,#0f1e35); }
+    .c2  { background: linear-gradient(135deg,#2d1a1a,#1a0f0f); }
+    .c3  { background: linear-gradient(135deg,#1a2d1a,#0f1a0f); }
+    .c4  { background: linear-gradient(135deg,#d4cfc8,#b8b3ab); }
+    .c5  { background: linear-gradient(135deg,#c8321a,#8c2010); }
+    .c6  { background: linear-gradient(135deg,#1a1a1a,#0a0a0a); }
+    .c7  { background: linear-gradient(135deg,#2d4a2d,#1a2d1a); }
+    .c8  { background: linear-gradient(135deg,#4a2d4a,#2d1a2d); }
+    .c9  { background: linear-gradient(135deg,#4a3d1e,#2d2510); }
+    .c10 { background: linear-gradient(135deg,#1e3d4a,#0f2030); }
+  </style>
+</head>
+<body>
+
+<!-- ── LIGHTS-OFF OVERLAY ── -->
+<div id="lightsOverlay"></div>
+
+<!-- ── HEADER ── -->
+<header class="site-header" id="siteHeader">
+  <a class="site-header__logo" href="musician-platform.html">OPUS.Z</a>
+  <button class="site-header__menu" id="menuBtn">MENU</button>
+</header>
+
+<!-- ── NAV OVERLAY ── -->
+<nav class="site-nav" id="siteNav">
+  <div class="site-nav__top">
+    <span class="site-nav__logo">OPUS.Z</span>
+    <button class="site-nav__close" id="navClose">CLOSE</button>
+  </div>
+  <div class="site-nav__links">
+    <a href="musician-platform.html">Home</a>
+    <a href="blog.html">Blog</a>
+    <a href="musicians.html">Musicians</a>
+    <a href="recent-jobs.html">Recent Jobs</a>
+    <a href="shows.html">Shows</a>
+    <a href="musician-platform.html#contact">Contact</a>
+  </div>
+  <div class="site-nav__bottom">© 2026 OPUS.Z — All rights reserved</div>
+</nav>
+
+<!-- ── HERO ── -->
+<section class="home-hero" id="hero">
+  <div class="hero-slide active" data-idx="0">
+    <div class="hero-slide__bg hbg-1"></div><div class="hero-slide__overlay"></div>
+  </div>
+  <div class="hero-slide" data-idx="1">
+    <div class="hero-slide__bg hbg-2"></div><div class="hero-slide__overlay"></div>
+  </div>
+  <div class="hero-slide" data-idx="2">
+    <div class="hero-slide__bg hbg-3"></div><div class="hero-slide__overlay"></div>
+  </div>
+  <div class="hero-slide" data-idx="3">
+    <div class="hero-slide__bg hbg-4"></div><div class="hero-slide__overlay"></div>
+  </div>
+
+  <div class="hero-text-wrap" id="heroText">
+    <div class="hero-eyebrow" id="heroEyebrow">ABOUT OPUS.Z</div>
+    <h2 class="hero-title" id="heroTitle">OPUS.Z：重新定義音樂家的工作方式</h2>
+    <p class="hero-excerpt" id="heroExcerpt">古典音樂產業正在改變，而我們在這裡讓它變得更好。</p>
+    <div class="hero-dots" id="heroDots">
+      <button class="hero-dot active" data-dot="0"></button>
+      <button class="hero-dot" data-dot="1"></button>
+      <button class="hero-dot" data-dot="2"></button>
+      <button class="hero-dot" data-dot="3"></button>
+    </div>
+  </div>
+
+  <div class="hero-next">
+    <div class="hero-next__label">Up Next</div>
+    <div class="hero-next__title" id="heroNextTitle">婚禮弦樂四重奏完整指南</div>
+    <div class="hero-progress"><div class="hero-progress__bar" id="heroBar"></div></div>
+  </div>
+</section>
+
+
+<!-- ═══ FEATURED ═══ -->
+<div class="mag-label reveal">
+  <span>Featured</span>
+  <div class="mag-label__rule"></div>
+</div>
+
+<div class="mag-grid-3">
+  <a class="mag-card reveal" href="blog-opusz-intro.html">
+    <div class="mag-card__img"><div class="mag-card__img-inner c1"></div></div>
+    <div class="mag-card__tag">About OPUS.Z</div>
+    <h3 class="mag-card__title">OPUS.Z：我們正在重新定義音樂家的工作方式</h3>
+    <p class="mag-card__excerpt">從古典到當代，我們連結真正有能力的音樂家和真正需要他們的客戶。— May 28, 2026</p>
+  </a>
+  <a class="mag-card reveal" href="#" style="transition-delay:.08s">
+    <div class="mag-card__img"><div class="mag-card__img-inner c2"></div></div>
+    <div class="mag-card__tag">Industry</div>
+    <h3 class="mag-card__title">婚禮弦樂四重奏怎麼選？台灣婚禮音樂完整指南</h3>
+    <p class="mag-card__excerpt">從曲目選擇到現場準備，幫你找到最合適的婚禮音樂家陣容。— Apr 15, 2026</p>
+  </a>
+  <a class="mag-card reveal" href="#" style="transition-delay:.16s">
+    <div class="mag-card__img"><div class="mag-card__img-inner c3"></div></div>
+    <div class="mag-card__tag">Interview</div>
+    <h3 class="mag-card__title">從皇家音樂院到台灣舞台——一位小提琴家的職涯選擇</h3>
+    <p class="mag-card__excerpt">我們專訪 OPUS.Z 旗下的青年音樂家，聊聊她如何在國際與本地演出之間找到平衡。— Mar 10, 2026</p>
+  </a>
+</div>
+
+
+<!-- ═══ RECENT — mixed layout ═══ -->
+<div class="mag-label reveal">
+  <span>Recent</span>
+  <div class="mag-label__rule"></div>
+</div>
+
+<div class="mag-mixed reveal">
+
+  <!-- Left: thumbnail list -->
+  <div class="mag-mixed__list">
+    <a class="mag-mini" href="#">
+      <div class="mag-mini__img"><div class="mag-mini__img-inner c4"></div></div>
+      <div class="mag-mini__body">
+        <div class="mag-mini__tag">Tips · Nov 2025</div>
+        <div class="mag-mini__title">The power of authenticity in modern music branding</div>
+      </div>
+    </a>
+    <a class="mag-mini" href="#">
+      <div class="mag-mini__img"><div class="mag-mini__img-inner c5"></div></div>
+      <div class="mag-mini__body">
+        <div class="mag-mini__tag">Industry · Jul 2025</div>
+        <div class="mag-mini__title">From bedroom producer to booked artist: building momentum</div>
+      </div>
+    </a>
+    <a class="mag-mini" href="#">
+      <div class="mag-mini__img"><div class="mag-mini__img-inner c6"></div></div>
+      <div class="mag-mini__body">
+        <div class="mag-mini__tag">Tips · May 2025</div>
+        <div class="mag-mini__title">Why great artists are discovered through clarity, not volume</div>
+      </div>
+    </a>
+    <a class="mag-mini" href="#">
+      <div class="mag-mini__img"><div class="mag-mini__img-inner c7"></div></div>
+      <div class="mag-mini__body">
+        <div class="mag-mini__tag">Industry · Mar 2025</div>
+        <div class="mag-mini__title">How to price your performance in the Taiwan market</div>
+      </div>
+    </a>
+  </div>
+
+  <!-- Center: large card -->
+  <a class="mag-large-card" href="#">
+    <div class="mag-large-card__bg c8"></div>
+    <div class="mag-large-card__overlay"></div>
+    <div class="mag-large-card__body">
+      <div class="mag-large-card__tag">Interview</div>
+      <div class="mag-large-card__title">古典音樂家如何在數位時代找到自己的定位</div>
+    </div>
+  </a>
+
+  <!-- Right: large card -->
+  <a class="mag-large-card" href="#">
+    <div class="mag-large-card__bg c9"></div>
+    <div class="mag-large-card__overlay"></div>
+    <div class="mag-large-card__body">
+      <div class="mag-large-card__tag">Industry</div>
+      <div class="mag-large-card__title">企業活動音樂策劃全指南：從選角到現場執行</div>
+    </div>
+  </a>
+
+</div>
+
+
+<!-- ═══ LIGHTS-OFF SECTION ═══ -->
+<div class="home-breaker" id="homeBreaker">
+  <div class="home-breaker__content">
+    <div class="home-breaker__inner">
+      <div class="home-breaker__headline">
+        OPUS.Z 不只是<br>一個平台——<br>我們正在<br><em>重新定義</em><br>一切。
+      </div>
+      <div class="home-breaker__body">
+        We are a platform that commissions and connects real classical musicians with the opportunities they deserve — live performances, session work, corporate events, and artist branding. We want every engagement to be meaningful, precise, and built to last. The classical music world has always needed this infrastructure. We are building it.
+      </div>
+    </div>
+
+    <div class="home-breaker__label">What we offer</div>
+    <div class="home-breaker__grid">
+      <div class="breaker-item">
+        <div class="breaker-item__num">01</div>
+        <div class="breaker-item__title">Live Performance</div>
+        <div class="breaker-item__sub">Weddings, corporate events, concert productions, opening ceremonies</div>
+      </div>
+      <div class="breaker-item">
+        <div class="breaker-item__num">02</div>
+        <div class="breaker-item__title">Session Work</div>
+        <div class="breaker-item__sub">Studio recordings, film scores, album productions</div>
+      </div>
+      <div class="breaker-item">
+        <div class="breaker-item__num">03</div>
+        <div class="breaker-item__title">Artist Branding</div>
+        <div class="breaker-item__sub">Build a profile that books gigs and builds a lasting career</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══ MORE ARTICLES ═══ -->
+<div class="mag-label reveal">
+  <span>More from OPUS.Z</span>
+  <div class="mag-label__rule"></div>
+</div>
+
+<div class="mag-grid-4">
+  <a class="mag-small reveal" href="#">
+    <div class="mag-small__img"><div class="mag-small__img-inner c7"></div></div>
+    <div class="mag-small__tag">Industry</div>
+    <h3 class="mag-small__title">Designing your artist profile that books gigs and scales</h3>
+    <div class="mag-small__date">Apr 10, 2025</div>
+  </a>
+  <a class="mag-small reveal" href="#" style="transition-delay:.07s">
+    <div class="mag-small__img"><div class="mag-small__img-inner c8"></div></div>
+    <div class="mag-small__tag">Industry</div>
+    <h3 class="mag-small__title">How classical musicians are entering the corporate event market</h3>
+    <div class="mag-small__date">Mar 5, 2025</div>
+  </a>
+  <a class="mag-small reveal" href="#" style="transition-delay:.14s">
+    <div class="mag-small__img"><div class="mag-small__img-inner c9"></div></div>
+    <div class="mag-small__tag">Tips</div>
+    <h3 class="mag-small__title">Building a lasting brand as a performing musician in Asia</h3>
+    <div class="mag-small__date">Feb 18, 2025</div>
+  </a>
+  <a class="mag-small reveal" href="#" style="transition-delay:.21s">
+    <div class="mag-small__img"><div class="mag-small__img-inner c10"></div></div>
+    <div class="mag-small__tag">Tips</div>
+    <h3 class="mag-small__title">Session work vs. live gigs: which path is right for you?</h3>
+    <div class="mag-small__date">Jan 22, 2025</div>
+  </a>
+</div>
+
+
+<!-- ── FOOTER ── -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-col__label">Contact</div>
+      <div class="footer-col__body">
+        Taipei, Taiwan<br>
+        <a href="mailto:info@opuszmusic.com">info@opuszmusic.com</a><br><br>
+        <a href="musician-platform.html#contact">Send a message →</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__label">Follow</div>
+      <div class="footer-col__links">
+        <a href="#">@opuszmusic</a>
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">YouTube</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__label">Subscribe</div>
+      <div class="footer-col__body">Sign up for our newsletter:</div>
+      <form class="footer-subscribe" name="newsletter" method="POST" data-netlify="true" action="/newsletter-success.html">
+        <input type="hidden" name="form-name" value="newsletter" />
+        <input type="email" name="email" placeholder="Your email" required />
+        <button type="submit">Subscribe</button>
+      </form>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>OPUS.Z</span>
+    <span>© 2026 OPUS.Z. All rights reserved.</span>
+  </div>
+</footer>
+
+<script>
+/* ── HERO SLIDESHOW ── */
+const SLIDES = [
+  { eyebrow:'ABOUT OPUS.Z',  title:'OPUS.Z：重新定義音樂家的工作方式',              excerpt:'古典音樂產業正在改變，而我們在這裡讓它變得更好。' },
+  { eyebrow:'INDUSTRY',      title:'婚禮弦樂四重奏怎麼選？台灣婚禮音樂完整指南',   excerpt:'從曲目選擇到現場準備，找到最合適的婚禮音樂家陣容。' },
+  { eyebrow:'INTERVIEW',     title:'從皇家音樂院到台灣舞台——一位小提琴家的職涯選擇', excerpt:'國際與本地演出之間，如何找到屬於自己的舞台？' },
+  { eyebrow:'TIPS',          title:'音樂家接案定價完整指南：台灣市場行情參考',      excerpt:'不再靠猜測，用數據和邏輯定出讓你和客戶都滿意的價格。' },
+];
+const DURATION = 6000;
+let current = 0, timer, barTimer;
+const slides    = document.querySelectorAll('.hero-slide');
+const dots      = document.querySelectorAll('.hero-dot');
+const eyebrow   = document.getElementById('heroEyebrow');
+const titleEl   = document.getElementById('heroTitle');
+const excerpt   = document.getElementById('heroExcerpt');
+const nextTitle = document.getElementById('heroNextTitle');
+const bar       = document.getElementById('heroBar');
+
+function goTo(idx) {
+  clearTimeout(timer); cancelAnimationFrame(barTimer);
+  bar.style.transition = 'none'; bar.style.width = '0%';
+  slides[current].classList.remove('active');
+  dots[current].classList.remove('active');
+  current = (idx + SLIDES.length) % SLIDES.length;
+  slides[current].classList.add('active');
+  dots[current].classList.add('active');
+  const d = SLIDES[current];
+  eyebrow.textContent = d.eyebrow; titleEl.textContent = d.title; excerpt.textContent = d.excerpt;
+  nextTitle.textContent = SLIDES[(current + 1) % SLIDES.length].title;
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    bar.style.transition = `width ${DURATION}ms linear`; bar.style.width = '100%';
+  }));
+  timer = setTimeout(() => goTo(current + 1), DURATION);
+}
+dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.dot)));
+goTo(0);
+
+/* ── HEADER ── */
+const header = document.getElementById('siteHeader');
+window.addEventListener('scroll', () => {
+  header.classList.toggle('scrolled', window.scrollY > 80);
+}, { passive: true });
+
+/* ── NAV ── */
+const nav = document.getElementById('siteNav');
+document.getElementById('menuBtn').addEventListener('click', () => nav.classList.add('open'));
+document.getElementById('navClose').addEventListener('click', () => nav.classList.remove('open'));
+nav.addEventListener('click', e => { if (e.target === nav) nav.classList.remove('open'); });
+
+/* ── SCROLL REVEAL ── */
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ── LIGHTS-OFF ANIMATION ── */
+// The overlay dims the ENTIRE page (including the breaker section's cream bg).
+// The breaker's text content sits above the overlay via z-index so it stays legible.
+// Trigger: snap-style (quick, not a slow scroll-proportional fade).
+const overlay = document.getElementById('lightsOverlay');
+const breaker = document.getElementById('homeBreaker');
+
+function updateLightsOff() {
+  if (!breaker || !overlay) return;
+  const rect = breaker.getBoundingClientRect();
+  const vh   = window.innerHeight;
+
+  // ON: when section top enters the top 75% of the viewport (coming from below)
+  // OFF: as soon as section has fully scrolled above the viewport (rect.bottom <= 0)
+  const lightsOn = rect.top < vh * 0.75 && rect.bottom > 0;
+
+  overlay.style.opacity = lightsOn ? '0.88' : '0';
+
+  // Text inversion: dark → white when lights go off
+  if (lightsOn) {
+    breaker.classList.add('is-dark');
+  } else {
+    breaker.classList.remove('is-dark');
+  }
+}
+
+window.addEventListener('scroll', updateLightsOff, { passive: true });
+updateLightsOff(); // run once on load
+</script>
+
+</body>
+</html>
