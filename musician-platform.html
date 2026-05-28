@@ -90,6 +90,7 @@ nav.mega-open .nc-char {
   color: #000 !important;
   transition: none;
 }
+
 /* Logo text: JS-controlled per-character as well */
 .nav-logo-name,
 .nav-logo-sub {
@@ -389,7 +390,34 @@ nav.mega-open .nav-links a::before {
 
 .hero-card-dot { position: absolute; top: -11px; left: 50%; transform: translateX(-50%); width: 22px; height: 22px; background: var(--black); border-radius: 50%; }
 .hero-services { list-style: none; display: flex; flex-direction: column; gap: 12px; padding-top: 4px; text-align: right; align-items: flex-end; }
-.hero-services li { font-size: calc(var(--k) * 15.5px); font-weight: 600; }
+.hero-services li {
+  font-size: calc(var(--k) * 15.5px);
+  font-weight: 600;
+  position: relative;
+  cursor: pointer;
+  padding-left: 0;
+  transition: padding-left 0.3s ease;
+}
+.hero-services li::before {
+  content: '';
+  position: absolute;
+  left: 2px;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  background: #000;
+  border-radius: 50%;
+  transform: translateY(-50%) translateX(-18px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.2s ease;
+}
+.hero-services li:hover {
+  padding-left: 18px;
+}
+.hero-services li:hover::before {
+  transform: translateY(-50%) translateX(0);
+  opacity: 1;
+}
 .hero-right { display: flex; flex-direction: column; justify-content: space-between; }
 .hero-tagline { font-size: calc(var(--k) * 14.5px); line-height: 1.65; max-width: calc(var(--k) * 300px); }
 .hero-cta { display: inline-flex; align-items: center; background: var(--black); color: var(--white); padding: calc(var(--k)*14px) calc(var(--k)*30px); border-radius: 50px; font-size: calc(var(--k)*15px); font-weight: 500; text-decoration: none; margin-top: calc(var(--k)*28px); width: fit-content; box-shadow: 0 12px 40px rgba(0,0,0,.25); }
@@ -420,16 +448,25 @@ nav.mega-open .nav-links a::before {
 }
 .hp-phrase {
   position: absolute;
-  left: clamp(32px, 7vw, 100px);
-  top: 50%; transform: translateY(-50%);
+  left: clamp(32px, 18vw, 220px);
+  top: 30%; transform: translateY(-50%);
   font-size: clamp(18px, 2.4vw, 32px);
   font-weight: 300;
   letter-spacing: 0.015em;
   line-height: 1.5;
   color: rgba(15,15,15,0.88);
-  max-width: 520px;
+  max-width: 700px;
+  white-space: nowrap;
   opacity: 0;
   will-change: opacity, filter;
+}
+.hp-zh {
+  display: block;
+  font-size: 1em;
+  letter-spacing: 0.04em;
+  opacity: 1;
+  margin-top: 4px;
+  white-space: normal;
 }
 /* Big title: at top of hc-upper, near-full-width like WRK */
 .hero-big-title {
@@ -1232,14 +1269,14 @@ nav.mega-open .nav-links a::before {
 /* ── Bottom nav ── */
 .bottom-nav {
   position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
-  background: rgba(14,14,14,.90); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+  background: rgba(255,255,255,.92); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-radius: 50px; padding: 5px; display: none; align-items: center;
   z-index: 150; gap: 0; white-space: nowrap;
-  box-shadow: 0 4px 24px rgba(0,0,0,.35);
+  box-shadow: 0 4px 28px rgba(0,0,0,.12), 0 1px 4px rgba(0,0,0,.08);
 }
-/* Sliding white pill */
+/* Sliding dark pill */
 .bn-slider {
-  position: absolute; background: #fff; border-radius: 50px;
+  position: absolute; background: #111; border-radius: 50px;
   top: 5px; bottom: 5px; left: 5px; width: 60px;   /* JS overrides left+width */
   transition: left .42s cubic-bezier(.34,1.08,.64,1), width .42s cubic-bezier(.34,1.08,.64,1);
   pointer-events: none; z-index: 0;
@@ -1247,12 +1284,12 @@ nav.mega-open .nav-links a::before {
 /* Nav items */
 .bn-item {
   position: relative; z-index: 1;
-  color: rgba(255,255,255,.55); text-decoration: none;
+  color: rgba(0,0,0,.55); text-decoration: none;
   font-size: 13px; font-weight: 500; letter-spacing: .01em;
   padding: 8px 16px; border-radius: 50px;
   transition: color .2s; user-select: none; cursor: pointer;
 }
-.bn-item.bn-active { color: #000; font-weight: 600; }
+.bn-item.bn-active { color: #fff; font-weight: 600; }
 
 /* ── INTRO PRELOADER ── */
 #intro {
@@ -1880,13 +1917,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
               <button class="hero-btn-outline" id="heroCreateProject" data-i18n="hero.createProject">Create a Project</button>
             </div>
           </div>
-          <ul class="hero-services">
-            <li data-i18n="svc.name.0" data-tid="svc-1">Live Performance</li>
-            <li data-i18n="svc.name.1" data-tid="svc-2">Session Work</li>
-            <li data-i18n="svc.name.2" data-tid="svc-3">Music Lesson &amp; Masterclass</li>
-            <li data-i18n="svc.name.3" data-tid="svc-4">Corporate Event</li>
-            <li data-i18n="svc.name.4" data-tid="svc-5">Artist Branding</li>
-          </ul>
+          <!-- hero-services removed -->
         </div>
       </div>
 
@@ -1909,9 +1940,9 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 
       <!-- Cinematic phrase overlay -->
       <div id="heroPhraseOverlay">
-        <p class="hp-phrase" id="hpPhrase0">Real musicians.</p>
-        <p class="hp-phrase" id="hpPhrase1">Real connections.</p>
-        <p class="hp-phrase" id="hpPhrase2">Real careers.</p>
+        <p class="hp-phrase" id="hpPhrase0">Find your perfect musician.<br><span class="hp-zh">找到你完美的音樂家。</span></p>
+        <p class="hp-phrase" id="hpPhrase1">You came to the right place.<br><span class="hp-zh">你來對地方了。</span></p>
+        <p class="hp-phrase" id="hpPhrase2">Taiwan's top musicians, on demand.<br><span class="hp-zh">台灣頂尖音樂家，隨時為你。</span></p>
       </div>
 
       <!-- Fixed elements: dot, copyright, dots-bar -->
@@ -3193,14 +3224,14 @@ applySvcImg(1);
         return 0.1; // videos are typically dark
       }
 
-      // ── Normal DOM element: walk up ancestry for CSS bg ──
-      let cur = el;
-      while (cur && cur !== document.documentElement) {
-        const bc = getComputedStyle(cur).backgroundColor;
-        if (_isSolid(bc)) return _lum(bc);
-        cur = cur.parentElement;
-      }
-      break;
+      // ── Normal DOM element: check ONLY this element's own bg-color ──
+      // elementsFromPoint already returns all ancestors in z-order, so there
+      // is no need to walk up — doing so would incorrectly find a dark
+      // container (e.g. .hero-grid) even when a lighter child is visually
+      // in front of it at this pixel.
+      const bc = getComputedStyle(el).backgroundColor;
+      if (_isSolid(bc)) return _lum(bc);
+      // transparent → continue to the next element in the z-stack
     }
     return _lum(getComputedStyle(document.body).backgroundColor);
   }
@@ -3264,6 +3295,49 @@ applySvcImg(1);
     }
     nav.classList.toggle('nav-on-dark',  navCenterDark);
     nav.classList.toggle('nav-on-light', !navCenterDark);
+
+    // ── hp-phrase: read canvas region directly — if ≥10% pixels are dark → white text ──
+    const heroCanvas = document.getElementById('heroCanvas');
+    const heroCtx = heroCanvas ? heroCanvas.getContext('2d') : null;
+    document.querySelectorAll('.hp-phrase').forEach(phrase => {
+      const pr = phrase.getBoundingClientRect();
+      if (pr.width === 0 || pr.height === 0) return;
+      let isDark = false;
+      if (heroCtx) {
+        try {
+          const cr = heroCanvas.getBoundingClientRect();
+          const px = Math.round(pr.left - cr.left);
+          const py = Math.round(pr.top  - cr.top);
+          const pw = Math.round(pr.width);
+          const ph = Math.round(pr.height * 0.65);
+          const sx = Math.max(0, px), sy = Math.max(0, py);
+          const sw = Math.min(pw, heroCanvas.width  - sx);
+          const sh = Math.min(ph, heroCanvas.height - sy);
+          if (sw > 0 && sh > 0) {
+            const data = heroCtx.getImageData(sx, sy, sw, sh).data;
+            let dark = 0, total = 0;
+            for (let i = 0; i < data.length; i += 16) { // every 4th pixel
+              if (data[i+3] > 30) {
+                total++;
+                const lum = 0.299*data[i]/255 + 0.587*data[i+1]/255 + 0.114*data[i+2]/255;
+                if (lum < 0.6) dark++;
+              }
+            }
+            isDark = total > 0 && (dark / total) > 0.08;
+          }
+        } catch(e) { /* tainted canvas */ }
+      }
+      if (!isDark) {
+        // fallback: check CSS bg via point sampling
+        const cols = [0.06, 0.25, 0.5, 0.75, 0.92];
+        const cy = pr.top + pr.height * 0.4;
+        isDark = cols.some(fx => _bgLumAt(pr.left + pr.width * fx, cy, phrase) < 0.5);
+      }
+      const fg = isDark ? '#fff' : 'rgba(15,15,15,0.88)';
+      phrase.style.color = fg;
+      const zhEl = phrase.querySelector('.hp-zh');
+      if (zhEl) zhEl.style.color = fg;
+    });
 
     // ── Elements without character spans: JS color as before ──
     const extras = [

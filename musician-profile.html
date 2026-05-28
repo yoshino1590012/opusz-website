@@ -81,13 +81,26 @@ nav{
 }
 .hero-photo-wrap:hover .photo-edit-hint{opacity:1;}
 
-/* Gradient overlay — darkens bottom for text legibility */
+/* Left blurred panel — shows photo colours blurred + darkened, fades to clear photo */
+.hero-left-blur{
+  position:absolute;
+  top:0;bottom:0;left:0;
+  width:72%; /* extends past the 33% info zone so the fade blends naturally */
+  z-index:2;
+  backdrop-filter:blur(32px) brightness(0.52) saturate(1.4);
+  -webkit-backdrop-filter:blur(32px) brightness(0.52) saturate(1.4);
+  background:rgba(0,0,0,0.08);
+  /* Mask: fully opaque on left, fades to transparent at right edge */
+  -webkit-mask-image:linear-gradient(to right, black 0%, black 38%, transparent 72%);
+  mask-image:linear-gradient(to right, black 0%, black 38%, transparent 72%);
+  pointer-events:none;
+}
+
+/* Gradient overlay — just a light bottom darkening for legibility */
 .hero-overlay{
   position:absolute;inset:0;
-  background:
-    linear-gradient(to right, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.72) 20%, rgba(0,0,0,0.3) 42%, transparent 60%),
-    linear-gradient(to top, rgba(0,0,0,0.70) 0%, rgba(0,0,0,0.25) 25%, transparent 55%);
-  z-index:2;
+  background:linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 50%);
+  z-index:3;
   pointer-events:none;
 }
 
@@ -792,6 +805,9 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
     <div class="photo-edit-hint">Press P to edit</div>
   </div>
+
+  <!-- Blurred left panel — photo colours bleed through, no hard edge -->
+  <div class="hero-left-blur"></div>
 
   <!-- Gradient overlay -->
   <div class="hero-overlay"></div>
