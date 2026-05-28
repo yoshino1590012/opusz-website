@@ -45,6 +45,29 @@ nav.mega-open {
 /* Apply the colour var */
 .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: var(--nav-fg); transition: color 0.18s; }
 .orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
+
+/* ── Logo hover expand (OPUS.Z → + MUSIC) ── */
+.nav-logo-text {
+  display: flex; flex-direction: column; overflow: hidden; line-height: 1;
+}
+.nav-logo-name { display: block; }
+.nav-logo-sub {
+  display: block;
+  font-size: 17px; font-weight: 700; letter-spacing: 0;
+  max-height: 0; overflow: hidden; opacity: 0;
+  transform: translateY(5px);
+  transition:
+    max-height 0.38s cubic-bezier(0.34, 1.15, 0.64, 1),
+    opacity    0.28s ease,
+    transform  0.38s cubic-bezier(0.34, 1.15, 0.64, 1),
+    margin-top 0.38s cubic-bezier(0.34, 1.15, 0.64, 1);
+  margin-top: 0;
+}
+.nav-logo:hover .nav-logo-sub {
+  max-height: 28px; opacity: 1;
+  transform: translateY(0);
+  margin-top: 2px;
+}
 .nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 50%; transform: translateX(-50%); }
 .nav-links a {
   text-decoration: none; color: var(--nav-fg); font-size: 15px;
@@ -1563,7 +1586,13 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 
 <!-- NAV -->
 <nav>
-  <a href="#home" class="nav-logo"><div class="orb"></div><span data-tid="nav-logo">OPUS.Z</span></a>
+  <a href="#home" class="nav-logo">
+    <div class="orb"></div>
+    <div class="nav-logo-text">
+      <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
+      <span class="nav-logo-sub">MUSIC</span>
+    </div>
+  </a>
   <ul class="nav-links">
     <li><a href="#home"        data-i18n="nav.home">Home</a></li>
     <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
@@ -4547,25 +4576,36 @@ var _inIframe = (window.self !== window.top);
     if(!pe){ alert('Photo editor panel not found in DOM'); return; }
     pe.style.display = (pe.style.display==='flex') ? 'none' : 'flex';
   }
-  // P key — no conditions except modifier keys
+  // Admin auth guard — password stored in sessionStorage
+  var ADMIN_PWD = 'opusz2024admin';
+  function checkAdminAuth(cb){
+    if(sessionStorage.getItem('opusz-admin')==='1'){ cb(); return; }
+    var pwd=prompt('Admin password:');
+    if(pwd===ADMIN_PWD){ sessionStorage.setItem('opusz-admin','1'); cb(); }
+    else if(pwd!==null){ alert('Incorrect password.'); }
+  }
+
+  // P key — requires admin auth
   document.addEventListener('keydown', function(e){
     if(e.metaKey||e.ctrlKey||e.altKey) return;
     if(e.key==='p'||e.key==='P'){
       var t=e.target;
       if(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable) return;
       e.preventDefault();
-      openPE();
+      checkAdminAuth(openPE);
     }
   }, true);
-  // Floating 📷 button — always clickable regardless of keyboard
+  // Floating 📷 button — admin only, hidden by default
   var btn=document.createElement('button');
   btn.title='Photo Editor  (P)';
   btn.textContent='📷';
-  btn.style.cssText='position:fixed;bottom:28px;left:28px;z-index:99998;width:48px;height:48px;border-radius:50%;border:none;background:rgba(0,0,0,0.72);color:#fff;font-size:22px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.45);transition:transform .15s,opacity .15s;';
+  btn.style.cssText='position:fixed;bottom:28px;left:28px;z-index:99998;width:48px;height:48px;border-radius:50%;border:none;background:rgba(0,0,0,0.72);color:#fff;font-size:22px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.45);transition:transform .15s,opacity .15s;display:none;';
   btn.onmouseenter=function(){this.style.transform='scale(1.13)';};
   btn.onmouseleave=function(){this.style.transform='scale(1)';};
-  btn.onclick=openPE;
+  btn.onclick=function(){ checkAdminAuth(openPE); };
   document.body.appendChild(btn);
+  // Show 📷 button only if already authenticated this session
+  if(sessionStorage.getItem('opusz-admin')==='1') btn.style.display='';
 })();
 
 /* ── Responsive Preview — bottom drawer (R / Esc) ── */
