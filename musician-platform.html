@@ -29,8 +29,7 @@ nav {
   /* No CSS transition — JS lerp handles the damping */
 }
 
-/* ── Nav colour modes — JS snaps between these two, no grey ── */
-/* Default = dark bg (hero), so white text */
+/* ── Nav colour modes — still used for hover-bubble style switching ── */
 nav,
 nav.nav-on-dark { --nav-fg: #fff; }
 nav.nav-on-light { --nav-fg: #000; }
@@ -42,8 +41,36 @@ nav.mega-open {
   --nav-fg: #000;
 }
 
+/* ─────────────────────────────────────────────────────────────────────────
+   PER-ELEMENT AUTO-INVERSION via mix-blend-mode: difference
+   Each nav item independently reads the pixels directly behind it and
+   inverts:  white base on dark bg → stays white;  on light bg → turns black.
+   This gives true per-character contrast no matter what's underneath.
+   ──────────────────────────────────────────────────────────────────────── */
+.nav-logo,
+.nav-links a,
+.nav-fav-btn,
+.lang-toggle,
+.nav-login-btn {
+  mix-blend-mode: difference;
+}
+/* Hamburger lines also auto-invert */
+.hamburger span { mix-blend-mode: difference; }
+
+/* Override: mega-open panel has solid white bg → use plain black, no blending */
+nav.mega-open .nav-logo,
+nav.mega-open .nav-links a,
+nav.mega-open .nav-fav-btn,
+nav.mega-open .lang-toggle,
+nav.mega-open .nav-login-btn {
+  mix-blend-mode: normal;
+  color: #000 !important;
+}
+nav.mega-open .nav-login-btn { border-color: #000 !important; }
+nav.mega-open .hamburger span { mix-blend-mode: normal; background: #000 !important; }
+
 /* Apply the colour var */
-.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: var(--nav-fg); transition: color 0.18s; }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; }
 .orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
 
 /* ── Logo hover expand (OPUS.Z → + MUSIC) ── */
@@ -70,11 +97,10 @@ nav.mega-open {
 }
 .nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 50%; transform: translateX(-50%); }
 .nav-links a {
-  text-decoration: none; color: var(--nav-fg); font-size: 15px;
+  text-decoration: none; color: #fff; font-size: 15px;
   position: relative; padding: 11px 22px; border-radius: 50px;
   display: inline-flex; align-items: center; justify-content: center;
   line-height: 1; vertical-align: middle; white-space: nowrap;
-  transition: color 0.18s;
   z-index: 0;
 }
 
@@ -142,7 +168,7 @@ nav.mega-open .nav-links a::before {
 }
 
 .hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
-.hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: background 0.18s, opacity .2s; }
+.hamburger span { display: block; width: 26px; height: 2px; background: #fff; transition: opacity .2s; }
 .hamburger:hover span { opacity: .5; }
 
 /* ── Slide-in Nav Drawer ── */
@@ -1413,22 +1439,20 @@ nav.mega-open .nav-links a::before {
 .lang-toggle {
   display: flex; align-items: center; gap: 2px;
   background: none; border: none; cursor: pointer; padding: 0;
-  font-family: inherit; font-size: 13px; font-weight: 600; color: var(--nav-fg);
-  transition: color 0.18s;
+  font-family: inherit; font-size: 13px; font-weight: 600; color: #fff;
 }
 .lang-toggle .lt-opt {
   padding: 3px 8px; border-radius: 5px;
   transition: background .2s, color .2s;
 }
-/* Active option: always inverse of current mode */
-nav.nav-on-dark .lang-toggle .lt-opt.active { background: #fff; color: #000; }
-nav.nav-on-light .lang-toggle .lt-opt.active,
-nav.mega-open .lang-toggle .lt-opt.active { background: #000; color: #fff; }
+/* Active option: highlight pill — with difference blend the bg inverts automatically */
+.lang-toggle .lt-opt.active { background: #fff; color: #000; }
+nav.mega-open .lang-toggle .lt-opt.active { background: #000; color: #fff; mix-blend-mode: normal; }
 .lang-toggle .lt-sep { opacity: .25; font-weight: 400; }
 .nav-right { display: flex; align-items: center; gap: 14px; }
 
 /* ── Favourites Button ── */
-.nav-fav-btn { position:relative; background:none; border:none; cursor:pointer; padding:6px; display:flex; align-items:center; color:var(--nav-fg); transition:color .18s; }
+.nav-fav-btn { position:relative; background:none; border:none; cursor:pointer; padding:6px; display:flex; align-items:center; color:#fff; }
 .nav-fav-btn:hover { opacity:.65; }
 nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 .nav-fav-btn svg { display:block; }
@@ -1437,12 +1461,11 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 /* ── Login Button ── */
 .nav-login-btn {
   display: inline-flex; align-items: center; gap: 6px;
-  background: transparent; color: var(--nav-fg);
-  border: 1.5px solid var(--nav-fg); border-radius: 0;
+  background: transparent; color: #fff;
+  border: 1.5px solid #fff; border-radius: 0;
   padding: 9px 18px; font-size: 14px; font-weight: 700;
   font-family: inherit; cursor: pointer; white-space: nowrap;
   position: relative; z-index: 0;
-  transition: color 0.18s, border-color 0.18s;
   line-height: 1;
 }
 .nav-login-btn::before { display: none; }
