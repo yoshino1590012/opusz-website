@@ -4618,17 +4618,18 @@ var _inIframe = (window.self !== window.top);
       checkAdminAuth(openPE);
     }
   }, true);
-  // Floating 📷 button — admin only, hidden by default
-  var btn=document.createElement('button');
-  btn.title='Photo Editor  (P)';
-  btn.textContent='📷';
-  btn.style.cssText='position:fixed;bottom:28px;left:28px;z-index:99998;width:48px;height:48px;border-radius:50%;border:none;background:rgba(0,0,0,0.72);color:#fff;font-size:22px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.45);transition:transform .15s,opacity .15s;display:none;';
-  btn.onmouseenter=function(){this.style.transform='scale(1.13)';};
-  btn.onmouseleave=function(){this.style.transform='scale(1)';};
-  btn.onclick=function(){ checkAdminAuth(openPE); };
-  document.body.appendChild(btn);
-  // Show 📷 button only if already authenticated this session
-  if(sessionStorage.getItem('opusz-admin')==='1') btn.style.display='';
+  // Floating 📷 button — localhost only
+  var isLocal = (location.hostname==='localhost'||location.hostname==='127.0.0.1');
+  if(isLocal){
+    var btn=document.createElement('button');
+    btn.title='Photo Editor  (P)';
+    btn.textContent='📷';
+    btn.style.cssText='position:fixed;bottom:28px;left:28px;z-index:99998;width:48px;height:48px;border-radius:50%;border:none;background:rgba(0,0,0,0.72);color:#fff;font-size:22px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.45);transition:transform .15s,opacity .15s;';
+    btn.onmouseenter=function(){this.style.transform='scale(1.13)';};
+    btn.onmouseleave=function(){this.style.transform='scale(1)';};
+    btn.onclick=function(){ checkAdminAuth(openPE); };
+    document.body.appendChild(btn);
+  }
 })();
 
 /* ── Responsive Preview — bottom drawer (R / Esc) ── */
@@ -4777,20 +4778,22 @@ var _inIframe = (window.self !== window.top);
     };
   } catch(e){}
 
-  // Floating 📐 FAB button (left of 📷)
-  var rbtn = document.createElement('button');
-  rbtn.title = '響應式預覽  (R)';
-  rbtn.textContent = '📐';
-  rbtn.style.cssText =
-    'position:fixed;bottom:28px;left:86px;z-index:99997;' +
-    'width:48px;height:48px;border-radius:50%;border:none;' +
-    'background:rgba(0,0,0,0.72);color:#fff;font-size:20px;cursor:pointer;' +
-    'backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.45);' +
-    'transition:transform .15s;';
-  rbtn.onmouseenter = function(){ this.style.transform='scale(1.13)'; };
-  rbtn.onmouseleave = function(){ this.style.transform=''; };
-  rbtn.onclick = function(){ visible ? hide() : show(); };
-  document.body.appendChild(rbtn);
+  // Floating 📐 FAB button — localhost only
+  if(location.hostname==='localhost'||location.hostname==='127.0.0.1'){
+    var rbtn = document.createElement('button');
+    rbtn.title = '響應式預覽  (R)';
+    rbtn.textContent = '📐';
+    rbtn.style.cssText =
+      'position:fixed;bottom:28px;left:86px;z-index:99997;' +
+      'width:48px;height:48px;border-radius:50%;border:none;' +
+      'background:rgba(0,0,0,0.72);color:#fff;font-size:20px;cursor:pointer;' +
+      'backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.45);' +
+      'transition:transform .15s;';
+    rbtn.onmouseenter = function(){ this.style.transform='scale(1.13)'; };
+    rbtn.onmouseleave = function(){ this.style.transform=''; };
+    rbtn.onclick = function(){ visible ? hide() : show(); };
+    document.body.appendChild(rbtn);
+  }
 })();
 
 /* ── O key → Site Manager ── */
@@ -5098,10 +5101,6 @@ window.addEventListener('keydown', function(e){
 })();
 </script>
 
-<!-- ── 📷 Photo Editor button (static HTML, always rendered) ── -->
-<button id="pe-fab-btn"
-  onclick="(function(){var pe=document.getElementById('photo-editor');if(!pe){alert('panel missing');return;}pe.style.display=pe.style.display==='flex'?'none':'flex';})()"
-  style="position:fixed;bottom:28px;left:28px;z-index:2147483647;width:52px;height:52px;border-radius:50%;border:2px solid rgba(255,255,255,0.3);background:rgba(0,0,0,0.8);color:#fff;font-size:24px;cursor:pointer;box-shadow:0 2px 16px rgba(0,0,0,0.6);">📷</button>
 
 <script>
 /* ── ✏️ Inline Text Editor — double-click any [data-tid] element to edit ── */
