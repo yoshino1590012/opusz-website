@@ -41,36 +41,8 @@ nav.mega-open {
   --nav-fg: #000;
 }
 
-/* ─────────────────────────────────────────────────────────────────────────
-   PER-ELEMENT AUTO-INVERSION via mix-blend-mode: difference
-   Each nav item independently reads the pixels directly behind it and
-   inverts:  white base on dark bg → stays white;  on light bg → turns black.
-   This gives true per-character contrast no matter what's underneath.
-   ──────────────────────────────────────────────────────────────────────── */
-.nav-logo,
-.nav-links a,
-.nav-fav-btn,
-.lang-toggle,
-.nav-login-btn {
-  mix-blend-mode: difference;
-}
-/* Hamburger lines also auto-invert */
-.hamburger span { mix-blend-mode: difference; }
-
-/* Override: mega-open panel has solid white bg → use plain black, no blending */
-nav.mega-open .nav-logo,
-nav.mega-open .nav-links a,
-nav.mega-open .nav-fav-btn,
-nav.mega-open .lang-toggle,
-nav.mega-open .nav-login-btn {
-  mix-blend-mode: normal;
-  color: #000 !important;
-}
-nav.mega-open .nav-login-btn { border-color: #000 !important; }
-nav.mega-open .hamburger span { mix-blend-mode: normal; background: #000 !important; }
-
 /* Apply the colour var */
-.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: var(--nav-fg); }
 .orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
 
 /* ── Logo hover expand (OPUS.Z → + MUSIC) ── */
@@ -97,7 +69,7 @@ nav.mega-open .hamburger span { mix-blend-mode: normal; background: #000 !import
 }
 .nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 50%; transform: translateX(-50%); }
 .nav-links a {
-  text-decoration: none; color: #fff; font-size: 15px;
+  text-decoration: none; color: var(--nav-fg); font-size: 15px;
   position: relative; padding: 11px 22px; border-radius: 50px;
   display: inline-flex; align-items: center; justify-content: center;
   line-height: 1; vertical-align: middle; white-space: nowrap;
@@ -168,7 +140,7 @@ nav.mega-open .nav-links a::before {
 }
 
 .hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
-.hamburger span { display: block; width: 26px; height: 2px; background: #fff; transition: opacity .2s; }
+.hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: opacity .2s; }
 .hamburger:hover span { opacity: .5; }
 
 /* ── Slide-in Nav Drawer ── */
@@ -1439,20 +1411,20 @@ nav.mega-open .nav-links a::before {
 .lang-toggle {
   display: flex; align-items: center; gap: 2px;
   background: none; border: none; cursor: pointer; padding: 0;
-  font-family: inherit; font-size: 13px; font-weight: 600; color: #fff;
+  font-family: inherit; font-size: 13px; font-weight: 600; color: var(--nav-fg);
 }
 .lang-toggle .lt-opt {
   padding: 3px 8px; border-radius: 5px;
   transition: background .2s, color .2s;
 }
-/* Active option: highlight pill — with difference blend the bg inverts automatically */
-.lang-toggle .lt-opt.active { background: #fff; color: #000; }
-nav.mega-open .lang-toggle .lt-opt.active { background: #000; color: #fff; mix-blend-mode: normal; }
+/* Active option: outlined pill in current nav colour — no fill needed */
+.lang-toggle .lt-opt.active { border: 1.5px solid currentColor; border-radius: 4px; }
+nav.mega-open .lang-toggle .lt-opt.active { border-color: #000; color: #000; }
 .lang-toggle .lt-sep { opacity: .25; font-weight: 400; }
 .nav-right { display: flex; align-items: center; gap: 14px; }
 
 /* ── Favourites Button ── */
-.nav-fav-btn { position:relative; background:none; border:none; cursor:pointer; padding:6px; display:flex; align-items:center; color:#fff; }
+.nav-fav-btn { position:relative; background:none; border:none; cursor:pointer; padding:6px; display:flex; align-items:center; color:var(--nav-fg); }
 .nav-fav-btn:hover { opacity:.65; }
 nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 .nav-fav-btn svg { display:block; }
@@ -1461,8 +1433,8 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 /* ── Login Button ── */
 .nav-login-btn {
   display: inline-flex; align-items: center; gap: 6px;
-  background: transparent; color: #fff;
-  border: 1.5px solid #fff; border-radius: 0;
+  background: transparent; color: var(--nav-fg);
+  border: 1.5px solid var(--nav-fg); border-radius: 0;
   padding: 9px 18px; font-size: 14px; font-weight: 700;
   font-family: inherit; cursor: pointer; white-space: nowrap;
   position: relative; z-index: 0;
@@ -3129,72 +3101,140 @@ applySvcImg(1);
   window.addEventListener('resize', () => { _sliderReady = false; _activeIdx = -1; _update(); });
 })();
 
-// ── Nav auto colour: snap to black or white based on bg luminance ──────────
+// ── Nav auto colour: per-element independent black/white switching ──────────
 (function () {
   const nav = document.querySelector('nav');
   if (!nav) return;
-  let _lastMode = '';
 
-  function _luminance(rgb) {
+  function _lum(rgb) {
     const m = rgb.match(/\d+(?:\.\d+)?/g);
-    if (!m || m.length < 3) return -1;
-    const r = +m[0] / 255, g = +m[1] / 255, b = +m[2] / 255;
-    return 0.299 * r + 0.587 * g + 0.114 * b;
+    if (!m || m.length < 3) return 0.5;
+    return 0.299 * +m[0]/255 + 0.587 * +m[1]/255 + 0.114 * +m[2]/255;
   }
 
-  // Returns true if a CSS background colour string is visually solid (alpha ≥ 0.5)
   function _isSolid(bc) {
     if (!bc || bc === 'rgba(0, 0, 0, 0)' || bc === 'transparent') return false;
     const m = bc.match(/\d+(?:\.\d+)?/g);
-    if (!m) return false;
-    const alpha = m.length >= 4 ? +m[3] : 1;
-    return alpha >= 0.5;
+    return m && (m.length < 4 || +m[3] >= 0.5);
   }
 
-  function _bgBehindNav() {
-    // Sample TWO points: nav vertical centre + just below the nav bar.
-    // This makes the detection track what the user actually sees both
-    // *at* the nav strip and immediately below it.
-    const navH = nav.offsetHeight;
-    const samplePoints = [
-      { x: window.innerWidth / 2, y: navH / 2 },       // centre of nav bar
-      { x: window.innerWidth / 2, y: navH + 10 },       // just below nav bar
-    ];
-
-    for (const { x, y } of samplePoints) {
-      const els = document.elementsFromPoint(x, y);
-      for (const el of els) {
-        if (nav.contains(el) || el === nav) continue;
-        // Walk up the DOM to find a visually solid (alpha ≥ 0.5) background
-        let cur = el;
-        while (cur && cur !== document.documentElement) {
-          const bc = getComputedStyle(cur).backgroundColor;
-          if (_isSolid(bc)) return _luminance(bc);
-          cur = cur.parentElement;
-        }
-        break; // first non-nav element had no solid bg — try next sample point
-      }
+  // Check if viewport point (cx,cy) lies inside a rendered OPUS.Z character.
+  // Uses per-character .ht-c bounding rects — works regardless of font/scroll.
+  function _overDarkHeroChar(cx, cy) {
+    const chars = document.querySelectorAll('.hero-big-title .ht-c');
+    if (!chars.length) return false;
+    for (const c of chars) {
+      const r = c.getBoundingClientRect();
+      if (cx >= r.left && cx <= r.right && cy >= r.top && cy <= r.bottom) return true;
     }
-    // Fallback: body background
-    return _luminance(getComputedStyle(document.body).backgroundColor);
+    return false;
   }
 
-  function updateNavMode() {
-    if (nav.classList.contains('mega-open')) return;
-    const lum = _bgBehindNav();
-    // Hard threshold — no grey: < 0.45 = dark bg → white text; ≥ 0.45 = light bg → black text
-    const mode = (lum < 0 || lum < 0.45) ? 'dark' : 'light';
-    if (mode === _lastMode) return;
-    _lastMode = mode;
-    nav.classList.toggle('nav-on-dark',  mode === 'dark');
-    nav.classList.toggle('nav-on-light', mode === 'light');
+  // Detect luminance of the first solid background behind point (cx,cy),
+  // skipping nav and the supplied element.
+  // KEY FIX: hero video renders on <canvas> which has no CSS bg color.
+  // Without pixel sampling, the fallback is body (#f5f5f5 = light) → links
+  // turn black on a visually dark canvas. We read actual canvas pixels first.
+  function _bgLumAt(cx, cy, skipEl) {
+    const els = document.elementsFromPoint(cx, cy);
+    for (const el of els) {
+      if (el === skipEl || skipEl.contains(el) || nav.contains(el) || el === nav) continue;
+
+      // ── Canvas pixel sampling (hero scrub canvas has no CSS bg) ──
+      if (el.tagName === 'CANVAS') {
+        try {
+          const r   = el.getBoundingClientRect();
+          const ctx = el.getContext('2d');
+          if (ctx) {
+            const px = ctx.getImageData(
+              Math.max(0, Math.round(cx - r.left)),
+              Math.max(0, Math.round(cy - r.top)),
+              1, 1
+            ).data;
+            if (px[3] > 30) // pixel has meaningful opacity
+              return 0.299 * px[0]/255 + 0.587 * px[1]/255 + 0.114 * px[2]/255;
+          }
+        } catch(e) { /* tainted canvas or no context — fall through */ }
+      }
+
+      // ── Video element ──
+      if (el.tagName === 'VIDEO') {
+        // Can't read video pixels directly; sample its CSS bg or assume dark
+        const bc = getComputedStyle(el).backgroundColor;
+        if (_isSolid(bc)) return _lum(bc);
+        return 0.1; // videos are typically dark
+      }
+
+      // ── Normal DOM element: walk up ancestry for CSS bg ──
+      let cur = el;
+      while (cur && cur !== document.documentElement) {
+        const bc = getComputedStyle(cur).backgroundColor;
+        if (_isSolid(bc)) return _lum(bc);
+        cur = cur.parentElement;
+      }
+      break;
+    }
+    return _lum(getComputedStyle(document.body).backgroundColor);
   }
 
-  window.addEventListener('scroll', updateNavMode, { passive: true });
-  window.addEventListener('resize', updateNavMode);
-  // Run immediately + after fonts/images settle
-  updateNavMode();
-  setTimeout(updateNavMode, 400);
+  const _navItems = () => [
+    nav.querySelector('.nav-logo'),
+    ...nav.querySelectorAll('.nav-links a'),
+    nav.querySelector('.nav-fav-btn'),
+    nav.querySelector('.lang-toggle'),
+    nav.querySelector('.nav-login-btn'),
+    nav.querySelector('.hamburger'),
+  ].filter(Boolean);
+
+  function updateColors() {
+    const megaOpen = nav.classList.contains('mega-open');
+
+    if (megaOpen) {
+      // Reset inline styles so CSS (--nav-fg:#000 in mega-open) takes over
+      _navItems().forEach(el => { el.style.color = ''; el.style.borderColor = ''; });
+      nav.querySelectorAll('.hamburger span').forEach(s => s.style.background = '');
+      nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
+      return;
+    }
+
+    let navCenterDark = false;
+
+    _navItems().forEach(el => {
+      const r = el.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top  + r.height / 2;
+
+      const isDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, el) < 0.5;
+      const fg = isDark ? '#fff' : '#000';
+
+      el.style.color = fg;
+      if (el.classList.contains('nav-login-btn')) el.style.borderColor = fg;
+
+      // Hamburger lines follow the hamburger button's reading
+      if (el.classList.contains('hamburger')) {
+        el.querySelectorAll('span').forEach(s => s.style.background = fg);
+      }
+
+      // Use nav-center item to drive the hover-bubble CSS class
+      if (el.classList.contains('nav-logo')) navCenterDark = isDark;
+    });
+
+    nav.classList.toggle('nav-on-dark',  navCenterDark);
+    nav.classList.toggle('nav-on-light', !navCenterDark);
+  }
+
+  // Throttle: canvas getImageData is expensive; run at most every 40ms
+  let _rafPending = false;
+  function _scheduleUpdate() {
+    if (_rafPending) return;
+    _rafPending = true;
+    requestAnimationFrame(() => { _rafPending = false; updateColors(); });
+  }
+
+  window.addEventListener('scroll', _scheduleUpdate, { passive: true });
+  window.addEventListener('resize', _scheduleUpdate);
+  updateColors();
+  setTimeout(updateColors, 400);
 })();
 
 // Smooth scroll — use the IIFE's targetY so wheel events don't snap back

@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mobile Editor — OPUS.Z</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+body {
+  background: #111;
+  color: #d0d0d0;
+  font-family: -apple-system, 'Inter', 'Helvetica Neue', sans-serif;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  background: #1a1a1a;
+  border-bottom: 1px solid #252525;
+  flex-shrink: 0;
+}
+.tb-logo { font-weight: 800; font-size: 14px; color: #fff; letter-spacing: -.02em; margin-right: 2px; }
+.tb-badge { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px; background: rgba(80,200,120,.12);
+  color: #50c878; border: 1px solid rgba(80,200,120,.2); }
+.sep { width: 1px; height: 18px; background: #2a2a2a; margin: 0 2px; }
+.tb-lbl { color: #555; font-size: 11px; white-space: nowrap; }
+.tb-select {
+  background: #222; border: 1px solid #303030; color: #d0d0d0;
+  padding: 5px 10px; border-radius: 6px; font-size: 12px; font-family: inherit; cursor: pointer; outline: none;
+}
+.tb-select:hover { border-color: #404040; }
+.tb-right { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+.btn { padding: 6px 14px; border-radius: 6px; border: 1px solid #303030; background: #222;
+  color: #d0d0d0; cursor: pointer; font-size: 12px; font-family: inherit; transition: background .15s; }
+.btn:hover { background: #2a2a2a; }
+.btn-save { background: #fff; color: #000; font-weight: 700; border-color: #fff; }
+.btn-save:hover { background: #e8e8e8; }
+
+/* ── Main layout ─────────────────────────────────────────────────── */
+.main { display: flex; flex: 1; overflow: hidden; }
+
+/* ── Side panel ──────────────────────────────────────────────────── */
+.side {
+  width: 300px; background: #181818; border-right: 1px solid #242424;
+  display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;
+}
+.side::-webkit-scrollbar { width: 4px; }
+.side::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+
+/* Section */
+.ctrl-section { border-bottom: 1px solid #222; }
+.ctrl-head {
+  display: flex; align-items: center; gap: 8px;
+  padding: 11px 16px; cursor: pointer; user-select: none;
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: #666;
+  transition: color .15s;
+}
+.ctrl-head:hover { color: #aaa; }
+.ctrl-head .icon { font-size: 14px; }
+.ctrl-head .arrow { margin-left: auto; font-size: 10px; transition: transform .2s; }
+.ctrl-head.open .arrow { transform: rotate(90deg); }
+.ctrl-body { display: none; padding: 4px 16px 14px; }
+.ctrl-body.open { display: block; }
+
+/* Controls */
+.ctrl-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.ctrl-label { font-size: 12px; color: #888; flex: 1; min-width: 0; }
+.ctrl-val { font-size: 11px; color: #555; width: 36px; text-align: right; flex-shrink: 0; }
+input[type=range] {
+  flex: 1; accent-color: #555; cursor: pointer; height: 3px;
+  -webkit-appearance: none; appearance: none;
+  background: #333; border-radius: 2px; outline: none;
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 14px; height: 14px;
+  border-radius: 50%; background: #888; cursor: pointer;
+}
+input[type=range]::-webkit-slider-thumb:hover { background: #bbb; }
+
+/* Toggle switch */
+.toggle-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.toggle-label { font-size: 12px; color: #888; flex: 1; }
+.toggle {
+  position: relative; width: 36px; height: 20px; flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute; inset: 0; background: #2a2a2a;
+  border-radius: 20px; cursor: pointer; transition: background .2s;
+}
+.toggle input:checked + .toggle-track { background: #50c878; }
+.toggle-thumb {
+  position: absolute; top: 3px; left: 3px;
+  width: 14px; height: 14px; background: #888;
+  border-radius: 50%; transition: transform .2s, background .2s;
+  pointer-events: none;
+}
+.toggle input:checked ~ .toggle-thumb { transform: translateX(16px); background: #fff; }
+
+/* Text inputs */
+.ctrl-input {
+  width: 100%; margin-top: 8px; padding: 7px 10px;
+  background: #111; border: 1px solid #2a2a2a; border-radius: 6px;
+  color: #d0d0d0; font-size: 12px; font-family: inherit; outline: none;
+  transition: border-color .15s;
+}
+.ctrl-input:focus { border-color: #444; }
+.ctrl-input-label { font-size: 11px; color: #555; margin-top: 10px; margin-bottom: 2px; }
+textarea.ctrl-input { resize: vertical; min-height: 60px; line-height: 1.5; }
+
+/* Color input */
+.ctrl-color-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+input[type=color] {
+  width: 32px; height: 28px; border: none; border-radius: 5px;
+  cursor: pointer; background: none; padding: 0; flex-shrink: 0;
+}
+
+/* Photo area */
+.photo-drop {
+  margin-top: 10px; padding: 20px 12px;
+  background: #111; border: 1px dashed #2a2a2a; border-radius: 8px;
+  text-align: center; cursor: pointer; transition: border-color .2s;
+}
+.photo-drop:hover { border-color: #444; }
+.photo-drop input[type=file] { display: none; }
+.photo-drop-label { color: #555; font-size: 12px; line-height: 1.6; cursor: pointer; }
+.photo-drop-label strong { color: #888; }
+.photo-preview {
+  width: 100%; height: 80px; margin-top: 8px;
+  background-size: cover; background-position: center;
+  border-radius: 6px; display: none;
+}
+
+/* Bottom actions */
+.side-footer {
+  padding: 14px 16px;
+  border-top: 1px solid #222;
+  display: flex; gap: 8px;
+}
+.side-footer .btn { flex: 1; text-align: center; }
+
+/* ── Preview area ────────────────────────────────────────────────── */
+.preview-area {
+  flex: 1; display: flex; align-items: flex-start; justify-content: center;
+  background: #111; overflow: auto; padding: 28px 24px 70px;
+}
+.preview-col { display: flex; flex-direction: column; align-items: center; gap: 14px; }
+
+/* ── iPhone frame ────────────────────────────────────────────────── */
+.iphone-outer { transform-origin: top center; transition: transform .2s ease; }
+.iphone-frame {
+  position: relative; width: 393px;
+  background: #1c1c1e; border-radius: 55px; padding: 15px;
+  box-shadow:
+    inset 0 0 0 1px #3a3a3a,
+    0 0 0 1px #1a1a1a, 0 0 0 3px #111,
+    0 40px 120px rgba(0,0,0,.95), 0 8px 30px rgba(0,0,0,.6);
+}
+.iphone-frame::before {
+  content: ''; position: absolute; right: -4px; top: 140px;
+  width: 4px; height: 70px; background: #2e2e2e; border-radius: 0 3px 3px 0;
+}
+.iphone-frame::after {
+  content: ''; position: absolute; left: -4px; top: 120px;
+  width: 4px; height: 36px; background: #2e2e2e; border-radius: 3px 0 0 3px;
+  box-shadow: 0 48px 0 #2e2e2e;
+}
+.iphone-screen {
+  width: 363px; height: 786px;
+  border-radius: 44px; overflow: hidden; background: #000; position: relative;
+}
+.dynamic-island {
+  position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+  width: 118px; height: 34px; background: #000; border-radius: 20px;
+  z-index: 10; pointer-events: none;
+}
+.preview-iframe { border: none; display: block; transform-origin: top left; }
+
+/* Zoom row */
+.zoom-row { display: flex; align-items: center; gap: 10px; color: #444; font-size: 11px; }
+.zoom-row input[type=range] { width: 110px; }
+.zoom-val { width: 30px; color: #555; text-align: right; }
+
+/* ── Status bar ──────────────────────────────────────────────────── */
+.statusbar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 7px 18px; background: rgba(17,17,17,.95); backdrop-filter: blur(8px);
+  border-top: 1px solid #222; font-size: 11px; color: #555;
+  display: flex; align-items: center; gap: 7px; z-index: 100;
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: #50c878; flex-shrink: 0; }
+.status-dot.warn { background: #e8a040; }
+.status-dot.off  { background: #333; }
+</style>
+</head>
+<body>
+
+<!-- Toolbar -->
+<div class="toolbar">
+  <span class="tb-logo">OPUS.Z</span>
+  <span class="tb-badge">📱 Mobile Editor</span>
+  <div class="sep"></div>
+  <span class="tb-lbl">Page</span>
+  <select class="tb-select" id="pageSelect">
+    <option value="musician-platform.html">Home — Platform</option>
+    <option value="shows.html">Shows</option>
+    <option value="musician-profile.html">Musician Profile</option>
+  </select>
+  <div class="sep"></div>
+  <span class="tb-lbl">Device</span>
+  <select class="tb-select" id="deviceSelect">
+    <option value="390" data-h="844">iPhone 15 / 14 &nbsp;390px</option>
+    <option value="430" data-h="932">iPhone 15 Plus &nbsp;430px</option>
+    <option value="375" data-h="812">iPhone SE &nbsp;375px</option>
+  </select>
+  <div class="tb-right">
+    <button class="btn" onclick="reloadFrame()">↺ Reload</button>
+    <button class="btn btn-save" onclick="saveAll()">✓ Save All</button>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+
+  <!-- ── Side Panel ── -->
+  <div class="side">
+
+    <!-- VISIBILITY -->
+    <div class="ctrl-section">
+      <div class="ctrl-head open" onclick="toggleSection(this)">
+        <span class="icon">👁</span> Visibility
+        <span class="arrow">▶</span>
+      </div>
+      <div class="ctrl-body open">
+        <div class="toggle-row">
+          <span class="toggle-label">Hide nav links</span>
+          <label class="toggle"><input type="checkbox" id="hideNavLinks" onchange="live()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Hide login / lang toggle</span>
+          <label class="toggle"><input type="checkbox" id="hideNavRight" onchange="live()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Hide "Scroll Down" button</span>
+          <label class="toggle"><input type="checkbox" id="hideScrollDown" onchange="live()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Hide bottom nav bar</span>
+          <label class="toggle"><input type="checkbox" id="hideBottomNav" onchange="live()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+        <div class="toggle-row">
+          <span class="toggle-label">Hide video (faster load)</span>
+          <label class="toggle"><input type="checkbox" id="hideVideo" onchange="live()"><div class="toggle-track"></div><div class="toggle-thumb"></div></label>
+        </div>
+      </div>
+    </div>
+
+    <!-- TYPOGRAPHY -->
+    <div class="ctrl-section">
+      <div class="ctrl-head open" onclick="toggleSection(this)">
+        <span class="icon">🔤</span> Font Sizes
+        <span class="arrow">▶</span>
+      </div>
+      <div class="ctrl-body open">
+        <div class="ctrl-row">
+          <span class="ctrl-label">Hero title</span>
+          <input type="range" id="heroTitleSize" min="28" max="100" value="0"
+            oninput="showVal(this,'heroTitleVal','px');live()">
+          <span class="ctrl-val" id="heroTitleVal">—</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Hero subtitle</span>
+          <input type="range" id="heroSubSize" min="12" max="28" value="0"
+            oninput="showVal(this,'heroSubVal','px');live()">
+          <span class="ctrl-val" id="heroSubVal">—</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Body / paragraph</span>
+          <input type="range" id="bodySize" min="12" max="22" value="0"
+            oninput="showVal(this,'bodyVal','px');live()">
+          <span class="ctrl-val" id="bodyVal">—</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Buttons</span>
+          <input type="range" id="btnSize" min="11" max="20" value="0"
+            oninput="showVal(this,'btnVal','px');live()">
+          <span class="ctrl-val" id="btnVal">—</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Nav logo</span>
+          <input type="range" id="navLogoSize" min="12" max="24" value="0"
+            oninput="showVal(this,'navLogoVal','px');live()">
+          <span class="ctrl-val" id="navLogoVal">—</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Section headings</span>
+          <input type="range" id="headingSize" min="20" max="64" value="0"
+            oninput="showVal(this,'headingVal','px');live()">
+          <span class="ctrl-val" id="headingVal">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- SPACING -->
+    <div class="ctrl-section">
+      <div class="ctrl-head open" onclick="toggleSection(this)">
+        <span class="icon">📐</span> Spacing
+        <span class="arrow">▶</span>
+      </div>
+      <div class="ctrl-body open">
+        <div class="ctrl-row">
+          <span class="ctrl-label">Nav padding (top/bottom)</span>
+          <input type="range" id="navPad" min="4" max="30" value="0"
+            oninput="showVal(this,'navPadVal','px');live()">
+          <span class="ctrl-val" id="navPadVal">—</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Hero side padding</span>
+          <input type="range" id="heroPadSide" min="12" max="60" value="0"
+            oninput="showVal(this,'heroPadSideVal','px');live()">
+          <span class="ctrl-val" id="heroPadSideVal">—</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Button padding (v)</span>
+          <input type="range" id="btnPadV" min="8" max="28" value="0"
+            oninput="showVal(this,'btnPadVVal','px');live()">
+          <span class="ctrl-val" id="btnPadVVal">—</span>
+        </div>
+        <div class="ctrl-row">
+          <span class="ctrl-label">Section gap</span>
+          <input type="range" id="sectionGap" min="20" max="120" value="0"
+            oninput="showVal(this,'sectionGapVal','px');live()">
+          <span class="ctrl-val" id="sectionGapVal">—</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- TEXT CONTENT -->
+    <div class="ctrl-section">
+      <div class="ctrl-head open" onclick="toggleSection(this)">
+        <span class="icon">✏️</span> Text Content
+        <span class="arrow">▶</span>
+      </div>
+      <div class="ctrl-body open">
+        <div class="ctrl-input-label">Hero title</div>
+        <input class="ctrl-input" type="text" id="textHeroTitle" placeholder="e.g. OPUS.Z" oninput="liveContent()">
+        <div class="ctrl-input-label">Hero description</div>
+        <textarea class="ctrl-input" id="textHeroDesc" placeholder="e.g. No generic gigs…" oninput="liveContent()"></textarea>
+        <div class="ctrl-input-label">Button 1 label</div>
+        <input class="ctrl-input" type="text" id="textBtn1" placeholder="e.g. Find Artists" oninput="liveContent()">
+        <div class="ctrl-input-label">Button 2 label</div>
+        <input class="ctrl-input" type="text" id="textBtn2" placeholder="e.g. Create a Project" oninput="liveContent()">
+      </div>
+    </div>
+
+    <!-- PHOTOS -->
+    <div class="ctrl-section">
+      <div class="ctrl-head open" onclick="toggleSection(this)">
+        <span class="icon">🖼</span> Photos
+        <span class="arrow">▶</span>
+      </div>
+      <div class="ctrl-body open">
+        <div class="ctrl-input-label">Hero / background image</div>
+
+        <div class="photo-drop" id="heroDrop" onclick="document.getElementById('heroFileIn').click()"
+          ondragover="event.preventDefault()" ondrop="handleDrop(event,'hero')">
+          <input type="file" id="heroFileIn" accept="image/*" onchange="handleFile(this,'hero')">
+          <label class="photo-drop-label" for="heroFileIn">
+            <strong>Click to upload</strong> or drag & drop<br>
+            <span style="font-size:11px;">PNG, JPG, WEBP</span>
+          </label>
+        </div>
+        <div class="photo-preview" id="heroPreview"></div>
+
+        <div class="ctrl-input-label" style="margin-top:12px;">Or paste image URL</div>
+        <input class="ctrl-input" type="url" id="heroImgUrl" placeholder="https://…" oninput="livePhoto('hero',this.value)">
+
+        <div class="ctrl-row" style="margin-top:12px;">
+          <span class="ctrl-label">Overlay darkness</span>
+          <input type="range" id="heroOverlay" min="0" max="90" value="0"
+            oninput="showVal(this,'heroOverlayVal','%');live()">
+          <span class="ctrl-val" id="heroOverlayVal">—</span>
+        </div>
+
+        <div class="ctrl-input-label" style="margin-top:12px;">Secondary / section image</div>
+        <div class="photo-drop" onclick="document.getElementById('sec1FileIn').click()"
+          ondragover="event.preventDefault()" ondrop="handleDrop(event,'sec1')">
+          <input type="file" id="sec1FileIn" accept="image/*" onchange="handleFile(this,'sec1')">
+          <label class="photo-drop-label">
+            <strong>Click to upload</strong> or drag & drop
+          </label>
+        </div>
+        <div class="photo-preview" id="sec1Preview"></div>
+        <div class="ctrl-input-label">Or paste image URL</div>
+        <input class="ctrl-input" type="url" id="sec1ImgUrl" placeholder="https://…" oninput="livePhoto('sec1',this.value)">
+      </div>
+    </div>
+
+    <!-- COLORS -->
+    <div class="ctrl-section">
+      <div class="ctrl-head open" onclick="toggleSection(this)">
+        <span class="icon">🎨</span> Colors
+        <span class="arrow">▶</span>
+      </div>
+      <div class="ctrl-body open">
+        <div class="ctrl-color-row">
+          <input type="color" id="colorHeroText" value="#ffffff" oninput="live()">
+          <span class="ctrl-label">Hero text color</span>
+        </div>
+        <div class="ctrl-color-row" style="margin-top:8px;">
+          <input type="color" id="colorHeroBg" value="#000000" oninput="live()">
+          <span class="ctrl-label">Hero background</span>
+        </div>
+        <div class="ctrl-color-row" style="margin-top:8px;">
+          <input type="color" id="colorBtn1" value="#000000" oninput="live()">
+          <span class="ctrl-label">Primary button</span>
+        </div>
+        <div class="ctrl-color-row" style="margin-top:8px;">
+          <input type="color" id="colorBtn1Text" value="#ffffff" oninput="live()">
+          <span class="ctrl-label">Primary button text</span>
+        </div>
+        <div class="ctrl-color-row" style="margin-top:8px;">
+          <input type="color" id="colorBodyBg" value="#f5f5f5" oninput="live()">
+          <span class="ctrl-label">Page background</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADVANCED CSS -->
+    <div class="ctrl-section">
+      <div class="ctrl-head open" onclick="toggleSection(this)">
+        <span class="icon">⌨️</span> Custom CSS
+        <span class="arrow">▶</span>
+      </div>
+      <div class="ctrl-body open" style="padding-bottom:10px;">
+        <div style="font-size:11px;color:#444;margin-bottom:8px;line-height:1.6;">
+          Extra CSS — added on top of all controls above. Auto-wrapped in @media.
+        </div>
+        <textarea class="ctrl-input" id="customCss" style="min-height:100px;font-family:Menlo,monospace;font-size:11px;color:#85c985;"
+          placeholder="/* e.g. */&#10;.my-class { margin: 0; }" oninput="live()"></textarea>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="side-footer">
+      <button class="btn" onclick="resetAll()">Reset All</button>
+      <button class="btn" onclick="copyCss()">Copy CSS</button>
+      <button class="btn btn-save" onclick="saveAll()">✓ Save All</button>
+    </div>
+
+  </div><!-- /side -->
+
+  <!-- ── Preview area ── -->
+  <div class="preview-area">
+    <div class="preview-col">
+
+      <div class="iphone-outer" id="iphoneOuter">
+        <div class="iphone-frame">
+          <div class="iphone-screen" id="iphoneScreen">
+            <div class="dynamic-island"></div>
+            <iframe class="preview-iframe" id="previewFrame" src="musician-platform.html"></iframe>
+          </div>
+        </div>
+      </div>
+
+      <div class="zoom-row">
+        <span>Zoom</span>
+        <input type="range" id="zoomSlider" min="40" max="130" value="100" oninput="setZoom(this.value)">
+        <span class="zoom-val" id="zoomVal">100%</span>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Status bar -->
+<div class="statusbar">
+  <div class="status-dot" id="statusDot"></div>
+  <span id="statusMsg">Ready — adjust controls and click Save All</span>
+</div>
+
+<script>
+// ────────────────────────────────────────────────────────────────────
+// STORE
+// ────────────────────────────────────────────────────────────────────
+const STORE = 'opusz-mobile-editor-v2';
+const frame = document.getElementById('previewFrame');
+const iphoneOuter = document.getElementById('iphoneOuter');
+const iphoneScreen = document.getElementById('iphoneScreen');
+
+let state = {
+  // Sliders (0 = not set, uses page default)
+  heroTitleSize: 0, heroSubSize: 0, bodySize: 0, btnSize: 0,
+  navLogoSize: 0, headingSize: 0,
+  navPad: 0, heroPadSide: 0, btnPadV: 0, sectionGap: 0,
+  heroOverlay: 0,
+  // Toggles
+  hideNavLinks: false, hideNavRight: false, hideScrollDown: false,
+  hideBottomNav: false, hideVideo: false,
+  // Colors
+  colorHeroText: '#ffffff', colorHeroBg: '#000000',
+  colorBtn1: '#000000', colorBtn1Text: '#ffffff', colorBodyBg: '#f5f5f5',
+  // Text content
+  textHeroTitle: '', textHeroDesc: '', textBtn1: '', textBtn2: '',
+  // Photos
+  heroImgUrl: '', heroImgData: '',
+  sec1ImgUrl: '', sec1ImgData: '',
+  // Custom CSS
+  customCss: '',
+};
+
+// Load saved state
+try {
+  const saved = JSON.parse(localStorage.getItem(STORE) || '{}');
+  Object.assign(state, saved);
+} catch(e) {}
+
+// ────────────────────────────────────────────────────────────────────
+// RESTORE CONTROLS FROM STATE
+// ────────────────────────────────────────────────────────────────────
+function restoreControls() {
+  // Sliders
+  const sliders = ['heroTitleSize','heroSubSize','bodySize','btnSize','navLogoSize',
+    'headingSize','navPad','heroPadSide','btnPadV','sectionGap','heroOverlay'];
+  sliders.forEach(id => {
+    const el = document.getElementById(id);
+    if (state[id] && state[id] > 0) {
+      el.value = state[id];
+      const valId = id + 'Val';
+      const unit = id === 'heroOverlay' ? '%' : 'px';
+      document.getElementById(valId) && (document.getElementById(valId).textContent = state[id] + unit);
+    }
+  });
+  // Toggles
+  ['hideNavLinks','hideNavRight','hideScrollDown','hideBottomNav','hideVideo'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.checked = !!state[id];
+  });
+  // Colors
+  ['colorHeroText','colorHeroBg','colorBtn1','colorBtn1Text','colorBodyBg'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && state[id]) el.value = state[id];
+  });
+  // Text
+  ['textHeroTitle','textHeroDesc','textBtn1','textBtn2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = state[id] || '';
+  });
+  // Photos
+  if (state.heroImgData || state.heroImgUrl) {
+    const url = state.heroImgData || state.heroImgUrl;
+    showPhotoPreview('hero', url);
+    document.getElementById('heroImgUrl').value = state.heroImgUrl || '';
+  }
+  if (state.sec1ImgData || state.sec1ImgUrl) {
+    const url = state.sec1ImgData || state.sec1ImgUrl;
+    showPhotoPreview('sec1', url);
+    document.getElementById('sec1ImgUrl').value = state.sec1ImgUrl || '';
+  }
+  // Custom CSS
+  document.getElementById('customCss').value = state.customCss || '';
+}
+
+// ────────────────────────────────────────────────────────────────────
+// READ STATE FROM CONTROLS
+// ────────────────────────────────────────────────────────────────────
+function readControls() {
+  const sliders = ['heroTitleSize','heroSubSize','bodySize','btnSize','navLogoSize',
+    'headingSize','navPad','heroPadSide','btnPadV','sectionGap','heroOverlay'];
+  sliders.forEach(id => {
+    const el = document.getElementById(id);
+    state[id] = el ? parseInt(el.value) : 0;
+  });
+  ['hideNavLinks','hideNavRight','hideScrollDown','hideBottomNav','hideVideo'].forEach(id => {
+    const el = document.getElementById(id);
+    state[id] = el ? el.checked : false;
+  });
+  ['colorHeroText','colorHeroBg','colorBtn1','colorBtn1Text','colorBodyBg'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) state[id] = el.value;
+  });
+  ['textHeroTitle','textHeroDesc','textBtn1','textBtn2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) state[id] = el.value;
+  });
+  state.customCss = document.getElementById('customCss').value;
+}
+
+// ────────────────────────────────────────────────────────────────────
+// CSS GENERATION
+// ────────────────────────────────────────────────────────────────────
+function generateCss() {
+  const s = state;
+  const w = document.getElementById('deviceSelect').value;
+  const lines = [];
+
+  // Visibility
+  if (s.hideNavLinks)   lines.push('.nav-links { display: none !important; }');
+  if (s.hideNavRight)   lines.push('.nav-right { display: none !important; }');
+  if (s.hideScrollDown) lines.push('[class*="scroll"], [id*="scroll-down"], .scroll-indicator { display: none !important; }');
+  if (s.hideBottomNav)  lines.push('#bottomNav, .bottom-nav { display: none !important; }');
+  if (s.hideVideo)      lines.push('video, canvas { display: none !important; }');
+
+  // Typography
+  if (s.heroTitleSize > 0) lines.push(`.hco-title, .hero-title, .sh-hero-title { font-size: ${s.heroTitleSize}px !important; }`);
+  if (s.heroSubSize > 0)   lines.push(`.hco-desc, .hero-subtitle, .hero-desc { font-size: ${s.heroSubSize}px !important; }`);
+  if (s.bodySize > 0)      lines.push(`p, .body-text, li { font-size: ${s.bodySize}px !important; }`);
+  if (s.btnSize > 0)       lines.push(`.hero-btn-primary, .hero-btn-outline, .hco-btn-pri, .hco-btn-out, .btn-primary, button { font-size: ${s.btnSize}px !important; }`);
+  if (s.navLogoSize > 0)   lines.push(`.nav-logo, .nav-logo-name { font-size: ${s.navLogoSize}px !important; }`);
+  if (s.headingSize > 0)   lines.push(`h1, h2, h3, .section-title { font-size: ${s.headingSize}px !important; }`);
+
+  // Spacing
+  if (s.navPad > 0)       lines.push(`nav { padding-top: ${s.navPad}px !important; padding-bottom: ${s.navPad}px !important; }`);
+  if (s.heroPadSide > 0)  lines.push(`.hc, .hero-card, .hco { padding-left: ${s.heroPadSide}px !important; padding-right: ${s.heroPadSide}px !important; }`);
+  if (s.btnPadV > 0)      lines.push(`.hero-btn-primary, .hero-btn-outline, .hco-btn-pri, .hco-btn-out { padding-top: ${s.btnPadV}px !important; padding-bottom: ${s.btnPadV}px !important; }`);
+  if (s.sectionGap > 0)   lines.push(`.section, .content > div { padding-top: ${s.sectionGap}px !important; padding-bottom: ${s.sectionGap}px !important; }`);
+
+  // Overlay darkness
+  if (s.heroOverlay > 0) {
+    const alpha = (s.heroOverlay / 100).toFixed(2);
+    lines.push(`.sh-hero-overlay, .hero-overlay, .hc::before { background: rgba(0,0,0,${alpha}) !important; }`);
+  }
+
+  // Colors
+  lines.push(`.hco-title, .hco-desc, .hco .hero-btn-outline { color: ${s.colorHeroText} !important; }`);
+  lines.push(`.hero-btn-primary, .hco-btn-pri { background: ${s.colorBtn1} !important; color: ${s.colorBtn1Text} !important; }`);
+  lines.push(`body { background-color: ${s.colorBodyBg} !important; }`);
+
+  // Hero photo
+  const heroImg = s.heroImgData || s.heroImgUrl;
+  if (heroImg) {
+    lines.push(`.hero-photo-bg, .sh-hero-video + *, #photoBg { background-image: url('${heroImg}') !important; background-size: cover !important; background-position: center !important; }`);
+    lines.push(`.hero-photo-placeholder { display: none !important; }`);
+  }
+
+  // Sec1 photo
+  const sec1Img = s.sec1ImgData || s.sec1ImgUrl;
+  if (sec1Img) {
+    lines.push(`.about-img, .section-img, [class*="discover-img"] { background-image: url('${sec1Img}') !important; background-size: cover !important; }`);
+  }
+
+  // Custom CSS
+  if (s.customCss && s.customCss.trim()) lines.push(s.customCss.trim());
+
+  return `/* OPUS.Z Mobile Overrides — max-width: ${w}px */\n@media (max-width: ${w}px) {\n  ${lines.join('\n  ')}\n}`;
+}
+
+// ────────────────────────────────────────────────────────────────────
+// INJECT CSS INTO IFRAME
+// ────────────────────────────────────────────────────────────────────
+function injectCss() {
+  try {
+    const doc = frame.contentDocument || frame.contentWindow.document;
+    let el = doc.getElementById('_mob_editor_css');
+    if (!el) { el = doc.createElement('style'); el.id = '_mob_editor_css'; doc.head.appendChild(el); }
+    el.textContent = generateCss();
+    return true;
+  } catch(e) { status('⚠ Cross-origin — serve via python3 -m http.server 8080', 'warn'); return false; }
+}
+
+// ────────────────────────────────────────────────────────────────────
+// INJECT TEXT CONTENT
+// ────────────────────────────────────────────────────────────────────
+function injectContent() {
+  try {
+    const doc = frame.contentDocument || frame.contentWindow.document;
+    const s = state;
+
+    function setText(selectors, val) {
+      if (!val) return;
+      selectors.forEach(sel => {
+        const el = doc.querySelector(sel);
+        if (el) el.textContent = val;
+      });
+    }
+
+    setText(['.hco-title [data-tid="hero-title"]', '.hco-title', '.hero-title'], s.textHeroTitle);
+    setText(['.hco-desc', '.hero-desc', '.hero-subtitle'], s.textHeroDesc);
+    setText(['.hco-btn-pri', '.hero-btn-primary', '[data-i18n="hero.findArtists"]'], s.textBtn1);
+    setText(['.hco-btn-out', '.hero-btn-outline', '[data-i18n="hero.createProject"]'], s.textBtn2);
+  } catch(e) {}
+}
+
+// ────────────────────────────────────────────────────────────────────
+// PHOTO HANDLING
+// ────────────────────────────────────────────────────────────────────
+function handleFile(input, key) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const data = e.target.result;
+    state[key + 'ImgData'] = data;
+    state[key + 'ImgUrl'] = '';
+    showPhotoPreview(key, data);
+    live();
+    status('Photo loaded — click Save All to keep it', 'warn');
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleDrop(e, key) {
+  e.preventDefault();
+  const file = e.dataTransfer.files[0];
+  if (!file || !file.type.startsWith('image/')) return;
+  const fakeInput = { files: [file] };
+  handleFile(fakeInput, key);
+}
+
+function livePhoto(key, url) {
+  state[key + 'ImgUrl'] = url;
+  state[key + 'ImgData'] = '';
+  showPhotoPreview(key, url);
+  live();
+}
+
+function showPhotoPreview(key, url) {
+  const el = document.getElementById(key + 'Preview');
+  if (!el) return;
+  if (url) { el.style.backgroundImage = `url('${url}')`; el.style.display = 'block'; }
+  else { el.style.display = 'none'; }
+}
+
+// ────────────────────────────────────────────────────────────────────
+// DEVICE DIMENSIONS
+// ────────────────────────────────────────────────────────────────────
+const SCREEN_W = 363;
+function applyDeviceDims() {
+  const sel = document.getElementById('deviceSelect');
+  const opt = sel.options[sel.selectedIndex];
+  const w = parseInt(sel.value);
+  const h = parseInt(opt.dataset.h);
+  const scaleX = SCREEN_W / w;
+  const scaledH = Math.round(h * scaleX);
+  iphoneScreen.style.height = scaledH + 'px';
+  frame.style.width = w + 'px';
+  frame.style.height = h + 'px';
+  frame.style.transform = `scale(${scaleX})`;
+  frame.style.marginBottom = (scaledH - h) + 'px';
+}
+
+// ────────────────────────────────────────────────────────────────────
+// ZOOM
+// ────────────────────────────────────────────────────────────────────
+function setZoom(v) {
+  document.getElementById('zoomVal').textContent = v + '%';
+  iphoneOuter.style.transform = `scale(${v / 100})`;
+  iphoneOuter.style.transformOrigin = 'top center';
+}
+
+// ────────────────────────────────────────────────────────────────────
+// ACTIONS
+// ────────────────────────────────────────────────────────────────────
+function live() {
+  readControls();
+  injectCss();
+  injectContent();
+}
+
+function liveContent() {
+  readControls();
+  injectContent();
+}
+
+function saveAll() {
+  readControls();
+  localStorage.setItem(STORE, JSON.stringify(state));
+  injectCss();
+  injectContent();
+  status('✓ Saved — reload your page to see mobile changes', 'ok');
+}
+
+function reloadFrame() {
+  frame.src = frame.src;
+  status('Reloading…', 'off');
+}
+
+function resetAll() {
+  if (!confirm('Reset all mobile settings?')) return;
+  localStorage.removeItem(STORE);
+  location.reload();
+}
+
+function copyCss() {
+  const css = generateCss();
+  navigator.clipboard.writeText(css)
+    .then(() => status('✓ CSS copied to clipboard', 'ok'))
+    .catch(() => status('Could not copy — select text manually', 'warn'));
+}
+
+// ────────────────────────────────────────────────────────────────────
+// HELPERS
+// ────────────────────────────────────────────────────────────────────
+function showVal(input, valId, unit) {
+  const el = document.getElementById(valId);
+  if (el) el.textContent = input.value + unit;
+}
+
+function toggleSection(head) {
+  head.classList.toggle('open');
+  const body = head.nextElementSibling;
+  body.classList.toggle('open');
+}
+
+function status(msg, state) {
+  document.getElementById('statusMsg').textContent = msg;
+  const dot = document.getElementById('statusDot');
+  dot.className = 'status-dot' + (state === 'ok' ? '' : state === 'warn' ? ' warn' : ' off');
+}
+
+// ────────────────────────────────────────────────────────────────────
+// EVENTS & INIT
+// ────────────────────────────────────────────────────────────────────
+document.getElementById('pageSelect').addEventListener('change', function() {
+  frame.src = this.value;
+  status('Loading ' + this.value + '…', 'off');
+});
+
+document.getElementById('deviceSelect').addEventListener('change', function() {
+  applyDeviceDims();
+  reloadFrame();
+});
+
+frame.addEventListener('load', function() {
+  injectCss();
+  injectContent();
+  status('Loaded — mobile CSS & content applied', 'ok');
+});
+
+// Init
+restoreControls();
+applyDeviceDims();
+setZoom(100);
+</script>
+</body>
+</html>
