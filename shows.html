@@ -462,6 +462,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
   </div>
 
   <button class="ep-save" id="epSave">Save</button>
+  <button class="ep-save" id="epPublish" style="background:#2ea44f;color:#fff;margin-top:8px;">🚀 發佈到網站</button>
   <div class="ep-saved-badge" id="epSavedBadge">Saved ✓</div>
 </div>
 
@@ -751,11 +752,30 @@ async function loadState(){
       }
     }
   }catch(e){}
-  // Load images separately from IndexedDB
+  // Load images: prefer file paths from shows-data.json (public site compatible)
+  try {
+    const r = await fetch('/shows-data.json');
+    if (r.ok) {
+      const cfg = await r.json();
+      if (cfg.shows) {
+        cfg.shows.forEach((s,i) => {
+          if(!ST.shows[i]) return;
+          if(s.imgData) ST.shows[i].imgData = s.imgData; // file path
+          if(s.x !== undefined) ST.shows[i].x = s.x;
+          if(s.y !== undefined) ST.shows[i].y = s.y;
+          if(s.scale !== undefined) ST.shows[i].scale = s.scale;
+          if(s.blur !== undefined) ST.shows[i].blur = s.blur;
+        });
+      }
+      return; // loaded from server, skip IDB
+    }
+  } catch(e) {}
+  // Fallback: load images from IndexedDB (localhost only)
   for(let i=0; i<SHOW_N; i++){
     try{
       const img = await IDB.get('show-img-'+i);
-      if(img) ST.shows[i].imgData = img;
+      if(img && !img.startsWith('data:')) ST.shows[i].imgData = img; // file path only
+      else if(img && img.startsWith('data:')) ST.shows[i].imgData = img; // base64 fallback
     }catch(e){}
   }
 }
@@ -857,12 +877,36 @@ function buildShowPane(i){
     const file = this.files[0]; if(!file) return;
     const reader = new FileReader();
     reader.onload = async e=>{
-      ST.shows[i].imgData = e.target.result;
-      document.getElementById('upThumb'+i).src = e.target.result;
+      const base64 = e.target.result;
+      // Show preview immediately
+      ST.shows[i].imgData = base64;
+      document.getElementById('upThumb'+i).src = base64;
       document.getElementById('upThumb'+i).style.display='block';
       document.getElementById('upUrl'+i).value='';
       applyAll();
-      await saveImageNow(i);   // ← auto-save immediately
+      // Upload to server immediately
+      const btn = document.getElementById('upBtn'+i);
+      btn.textContent = '⏳ 儲存中...';
+      btn.disabled = true;
+      try {
+        const r = await fetch('/upload-file', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({cls:'show-img-'+i, dataUrl: base64})
+        });
+        const d = await r.json();
+        if (d.ok && d.path) {
+          ST.shows[i].imgData = d.path; // store file path instead of base64
+          document.getElementById('upThumb'+i).src = d.path;
+          btn.textContent = '✅ 已儲存';
+          setTimeout(()=>{ btn.textContent='⬆ Upload Image'; btn.disabled=false; }, 2000);
+        } else { throw new Error('upload failed'); }
+      } catch(e) {
+        alert('⚠️ 無法連線到本地伺服器\n請先雙擊「啟動OPUSZ編輯器.command」');
+        btn.textContent = '⬆ Upload Image';
+        btn.disabled = false;
+      }
+      await saveImageNow(i);
     };
     reader.readAsDataURL(file);
   });
@@ -1034,11 +1078,48 @@ document.getElementById('epSave').addEventListener('click', async function(){
   this.textContent = 'Saving…';
   this.disabled = true;
   await saveState();
+  await syncShowsToServer(); // also save to server for public site
   this.textContent = 'Save';
   this.disabled = false;
   const badge = document.getElementById('epSavedBadge');
   badge.style.display='block';
   setTimeout(()=>badge.style.display='none', 2000);
+});
+
+// Sync shows data (image paths + positions) to server → shows-data.json
+async function syncShowsToServer() {
+  try {
+    const data = {
+      shows: ST.shows.map(s => ({
+        imgData: (s.imgData && !s.imgData.startsWith('data:')) ? s.imgData : '',
+        x: s.x, y: s.y, scale: s.scale, blur: s.blur
+      })),
+      heroVideoUrl: ST.heroVideoUrl,
+      heroOverlay:  ST.heroOverlay
+    };
+    await fetch('/save-shows', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+  } catch(e) { /* server not running */ }
+}
+
+document.getElementById('epPublish').addEventListener('click', async function(){
+  this.textContent = '⏳ 發佈中...';
+  this.disabled = true;
+  try {
+    await saveState();
+    await syncShowsToServer();
+    fetch('/git-push', { method: 'POST' }).catch(()=>{});
+    this.textContent = '✅ 已送出！';
+    setTimeout(()=>{ this.textContent='🚀 發佈到網站'; this.disabled=false; }, 2500);
+    alert('🚀 已發佈！約30秒後公開網站更新');
+  } catch(e) {
+    alert('⚠️ 無法連線到本地伺服器');
+    this.textContent = '🚀 發佈到網站';
+    this.disabled = false;
+  }
 });
 
 // ══════════════════════════════════════════

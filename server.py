@@ -156,6 +156,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 self._err(e)
 
+        # ── /save-shows ────────────────────────────────────────────────────────
+        elif self.path == '/save-shows':
+            try:
+                cfg = json.loads(raw)
+                cfg_path = os.path.join(BASE, 'shows-data.json')
+                with open(cfg_path, 'w', encoding='utf-8') as f:
+                    json.dump(cfg, f, ensure_ascii=False, indent=2)
+                self._ok(b'{"ok":true}')
+                print(f'[save-shows] shows-data.json updated')
+            except Exception as e:
+                self._err(e)
+
         # ── /git-push ──────────────────────────────────────────────────────────
         elif self.path == '/git-push':
             # Return immediately — run git in background thread
