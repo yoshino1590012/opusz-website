@@ -42,7 +42,7 @@ nav.mega-open {
 }
 
 /* Apply the colour var */
-.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: var(--nav-fg); }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: transparent; }
 .orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
 
 /* ── Logo hover expand (OPUS.Z → + MUSIC) ── */
@@ -75,25 +75,30 @@ nav.mega-open {
   display: inline-flex; align-items: center; justify-content: center;
   line-height: 1; vertical-align: middle; white-space: nowrap;
   z-index: 0;
-  /* ── True per-pixel inversion ── */
-  color: #fff;
-  mix-blend-mode: difference;
+  color: transparent; /* individual .nc-char spans carry the color */
 }
-/* Mega-menu open: white bg → reset blend so links read black */
 nav.mega-open .nav-links a {
-  mix-blend-mode: normal;
-  color: #000 !important;
+  color: transparent;
 }
-/* Logo text: per-pixel blend */
+/* Per-character color spans — JS sets color on each one individually */
+.nc-char {
+  display: inline-block;
+  color: #fff;
+  transition: color 0.06s ease;
+}
+nav.mega-open .nc-char {
+  color: #000 !important;
+  transition: none;
+}
+/* Logo text: JS-controlled per-character as well */
 .nav-logo-name,
 .nav-logo-sub {
-  color: #fff;
-  mix-blend-mode: difference;
+  color: transparent; /* .nc-char children carry the color */
 }
-nav.mega-open .nav-logo-name,
-nav.mega-open .nav-logo-sub {
-  mix-blend-mode: normal;
+nav.mega-open .nav-logo-name .nc-char,
+nav.mega-open .nav-logo-sub .nc-char {
   color: #000 !important;
+  transition: none;
 }
 
 /* ── Responsive nav ── */
@@ -2485,6 +2490,8 @@ function switchLang(lang) {
   document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
   // Re-render category panel names with new language
   if (typeof window._applyCatAll === 'function') window._applyCatAll();
+  // Re-split nav links after text update (char spans were overwritten by textContent=)
+  if (typeof window.__navResplit === 'function') window.__navResplit();
 }
 
 // Wire lang toggle
@@ -3198,36 +3205,55 @@ applySvcImg(1);
     return _lum(getComputedStyle(document.body).backgroundColor);
   }
 
-  const _navItems = () => [
-    nav.querySelector('.nav-logo'),
-    ...nav.querySelectorAll('.nav-links a'),
-    nav.querySelector('.nav-fav-btn'),
-    nav.querySelector('.lang-toggle'),
-    nav.querySelector('.nav-login-btn'),
-    nav.querySelector('.hamburger'),
-  ].filter(Boolean);
+  // ── Split nav link text & logo text into per-character spans ──────────────
+  // Each .nc-char gets its own color set by JS → true per-letter adaptation
+  function _splitToChars(el) {
+    const text = el.textContent; // always read raw text (works even after re-split)
+    el.innerHTML = [...text].map(ch =>
+      ch === ' '
+        ? '<span class="nc-char nc-sp"> </span>'
+        : `<span class="nc-char">${ch}</span>`
+    ).join('');
+  }
+
+  function _resplitNav() {
+    nav.querySelectorAll('.nav-links a').forEach(a => _splitToChars(a));
+    const ln = nav.querySelector('.nav-logo-name');
+    const ls = nav.querySelector('.nav-logo-sub');
+    if (ln) _splitToChars(ln);
+    if (ls) _splitToChars(ls);
+  }
+
+  _resplitNav();
+  // Expose so switchLang() can re-split after updating text content
+  window.__navResplit = _resplitNav;
 
   function updateColors() {
     const megaOpen = nav.classList.contains('mega-open');
 
     if (megaOpen) {
-      // Reset inline styles — CSS mega-open rules take over
+      // CSS mega-open rules override via nav.mega-open .nc-char { color:#000 }
       ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(sel => {
         const el = nav.querySelector(sel);
         if (el) { el.style.color = ''; el.style.borderColor = ''; }
       });
       nav.querySelectorAll('.hamburger span').forEach(s => s.style.background = '');
+      nav.querySelectorAll('.nc-char').forEach(s => s.style.color = '');
       nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
       return;
     }
 
-    // ── Nav links & logo text: CSS mix-blend-mode:difference handles per-pixel color.
-    //    No inline color needed — clear any stale style that might have been set.
-    nav.querySelectorAll('.nav-links a, .nav-logo-name, .nav-logo-sub').forEach(el => {
-      el.style.color = '';
+    // ── Per-character color: each letter independently reads its background ──
+    nav.querySelectorAll('.nc-char').forEach(span => {
+      const r  = span.getBoundingClientRect();
+      if (r.width === 0) return; // skip invisible (e.g. collapsed logo sub)
+      const cx = r.left + r.width  / 2;
+      const cy = r.top  + r.height / 2;
+      const isDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, span) < 0.5;
+      span.style.color = isDark ? '#fff' : '#000';
     });
 
-    // ── nav-on-dark/light class: drives the hover-bubble glass style ──
+    // ── nav-on-dark/light class: drives hover-bubble glass style ──
     let navCenterDark = true;
     const logoEl = nav.querySelector('.nav-logo');
     if (logoEl) {
@@ -3239,12 +3265,12 @@ applySvcImg(1);
     nav.classList.toggle('nav-on-dark',  navCenterDark);
     nav.classList.toggle('nav-on-light', !navCenterDark);
 
-    // ── Elements that CAN'T use blend mode: set color via JS as before ──
+    // ── Elements without character spans: JS color as before ──
     const extras = [
-      { sel: '.nav-fav-btn',    border: false },
-      { sel: '.lang-toggle',    border: false },
-      { sel: '.nav-login-btn',  border: true  },
-      { sel: '.hamburger',      border: false },
+      { sel: '.nav-fav-btn',   border: false },
+      { sel: '.lang-toggle',   border: false },
+      { sel: '.nav-login-btn', border: true  },
+      { sel: '.hamburger',     border: false },
     ];
     extras.forEach(({ sel, border }) => {
       const el = nav.querySelector(sel);
@@ -3261,7 +3287,7 @@ applySvcImg(1);
     });
   }
 
-  // Throttle: canvas getImageData is expensive; run at most every 40ms
+  // Run every animation frame while scrolling for smooth per-character response
   let _rafPending = false;
   function _scheduleUpdate() {
     if (_rafPending) return;

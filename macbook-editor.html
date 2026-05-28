@@ -272,6 +272,7 @@ input[type=color] {
     <option value="1728" data-h="1080">MacBook Pro 16"  1728px</option>
   </select>
   <div class="tb-right">
+    <button class="btn" onclick="openPhotoEditor()" title="Open Photo Editor (P)" style="font-size:15px; padding:5px 12px;">📷</button>
     <button class="btn" onclick="reloadFrame()">↺ Reload</button>
     <button class="btn btn-save" onclick="saveAll()">✓ Save All</button>
   </div>
@@ -800,6 +801,34 @@ function setZoom(v) {
   macbookOuter.style.transform = `scale(${v / 100})`;
   macbookOuter.style.transformOrigin = 'top center';
 }
+
+// ────────────────────────────────────────────────────────────────────
+// PHOTO EDITOR — open inside iframe
+// ────────────────────────────────────────────────────────────────────
+function openPhotoEditor() {
+  try {
+    const win = frame.contentWindow;
+    if (typeof win.openPE === 'function') {
+      win.openPE();
+    } else {
+      // openPE not ready yet — inject a trigger after short delay
+      status('⏳ 照片編輯器載入中，請稍候再按…', 'warn');
+      setTimeout(() => {
+        try { frame.contentWindow.openPE(); } catch(e) {}
+      }, 800);
+    }
+  } catch(e) {
+    status('⚠ 請先 Reload，再點 📷', 'warn');
+  }
+}
+
+// Forward P key to photo editor (when not typing in an input)
+document.addEventListener('keydown', function(e) {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const t = e.target;
+  if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) return;
+  if (e.key === 'p' || e.key === 'P') { e.preventDefault(); openPhotoEditor(); }
+});
 
 // ────────────────────────────────────────────────────────────────────
 // ACTIONS
