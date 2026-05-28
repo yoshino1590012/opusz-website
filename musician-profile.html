@@ -23,6 +23,12 @@ nav{
 .nav-back:hover{opacity:1;}
 .nav-back::before{content:'← ';}
 
+/* ── LANG TOGGLE ── */
+.lang-toggle{display:flex;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;font-size:13px;font-weight:600;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.4);}
+.lang-toggle .lt-opt{padding:3px 8px;border-radius:5px;transition:background .2s,color .2s;}
+.lang-toggle .lt-opt.active{background:rgba(255,255,255,0.9);color:#000;}
+.lang-toggle .lt-sep{opacity:.35;font-weight:400;}
+
 /* ── HERO ── */
 .hero{
   position:relative;width:100%;height:100vh;
@@ -151,10 +157,40 @@ nav{
   margin-bottom:24px;
 }
 
-/* Bio */
+/* Bio — two-column when CTA lives alongside */
+.about-row{
+  display:flex;align-items:flex-start;
+  gap:clamp(32px,5vw,72px);
+}
+.about-bio{flex:1 1 0;min-width:0;}
 .bio-text{
   font-size:17px;line-height:1.75;color:#333;
-  max-width:680px;
+}
+
+/* Inline booking card (replaces bottom cta-bar) */
+.about-book{
+  flex:0 0 clamp(260px,28%,340px);
+  background:#f7f7f7;border-radius:16px;
+  padding:32px 28px;
+  display:flex;flex-direction:column;gap:16px;
+  margin-top:4px; /* optical align with first line of text */
+}
+.about-book-title{
+  font-size:clamp(18px,1.6vw,22px);font-weight:800;
+  letter-spacing:-.02em;line-height:1.25;color:#111;
+}
+.about-book-sub{
+  font-size:13px;color:#777;line-height:1.5;
+  margin-top:-8px;
+}
+.about-book .cta-btns{flex-direction:column;gap:10px;}
+.about-book .btn-primary,
+.about-book .btn-outline{
+  text-align:center;padding:14px 20px;font-size:14px;
+}
+@media(max-width:820px){
+  .about-row{flex-direction:column;}
+  .about-book{flex:unset;width:100%;}
 }
 
 /* ── Brand Marquee ── */
@@ -483,14 +519,124 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
 
 /* upload-drop-icon used in placeholder */
 .upload-drop-icon{font-size:36px;margin-bottom:12px;}
+
+/* ── CONTACT / ENQUIRY SECTION ── */
+.contact-section{max-width:1100px;margin:0 auto;padding:80px 48px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:start;}
+@media(max-width:768px){.contact-section{grid-template-columns:1fr;gap:48px;padding:60px 20px;}}
+.contact-label{font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#888;margin-bottom:20px;}
+.contact-headline{font-size:clamp(28px,4vw,42px);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:16px;}
+.contact-sub{font-size:15px;color:#555;line-height:1.7;margin-bottom:32px;}
+.contact-badges{display:flex;flex-wrap:wrap;gap:10px;}
+.contact-badge{display:flex;align-items:center;gap:8px;padding:8px 16px;border:1.5px solid #e8e8e8;border-radius:40px;font-size:12px;font-weight:600;color:#333;}
+.contact-form{background:#fff;border-radius:20px;padding:36px;box-shadow:0 4px 40px rgba(0,0,0,.08);}
+.contact-form-title{font-size:15px;font-weight:700;color:#111;margin-bottom:4px;}
+.contact-form-sub{font-size:13px;color:#888;margin-bottom:24px;line-height:1.5;}
+.cf-field{margin-bottom:16px;}
+.cf-label{font-size:12px;font-weight:700;color:#111;margin-bottom:6px;display:block;}
+.cf-input{width:100%;padding:11px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s;background:#fafafa;box-sizing:border-box;}
+.cf-input:focus{border-color:#000;background:#fff;}
+.cf-textarea{width:100%;padding:12px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border-color .15s;background:#fafafa;min-height:130px;resize:vertical;box-sizing:border-box;line-height:1.6;}
+.cf-textarea:focus{border-color:#000;background:#fff;}
+.cf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:480px){.cf-row{grid-template-columns:1fr;}}
+.cf-send-btn{width:100%;margin-top:8px;padding:14px;background:#000;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;letter-spacing:.04em;transition:background .15s;}
+.cf-send-btn:hover{background:#333;}
+.cf-success{display:none;text-align:center;padding:32px 16px;}
+.cf-success-icon{font-size:36px;margin-bottom:12px;}
+.cf-success h4{font-size:18px;font-weight:800;margin-bottom:8px;}
+.cf-success p{font-size:14px;color:#777;line-height:1.6;}
 </style>
+<script>
+// ── i18n ──────────────────────────────────────────────────────────────────
+var _profileLang = 'en';
+var PROFILE_I18N = {
+  en: {
+    'nav.back':          'Musicians',
+    'bio.label':         'About',
+    'bio.text':          'Principal violinist with over 15 years of orchestral and chamber music experience. Specialising in Romantic and Contemporary repertoire, Martin brings a rare combination of technical precision and emotional depth to every performance. Graduate of the National Taiwan University of the Arts, with guest appearances at Carnegie Hall and the National Concert Hall Taipei.',
+    'book.title':        'Book Martin',
+    'book.sub':          'For performances, recordings & private sessions',
+    'book.enquiry':      'Send Enquiry',
+    'book.avail':        'Check Availability',
+    'marquee.label':     'Trusted & worked with',
+    'stats.label':       'By the numbers',
+    'stats.years':       'Years of experience',
+    'stats.perfs':       'Performances worldwide',
+    'stats.reviews':     'Client reviews',
+    'spec.label':        'Specialties',
+    'spec.classical':    'Classical',
+    'spec.contemporary': 'Contemporary',
+    'spec.chamber':      'Chamber Music',
+    'spec.solo':         'Solo Performance',
+    'spec.studio':       'Studio Recording',
+    'spec.lessons':      'Private Lessons',
+    'spec.corporate':    'Corporate Events',
+    'spec.wedding':      'Wedding Music',
+    'hl.title':          'Career Highlights',
+    'hl.preview':        'Hover to preview',
+    'reviews.label':     'Client Reviews',
+  },
+  zh: {
+    'nav.back':          '音樂家',
+    'bio.label':         '個人簡介',
+    'bio.text':          '擁有超過 15 年管弦樂與室內樂演奏經驗的首席小提琴手，專精浪漫派與當代曲目。Martin 以精湛的技術與深刻的情感詮釋，為每一場演出注入獨特魅力。畢業於國立臺灣藝術大學，曾受邀於卡內基音樂廳及國家音樂廳登台演出。',
+    'book.title':        '預約 Martin 演出',
+    'book.sub':          '歡迎洽詢現場表演、錄音及私人課程',
+    'book.enquiry':      '立即詢問',
+    'book.avail':        '查詢檔期',
+    'marquee.label':     '合作機構',
+    'stats.label':       '數字說話',
+    'stats.years':       '演奏年資',
+    'stats.perfs':       '全球演出場次',
+    'stats.reviews':     '客戶評價',
+    'spec.label':        '專業領域',
+    'spec.classical':    '古典樂',
+    'spec.contemporary': '當代音樂',
+    'spec.chamber':      '室內樂',
+    'spec.solo':         '獨奏演出',
+    'spec.studio':       '錄音室錄音',
+    'spec.lessons':      '私人授課',
+    'spec.corporate':    '企業活動',
+    'spec.wedding':      '婚禮音樂',
+    'hl.title':          '職涯亮點',
+    'hl.preview':        '移至查看',
+    'reviews.label':     '客戶評價',
+  }
+};
+
+function switchProfileLang(lang) {
+  _profileLang = lang;
+  var dict = PROFILE_I18N[lang] || PROFILE_I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n')];
+    if (v !== undefined) el.textContent = v;
+  });
+  document.querySelectorAll('#langToggle .lt-opt').forEach(function(o) {
+    o.classList.toggle('active', o.dataset.l === lang);
+  });
+  document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('langToggle').addEventListener('click', function(e) {
+    var opt = e.target.closest('[data-l]');
+    var next = opt ? opt.dataset.l : (_profileLang === 'en' ? 'zh' : 'en');
+    switchProfileLang(next);
+  });
+});
+</script>
 </head>
 <body>
 
 <!-- NAV -->
 <nav>
-  <a href="musicians.html" class="nav-back">Musicians</a>
+  <a href="musicians.html" class="nav-back" data-i18n="nav.back">Musicians</a>
   <a href="musician-platform.html" class="nav-logo">OPUS.Z</a>
+  <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+    <span class="lt-opt active" data-l="en">EN</span>
+    <span class="lt-sep">/</span>
+    <span class="lt-opt" data-l="zh">中文</span>
+  </button>
 </nav>
 
 <!-- HERO -->
@@ -528,17 +674,29 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
 <!-- CONTENT -->
 <div class="content">
 
-  <!-- Bio -->
+  <!-- Bio + Booking (side-by-side) -->
   <div class="section">
-    <div class="section-label label-about">About</div>
-    <p class="bio-text">
-      Principal violinist with over 15 years of orchestral and chamber music experience. Specialising in Romantic and Contemporary repertoire, Martin brings a rare combination of technical precision and emotional depth to every performance. Graduate of the National Taiwan University of the Arts, with guest appearances at Carnegie Hall and the National Concert Hall Taipei.
-    </p>
+    <div class="about-row">
+      <div class="about-bio">
+        <div class="section-label label-about" data-i18n="bio.label">About</div>
+        <p class="bio-text" data-i18n="bio.text">
+          Principal violinist with over 15 years of orchestral and chamber music experience. Specialising in Romantic and Contemporary repertoire, Martin brings a rare combination of technical precision and emotional depth to every performance. Graduate of the National Taiwan University of the Arts, with guest appearances at Carnegie Hall and the National Concert Hall Taipei.
+        </p>
+      </div>
+      <div class="about-book">
+        <div class="about-book-title" data-i18n="book.title">Book Martin</div>
+        <div class="about-book-sub" data-i18n="book.sub">For performances, recordings &amp; private sessions</div>
+        <div class="cta-btns">
+          <a href="#contact" class="btn-primary" data-i18n="book.enquiry">Send Enquiry</a>
+          <button class="btn-outline" id="openAvailBtn" onclick="openAvail()" data-i18n="book.avail">Check Availability</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- Brand Marquee -->
   <div class="marquee-section">
-    <div class="marquee-label">Trusted &amp; worked with</div>
+    <div class="marquee-label" data-i18n="marquee.label">Trusted &amp; worked with</div>
     <div class="marquee-track-wrap">
       <div class="marquee-track" id="marqueeTrack">
         <!-- Set A -->
@@ -591,41 +749,41 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
 
   <!-- Stats -->
   <div class="section" id="statsSection">
-    <div class="section-label">By the numbers</div>
+    <div class="section-label" data-i18n="stats.label">By the numbers</div>
     <div class="stats-row">
       <div class="stat">
         <div class="stat-num" data-count="15" data-suffix="+"><span class="count-val">15</span><span class="count-suffix">+</span></div>
-        <div class="stat-label">Years of experience</div>
+        <div class="stat-label" data-i18n="stats.years">Years of experience</div>
       </div>
       <div class="stat">
         <div class="stat-num" data-count="400" data-suffix="+"><span class="count-val">400</span><span class="count-suffix">+</span></div>
-        <div class="stat-label">Performances worldwide</div>
+        <div class="stat-label" data-i18n="stats.perfs">Performances worldwide</div>
       </div>
       <div class="stat">
         <div class="stat-num" data-count="148" data-suffix=""><span class="count-val">148</span><span class="count-suffix"></span></div>
-        <div class="stat-label">Client reviews</div>
+        <div class="stat-label" data-i18n="stats.reviews">Client reviews</div>
       </div>
     </div>
   </div>
 
   <!-- Specialties -->
   <div class="section">
-    <div class="section-label">Specialties</div>
+    <div class="section-label" data-i18n="spec.label">Specialties</div>
     <div class="tags">
-      <span class="tag">Classical</span>
-      <span class="tag">Contemporary</span>
-      <span class="tag">Chamber Music</span>
-      <span class="tag">Solo Performance</span>
-      <span class="tag">Studio Recording</span>
-      <span class="tag">Private Lessons</span>
-      <span class="tag">Corporate Events</span>
-      <span class="tag">Wedding Music</span>
+      <span class="tag" data-i18n="spec.classical">Classical</span>
+      <span class="tag" data-i18n="spec.contemporary">Contemporary</span>
+      <span class="tag" data-i18n="spec.chamber">Chamber Music</span>
+      <span class="tag" data-i18n="spec.solo">Solo Performance</span>
+      <span class="tag" data-i18n="spec.studio">Studio Recording</span>
+      <span class="tag" data-i18n="spec.lessons">Private Lessons</span>
+      <span class="tag" data-i18n="spec.corporate">Corporate Events</span>
+      <span class="tag" data-i18n="spec.wedding">Wedding Music</span>
     </div>
   </div>
 
   <!-- Career Highlights -->
   <div class="highlights-section">
-    <div class="highlights-title">Career Highlights</div>
+    <div class="highlights-title" data-i18n="hl.title">Career Highlights</div>
     <div class="highlights-body">
 
       <!-- Left: list -->
@@ -715,7 +873,7 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
           <!-- idle state -->
           <div class="hl-frame-idle" id="hlIdle">
             <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-            <span>Hover to preview</span>
+            <span data-i18n="hl.preview">Hover to preview</span>
           </div>
 
           <!-- photo 0: Berlin Philharmonic -->
@@ -810,7 +968,7 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
           <div class="reviews-big-count">148 Reviews · 124 Verified</div>
         </div>
       </div>
-      <div class="reviews-count-label">Client Reviews</div>
+      <div class="reviews-count-label" data-i18n="reviews.label">Client Reviews</div>
     </div>
 
     <div class="review-list">
@@ -888,19 +1046,83 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
     </div>
   </div>
 
-  <!-- CTA -->
-  <div class="cta-bar">
-    <div class="cta-text">
-      <h2>Book Martin for your next event</h2>
-      <p>Available for performances, recordings, and private sessions.</p>
+  <!-- ── CONTACT / ENQUIRY ── -->
+  <div class="contact-section" id="contact">
+    <!-- Left: info -->
+    <div class="contact-left">
+      <div class="contact-label">Get in touch</div>
+      <h2 class="contact-headline">Book Martin for your next event</h2>
+      <p class="contact-sub">Available for performances, recordings, and private sessions. Describe your project and Martin will reply with a personalised proposal within 24 hours.</p>
+      <div class="contact-badges">
+        <div class="contact-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          Reply within 24h
+        </div>
+        <div class="contact-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          148 verified bookings
+        </div>
+        <div class="contact-badge">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Secure & confidential
+        </div>
+      </div>
     </div>
-    <div class="cta-btns">
-      <a href="#contact" class="btn-primary">Send Enquiry</a>
-      <button class="btn-outline" id="openAvailBtn" onclick="openAvail()">Check Availability</button>
+
+    <!-- Right: form -->
+    <div class="contact-form">
+      <div id="cfFormView">
+        <div class="contact-form-title">Send Enquiry</div>
+        <div class="contact-form-sub">Describe your project and Martin will reply with a proposal</div>
+        <form name="musician-enquiry" method="POST" data-netlify="true" onsubmit="submitProfileEnquiry(event)">
+          <input type="hidden" name="form-name" value="musician-enquiry" />
+          <input type="hidden" name="musician" value="Martin Liao" />
+          <div class="cf-field">
+            <label class="cf-label">What can we help you with?</label>
+            <input class="cf-input" type="text" name="subject" placeholder="e.g. Live performance for corporate event" required />
+          </div>
+          <div class="cf-field">
+            <label class="cf-label">Tell us more about your project:</label>
+            <textarea class="cf-textarea" name="message" required>HI MARTIN,
+
+</textarea>
+          </div>
+          <div class="cf-row">
+            <div class="cf-field">
+              <label class="cf-label">Your name</label>
+              <input class="cf-input" type="text" name="client-name" placeholder="Your name" required />
+            </div>
+            <div class="cf-field">
+              <label class="cf-label">Email</label>
+              <input class="cf-input" type="email" name="client-email" placeholder="you@example.com" required />
+            </div>
+          </div>
+          <button type="submit" class="cf-send-btn">SEND ENQUIRY</button>
+        </form>
+      </div>
+      <div class="cf-success" id="cfSuccess">
+        <div class="cf-success-icon">✓</div>
+        <h4>Enquiry sent!</h4>
+        <p>Martin will review your project and get back to you within 24 hours.</p>
+      </div>
     </div>
   </div>
 
 </div>
+
+<script>
+function submitProfileEnquiry(e) {
+  e.preventDefault();
+  var form = e.target;
+  var data = new FormData(form);
+  fetch('/', { method: 'POST', body: data })
+    .catch(function(){})
+    .finally(function() {
+      document.getElementById('cfFormView').style.display = 'none';
+      document.getElementById('cfSuccess').style.display = 'block';
+    });
+}
+</script>
 
 <script>
 (function(){
