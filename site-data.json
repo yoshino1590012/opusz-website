@@ -1,5 +1,7 @@
 {
-  "images": {},
+  "images": {
+    "p1": "assets/images/p1.jpg"
+  },
   "positions": {
     "hero": {
       "p1": {

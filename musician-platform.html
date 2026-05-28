@@ -3376,10 +3376,13 @@ try {
     } catch(e) { /* server might not be running — silently ignore */ }
   }
 
-  /* ── Sync full layout config to server (debounced 1.5s) ── */
-  var _syncTimer;
+  /* ── Sync full layout config to server ── */
+  /* Returns a Promise that resolves when the save is confirmed (or fails silently) */
+  var _syncTimer; var _syncResolve = null;
   function _syncConfigToServer() {
     clearTimeout(_syncTimer);
+    // Return a promise that resolves after the debounced save completes
+    var p = new Promise(function(resolve) { _syncResolve = resolve; });
     _syncTimer = setTimeout(async function() {
       try {
         var imgs = {};
@@ -3394,7 +3397,9 @@ try {
           body: JSON.stringify({images: imgs, positions: pos})
         });
       } catch(e) {}
+      if (_syncResolve) { _syncResolve(); _syncResolve = null; }
     }, 1500);
+    return p;
   }
 
   /* ── On startup: restore from server config if localStorage is empty ── */
@@ -3899,9 +3904,8 @@ try {
     btn.textContent = '⏳ 發佈中...';
     btn.disabled = true;
     try {
-      // 1. Save positions first
-      savePhotoPos(true);
-      await new Promise(r => setTimeout(r, 1800)); // wait for debounced sync
+      // 1. Save positions + sync config to server, then wait for it to finish
+      await _syncConfigToServer();
       // 2. Call server to git push
       var r = await fetch('/git-push', { method: 'POST' });
       var d = await r.json();
