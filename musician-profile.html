@@ -534,6 +534,109 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
 .contact-badge{display:flex;align-items:center;gap:8px;padding:8px 16px;border:1.5px solid #e8e8e8;border-radius:40px;font-size:12px;font-weight:600;color:#333;}
 .contact-form{background:#fff;border-radius:20px;padding:36px;box-shadow:0 4px 40px rgba(0,0,0,.08);}
 .contact-form-title{font-size:15px;font-weight:700;color:#111;margin-bottom:4px;}
+/* ── Booking bar (inline, under hero) ── */
+.book-bar{
+  background:#fff; border-bottom:1px solid #ececec;
+  display:flex; align-items:center; gap:16px;
+  padding:14px 32px;
+}
+.book-bar-left{ display:flex; align-items:center; gap:14px; flex:1; min-width:0; }
+.book-bar-avatar{
+  width:48px; height:48px; border-radius:50%; flex-shrink:0;
+  background:#eee center/cover no-repeat;
+}
+.book-bar-text{ font-size:13px; color:#333; line-height:1.35; }
+.book-bar-text b{ display:block; font-weight:700; color:#111; }
+.book-bar-right{ display:flex; align-items:center; gap:14px; flex-shrink:0; }
+.book-bar-price{ font-size:14px; color:#444; }
+.book-bar-price b{ font-weight:800; color:#111; font-size:15px; }
+.book-bar-select{
+  appearance:none; -webkit-appearance:none;
+  border:1px solid #d8d8d8; border-radius:8px;
+  padding:9px 32px 9px 14px; font-size:14px; color:#111; font-family:inherit;
+  background:#fff url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'><path d='M1 1l5 5 5-5' stroke='%23111' stroke-width='1.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/></svg>") right 12px center/12px no-repeat;
+  cursor:pointer;
+}
+.book-bar-msg{
+  display:inline-flex; align-items:center; gap:8px;
+  border:1px solid #d8d8d8; background:#fff; color:#111;
+  padding:10px 18px; border-radius:8px; font-size:14px; font-weight:600;
+  cursor:pointer; font-family:inherit; transition:background .15s;
+}
+.book-bar-msg:hover{ background:#f5f5f5; }
+.book-bar-msg svg{ width:16px; height:16px; }
+.book-bar-cta{
+  background:#1ab864; color:#fff;
+  padding:12px 22px; border-radius:8px; font-size:15px; font-weight:700;
+  border:none; cursor:pointer; font-family:inherit; transition:background .15s;
+}
+.book-bar-cta:hover{ background:#149954; }
+@media(max-width:820px){
+  .book-bar{ padding:10px 14px; gap:10px; flex-wrap:wrap; }
+  .book-bar-text{ font-size:12px; }
+  .book-bar-text b{ font-size:13px; }
+  .book-bar-avatar{ width:40px; height:40px; }
+  .book-bar-right{ gap:8px; width:100%; justify-content:space-between; }
+  .book-bar-price{ font-size:13px; }
+  .book-bar-select{ padding:8px 28px 8px 10px; font-size:13px; }
+  .book-bar-msg{ padding:8px 12px; font-size:13px; }
+  .book-bar-cta{ padding:10px 14px; font-size:13px; }
+}
+
+/* ── Send Enquiry modal ── */
+.enq-overlay{
+  position:fixed; inset:0; z-index:1100;
+  background:rgba(0,0,0,.55); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .25s;
+  padding:24px;
+}
+.enq-overlay.open{ opacity:1; pointer-events:auto; }
+.enq-modal{
+  background:#fff; border-radius:20px;
+  width:100%; max-width:540px; max-height:90vh; overflow-y:auto;
+  padding:36px 36px 32px; position:relative;
+  transform:scale(.96); transition:transform .25s;
+}
+.enq-overlay.open .enq-modal{ transform:scale(1); }
+.enq-close{
+  position:absolute; top:14px; right:14px;
+  width:34px; height:34px; border:none; background:transparent;
+  font-size:20px; color:#999; cursor:pointer; border-radius:50%;
+  transition:background .15s, color .15s;
+}
+.enq-close:hover{ background:#f3f3f3; color:#000; }
+.enq-title{ font-size:22px; font-weight:800; color:#111; margin-bottom:6px; letter-spacing:-.01em; }
+.enq-sub{ font-size:13px; color:#888; margin-bottom:22px; line-height:1.45; }
+.enq-field{ display:flex; flex-direction:column; gap:6px; margin-bottom:14px; }
+.enq-label{ font-size:13px; font-weight:600; color:#222; }
+.enq-input, .enq-textarea{
+  width:100%; border:1px solid #e2e2e2; border-radius:10px;
+  padding:12px 14px; font-size:14px; font-family:inherit; color:#111;
+  background:#fafafa; outline:none; transition:border-color .15s, background .15s;
+}
+.enq-input:focus, .enq-textarea:focus{ border-color:#111; background:#fff; }
+.enq-textarea{ min-height:130px; resize:vertical; line-height:1.5; }
+.enq-row{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.enq-submit{
+  width:100%; margin-top:10px;
+  background:#111; color:#fff; border:none; cursor:pointer;
+  padding:15px; border-radius:10px; font-size:14px; font-weight:800;
+  letter-spacing:.05em; font-family:inherit; transition:background .15s;
+}
+.enq-submit:hover{ background:#000; }
+.enq-success{ display:none; text-align:center; padding:24px 0; }
+.enq-success.show{ display:block; }
+.enq-success-icon{
+  width:56px; height:56px; border-radius:50%; background:#1ab864;
+  color:#fff; font-size:28px; display:flex; align-items:center; justify-content:center;
+  margin:0 auto 16px;
+}
+@media(max-width:540px){
+  .enq-modal{ padding:28px 22px; border-radius:14px; }
+  .enq-row{ grid-template-columns:1fr; }
+}
+
 .contact-form-sub{font-size:13px;color:#888;margin-bottom:24px;line-height:1.5;}
 .cf-field{margin-bottom:16px;}
 .cf-label{font-size:12px;font-weight:700;color:#111;margin-bottom:6px;display:block;}
@@ -579,6 +682,20 @@ var PROFILE_I18N = {
     'hl.title':          'Career Highlights',
     'hl.preview':        'Hover to preview',
     'reviews.label':     'Client Reviews',
+    'bar.title':         'Check availability and get a free',
+    'bar.sub':           'quote now – no commitment to book',
+    'bar.from':          'From',
+    'bar.msg':           'Message',
+    'bar.check':         'Check availability',
+    'enq.title':         'Send Enquiry',
+    'enq.sub':           'Describe your project and Martin will reply with a proposal',
+    'enq.what':          'What can we help you with?',
+    'enq.tell':          'Tell us more about your project:',
+    'enq.name':          'Your name',
+    'enq.email':         'Email',
+    'enq.send':          'SEND ENQUIRY',
+    'enq.ok':            'Enquiry sent!',
+    'enq.okSub':         'Martin will review your project and get back to you within 24 hours.',
   },
   zh: {
     'nav.back':          '音樂家',
@@ -605,6 +722,20 @@ var PROFILE_I18N = {
     'hl.title':          '職涯亮點',
     'hl.preview':        '移至查看',
     'reviews.label':     '客戶評價',
+    'bar.title':         '查詢檔期並取得免費報價',
+    'bar.sub':           '完全無預約義務',
+    'bar.from':          '起價',
+    'bar.msg':           '訊息',
+    'bar.check':         '查詢檔期',
+    'enq.title':         '立即詢問',
+    'enq.sub':           '描述你的活動，Martin 將回覆專屬提案',
+    'enq.what':          '需要什麼協助？',
+    'enq.tell':          '請描述你的活動：',
+    'enq.name':          '你的姓名',
+    'enq.email':         '電子郵件',
+    'enq.send':          '送出詢問',
+    'enq.ok':            '詢問已送出！',
+    'enq.okSub':         'Martin 會在 24 小時內回覆。',
   }
 };
 
@@ -682,6 +813,31 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </section>
 
+<!-- ── Booking bar (under hero) ── -->
+<div class="book-bar" id="bookBar">
+  <div class="book-bar-left">
+    <div class="book-bar-avatar" id="bookBarAvatar"></div>
+    <div class="book-bar-text">
+      <b data-i18n="bar.title">Check availability and get a free</b>
+      <span data-i18n="bar.sub">quote now – no commitment to book</span>
+    </div>
+  </div>
+  <div class="book-bar-right">
+    <div class="book-bar-price"><span data-i18n="bar.from">From</span> <b>NT$3,500</b></div>
+    <select class="book-bar-select" id="bookBarDuration">
+      <option value="1">1 hour</option>
+      <option value="2">2 hours</option>
+      <option value="3">3 hours</option>
+      <option value="4">4 hours</option>
+    </select>
+    <button class="book-bar-msg" onclick="openEnquiry('message')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      <span data-i18n="bar.msg">Message</span>
+    </button>
+    <button class="book-bar-cta" onclick="openEnquiry('avail')" data-i18n="bar.check">Check availability</button>
+  </div>
+</div>
+
 <!-- CONTENT -->
 <div class="content">
 
@@ -693,14 +849,6 @@ document.addEventListener('DOMContentLoaded', function() {
         <p class="bio-text" data-i18n="bio.text">
           Principal violinist with over 15 years of orchestral and chamber music experience. Specialising in Romantic and Contemporary repertoire, Martin brings a rare combination of technical precision and emotional depth to every performance. Graduate of the National Taiwan University of the Arts, with guest appearances at Carnegie Hall and the National Concert Hall Taipei.
         </p>
-      </div>
-      <div class="about-book">
-        <div class="about-book-title" data-i18n="book.title">Book Martin</div>
-        <div class="about-book-sub" data-i18n="book.sub">For performances, recordings &amp; private sessions</div>
-        <div class="cta-btns">
-          <a href="#contact" class="btn-primary" data-i18n="book.enquiry">Send Enquiry</a>
-          <button class="btn-outline" id="openAvailBtn" onclick="openAvail()" data-i18n="book.avail">Check Availability</button>
-        </div>
       </div>
     </div>
   </div>
@@ -2136,6 +2284,85 @@ function submitProfileEnquiry(e) {
   } catch(e) {
     console.log('Profile load error:', e);
   }
+</script>
+
+<!-- ── Send Enquiry modal ── -->
+<div class="enq-overlay" id="enqOverlay" onclick="if(event.target===this)closeEnquiry()">
+  <div class="enq-modal">
+    <button class="enq-close" onclick="closeEnquiry()" aria-label="Close">✕</button>
+    <div id="enqFormView">
+      <div class="enq-title" data-i18n="enq.title">Send Enquiry</div>
+      <div class="enq-sub" data-i18n="enq.sub">Describe your project and Martin will reply with a proposal</div>
+      <form id="enqForm" name="musician-enquiry-modal" method="POST" data-netlify="true" onsubmit="submitEnquiryModal(event)">
+        <input type="hidden" name="form-name" value="musician-enquiry-modal" />
+        <input type="hidden" name="musician" value="Martin Liao" />
+        <div class="enq-field">
+          <label class="enq-label" data-i18n="enq.what">What can we help you with?</label>
+          <input class="enq-input" type="text" name="subject" placeholder="e.g. Live performance for corporate event" required />
+        </div>
+        <div class="enq-field">
+          <label class="enq-label" data-i18n="enq.tell">Tell us more about your project:</label>
+          <textarea class="enq-textarea" name="message" required>HI MARTIN,
+
+</textarea>
+        </div>
+        <div class="enq-row">
+          <div class="enq-field">
+            <label class="enq-label" data-i18n="enq.name">Your name</label>
+            <input class="enq-input" type="text" name="client-name" placeholder="Your name" required />
+          </div>
+          <div class="enq-field">
+            <label class="enq-label" data-i18n="enq.email">Email</label>
+            <input class="enq-input" type="email" name="client-email" placeholder="you@example.com" required />
+          </div>
+        </div>
+        <button type="submit" class="enq-submit" data-i18n="enq.send">SEND ENQUIRY</button>
+      </form>
+    </div>
+    <div class="enq-success" id="enqSuccess">
+      <div class="enq-success-icon">✓</div>
+      <h4 data-i18n="enq.ok">Enquiry sent!</h4>
+      <p data-i18n="enq.okSub">Martin will review your project and get back to you within 24 hours.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  function syncBarAvatar(){
+    var url = localStorage.getItem('martin-profile-img');
+    var el = document.getElementById('bookBarAvatar');
+    if(el && url) el.style.backgroundImage = "url('" + url + "')";
+  }
+  syncBarAvatar();
+  window.addEventListener('storage', syncBarAvatar);
+})();
+
+window.openEnquiry = function(type){
+  if(type === 'avail') { window.openAvail(); return; }
+  document.getElementById('enqFormView').style.display = 'block';
+  document.getElementById('enqSuccess').classList.remove('show');
+  document.getElementById('enqOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+window.closeEnquiry = function(){
+  document.getElementById('enqOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+};
+window.submitEnquiryModal = function(e){
+  e.preventDefault();
+  var form = e.target;
+  var data = new FormData(form);
+  fetch('/', { method:'POST', body:data })
+    .catch(function(){})
+    .finally(function(){
+      document.getElementById('enqFormView').style.display = 'none';
+      document.getElementById('enqSuccess').classList.add('show');
+    });
+};
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeEnquiry();
+});
 </script>
 </body>
 </html>
