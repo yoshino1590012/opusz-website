@@ -6,7 +6,7 @@ OPUS.Z dev server
 — POST /upload-file   → saves uploaded photo/video as real file in assets/images/
 — POST /save-config   → saves photo layout config to config.json
 """
-import http.server, socketserver, json, re, os, sys, base64, mimetypes, threading
+import http.server, socketserver, json, re, os, sys, base64, mimetypes, threading, subprocess
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8766
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -148,11 +148,40 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         elif self.path == '/save-config':
             try:
                 cfg = json.loads(raw)
-                cfg_path = os.path.join(BASE, 'config.json')
+                cfg_path = os.path.join(BASE, 'site-data.json')
                 with open(cfg_path, 'w', encoding='utf-8') as f:
                     json.dump(cfg, f, ensure_ascii=False, indent=2)
                 self._ok(b'{"ok":true}')
-                print(f'[save-config] config.json updated')
+                print(f'[save-config] site-data.json updated')
+            except Exception as e:
+                self._err(e)
+
+        # ── /git-push ──────────────────────────────────────────────────────────
+        elif self.path == '/git-push':
+            try:
+                result = subprocess.run(
+                    ['git', 'add', '-A'],
+                    cwd=BASE, capture_output=True, text=True
+                )
+                # Check if there's anything to commit
+                status = subprocess.run(
+                    ['git', 'status', '--porcelain'],
+                    cwd=BASE, capture_output=True, text=True
+                )
+                if status.stdout.strip():
+                    subprocess.run(
+                        ['git', 'commit', '-m', 'Update photos and layout via editor'],
+                        cwd=BASE, capture_output=True, text=True
+                    )
+                push = subprocess.run(
+                    ['git', 'push'],
+                    cwd=BASE, capture_output=True, text=True
+                )
+                if push.returncode == 0:
+                    self._ok(b'{"ok":true}')
+                    print('[git-push] pushed successfully')
+                else:
+                    raise Exception(push.stderr or push.stdout)
             except Exception as e:
                 self._err(e)
 
