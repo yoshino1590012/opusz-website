@@ -74,25 +74,17 @@ nav.mega-open {
   display: inline-flex; align-items: center; justify-content: center;
   line-height: 1; vertical-align: middle; white-space: nowrap;
   z-index: 0;
-  /* ── Per-pixel auto-contrast: GPU composites this against every pixel below ── */
   color: #fff;
-  mix-blend-mode: difference;
+  transition: color 0.12s ease;
 }
-/* Mega-menu open: reset to normal (white bg, black text) */
+/* Mega-menu open: always black text */
 nav.mega-open .nav-links a {
-  mix-blend-mode: normal;
   color: #000 !important;
 }
-/* Logo text: same per-pixel blend */
+/* Logo text: JS-controlled, smooth transition */
 .nav-logo-name,
 .nav-logo-sub {
-  color: #fff;
-  mix-blend-mode: difference;
-}
-nav.mega-open .nav-logo-name,
-nav.mega-open .nav-logo-sub {
-  mix-blend-mode: normal;
-  color: #000 !important;
+  transition: color 0.12s ease;
 }
 
 /* ── Responsive nav ── */
@@ -3220,11 +3212,16 @@ applySvcImg(1);
       return;
     }
 
-    // ── Nav links: mix-blend-mode:difference handles color per pixel — no JS needed.
-    //    Just ensure no stale inline color is left from a previous mega-open state.
-    nav.querySelectorAll('.nav-links a').forEach(el => { el.style.color = ''; });
+    // ── Nav links: per-element JS color detection ──
+    nav.querySelectorAll('.nav-links a').forEach(el => {
+      const r  = el.getBoundingClientRect();
+      const cx = r.left + r.width  / 2;
+      const cy = r.top  + r.height / 2;
+      const isDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, el) < 0.5;
+      el.style.color = isDark ? '#fff' : '#000';
+    });
 
-    // ── Nav-logo: derive nav-on-dark/light class (drives hover-bubble glass style)
+    // ── Nav-logo: color + nav-on-dark/light class (drives hover-bubble glass style)
     let navCenterDark = true; // default dark (hero is dark at top)
     const logoEl = nav.querySelector('.nav-logo');
     if (logoEl) {
@@ -3232,8 +3229,11 @@ applySvcImg(1);
       const cx = r.left + r.width  / 2;
       const cy = r.top  + r.height / 2;
       navCenterDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, logoEl) < 0.5;
-      // Logo text color is also handled by mix-blend-mode; clear any stale inline style
-      logoEl.style.color = '';
+      const logoFg = navCenterDark ? '#fff' : '#000';
+      const logoName = logoEl.querySelector('.nav-logo-name');
+      const logoSub  = logoEl.querySelector('.nav-logo-sub');
+      if (logoName) logoName.style.color = logoFg;
+      if (logoSub)  logoSub.style.color  = logoFg;
     }
     nav.classList.toggle('nav-on-dark',  navCenterDark);
     nav.classList.toggle('nav-on-light', !navCenterDark);

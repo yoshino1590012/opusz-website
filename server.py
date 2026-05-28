@@ -159,26 +159,34 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         # ── /git-push ──────────────────────────────────────────────────────────
         elif self.path == '/git-push':
             try:
-                import os as _os, shlex
-                # Run everything through a bash login shell so ~/.zshrc / gh are available
-                def sh(cmd, **kw):
-                    return subprocess.run(
-                        ['/bin/bash', '-lc', cmd],
-                        cwd=BASE, capture_output=True, text=True, **kw
-                    )
+                def run(*cmd, **kw):
+                    return subprocess.run(list(cmd), cwd=BASE, capture_output=True, text=True, **kw)
 
-                sh('git add -A')
-                status = sh('git status --porcelain')
+                # Get GitHub token via gh CLI (avoids interactive credential prompts)
+                tok = run('/opt/homebrew/bin/gh', 'auth', 'token', timeout=5)
+                if tok.returncode != 0 or not tok.stdout.strip():
+                    raise Exception('Could not get GitHub token — is gh CLI logged in?')
+                token = tok.stdout.strip()
+
+                # Stage & commit
+                run('git', 'add', '-A')
+                status = run('git', 'status', '--porcelain')
                 if status.stdout.strip():
-                    sh("git commit -m 'Update photos and layout via editor'")
-                push = sh('GIT_TERMINAL_PROMPT=0 git push', timeout=30)
+                    run('git', 'commit', '-m', 'Update photos and layout via editor')
+
+                # Push using token in URL — no credential helper needed
+                remote = run('git', 'remote', 'get-url', 'origin').stdout.strip()
+                # Insert token: https://github.com/... → https://token@github.com/...
+                auth_remote = remote.replace('https://', f'https://yoshino1590012:{token}@')
+                push = run('git', 'push', auth_remote, timeout=30)
+
                 if push.returncode == 0:
                     self._ok(b'{"ok":true}')
                     print('[git-push] pushed successfully')
                 else:
                     raise Exception(push.stderr or push.stdout)
             except subprocess.TimeoutExpired:
-                self._err(Exception('git push timeout — check internet connection'))
+                self._err(Exception('git push timeout'))
             except Exception as e:
                 self._err(e)
 
