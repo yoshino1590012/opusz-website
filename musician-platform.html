@@ -4682,26 +4682,21 @@ var _inIframe = (window.self !== window.top);
     pe.style.display = (pe.style.display==='flex') ? 'none' : 'flex';
   }
   // Admin auth guard — password stored in sessionStorage
-  var ADMIN_PWD = 'opusz2024admin';
-  function checkAdminAuth(cb){
-    if(sessionStorage.getItem('opusz-admin')==='1'){ cb(); return; }
-    var pwd=prompt('Admin password:');
-    if(pwd===ADMIN_PWD){ sessionStorage.setItem('opusz-admin','1'); cb(); }
-    else if(pwd!==null){ alert('Incorrect password.'); }
-  }
+  // localhost = admin, public domain = completely locked
+  var isLocal = (location.hostname==='localhost'||location.hostname==='127.0.0.1');
 
-  // P key — requires admin auth
+  // P key — localhost only, no password needed
   document.addEventListener('keydown', function(e){
+    if(!isLocal) return; // public domain: P key does nothing
     if(e.metaKey||e.ctrlKey||e.altKey) return;
     if(e.key==='p'||e.key==='P'){
       var t=e.target;
       if(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable) return;
       e.preventDefault();
-      checkAdminAuth(openPE);
+      openPE();
     }
   }, true);
-  // Floating 📷 button — localhost only
-  var isLocal = (location.hostname==='localhost'||location.hostname==='127.0.0.1');
+  // Floating 📷 button — localhost only, no password needed
   if(isLocal){
     var btn=document.createElement('button');
     btn.title='Photo Editor  (P)';
@@ -4709,7 +4704,7 @@ var _inIframe = (window.self !== window.top);
     btn.style.cssText='position:fixed;bottom:28px;left:28px;z-index:99998;width:48px;height:48px;border-radius:50%;border:none;background:rgba(0,0,0,0.72);color:#fff;font-size:22px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.45);transition:transform .15s,opacity .15s;';
     btn.onmouseenter=function(){this.style.transform='scale(1.13)';};
     btn.onmouseleave=function(){this.style.transform='scale(1)';};
-    btn.onclick=function(){ checkAdminAuth(openPE); };
+    btn.onclick=function(){ openPE(); };
     document.body.appendChild(btn);
   }
 })();
