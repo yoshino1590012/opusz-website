@@ -158,37 +158,28 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
         # ── /git-push ──────────────────────────────────────────────────────────
         elif self.path == '/git-push':
-            try:
-                def run(*cmd, **kw):
-                    return subprocess.run(list(cmd), cwd=BASE, capture_output=True, text=True, **kw)
-
-                # Get GitHub token via gh CLI (avoids interactive credential prompts)
-                tok = run('/opt/homebrew/bin/gh', 'auth', 'token', timeout=5)
-                if tok.returncode != 0 or not tok.stdout.strip():
-                    raise Exception('Could not get GitHub token — is gh CLI logged in?')
-                token = tok.stdout.strip()
-
-                # Stage & commit
-                run('git', 'add', '-A')
-                status = run('git', 'status', '--porcelain')
-                if status.stdout.strip():
-                    run('git', 'commit', '-m', 'Update photos and layout via editor')
-
-                # Push using token in URL — no credential helper needed
-                remote = run('git', 'remote', 'get-url', 'origin').stdout.strip()
-                # Insert token: https://github.com/... → https://token@github.com/...
-                auth_remote = remote.replace('https://', f'https://yoshino1590012:{token}@')
-                push = run('git', 'push', auth_remote, timeout=30)
-
-                if push.returncode == 0:
-                    self._ok(b'{"ok":true}')
-                    print('[git-push] pushed successfully')
-                else:
-                    raise Exception(push.stderr or push.stdout)
-            except subprocess.TimeoutExpired:
-                self._err(Exception('git push timeout'))
-            except Exception as e:
-                self._err(e)
+            # Return immediately — run git in background thread
+            self._ok(b'{"ok":true}')
+            def do_push():
+                try:
+                    def run(*cmd, **kw):
+                        return subprocess.run(list(cmd), cwd=BASE, capture_output=True, text=True, **kw)
+                    tok = run('/opt/homebrew/bin/gh', 'auth', 'token', timeout=5)
+                    token = tok.stdout.strip()
+                    run('git', 'add', '-A')
+                    status = run('git', 'status', '--porcelain')
+                    if status.stdout.strip():
+                        run('git', 'commit', '-m', 'Update photos and layout via editor')
+                    remote = run('git', 'remote', 'get-url', 'origin').stdout.strip()
+                    auth_remote = remote.replace('https://', f'https://yoshino1590012:{token}@')
+                    push = run('git', 'push', auth_remote, timeout=60)
+                    if push.returncode == 0:
+                        print('[git-push] pushed successfully')
+                    else:
+                        print('[git-push] error:', push.stderr or push.stdout)
+                except Exception as e:
+                    print(f'[git-push] exception: {e}')
+            threading.Thread(target=do_push, daemon=True).start()
 
         else:
             self.send_response(404); self.end_headers()

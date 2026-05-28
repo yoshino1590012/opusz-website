@@ -67,24 +67,33 @@ nav.mega-open {
   transform: translateY(0);
   margin-top: 2px;
 }
-.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 50%; transform: translateX(-50%); }
+.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 0; right: 0; justify-content: center; pointer-events: none; }
+.nav-links li { pointer-events: all; }
 .nav-links a {
   text-decoration: none; font-size: 15px;
   position: relative; padding: 11px 22px; border-radius: 50px;
   display: inline-flex; align-items: center; justify-content: center;
   line-height: 1; vertical-align: middle; white-space: nowrap;
   z-index: 0;
+  /* ── True per-pixel inversion ── */
   color: #fff;
-  transition: color 0.12s ease;
+  mix-blend-mode: difference;
 }
-/* Mega-menu open: always black text */
+/* Mega-menu open: white bg → reset blend so links read black */
 nav.mega-open .nav-links a {
+  mix-blend-mode: normal;
   color: #000 !important;
 }
-/* Logo text: JS-controlled, smooth transition */
+/* Logo text: per-pixel blend */
 .nav-logo-name,
 .nav-logo-sub {
-  transition: color 0.12s ease;
+  color: #fff;
+  mix-blend-mode: difference;
+}
+nav.mega-open .nav-logo-name,
+nav.mega-open .nav-logo-sub {
+  mix-blend-mode: normal;
+  color: #000 !important;
 }
 
 /* ── Responsive nav ── */
@@ -2952,15 +2961,16 @@ window.addEventListener('resize', () => {
     // Scroll
     currentY += (targetY - currentY) * 0.08;
     window.scrollTo(0, currentY);
-    // Nav
+    // Nav hide/show: animate top (not transform) so nav has no compositing layer
+    // — this lets mix-blend-mode on children blend against real page content
     navCurrent += (navTarget - navCurrent) * 0.1;
-    if (navEl) navEl.style.transform = `translateY(${navCurrent}px)`;
+    if (navEl) navEl.style.top = `${navCurrent}px`;
 
     const scrollDone = Math.abs(targetY - currentY) < 0.3;
     const navDone    = Math.abs(navTarget - navCurrent) < 0.05;
     if (scrollDone && navDone) {
       window.scrollTo(0, targetY); currentY = targetY;
-      if (navEl) navEl.style.transform = `translateY(${navTarget}px)`; navCurrent = navTarget;
+      if (navEl) navEl.style.top = `${navTarget}px`; navCurrent = navTarget;
       rafId = null;
     } else {
       rafId = requestAnimationFrame(tick);
@@ -3202,7 +3212,6 @@ applySvcImg(1);
 
     if (megaOpen) {
       // Reset inline styles — CSS mega-open rules take over
-      nav.querySelectorAll('.nav-links a').forEach(el => { el.style.color = ''; });
       ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(sel => {
         const el = nav.querySelector(sel);
         if (el) { el.style.color = ''; el.style.borderColor = ''; }
@@ -3212,28 +3221,20 @@ applySvcImg(1);
       return;
     }
 
-    // ── Nav links: per-element JS color detection ──
-    nav.querySelectorAll('.nav-links a').forEach(el => {
-      const r  = el.getBoundingClientRect();
-      const cx = r.left + r.width  / 2;
-      const cy = r.top  + r.height / 2;
-      const isDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, el) < 0.5;
-      el.style.color = isDark ? '#fff' : '#000';
+    // ── Nav links & logo text: CSS mix-blend-mode:difference handles per-pixel color.
+    //    No inline color needed — clear any stale style that might have been set.
+    nav.querySelectorAll('.nav-links a, .nav-logo-name, .nav-logo-sub').forEach(el => {
+      el.style.color = '';
     });
 
-    // ── Nav-logo: color + nav-on-dark/light class (drives hover-bubble glass style)
-    let navCenterDark = true; // default dark (hero is dark at top)
+    // ── nav-on-dark/light class: drives the hover-bubble glass style ──
+    let navCenterDark = true;
     const logoEl = nav.querySelector('.nav-logo');
     if (logoEl) {
       const r  = logoEl.getBoundingClientRect();
       const cx = r.left + r.width  / 2;
       const cy = r.top  + r.height / 2;
       navCenterDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, logoEl) < 0.5;
-      const logoFg = navCenterDark ? '#fff' : '#000';
-      const logoName = logoEl.querySelector('.nav-logo-name');
-      const logoSub  = logoEl.querySelector('.nav-logo-sub');
-      if (logoName) logoName.style.color = logoFg;
-      if (logoSub)  logoSub.style.color  = logoFg;
     }
     nav.classList.toggle('nav-on-dark',  navCenterDark);
     nav.classList.toggle('nav-on-light', !navCenterDark);
@@ -3397,32 +3398,38 @@ try {
   })();
 
   /* ── Upload ALL in-browser photos to server (converts IDB base64 → real files) ── */
-  async function _syncAllPhotosToServer() {
+  /* onProgress(done, total, cls) called after each upload */
+  async function _syncAllPhotosToServer(onProgress) {
     var allSlots = heroSlots.concat(catSlots).concat(svcSlots).concat(posterSlots);
+    // First pass: collect slots that actually need uploading
+    var toUpload = [];
     for (var i = 0; i < allSlots.length; i++) {
       var cls = allSlots[i].cls;
       var key = IMG_PFX + cls;
-      // Check localStorage first (might already be a path)
       var lsVal = localStorage.getItem(key);
-      if (lsVal && !lsVal.startsWith('data:')) continue; // already a file path — skip
-      // Try IDB for base64
+      if (lsVal && !lsVal.startsWith('data:')) continue; // already a file path
       var idbVal = await IDB_MONO.get(key);
       var dataUrl = idbVal || lsVal;
-      if (!dataUrl || !dataUrl.startsWith('data:')) continue; // no image — skip
-      // Upload to server
+      if (!dataUrl || !dataUrl.startsWith('data:')) continue; // no image
+      toUpload.push({cls, key, dataUrl});
+    }
+    if (onProgress) onProgress(0, toUpload.length, '');
+    for (var j = 0; j < toUpload.length; j++) {
+      var {cls, key, dataUrl} = toUpload[j];
       try {
         var r = await fetch('/upload-file', {
           method: 'POST',
           headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({cls: cls, dataUrl: dataUrl})
+          body: JSON.stringify({cls, dataUrl})
         });
         var d = await r.json();
         if (d.ok && d.path) {
           try { localStorage.setItem(key, d.path); } catch(e) {}
-          console.log('[sync] uploaded', cls, '→', d.path);
         }
-      } catch(e) { /* server not running */ break; }
+      } catch(e) { break; } // server not running
+      if (onProgress) onProgress(j + 1, toUpload.length, cls);
     }
+    return toUpload.length;
   }
 
   /* ── Compress image to ≤1400px JPEG before storing ── */
@@ -4007,37 +4014,61 @@ try {
   });
   document.getElementById('pe-publish').addEventListener('click', async () => {
     var btn = document.getElementById('pe-publish');
-    btn.textContent = '⏳ 發佈中...';
+    // Add a progress bar below the button
+    var bar = document.getElementById('pe-pub-bar');
+    if (!bar) {
+      bar = document.createElement('div');
+      bar.id = 'pe-pub-bar';
+      bar.style.cssText = 'margin-top:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden;';
+      var fill = document.createElement('div');
+      fill.id = 'pe-pub-fill';
+      fill.style.cssText = 'height:100%;width:0%;background:#2ea44f;transition:width .3s;border-radius:3px;';
+      bar.appendChild(fill);
+      btn.parentNode.insertBefore(bar, btn.nextSibling);
+    }
+    var fill = document.getElementById('pe-pub-fill');
+    function setProgress(pct, label) {
+      fill.style.width = pct + '%';
+      btn.textContent = label;
+    }
+
     btn.disabled = true;
+    setProgress(0, '⏳ 準備中...');
     try {
-      // 1. Upload any in-browser base64 photos to server as real files
-      btn.textContent = '⏳ 同步照片...';
-      await _syncAllPhotosToServer();
-      // 2. Save positions to localStorage immediately
-      btn.textContent = '⏳ 儲存設定...';
+      // Step 1: upload base64 photos to server as real files (with progress)
+      var count = await _syncAllPhotosToServer(function(done, total, cls) {
+        if (total === 0) { setProgress(30, '⏳ 儲存設定...'); return; }
+        var pct = Math.round((done / total) * 60);
+        setProgress(pct, total > 0 ? `⏳ 上傳照片 ${done}/${total}` : '⏳ 上傳照片...');
+      });
+
+      // Step 2: save positions + sync config
+      setProgress(65, '⏳ 儲存設定...');
       savePhotoPos(true);
-      // 3. Sync config (images + positions) to server and wait (max 5s)
-      await Promise.race([
-        _syncConfigToServer(),
-        new Promise(r => setTimeout(r, 5000))
-      ]);
-      // 4. Git push with 40s timeout
-      btn.textContent = '⏳ 發佈中...';
-      var controller = new AbortController();
-      var timer = setTimeout(() => controller.abort(), 40000);
-      var r = await fetch('/git-push', { method: 'POST', signal: controller.signal });
-      clearTimeout(timer);
-      var d = await r.json();
-      if (d.ok) {
-        showToast('🚀 已發佈！約30秒後網站更新');
-      } else {
-        showToast('⚠️ 發佈失敗：' + (d.error || ''));
-      }
+      await Promise.race([_syncConfigToServer(), new Promise(r => setTimeout(r, 5000))]);
+
+      // Step 3: trigger git push — fire and forget (don't wait, return immediately)
+      setProgress(80, '⏳ 發佈中...');
+      fetch('/git-push', { method: 'POST' })
+        .then(r => r.json())
+        .then(d => { if (!d.ok) console.warn('[git-push]', d.error); })
+        .catch(() => {});
+
+      // Wait a moment for push to start, then show success
+      await new Promise(r => setTimeout(r, 1500));
+      setProgress(100, '✅ 已送出！');
+      showToast('🚀 已發佈！約30秒後網站更新');
+      setTimeout(() => {
+        btn.textContent = '🚀 發佈到網站';
+        fill.style.width = '0%';
+        btn.disabled = false;
+      }, 2500);
+      return; // skip the finally reset below
     } catch(e) {
-      if (e.name === 'AbortError') showToast('⚠️ 發佈逾時，請再試一次');
-      else showToast('⚠️ 無法連線到本地伺服器');
+      showToast('⚠️ 無法連線到本地伺服器');
     }
     btn.textContent = '🚀 發佈到網站';
+    fill.style.width = '0%';
     btn.disabled = false;
   });
   document.getElementById('pe-reset').addEventListener('click',()=>{
