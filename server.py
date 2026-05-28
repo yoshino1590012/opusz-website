@@ -159,18 +159,19 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         # ── /git-push ──────────────────────────────────────────────────────────
         elif self.path == '/git-push':
             try:
-                import os as _os
-                # Inherit full shell environment so gh/credential helpers work
-                git_env = _os.environ.copy()
-                git_env['GIT_TERMINAL_PROMPT'] = '0'  # never hang waiting for password
-                # Ensure Homebrew binaries (gh) are on PATH
-                git_env['PATH'] = '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:' + git_env.get('PATH','')
+                import os as _os, shlex
+                # Run everything through a bash login shell so ~/.zshrc / gh are available
+                def sh(cmd, **kw):
+                    return subprocess.run(
+                        ['/bin/bash', '-lc', cmd],
+                        cwd=BASE, capture_output=True, text=True, **kw
+                    )
 
-                subprocess.run(['git', 'add', '-A'], cwd=BASE, capture_output=True, text=True, env=git_env)
-                status = subprocess.run(['git', 'status', '--porcelain'], cwd=BASE, capture_output=True, text=True, env=git_env)
+                sh('git add -A')
+                status = sh('git status --porcelain')
                 if status.stdout.strip():
-                    subprocess.run(['git', 'commit', '-m', 'Update photos and layout via editor'], cwd=BASE, capture_output=True, text=True, env=git_env)
-                push = subprocess.run(['git', 'push'], cwd=BASE, capture_output=True, text=True, timeout=30, env=git_env)
+                    sh("git commit -m 'Update photos and layout via editor'")
+                push = sh('GIT_TERMINAL_PROMPT=0 git push', timeout=30)
                 if push.returncode == 0:
                     self._ok(b'{"ok":true}')
                     print('[git-push] pushed successfully')
