@@ -1,5 +1,16 @@
 {
-  "images": {},
+  "images": {
+    "p1": "assets/images/p1.jpg",
+    "cat-strings": "assets/images/cat-strings.jpg",
+    "cat-piano": "assets/images/cat-piano.jpg",
+    "cat-winds": "assets/images/cat-winds.jpg",
+    "cat-compose": "assets/images/cat-compose.jpg",
+    "cat-chamber": "assets/images/cat-chamber.jpg",
+    "cat-perc": "assets/images/cat-perc.jpg",
+    "wc1": "assets/images/wc1.jpg",
+    "wc2": "assets/images/wc2.jpg",
+    "wc3": "assets/images/wc3.jpg"
+  },
   "positions": {
     "hero": {
       "p1": {
