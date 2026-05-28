@@ -3452,28 +3452,19 @@ try {
      base64 → IndexedDB (unlimited)
      URL/path → localStorage (fast, small)  */
   async function saveImgSlot(cls, dataUrl) {
-    try {
-      if (dataUrl && dataUrl.startsWith('data:')) {
-        // Large base64 → IDB, clear any stale localStorage entry
-        await IDB_MONO.set(IMG_PFX + cls, dataUrl);
-        try { localStorage.removeItem(IMG_PFX + cls); } catch(e) {}
-      } else {
-        // URL string or empty → localStorage
-        try {
-          if (dataUrl) localStorage.setItem(IMG_PFX + cls, dataUrl);
-          else { localStorage.removeItem(IMG_PFX + cls); await IDB_MONO.set(IMG_PFX + cls, null); }
-        } catch(e) {}
-      }
-      _uploadToServer(cls, dataUrl);
+    if (!dataUrl) {
+      // Clearing a slot
+      try { localStorage.removeItem(IMG_PFX + cls); } catch(e) {}
+      await IDB_MONO.set(IMG_PFX + cls, null);
       return true;
-    } catch(e) {
-      showToast('⚠️ 儲存失敗：' + e.message);
-      return false;
     }
-  }
-
-  /* ── Upload photo to server → save as real file ── */
-  async function _uploadToServer(cls, dataUrl) {
+    if (!dataUrl.startsWith('data:')) {
+      // Already a file path — just store
+      try { localStorage.setItem(IMG_PFX + cls, dataUrl); } catch(e) {}
+      return true;
+    }
+    // base64 image — upload to server immediately
+    showToast('⏳ 正在儲存照片...');
     try {
       var r = await fetch('/upload-file', {
         method: 'POST',
@@ -3482,12 +3473,22 @@ try {
       });
       var d = await r.json();
       if (d.ok && d.path) {
-        // Replace the heavy base64 in localStorage with a lightweight file path
         try { localStorage.setItem(IMG_PFX + cls, d.path); } catch(e) {}
+        // Clear stale IDB entry
+        await IDB_MONO.set(IMG_PFX + cls, null);
         _syncConfigToServer();
+        showToast('✅ 照片已儲存！');
+        return true;
       }
-    } catch(e) { /* server might not be running — silently ignore */ }
+      throw new Error(d.error || 'upload failed');
+    } catch(e) {
+      showToast('⚠️ 伺服器未啟動 — 請先雙擊「啟動OPUSZ編輯器.command」');
+      return false;
+    }
   }
+
+  /* ── _uploadToServer kept for backward compat but no longer used directly ── */
+  async function _uploadToServer(cls, dataUrl) { await saveImgSlot(cls, dataUrl); }
 
   /* ── Sync full layout config to server ── */
   /* Returns a Promise that resolves when the save is confirmed (or fails silently) */
@@ -3970,6 +3971,7 @@ try {
       <button id="pe-save"  style="width:100%;padding:9px;border:none;border-radius:8px;background:#fff;color:#000;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:.02em;">💾 儲存設定</button>
       <button id="pe-publish" style="margin-top:7px;width:100%;padding:9px;border:none;border-radius:8px;background:#2ea44f;color:#fff;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:.02em;">🚀 發佈到網站</button>
       <button id="pe-reset" style="margin-top:7px;width:100%;padding:7px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:rgba(255,255,255,.4);font-size:11px;cursor:pointer;">重置此分頁</button>
+      <button id="pe-clear-idb" style="margin-top:4px;width:100%;padding:7px;border:1px solid rgba(255,80,80,.3);border-radius:8px;background:transparent;color:rgba(255,100,100,.6);font-size:10px;cursor:pointer;">🗑 清除所有舊快取</button>
     </div>
   `;
   document.body.appendChild(panel);
@@ -4014,61 +4016,19 @@ try {
   });
   document.getElementById('pe-publish').addEventListener('click', async () => {
     var btn = document.getElementById('pe-publish');
-    // Add a progress bar below the button
-    var bar = document.getElementById('pe-pub-bar');
-    if (!bar) {
-      bar = document.createElement('div');
-      bar.id = 'pe-pub-bar';
-      bar.style.cssText = 'margin-top:6px;height:6px;border-radius:3px;background:rgba(255,255,255,.12);overflow:hidden;';
-      var fill = document.createElement('div');
-      fill.id = 'pe-pub-fill';
-      fill.style.cssText = 'height:100%;width:0%;background:#2ea44f;transition:width .3s;border-radius:3px;';
-      bar.appendChild(fill);
-      btn.parentNode.insertBefore(bar, btn.nextSibling);
-    }
-    var fill = document.getElementById('pe-pub-fill');
-    function setProgress(pct, label) {
-      fill.style.width = pct + '%';
-      btn.textContent = label;
-    }
-
+    btn.textContent = '⏳ 發佈中...';
     btn.disabled = true;
-    setProgress(0, '⏳ 準備中...');
     try {
-      // Step 1: upload base64 photos to server as real files (with progress)
-      var count = await _syncAllPhotosToServer(function(done, total, cls) {
-        if (total === 0) { setProgress(30, '⏳ 儲存設定...'); return; }
-        var pct = Math.round((done / total) * 60);
-        setProgress(pct, total > 0 ? `⏳ 上傳照片 ${done}/${total}` : '⏳ 上傳照片...');
-      });
-
-      // Step 2: save positions + sync config
-      setProgress(65, '⏳ 儲存設定...');
+      // Save positions + sync config to site-data.json
       savePhotoPos(true);
-      await Promise.race([_syncConfigToServer(), new Promise(r => setTimeout(r, 5000))]);
-
-      // Step 3: trigger git push — fire and forget (don't wait, return immediately)
-      setProgress(80, '⏳ 發佈中...');
-      fetch('/git-push', { method: 'POST' })
-        .then(r => r.json())
-        .then(d => { if (!d.ok) console.warn('[git-push]', d.error); })
-        .catch(() => {});
-
-      // Wait a moment for push to start, then show success
-      await new Promise(r => setTimeout(r, 1500));
-      setProgress(100, '✅ 已送出！');
+      await Promise.race([_syncConfigToServer(), new Promise(r => setTimeout(r, 4000))]);
+      // Fire git push in background (server returns instantly)
+      fetch('/git-push', { method: 'POST' }).catch(() => {});
       showToast('🚀 已發佈！約30秒後網站更新');
-      setTimeout(() => {
-        btn.textContent = '🚀 發佈到網站';
-        fill.style.width = '0%';
-        btn.disabled = false;
-      }, 2500);
-      return; // skip the finally reset below
     } catch(e) {
       showToast('⚠️ 無法連線到本地伺服器');
     }
     btn.textContent = '🚀 發佈到網站';
-    fill.style.width = '0%';
     btn.disabled = false;
   });
   document.getElementById('pe-reset').addEventListener('click',()=>{
@@ -4080,6 +4040,16 @@ try {
     delete pos[activeTab];
     try { localStorage.setItem(POS_KEY, JSON.stringify(pos)); } catch(e){}
     location.reload();
+  });
+  document.getElementById('pe-clear-idb').addEventListener('click', async () => {
+    if (!confirm('清除所有本地快取照片？\n（已上傳到伺服器的照片不受影響，只清除瀏覽器快取）')) return;
+    var allSlots = heroSlots.concat(catSlots).concat(svcSlots).concat(posterSlots);
+    for (var s of allSlots) {
+      await IDB_MONO.set(IMG_PFX + s.cls, null);
+      localStorage.removeItem(IMG_PFX + s.cls);
+    }
+    showToast('✅ 舊快取已清除');
+    setTimeout(() => location.reload(), 800);
   });
 
   // ── Helper: slot card ──
@@ -4794,7 +4764,7 @@ var _inIframe = (window.self !== window.top);
   }
   // Admin auth guard — password stored in sessionStorage
   // localhost = admin, public domain = completely locked
-  var isLocal = (location.hostname==='localhost'||location.hostname==='127.0.0.1');
+  var isLocal = (location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:');
 
   // P key — localhost only, no password needed
   document.addEventListener('keydown', function(e){
