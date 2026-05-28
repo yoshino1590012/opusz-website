@@ -3333,7 +3333,7 @@ try {
   /* ── On startup: restore from server config if localStorage is empty ── */
   async function _loadFromServerConfig() {
     try {
-      var r = await fetch('/config.json');
+      var r = await fetch('/site-data.json');
       if (!r.ok) return;
       var cfg = await r.json();
       var updated = false;
