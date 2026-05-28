@@ -17,6 +17,10 @@ body{font-family:'Inter','Helvetica Neue',sans-serif;background:#0a0a0a;color:#f
 nav{position:fixed;top:0;left:0;right:0;z-index:300;display:flex;align-items:center;justify-content:space-between;padding:18px 40px;background:rgba(10,10,10,0);}
 .nav-logo{display:flex;align-items:center;gap:10px;font-size:17px;font-weight:700;text-decoration:none;color:#fff;}
 .orb{width:36px;height:36px;background:url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat;border-radius:50%;}
+.nav-logo-text{display:flex;flex-direction:column;overflow:hidden;line-height:1;}
+.nav-logo-name{display:block;}
+.nav-logo-sub{display:block;font-size:17px;font-weight:700;letter-spacing:0;max-height:0;overflow:hidden;opacity:0;transform:translateY(5px);transition:max-height .38s cubic-bezier(.34,1.15,.64,1),opacity .28s ease,transform .38s cubic-bezier(.34,1.15,.64,1),margin-top .38s cubic-bezier(.34,1.15,.64,1);margin-top:0;}
+.nav-logo:hover .nav-logo-sub{max-height:28px;opacity:1;transform:translateY(0);margin-top:2px;}
 .nav-links{display:flex;gap:6px;list-style:none;position:absolute;left:50%;transform:translateX(-50%);}
 .nav-links a{text-decoration:none;color:rgba(255,255,255,.6);font-size:15px;padding:10px 20px;border-radius:50px;border:1px solid transparent;transition:color .15s,border-color .15s;}
 .nav-links a:hover,.nav-links a.active{color:#fff;border-color:rgba(255,255,255,.28);}
@@ -236,7 +240,11 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 <!-- NAV -->
 <nav>
   <a href="musician-platform.html" class="nav-logo">
-    <div class="orb"></div><span>OPUS.Z</span>
+    <div class="orb"></div>
+    <div class="nav-logo-text">
+      <span class="nav-logo-name">OPUS.Z</span>
+      <span class="nav-logo-sub">MUSIC</span>
+    </div>
   </a>
   <ul class="nav-links">
     <li><a href="musician-platform.html">Home</a></li>

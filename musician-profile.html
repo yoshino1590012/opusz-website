@@ -18,7 +18,11 @@ nav{
   display:flex;align-items:center;justify-content:space-between;
   padding:22px 40px;
 }
-.nav-logo{font-size:16px;font-weight:800;text-decoration:none;color:#fff;letter-spacing:-.02em;text-shadow:0 1px 8px rgba(0,0,0,.4);}
+.nav-logo{display:flex;align-items:center;font-size:16px;font-weight:800;text-decoration:none;color:#fff;letter-spacing:-.02em;text-shadow:0 1px 8px rgba(0,0,0,.4);}
+.nav-logo-text{display:flex;flex-direction:column;overflow:hidden;line-height:1;}
+.nav-logo-name{display:block;}
+.nav-logo-sub{display:block;font-size:16px;font-weight:800;letter-spacing:0;max-height:0;overflow:hidden;opacity:0;transform:translateY(5px);transition:max-height .38s cubic-bezier(.34,1.15,.64,1),opacity .28s ease,transform .38s cubic-bezier(.34,1.15,.64,1),margin-top .38s cubic-bezier(.34,1.15,.64,1);margin-top:0;}
+.nav-logo:hover .nav-logo-sub{max-height:28px;opacity:1;transform:translateY(0);margin-top:2px;}
 .nav-back{font-size:13px;font-weight:600;color:#fff;text-decoration:none;opacity:.75;transition:opacity .2s;text-shadow:0 1px 8px rgba(0,0,0,.4);}
 .nav-back:hover{opacity:1;}
 .nav-back::before{content:'← ';}
@@ -631,7 +635,12 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- NAV -->
 <nav>
   <a href="musicians.html" class="nav-back" data-i18n="nav.back">Musicians</a>
-  <a href="musician-platform.html" class="nav-logo">OPUS.Z</a>
+  <a href="musician-platform.html" class="nav-logo">
+    <div class="nav-logo-text">
+      <span class="nav-logo-name">OPUS.Z</span>
+      <span class="nav-logo-sub">MUSIC</span>
+    </div>
+  </a>
   <button class="lang-toggle" id="langToggle" aria-label="Switch language">
     <span class="lt-opt active" data-l="en">EN</span>
     <span class="lt-sep">/</span>
