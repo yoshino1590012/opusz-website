@@ -3396,6 +3396,35 @@ try {
     return { get, set };
   })();
 
+  /* ── Upload ALL in-browser photos to server (converts IDB base64 → real files) ── */
+  async function _syncAllPhotosToServer() {
+    var allSlots = heroSlots.concat(catSlots).concat(svcSlots).concat(posterSlots);
+    for (var i = 0; i < allSlots.length; i++) {
+      var cls = allSlots[i].cls;
+      var key = IMG_PFX + cls;
+      // Check localStorage first (might already be a path)
+      var lsVal = localStorage.getItem(key);
+      if (lsVal && !lsVal.startsWith('data:')) continue; // already a file path — skip
+      // Try IDB for base64
+      var idbVal = await IDB_MONO.get(key);
+      var dataUrl = idbVal || lsVal;
+      if (!dataUrl || !dataUrl.startsWith('data:')) continue; // no image — skip
+      // Upload to server
+      try {
+        var r = await fetch('/upload-file', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({cls: cls, dataUrl: dataUrl})
+        });
+        var d = await r.json();
+        if (d.ok && d.path) {
+          try { localStorage.setItem(key, d.path); } catch(e) {}
+          console.log('[sync] uploaded', cls, '→', d.path);
+        }
+      } catch(e) { /* server not running */ break; }
+    }
+  }
+
   /* ── Compress image to ≤1400px JPEG before storing ── */
   function compressImg(dataUrl, cb) {
     var img = new Image();
@@ -3981,14 +4010,19 @@ try {
     btn.textContent = '⏳ 發佈中...';
     btn.disabled = true;
     try {
-      // 1. Save positions to localStorage immediately
+      // 1. Upload any in-browser base64 photos to server as real files
+      btn.textContent = '⏳ 同步照片...';
+      await _syncAllPhotosToServer();
+      // 2. Save positions to localStorage immediately
+      btn.textContent = '⏳ 儲存設定...';
       savePhotoPos(true);
-      // 2. Sync config to server and wait (max 5s)
+      // 3. Sync config (images + positions) to server and wait (max 5s)
       await Promise.race([
         _syncConfigToServer(),
         new Promise(r => setTimeout(r, 5000))
       ]);
-      // 3. Git push with 40s timeout
+      // 4. Git push with 40s timeout
+      btn.textContent = '⏳ 發佈中...';
       var controller = new AbortController();
       var timer = setTimeout(() => controller.abort(), 40000);
       var r = await fetch('/git-push', { method: 'POST', signal: controller.signal });

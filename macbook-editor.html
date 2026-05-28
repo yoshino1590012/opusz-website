@@ -645,41 +645,45 @@ function generateCss() {
 
   // Visibility
   if (s.hideNavLinks)   lines.push('.nav-links { display: none !important; }');
-  if (s.hideNavRight)   lines.push('.nav-right { display: none !important; }');
+  if (s.hideNavRight)   lines.push('.lang-toggle, .nav-fav-btn, .nav-login-btn { display: none !important; }');
   if (s.hideScrollDown) lines.push('[class*="scroll"], [id*="scroll-down"], .scroll-indicator { display: none !important; }');
   if (s.hideBottomNav)  lines.push('#bottomNav, .bottom-nav { display: none !important; }');
 
-  // Typography
-  if (s.heroTitleSize > 0) lines.push(`.hco-title, .hero-title, .sh-hero-title { font-size: ${s.heroTitleSize}px !important; }`);
-  if (s.heroSubSize > 0)   lines.push(`.hco-desc, .hero-subtitle, .hero-desc { font-size: ${s.heroSubSize}px !important; }`);
-  if (s.bodySize > 0)      lines.push(`p, .body-text, li { font-size: ${s.bodySize}px !important; }`);
-  if (s.btnSize > 0)       lines.push(`.hero-btn-primary, .hero-btn-outline, .hco-btn-pri, .hco-btn-out, button { font-size: ${s.btnSize}px !important; }`);
-  if (s.navLogoSize > 0)   lines.push(`.nav-logo, .nav-logo-name { font-size: ${s.navLogoSize}px !important; }`);
+  // Typography — correct selectors matched to musician-platform.html
+  if (s.heroTitleSize > 0) lines.push(`.hero-big-title .ht-c { font-size: ${s.heroTitleSize}px !important; }`);
+  if (s.heroSubSize > 0)   lines.push(`.hero-tagline { font-size: ${s.heroSubSize}px !important; }`);
+  if (s.bodySize > 0)      lines.push(`p:not(.hero-tagline), li { font-size: ${s.bodySize}px !important; }`);
+  if (s.btnSize > 0)       lines.push(`.hero-btn-primary, .hero-btn-outline, .hco-btn-pri, .hco-btn-out { font-size: ${s.btnSize}px !important; }`);
+  if (s.navLogoSize > 0)   lines.push(`.nav-logo-name { font-size: ${s.navLogoSize}px !important; }`);
   if (s.navLinkSize > 0)   lines.push(`.nav-links a { font-size: ${s.navLinkSize}px !important; }`);
-  if (s.headingSize > 0)   lines.push(`h1, h2, h3, .section-title { font-size: ${s.headingSize}px !important; }`);
+  if (s.headingSize > 0)   lines.push(`h2, h3, .work-title, .categories-title, .services-title { font-size: ${s.headingSize}px !important; }`);
 
   // Spacing
   if (s.navPad > 0)       lines.push(`nav { padding-top: ${s.navPad}px !important; padding-bottom: ${s.navPad}px !important; }`);
   if (s.navPadSide > 0)   lines.push(`nav { padding-left: ${s.navPadSide}px !important; padding-right: ${s.navPadSide}px !important; }`);
-  if (s.heroPadSide > 0)  lines.push(`.hc, .hero-card, .hco { padding-left: ${s.heroPadSide}px !important; padding-right: ${s.heroPadSide}px !important; }`);
+  if (s.heroPadSide > 0)  lines.push(`.hero-right, .hco-left { padding-left: ${s.heroPadSide}px !important; padding-right: ${s.heroPadSide}px !important; }`);
   if (s.btnPadV > 0)      lines.push(`.hero-btn-primary, .hero-btn-outline, .hco-btn-pri, .hco-btn-out { padding-top: ${s.btnPadV}px !important; padding-bottom: ${s.btnPadV}px !important; }`);
-  if (s.sectionGap > 0)   lines.push(`.section, .content > div { padding-top: ${s.sectionGap}px !important; padding-bottom: ${s.sectionGap}px !important; }`);
+  if (s.sectionGap > 0)   lines.push(`.categories, .work, .services, .sv-section, .marquee-section { padding-top: ${s.sectionGap}px !important; padding-bottom: ${s.sectionGap}px !important; }`);
 
   // Overlay
   if (s.heroOverlay > 0) {
     const alpha = (s.heroOverlay / 100).toFixed(2);
-    lines.push(`.sh-hero-overlay, .hero-overlay, .hc::before { background: rgba(0,0,0,${alpha}) !important; }`);
+    lines.push(`.hero::before { background: rgba(0,0,0,${alpha}) !important; }`);
   }
 
-  // Colors
-  lines.push(`.hco-title, .hco-desc, .hco .hero-btn-outline { color: ${s.colorHeroText} !important; }`);
-  lines.push(`.hero-btn-primary, .hco-btn-pri { background: ${s.colorBtn1} !important; color: ${s.colorBtn1Text} !important; }`);
-  lines.push(`body { background-color: ${s.colorBodyBg} !important; }`);
+  // Colors — only inject when changed from defaults
+  const DEF = { heroText:'#ffffff', heroBg:'#000000', btn1:'#000000', btn1Text:'#ffffff', bodyBg:'#f5f5f5' };
+  if (s.colorHeroText !== DEF.heroText)
+    lines.push(`.hero-big-title .ht-c, .hero-tagline, .hero-services li { color: ${s.colorHeroText} !important; }`);
+  if (s.colorBtn1 !== DEF.btn1 || s.colorBtn1Text !== DEF.btn1Text)
+    lines.push(`.hero-btn-primary, .hco-btn-pri { background: ${s.colorBtn1} !important; color: ${s.colorBtn1Text} !important; border-color: ${s.colorBtn1} !important; }`);
+  if (s.colorBodyBg !== DEF.bodyBg)
+    lines.push(`body { background-color: ${s.colorBodyBg} !important; }`);
 
   // Hero photo
   const heroImg = s.heroImgData || s.heroImgUrl;
   if (heroImg) {
-    lines.push(`.hero-photo-bg, .sh-hero-video + *, #photoBg { background-image: url('${heroImg}') !important; background-size: cover !important; background-position: center !important; }`);
+    lines.push(`.hero-photo-inner { background-image: url('${heroImg}') !important; background-size: cover !important; background-position: center !important; }`);
   }
 
   // Custom CSS
@@ -725,10 +729,10 @@ function injectContent() {
         if (el) el.textContent = val;
       });
     }
-    setText(['.hco-title [data-tid="hero-title"]', '.hco-title', '.hero-title'], s.textHeroTitle);
-    setText(['.hco-desc', '.hero-desc', '.hero-subtitle'], s.textHeroDesc);
-    setText(['.hco-btn-pri', '.hero-btn-primary', '[data-i18n="hero.findArtists"]'], s.textBtn1);
-    setText(['.hco-btn-out', '.hero-btn-outline', '[data-i18n="hero.createProject"]'], s.textBtn2);
+    // Hero title is animated characters — skip (would destroy animation)
+    setText(['.hero-tagline[data-tid="hero-tagline"]', '.hero-tagline'], s.textHeroDesc);
+    setText(['.hco-btn-pri', '.hero-btn-primary'], s.textBtn1);
+    setText(['.hco-btn-out', '.hero-btn-outline'], s.textBtn2);
   } catch(e) {}
 }
 
