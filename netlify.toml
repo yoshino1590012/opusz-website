@@ -2,3 +2,8 @@
   publish = "."
   command = ""
   ignore = "exit 0"
+
+[[redirects]]
+  from = "/"
+  to = "/musician-platform.html"
+  status = 200
