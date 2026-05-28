@@ -175,13 +175,15 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     )
                 push = subprocess.run(
                     ['git', 'push'],
-                    cwd=BASE, capture_output=True, text=True
+                    cwd=BASE, capture_output=True, text=True, timeout=30
                 )
                 if push.returncode == 0:
                     self._ok(b'{"ok":true}')
                     print('[git-push] pushed successfully')
                 else:
                     raise Exception(push.stderr or push.stdout)
+            except subprocess.TimeoutExpired:
+                self._err(Exception('git push timeout — check internet connection'))
             except Exception as e:
                 self._err(e)
 
