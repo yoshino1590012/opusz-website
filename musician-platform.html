@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>if('scrollRestoration'in history)history.scrollRestoration='manual';window.scrollTo(0,0);</script>
 <title>OPUS.Z</title>
@@ -1585,7 +1586,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 </div>
 
 <!-- NAV -->
-<nav>
+<nav class="nav-on-light">
   <a href="#home" class="nav-logo">
     <div class="orb"></div>
     <div class="nav-logo-text">
@@ -3117,27 +3118,40 @@ applySvcImg(1);
     return 0.299 * r + 0.587 * g + 0.114 * b;
   }
 
-  function _bgBehindNav() {
-    // Sample point: horizontal centre, vertical mid of nav bar
-    const x = window.innerWidth / 2;
-    const y = nav.offsetHeight / 2;
+  // Returns true if a CSS background colour string is visually solid (alpha ≥ 0.5)
+  function _isSolid(bc) {
+    if (!bc || bc === 'rgba(0, 0, 0, 0)' || bc === 'transparent') return false;
+    const m = bc.match(/\d+(?:\.\d+)?/g);
+    if (!m) return false;
+    const alpha = m.length >= 4 ? +m[3] : 1;
+    return alpha >= 0.5;
+  }
 
-    // elementsFromPoint goes front→back; skip anything inside nav
-    const els = document.elementsFromPoint(x, y);
-    for (const el of els) {
-      if (nav.contains(el) || el === nav) continue;
-      // Walk up the DOM to find a non-transparent background
-      let cur = el;
-      while (cur && cur !== document.documentElement) {
-        const bc = getComputedStyle(cur).backgroundColor;
-        if (bc && bc !== 'rgba(0, 0, 0, 0)' && bc !== 'transparent') {
-          return _luminance(bc);
+  function _bgBehindNav() {
+    // Sample TWO points: nav vertical centre + just below the nav bar.
+    // This makes the detection track what the user actually sees both
+    // *at* the nav strip and immediately below it.
+    const navH = nav.offsetHeight;
+    const samplePoints = [
+      { x: window.innerWidth / 2, y: navH / 2 },       // centre of nav bar
+      { x: window.innerWidth / 2, y: navH + 10 },       // just below nav bar
+    ];
+
+    for (const { x, y } of samplePoints) {
+      const els = document.elementsFromPoint(x, y);
+      for (const el of els) {
+        if (nav.contains(el) || el === nav) continue;
+        // Walk up the DOM to find a visually solid (alpha ≥ 0.5) background
+        let cur = el;
+        while (cur && cur !== document.documentElement) {
+          const bc = getComputedStyle(cur).backgroundColor;
+          if (_isSolid(bc)) return _luminance(bc);
+          cur = cur.parentElement;
         }
-        cur = cur.parentElement;
+        break; // first non-nav element had no solid bg — try next sample point
       }
-      break; // if top non-nav element has no bg, stop
     }
-    // Fallback: check body bg
+    // Fallback: body background
     return _luminance(getComputedStyle(document.body).backgroundColor);
   }
 
