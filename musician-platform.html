@@ -69,11 +69,30 @@ nav.mega-open {
 }
 .nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 50%; transform: translateX(-50%); }
 .nav-links a {
-  text-decoration: none; color: var(--nav-fg); font-size: 15px;
+  text-decoration: none; font-size: 15px;
   position: relative; padding: 11px 22px; border-radius: 50px;
   display: inline-flex; align-items: center; justify-content: center;
   line-height: 1; vertical-align: middle; white-space: nowrap;
   z-index: 0;
+  /* ── Per-pixel auto-contrast: GPU composites this against every pixel below ── */
+  color: #fff;
+  mix-blend-mode: difference;
+}
+/* Mega-menu open: reset to normal (white bg, black text) */
+nav.mega-open .nav-links a {
+  mix-blend-mode: normal;
+  color: #000 !important;
+}
+/* Logo text: same per-pixel blend */
+.nav-logo-name,
+.nav-logo-sub {
+  color: #fff;
+  mix-blend-mode: difference;
+}
+nav.mega-open .nav-logo-name,
+nav.mega-open .nav-logo-sub {
+  mix-blend-mode: normal;
+  color: #000 !important;
 }
 
 /* ── Responsive nav ── */
@@ -3190,37 +3209,55 @@ applySvcImg(1);
     const megaOpen = nav.classList.contains('mega-open');
 
     if (megaOpen) {
-      // Reset inline styles so CSS (--nav-fg:#000 in mega-open) takes over
-      _navItems().forEach(el => { el.style.color = ''; el.style.borderColor = ''; });
+      // Reset inline styles — CSS mega-open rules take over
+      nav.querySelectorAll('.nav-links a').forEach(el => { el.style.color = ''; });
+      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(sel => {
+        const el = nav.querySelector(sel);
+        if (el) { el.style.color = ''; el.style.borderColor = ''; }
+      });
       nav.querySelectorAll('.hamburger span').forEach(s => s.style.background = '');
       nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
       return;
     }
 
-    let navCenterDark = false;
+    // ── Nav links: mix-blend-mode:difference handles color per pixel — no JS needed.
+    //    Just ensure no stale inline color is left from a previous mega-open state.
+    nav.querySelectorAll('.nav-links a').forEach(el => { el.style.color = ''; });
 
-    _navItems().forEach(el => {
-      const r = el.getBoundingClientRect();
-      const cx = r.left + r.width / 2;
+    // ── Nav-logo: derive nav-on-dark/light class (drives hover-bubble glass style)
+    let navCenterDark = true; // default dark (hero is dark at top)
+    const logoEl = nav.querySelector('.nav-logo');
+    if (logoEl) {
+      const r  = logoEl.getBoundingClientRect();
+      const cx = r.left + r.width  / 2;
       const cy = r.top  + r.height / 2;
-
-      const isDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, el) < 0.5;
-      const fg = isDark ? '#fff' : '#000';
-
-      el.style.color = fg;
-      if (el.classList.contains('nav-login-btn')) el.style.borderColor = fg;
-
-      // Hamburger lines follow the hamburger button's reading
-      if (el.classList.contains('hamburger')) {
-        el.querySelectorAll('span').forEach(s => s.style.background = fg);
-      }
-
-      // Use nav-center item to drive the hover-bubble CSS class
-      if (el.classList.contains('nav-logo')) navCenterDark = isDark;
-    });
-
+      navCenterDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, logoEl) < 0.5;
+      // Logo text color is also handled by mix-blend-mode; clear any stale inline style
+      logoEl.style.color = '';
+    }
     nav.classList.toggle('nav-on-dark',  navCenterDark);
     nav.classList.toggle('nav-on-light', !navCenterDark);
+
+    // ── Elements that CAN'T use blend mode: set color via JS as before ──
+    const extras = [
+      { sel: '.nav-fav-btn',    border: false },
+      { sel: '.lang-toggle',    border: false },
+      { sel: '.nav-login-btn',  border: true  },
+      { sel: '.hamburger',      border: false },
+    ];
+    extras.forEach(({ sel, border }) => {
+      const el = nav.querySelector(sel);
+      if (!el) return;
+      const r  = el.getBoundingClientRect();
+      const cx = r.left + r.width  / 2;
+      const cy = r.top  + r.height / 2;
+      const isDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, el) < 0.5;
+      const fg = isDark ? '#fff' : '#000';
+      el.style.color = fg;
+      if (border) el.style.borderColor = isDark ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.35)';
+      if (el.classList.contains('hamburger'))
+        el.querySelectorAll('span').forEach(s => s.style.background = fg);
+    });
   }
 
   // Throttle: canvas getImageData is expensive; run at most every 40ms

@@ -22,9 +22,11 @@ nav{position:fixed;top:0;left:0;right:0;z-index:300;display:flex;align-items:cen
 .nav-logo-sub{display:block;font-size:17px;font-weight:700;letter-spacing:0;max-height:0;overflow:hidden;opacity:0;transform:translateY(5px);transition:max-height .38s cubic-bezier(.34,1.15,.64,1),opacity .28s ease,transform .38s cubic-bezier(.34,1.15,.64,1),margin-top .38s cubic-bezier(.34,1.15,.64,1);margin-top:0;}
 .nav-logo:hover .nav-logo-sub{max-height:28px;opacity:1;transform:translateY(0);margin-top:2px;}
 .nav-links{display:flex;gap:6px;list-style:none;position:absolute;left:50%;transform:translateX(-50%);}
-.nav-links a{text-decoration:none;color:rgba(255,255,255,.6);font-size:15px;padding:10px 20px;border-radius:50px;border:1px solid transparent;transition:color .15s,border-color .15s;}
-.nav-links a:hover,.nav-links a.active{color:#fff;border-color:rgba(255,255,255,.28);}
+.nav-links a{text-decoration:none;font-size:15px;padding:10px 20px;border-radius:50px;border:1px solid transparent;transition:border-color .15s;
+  color:#fff;mix-blend-mode:difference;}
+.nav-links a:hover,.nav-links a.active{border-color:rgba(255,255,255,.28);}
 .nav-links a.active{background:none;}
+.nav-logo-name,.nav-logo-sub{color:#fff;mix-blend-mode:difference;}
 .nav-right{display:flex;align-items:center;gap:12px;}
 .nav-login-btn{padding:9px 20px;border-radius:50px;border:1px solid rgba(255,255,255,.2);background:none;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;transition:border-color .15s;}
 .nav-login-btn:hover{border-color:rgba(255,255,255,.5);}

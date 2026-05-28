@@ -159,24 +159,18 @@ class Handler(http.server.SimpleHTTPRequestHandler):
         # ── /git-push ──────────────────────────────────────────────────────────
         elif self.path == '/git-push':
             try:
-                result = subprocess.run(
-                    ['git', 'add', '-A'],
-                    cwd=BASE, capture_output=True, text=True
-                )
-                # Check if there's anything to commit
-                status = subprocess.run(
-                    ['git', 'status', '--porcelain'],
-                    cwd=BASE, capture_output=True, text=True
-                )
+                import os as _os
+                # Inherit full shell environment so gh/credential helpers work
+                git_env = _os.environ.copy()
+                git_env['GIT_TERMINAL_PROMPT'] = '0'  # never hang waiting for password
+                # Ensure Homebrew binaries (gh) are on PATH
+                git_env['PATH'] = '/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:' + git_env.get('PATH','')
+
+                subprocess.run(['git', 'add', '-A'], cwd=BASE, capture_output=True, text=True, env=git_env)
+                status = subprocess.run(['git', 'status', '--porcelain'], cwd=BASE, capture_output=True, text=True, env=git_env)
                 if status.stdout.strip():
-                    subprocess.run(
-                        ['git', 'commit', '-m', 'Update photos and layout via editor'],
-                        cwd=BASE, capture_output=True, text=True
-                    )
-                push = subprocess.run(
-                    ['git', 'push'],
-                    cwd=BASE, capture_output=True, text=True, timeout=30
-                )
+                    subprocess.run(['git', 'commit', '-m', 'Update photos and layout via editor'], cwd=BASE, capture_output=True, text=True, env=git_env)
+                push = subprocess.run(['git', 'push'], cwd=BASE, capture_output=True, text=True, timeout=30, env=git_env)
                 if push.returncode == 0:
                     self._ok(b'{"ok":true}')
                     print('[git-push] pushed successfully')
