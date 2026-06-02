@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — OPUS.Z</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #0f0f0f;
+      --surface:  #1a1a1a;
+      --border:   rgba(255,255,255,0.08);
+      --text:     #e8e8e8;
+      --muted:    #777;
+      --white:    #fff;
+      --accent:   #fff;
+      --green:    #22c55e;
+      --red:      #ef4444;
+      --pending:  #f59e0b;
+      --font:     'DM Sans', system-ui, sans-serif;
+      --sidebar-w: 220px;
+    }
+    html, body { height: 100%; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+    button { font-family: var(--font); }
+
+    /* ════════════════════════════════════════════════════════
+       PASSWORD GATE
+    ════════════════════════════════════════════════════════ */
+    #authGate {
+      display: none; /* shown by JS if not authenticated */
+      position: fixed; inset: 0; background: var(--bg);
+      flex-direction: column; align-items: center; justify-content: center;
+      z-index: 999;
+    }
+    #authGate.visible { display: flex; }
+    .auth-logo {
+      font-size: 22px; font-weight: 800; letter-spacing: .05em;
+      color: var(--white); margin-bottom: 48px;
+    }
+    .auth-box {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 36px 40px; width: 100%; max-width: 360px;
+    }
+    .auth-title {
+      font-size: 18px; font-weight: 700; color: var(--white); margin-bottom: 6px;
+    }
+    .auth-sub {
+      font-size: 13px; color: var(--muted); margin-bottom: 28px;
+    }
+    .auth-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px; display: block;
+    }
+    .auth-input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 12px 14px; font-size: 15px; color: var(--white);
+      font-family: inherit; outline: none; transition: border-color .15s;
+    }
+    .auth-input:focus { border-color: rgba(255,255,255,.3); }
+    .auth-btn {
+      width: 100%; margin-top: 20px;
+      background: var(--white); color: #000;
+      border: none; border-radius: 6px; padding: 13px;
+      font-size: 15px; font-weight: 700; font-family: inherit;
+      cursor: pointer; transition: opacity .15s;
+    }
+    .auth-btn:hover { opacity: .85; }
+    .auth-error {
+      font-size: 12px; color: var(--red); margin-top: 10px; display: none;
+    }
+    .auth-error.visible { display: block; }
+
+    /* ════════════════════════════════════════════════════════
+       ADMIN LAYOUT
+    ════════════════════════════════════════════════════════ */
+    #adminApp { display: none; height: 100vh; flex-direction: column; }
+    #adminApp.visible { display: flex; }
+
+    /* ── Top bar ── */
+    .admin-topbar {
+      height: 56px; background: var(--surface); border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; padding: 0 24px;
+      flex-shrink: 0;
+    }
+    .admin-topbar-logo { font-size: 16px; font-weight: 800; color: var(--white); letter-spacing: .05em; }
+    .admin-topbar-sep { flex: 1; }
+    .admin-logout-btn {
+      font-size: 12px; color: var(--muted); background: none; border: none;
+      cursor: pointer; font-family: inherit; transition: color .15s;
+    }
+    .admin-logout-btn:hover { color: var(--text); }
+
+    /* ── Body (sidebar + main) ── */
+    .admin-body { display: flex; flex: 1; overflow: hidden; }
+
+    /* ── Sidebar ── */
+    .admin-sidebar {
+      width: var(--sidebar-w); background: var(--surface);
+      border-right: 1px solid var(--border); padding: 24px 0;
+      flex-shrink: 0; display: flex; flex-direction: column; gap: 2px;
+    }
+    .admin-sidebar-section {
+      font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--muted); padding: 14px 20px 6px;
+    }
+    .sidebar-link {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 20px; font-size: 14px; font-weight: 500; color: var(--muted);
+      cursor: pointer; border-left: 2px solid transparent; transition: all .12s;
+      background: none; border-top: none; border-bottom: none; border-right: none;
+      width: 100%; text-align: left; font-family: inherit;
+    }
+    .sidebar-link:hover { color: var(--text); background: rgba(255,255,255,.04); }
+    .sidebar-link.active {
+      color: var(--white); border-left-color: var(--white);
+      background: rgba(255,255,255,.05);
+    }
+    .sidebar-link .sl-icon { font-size: 16px; width: 20px; text-align: center; }
+
+    /* ── Main content ── */
+    .admin-main { flex: 1; overflow-y: auto; padding: 32px; }
+
+    /* ── Page title ── */
+    .page-title {
+      font-size: 24px; font-weight: 700; color: var(--white); margin-bottom: 24px;
+    }
+
+    /* ── Filter tabs ── */
+    .filter-tabs {
+      display: flex; gap: 4px; margin-bottom: 20px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: 8px; padding: 4px; width: fit-content;
+    }
+    .tab-btn {
+      padding: 7px 16px; border-radius: 6px; border: none; cursor: pointer;
+      font-size: 13px; font-weight: 500; font-family: inherit;
+      color: var(--muted); background: none; transition: all .12s;
+      display: flex; align-items: center; gap: 6px;
+    }
+    .tab-btn:hover { color: var(--text); background: rgba(255,255,255,.05); }
+    .tab-btn.active { background: rgba(255,255,255,.1); color: var(--white); }
+    .tab-count {
+      font-size: 11px; background: rgba(255,255,255,.12); border-radius: 50px;
+      padding: 1px 7px; font-weight: 700;
+    }
+    .tab-btn.active .tab-count { background: rgba(255,255,255,.2); }
+
+    /* ── Applications table ── */
+    .apps-table-wrap { overflow-x: auto; }
+    .apps-table {
+      width: 100%; border-collapse: collapse; font-size: 13px;
+    }
+    .apps-table th {
+      text-align: left; padding: 10px 14px;
+      font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+      color: var(--muted); border-bottom: 1px solid var(--border);
+    }
+    .apps-table td {
+      padding: 14px 14px; border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+    .apps-table tr:last-child td { border-bottom: none; }
+    .apps-table tbody tr {
+      cursor: pointer; transition: background .12s;
+    }
+    .apps-table tbody tr:hover { background: rgba(255,255,255,.03); }
+    .apps-table tbody tr.selected { background: rgba(255,255,255,.06); }
+
+    /* status badge */
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 700;
+    }
+    .status-badge::before {
+      content: ''; display: block; width: 6px; height: 6px; border-radius: 50%;
+    }
+    .status-badge.pending  { background: rgba(245,158,11,.12); color: #f59e0b; }
+    .status-badge.pending::before { background: #f59e0b; }
+    .status-badge.approved { background: rgba(34,197,94,.12); color: #22c55e; }
+    .status-badge.approved::before { background: #22c55e; }
+    .status-badge.rejected { background: rgba(239,68,68,.12); color: #ef4444; }
+    .status-badge.rejected::before { background: #ef4444; }
+
+    .no-apps { padding: 60px 20px; text-align: center; color: var(--muted); font-size: 14px; }
+
+    /* ── Detail panel ── */
+    #detailPanel {
+      display: none; position: fixed;
+      top: 56px; right: 0; bottom: 0; width: 520px;
+      background: var(--surface); border-left: 1px solid var(--border);
+      overflow-y: auto; z-index: 100;
+      transform: translateX(100%); transition: transform .3s cubic-bezier(0.22,1,0.36,1);
+    }
+    #detailPanel.visible {
+      display: block; transform: translateX(0);
+    }
+    .dp-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 24px 16px; border-bottom: 1px solid var(--border); position: sticky; top: 0;
+      background: var(--surface); z-index: 1;
+    }
+    .dp-header h3 { font-size: 16px; font-weight: 700; color: var(--white); }
+    .dp-close {
+      background: none; border: none; cursor: pointer; color: var(--muted);
+      font-size: 20px; padding: 4px 8px; transition: color .12s;
+    }
+    .dp-close:hover { color: var(--text); }
+    .dp-body { padding: 20px 24px 40px; }
+
+    /* Banner in panel */
+    .dp-banner {
+      width: 100%; height: 160px; object-fit: cover;
+      border-radius: 8px; margin-bottom: 20px; display: block;
+      background: var(--bg);
+    }
+    .dp-banner-placeholder {
+      width: 100%; height: 120px; background: var(--bg);
+      border-radius: 8px; margin-bottom: 20px;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--muted); font-size: 12px; letter-spacing: .1em; text-transform: uppercase;
+    }
+
+    /* Info rows */
+    .dp-section-title {
+      font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px; margin-top: 20px;
+    }
+    .dp-field { margin-bottom: 14px; }
+    .dp-field-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 3px;
+    }
+    .dp-field-val { font-size: 14px; color: var(--text); line-height: 1.5; }
+
+    .dp-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    .dp-tag {
+      display: inline-flex; padding: 4px 11px; border-radius: 50px;
+      border: 1px solid var(--border); font-size: 12px; color: var(--text);
+    }
+
+    /* Media thumbs in panel */
+    .dp-media-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px;
+    }
+    .dp-media-item {
+      aspect-ratio: 4/3; border-radius: 4px; overflow: hidden; background: var(--bg);
+    }
+    .dp-media-item img, .dp-media-item video { width: 100%; height: 100%; object-fit: cover; }
+
+    /* Experience list in panel */
+    .dp-exp-entry {
+      background: var(--bg); border-radius: 6px; padding: 12px 14px; margin-bottom: 8px;
+    }
+    .dp-exp-type {
+      display: inline-flex; padding: 3px 10px; border-radius: 50px;
+      border: 1px solid var(--border); font-size: 11px; color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .dp-exp-title { font-size: 14px; font-weight: 600; color: var(--white); }
+    .dp-exp-year  { font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+    .dp-exp-desc  { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+    /* Divider */
+    .dp-divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+
+    /* Action area */
+    .dp-action-area { margin-top: 24px; }
+    .dp-note-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px; display: block;
+    }
+    .dp-note-input {
+      width: 100%; background: var(--bg); border: 1px solid var(--border);
+      border-radius: 6px; padding: 10px 12px; font-size: 14px; color: var(--text);
+      font-family: inherit; resize: vertical; min-height: 70px; outline: none;
+      transition: border-color .15s;
+    }
+    .dp-note-input:focus { border-color: rgba(255,255,255,.25); }
+    .dp-action-btns {
+      display: flex; gap: 10px; margin-top: 14px;
+    }
+    .dp-approve-btn, .dp-reject-btn {
+      flex: 1; padding: 12px; border-radius: 6px; border: none;
+      font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 6px;
+      transition: opacity .15s, transform .1s;
+    }
+    .dp-approve-btn { background: var(--green); color: #000; }
+    .dp-reject-btn  { background: var(--red);   color: #fff; }
+    .dp-approve-btn:hover, .dp-reject-btn:hover { opacity: .85; transform: translateY(-1px); }
+    .dp-approve-btn:disabled, .dp-reject-btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+    .dp-decision-label {
+      margin-top: 14px; font-size: 13px; text-align: center; color: var(--muted);
+      display: none;
+    }
+    .dp-decision-label.visible { display: block; }
+
+    /* ── Placeholder for settings view ── */
+    .settings-placeholder {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 300px; color: var(--muted);
+    }
+    .settings-placeholder big { font-size: 40px; margin-bottom: 12px; }
+
+    /* ── Loading spinner ── */
+    .load-spinner {
+      display: none; width: 20px; height: 20px;
+      border: 2px solid rgba(255,255,255,.15); border-top-color: var(--white);
+      border-radius: 50%; animation: spin .7s linear infinite; margin: 60px auto;
+    }
+    .load-spinner.visible { display: block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* mobile: stack sidebar */
+    @media (max-width: 768px) {
+      .admin-sidebar { display: none; }
+      #detailPanel { width: 100%; top: 56px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════════════
+     PASSWORD GATE
+════════════════════════════════════════════════════════ -->
+<div id="authGate">
+  <div class="auth-logo">OPUS.Z</div>
+  <div class="auth-box">
+    <h2 class="auth-title">Admin 登入</h2>
+    <p class="auth-sub">請輸入管理員密碼以繼續</p>
+    <label class="auth-label" for="authPwInput">密碼</label>
+    <input class="auth-input" type="password" id="authPwInput" placeholder="••••••••" autocomplete="current-password" />
+    <div class="auth-error" id="authError">密碼錯誤，請再試一次</div>
+    <button class="auth-btn" id="authSubmitBtn">登入</button>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════════════
+     ADMIN APP
+════════════════════════════════════════════════════════ -->
+<div id="adminApp">
+
+  <!-- Top bar -->
+  <div class="admin-topbar">
+    <div class="admin-topbar-logo">OPUS.Z Admin</div>
+    <div class="admin-topbar-sep"></div>
+    <button class="admin-logout-btn" id="logoutBtn">登出</button>
+  </div>
+
+  <!-- Body -->
+  <div class="admin-body">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="admin-sidebar-section">管理</div>
+      <button class="sidebar-link active" id="navApplications">
+        <span class="sl-icon">📋</span> 申請管理
+      </button>
+      <button class="sidebar-link" id="navSettings">
+        <span class="sl-icon">⚙️</span> 設定
+      </button>
+    </aside>
+
+    <!-- Main -->
+    <main class="admin-main">
+
+      <!-- Applications view -->
+      <div id="viewApplications">
+        <h1 class="page-title">音樂家申請</h1>
+
+        <!-- Filter tabs -->
+        <div class="filter-tabs">
+          <button class="tab-btn active" data-filter="all">
+            全部 <span class="tab-count" id="cnt-all">0</span>
+          </button>
+          <button class="tab-btn" data-filter="pending">
+            待審核 <span class="tab-count" id="cnt-pending">0</span>
+          </button>
+          <button class="tab-btn" data-filter="approved">
+            已核准 <span class="tab-count" id="cnt-approved">0</span>
+          </button>
+          <button class="tab-btn" data-filter="rejected">
+            已拒絕 <span class="tab-count" id="cnt-rejected">0</span>
+          </button>
+        </div>
+
+        <!-- Loading -->
+        <div class="load-spinner" id="loadSpinner"></div>
+
+        <!-- Table -->
+        <div class="apps-table-wrap">
+          <table class="apps-table" id="appsTable">
+            <thead>
+              <tr>
+                <th>姓名</th>
+                <th>地區</th>
+                <th>樂器</th>
+                <th>提交日期</th>
+                <th>狀態</th>
+              </tr>
+            </thead>
+            <tbody id="appsTableBody">
+              <!-- Rows injected by JS -->
+            </tbody>
+          </table>
+          <div class="no-apps" id="noAppsMsg" style="display:none;">
+            尚無申請資料
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings placeholder -->
+      <div id="viewSettings" style="display:none;">
+        <h1 class="page-title">設定</h1>
+        <div class="settings-placeholder">
+          <big>⚙️</big>
+          <p>設定功能開發中</p>
+        </div>
+      </div>
+
+    </main>
+  </div><!-- /admin-body -->
+
+  <!-- Detail panel (slide-in from right) -->
+  <div id="detailPanel">
+    <div class="dp-header">
+      <h3 id="dpName">申請詳情</h3>
+      <button class="dp-close" id="dpClose">×</button>
+    </div>
+    <div class="dp-body" id="dpBody">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+</div><!-- /adminApp -->
+
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   CONSTANTS
+════════════════════════════════════════════════════════════ */
+var ADMIN_PW   = 'opusz2026';
+var AUTH_KEY   = 'opusz_admin_auth';
+var currentFilter = 'all';
+var allApps = [];
+var selectedId = null;
+
+/* ════════════════════════════════════════════════════════════
+   AUTH
+════════════════════════════════════════════════════════════ */
+function isAuthed() {
+  return sessionStorage.getItem(AUTH_KEY) === '1';
+}
+function setAuthed() {
+  sessionStorage.setItem(AUTH_KEY, '1');
+}
+function showGate()  { document.getElementById('authGate').classList.add('visible'); }
+function hideGate()  { document.getElementById('authGate').classList.remove('visible'); }
+function showApp()   { document.getElementById('adminApp').classList.add('visible'); }
+
+document.getElementById('authSubmitBtn').addEventListener('click', tryLogin);
+document.getElementById('authPwInput').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') tryLogin();
+});
+
+function tryLogin() {
+  var pw  = document.getElementById('authPwInput').value;
+  var err = document.getElementById('authError');
+  if (pw === ADMIN_PW) {
+    setAuthed();
+    hideGate();
+    showApp();
+    loadApplications();
+  } else {
+    err.classList.add('visible');
+    document.getElementById('authPwInput').select();
+  }
+}
+
+document.getElementById('logoutBtn').addEventListener('click', function() {
+  sessionStorage.removeItem(AUTH_KEY);
+  location.reload();
+});
+
+/* ════════════════════════════════════════════════════════════
+   SIDEBAR NAV
+════════════════════════════════════════════════════════════ */
+document.getElementById('navApplications').addEventListener('click', function() {
+  document.getElementById('viewApplications').style.display = '';
+  document.getElementById('viewSettings').style.display    = 'none';
+  document.querySelectorAll('.sidebar-link').forEach(function(b) { b.classList.remove('active'); });
+  this.classList.add('active');
+});
+document.getElementById('navSettings').addEventListener('click', function() {
+  document.getElementById('viewApplications').style.display = 'none';
+  document.getElementById('viewSettings').style.display    = '';
+  document.querySelectorAll('.sidebar-link').forEach(function(b) { b.classList.remove('active'); });
+  this.classList.add('active');
+  closeDetail();
+});
+
+/* ════════════════════════════════════════════════════════════
+   FILTER TABS
+════════════════════════════════════════════════════════════ */
+document.querySelectorAll('.tab-btn').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    currentFilter = btn.dataset.filter;
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    renderTable();
+    closeDetail();
+  });
+});
+
+/* ════════════════════════════════════════════════════════════
+   LOAD APPLICATIONS
+════════════════════════════════════════════════════════════ */
+async function loadApplications() {
+  document.getElementById('loadSpinner').classList.add('visible');
+  try {
+    var res = await fetch('/get-applications');
+    allApps = await res.json();
+  } catch(e) {
+    allApps = [];
+  }
+  document.getElementById('loadSpinner').classList.remove('visible');
+  updateCounts();
+  renderTable();
+}
+
+function updateCounts() {
+  document.getElementById('cnt-all').textContent = allApps.length;
+  document.getElementById('cnt-pending').textContent  = allApps.filter(function(a){ return a.status === 'pending';  }).length;
+  document.getElementById('cnt-approved').textContent = allApps.filter(function(a){ return a.status === 'approved'; }).length;
+  document.getElementById('cnt-rejected').textContent = allApps.filter(function(a){ return a.status === 'rejected'; }).length;
+}
+
+function renderTable() {
+  var filtered = currentFilter === 'all'
+    ? allApps
+    : allApps.filter(function(a){ return a.status === currentFilter; });
+
+  var tbody = document.getElementById('appsTableBody');
+  tbody.innerHTML = '';
+
+  var noMsg = document.getElementById('noAppsMsg');
+  if (filtered.length === 0) { noMsg.style.display = ''; return; }
+  noMsg.style.display = 'none';
+
+  filtered.forEach(function(app) {
+    var tr = document.createElement('tr');
+    if (app.id === selectedId) tr.classList.add('selected');
+    tr.innerHTML = `
+      <td style="color:#fff;font-weight:600;">${esc(app.name || '—')}</td>
+      <td>${esc(app.region_primary || '—')}</td>
+      <td>${esc((app.instruments || []).slice(0,3).join('、') || '—')}</td>
+      <td style="color:var(--muted);font-size:12px;">${formatDate(app.submitted_at)}</td>
+      <td>${statusBadge(app.status)}</td>
+    `;
+    tr.addEventListener('click', function() { openDetail(app); });
+    tbody.appendChild(tr);
+  });
+}
+
+function esc(s) {
+  return String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+function formatDate(iso) {
+  if (!iso) return '—';
+  try {
+    var d = new Date(iso);
+    return d.getFullYear() + '/' + String(d.getMonth()+1).padStart(2,'0') + '/' + String(d.getDate()).padStart(2,'0');
+  } catch(e) { return iso; }
+}
+function statusBadge(status) {
+  var labels = { pending:'待審核', approved:'已核准', rejected:'已拒絕' };
+  var label   = labels[status] || status;
+  return '<span class="status-badge ' + (status || 'pending') + '">' + esc(label) + '</span>';
+}
+
+/* ════════════════════════════════════════════════════════════
+   DETAIL PANEL
+════════════════════════════════════════════════════════════ */
+document.getElementById('dpClose').addEventListener('click', closeDetail);
+
+function closeDetail() {
+  selectedId = null;
+  document.getElementById('detailPanel').classList.remove('visible');
+  document.querySelectorAll('#appsTableBody tr').forEach(function(tr) {
+    tr.classList.remove('selected');
+  });
+}
+
+function openDetail(app) {
+  selectedId = app.id;
+  /* highlight row */
+  document.querySelectorAll('#appsTableBody tr').forEach(function(tr, i) {
+    tr.classList.remove('selected');
+  });
+  /* find + highlight selected */
+  document.querySelectorAll('#appsTableBody tr').forEach(function(tr) {
+    if (tr.querySelector('td') && tr.querySelector('td').textContent.trim() === (app.name || '—')) {
+      tr.classList.add('selected');
+    }
+  });
+
+  document.getElementById('dpName').textContent = app.name || '申請詳情';
+
+  var body = document.getElementById('dpBody');
+  body.innerHTML = buildDetailHTML(app);
+
+  /* Wire action buttons */
+  var approveBtn = body.querySelector('.dp-approve-btn');
+  var rejectBtn  = body.querySelector('.dp-reject-btn');
+  var noteInput  = body.querySelector('.dp-note-input');
+  var decLabel   = body.querySelector('.dp-decision-label');
+
+  if (app.status !== 'pending') {
+    if (approveBtn) approveBtn.disabled = true;
+    if (rejectBtn)  rejectBtn.disabled  = true;
+    if (decLabel) {
+      decLabel.textContent = app.status === 'approved'
+        ? '✓ 已核准' + (app.admin_note ? '：' + app.admin_note : '')
+        : '✗ 已拒絕' + (app.admin_note ? '：' + app.admin_note : '');
+      decLabel.style.color = app.status === 'approved' ? 'var(--green)' : 'var(--red)';
+      decLabel.classList.add('visible');
+    }
+  }
+
+  if (approveBtn) approveBtn.addEventListener('click', function() {
+    updateStatus(app, 'approved', noteInput ? noteInput.value : '');
+  });
+  if (rejectBtn) rejectBtn.addEventListener('click', function() {
+    updateStatus(app, 'rejected', noteInput ? noteInput.value : '');
+  });
+
+  document.getElementById('detailPanel').classList.add('visible');
+}
+
+function buildDetailHTML(app) {
+  var html = '';
+
+  /* Banner */
+  if (app.banner_photo) {
+    html += '<img class="dp-banner" src="' + esc(app.banner_photo) + '" alt="Banner" />';
+  } else {
+    html += '<div class="dp-banner-placeholder">未上傳主要照片</div>';
+  }
+
+  /* Status badge */
+  html += '<div style="margin-bottom:16px;">' + statusBadge(app.status) + '</div>';
+
+  /* Basic info */
+  html += '<div class="dp-section-title">基本資料</div>';
+  html += dpField('Email', app.email);
+  html += dpField('主要地區', app.region_primary);
+  if (app.region_secondary) html += dpField('次要地區', app.region_secondary);
+
+  if (app.instruments && app.instruments.length) {
+    html += '<div class="dp-field"><div class="dp-field-label">演奏樂器</div>';
+    html += '<div class="dp-tags">' + app.instruments.map(function(t){ return '<span class="dp-tag">' + esc(t) + '</span>'; }).join('') + '</div></div>';
+  }
+
+  html += '<hr class="dp-divider" />';
+
+  /* Music profile */
+  if (app.performance_types && app.performance_types.length) {
+    html += '<div class="dp-section-title">演出類型</div>';
+    html += '<div class="dp-tags">' + app.performance_types.map(function(t){ return '<span class="dp-tag">' + esc(t) + '</span>'; }).join('') + '</div><br/>';
+  }
+  if (app.music_styles && app.music_styles.length) {
+    html += '<div class="dp-section-title">音樂風格</div>';
+    html += '<div class="dp-tags">' + app.music_styles.map(function(t){ return '<span class="dp-tag">' + esc(t) + '</span>'; }).join('') + '</div><br/>';
+  }
+  if (app.collaborators && app.collaborators.length) {
+    html += '<div class="dp-section-title">合作廠商</div>';
+    html += '<div class="dp-tags">' + app.collaborators.map(function(t){ return '<span class="dp-tag">' + esc(t) + '</span>'; }).join('') + '</div><br/>';
+  }
+
+  /* Pricing */
+  if (app.pricing) {
+    html += '<hr class="dp-divider" />';
+    html += '<div class="dp-section-title">費用</div>';
+    if (app.pricing['1h']) html += dpField('1 小時', 'NT$ ' + app.pricing['1h']);
+    if (app.pricing['2h']) html += dpField('2 小時', 'NT$ ' + app.pricing['2h']);
+    if (app.pricing['3h']) html += dpField('3 小時', 'NT$ ' + app.pricing['3h']);
+  }
+
+  /* Bio */
+  if (app.bio) {
+    html += '<hr class="dp-divider" />';
+    html += '<div class="dp-section-title">個人簡介</div>';
+    html += '<div class="dp-field"><div class="dp-field-val" style="white-space:pre-wrap;">' + esc(app.bio) + '</div></div>';
+  }
+
+  /* Experiences */
+  if (app.experiences && app.experiences.length) {
+    html += '<hr class="dp-divider" />';
+    html += '<div class="dp-section-title">演出經歷</div>';
+    app.experiences.forEach(function(exp) {
+      html += '<div class="dp-exp-entry">';
+      html += '<div class="dp-exp-type">' + esc(exp.type || '') + '</div>';
+      html += '<div class="dp-exp-title">' + esc(exp.title || '未命名') + '</div>';
+      if (exp.year) html += '<div class="dp-exp-year">' + esc(exp.year) + '</div>';
+      if (exp.description) html += '<div class="dp-exp-desc">' + esc(exp.description) + '</div>';
+      if (exp.photo) html += '<img src="' + esc(exp.photo) + '" style="max-width:100%;border-radius:4px;margin-top:8px;" />';
+      html += '</div>';
+    });
+  }
+
+  /* Additional media */
+  if (app.additional_media && app.additional_media.length) {
+    html += '<hr class="dp-divider" />';
+    html += '<div class="dp-section-title">其他媒體</div>';
+    html += '<div class="dp-media-grid">';
+    app.additional_media.forEach(function(item) {
+      var src = item.path || item.dataUrl || '';
+      html += '<div class="dp-media-item">';
+      if (src.match(/\.(mp4|mov|webm)$/i) || (item.type && item.type.startsWith('video/'))) {
+        html += '<video src="' + esc(src) + '" controls style="width:100%;height:100%;object-fit:cover;"></video>';
+      } else if (src) {
+        html += '<img src="' + esc(src) + '" alt="" />';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  /* Admin note + action buttons */
+  html += '<hr class="dp-divider" />';
+  html += '<div class="dp-action-area">';
+  html += '<div class="dp-section-title">審核操作</div>';
+  html += '<label class="dp-note-label">備注（選填）</label>';
+  html += '<textarea class="dp-note-input" placeholder="審核備注…">' + esc(app.admin_note || '') + '</textarea>';
+  html += '<div class="dp-action-btns">';
+  html += '<button class="dp-approve-btn" type="button">核准 ✓</button>';
+  html += '<button class="dp-reject-btn" type="button">拒絕 ✗</button>';
+  html += '</div>';
+  html += '<div class="dp-decision-label"></div>';
+  html += '</div>';
+
+  return html;
+}
+
+function dpField(label, val) {
+  if (!val) return '';
+  return '<div class="dp-field"><div class="dp-field-label">' + esc(label) + '</div>'
+    + '<div class="dp-field-val">' + esc(String(val)) + '</div></div>';
+}
+
+/* ════════════════════════════════════════════════════════════
+   UPDATE STATUS
+════════════════════════════════════════════════════════════ */
+async function updateStatus(app, status, note) {
+  var panel     = document.getElementById('detailPanel');
+  var appBtn    = panel.querySelector('.dp-approve-btn');
+  var rejBtn    = panel.querySelector('.dp-reject-btn');
+  var decLabel  = panel.querySelector('.dp-decision-label');
+  if (appBtn) appBtn.disabled = true;
+  if (rejBtn) rejBtn.disabled = true;
+
+  try {
+    var res = await fetch('/update-application', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ id: app.id, status: status, note: note })
+    });
+    var json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'Server error');
+
+    /* Update local data */
+    var idx = allApps.findIndex(function(a) { return a.id === app.id; });
+    if (idx !== -1) {
+      allApps[idx].status     = status;
+      allApps[idx].admin_note = note;
+    }
+
+    if (decLabel) {
+      decLabel.textContent = status === 'approved'
+        ? '✓ 已核准' + (note ? '：' + note : '')
+        : '✗ 已拒絕' + (note ? '：' + note : '');
+      decLabel.style.color = status === 'approved' ? 'var(--green)' : 'var(--red)';
+      decLabel.classList.add('visible');
+    }
+
+    updateCounts();
+    renderTable();
+
+  } catch(err) {
+    alert('更新失敗：' + err.message);
+    if (appBtn) appBtn.disabled = false;
+    if (rejBtn) rejBtn.disabled = false;
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   INIT
+════════════════════════════════════════════════════════════ */
+if (isAuthed()) {
+  showApp();
+  loadApplications();
+} else {
+  showGate();
+}
+</script>
+</body>
+</html>

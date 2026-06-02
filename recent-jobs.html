@@ -8,61 +8,165 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f5f5f3;color:#000;}
 
-/* ── Nav (identical to main page) ── */
-:root{--black:#0a0a0a;--white:#fff;}
-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.92); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(0,0,0,0.06); }
-.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: var(--black); }
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 40px;
+  min-height: 76px;
+  background: transparent;
+  mix-blend-mode: difference;
+}
+nav.mega-open {
+  mix-blend-mode: normal;
+  background: #fff;
+  transition: background 0.22s ease;
+  --nav-fg: #000;
+}
+nav, nav.nav-on-dark { --nav-fg: #fff; }
+nav.nav-on-light { --nav-fg: #000; }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; padding-left: 50px; }
 .orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
-.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 50%; transform: translateX(-50%); }
-.nav-links a { text-decoration: none; color: var(--black); font-size: 15px; position: relative; padding: 11px 22px; border-radius: 50px; display: inline-flex; align-items: center; justify-content: center; line-height: 1; vertical-align: middle; transition: none; z-index: 0; }
-.nav-links a::before { content: ''; position: absolute; inset: 0; border-radius: 50px; background: rgba(255,255,255,0.72); backdrop-filter: blur(6px); border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 2px 10px rgba(0,0,0,0.07), inset 0 1.5px 1.5px rgba(255,255,255,0.95), inset 0 -1px 1px rgba(0,0,0,0.04); transform: scaleX(0); transform-origin: left center; transition: none; z-index: -1; }
-.nav-links a:hover::before { transform: scaleX(1); transition: transform 0.48s cubic-bezier(0.34, 1.18, 0.64, 1); }
+#navOrbFixed {
+  position: fixed; top: 18px; left: 40px;
+  z-index: 201;
+  text-decoration: none;
+  pointer-events: all;
+  display: flex; align-items: center;
+}
+#navLogoFixed {
+  position: fixed; top: 30px; left: 90px;
+  z-index: 201; mix-blend-mode: difference; color: #fff;
+  font-size: 17px; font-weight: 700; text-decoration: none; pointer-events: all;
+  display: flex; align-items: flex-start; line-height: 1;
+  transition: top 0.38s cubic-bezier(0.34,1.15,0.64,1);
+}
+#navLogoFixed:hover { top: 19px; }
+.nav-logo-spacer { width: 180px; flex-shrink: 0; }
+.nav-logo-text { display: flex; flex-direction: column; overflow: hidden; line-height: 1; }
+.nav-logo-name { display: block; }
+.nav-logo-sub {
+  display: block; font-size: 17px; font-weight: 700; letter-spacing: 0;
+  max-height: 0; overflow: hidden; opacity: 0; margin-top: 3px;
+  transition: max-height 0.38s cubic-bezier(0.34,1.15,0.64,1), opacity 0.22s ease 0.08s;
+}
+.nav-logo:hover .nav-logo-sub, #navLogoFixed:hover .nav-logo-sub {
+  max-height: 20px; opacity: 1;
+}
+.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 0; right: 0; justify-content: center; pointer-events: none; }
+.nav-links li { pointer-events: all; }
+.nav-links a {
+  text-decoration: none; font-size: 15px;
+  position: relative; padding: 11px 22px; border-radius: 50px;
+  display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1; vertical-align: middle; white-space: nowrap;
+  z-index: 0; color: transparent;
+}
+nav.mega-open .nav-links { mix-blend-mode: normal; }
+nav.mega-open .nav-links a { color: #000; }
+nav.mega-open .nav-links .nc-char { color: #000 !important; }
+.nc-char { display: inline-block; color: #fff; }
+    .nc-sp { display: inline-block; min-width: 0.3em; }
+nav.mega-open .nc-char { color: #000 !important; transition: none; }
+nav .nav-logo-name, nav .nav-logo-sub { color: transparent; }
+#navLogoFixed .nav-logo-name, #navLogoFixed .nav-logo-sub { color: #fff; }
+nav.mega-open .nav-logo-name .nc-char, nav.mega-open .nav-logo-sub .nc-char { color: #000 !important; transition: none; }
+@media (max-width: 1440px) { nav { padding: 13px 28px; } .nav-links { gap: 4px; } .nav-links a { font-size: 13px; padding: 9px 14px; } }
+@media (max-width: 1200px) { nav { padding: 11px 24px; } .nav-links { gap: 2px; } .nav-links a { font-size: 12px; padding: 8px 11px; } }
+.nav-links a::before { display: none; }
 .nav-links a:hover { opacity: 1; }
-.nav-links a.nav-active::before { transform: scaleX(1); }
+.nav-ul {
+  position: absolute; bottom: 3px; left: 10px; right: 10px; height: 1px;
+  background: #fff; transform: scaleX(0); transform-origin: right center;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+}
+.nav-links a:hover .nav-ul { transform: scaleX(1); transform-origin: left center; }
+nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
-.hamburger span { display: block; width: 26px; height: 2px; background: var(--black); transition: opacity .2s; }
+.hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: opacity .2s; }
 .hamburger:hover span { opacity: .5; }
-.nav-drawer { position: fixed; top: 0; right: -260px; bottom: 0; width: 260px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.10); padding: 90px 40px 48px; display: flex; flex-direction: column; gap: 4px; transition: right 0.18s ease; z-index: 300; pointer-events: none; }
-.nav-drawer.nd-visible { right: 0; pointer-events: auto; transition: right 0.42s cubic-bezier(0.22,1,0.36,1); }
-.nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: var(--black); text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
-.nav-drawer a:last-child { border-bottom: none; }
-.nav-drawer.nd-visible a { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
-.nav-drawer.nd-visible a:nth-child(1){transition-delay:0.07s;}.nav-drawer.nd-visible a:nth-child(2){transition-delay:0.11s;}.nav-drawer.nd-visible a:nth-child(3){transition-delay:0.15s;}.nav-drawer.nd-visible a:nth-child(4){transition-delay:0.19s;}.nav-drawer.nd-visible a:nth-child(5){transition-delay:0.23s;}
-.mega-menu { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-top: 1px solid rgba(0,0,0,0.05); box-shadow: 0 24px 64px rgba(0,0,0,0.09); padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 0; opacity: 0; transform: translateY(-22px); pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; z-index: 199; }
-.mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; transition: opacity 0.46s cubic-bezier(0.22,1,0.36,1), transform 0.46s cubic-bezier(0.22,1,0.36,1); }
-.mega-col { padding: 0 28px 0 0; border-right: 1px solid rgba(0,0,0,0.055); margin-right: 28px; opacity: 0; transform: translateY(-14px); transition: opacity 0.14s ease, transform 0.14s ease; }
-.mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
-.mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); transition: opacity 0.4s cubic-bezier(0.22,1,0.36,1), transform 0.4s cubic-bezier(0.22,1,0.36,1); }
-.mega-menu.mm-visible .mega-col:nth-child(1){transition-delay:0.05s;}.mega-menu.mm-visible .mega-col:nth-child(2){transition-delay:0.08s;}.mega-menu.mm-visible .mega-col:nth-child(3){transition-delay:0.11s;}.mega-menu.mm-visible .mega-col:nth-child(4){transition-delay:0.14s;}.mega-menu.mm-visible .mega-col:nth-child(5){transition-delay:0.17s;}.mega-menu.mm-visible .mega-col:nth-child(6){transition-delay:0.20s;}.mega-menu.mm-visible .mega-col:nth-child(7){transition-delay:0.23s;}.mega-menu.mm-visible .mega-col:nth-child(8){transition-delay:0.26s;}
-.mega-col-title { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(0,0,0,0.35); text-decoration: none; margin-bottom: 16px; padding-bottom: 10px; width: 100%; border-bottom: 1px solid rgba(0,0,0,0.07); position: relative; cursor: pointer; transition: color 0.2s ease; }
-.mega-col-title::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 1.5px; background: var(--black); transform: scaleX(0); transform-origin: left center; transition: none; }
-.mega-col-title:hover { color: rgba(0,0,0,0.75); }
-.mega-col-title:hover::after { transform: scaleX(1); transition: transform 0.38s cubic-bezier(0.22,1,0.36,1); }
-.mega-col ul { list-style: none; display: flex; flex-direction: column; gap: 1px; }
-.mega-col ul li a { display: block; padding: 5px 0; font-size: 13.5px; font-weight: 450; color: var(--black); text-decoration: none; transition: opacity 0.18s ease; }
-.mega-col ul li a:hover { opacity: 0.45; }
-#musicians-nav-item > a.mm-active::before { transform: scaleX(1) !important; }
-.lang-toggle { display: flex; align-items: center; gap: 2px; background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--black); }
-.lang-toggle .lt-opt { padding: 3px 8px; border-radius: 5px; transition: background .2s, color .2s; }
-.lang-toggle .lt-opt.active { background: var(--black); color: var(--white); }
-.lang-toggle .lt-sep { opacity: .25; font-weight: 400; }
 .nav-right { display: flex; align-items: center; gap: 14px; }
-.nav-fav-btn { position:relative; background:none; border:none; cursor:pointer; padding:6px; display:flex; align-items:center; color:var(--black); transition:color .15s; }
-.nav-fav-btn:hover { color:#e05; }
-.nav-fav-count { position:absolute; top:0; right:0; background:#e05; color:#fff; font-size:9px; font-weight:700; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; line-height:1; }
-.nav-login-btn { display: inline-flex; align-items: center; gap: 6px; background: transparent; color: var(--black); border: 1.5px solid var(--black); border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; position: relative; z-index: 0; transition: none; line-height: 1; }
-.nav-login-btn::before { content: ''; position: absolute; inset: 0; border-radius: 6px; background: rgba(255,255,255,0.82); backdrop-filter: blur(6px); box-shadow: inset 0 1.5px 1.5px rgba(255,255,255,.95); transform: scaleX(0); transform-origin: left center; transition: none; z-index: -1; }
-.nav-login-btn:hover::before { transform: scaleX(1); transition: transform 0.48s cubic-bezier(0.34, 1.18, 0.64, 1); }
-.nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; flex-shrink: 0; position: relative; z-index: 1; }
-.nav-login-btn span.login-label { position: relative; z-index: 1; }
+.nav-fav-btn { position: relative; background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); display: flex; align-items: center; padding: 4px; }
+.nav-login-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  color: var(--nav-fg, #fff); background: none; border: 1px solid rgba(255,255,255,.35);
+  border-radius: 50px; padding: 7px 14px; cursor: pointer; position: relative;
+}
+.nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; }
 .nav-login-btn.open svg { transform: rotate(180deg); }
-.nav-login-dropdown { position: absolute; top: calc(100% + 8px); right: 0; background: #fff; border-radius: 10px; box-shadow: 0 6px 32px rgba(0,0,0,.13), 0 0 0 1px rgba(0,0,0,.07); padding: 0; min-width: 0; opacity: 0; pointer-events: none; transform: translateY(-4px); transition: opacity .15s, transform .15s; z-index: 999; white-space: nowrap; display: flex; align-items: stretch; }
-.nav-login-btn.open .nav-login-dropdown { opacity: 1; pointer-events: auto; transform: translateY(0); }
-.nav-login-dropdown a { display: flex; align-items: center; justify-content: center; padding: 13px 22px; font-size: 13.5px; font-weight: 600; color: #111; text-decoration: none; transition: background .15s; }
-.nav-login-dropdown a:first-child { border-radius: 10px 0 0 10px; }
-.nav-login-dropdown a:last-of-type { border-radius: 0 10px 10px 0; }
+.nav-login-dropdown {
+  display: none; position: absolute; top: calc(100% + 8px); right: 0;
+  background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 10px;
+  padding: 6px 0; min-width: 160px; box-shadow: 0 8px 24px rgba(0,0,0,.1); z-index: 210;
+}
+.nav-login-btn.open .nav-login-dropdown { display: block; }
+.nav-login-dropdown a { display: block; padding: 10px 16px; font-size: 13px; color: #111; }
 .nav-login-dropdown a:hover { background: #f5f5f5; }
-.nav-login-vsep { width: 1px; background: #e8e8e8; flex-shrink: 0; margin: 8px 0; }
+.nav-login-vsep { border-top: 1px solid rgba(0,0,0,.08); margin: 3px 0; }
+.lang-toggle {
+  display: flex; align-items: center; gap: 2px;
+  font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); font-family: inherit;
+}
+.lt-opt { opacity: .4; transition: opacity .15s; }
+.lt-opt.active { opacity: 1; }
+.lt-sep { opacity: .25; }
+.nav-drawer {
+  position: fixed; top: 0; right: -260px; bottom: 0; width: 260px;
+  background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.10);
+  padding: 90px 40px 48px; display: flex; flex-direction: column; gap: 4px;
+  transition: right 0.18s ease; z-index: 300; pointer-events: none;
+}
+.nav-drawer.nd-visible { right: 0; pointer-events: auto; transition: right 0.42s cubic-bezier(0.22,1,0.36,1); }
+.nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nav-drawer a:last-child { border-bottom: none; }
+.nav-drawer a:hover { color: rgba(0,0,0,0.4); }
+.nav-drawer.nd-visible a { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
+.nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
+.nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
+.nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
+.nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
+.nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+.nd-musicians-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-align: left; opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
+.nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
+.nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+.nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.15s; }
+.nav-sub-drawer { position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.12); display: flex; flex-direction: column; transition: right 0.18s ease; z-index: 302; pointer-events: none; overflow: hidden; }
+.nav-sub-drawer.ns-visible { right: 0; pointer-events: auto; transition: right 0.38s cubic-bezier(0.22,1,0.36,1); }
+.nsd-head { display: flex; align-items: center; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+.nsd-back { background: none; border: none; cursor: pointer; font-size: 20px; color: #000; padding: 4px; display: flex; align-items: center; opacity: .5; transition: opacity .15s; }
+.nsd-back:hover { opacity: 1; }
+.nsd-title { font-size: 16px; font-weight: 700; }
+.nsd-body { overflow-y: auto; flex: 1; padding: 12px 0 40px; -webkit-overflow-scrolling: touch; }
+.nsd-group { margin-bottom: 4px; }
+.nsd-group-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(0,0,0,0.35); padding: 14px 24px 6px; }
+.nsd-group a { display: block; padding: 10px 24px; font-size: 15px; font-weight: 500; color: #000; text-decoration: none; transition: background .12s, color .12s; }
+.nsd-group a:hover { background: #f5f5f5; }
+.mega-menu {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
+  padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8,1fr); gap: 0;
+  opacity: 0; transform: translateY(-22px); pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.mega-col { padding: 0 16px; border-left: 1px solid rgba(0,0,0,0.07); opacity: 0; transform: translateY(8px); transition: opacity 0.28s ease, transform 0.28s ease; }
+.mega-col:first-child { border-left: none; padding-left: 0; }
+.mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); }
+.mega-menu.mm-visible .mega-col:nth-child(1) { transition-delay: 0.05s; }
+.mega-menu.mm-visible .mega-col:nth-child(2) { transition-delay: 0.08s; }
+.mega-menu.mm-visible .mega-col:nth-child(3) { transition-delay: 0.11s; }
+.mega-menu.mm-visible .mega-col:nth-child(4) { transition-delay: 0.14s; }
+.mega-menu.mm-visible .mega-col:nth-child(5) { transition-delay: 0.17s; }
+.mega-menu.mm-visible .mega-col:nth-child(6) { transition-delay: 0.20s; }
+.mega-col-title { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #111; margin-bottom: 10px; text-decoration: none; }
+.mega-col ul { list-style: none; padding: 0; }
+.mega-col ul li a { display: block; padding: 5px 0; font-size: 13px; color: #555; text-decoration: none; transition: color .12s; }
+.mega-col ul li a:hover { color: #000; }
 .login-modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.35); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
 .login-modal-overlay.open { opacity: 1; pointer-events: auto; }
 .login-modal { background: #fff; border-radius: 18px; padding: 40px 36px 32px; width: 360px; max-width: 92vw; box-shadow: 0 24px 80px rgba(0,0,0,.22); transform: translateY(12px); transition: transform .2s; position: relative; }
@@ -74,192 +178,351 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
 .login-modal-footer { text-align: center; margin-top: 16px; font-size: 13px; color: #888; }
 .login-modal-footer a { color: #111; font-weight: 600; text-decoration: none; margin-left: 4px; }
 
-/* ── Page wrapper ── */
-.rj-page{padding:100px clamp(20px,5vw,80px) 120px;}
+/* ── Post-Job Modal ── */
+.pj-overlay {
+  position: fixed; inset: 0; z-index: 3000;
+  background: rgba(0,0,0,.45); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+  padding: 20px;
+}
+.pj-overlay.open { opacity: 1; pointer-events: auto; }
+.pj-modal {
+  background: #f5f5f3; border-radius: 20px;
+  width: 560px; max-width: 100%; max-height: 90vh;
+  overflow-y: auto; position: relative;
+  transform: translateY(16px); transition: transform .28s cubic-bezier(.34,1.15,.64,1);
+  box-shadow: 0 32px 100px rgba(0,0,0,.28);
+}
+.pj-overlay.open .pj-modal { transform: translateY(0); }
+.pj-modal-head {
+  padding: 36px 40px 0;
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.pj-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #aaa; margin-bottom: 8px; }
+.pj-title { font-size: clamp(24px,3.5vw,32px); font-weight: 800; letter-spacing: -1px; line-height: 1.1; color: #111; }
+.pj-close {
+  width: 32px; height: 32px; border-radius: 50%; background: rgba(0,0,0,.08);
+  border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  font-size: 15px; color: #666; flex-shrink: 0; margin-left: 16px; margin-top: 4px;
+  transition: background .15s;
+}
+.pj-close:hover { background: rgba(0,0,0,.15); }
+.pj-body { padding: 28px 40px 40px; }
 
-/* ── Header ── */
-.rj-header{
-  display:flex;align-items:flex-end;justify-content:space-between;
-  margin-bottom:56px;flex-wrap:wrap;gap:20px;
+/* Type pills */
+.pj-section-label { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #bbb; margin-bottom: 12px; }
+.pj-type-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 28px; }
+.pj-pill {
+  padding: 7px 16px; border-radius: 50px;
+  font-size: 12px; font-weight: 600; cursor: pointer;
+  border: 1.5px solid rgba(0,0,0,.15); background: transparent; color: #555;
+  transition: all .15s; font-family: inherit;
 }
-.rj-title-label{font-size:12px;color:#999;font-weight:600;margin-bottom:10px;letter-spacing:.06em;text-transform:uppercase;}
-.rj-title{font-size:clamp(36px,5vw,68px);font-weight:900;letter-spacing:-0.03em;line-height:1;}
-.rj-post-btn{
-  display:inline-flex;align-items:center;gap:8px;
-  background:#000;color:#fff;padding:12px 24px;border-radius:50px;
-  font-size:14px;font-weight:700;text-decoration:none;white-space:nowrap;
-  transition:opacity .2s;
+.pj-pill.active, .pj-pill:hover { background: #111; color: #fff; border-color: #111; }
+
+/* Line fields */
+.pj-fields { display: flex; flex-direction: column; }
+.pj-field {
+  display: flex; flex-direction: column;
+  border-bottom: 1px solid rgba(0,0,0,.12);
+  padding: 14px 0 8px;
 }
-.rj-post-btn:hover{opacity:.72;}
+.pj-fields > .pj-field:first-child { border-top: 1px solid rgba(0,0,0,.12); }
+.pj-row { display: grid; grid-template-columns: 1fr 1fr; }
+.pj-row .pj-field:first-child { border-right: 1px solid rgba(0,0,0,.12); padding-right: 20px; }
+.pj-row .pj-field:last-child { padding-left: 20px; }
+.pj-label { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #bbb; margin-bottom: 4px; }
+.pj-input, .pj-textarea, .pj-select {
+  background: transparent; border: none; outline: none;
+  font-size: 15px; color: #111; font-family: inherit;
+  padding: 4px 0 6px; width: 100%; resize: none;
+}
+.pj-input::placeholder, .pj-textarea::placeholder { color: #ccc; }
+.pj-textarea { min-height: 80px; line-height: 1.55; }
+.pj-select { cursor: pointer; appearance: none; -webkit-appearance: none; color: #111; }
+.pj-select option { color: #111; }
+
+.pj-submit {
+  margin-top: 28px;
+  width: 100%; padding: 15px; border-radius: 50px;
+  background: #111; color: #fff; border: none;
+  font-size: 15px; font-weight: 700; font-family: inherit; letter-spacing: .02em;
+  cursor: pointer; transition: opacity .2s;
+}
+.pj-submit:hover { opacity: .8; }
+.pj-note { font-size: 11px; color: #bbb; text-align: center; margin-top: 12px; line-height: 1.5; }
+
+/* ── Auth Gate Modal ── */
+.pj-auth-overlay {
+  position: fixed; inset: 0; z-index: 3100;
+  background: rgba(0,0,0,.5); backdrop-filter: blur(8px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+  padding: 20px;
+}
+.pj-auth-overlay.open { opacity: 1; pointer-events: auto; }
+.pj-auth-modal {
+  background: #fff; border-radius: 20px;
+  width: 420px; max-width: 100%;
+  padding: 44px 44px 40px;
+  position: relative;
+  transform: translateY(14px); transition: transform .28s cubic-bezier(.34,1.15,.64,1);
+  box-shadow: 0 32px 100px rgba(0,0,0,.26);
+}
+.pj-auth-overlay.open .pj-auth-modal { transform: translateY(0); }
+.pj-auth-close {
+  position: absolute; top: 16px; right: 16px;
+  width: 30px; height: 30px; border-radius: 50%;
+  background: rgba(0,0,0,.07); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; color: #666; transition: background .15s;
+}
+.pj-auth-close:hover { background: rgba(0,0,0,.14); }
+.pj-auth-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; color: #aaa; margin-bottom: 10px; }
+.pj-auth-title { font-size: 26px; font-weight: 800; letter-spacing: -.8px; line-height: 1.15; color: #111; margin-bottom: 6px; }
+.pj-auth-sub { font-size: 14px; color: #999; margin-bottom: 32px; line-height: 1.5; }
+.pj-auth-fields { display: flex; flex-direction: column; }
+.pj-auth-field {
+  display: flex; flex-direction: column;
+  border-bottom: 1px solid rgba(0,0,0,.12);
+  padding: 12px 0 6px;
+}
+.pj-auth-fields > .pj-auth-field:first-child { border-top: 1px solid rgba(0,0,0,.12); }
+.pj-auth-label { font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: #bbb; margin-bottom: 4px; }
+.pj-auth-input {
+  background: transparent; border: none; outline: none;
+  font-size: 15px; color: #111; font-family: inherit;
+  padding: 4px 0 6px; width: 100%;
+}
+.pj-auth-input::placeholder { color: #ccc; }
+.pj-auth-btn {
+  margin-top: 28px; width: 100%; padding: 15px; border-radius: 50px;
+  background: #111; color: #fff; border: none;
+  font-size: 15px; font-weight: 700; font-family: inherit;
+  cursor: pointer; transition: opacity .2s; letter-spacing: .02em;
+}
+.pj-auth-btn:hover { opacity: .8; }
+.pj-auth-switch {
+  text-align: center; margin-top: 16px; font-size: 13px; color: #aaa;
+}
+.pj-auth-switch a { color: #111; font-weight: 600; text-decoration: none; cursor: pointer; }
+.pj-auth-switch a:hover { text-decoration: underline; }
+
+/* ── Page wrapper ── */
+.rj-page { padding: 0 0 120px; }
+
+/* ── Hero Header ── */
+.rj-header {
+  padding: 140px clamp(28px,6vw,96px) 56px;
+  text-align: center;
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  margin-bottom: 0; border-bottom: 1px solid rgba(0,0,0,.1);
+}
+.rj-title-label {
+  font-size: 11px; font-weight: 500; letter-spacing: .18em;
+  text-transform: uppercase; color: #999; margin-bottom: 20px;
+}
+.rj-title {
+  font-size: clamp(52px,7.5vw,100px);
+  font-weight: 800; letter-spacing: -3px; line-height: .95; color: #111;
+}
+.rj-post-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #111; color: #fff; padding: 12px 28px; border-radius: 50px;
+  font-size: 14px; font-weight: 600; text-decoration: none; white-space: nowrap;
+  margin-top: 32px; transition: opacity .2s;
+}
+.rj-post-btn:hover { opacity: .72; }
 
 /* ── Filters ── */
-.rj-filters{
-  display:flex;gap:8px;flex-wrap:wrap;margin-bottom:32px;
+.rj-filters {
+  display: flex; gap: 4px; flex-wrap: wrap;
+  padding: 20px clamp(28px,6vw,96px);
+  border-bottom: 1px solid rgba(0,0,0,.08);
 }
-.rj-filter{
-  padding:7px 16px;border-radius:50px;border:1px solid rgba(0,0,0,0.14);
-  font-size:12px;font-weight:700;background:#fff;cursor:pointer;
-  transition:background .15s,color .15s;letter-spacing:.02em;
+.rj-filter {
+  padding: 7px 16px; border-radius: 50px;
+  font-size: 12px; font-weight: 600; background: transparent; cursor: pointer;
+  transition: background .15s, color .15s; letter-spacing: .02em; color: #999;
+  border: 1px solid transparent;
 }
-.rj-filter.active,.rj-filter:hover{background:#000;color:#fff;border-color:#000;}
+.rj-filter.active, .rj-filter:hover { background: #111; color: #fff; border-color: #111; }
 
 /* ── Body grid ── */
-.rj-body{display:grid;grid-template-columns:290px 1fr;gap:40px;align-items:start;}
+.rj-body {
+  display: grid; grid-template-columns: 270px 1fr;
+  gap: 0; align-items: start;
+  padding: 0 clamp(28px,6vw,96px);
+}
 
 /* ── Left: Reviews ── */
-.rj-reviews{
-  position:sticky;top:80px;
-  background:#fff;border-radius:18px;padding:28px;
-  border:1px solid rgba(0,0,0,.07);box-shadow:0 4px 24px rgba(0,0,0,.06);
+.rj-reviews {
+  position: sticky; top: 80px;
+  background: transparent; border-radius: 0;
+  padding: 40px 40px 40px 0;
+  border: none; border-right: 1px solid rgba(0,0,0,.08); box-shadow: none;
 }
-.rj-reviews-label{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:20px;}
-.rj-review-item{border-top:1px solid #f0f0f0;padding:18px 0;}
-.rj-review-item:first-of-type{border-top:none;padding-top:0;}
-.rj-review-stars{color:#111;font-size:12px;margin-bottom:8px;letter-spacing:2px;}
-.rj-review-text{font-size:12.5px;color:#444;line-height:1.6;font-style:italic;margin-bottom:10px;}
-.rj-review-meta{font-size:11px;color:#bbb;font-weight:600;margin-bottom:8px;}
-.rj-review-collab{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#f8f8f8;border-radius:8px;}
-.rj-review-avatar{
-  width:28px;height:28px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-size:10px;font-weight:800;color:#fff;flex-shrink:0;
-  background:#333;
+.rj-reviews-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .16em;
+  text-transform: uppercase; color: #bbb; margin-bottom: 24px;
 }
-.rj-review-collab-text{font-size:11px;color:#666;line-height:1.4;}
-.rj-review-collab-text strong{color:#000;}
+.rj-review-item { border-top: 1px solid rgba(0,0,0,.07); padding: 20px 0; }
+.rj-review-item:first-of-type { border-top: none; padding-top: 0; }
+.rj-review-stars { display: none; }
+.rj-review-text { font-size: 12.5px; color: #555; line-height: 1.65; font-style: italic; margin-bottom: 10px; }
+.rj-review-meta { font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: #bbb; font-weight: 600; margin-bottom: 8px; }
+.rj-review-collab { display: flex; align-items: center; gap: 8px; padding: 8px 10px; background: rgba(0,0,0,.03); border-radius: 8px; }
+.rj-review-avatar {
+  width: 26px; height: 26px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800; color: #fff; flex-shrink: 0; background: #555;
+}
+.rj-review-collab-text { font-size: 11px; color: #777; line-height: 1.4; }
+.rj-review-collab-text strong { color: #111; }
 
 /* ── Right: Job Grid ── */
-.rj-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
-.rj-card{
-  background:#fff;border-radius:16px;padding:20px;
-  border:1px solid rgba(0,0,0,.07);box-shadow:0 2px 12px rgba(0,0,0,.05);
-  display:flex;flex-direction:column;gap:12px;cursor:pointer;
-  transition:transform .2s,box-shadow .2s;
+.rj-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 0; }
+.rj-card {
+  background: transparent; border-radius: 0;
+  padding: 28px 28px 28px 28px;
+  border-bottom: 1px solid rgba(0,0,0,.08);
+  border-left: 1px solid rgba(0,0,0,.08);
+  box-shadow: none;
+  display: flex; flex-direction: column; gap: 10px;
+  cursor: pointer; transition: background .18s;
 }
-.rj-card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(0,0,0,.11);}
-.rj-type-badge{
-  display:inline-block;
-  font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
-  padding:5px 11px;border-radius:20px;white-space:nowrap;
-  background:#000;color:#fff;width:fit-content;
+.rj-card:hover { background: rgba(0,0,0,.02); }
+.rj-card:nth-child(3n+1) { border-left: none; }
+.rj-card:nth-last-child(-n+2) { border-bottom: none; }
+
+.rj-type-badge {
+  font-size: 9px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: #aaa; background: none; padding: 0; border-radius: 0; width: auto; white-space: nowrap;
 }
-.rj-instr-pill{
-  display:inline-flex;align-items:center;
-  background:#f0f0f0;color:#333;
-  font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;width:fit-content;
+.rj-instr-pill {
+  font-size: 16px; font-weight: 700; color: #111;
+  background: none; padding: 0; border-radius: 0; display: inline;
 }
-.rj-card-title{font-size:14px;font-weight:800;color:#000;line-height:1.3;}
-.rj-card-desc{font-size:12px;color:#666;line-height:1.55;flex:1;}
-.rj-card-meta{display:flex;flex-direction:column;gap:5px;border-top:1px solid #f0f0f0;padding-top:12px;}
-.rj-meta-row{display:flex;align-items:center;gap:6px;font-size:11.5px;color:#888;}
-.rj-meta-row svg{width:12px;height:12px;flex-shrink:0;opacity:.5;}
+.rj-card-title { font-size: 13px; font-weight: 400; color: #555; line-height: 1.45; }
+.rj-card-desc { font-size: 12px; color: #888; line-height: 1.6; flex: 1; }
+.rj-card-meta { display: flex; flex-direction: column; gap: 4px; border-top: none; padding-top: 4px; }
+.rj-meta-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #bbb; }
+.rj-meta-row svg { width: 11px; height: 11px; flex-shrink: 0; opacity: .4; }
 
 /* ── Responsive ── */
-@media(max-width:1200px){.rj-grid{grid-template-columns:repeat(3,1fr);}}
-@media(max-width:900px){.rj-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:760px){
-  .rj-body{grid-template-columns:1fr;}
-  .rj-reviews{position:relative;top:0;}
-}
-@media(max-width:480px){.rj-grid{grid-template-columns:1fr;}}
+@media(max-width:1100px) { .rj-grid { grid-template-columns: repeat(2,1fr); } .rj-card:nth-child(3n+1){ border-left: 1px solid rgba(0,0,0,.08); } .rj-card:nth-child(2n+1){ border-left: none; } .rj-card:nth-last-child(-n+2){ border-bottom: none; } }
+@media(max-width:900px) { .rj-body { grid-template-columns: 1fr; } .rj-reviews { border-right: none; border-bottom: 1px solid rgba(0,0,0,.08); padding: 32px 0; position: relative; top: 0; } }
+@media(max-width:600px) { .rj-grid { grid-template-columns: 1fr; } .rj-card { border-left: none !important; } }
 </style>
   <link rel="icon" href="/favicon.ico?v=3" />
   <link rel="icon" type="image/png" href="/favicon.png?v=3" />
 </head>
 <body>
 
-<!-- Nav -->
 <!-- NAV -->
+<!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
+<a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
+  <div class="orb"></div>
+</a>
+<a href="musician-platform.html" id="navLogoFixed">
+  <div class="nav-logo-text">
+    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
+    <span class="nav-logo-sub">MUSIC</span>
+  </div>
+</a>
+
 <nav>
-  <a href="musician-platform.html" class="nav-logo"><div class="orb"></div><span>OPUS.Z</span></a>
+  <!-- Spacer to keep nav-links centered -->
+  <div class="nav-logo-spacer"></div>
   <ul class="nav-links">
-    <li><a href="musician-platform.html">Home</a></li>
-    <li><a href="blog.html">Blog</a></li>
-    <li id="musicians-nav-item"><a href="musicians.html">Musicians</a></li>
-    <li><a href="recent-jobs.html" class="nav-active">Recent Jobs</a></li>
-    <li><a href="musician-platform.html#blog">News</a></li>
-    <li><a href="musician-platform.html#contact">Contact</a></li>
+    <li><a href="musician-platform.html" data-i18n="nav.home">Home</a></li>
+    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
+    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
+    <li><a href="recent-jobs.html">Recent Jobs</a></li>
+    <li><a href="shows.html" data-i18n="nav.news">Shows</a></li>
+    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
   </ul>
   <!-- MEGA MENU -->
   <div class="mega-menu" id="artistsMegaMenu">
     <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=strings">弦樂 Strings</a>
+      <a class="mega-col-title" href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a>
       <ul>
-        <li><a href="musicians.html?cat=violin">小提琴 Violin</a></li>
-        <li><a href="musicians.html?cat=viola">中提琴 Viola</a></li>
-        <li><a href="musicians.html?cat=cello">大提琴 Cello</a></li>
-        <li><a href="musicians.html?cat=doublebass">低音大提琴 Double Bass</a></li>
-        <li><a href="musicians.html?cat=harp">豎琴 Harp</a></li>
+        <li><a href="musicians.html?cat=violin" data-i18n="menu.violin">Violin</a></li>
+        <li><a href="musicians.html?cat=viola" data-i18n="menu.viola">Viola</a></li>
+        <li><a href="musicians.html?cat=cello" data-i18n="menu.cello">Cello</a></li>
+        <li><a href="musicians.html?cat=doublebass" data-i18n="menu.doublebass">Double Bass</a></li>
+        <li><a href="musicians.html?cat=harp" data-i18n="menu.harp">Harp</a></li>
       </ul>
     </div>
     <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=woodwinds">木管 Woodwinds</a>
+      <a class="mega-col-title" href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a>
       <ul>
-        <li><a href="musicians.html?cat=flute">長笛 Flute</a></li>
-        <li><a href="musicians.html?cat=piccolo">短笛 Piccolo</a></li>
-        <li><a href="musicians.html?cat=oboe">雙簧管 Oboe</a></li>
-        <li><a href="musicians.html?cat=clarinet">單簧管 Clarinet</a></li>
-        <li><a href="musicians.html?cat=saxophone">薩克斯風 Saxophone</a></li>
-        <li><a href="musicians.html?cat=bassoon">巴松管 Bassoon</a></li>
+        <li><a href="musicians.html?cat=flute" data-i18n="menu.flute">Flute</a></li>
+        <li><a href="musicians.html?cat=piccolo" data-i18n="menu.piccolo">Piccolo</a></li>
+        <li><a href="musicians.html?cat=oboe" data-i18n="menu.oboe">Oboe</a></li>
+        <li><a href="musicians.html?cat=clarinet" data-i18n="menu.clarinet">Clarinet</a></li>
+        <li><a href="musicians.html?cat=saxophone" data-i18n="menu.saxophone">Saxophone</a></li>
+        <li><a href="musicians.html?cat=bassoon" data-i18n="menu.bassoon">Bassoon</a></li>
       </ul>
     </div>
     <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=brass">銅管 Brass</a>
+      <a class="mega-col-title" href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a>
       <ul>
-        <li><a href="musicians.html?cat=frenchhorn">法國號 French Horn</a></li>
-        <li><a href="musicians.html?cat=trumpet">小號 Trumpet</a></li>
-        <li><a href="musicians.html?cat=trombone">長號 Trombone</a></li>
-        <li><a href="musicians.html?cat=euphonium">上低音號 Euphonium</a></li>
-        <li><a href="musicians.html?cat=tuba">大號 Tuba</a></li>
+        <li><a href="musicians.html?cat=frenchhorn" data-i18n="menu.frenchhorn">French Horn</a></li>
+        <li><a href="musicians.html?cat=trumpet" data-i18n="menu.trumpet">Trumpet</a></li>
+        <li><a href="musicians.html?cat=trombone" data-i18n="menu.trombone">Trombone</a></li>
+        <li><a href="musicians.html?cat=euphonium" data-i18n="menu.euphonium">Euphonium</a></li>
+        <li><a href="musicians.html?cat=tuba" data-i18n="menu.tuba">Tuba</a></li>
       </ul>
     </div>
     <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=percussion">打擊樂 Percussion</a>
+      <a class="mega-col-title" href="musicians.html?cat=percussion" data-i18n="menu.percussion">Percussion</a>
       <ul>
-        <li><a href="musicians.html?cat=timpani">定音鼓 Timpani</a></li>
-        <li><a href="musicians.html?cat=marimba">馬林巴 Marimba</a></li>
-        <li><a href="musicians.html?cat=vibraphone">顫音琴 Vibraphone</a></li>
-        <li><a href="musicians.html?cat=xylophone">木琴 Xylophone</a></li>
+        <li><a href="musicians.html?cat=timpani" data-i18n="menu.timpani">Timpani</a></li>
+        <li><a href="musicians.html?cat=marimba" data-i18n="menu.marimba">Marimba</a></li>
+        <li><a href="musicians.html?cat=vibraphone" data-i18n="menu.vibraphone">Vibraphone</a></li>
+        <li><a href="musicians.html?cat=xylophone" data-i18n="menu.xylophone">Xylophone</a></li>
       </ul>
     </div>
     <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=keyboard">鍵盤 Keyboard</a>
+      <a class="mega-col-title" href="musicians.html?cat=keyboard" data-i18n="menu.keyboard">Keyboard</a>
       <ul>
-        <li><a href="musicians.html?cat=piano">鋼琴 Piano</a></li>
-        <li><a href="musicians.html?cat=pipeorgan">管風琴 Pipe Organ</a></li>
+        <li><a href="musicians.html?cat=piano" data-i18n="menu.piano">Piano</a></li>
+        <li><a href="musicians.html?cat=pipeorgan" data-i18n="menu.pipeorgan">Pipe Organ</a></li>
       </ul>
     </div>
     <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=voice">聲樂 Voice</a>
+      <a class="mega-col-title" href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a>
       <ul>
-        <li><a href="musicians.html?cat=soprano">女高音 Soprano</a></li>
-        <li><a href="musicians.html?cat=mezzosoprano">次女高音 Mezzo-soprano</a></li>
-        <li><a href="musicians.html?cat=tenor">男高音 Tenor</a></li>
-        <li><a href="musicians.html?cat=baritone">男中音 Baritone</a></li>
-        <li><a href="musicians.html?cat=conductor">指揮 Conductor</a></li>
-        <li><a href="musicians.html?cat=choral">合唱 Choral</a></li>
+        <li><a href="musicians.html?cat=soprano" data-i18n="menu.soprano">Soprano</a></li>
+        <li><a href="musicians.html?cat=mezzosoprano" data-i18n="menu.mezzosoprano">Mezzo-soprano</a></li>
+        <li><a href="musicians.html?cat=tenor" data-i18n="menu.tenor">Tenor</a></li>
+        <li><a href="musicians.html?cat=baritone" data-i18n="menu.baritone">Baritone</a></li>
+        <li><a href="musicians.html?cat=choral" data-i18n="menu.choral">Choral</a></li>
       </ul>
     </div>
     <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=chamber">室內樂 Chamber</a>
+      <a class="mega-col-title" href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a>
       <ul>
-        <li><a href="musicians.html?cat=stringquartet">弦樂四重奏 String Quartet</a></li>
-        <li><a href="musicians.html?cat=pianotrio">鋼琴三重奏 Piano Trio</a></li>
-        <li><a href="musicians.html?cat=stringtrio">弦樂三重奏 String Trio</a></li>
-        <li><a href="musicians.html?cat=windquintet">木管五重奏 Wind Quintet</a></li>
-        <li><a href="musicians.html?cat=brassquintet">銅管五重奏 Brass Quintet</a></li>
-        <li><a href="musicians.html?cat=pianoquintet">鋼琴五重奏 Piano Quintet</a></li>
+        <li><a href="musicians.html?cat=stringquartet" data-i18n="menu.stringquartet">String Quartet</a></li>
+        <li><a href="musicians.html?cat=pianotrio" data-i18n="menu.pianotrio">Piano Trio</a></li>
+        <li><a href="musicians.html?cat=stringtrio" data-i18n="menu.stringtrio">String Trio</a></li>
+        <li><a href="musicians.html?cat=windquintet" data-i18n="menu.windquintet">Wind Quintet</a></li>
+        <li><a href="musicians.html?cat=brassquintet" data-i18n="menu.brassquintet">Brass Quintet</a></li>
+        <li><a href="musicians.html?cat=pianoquintet" data-i18n="menu.pianoquintet">Piano Quintet</a></li>
       </ul>
     </div>
     <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html">全部 All</a>
+      <a class="mega-col-title" href="musicians.html" data-i18n="menu.all">All</a>
       <ul>
-        <li><a href="musicians.html">所有音樂家 All Musicians</a></li>
-        <li><a href="musicians.html?cat=strings">弦樂 Strings</a></li>
-        <li><a href="musicians.html?cat=woodwinds">木管 Woodwinds</a></li>
-        <li><a href="musicians.html?cat=brass">銅管 Brass</a></li>
-        <li><a href="musicians.html?cat=voice">聲樂 Voice</a></li>
-        <li><a href="musicians.html?cat=chamber">室內樂 Chamber</a></li>
+        <li><a href="musicians.html" data-i18n="menu.allmusicians">All Musicians</a></li>
+        <li><a href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a></li>
+        <li><a href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a></li>
+        <li><a href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a></li>
+        <li><a href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a></li>
+        <li><a href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a></li>
+        <li><a href="musicians.html?cat=conductor" data-i18n="menu.conductor">Conductor</a></li><li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li>
       </ul>
     </div>
   </div>
@@ -272,9 +535,9 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
       <span class="login-label">Log in</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       <div class="nav-login-dropdown">
-        <a href="#" id="openCustomerLogin">Customer login</a>
+        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
         <div class="nav-login-vsep"></div>
-        <a href="#" id="openMusicianLogin">Musician login</a>
+        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
       </div>
     </button>
     <button class="lang-toggle" id="langToggle" aria-label="Switch language">
@@ -285,14 +548,35 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
     <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
   </div>
 </nav>
+
+<!-- Slide-in nav drawer -->
 <div class="nav-drawer" id="navDrawer">
-  <a href="musician-platform.html">Home</a>
-  <a href="blog.html">Blog</a>
-  <a href="musicians.html">Musicians</a>
+  <a href="musician-platform.html" data-i18n="nav.home">Home</a>
+  <a href="blog.html" data-i18n="nav.discover">Blog</a>
+  <button class="nd-musicians-btn" id="ndMusiciansBtn">
+    <span data-i18n="nav.artists">Musicians</span>
+    <span class="nd-arrow">›</span>
+  </button>
   <a href="recent-jobs.html">Recent Jobs</a>
-  <a href="musician-platform.html#blog">News</a>
-  <a href="musician-platform.html#contact">Contact</a>
+  <a href="shows.html" data-i18n="nav.news">Shows</a>
+  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
 </div>
+
+<!-- Musicians sub-drawer -->
+<div class="nav-sub-drawer" id="navSubDrawer">
+  <div class="nsd-head">
+    <button class="nsd-back" id="nsdBack">‹</button>
+    <div class="nsd-title" data-i18n="nav.artists">Musicians</div>
+  </div>
+  <div class="nsd-body">
+    <div class="nsd-group"><div class="nsd-group-title">Strings</div><a href="musicians.html?cat=violin">Violin</a><a href="musicians.html?cat=viola">Viola</a><a href="musicians.html?cat=cello">Cello</a><a href="musicians.html?cat=doublebass">Double Bass</a><a href="musicians.html?cat=harp">Harp</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Woodwinds</div><a href="musicians.html?cat=flute">Flute</a><a href="musicians.html?cat=oboe">Oboe</a><a href="musicians.html?cat=clarinet">Clarinet</a><a href="musicians.html?cat=saxophone">Saxophone</a><a href="musicians.html?cat=bassoon">Bassoon</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Brass</div><a href="musicians.html?cat=frenchhorn">French Horn</a><a href="musicians.html?cat=trumpet">Trumpet</a><a href="musicians.html?cat=trombone">Trombone</a><a href="musicians.html?cat=tuba">Tuba</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Keyboard</div><a href="musicians.html?cat=piano">Piano</a><a href="musicians.html?cat=pipeorgan">Pipe Organ</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Voice</div><a href="musicians.html?cat=soprano">Soprano</a><a href="musicians.html?cat=mezzosoprano">Mezzo-soprano</a><a href="musicians.html?cat=tenor">Tenor</a><a href="musicians.html?cat=baritone">Baritone</a></div>
+  </div>
+</div>
+
 <!-- Login Modal -->
 <div class="login-modal-overlay" id="loginModalOverlay">
   <div class="login-modal">
@@ -313,36 +597,36 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
   <!-- Header -->
   <div class="rj-header">
     <div>
-      <div class="rj-title-label">(Job Board©)</div>
-      <div class="rj-title">Recent Jobs</div>
+      <div class="rj-title-label" data-i18n="jobs.eyebrow">(Job Board©)</div>
+      <div class="rj-title" data-i18n="jobs.title">Recent Jobs</div>
     </div>
-    <a href="musician-platform.html#contact" class="rj-post-btn">
+    <button class="rj-post-btn" id="openPostJob">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-      Post a Job
-    </a>
+      <span data-i18n="jobs.post">Post a Job</span>
+    </button>
   </div>
 
   <!-- Filters -->
   <div class="rj-filters">
-    <div class="rj-filter active">All</div>
-    <div class="rj-filter">Session</div>
-    <div class="rj-filter">Live Event</div>
-    <div class="rj-filter">Recording</div>
-    <div class="rj-filter">Masterclass</div>
-    <div class="rj-filter">Corporate</div>
-    <div class="rj-filter">Ensemble</div>
+    <div class="rj-filter active" data-i18n="jobs.filter.all">All</div>
+    <div class="rj-filter" data-i18n="jobs.filter.session">Session</div>
+    <div class="rj-filter" data-i18n="jobs.filter.live">Live Event</div>
+    <div class="rj-filter" data-i18n="jobs.filter.recording">Recording</div>
+    <div class="rj-filter" data-i18n="jobs.filter.masterclass">Masterclass</div>
+    <div class="rj-filter" data-i18n="jobs.filter.corporate">Corporate</div>
+    <div class="rj-filter" data-i18n="jobs.filter.ensemble">Ensemble</div>
   </div>
 
   <div class="rj-body">
 
     <!-- LEFT: Reviews -->
     <div class="rj-reviews">
-      <div class="rj-reviews-label">Recent Successes</div>
+      <div class="rj-reviews-label" data-i18n="jobs.reviews.title">Recent Successes</div>
 
       <div class="rj-review-item">
         <div class="rj-review-stars">★★★★★</div>
-        <p class="rj-review-text">"Found the perfect violinist within 24 hours. Incredibly professional and the recording was flawless."</p>
-        <div class="rj-review-meta">Job Completed</div>
+        <p class="rj-review-text" data-i18n="jobs.review1.text">"Found the perfect violinist within 24 hours. Incredibly professional and the recording was flawless."</p>
+        <div class="rj-review-meta" data-i18n="jobs.reviews.completed">Job Completed</div>
         <div class="rj-review-collab">
           <div class="rj-review-avatar" style="background:linear-gradient(135deg,#667eea,#764ba2);">SL</div>
           <div class="rj-review-collab-text"><strong>Sofia L.</strong> worked with<br><strong>Chen Wei — Violin</strong></div>
@@ -351,8 +635,8 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
 
       <div class="rj-review-item">
         <div class="rj-review-stars">★★★★★</div>
-        <p class="rj-review-text">"Our corporate event was elevated by the string quartet. Guests were blown away. Will book again."</p>
-        <div class="rj-review-meta">Job Completed</div>
+        <p class="rj-review-text" data-i18n="jobs.review2.text">"Our corporate event was elevated by the string quartet. Guests were blown away. Will book again."</p>
+        <div class="rj-review-meta" data-i18n="jobs.reviews.completed">Job Completed</div>
         <div class="rj-review-collab">
           <div class="rj-review-avatar" style="background:linear-gradient(135deg,#f093fb,#f5576c);">MK</div>
           <div class="rj-review-collab-text"><strong>Marcus K.</strong> worked with<br><strong>Aria Quartet</strong></div>
@@ -361,8 +645,8 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
 
       <div class="rj-review-item">
         <div class="rj-review-stars">★★★★☆</div>
-        <p class="rj-review-text">"Session pianist adapted to my demo instantly. Delivered exactly the vibe I was looking for."</p>
-        <div class="rj-review-meta">Job Completed</div>
+        <p class="rj-review-text" data-i18n="jobs.review3.text">"Session pianist adapted to my demo instantly. Delivered exactly the vibe I was looking for."</p>
+        <div class="rj-review-meta" data-i18n="jobs.reviews.completed">Job Completed</div>
         <div class="rj-review-collab">
           <div class="rj-review-avatar" style="background:linear-gradient(135deg,#4facfe,#00f2fe);">JT</div>
           <div class="rj-review-collab-text"><strong>Jamie T.</strong> worked with<br><strong>David Park — Piano</strong></div>
@@ -371,8 +655,8 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
 
       <div class="rj-review-item">
         <div class="rj-review-stars">★★★★★</div>
-        <p class="rj-review-text">"Masterclass was incredibly insightful. My students made more progress in 2 hours than in months."</p>
-        <div class="rj-review-meta">Job Completed</div>
+        <p class="rj-review-text" data-i18n="jobs.review4.text">"Masterclass was incredibly insightful. My students made more progress in 2 hours than in months."</p>
+        <div class="rj-review-meta" data-i18n="jobs.reviews.completed">Job Completed</div>
         <div class="rj-review-collab">
           <div class="rj-review-avatar" style="background:linear-gradient(135deg,#43e97b,#38f9d7);">RL</div>
           <div class="rj-review-collab-text"><strong>Rachel L.</strong> worked with<br><strong>Yuki Tanaka — Flute</strong></div>
@@ -384,10 +668,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
     <div class="rj-grid">
 
       <div class="rj-card">
-        <span class="rj-type-badge">Session</span>
+        <span class="rj-type-badge" data-i18n="jobs.filter.session">Session</span>
         <div class="rj-instr-pill">Violin</div>
-        <div class="rj-card-title">Solo Violin for Cinematic Album</div>
-        <div class="rj-card-desc">Looking for an expressive violinist to record 3 solo pieces for a film score album. Emotional, neoclassical style preferred.</div>
+        <div class="rj-card-title" data-i18n="jobs.card1.title">Solo Violin for Cinematic Album</div>
+        <div class="rj-card-desc" data-i18n="jobs.card1.desc">Looking for an expressive violinist to record 3 solo pieces for a film score album. Emotional, neoclassical style preferred.</div>
         <div class="rj-card-meta">
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Remote / Online</div>
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Est. 3–5 hrs</div>
@@ -395,10 +679,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
       </div>
 
       <div class="rj-card">
-        <span class="rj-type-badge">Live Event</span>
+        <span class="rj-type-badge" data-i18n="jobs.filter.live">Live Event</span>
         <div class="rj-instr-pill">Saxophone</div>
-        <div class="rj-card-title">Jazz Saxophonist for Wedding Reception</div>
-        <div class="rj-card-desc">Need a smooth jazz sax player for a 3-hour wedding reception in Hong Kong. Cocktail hour background music + 1 feature set.</div>
+        <div class="rj-card-title" data-i18n="jobs.card2.title">Jazz Saxophonist for Wedding Reception</div>
+        <div class="rj-card-desc" data-i18n="jobs.card2.desc">Need a smooth jazz sax player for a 3-hour wedding reception in Hong Kong. Cocktail hour background music + 1 feature set.</div>
         <div class="rj-card-meta">
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Hong Kong</div>
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>3 hrs</div>
@@ -406,10 +690,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
       </div>
 
       <div class="rj-card">
-        <span class="rj-type-badge">Masterclass</span>
+        <span class="rj-type-badge" data-i18n="jobs.filter.masterclass">Masterclass</span>
         <div class="rj-instr-pill">Piano</div>
-        <div class="rj-card-title">Advanced Piano Masterclass (Group)</div>
-        <div class="rj-card-desc">Seeking a concert-level pianist to lead a masterclass for 6 advanced students. Repertoire: Chopin & Ravel. Cantonese speaker a plus.</div>
+        <div class="rj-card-title" data-i18n="jobs.card3.title">Advanced Piano Masterclass (Group)</div>
+        <div class="rj-card-desc" data-i18n="jobs.card3.desc">Seeking a concert-level pianist to lead a masterclass for 6 advanced students. Repertoire: Chopin & Ravel. Cantonese speaker a plus.</div>
         <div class="rj-card-meta">
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Taipei / Online</div>
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>2 hrs</div>
@@ -417,10 +701,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
       </div>
 
       <div class="rj-card">
-        <span class="rj-type-badge">Corporate</span>
+        <span class="rj-type-badge" data-i18n="jobs.filter.corporate">Corporate</span>
         <div class="rj-instr-pill">String Quartet</div>
-        <div class="rj-card-title">String Quartet — Annual Gala Dinner</div>
-        <div class="rj-card-desc">Top-tier law firm seeks a polished string quartet for their annual awards gala. Elegant classical repertoire. Black tie event.</div>
+        <div class="rj-card-title" data-i18n="jobs.card4.title">String Quartet — Annual Gala Dinner</div>
+        <div class="rj-card-desc" data-i18n="jobs.card4.desc">Top-tier law firm seeks a polished string quartet for their annual awards gala. Elegant classical repertoire. Black tie event.</div>
         <div class="rj-card-meta">
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Shenzhen</div>
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>4 hrs</div>
@@ -428,10 +712,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
       </div>
 
       <div class="rj-card">
-        <span class="rj-type-badge">Recording</span>
+        <span class="rj-type-badge" data-i18n="jobs.filter.recording">Recording</span>
         <div class="rj-instr-pill">Trumpet</div>
-        <div class="rj-card-title">Trumpet Overdubs for Pop Album</div>
-        <div class="rj-card-desc">Need a versatile trumpet player to add horn lines to 4 tracks. Must read charts quickly. Files sent remotely, recorded at your studio.</div>
+        <div class="rj-card-title" data-i18n="jobs.card5.title">Trumpet Overdubs for Pop Album</div>
+        <div class="rj-card-desc" data-i18n="jobs.card5.desc">Need a versatile trumpet player to add horn lines to 4 tracks. Must read charts quickly. Files sent remotely, recorded at your studio.</div>
         <div class="rj-card-meta">
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Remote / Online</div>
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>2–4 hrs</div>
@@ -439,10 +723,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
       </div>
 
       <div class="rj-card">
-        <span class="rj-type-badge">Live Event</span>
+        <span class="rj-type-badge" data-i18n="jobs.filter.live">Live Event</span>
         <div class="rj-instr-pill">Percussion</div>
-        <div class="rj-card-title">Percussionist for Theatre Production</div>
-        <div class="rj-card-desc">Musical theatre company needs a percussionist for a 2-week run. Must cover drum kit + auxiliary percussion. Rehearsals start in 3 weeks.</div>
+        <div class="rj-card-title" data-i18n="jobs.card6.title">Percussionist for Theatre Production</div>
+        <div class="rj-card-desc" data-i18n="jobs.card6.desc">Musical theatre company needs a percussionist for a 2-week run. Must cover drum kit + auxiliary percussion. Rehearsals start in 3 weeks.</div>
         <div class="rj-card-meta">
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Hong Kong</div>
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>2 weeks</div>
@@ -450,10 +734,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
       </div>
 
       <div class="rj-card">
-        <span class="rj-type-badge">Ensemble</span>
+        <span class="rj-type-badge" data-i18n="jobs.filter.ensemble">Ensemble</span>
         <div class="rj-instr-pill">Wind Trio</div>
-        <div class="rj-card-title">Flute, Oboe & Clarinet — Gallery Opening</div>
-        <div class="rj-card-desc">Art gallery seeks a wind trio for a 90-min opening night performance. Contemporary and classical mix. Outdoor-capable a plus.</div>
+        <div class="rj-card-title" data-i18n="jobs.card7.title">Flute, Oboe &amp; Clarinet — Gallery Opening</div>
+        <div class="rj-card-desc" data-i18n="jobs.card7.desc">Art gallery seeks a wind trio for a 90-min opening night performance. Contemporary and classical mix. Outdoor-capable a plus.</div>
         <div class="rj-card-meta">
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Taipei</div>
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>1.5 hrs</div>
@@ -461,15 +745,137 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
       </div>
 
       <div class="rj-card">
-        <span class="rj-type-badge">Session</span>
+        <span class="rj-type-badge" data-i18n="jobs.filter.session">Session</span>
         <div class="rj-instr-pill">Guitar</div>
-        <div class="rj-card-title">Acoustic Guitar — Singer-Songwriter EP</div>
-        <div class="rj-card-desc">Indie folk artist needs a fingerstyle guitarist for a 5-track EP. Warm, intimate tone. Reference: Iron & Wine, Nick Drake style.</div>
+        <div class="rj-card-title" data-i18n="jobs.card8.title">Acoustic Guitar — Singer-Songwriter EP</div>
+        <div class="rj-card-desc" data-i18n="jobs.card8.desc">Indie folk artist needs a fingerstyle guitarist for a 5-track EP. Warm, intimate tone. Reference: Iron &amp; Wine, Nick Drake style.</div>
         <div class="rj-card-meta">
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Remote / Online</div>
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>5–8 hrs</div>
         </div>
       </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ── Auth Gate Modal (sign up / sign in to post) ── -->
+<div class="pj-auth-overlay" id="pjAuthOverlay">
+  <div class="pj-auth-modal" id="pjAuthModal">
+    <button class="pj-auth-close" id="pjAuthClose">✕</button>
+
+    <!-- Sign-Up view (default) -->
+    <div id="pjAuthSignup">
+      <div class="pj-auth-eyebrow">OPUS.Z — Job Board</div>
+      <div class="pj-auth-title">Create a free account</div>
+      <div class="pj-auth-sub">Sign up to post projects and connect with musicians.</div>
+      <div class="pj-auth-fields">
+        <div class="pj-auth-field">
+          <div class="pj-auth-label">Full Name</div>
+          <input class="pj-auth-input" id="authSignupName" type="text" placeholder="Your name" autocomplete="name" />
+        </div>
+        <div class="pj-auth-field">
+          <div class="pj-auth-label">Email</div>
+          <input class="pj-auth-input" id="authSignupEmail" type="email" placeholder="your@email.com" autocomplete="email" />
+        </div>
+        <div class="pj-auth-field">
+          <div class="pj-auth-label">Password</div>
+          <input class="pj-auth-input" id="authSignupPwd" type="password" placeholder="Create a password" autocomplete="new-password" />
+        </div>
+      </div>
+      <button class="pj-auth-btn" id="pjSignupBtn">Sign Up &amp; Continue →</button>
+      <div class="pj-auth-switch">Already have an account? <a id="switchToLogin">Sign in</a></div>
+    </div>
+
+    <!-- Sign-In view (hidden) -->
+    <div id="pjAuthLogin" style="display:none;">
+      <div class="pj-auth-eyebrow">OPUS.Z — Job Board</div>
+      <div class="pj-auth-title">Welcome back</div>
+      <div class="pj-auth-sub">Sign in to post your project.</div>
+      <div class="pj-auth-fields">
+        <div class="pj-auth-field">
+          <div class="pj-auth-label">Email</div>
+          <input class="pj-auth-input" id="authLoginEmail" type="email" placeholder="your@email.com" autocomplete="email" />
+        </div>
+        <div class="pj-auth-field">
+          <div class="pj-auth-label">Password</div>
+          <input class="pj-auth-input" id="authLoginPwd" type="password" placeholder="Your password" autocomplete="current-password" />
+        </div>
+      </div>
+      <button class="pj-auth-btn" id="pjLoginBtn">Sign In &amp; Continue →</button>
+      <div class="pj-auth-switch">No account yet? <a id="switchToSignup">Create one</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Post a Job Modal ── -->
+<div class="pj-overlay" id="pjOverlay">
+  <div class="pj-modal">
+    <div class="pj-modal-head">
+      <div>
+        <div class="pj-eyebrow">OPUS.Z — Job Board</div>
+        <div class="pj-title">Post a Project</div>
+      </div>
+      <button class="pj-close" id="pjClose">✕</button>
+    </div>
+    <div class="pj-body">
+
+      <!-- Event type -->
+      <div class="pj-section-label" style="margin-top:4px;">What's the occasion?</div>
+      <div class="pj-type-pills">
+        <button class="pj-pill" data-type="wedding">Wedding</button>
+        <button class="pj-pill" data-type="corporate">Corporate Event</button>
+        <button class="pj-pill" data-type="recording">Recording Session</button>
+        <button class="pj-pill" data-type="concert">Concert / Performance</button>
+        <button class="pj-pill" data-type="masterclass">Masterclass</button>
+        <button class="pj-pill" data-type="private">Private Event</button>
+        <button class="pj-pill" data-type="other">Other</button>
+      </div>
+
+      <!-- Fields -->
+      <div class="pj-fields">
+        <!-- Row 1: Date + Location -->
+        <div class="pj-row">
+          <div class="pj-field">
+            <div class="pj-label">Event Date</div>
+            <input class="pj-input" type="text" placeholder="e.g. 15 Aug 2025" />
+          </div>
+          <div class="pj-field">
+            <div class="pj-label">Location</div>
+            <input class="pj-input" type="text" placeholder="e.g. Taipei, Grand Ballroom" />
+          </div>
+        </div>
+        <!-- Row 2: Duration + Ensemble -->
+        <div class="pj-row">
+          <div class="pj-field">
+            <div class="pj-label">Duration</div>
+            <input class="pj-input" type="text" placeholder="e.g. 2 hours, half day" />
+          </div>
+          <div class="pj-field">
+            <div class="pj-label">Desired Ensemble / Instrumentation</div>
+            <input class="pj-input" type="text" placeholder="e.g. String Quartet, Solo Piano" />
+          </div>
+        </div>
+        <!-- Description -->
+        <div class="pj-field">
+          <div class="pj-label">Tell us about the project</div>
+          <textarea class="pj-textarea" placeholder="Describe the event, repertoire style, atmosphere, or any special requirements…"></textarea>
+        </div>
+        <!-- Row 3: Name + Email -->
+        <div class="pj-row">
+          <div class="pj-field">
+            <div class="pj-label">Your Name</div>
+            <input class="pj-input" type="text" placeholder="Full name" />
+          </div>
+          <div class="pj-field">
+            <div class="pj-label">Email</div>
+            <input class="pj-input" type="email" placeholder="your@email.com" />
+          </div>
+        </div>
+      </div>
+
+      <button class="pj-submit" id="pjSubmit">Find Musicians →</button>
+      <div class="pj-note">We'll match you with available musicians within 24 hours.</div>
 
     </div>
   </div>
@@ -484,30 +890,236 @@ document.querySelectorAll('.rj-filter').forEach(btn => {
   });
 });
 
+// ── Post-Job Modal ──
+var pjOverlay   = document.getElementById('pjOverlay');
+var pjClose     = document.getElementById('pjClose');
+var openBtn     = document.getElementById('openPostJob');
+var pjAuthOverlay = document.getElementById('pjAuthOverlay');
+var pjAuthClose = document.getElementById('pjAuthClose');
+
+var SESSION_KEY = 'opusz_customer_session';
+
+function isLoggedIn() { return !!localStorage.getItem(SESSION_KEY); }
+
+function openPjModal() {
+  pjOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closePjModal() {
+  pjOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+function openAuthGate() {
+  pjAuthOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeAuthGate() {
+  pjAuthOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// Post a Job button — gate behind login
+if (openBtn) openBtn.addEventListener('click', function() {
+  if (isLoggedIn()) {
+    openPjModal();
+  } else {
+    openAuthGate();
+  }
+});
+
+// Auth gate close
+if (pjAuthClose) pjAuthClose.addEventListener('click', closeAuthGate);
+pjAuthOverlay && pjAuthOverlay.addEventListener('click', function(e) {
+  if (e.target === pjAuthOverlay) closeAuthGate();
+});
+
+// Switch sign-up ↔ sign-in
+var switchToLogin  = document.getElementById('switchToLogin');
+var switchToSignup = document.getElementById('switchToSignup');
+var pjAuthSignup   = document.getElementById('pjAuthSignup');
+var pjAuthLoginV   = document.getElementById('pjAuthLogin');
+if (switchToLogin)  switchToLogin.addEventListener('click',  function() { pjAuthSignup.style.display='none'; pjAuthLoginV.style.display=''; });
+if (switchToSignup) switchToSignup.addEventListener('click', function() { pjAuthLoginV.style.display='none'; pjAuthSignup.style.display=''; });
+
+// Sign Up → set session → open PJ modal
+var pjSignupBtn = document.getElementById('pjSignupBtn');
+if (pjSignupBtn) pjSignupBtn.addEventListener('click', function() {
+  var email = document.getElementById('authSignupEmail').value.trim();
+  var name  = document.getElementById('authSignupName').value.trim();
+  if (!name || !email) { pjSignupBtn.textContent = 'Please fill in name & email'; setTimeout(function(){ pjSignupBtn.textContent = 'Sign Up & Continue →'; }, 2000); return; }
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ name: name, email: email }));
+  closeAuthGate();
+  openPjModal();
+});
+
+// Sign In → set session → open PJ modal
+var pjLoginBtn = document.getElementById('pjLoginBtn');
+if (pjLoginBtn) pjLoginBtn.addEventListener('click', function() {
+  var email = document.getElementById('authLoginEmail').value.trim();
+  if (!email) { pjLoginBtn.textContent = 'Please enter your email'; setTimeout(function(){ pjLoginBtn.textContent = 'Sign In & Continue →'; }, 2000); return; }
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ email: email }));
+  closeAuthGate();
+  openPjModal();
+});
+
+// Close Post-Job modal
+if (pjClose) pjClose.addEventListener('click', closePjModal);
+pjOverlay && pjOverlay.addEventListener('click', function(e) { if (e.target === pjOverlay) closePjModal(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') { closePjModal(); closeAuthGate(); } });
+
+// Type pill selection (single select)
+document.querySelectorAll('.pj-pill').forEach(function(pill) {
+  pill.addEventListener('click', function() {
+    document.querySelectorAll('.pj-pill').forEach(function(p) { p.classList.remove('active'); });
+    pill.classList.add('active');
+  });
+});
+
+// Submit — simple confirmation
+var pjSubmit = document.getElementById('pjSubmit');
+if (pjSubmit) pjSubmit.addEventListener('click', function() {
+  pjSubmit.textContent = 'Inquiry Sent ✓';
+  pjSubmit.style.background = '#2d6a4f';
+  setTimeout(function() { closePjModal(); pjSubmit.textContent = 'Find Musicians →'; pjSubmit.style.background = ''; }, 2200);
+});
+
+// ── i18n ──
+var _currentLang = 'en';
+var I18N = {
+  en: {
+    'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
+    'nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
+    'menu.strings':'Strings','menu.violin':'Violin','menu.viola':'Viola',
+    'menu.cello':'Cello','menu.doublebass':'Double Bass','menu.harp':'Harp',
+    'menu.woodwinds':'Woodwinds','menu.flute':'Flute','menu.piccolo':'Piccolo',
+    'menu.oboe':'Oboe','menu.clarinet':'Clarinet','menu.saxophone':'Saxophone',
+    'menu.bassoon':'Bassoon','menu.brass':'Brass','menu.frenchhorn':'French Horn',
+    'menu.trumpet':'Trumpet','menu.trombone':'Trombone','menu.euphonium':'Euphonium',
+    'menu.tuba':'Tuba','menu.percussion':'Percussion','menu.timpani':'Timpani',
+    'menu.marimba':'Marimba','menu.vibraphone':'Vibraphone','menu.xylophone':'Xylophone',
+    'menu.keyboard':'Keyboard','menu.piano':'Piano','menu.pipeorgan':'Pipe Organ',
+    'menu.voice':'Voice','menu.soprano':'Soprano','menu.mezzosoprano':'Mezzo-soprano',
+    'menu.tenor':'Tenor','menu.baritone':'Baritone','menu.choral':'Choral',
+    'menu.chamber':'Chamber','menu.stringquartet':'String Quartet',
+    'menu.pianotrio':'Piano Trio','menu.stringtrio':'String Trio',
+    'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet',
+    'menu.pianoquintet':'Piano Quintet','menu.all':'All','menu.allmusicians':'All Musicians',
+    'menu.conductor':'Conductor','menu.tuner':'Tuner',
+    'login.customer':'Customer login','login.musician':'Musician login',
+    'jobs.eyebrow':'(Job Board©)','jobs.title':'Recent Jobs','jobs.post':'Post a Job',
+    'jobs.filter.all':'All','jobs.filter.session':'Session','jobs.filter.live':'Live Event',
+    'jobs.filter.recording':'Recording','jobs.filter.masterclass':'Masterclass',
+    'jobs.filter.corporate':'Corporate','jobs.filter.ensemble':'Ensemble',
+    'jobs.reviews.title':'Recent Successes','jobs.reviews.completed':'Job Completed',
+    'jobs.review1.text':'"Found the perfect violinist within 24 hours. Incredibly professional and the recording was flawless."',
+    'jobs.review2.text':'"Our corporate event was elevated by the string quartet. Guests were blown away. Will book again."',
+    'jobs.review3.text':'"Session pianist adapted to my demo instantly. Delivered exactly the vibe I was looking for."',
+    'jobs.review4.text':'"Masterclass was incredibly insightful. My students made more progress in 2 hours than in months."',
+    'jobs.card1.title':'Solo Violin for Cinematic Album',
+    'jobs.card1.desc':'Looking for an expressive violinist to record 3 solo pieces for a film score album. Emotional, neoclassical style preferred.',
+    'jobs.card2.title':'Jazz Saxophonist for Wedding Reception',
+    'jobs.card2.desc':'Need a smooth jazz sax player for a 3-hour wedding reception in Hong Kong. Cocktail hour background music + 1 feature set.',
+    'jobs.card3.title':'Advanced Piano Masterclass (Group)',
+    'jobs.card3.desc':'Seeking a concert-level pianist to lead a masterclass for 6 advanced students. Repertoire: Chopin & Ravel. Cantonese speaker a plus.',
+    'jobs.card4.title':'String Quartet — Annual Gala Dinner',
+    'jobs.card4.desc':'Top-tier law firm seeks a polished string quartet for their annual awards gala. Elegant classical repertoire. Black tie event.',
+    'jobs.card5.title':'Trumpet Overdubs for Pop Album',
+    'jobs.card5.desc':'Need a versatile trumpet player to add horn lines to 4 tracks. Must read charts quickly. Files sent remotely, recorded at your studio.',
+    'jobs.card6.title':'Percussionist for Theatre Production',
+    'jobs.card6.desc':'Musical theatre company needs a percussionist for a 2-week run. Must cover drum kit + auxiliary percussion. Rehearsals start in 3 weeks.',
+    'jobs.card7.title':'Flute, Oboe & Clarinet — Gallery Opening',
+    'jobs.card7.desc':'Art gallery seeks a wind trio for a 90-min opening night performance. Contemporary and classical mix. Outdoor-capable a plus.',
+    'jobs.card8.title':'Acoustic Guitar — Singer-Songwriter EP',
+    'jobs.card8.desc':'Indie folk artist needs a fingerstyle guitarist for a 5-track EP. Warm, intimate tone. Reference: Iron & Wine, Nick Drake style.'
+  },
+  zh: {
+    'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
+    'nav.news':'演出','nav.contact':'聯絡','nav.lessons':'音樂老師',
+    'menu.strings':'弦樂','menu.violin':'小提琴','menu.viola':'中提琴',
+    'menu.cello':'大提琴','menu.doublebass':'低音提琴','menu.harp':'豎琴',
+    'menu.woodwinds':'木管','menu.flute':'長笛','menu.piccolo':'短笛',
+    'menu.oboe':'雙簧管','menu.clarinet':'單簧管','menu.saxophone':'薩克斯風',
+    'menu.bassoon':'低音管','menu.brass':'銅管','menu.frenchhorn':'法國號',
+    'menu.trumpet':'小號','menu.trombone':'長號','menu.euphonium':'上低音號',
+    'menu.tuba':'大號','menu.percussion':'打擊','menu.timpani':'定音鼓',
+    'menu.marimba':'馬林巴','menu.vibraphone':'顫音琴','menu.xylophone':'木琴',
+    'menu.keyboard':'鍵盤','menu.piano':'鋼琴','menu.pipeorgan':'管風琴',
+    'menu.voice':'聲樂','menu.soprano':'女高音','menu.mezzosoprano':'次女高音',
+    'menu.tenor':'男高音','menu.baritone':'男中音','menu.choral':'合唱',
+    'menu.chamber':'室樂','menu.stringquartet':'弦樂四重奏',
+    'menu.pianotrio':'鋼琴三重奏','menu.stringtrio':'弦樂三重奏',
+    'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏',
+    'menu.pianoquintet':'鋼琴五重奏','menu.all':'全部','menu.allmusicians':'所有音樂家',
+    'menu.conductor':'指揮','menu.tuner':'調音師',
+    'login.customer':'客戶登入','login.musician':'音樂家登入',
+    'jobs.eyebrow':'（工作機會©）','jobs.title':'近期工作','jobs.post':'發布工作',
+    'jobs.filter.all':'全部','jobs.filter.session':'錄音','jobs.filter.live':'現場演出',
+    'jobs.filter.recording':'錄音室','jobs.filter.masterclass':'大師班',
+    'jobs.filter.corporate':'企業活動','jobs.filter.ensemble':'樂團',
+    'jobs.reviews.title':'近期成功案例','jobs.reviews.completed':'工作完成',
+    'jobs.review1.text':'「24 小時內找到完美的小提琴手，非常專業，錄音成果無可挑剔。」',
+    'jobs.review2.text':'「弦樂四重奏讓我們的企業活動提升到另一個層次，賓客讚不絕口，下次還要合作。」',
+    'jobs.review3.text':'「錄音鋼琴手立刻掌握我的 demo 風格，呈現出我想要的感覺。」',
+    'jobs.review4.text':'「大師班收穫滿滿，我的學生 2 小時的進步勝過好幾個月的練習。」',
+    'jobs.card1.title':'電影專輯獨奏小提琴',
+    'jobs.card1.desc':'尋找富有表現力的小提琴手，為電影配樂專輯錄製 3 首獨奏曲。偏好情感豐富的新古典風格。',
+    'jobs.card2.title':'婚禮接待爵士薩克斯風手',
+    'jobs.card2.desc':'需要一位爵士薩克斯風手，在香港參與 3 小時婚禮接待演出，包含雞尾酒時段背景音樂及一段主題表演。',
+    'jobs.card3.title':'鋼琴大師班（進階小組）',
+    'jobs.card3.desc':'徵求演奏會等級鋼琴家，為 6 位進階學生帶領大師班，曲目以蕭邦與拉威爾為主，會粵語者尤佳。',
+    'jobs.card4.title':'弦樂四重奏 — 年度頒獎晚宴',
+    'jobs.card4.desc':'頂尖律師事務所徵求精緻弦樂四重奏，參與年度頒獎典禮，演奏優雅古典曲目，正式晚宴場合。',
+    'jobs.card5.title':'流行專輯小號補錄',
+    'jobs.card5.desc':'需要多才多藝的小號手，為 4 首曲目加入銅管旋律線，必須能快速讀譜，遠端接收譜面、在自備錄音室完成錄製。',
+    'jobs.card6.title':'劇場製作打擊樂手',
+    'jobs.card6.desc':'音樂劇公司徵求打擊樂手，參與為期 2 週的演出，須兼顧架子鼓及輔助打擊樂器，3 週後開始排練。',
+    'jobs.card7.title':'長笛、雙簧管與單簧管三重奏 — 藝廊開幕',
+    'jobs.card7.desc':'藝廊徵求木管三重奏，演出 90 分鐘開幕夜表演，曲目涵蓋當代與古典，可戶外演出者尤佳。',
+    'jobs.card8.title':'木吉他 — 創作歌手 EP',
+    'jobs.card8.desc':'獨立民謠歌手徵求指彈吉他手，錄製 5 首 EP，音色溫暖細膩，參考風格：Iron & Wine、Nick Drake。'
+  }
+};
+
+function switchLang(lang) {
+  _currentLang = lang;
+  var dict = I18N[lang] || I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n')];
+    if (v !== undefined) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n-ph')];
+    if (v !== undefined) el.placeholder = v;
+  });
+  document.querySelectorAll('#langToggle .lt-opt').forEach(function(o) {
+    o.classList.toggle('active', o.dataset.l === lang);
+  });
+  document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+  if (typeof window.__navResplit === 'function') window.__navResplit();
+}
+
 // ── Nav JS (identical to all pages) ──
 document.addEventListener('DOMContentLoaded', function(){
   // Lang toggle
   var langToggle = document.getElementById('langToggle');
   if(langToggle){
     langToggle.addEventListener('click', function(e){
-      var opts = langToggle.querySelectorAll('.lt-opt');
-      var cur = langToggle.querySelector('.lt-opt.active');
-      opts.forEach(function(o){ o.classList.remove('active'); });
-      var next = cur && cur.dataset.l === 'en' ? langToggle.querySelector('[data-l="zh"]') : langToggle.querySelector('[data-l="en"]');
-      if(next) next.classList.add('active');
+      var opt = e.target.closest('[data-l]');
+      switchLang(opt ? opt.dataset.l : (_currentLang === 'en' ? 'zh' : 'en'));
     });
   }
 
   // Login dropdown
   var loginBtn = document.getElementById('navLoginBtn');
   if(loginBtn){
-    loginBtn.addEventListener('click', function(e){
-      e.stopPropagation();
-      loginBtn.classList.toggle('open');
-    });
-    document.addEventListener('click', function(){
-      loginBtn.classList.remove('open');
-    });
+    var loginLeaveTimer;
+    loginBtn.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); this.classList.add('open'); });
+    loginBtn.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
+    var dropdown = loginBtn.querySelector('.nav-login-dropdown');
+    if(dropdown){
+      dropdown.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); });
+      dropdown.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
+    }
   }
 
   // Login modal
@@ -515,41 +1127,48 @@ document.addEventListener('DOMContentLoaded', function(){
   var modalClose = document.getElementById('loginModalClose');
   var modalTitle = document.getElementById('loginModalTitle');
   var openCustomer = document.getElementById('openCustomerLogin');
-  var openMusician = document.getElementById('openMusicianLogin');
   function openModal(title){
     if(modalTitle) modalTitle.textContent = title;
     if(overlay) overlay.classList.add('open');
     if(loginBtn) loginBtn.classList.remove('open');
   }
   if(openCustomer) openCustomer.addEventListener('click', function(e){ e.preventDefault(); openModal('Customer Login'); });
-  if(openMusician) openMusician.addEventListener('click', function(e){ e.preventDefault(); openModal('Musician Login'); });
   if(modalClose) modalClose.addEventListener('click', function(){ overlay.classList.remove('open'); });
   if(overlay) overlay.addEventListener('click', function(e){ if(e.target === overlay) overlay.classList.remove('open'); });
 
   // Hamburger drawer
   var hamburger = document.getElementById('hamburgerBtn');
   var drawer = document.getElementById('navDrawer');
+  var navSubDrawer = document.getElementById('navSubDrawer');
+  var drawerTimeout;
+  function openDrawer(){ clearTimeout(drawerTimeout); drawer.classList.add('nd-visible'); }
+  function closeDrawer(){ if(navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return; drawerTimeout = setTimeout(function(){ drawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
+  function closeBoth(){ drawerTimeout = setTimeout(function(){ drawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
   if(hamburger && drawer){
-    hamburger.addEventListener('click', function(){
-      drawer.classList.toggle('nd-visible');
-    });
-    document.addEventListener('click', function(e){
-      if(!drawer.contains(e.target) && !hamburger.contains(e.target)){
-        drawer.classList.remove('nd-visible');
-      }
-    });
+    hamburger.addEventListener('mouseenter', openDrawer);
+    hamburger.addEventListener('mouseleave', closeDrawer);
+    drawer.addEventListener('mouseenter', openDrawer);
+    drawer.addEventListener('mouseleave', closeDrawer);
+  }
+  if(navSubDrawer){ navSubDrawer.addEventListener('mouseenter', function(){ clearTimeout(drawerTimeout); }); navSubDrawer.addEventListener('mouseleave', closeBoth); }
+  var ndMusiciansBtn = document.getElementById('ndMusiciansBtn');
+  var nsdBack = document.getElementById('nsdBack');
+  if(ndMusiciansBtn && navSubDrawer){
+    ndMusiciansBtn.addEventListener('click', function(){ clearTimeout(drawerTimeout); navSubDrawer.classList.add('ns-visible'); });
+    nsdBack.addEventListener('click', function(){ navSubDrawer.classList.remove('ns-visible'); });
   }
 
-  // Mega menu (Musicians nav item)
-  var musiciansTrigger = document.getElementById('musicians-nav-item');
+  // Mega menu
+  var artistsTrigger = document.getElementById('artists-nav-item');
   var megaMenu = document.getElementById('artistsMegaMenu');
-  if(musiciansTrigger && megaMenu){
-    var musLink = musiciansTrigger.querySelector('a');
+  var navEl = document.querySelector('nav');
+  if(artistsTrigger && megaMenu){
+    var artistsLink = artistsTrigger.querySelector('a');
     var mmTimeout;
-    function openMega(){ clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); if(musLink) musLink.classList.add('mm-active'); }
-    function closeMega(){ mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if(musLink) musLink.classList.remove('mm-active'); }, 80); }
-    musiciansTrigger.addEventListener('mouseenter', openMega);
-    musiciansTrigger.addEventListener('mouseleave', closeMega);
+    function openMega(){ clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); if(artistsLink) artistsLink.classList.add('mm-active'); if(navEl) navEl.classList.add('mega-open'); }
+    function closeMega(){ mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if(artistsLink) artistsLink.classList.remove('mm-active'); if(navEl) navEl.classList.remove('mega-open'); }, 80); }
+    artistsTrigger.addEventListener('mouseenter', openMega);
+    artistsTrigger.addEventListener('mouseleave', closeMega);
     megaMenu.addEventListener('mouseenter', openMega);
     megaMenu.addEventListener('mouseleave', closeMega);
   }
@@ -571,5 +1190,121 @@ document.addEventListener('DOMContentLoaded', function(){
   updateFavCount();
 });
 </script>
+
+<script>
+/* ── Nav: scroll hide/show with lerp ── */
+(function() {
+  var navEl = document.querySelector('nav');
+  var navH = navEl ? navEl.offsetHeight : 64;
+  var navTarget = 0, navCurrent = 0, lastY = 0, raf = null;
+  function tick() {
+    navCurrent += (navTarget - navCurrent) * 0.1;
+    if (navEl) navEl.style.top = navCurrent + 'px';
+    if (Math.abs(navTarget - navCurrent) < 0.05) {
+      if (navEl) navEl.style.top = navTarget + 'px';
+      navCurrent = navTarget; raf = null;
+    } else { raf = requestAnimationFrame(tick); }
+  }
+  window.addEventListener('scroll', function() {
+    var y = window.scrollY;
+    navTarget = y < 80 ? 0 : (y > lastY ? -navH : 0);
+    lastY = y;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+})();
+
+/* ── Nav: mix-blend-mode difference + underline + char split ── */
+(function() {
+  var nav = document.querySelector('nav');
+  if (!nav) return;
+
+  function _splitToChars(el) {
+    var text = el.textContent;
+    el.innerHTML = [...text].map(function(ch) {
+      return ch === ' ' ? '<span class="nc-char nc-sp"> </span>' : '<span class="nc-char">' + ch + '</span>';
+    }).join('');
+  }
+  var navLogoFixed = document.getElementById('navLogoFixed');
+  function _resplitNav() {
+    nav.querySelectorAll('.nav-links a').forEach(function(a) { _splitToChars(a); });
+    var ln = nav.querySelector('.nav-logo-name');
+    var ls = nav.querySelector('.nav-logo-sub');
+    if (ln) _splitToChars(ln);
+    if (ls) _splitToChars(ls);
+    if (navLogoFixed) {
+      var fln = navLogoFixed.querySelector('.nav-logo-name');
+      var fls = navLogoFixed.querySelector('.nav-logo-sub');
+      if (fln) _splitToChars(fln);
+      if (fls) _splitToChars(fls);
+      navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    }
+  }
+  _resplitNav();
+  window.__navResplit = _resplitNav;
+
+  function updateColors() {
+    var megaOpen = nav.classList.contains('mega-open');
+    if (megaOpen) {
+      nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#000'; });
+      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+        var el = nav.querySelector(sel); if (!el) return;
+        el.style.color = '#000'; el.style.borderColor = 'rgba(0,0,0,.35)';
+      });
+      nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#000'; });
+      nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
+      return;
+    }
+    nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#fff'; });
+    if (navLogoFixed) navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+      var el = nav.querySelector(sel); if (!el) return;
+      el.style.color = '#fff'; el.style.borderColor = 'rgba(255,255,255,.5)';
+    });
+    nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#fff'; });
+  }
+
+  /* Inject underline span into every nav link */
+  nav.querySelectorAll('.nav-links a').forEach(function(a) {
+    if (!a.querySelector('.nav-ul')) {
+      var ul = document.createElement('span');
+      ul.className = 'nav-ul';
+      a.appendChild(ul);
+    }
+  });
+
+  updateColors();
+  window.addEventListener('scroll', updateColors, { passive: true });
+  window.addEventListener('resize', updateColors);
+  setTimeout(updateColors, 300);
+})();
+
+/* ── Page transition + bfcache fix ── */
+document.addEventListener('click', function(e) {
+  var a = e.target.closest('a[href]');
+  if (!a || a.target || e.metaKey || e.ctrlKey) return;
+  var url; try { url = new URL(a.href, location.href); } catch(err) { return; }
+  if (url.origin !== location.origin) return;
+  if (url.pathname === location.pathname && url.hash) {
+    e.preventDefault();
+    history.replaceState(null, '', url.hash);
+    var t = document.getElementById(url.hash.slice(1));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  if (url.pathname === location.pathname && !url.hash) return;
+  e.preventDefault();
+  document.documentElement.style.transition = 'opacity .22s ease';
+  document.documentElement.style.opacity = '0';
+  setTimeout(function() { location.href = a.href; }, 230);
+});
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    document.documentElement.style.transition = 'opacity .22s ease';
+    document.documentElement.style.opacity = '1';
+  }
+});
+</script>
+<script src="assets/js/smooth-scroll.js" defer></script>
+<script src="assets/js/nav-auth.js" defer></script>
 </body>
 </html>

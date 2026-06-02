@@ -13,40 +13,215 @@
 body{font-family:'Inter','Helvetica Neue',sans-serif;background:var(--gray);overflow-x:hidden;}
 
 /* ── NAV ── */
-nav{
-  position:fixed;top:0;left:0;right:0;z-index:200;
-  display:flex;align-items:center;justify-content:space-between;
-  padding:22px 40px;
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 40px;
+  min-height: 76px;
+  background: transparent;
+  mix-blend-mode: difference;
 }
-.nav-logo{display:flex;align-items:center;font-size:16px;font-weight:800;text-decoration:none;color:#fff;letter-spacing:-.02em;text-shadow:0 1px 8px rgba(0,0,0,.4);}
-.nav-logo-text{display:flex;flex-direction:column;overflow:hidden;line-height:1;}
-.nav-logo-name{display:block;}
-.nav-logo-sub{display:block;font-size:16px;font-weight:800;letter-spacing:0;max-height:0;overflow:hidden;opacity:0;transform:translateY(5px);transition:max-height .38s cubic-bezier(.34,1.15,.64,1),opacity .28s ease,transform .38s cubic-bezier(.34,1.15,.64,1),margin-top .38s cubic-bezier(.34,1.15,.64,1);margin-top:0;}
-.nav-logo:hover .nav-logo-sub{max-height:28px;opacity:1;transform:translateY(0);margin-top:2px;}
-.nav-back{font-size:13px;font-weight:600;color:#fff;text-decoration:none;opacity:.75;transition:opacity .2s;text-shadow:0 1px 8px rgba(0,0,0,.4);}
-.nav-back:hover{opacity:1;}
-.nav-back::before{content:'← ';}
-
-/* ── LANG TOGGLE ── */
-.lang-toggle{display:flex;align-items:center;gap:2px;background:none;border:none;cursor:pointer;padding:0;font-family:inherit;font-size:13px;font-weight:600;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.4);}
-.lang-toggle .lt-opt{padding:3px 8px;border-radius:5px;transition:background .2s,color .2s;}
-.lang-toggle .lt-opt.active{background:rgba(255,255,255,0.9);color:#000;}
-.lang-toggle .lt-sep{opacity:.35;font-weight:400;}
+nav.mega-open {
+  mix-blend-mode: normal;
+  background: #fff;
+  transition: background 0.22s ease;
+  --nav-fg: #000;
+}
+nav, nav.nav-on-dark { --nav-fg: #fff; }
+nav.nav-on-light { --nav-fg: #000; }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; padding-left: 50px; }
+.orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
+#navOrbFixed {
+  position: fixed; top: 18px; left: 40px;
+  z-index: 201;
+  text-decoration: none;
+  pointer-events: all;
+  display: flex; align-items: center;
+}
+#navLogoFixed {
+  position: fixed; top: 30px; left: 90px;
+  z-index: 201;
+  mix-blend-mode: difference;
+  color: #fff;
+  font-size: 17px; font-weight: 700;
+  text-decoration: none;
+  pointer-events: all;
+  display: flex; align-items: flex-start;
+  line-height: 1;
+  transition: top 0.38s cubic-bezier(0.34,1.15,0.64,1);
+}
+#navLogoFixed:hover { top: 19px; }
+.nav-logo-spacer { width: 180px; flex-shrink: 0; }
+.nav-logo-text { display: flex; flex-direction: column; overflow: hidden; line-height: 1; }
+.nav-logo-name { display: block; }
+.nav-logo-sub {
+  display: block; font-size: 17px; font-weight: 700; letter-spacing: 0;
+  max-height: 0; overflow: hidden; opacity: 0; transform: translateY(5px);
+  transition: max-height 0.38s cubic-bezier(0.34,1.15,0.64,1), opacity 0.28s ease,
+              transform 0.38s cubic-bezier(0.34,1.15,0.64,1), margin-top 0.38s cubic-bezier(0.34,1.15,0.64,1);
+  margin-top: 0;
+}
+.nav-logo:hover .nav-logo-sub, #navLogoFixed:hover .nav-logo-sub {
+  max-height: 28px; opacity: 1; transform: translateY(0); margin-top: 2px;
+}
+.nav-back { font-size: 13px; font-weight: 600; color: var(--nav-fg); text-decoration: none; opacity: .75; transition: opacity .2s; }
+.nav-back:hover { opacity: 1; }
+.nav-back::before { content: '← '; }
+.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 0; right: 0; justify-content: center; pointer-events: none; }
+.nav-links li { pointer-events: all; }
+.nav-links a {
+  text-decoration: none; font-size: 15px;
+  position: relative; padding: 11px 22px; border-radius: 50px;
+  display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1; vertical-align: middle; white-space: nowrap;
+  z-index: 0; color: transparent;
+}
+nav.mega-open .nav-links { mix-blend-mode: normal; }
+nav.mega-open .nav-links a { color: #000; }
+nav.mega-open .nav-links .nc-char { color: #000 !important; }
+.nc-char { display: inline-block; color: #fff; }
+    .nc-sp { display: inline-block; min-width: 0.3em; }
+nav.mega-open .nc-char { color: #000 !important; transition: none; }
+nav .nav-logo-name, nav .nav-logo-sub { color: transparent; }
+#navLogoFixed .nav-logo-name, #navLogoFixed .nav-logo-sub { color: #fff; }
+nav.mega-open .nav-logo-name .nc-char, nav.mega-open .nav-logo-sub .nc-char { color: #000 !important; transition: none; }
+@media (max-width: 1440px) { nav { padding: 13px 28px; } .nav-links { gap: 4px; } .nav-links a { font-size: 13px; padding: 9px 14px; } }
+@media (max-width: 1200px) { nav { padding: 11px 24px; } .nav-links { gap: 2px; } .nav-links a { font-size: 12px; padding: 8px 11px; } }
+.nav-links a::before { display: none; }
+.nav-links a:hover { opacity: 1; }
+.nav-ul {
+  position: absolute; bottom: 3px; left: 10px; right: 10px; height: 1px;
+  background: #fff; transform: scaleX(0); transform-origin: right center;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+}
+.nav-links a:hover .nav-ul { transform: scaleX(1); transform-origin: left center; }
+nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
+.hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
+.hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: opacity .2s; }
+.hamburger:hover span { opacity: .5; }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.nav-fav-btn { position: relative; background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); display: flex; align-items: center; padding: 4px; }
+.nav-fav-count { position: absolute; top: 0; right: 0; background: #e05; color: #fff; font-size: 9px; font-weight: 700; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+.nav-login-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  color: var(--nav-fg, #fff); background: none; border: 1px solid rgba(255,255,255,.35);
+  border-radius: 50px; padding: 7px 14px; cursor: pointer; position: relative;
+}
+.nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; }
+.nav-login-btn.open svg { transform: rotate(180deg); }
+.nav-login-dropdown {
+  display: none; position: absolute; top: calc(100% + 8px); right: 0;
+  background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 10px;
+  padding: 6px 0; min-width: 160px; box-shadow: 0 8px 24px rgba(0,0,0,.1); z-index: 210;
+}
+.nav-login-btn.open .nav-login-dropdown { display: block; }
+.nav-login-dropdown a { display: block; padding: 10px 16px; font-size: 13px; color: #111; }
+.nav-login-dropdown a:hover { background: #f5f5f5; }
+.nav-login-vsep { border-top: 1px solid rgba(0,0,0,.08); margin: 3px 0; }
+.lang-toggle {
+  display: flex; align-items: center; gap: 2px;
+  font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); font-family: inherit;
+}
+.lt-opt { opacity: .4; transition: opacity .15s; }
+.lt-opt.active { opacity: 1; }
+.lt-sep { opacity: .25; }
+.nav-drawer {
+  position: fixed; top: 0; right: -260px; bottom: 0; width: 260px;
+  background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.10);
+  padding: 90px 40px 48px; display: flex; flex-direction: column; gap: 4px;
+  transition: right 0.18s ease; z-index: 300; pointer-events: none;
+}
+.nav-drawer.nd-visible { right: 0; pointer-events: auto; transition: right 0.42s cubic-bezier(0.22,1,0.36,1); }
+.nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nav-drawer a:last-child { border-bottom: none; }
+.nav-drawer a:hover { color: rgba(0,0,0,0.4); }
+.nav-drawer.nd-visible a { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
+.nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
+.nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
+.nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
+.nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
+.nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+.nd-musicians-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-align: left; opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
+.nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
+.nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+.nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.15s; }
+.nav-sub-drawer { position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.12); display: flex; flex-direction: column; transition: right 0.18s ease; z-index: 302; pointer-events: none; overflow: hidden; }
+.nav-sub-drawer.ns-visible { right: 0; pointer-events: auto; transition: right 0.38s cubic-bezier(0.22,1,0.36,1); }
+.nsd-head { display: flex; align-items: center; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+.nsd-back { background: none; border: none; cursor: pointer; font-size: 20px; color: #000; padding: 4px; display: flex; align-items: center; opacity: .5; transition: opacity .15s; }
+.nsd-back:hover { opacity: 1; }
+.nsd-title { font-size: 16px; font-weight: 700; }
+.nsd-body { overflow-y: auto; flex: 1; padding: 12px 0 40px; -webkit-overflow-scrolling: touch; }
+.nsd-group { margin-bottom: 4px; }
+.nsd-group-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(0,0,0,0.35); padding: 14px 24px 6px; }
+.nsd-group a { display: block; padding: 10px 24px; font-size: 15px; font-weight: 500; color: #000; text-decoration: none; transition: background .12s, color .12s; }
+.nsd-group a:hover { background: #f5f5f5; }
+.mega-menu {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
+  padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8,1fr); gap: 0;
+  opacity: 0; transform: translateY(-22px); pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.mega-col { padding: 0 16px; border-left: 1px solid rgba(0,0,0,0.07); opacity: 0; transform: translateY(8px); transition: opacity 0.28s ease, transform 0.28s ease; }
+.mega-col:first-child { border-left: none; padding-left: 0; }
+.mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); }
+.mega-menu.mm-visible .mega-col:nth-child(1) { transition-delay: 0.05s; }
+.mega-menu.mm-visible .mega-col:nth-child(2) { transition-delay: 0.08s; }
+.mega-menu.mm-visible .mega-col:nth-child(3) { transition-delay: 0.11s; }
+.mega-menu.mm-visible .mega-col:nth-child(4) { transition-delay: 0.14s; }
+.mega-menu.mm-visible .mega-col:nth-child(5) { transition-delay: 0.17s; }
+.mega-menu.mm-visible .mega-col:nth-child(6) { transition-delay: 0.20s; }
+.mega-col-title { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #111; margin-bottom: 10px; text-decoration: none; }
+.mega-col ul { list-style: none; padding: 0; }
+.mega-col ul li a { display: block; padding: 5px 0; font-size: 13px; color: #555; text-decoration: none; transition: color .12s; }
+.mega-col ul li a:hover { color: #000; }
+@media(max-width:900px){ .nav-links { display: none; } }
 
 /* ── HERO ── */
 .hero{
-  position:relative;width:100%;height:38vh;min-height:320px;max-height:440px;
+  position:relative;width:100%;height:46vh;min-height:360px;max-height:520px;
   overflow:hidden;
+  /* Smooth shrink from intro state */
+  transition: height 1.1s cubic-bezier(.7,0,.2,1),
+              min-height 1.1s cubic-bezier(.7,0,.2,1),
+              max-height 1.1s cubic-bezier(.7,0,.2,1);
 }
-
-/* Background fallback */
-.hero-bg{
-  position:absolute;inset:0;
-  background:#222;
-  z-index:0;
+/* INTRO STATE — full-screen takeover for 1.5s after page loads */
+.hero.hero-intro{
+  height:100vh;
+  min-height:100vh;
+  max-height:100vh;
 }
+.hero.hero-intro .hero-photo-wrap{
+  -webkit-mask-image:none;
+  mask-image:none;
+}
+.hero.hero-intro .hero-info,
+.hero.hero-intro .hero-overlay{
+  opacity:0;
+}
+/* While intro is active, body scroll is locked via JS; restore after */
 
-/* Photo — full screen */
+/*
+  Layer 0 — blurred colour wash: same photo, full-width, heavily blurred.
+  This is what gives the left panel its colour (red/purple etc).
+  It's always behind everything.
+*/
+.hero-bg{ display:none; }
+
+/*
+  Layer 1 — sharp photo, full-width but CSS-masked.
+  Left side transparent → blurred hero-bg shows through (colour bleed).
+  Fades to fully opaque on the right → sharp photo visible.
+  Zero hard edge, seamless blend.
+*/
 .hero-photo-wrap{
   position:absolute;
   inset:0;
@@ -54,10 +229,19 @@ nav{
   cursor:pointer;
   overflow:hidden;
 }
+@keyframes hero-photo-zoom-in-out {
+  0%   { transform: scale(1.15); }
+  100% { transform: scale(1);    }
+}
 .hero-photo-bg{
   width:100%;height:100%;
   background:#888 center/cover no-repeat;
-  background-position:75% center;
+  background-position:center center;
+  transform-origin: center center;
+}
+/* During intro: start at 115%, ease back to 100% before banner shrinks */
+.hero.hero-intro .hero-photo-bg {
+  animation: hero-photo-zoom-in-out 1.1s cubic-bezier(.4,0,.2,1) forwards;
 }
 .hero-photo-placeholder{
   position:absolute;inset:0;
@@ -81,71 +265,113 @@ nav{
 }
 .hero-photo-wrap:hover .photo-edit-hint{opacity:1;}
 
-/* Left blurred panel — shows photo colours blurred + darkened, fades to clear photo */
-.hero-left-blur{
-  position:absolute;
-  top:0;bottom:0;left:0;
-  width:72%; /* extends past the 33% info zone so the fade blends naturally */
-  z-index:2;
-  backdrop-filter:blur(32px) brightness(0.52) saturate(1.4);
-  -webkit-backdrop-filter:blur(32px) brightness(0.52) saturate(1.4);
-  background:rgba(0,0,0,0.08);
-  /* Mask: fully opaque on left, fades to transparent at right edge */
-  -webkit-mask-image:linear-gradient(to right, black 0%, black 38%, transparent 72%);
-  mask-image:linear-gradient(to right, black 0%, black 38%, transparent 72%);
-  pointer-events:none;
-}
+/* Layer 2 — mask handles the blend, this is no longer needed */
+.hero-left-blur{ display:none; }
 
-/* Gradient overlay — just a light bottom darkening for legibility */
+/* Gradient overlay — subtle bottom darkening */
 .hero-overlay{
   position:absolute;inset:0;
-  background:linear-gradient(to top, rgba(0,0,0,0.45) 0%, transparent 50%);
+  background:linear-gradient(to top, rgba(0,0,0,0.4) 0%, transparent 45%);
   z-index:3;
   pointer-events:none;
 }
 
-/* Big decorative name — hidden, name now shown in info panel */
-.hero-name{ display:none; }
+/* Big decorative name — two independent copies anchored to opposite corners.
+   • hn-orig: bottom-RIGHT during intro → slides off right on exit
+   • hn-new:  starts off-screen LEFT → slides into bottom-LEFT on exit
+   Same duration + easing → "exits right while entering left" feel,
+   but the surviving copy ends up at bottom-LEFT (per user's request). */
+.hero-name{
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: clamp(96px, 14vw, 200px);
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 5;
+  /* Hide until web font is ready — prevents FOUT flash on initial paint */
+  opacity: 0;
+  transition: opacity .25s ease;
+}
+.hero-name.fonts-ready{ opacity: 1; }
+.hero-name span{
+  position: absolute;
+  bottom: 0;
+  white-space: nowrap;
+  font-size: clamp(96px, 14vw, 200px);
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: -0.03em;
+  line-height: 0.82;
+  text-shadow: 0 2px 32px rgba(0,0,0,0.18);
+  transition: transform 1.1s cubic-bezier(.7,0,.2,1);
+  will-change: transform;
+}
+/* Both copies translate by the SAME percentage of their own width →
+   same speed in pixels/sec → as much exits right, equal amount enters left.
+   Pure treadmill sync — no lag between exit/enter halves. */
+.hn-orig{ right: clamp(32px, 4vw, 72px); transform: translateX(0); }
+/* Hide fully off-screen left regardless of name length: push right edge past
+   the container's left edge by (own width + left offset + 10px safety). */
+.hn-new { left:  clamp(32px, 4vw, 72px); transform: translateX(calc(-100% - clamp(32px, 4vw, 72px) - 10px)); }
+/* Exit fully off-screen right by the SAME distance → keeps the synced treadmill feel. */
+.hero:not(.hero-intro) .hn-orig{ transform: translateX(calc(100% + clamp(32px, 4vw, 72px) + 10px)); }
+.hero:not(.hero-intro) .hn-new { transform: translateX(0); }
 
-/* Info card — vertically centered on the left side */
+/* Info card — vertically centered on the left side, offset below fixed nav */
 .hero-info{
   position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  left:48px;
+  /* Sit JUST above the big bottom-left "Martin" — clamped to its line height */
+  bottom: calc(clamp(96px, 14vw, 200px) - 8px);
+  /* Match the big Martin's left anchor so they're flush-aligned */
+  left: clamp(32px, 4vw, 72px);
   z-index:4;
-  max-width:380px;
+  max-width:520px;
+  transform: translateX(-110%);
+  opacity: 0;
+  transition: opacity 1.1s cubic-bezier(.7,0,.2,1), transform 1.1s cubic-bezier(.7,0,.2,1);
+  /* Ensure every child starts at exactly the same left edge */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0;
 }
+.hero:not(.hero-intro) .hero-info{
+  opacity: 1;
+  transform: translateX(0);
+}
+.hero-overlay{ transition: opacity .9s ease; }
 .info-title{
-  font-size:14px;
-  font-weight:600;
+  font-size:18px;
+  font-weight:700;
   color:#fff;
-  margin-bottom:12px;
-  letter-spacing:.08em;
+  margin:0 0 14px 0;
+  padding:0;
+  letter-spacing:.16em;
   text-transform:uppercase;
-  opacity:0.8;
+  opacity:1;
+  text-shadow:0 1px 12px rgba(0,0,0,.4);
 }
-.info-hero-name{
-  font-size:clamp(32px,4vw,58px);
-  font-weight:900;
-  color:#fff;
-  letter-spacing:-0.03em;
-  line-height:1;
-  margin-bottom:14px;
-}
-.info-rating{
-  display:flex;align-items:center;gap:8px;
-  font-size:17px;color:#fff;
-  margin-bottom:12px;
-}
-.stars{color:#f5a623;font-size:19px;letter-spacing:1px;}
-.rating-num{font-weight:700;}
-.reviews{opacity:.85;font-size:15px;}
+/* Small "Martin" inside info card — removed since big Martin lives at bottom-left */
+.info-hero-name{ display:none; }
+.info-rating{ display:flex; align-items:center; gap:8px; font-size:15px; color:rgba(255,255,255,.8); margin-bottom:12px; }
+.stars{ display:none; }
+.rating-num{ display:none; }
+.reviews{ opacity:.85; font-size:14px; }
 .info-location{
   font-size:17px;font-weight:700;
   color:#fff;
   letter-spacing:.02em;
+  margin:0; padding:0;
 }
+/* Belt + suspenders: kill any browser-default or inherited underline / border
+   under .info-title / .reviews / .info-location that could create stray lines. */
+.hero-info,
+.hero-info *{
+  text-decoration: none !important;
+  border-top: 0; border-bottom: 0;
+}
+
+
 
 /* ── SECTIONS BELOW HERO ── */
 .content{background:white;}
@@ -172,40 +398,151 @@ nav{
   margin-bottom:24px;
 }
 
-/* Bio — two-column when CTA lives alongside */
-.about-row{
-  display:flex;align-items:flex-start;
-  gap:clamp(32px,5vw,72px);
+/* ── About section: two-column (bio+CTA left, service cards right) ── */
+.about-new-row{
+  display:grid;
+  grid-template-columns:1fr 1.05fr;
+  gap:clamp(40px,6vw,80px);
+  align-items:center;   /* center the shorter right column (audio) so whitespace splits evenly, not all bottom-right */
 }
-.about-bio{flex:1 1 0;min-width:0;}
+.about-new-left{
+  display:flex;flex-direction:column;
+}
+.about-new-left .section-label{ margin-bottom:20px; }
 .bio-text{
   font-size:17px;line-height:1.75;color:#333;
+  margin:0 0 28px 0;
+}
+.about-musician-card{
+  display:flex;align-items:center;gap:14px;
+  margin-bottom:12px;
+}
+.about-avatar{
+  width:52px;height:52px;border-radius:50%;
+  background:#e0e0e0 center/cover no-repeat;
+  flex-shrink:0;border:2px solid #f0f0f0;
+}
+.about-musician-name{
+  font-size:15px;font-weight:700;color:#111;
+  margin:0 0 3px;
+}
+.about-musician-role{
+  font-size:14px;color:#444;margin:0;
+}
+.about-enq-btn{
+  display:inline-flex;align-items:center;justify-content:center;
+  background:#111;color:#fff;
+  border:none;border-radius:8px;
+  padding:14px 28px;font-size:14px;font-weight:700;
+  letter-spacing:.04em;cursor:pointer;
+  font-family:inherit;
+  transition:background .18s,transform .15s;
+  width:fit-content;
+}
+.about-enq-btn:hover{ background:#333;transform:translateY(-1px); }
+.about-creds { list-style:none; padding:0; margin:4px 0 24px; display:flex; flex-direction:column; gap:9px; }
+.about-cred-item { font-size:16px; color:#111; line-height:1.45; }
+
+/* Service cards + audio player stack */
+.about-new-right{
+  display:flex; flex-direction:column;
+  gap:16px;
+}
+.about-svc-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
 }
 
-/* Inline booking card (replaces bottom cta-bar) */
-.about-book{
-  flex:0 0 clamp(260px,28%,340px);
-  background:#f7f7f7;border-radius:16px;
-  padding:32px 28px;
-  display:flex;flex-direction:column;gap:16px;
-  margin-top:4px; /* optical align with first line of text */
+/* ── Audio player widget ── */
+.audio-player{
+  background:#f5f5f5; border-radius:18px;
+  padding:clamp(20px,2.5vw,28px);
+  display:flex; flex-direction:column; gap:14px;
 }
-.about-book-title{
-  font-size:clamp(18px,1.6vw,22px);font-weight:800;
-  letter-spacing:-.02em;line-height:1.25;color:#111;
+.audio-player-top{
+  display:flex; align-items:center; gap:14px;
 }
-.about-book-sub{
-  font-size:13px;color:#777;line-height:1.5;
-  margin-top:-8px;
+.audio-btn{
+  width:42px; height:42px; border-radius:50%;
+  background:#fff; border:1px solid #e0e0e0;
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer; flex-shrink:0;
+  transition:background .15s, transform .15s;
+  color:#111;
 }
-.about-book .cta-btns{flex-direction:column;gap:10px;}
-.about-book .btn-primary,
-.about-book .btn-outline{
-  text-align:center;padding:14px 20px;font-size:14px;
+.audio-btn:hover{ background:#111; color:#fff; }
+.audio-btn:active{ transform:scale(.94); }
+.audio-btn-play{ width:52px; height:52px; }
+.audio-btn svg{ width:16px; height:16px; }
+.audio-btn-play svg{ width:18px; height:18px; }
+.audio-wave{
+  flex:1; height:32px;
+  position:relative; overflow:hidden;
+  cursor:pointer;
 }
-@media(max-width:820px){
-  .about-row{flex-direction:column;}
-  .about-book{flex:unset;width:100%;}
+.audio-wave svg{ width:100%; height:100%; display:block; }
+.audio-wave-fill{
+  position:absolute; left:0; top:0; bottom:0;
+  background:rgba(0,0,0,.06); pointer-events:none;
+  width:0%;
+}
+.audio-meta{ margin-top:4px; }
+.audio-track-title{
+  font-size:15px; font-weight:700; color:#111;
+  margin:0 0 4px;
+}
+.audio-track-desc{
+  font-size:13px; color:#777; line-height:1.5; margin:0;
+}
+.audio-divider{ height:1px; background:rgba(0,0,0,.08); margin:6px 0 4px; }
+.audio-list{
+  display:flex; flex-direction:column; gap:2px;
+  margin:0; padding:0; list-style:none;
+}
+.audio-list li{
+  display:flex; align-items:center; gap:10px;
+  padding:8px 6px; border-radius:8px;
+  cursor:pointer; font-size:14px; color:#333;
+  transition:background .15s;
+}
+.audio-list li:hover{ background:rgba(0,0,0,.04); }
+.audio-list li.active{ color:#111; font-weight:600; }
+.audio-list-icon{
+  width:14px; height:14px; flex-shrink:0;
+  color:#999;
+}
+.audio-list li.active .audio-list-icon{ color:#111; }
+.audio-empty{
+  text-align:center; color:#999; font-size:13px;
+  padding:24px 0;
+}
+.svc-card{
+  background:#f5f5f5;
+  border-radius:18px;
+  padding:clamp(20px,2.5vw,32px);
+  display:flex;flex-direction:column;
+}
+.svc-card-icon{
+  width:46px;height:46px;
+  background:#e9e9e9;border-radius:12px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:20px;color:#444;
+}
+.svc-card-icon svg{ width:21px;height:21px; }
+.svc-card-title{
+  font-size:clamp(16px,1.4vw,20px);font-weight:800;
+  color:#111;letter-spacing:-.02em;
+  margin:0 0 8px;
+}
+.svc-card-desc{
+  font-size:13px;color:#777;line-height:1.6;margin:0;
+}
+@media(max-width:860px){
+  .about-new-row{ grid-template-columns:1fr; }
+}
+@media(max-width:480px){
+  .about-new-right{ grid-template-columns:1fr; }
 }
 
 /* ── Brand Marquee ── */
@@ -296,6 +633,76 @@ nav{
   border:1px solid #e0e0e0;
 }
 
+/* ── Services & Specialties (merged: each service = one big card w/ its own tags) ── */
+.serv-section{ max-width:1100px; margin:0 auto; padding:80px 48px; border-bottom:1px solid #f0f0f0; }
+/* When merged inside the About section: separator + spacing, no own max-width/padding */
+.serv-block{ margin-top:clamp(44px,6vw,68px); padding-top:clamp(44px,6vw,68px); border-top:1px solid #efefef; }
+.serv-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:28px; }
+@media(max-width:760px){ .serv-grid{ grid-template-columns:1fr; } }
+.serv-card{ background:#f7f7f7; border-radius:22px; padding:clamp(28px,3vw,40px); display:flex; flex-direction:column; }
+.serv-card-icon{ width:50px; height:50px; background:#ececec; border-radius:14px; display:flex; align-items:center; justify-content:center; margin-bottom:22px; color:#333; }
+.serv-card-icon svg{ width:24px; height:24px; }
+.serv-card-title{ font-size:clamp(20px,2vw,26px); font-weight:800; letter-spacing:-.02em; color:#111; margin:0 0 10px; }
+.serv-card-desc{ font-size:14px; color:#777; line-height:1.65; margin:0 0 26px; }
+.serv-tag-label{ font-size:11px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:#aaa; margin:0 0 13px; }
+.serv-tags{ display:flex; flex-wrap:wrap; gap:9px; }
+.serv-tag{ padding:8px 16px; border-radius:50px; font-size:13px; font-weight:600; background:#fff; color:#222; border:1px solid #e2e2e2; }
+.serv-tag.is-on{ background:#111; color:#fff; border-color:#111; }
+.serv-tag.is-off{ background:transparent; color:#bbb; border-color:#e6e6e6; }
+.serv-card-foot{ margin-top:auto; padding-top:24px; }
+.serv-link{ display:inline-flex; align-items:center; gap:6px; font-size:13.5px; font-weight:700; color:#111; text-decoration:none; transition:opacity .15s; }
+.serv-link:hover{ opacity:.6; }
+
+/* ── Lesson Plans ── */
+.lesson-section {  max-width:1100px;  margin:0 auto;  padding:80px 48px;  box-sizing:border-box;  transform:translateX(-12%);}@media(max-width:1132px){ .lesson-section{ width:100%; margin:0 auto; padding:60px 24px; transform:none; } }
+.lesson-section-divider { border:none; border-top:1px solid #f0f0f0; width:100%; margin:80px 0 0; }
+@media(max-width:1132px){ .lesson-section-divider{ margin:60px 0 0; } }
+.lesson-top-label { font-size:13px; color:#888; margin-bottom:10px; }
+.lesson-title { font-size:clamp(36px,5vw,60px); font-weight:800; letter-spacing:-.03em; color:#000; margin-bottom:10px; line-height:1.05; }
+.lesson-subtitle { font-size:15px; font-weight:500; color:#555; margin-bottom:48px; }
+.lesson-toggle-row { display:flex; align-items:center; gap:0; background:#ebebeb; border-radius:50px; padding:4px; width:fit-content; margin-bottom:40px; }
+.lesson-toggle-btn { padding:8px 22px; border-radius:50px; border:none; font-size:13px; font-weight:600; cursor:pointer; transition:background .18s,color .18s; background:transparent; color:#666; font-family:inherit; }
+.lesson-toggle-btn.active { background:#111; color:#fff; }
+.lesson-plans { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
+@media(max-width:768px){ .lesson-plans{ grid-template-columns:1fr; } }
+.lesson-card { background:#f7f7f7; border-radius:20px; padding:40px 32px 32px; display:flex; flex-direction:column; }
+.lesson-card.card-white { background:#fff; box-shadow:0 2px 24px rgba(0,0,0,.09),0 0 0 1px rgba(0,0,0,.06); border-radius:20px; }
+.lesson-plan-name { font-size:18px; font-weight:700; color:#111; margin-bottom:6px; }
+.lesson-plan-sub { font-size:13.5px; color:#888; margin-bottom:28px; line-height:1.5; }
+.lesson-price-row { display:flex; align-items:baseline; gap:8px; margin-bottom:6px; }
+.lesson-price { font-size:clamp(42px,4.5vw,58px); font-weight:800; letter-spacing:-.03em; color:#000; }
+.lesson-price-unit { font-size:15px; color:#888; font-weight:400; }
+.lesson-save { font-size:12.5px; font-weight:600; color:#16a34a; height:20px; margin-bottom:0; }
+.lesson-divider { border:none; border-top:1px solid #e8e8e8; margin:24px 0; }
+.lesson-features-label { font-size:11px; color:#aaa; font-weight:700; letter-spacing:.08em; text-transform:uppercase; margin-bottom:14px; }
+.lesson-features { list-style:none; padding:0; margin:0; display:flex; flex-direction:column; gap:10px; flex:1; }
+.lesson-features li { font-size:14px; color:#555; line-height:1.4; padding-left:14px; position:relative; }
+.lesson-features li::before { content:''; position:absolute; left:0; top:8px; width:5px; height:5px; border-radius:50%; background:#ccc; }
+.lesson-footer { display:flex; align-items:center; justify-content:space-between; margin-top:32px; gap:12px; }
+.lesson-timeline { font-size:11.5px; color:#bbb; line-height:1.5; }
+.lesson-timeline strong { color:#999; display:block; font-weight:600; font-size:11.5px; }
+.lesson-cta { padding:12px 26px; border-radius:50px; border:none; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; background:#111; color:#fff; white-space:nowrap; transition:opacity .15s,transform .15s; }
+.lesson-cta:hover { opacity:.75; transform:translateY(-1px); }
+
+/* ── Lesson Plans · MacBook 版專屬覆寫 (901–1600px) — 不影響手機與 1920px+ 桌機 ── */
+@media (min-width:901px) and (max-width:1600px){
+  .lesson-section{
+    transform:none;          /* 取消往左推 12% → 整體往右、置中 */
+    max-width:980px;         /* 縮小整體寬度 */
+    padding:64px 60px;       /* 加大左右留白,不要貼邊 */
+  }
+  .lesson-title{ font-size:clamp(32px,3.6vw,46px); }   /* 標題縮小一點 */
+  .lesson-subtitle{ margin-bottom:40px; }
+  .lesson-plans{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; } /* 欄位強制收進容器,杜絕溢出 */
+  .lesson-card{ padding:30px 24px 24px; }              /* 卡片縮小 */
+  .lesson-plan-name{ font-size:17px; }
+  .lesson-plan-sub{ margin-bottom:24px; }
+  .lesson-price{ font-size:clamp(28px,2.7vw,38px); }   /* 價格縮小,避免溢出 */
+  .lesson-price-unit{ font-size:13px; }
+  .lesson-features li{ font-size:13px; }
+  .lesson-cta{ padding:11px 20px; font-size:13px; }
+}
+
 /* ── Career Highlights ── */
 .highlights-section { max-width:1100px; margin:0 auto; padding:80px 48px; border-bottom:1px solid #f0f0f0; }
 .highlights-title { font-size:clamp(28px,3vw,42px); font-weight:800; letter-spacing:-.02em; color:var(--black); margin-bottom:40px; }
@@ -331,7 +738,7 @@ nav{
 .highlights-frame { width:340px; flex-shrink:0; position:sticky; top:110px; }
 .hl-frame-box {
   position:relative; width:100%; aspect-ratio:3/4;
-  border-radius:12px; overflow:hidden;
+  border-radius:12px; overflow:clip;
   background:#f0f0f0;
   box-shadow:0 12px 48px rgba(0,0,0,.13);
 }
@@ -369,8 +776,8 @@ nav{
 .reviews-section { max-width:1100px; margin:0 auto; padding:80px 48px; border-bottom:1px solid #f0f0f0; }
 .reviews-header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:32px; }
 .reviews-summary { display:flex; align-items:center; gap:12px; }
-.reviews-big-score { font-size:52px; font-weight:900; letter-spacing:-.04em; color:var(--black); line-height:1; }
-.reviews-big-stars { color:#f5a623; font-size:22px; letter-spacing:2px; }
+.reviews-big-score { display:none; }
+.reviews-big-stars { display:none; }
 .reviews-big-count { font-size:13px; color:#999; font-weight:600; margin-top:2px; }
 .reviews-count-label { font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#999; }
 
@@ -390,7 +797,7 @@ nav{
   flex-shrink:0; letter-spacing:-.01em;
 }
 .review-name { font-size:14px; font-weight:700; color:var(--black); }
-.review-stars { color:#f5a623; font-size:13px; letter-spacing:1px; margin-top:2px; }
+.review-stars { display:none; }
 .review-date { font-size:12px; color:#bbb; font-weight:600; }
 .review-body { font-size:15px; line-height:1.7; color:#444; padding-left:48px; }
 
@@ -398,6 +805,79 @@ nav{
   .reviews-section { padding:60px 20px; }
   .reviews-header { flex-direction:column; gap:16px; }
   .review-body { padding-left:0; }
+}
+
+/* ── People Also Viewed — sister carousel under Reviews ── */
+.paw-section{
+  width:100%; padding:80px 0 100px;
+  border-bottom:1px solid #f0f0f0;
+}
+.paw-head{
+  display:flex; align-items:baseline; justify-content:space-between;
+  margin-bottom:36px; gap:24px;
+  padding:0 64px;
+}
+.paw-title{
+  font-size:clamp(28px,3.5vw,52px); font-weight:800;
+  letter-spacing:-.02em; color:var(--black); line-height:1;
+}
+.paw-viewmore{
+  font-size:14px; color:#666; text-decoration:underline;
+  text-underline-offset:3px; cursor:pointer;
+}
+.paw-viewmore:hover{ color:#000; }
+.paw-track{
+  display:flex; gap:18px;
+  padding:0 64px 8px;
+  width:max-content;
+}
+.paw-card{
+  flex:0 0 auto;
+  width:clamp(220px, 18vw, 280px);
+  cursor:pointer;
+  text-decoration:none; color:inherit;
+  transition:transform .35s cubic-bezier(.22,1,.36,1);
+}
+.paw-card:hover{ transform:translateY(-4px); }
+.paw-card-img{
+  position:relative;
+  width:100%; aspect-ratio:3/4;
+  border-radius:6px; overflow:hidden;
+  background:#eee center/cover no-repeat;
+  margin-bottom:14px;
+}
+.paw-card-heart{
+  position:absolute; top:12px; right:12px;
+  width:34px; height:34px; border-radius:50%;
+  background:rgba(255,255,255,.95);
+  display:flex; align-items:center; justify-content:center;
+  border:none; cursor:pointer;
+  transition:background .15s, transform .15s;
+}
+.paw-card-heart:hover{ background:#fff; transform:scale(1.08); }
+.paw-card-heart svg{ width:18px; height:18px; stroke:#222; fill:none; }
+.paw-card-heart.active svg{ fill:#e05; stroke:#e05; }
+.paw-card-label{
+  font-size:11px; font-weight:700; letter-spacing:.12em;
+  text-transform:uppercase; color:#999; margin-bottom:4px;
+}
+.paw-card-name{
+  font-size:15px; font-weight:600; color:#111; line-height:1.35;
+  margin-bottom:6px;
+}
+.paw-card-price{ font-size:14px; color:#111; font-weight:700; margin-bottom:6px; }
+.paw-card-price .paw-from{ font-size:12px; font-weight:500; color:#666; margin-right:4px; }
+.paw-card-meta{
+  display:flex; gap:10px; align-items:center;
+  font-size:12px; color:#666;
+}
+.paw-card-meta-item{ display:inline-flex; align-items:center; gap:4px; }
+.paw-card-meta svg{ width:12px; height:12px; }
+@media(max-width:640px){
+  .paw-section{ padding:60px 0 70px; }
+  .paw-head{ padding:0 22px; margin-bottom:28px; }
+  .paw-track{ padding:0 22px 8px; gap:14px; }
+  .paw-card{ width:62vw; }
 }
 
 /* CTA */
@@ -594,6 +1074,389 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
   .book-bar-cta{ padding:10px 14px; font-size:13px; }
 }
 
+/* ── Photo Gallery (full-width horizontal scroll) ── */
+.gallery-section{
+  width:100%; padding:90px 0 100px;
+  border-bottom:1px solid #f0f0f0;
+  position:relative;
+}
+.gallery-head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:48px; gap:24px;
+  padding:0 64px;
+}
+.gallery-title{
+  font-size:clamp(40px,5vw,72px); font-weight:800;
+  letter-spacing:-.03em; color:var(--black); line-height:1;
+}
+.gallery-nav{ display:flex; gap:10px; }
+.gallery-btn{
+  width:44px; height:44px; border-radius:50%;
+  border:1px solid #d8d8d8; background:#fff; color:#111;
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background .15s, transform .15s, opacity .2s;
+}
+.gallery-btn:hover{ background:#111; color:#fff; }
+.gallery-btn:active{ transform:scale(.94); }
+.gallery-btn[disabled]{ opacity:.3; cursor:not-allowed; }
+.gallery-btn svg{ width:18px; height:18px; }
+.gallery-viewport{
+  overflow-x:auto; overflow-y:hidden;
+  /* Snap completely disabled — JS rAF animation drives every scrollLeft change.
+     Without this the browser would snap each frame, killing the smooth glide. */
+  scroll-snap-type:none;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+  /* Prevent the horizontal container from eating vertical page scrolls */
+  overscroll-behavior-x: contain;
+}
+.gallery-viewport::-webkit-scrollbar{ display:none; }
+.gallery-track{
+  display:flex; gap:24px;
+  padding:0 64px;            /* matches scroll-padding so first/last align */
+  width:max-content;
+}
+.gallery-card{
+  flex:0 0 auto;
+  width:clamp(360px, 42vw, 620px);   /* much larger than before */
+  aspect-ratio: 4/3;
+  border-radius:14px;
+  /* overflow:clip instead of overflow:hidden — visually identical but does NOT
+     create a scroll container, so wheel events pass straight through to the page
+     without the 1-frame "capture & check" delay Chrome does on scroll containers. */
+  overflow:clip;
+  position:relative;
+  background:#e8e8e8 center/cover no-repeat;
+  cursor:pointer;
+  transition:transform .35s cubic-bezier(.22,1,.36,1);
+}
+.gallery-card:hover{ transform:translateY(-4px); }
+.gallery-card-caption{
+  position:absolute; left:0; right:0; bottom:0;
+  padding:36px 22px 18px;
+  background:linear-gradient(to top, rgba(0,0,0,.72) 0%, transparent 100%);
+  color:#fff; font-size:14px; font-weight:600;
+  opacity:0; transform:translateY(8px);
+  transition:opacity .25s, transform .25s;
+  pointer-events:none;
+}
+.gallery-card:hover .gallery-card-caption{ opacity:1; transform:translateY(0); }
+.gallery-card-empty{
+  background:#f5f5f5;
+  display:flex; align-items:center; justify-content:center;
+  color:#bbb; font-size:13px; font-weight:600; letter-spacing:.08em;
+  text-transform:uppercase;
+}
+@media(max-width:640px){
+  .gallery-section{ padding:60px 0 70px; }
+  .gallery-head{ padding:0 22px; margin-bottom:32px; }
+  .gallery-viewport{ scroll-padding-left:22px; scroll-padding-right:22px; }
+  .gallery-track{ padding:0 22px; gap:16px; }
+  .gallery-card{ width:82vw; }
+}
+
+/* ── Showreel: video pinned at viewport centre, next section COVERS it 1:1 ──
+   • spacer = 200vh → first 100vh enters the video, second 100vh is cover phase
+   • pin = sticky top:0 height:100vh → video locked dead-centre, doesn't move
+   • next section pulled up -100vh with z-index 2 → during the second 100vh of
+     spacer, the next section's top edge scrolls up from viewport bottom to
+     viewport top at exactly 1:1 with the user's scroll, physically covering
+     the still video. Scrolling back up reverses naturally — same animation. */
+.bigvid-spacer{
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #000;
+  z-index: 1;
+}
+.bigvid-pin{
+  position: sticky;
+  top: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  background: #0a0a14 center/cover no-repeat;
+}
+/* No overlap: highlights section flows normally after the video */
+.bigvid-spacer + .highlights-section{
+  position: relative;
+  z-index: 2;
+  background: #fff;
+}
+.bigvid-poster{
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center;
+  background-image: linear-gradient(135deg,#10141c 0%,#1f2632 50%,#3a4a5a 100%);
+  transition: opacity .4s ease;
+}
+.bigvid-poster.hidden{ opacity: 0; pointer-events: none; }
+.bigvid-overlay{
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(0,0,0,.18) 0%, rgba(0,0,0,.05) 35%, rgba(0,0,0,.55) 100%);
+  pointer-events: none;
+}
+/* Title block — top-left of the showreel */
+.bigvid-label{
+  position: absolute;
+  top: clamp(96px, 12vh, 156px);
+  left: clamp(32px, 6vw, 96px);
+  color: #fff;
+  z-index: 3;
+  pointer-events: none;
+}
+.bigvid-label-name{
+  font-size: clamp(28px, 4vw, 56px);
+  font-weight: 800;
+  letter-spacing: .02em;
+  line-height: 1;
+}
+.bigvid-label-sub{
+  font-size: clamp(12px, 1vw, 14px);
+  letter-spacing: .25em;
+  text-transform: uppercase;
+  margin-top: 10px;
+  opacity: .8;
+}
+/* Caption row at the bottom — current video index + title */
+.bigvid-caption{
+  position: absolute;
+  bottom: clamp(40px, 8vh, 88px);
+  left: clamp(32px, 6vw, 96px);
+  right: clamp(32px, 6vw, 96px);
+  color: #fff;
+  z-index: 3;
+  pointer-events: none;
+}
+.bigvid-caption-idx{
+  font-size: clamp(11px, .9vw, 13px);
+  letter-spacing: .2em;
+  opacity: .6;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+.bigvid-caption-title{
+  font-size: clamp(18px, 1.6vw, 24px);
+  font-weight: 600;
+  line-height: 1.35;
+  max-width: 560px;
+}
+/* Divider line — starts AFTER the caption text on the left so they don't collide */
+.bigvid-caption-divider{
+  position: absolute;
+  left: 600px;       /* clears the caption block on the left */
+  right: clamp(32px, 6vw, 96px);
+  bottom: calc(clamp(40px, 8vh, 88px) + clamp(18px, 1.6vw, 24px) + 24px);
+  height: 1px; background: rgba(255,255,255,.22);
+  z-index: 3;
+}
+/* Center play button — grows on hover, shrinks on leave */
+/* Mute / unmute toggle — bottom-right corner of the video */
+.bigvid-play{
+  position: absolute;
+  bottom: clamp(32px, 5vh, 64px);
+  right: clamp(32px, 4vw, 72px);
+  width: clamp(48px, 4vw, 64px);
+  height: clamp(48px, 4vw, 64px);
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.6);
+  background: rgba(0,0,0,.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 4;
+  transition: transform .25s cubic-bezier(.22,1,.36,1), background .2s, border-color .2s;
+}
+.bigvid-play:hover{
+  transform: scale(1.12);
+  background: rgba(0,0,0,.55);
+  border-color: rgba(255,255,255,1);
+}
+.bigvid-play svg{
+  width: 42%; height: 42%;
+  fill: currentColor;
+}
+/* Prev / Next arrows — top-right */
+.bigvid-nav{
+  position: absolute;
+  top: clamp(96px, 12vh, 156px);
+  right: clamp(32px, 6vw, 96px);
+  display: flex; gap: 12px;
+  z-index: 4;
+}
+.bigvid-arrow{
+  width: 52px; height: 52px; border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.32);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: #fff; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s, transform .15s, opacity .2s;
+}
+.bigvid-arrow:hover{ background: rgba(255,255,255,.2); }
+.bigvid-arrow:active{ transform: scale(.93); }
+.bigvid-arrow[disabled]{ opacity: .35; cursor: not-allowed; }
+.bigvid-arrow svg{ width: 18px; height: 18px; }
+@media(max-width:640px){
+  .bigvid-label{ top: 80px; left: 22px; }
+  .bigvid-caption{ left: 22px; right: 22px; bottom: 32px; }
+  .bigvid-caption-divider{ left: 22px; right: 22px; }
+  .bigvid-nav{ top: 80px; right: 22px; gap: 8px; }
+  .bigvid-arrow{ width: 42px; height: 42px; }
+}
+
+/* ── Showreel editor FABs — hidden (use keyboard shortcuts V / P instead) ── */
+.bve-toggle{ display: none !important; }
+
+/* ── Hero banner slideshow ── */
+/* Individual slide layers inside hero-photo-wrap */
+.hero-slide{
+  position:absolute; inset:0;
+  background:#888 center/cover no-repeat;
+  transform:translateX(100%);
+  z-index:1;
+  will-change:transform;
+}
+.hero-slide-active{
+  transform:translateX(0);
+  z-index:2;
+}
+/* During intro: zoom only on the first (active) slide */
+.hero.hero-intro .hero-slide-active{
+  animation: hero-photo-zoom-in-out 1.1s cubic-bezier(.4,0,.2,1) forwards;
+}
+/* Dots — fade in after intro */
+.hero-reel-dots{
+  position:absolute;
+  right:clamp(32px,4vw,72px);
+  bottom:clamp(20px,3vw,32px);
+  z-index:8;
+  display:flex; gap:8px; align-items:center; justify-content:flex-end;
+  opacity:0;
+  transition:opacity .6s ease 1.3s;
+  pointer-events:none;
+}
+.hero:not(.hero-intro) .hero-reel-dots{
+  opacity:1;
+  pointer-events:auto;
+}
+.hrd{
+  width:24px; height:2px;
+  background:rgba(255,255,255,.35);
+  border:none; cursor:pointer; padding:0;
+  transition:background .25s, width .25s;
+}
+.hrd.hrd-active{ width:36px; background:#fff; }
+/* Progress bar — same as blog */
+.hero-reel-bar{
+  position:absolute; bottom:0; left:0; right:0;
+  height:2px; background:rgba(255,255,255,.12); z-index:8;
+  opacity:0; transition:opacity .6s ease 1.3s;
+}
+.hero:not(.hero-intro) .hero-reel-bar{ opacity:1; }
+.hero-reel-bar__fill{
+  height:100%; width:0%; background:rgba(255,255,255,.7);
+}
+
+/* ── Showreel editor (localhost only, press V to toggle) ── */
+.bve-toggle-OLD{
+  position: fixed; bottom: 24px; left: 78px; z-index: 9998;
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,.12); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.2);
+  color: #fff; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 2px 14px rgba(0,0,0,.4);
+}
+.bve-toggle:hover{ background: rgba(255,255,255,.22); }
+.bve-panel{
+  position: fixed; bottom: 80px; left: 24px; z-index: 9998;
+  width: 360px; max-height: 80vh;
+  background: rgba(18,18,18,.96); backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,.12); border-radius: 16px;
+  display: none; flex-direction: column; overflow: hidden;
+  box-shadow: 0 24px 60px rgba(0,0,0,.6);
+  color: #fff; font-family: -apple-system, system-ui, sans-serif;
+}
+.bve-panel.open{ display: flex; }
+.bve-head{
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px 10px;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.bve-title{ font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+.bve-hint{ font-size: 10px; color: rgba(255,255,255,.3); }
+.bve-body{ overflow-y: auto; padding: 14px; flex: 1; }
+.bve-row{
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 10px; padding: 12px; margin-bottom: 10px;
+  position: relative;
+}
+.bve-row-head{
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.bve-row-num{ font-size: 11px; font-weight: 700; color: rgba(255,255,255,.55); letter-spacing: .08em; }
+.bve-row-del{
+  background: none; border: none; color: rgba(255,120,120,.85);
+  cursor: pointer; font-size: 12px;
+}
+.bve-row-del:hover{ color: #f55; }
+.bve-label{
+  font-size: 10px; font-weight: 600; color: rgba(255,255,255,.5);
+  letter-spacing: .08em; text-transform: uppercase;
+  margin: 8px 0 4px;
+}
+.bve-input{
+  width: 100%; padding: 8px 10px;
+  background: rgba(255,255,255,.07);
+  border: 1px solid rgba(255,255,255,.1); border-radius: 8px;
+  color: #fff; font-size: 12px; font-family: inherit;
+  outline: none; transition: border-color .15s;
+  box-sizing: border-box;
+}
+.bve-input:focus{ border-color: rgba(255,255,255,.4); }
+.bve-actions{ display: flex; gap: 8px; padding: 0 14px 14px; }
+.bve-btn{
+  flex: 1; padding: 10px; border-radius: 10px;
+  font: 700 12px/1 -apple-system, system-ui, sans-serif;
+  letter-spacing: .04em; cursor: pointer; border: none;
+}
+.bve-btn-add{ background: rgba(255,255,255,.12); color: #fff; }
+.bve-btn-add:hover{ background: rgba(255,255,255,.2); }
+.bve-btn-save{ background: #fff; color: #0a0a0a; }
+.bve-btn-save:hover{ background: #f0f0f0; }
+.bve-saved{
+  display: none; text-align: center;
+  padding: 4px 14px 8px;
+  font-size: 11px; color: rgba(120,255,120,.85);
+}
+.bve-saved.show{ display: block; }
+
+/* ── Video lightbox ── */
+.vid-overlay{
+  position:fixed; inset:0; z-index:1200;
+  background:rgba(0,0,0,.88); display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .25s;
+  padding:24px;
+}
+.vid-overlay.open{ opacity:1; pointer-events:auto; }
+.vid-modal{
+  width:min(1080px, 100%); aspect-ratio:16/9;
+  background:#000; border-radius:8px; overflow:hidden;
+  position:relative;
+  transform:scale(.96); transition:transform .25s;
+}
+.vid-overlay.open .vid-modal{ transform:scale(1); }
+.vid-modal iframe, .vid-modal video{ width:100%; height:100%; border:0; display:block; }
+.vid-close{
+  position:absolute; top:-44px; right:0;
+  width:36px; height:36px; border:none; background:transparent;
+  color:#fff; font-size:24px; cursor:pointer;
+}
+
 /* ── Send Enquiry modal ── */
 .enq-overlay{
   position:fixed; inset:0; z-index:1100;
@@ -670,6 +1533,7 @@ var _profileLang = 'en';
 var PROFILE_I18N = {
   en: {
     'nav.back':          'Musicians',
+    'nav.lessons':       'Lessons',
     'bio.label':         'About',
     'bio.text':          'Principal violinist with over 15 years of orchestral and chamber music experience. Specialising in Romantic and Contemporary repertoire, Martin brings a rare combination of technical precision and emotional depth to every performance. Graduate of the National Taiwan University of the Arts, with guest appearances at Carnegie Hall and the National Concert Hall Taipei.',
     'book.title':        'Book Martin',
@@ -690,9 +1554,19 @@ var PROFILE_I18N = {
     'spec.lessons':      'Private Lessons',
     'spec.corporate':    'Corporate Events',
     'spec.wedding':      'Wedding Music',
+    'serv.label':        'Services & Specialties',
+    'serv.spec_label':   'Performance specialties',
+    'serv.romantic':     'Romantic Repertoire',
+    'serv.levels_label': 'Levels taught',
+    'serv.beginner':     'Beginner',
+    'serv.intermediate': 'Intermediate',
+    'serv.advanced':     'Advanced',
+    'serv.find':         'See this teacher in lessons',
     'hl.title':          'Career Highlights',
     'hl.preview':        'Hover to preview',
     'reviews.label':     'Client Reviews',
+    'paw.title':         'People also viewed',
+    'paw.viewmore':      'View More →',
     'bar.title':         'Check availability and get a free',
     'bar.sub':           'quote now – no commitment to book',
     'bar.from':          'From',
@@ -707,9 +1581,17 @@ var PROFILE_I18N = {
     'enq.send':          'SEND ENQUIRY',
     'enq.ok':            'Enquiry sent!',
     'enq.okSub':         'Martin will review your project and get back to you within 24 hours.',
+    'gal.title':         'Photos',
+    'vid.title':         'Watch & Listen',
+    'vid.sub':           '/ SHOWREEL',
+    'svc.perf.title':    'Performance',
+    'svc.perf.desc':     'Live violin performance for weddings, corporate events, private parties, and concert halls.',
+    'svc.teach.title':   'Lessons',
+    'svc.teach.desc':    'One-on-one violin lessons tailored to all levels — from first-time beginners to advanced repertoire.',
   },
   zh: {
     'nav.back':          '音樂家',
+    'nav.lessons':       '音樂老師',
     'bio.label':         '個人簡介',
     'bio.text':          '擁有超過 15 年管弦樂與室內樂演奏經驗的首席小提琴手，專精浪漫派與當代曲目。Martin 以精湛的技術與深刻的情感詮釋，為每一場演出注入獨特魅力。畢業於國立臺灣藝術大學，曾受邀於卡內基音樂廳及國家音樂廳登台演出。',
     'book.title':        '預約 Martin 演出',
@@ -730,9 +1612,19 @@ var PROFILE_I18N = {
     'spec.lessons':      '私人授課',
     'spec.corporate':    '企業活動',
     'spec.wedding':      '婚禮音樂',
+    'serv.label':        '服務與專長',
+    'serv.spec_label':   '演奏專長',
+    'serv.romantic':     '浪漫樂派',
+    'serv.levels_label': '可教學程度',
+    'serv.beginner':     '初學',
+    'serv.intermediate': '中級',
+    'serv.advanced':     '進階',
+    'serv.find':         '在課程頁查看這位老師',
     'hl.title':          '職涯亮點',
     'hl.preview':        '移至查看',
     'reviews.label':     '客戶評價',
+    'paw.title':         '瀏覽此頁的人也看了',
+    'paw.viewmore':      '查看更多 →',
     'bar.title':         '查詢檔期並取得免費報價',
     'bar.sub':           '完全無預約義務',
     'bar.from':          '起價',
@@ -747,6 +1639,13 @@ var PROFILE_I18N = {
     'enq.send':          '送出詢問',
     'enq.ok':            '詢問已送出！',
     'enq.okSub':         'Martin 會在 24 小時內回覆。',
+    'gal.title':         '照片集',
+    'vid.title':         '影音作品',
+    'vid.sub':           '/ 精選作品',
+    'svc.perf.title':    '演出服務',
+    'svc.perf.desc':     '婚禮、企業活動、私人派對及音樂廳的現場小提琴演出。',
+    'svc.teach.title':   '教學課程',
+    'svc.teach.desc':    '一對一小提琴課程，從零基礎到進階曲目，為各程度學員量身規劃。',
   }
 };
 
@@ -769,6 +1668,52 @@ document.addEventListener('DOMContentLoaded', function() {
     var next = opt ? opt.dataset.l : (_profileLang === 'en' ? 'zh' : 'en');
     switchProfileLang(next);
   });
+
+  // Login dropdown
+  var loginBtn = document.getElementById('navLoginBtn');
+  if (loginBtn) {
+    var loginLeaveTimer;
+    loginBtn.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); this.classList.add('open'); });
+    loginBtn.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
+    var dropdown = loginBtn.querySelector('.nav-login-dropdown');
+    if (dropdown) {
+      dropdown.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); });
+      dropdown.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
+    }
+  }
+
+  // Hamburger drawer
+  var hamburgerBtn = document.getElementById('hamburgerBtn');
+  var navDrawer    = document.getElementById('navDrawer');
+  var navSubDrawer = document.getElementById('navSubDrawer');
+  var drawerTimeout;
+  function openDrawer() { clearTimeout(drawerTimeout); navDrawer.classList.add('nd-visible'); }
+  function closeDrawer() { if (navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return; drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
+  function closeBoth() { drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
+  if (hamburgerBtn && navDrawer) {
+    hamburgerBtn.addEventListener('mouseenter', openDrawer); hamburgerBtn.addEventListener('mouseleave', closeDrawer);
+    navDrawer.addEventListener('mouseenter', openDrawer); navDrawer.addEventListener('mouseleave', closeDrawer);
+  }
+  if (navSubDrawer) { navSubDrawer.addEventListener('mouseenter', function(){ clearTimeout(drawerTimeout); }); navSubDrawer.addEventListener('mouseleave', closeBoth); }
+  var ndMusiciansBtn = document.getElementById('ndMusiciansBtn');
+  var nsdBack = document.getElementById('nsdBack');
+  if (ndMusiciansBtn && navSubDrawer) {
+    ndMusiciansBtn.addEventListener('click', function(){ clearTimeout(drawerTimeout); navSubDrawer.classList.add('ns-visible'); });
+    nsdBack.addEventListener('click', function(){ navSubDrawer.classList.remove('ns-visible'); });
+  }
+
+  // Mega menu
+  var artistsTrigger = document.getElementById('artists-nav-item');
+  var megaMenu = document.getElementById('artistsMegaMenu');
+  var navEl = document.querySelector('nav');
+  var mmTimeout;
+  if (artistsTrigger && megaMenu) {
+    var artistsLink = artistsTrigger.querySelector('a');
+    function openMega() { clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); artistsLink.classList.add('mm-active'); if(navEl) navEl.classList.add('mega-open'); }
+    function closeMega() { mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); artistsLink.classList.remove('mm-active'); if(navEl) navEl.classList.remove('mega-open'); }, 80); }
+    artistsTrigger.addEventListener('mouseenter', openMega); artistsTrigger.addEventListener('mouseleave', closeMega);
+    megaMenu.addEventListener('mouseenter', openMega); megaMenu.addEventListener('mouseleave', closeMega);
+  }
 });
 </script>
   <link rel="icon" href="/favicon.ico?v=3" />
@@ -777,33 +1722,185 @@ document.addEventListener('DOMContentLoaded', function() {
 <body>
 
 <!-- NAV -->
+<!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
+<a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
+  <div class="orb"></div>
+</a>
+<a href="musician-platform.html" id="navLogoFixed">
+  <div class="nav-logo-text">
+    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
+    <span class="nav-logo-sub">MUSIC</span>
+  </div>
+</a>
+
 <nav>
-  <a href="musicians.html" class="nav-back" data-i18n="nav.back">Musicians</a>
-  <a href="musician-platform.html" class="nav-logo">
-    <div class="nav-logo-text">
-      <span class="nav-logo-name">OPUS.Z</span>
-      <span class="nav-logo-sub">MUSIC</span>
+  <!-- Spacer to keep nav-links centered -->
+  <div class="nav-logo-spacer"></div>
+  <ul class="nav-links">
+    <li><a href="musician-platform.html" data-i18n="nav.home">Home</a></li>
+    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
+    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
+    <li><a href="recent-jobs.html">Recent Jobs</a></li>
+    <li><a href="shows.html" data-i18n="nav.news">Shows</a></li>
+    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
+  </ul>
+  <!-- MEGA MENU -->
+  <div class="mega-menu" id="artistsMegaMenu">
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a>
+      <ul>
+        <li><a href="musicians.html?cat=violin" data-i18n="menu.violin">Violin</a></li>
+        <li><a href="musicians.html?cat=viola" data-i18n="menu.viola">Viola</a></li>
+        <li><a href="musicians.html?cat=cello" data-i18n="menu.cello">Cello</a></li>
+        <li><a href="musicians.html?cat=doublebass" data-i18n="menu.doublebass">Double Bass</a></li>
+        <li><a href="musicians.html?cat=harp" data-i18n="menu.harp">Harp</a></li>
+      </ul>
     </div>
-  </a>
-  <button class="lang-toggle" id="langToggle" aria-label="Switch language">
-    <span class="lt-opt active" data-l="en">EN</span>
-    <span class="lt-sep">/</span>
-    <span class="lt-opt" data-l="zh">中文</span>
-  </button>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a>
+      <ul>
+        <li><a href="musicians.html?cat=flute" data-i18n="menu.flute">Flute</a></li>
+        <li><a href="musicians.html?cat=piccolo" data-i18n="menu.piccolo">Piccolo</a></li>
+        <li><a href="musicians.html?cat=oboe" data-i18n="menu.oboe">Oboe</a></li>
+        <li><a href="musicians.html?cat=clarinet" data-i18n="menu.clarinet">Clarinet</a></li>
+        <li><a href="musicians.html?cat=saxophone" data-i18n="menu.saxophone">Saxophone</a></li>
+        <li><a href="musicians.html?cat=bassoon" data-i18n="menu.bassoon">Bassoon</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a>
+      <ul>
+        <li><a href="musicians.html?cat=frenchhorn" data-i18n="menu.frenchhorn">French Horn</a></li>
+        <li><a href="musicians.html?cat=trumpet" data-i18n="menu.trumpet">Trumpet</a></li>
+        <li><a href="musicians.html?cat=trombone" data-i18n="menu.trombone">Trombone</a></li>
+        <li><a href="musicians.html?cat=euphonium" data-i18n="menu.euphonium">Euphonium</a></li>
+        <li><a href="musicians.html?cat=tuba" data-i18n="menu.tuba">Tuba</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=percussion" data-i18n="menu.percussion">Percussion</a>
+      <ul>
+        <li><a href="musicians.html?cat=timpani" data-i18n="menu.timpani">Timpani</a></li>
+        <li><a href="musicians.html?cat=marimba" data-i18n="menu.marimba">Marimba</a></li>
+        <li><a href="musicians.html?cat=vibraphone" data-i18n="menu.vibraphone">Vibraphone</a></li>
+        <li><a href="musicians.html?cat=xylophone" data-i18n="menu.xylophone">Xylophone</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=keyboard" data-i18n="menu.keyboard">Keyboard</a>
+      <ul>
+        <li><a href="musicians.html?cat=piano" data-i18n="menu.piano">Piano</a></li>
+        <li><a href="musicians.html?cat=pipeorgan" data-i18n="menu.pipeorgan">Pipe Organ</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a>
+      <ul>
+        <li><a href="musicians.html?cat=soprano" data-i18n="menu.soprano">Soprano</a></li>
+        <li><a href="musicians.html?cat=mezzosoprano" data-i18n="menu.mezzosoprano">Mezzo-soprano</a></li>
+        <li><a href="musicians.html?cat=tenor" data-i18n="menu.tenor">Tenor</a></li>
+        <li><a href="musicians.html?cat=baritone" data-i18n="menu.baritone">Baritone</a></li>
+        <li><a href="musicians.html?cat=choral" data-i18n="menu.choral">Choral</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a>
+      <ul>
+        <li><a href="musicians.html?cat=stringquartet" data-i18n="menu.stringquartet">String Quartet</a></li>
+        <li><a href="musicians.html?cat=pianotrio" data-i18n="menu.pianotrio">Piano Trio</a></li>
+        <li><a href="musicians.html?cat=stringtrio" data-i18n="menu.stringtrio">String Trio</a></li>
+        <li><a href="musicians.html?cat=windquintet" data-i18n="menu.windquintet">Wind Quintet</a></li>
+        <li><a href="musicians.html?cat=brassquintet" data-i18n="menu.brassquintet">Brass Quintet</a></li>
+        <li><a href="musicians.html?cat=pianoquintet" data-i18n="menu.pianoquintet">Piano Quintet</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html" data-i18n="menu.all">All</a>
+      <ul>
+        <li><a href="musicians.html" data-i18n="menu.allmusicians">All Musicians</a></li>
+        <li><a href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a></li>
+        <li><a href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a></li>
+        <li><a href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a></li>
+        <li><a href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a></li>
+        <li><a href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a></li>
+        <li><a href="musicians.html?cat=conductor" data-i18n="menu.conductor">Conductor</a></li><li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
+    </button>
+    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
+      <span class="login-label">Log in</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="nav-login-dropdown">
+        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
+        <div class="nav-login-vsep"></div>
+        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
+      </div>
+    </button>
+    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+      <span class="lt-opt active" data-l="en">EN</span>
+      <span class="lt-sep">/</span>
+      <span class="lt-opt" data-l="zh">中文</span>
+    </button>
+    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
+  </div>
 </nav>
 
+<!-- Slide-in nav drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="musician-platform.html" data-i18n="nav.home">Home</a>
+  <a href="blog.html" data-i18n="nav.discover">Blog</a>
+  <button class="nd-musicians-btn" id="ndMusiciansBtn">
+    <span data-i18n="nav.artists">Musicians</span>
+    <span class="nd-arrow">›</span>
+  </button>
+  <a href="recent-jobs.html">Recent Jobs</a>
+  <a href="shows.html" data-i18n="nav.news">Shows</a>
+  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
+</div>
+
+<!-- Musicians sub-drawer -->
+<div class="nav-sub-drawer" id="navSubDrawer">
+  <div class="nsd-head">
+    <button class="nsd-back" id="nsdBack">‹</button>
+    <div class="nsd-title" data-i18n="nav.artists">Musicians</div>
+  </div>
+  <div class="nsd-body">
+    <div class="nsd-group"><div class="nsd-group-title">Strings</div><a href="musicians.html?cat=violin">Violin</a><a href="musicians.html?cat=viola">Viola</a><a href="musicians.html?cat=cello">Cello</a><a href="musicians.html?cat=doublebass">Double Bass</a><a href="musicians.html?cat=harp">Harp</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Woodwinds</div><a href="musicians.html?cat=flute">Flute</a><a href="musicians.html?cat=oboe">Oboe</a><a href="musicians.html?cat=clarinet">Clarinet</a><a href="musicians.html?cat=saxophone">Saxophone</a><a href="musicians.html?cat=bassoon">Bassoon</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Brass</div><a href="musicians.html?cat=frenchhorn">French Horn</a><a href="musicians.html?cat=trumpet">Trumpet</a><a href="musicians.html?cat=trombone">Trombone</a><a href="musicians.html?cat=tuba">Tuba</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Keyboard</div><a href="musicians.html?cat=piano">Piano</a><a href="musicians.html?cat=pipeorgan">Pipe Organ</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Voice</div><a href="musicians.html?cat=soprano">Soprano</a><a href="musicians.html?cat=mezzosoprano">Mezzo-soprano</a><a href="musicians.html?cat=tenor">Tenor</a><a href="musicians.html?cat=baritone">Baritone</a></div>
+  </div>
+</div>
+
 <!-- HERO -->
-<section class="hero">
+<section class="hero hero-intro" id="heroSection">
   <div class="hero-bg"></div>
 
-  <!-- Photo — full screen -->
+  <!-- Photo — full screen (slide 0 = main profile photo) -->
   <div class="hero-photo-wrap" id="photoWrap">
-    <div class="hero-photo-bg" id="photoBg"></div>
+    <!-- Slide 0: main profile photo — also keeps hero-photo-bg class for compat -->
+    <div class="hero-photo-bg hero-slide hero-slide-active" id="photoBg"></div>
+    <!-- Slides 1-3: extra banner photos (set via P-key editor) -->
+    <div class="hero-slide" id="heroSlide1"></div>
+    <div class="hero-slide" id="heroSlide2"></div>
+    <div class="hero-slide" id="heroSlide3"></div>
+
     <div class="hero-photo-placeholder" id="photoPlaceholder">
       <div class="upload-drop-icon">📷</div>
       <span>Press <strong>P</strong> to add photo</span>
     </div>
     <div class="photo-edit-hint">Press P to edit</div>
+
+    <!-- Slideshow dots (visible only when 2+ photos are set) -->
+    <div class="hero-reel-dots" id="heroReelDots"></div>
+    <!-- Progress bar -->
+    <div class="hero-reel-bar"><div class="hero-reel-bar__fill" id="heroReelBarFill"></div></div>
   </div>
 
   <!-- Blurred left panel — photo colours bleed through, no hard edge -->
@@ -812,20 +1909,24 @@ document.addEventListener('DOMContentLoaded', function() {
   <!-- Gradient overlay -->
   <div class="hero-overlay"></div>
 
-  <!-- Big decorative name at the very bottom -->
-  <div class="hero-name" id="heroNameBig">Martin</div>
+  <!-- Big decorative name — original (right→exit) + replacement (left←enter) -->
+  <div class="hero-name" id="heroNameBig">
+    <span class="hn-orig" aria-hidden="true">Martin</span>
+    <span class="hn-new">Martin</span>
+  </div>
 
   <!-- Info card — above the big name -->
   <div class="hero-info">
-    <div class="info-title">Violinist &amp; Composer</div>
+    <div class="info-title">Violinist</div>
     <div class="info-hero-name" id="heroNameLeft">Martin</div>
     <div class="info-rating">
-      <span class="stars">★★★★★</span>
-      <span class="rating-num">4.9</span>
-      <span class="reviews">· 148 Reviews (124 Verified)</span>
+      <span class="reviews">148 Reviews</span>
+      <span style="opacity:.4">·</span>
+      <span class="reviews">32 Saves</span>
     </div>
     <div class="info-location">Taipei, Taiwan</div>
   </div>
+
 </section>
 
 <!-- ── Booking bar (under hero) ── -->
@@ -856,19 +1957,208 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- CONTENT -->
 <div class="content">
 
-  <!-- Bio + Booking (side-by-side) -->
+  <!-- About: bio left + service cards right -->
   <div class="section">
-    <div class="about-row">
-      <div class="about-bio">
+    <div class="about-new-row">
+
+      <!-- Left: bio text + musician card + CTA -->
+      <div class="about-new-left">
         <div class="section-label label-about" data-i18n="bio.label">About</div>
         <p class="bio-text" data-i18n="bio.text">
           Principal violinist with over 15 years of orchestral and chamber music experience. Specialising in Romantic and Contemporary repertoire, Martin brings a rare combination of technical precision and emotional depth to every performance. Graduate of the National Taiwan University of the Arts, with guest appearances at Carnegie Hall and the National Concert Hall Taipei.
         </p>
+        <div class="about-musician-card">
+          <div class="about-avatar" id="aboutAvatar"></div>
+          <div>
+            <p class="about-musician-name">Martin Liao</p>
+            <p class="about-musician-role">Principal Violinist · Taipei</p>
+          </div>
+        </div>
+        <ul class="about-creds">
+          <li class="about-cred-item">NSO 國家交響樂團 · 團員</li>
+          <li class="about-cred-item">TPO 台北愛樂管弦樂團 · 首席小提琴</li>
+          <li class="about-cred-item">國立臺灣藝術大學 音樂系</li>
+          <li class="about-cred-item">首爾國際音樂大賽 · 小提琴組 銀獎</li>
+          <li class="about-cred-item">Steinway Artist</li>
+        </ul>
+        <button class="about-enq-btn" onclick="openEnquiry()">Send Enquiry</button>
+      </div>
+
+      <!-- Right: service cards + audio player -->
+      <div class="about-new-right">
+
+        <!-- (Service cards moved to the merged "Services & Specialties" section below) -->
+
+        <!-- Audio player: tracks editable via P-key editor -->
+        <div class="audio-player" id="audioPlayer">
+          <div class="audio-player-top">
+            <button class="audio-btn" id="audioPrev" aria-label="Previous">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="19,20 9,12 19,4"/><rect x="5" y="4" width="2" height="16"/></svg>
+            </button>
+            <button class="audio-btn audio-btn-play" id="audioPlayPause" aria-label="Play">
+              <svg viewBox="0 0 24 24" fill="currentColor" id="audioPlayIcon"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+            </button>
+            <button class="audio-btn" id="audioNext" aria-label="Next">
+              <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5,4 15,12 5,20"/><rect x="17" y="4" width="2" height="16"/></svg>
+            </button>
+            <div class="audio-wave" id="audioWave">
+              <svg viewBox="0 0 200 32" preserveAspectRatio="none">
+                <!-- Decorative waveform bars -->
+                <g fill="#bbb">
+                  <rect x="0" y="14" width="2" height="4"/>
+                  <rect x="4" y="11" width="2" height="10"/>
+                  <rect x="8" y="8" width="2" height="16"/>
+                  <rect x="12" y="6" width="2" height="20"/>
+                  <rect x="16" y="10" width="2" height="12"/>
+                  <rect x="20" y="13" width="2" height="6"/>
+                  <rect x="24" y="9" width="2" height="14"/>
+                  <rect x="28" y="5" width="2" height="22"/>
+                  <rect x="32" y="11" width="2" height="10"/>
+                  <rect x="36" y="14" width="2" height="4"/>
+                  <rect x="40" y="8" width="2" height="16"/>
+                  <rect x="44" y="6" width="2" height="20"/>
+                  <rect x="48" y="11" width="2" height="10"/>
+                  <rect x="52" y="13" width="2" height="6"/>
+                  <rect x="56" y="9" width="2" height="14"/>
+                  <rect x="60" y="11" width="2" height="10"/>
+                  <rect x="64" y="14" width="2" height="4"/>
+                  <rect x="68" y="8" width="2" height="16"/>
+                  <rect x="72" y="6" width="2" height="20"/>
+                  <rect x="76" y="11" width="2" height="10"/>
+                  <rect x="80" y="13" width="2" height="6"/>
+                  <rect x="84" y="9" width="2" height="14"/>
+                  <rect x="88" y="5" width="2" height="22"/>
+                  <rect x="92" y="11" width="2" height="10"/>
+                  <rect x="96" y="14" width="2" height="4"/>
+                  <rect x="100" y="8" width="2" height="16"/>
+                  <rect x="104" y="11" width="2" height="10"/>
+                  <rect x="108" y="13" width="2" height="6"/>
+                  <rect x="112" y="9" width="2" height="14"/>
+                  <rect x="116" y="11" width="2" height="10"/>
+                  <rect x="120" y="14" width="2" height="4"/>
+                  <rect x="124" y="6" width="2" height="20"/>
+                  <rect x="128" y="11" width="2" height="10"/>
+                  <rect x="132" y="13" width="2" height="6"/>
+                  <rect x="136" y="9" width="2" height="14"/>
+                  <rect x="140" y="11" width="2" height="10"/>
+                  <rect x="144" y="14" width="2" height="4"/>
+                  <rect x="148" y="8" width="2" height="16"/>
+                  <rect x="152" y="11" width="2" height="10"/>
+                  <rect x="156" y="13" width="2" height="6"/>
+                  <rect x="160" y="9" width="2" height="14"/>
+                  <rect x="164" y="11" width="2" height="10"/>
+                  <rect x="168" y="14" width="2" height="4"/>
+                  <rect x="172" y="6" width="2" height="20"/>
+                  <rect x="176" y="11" width="2" height="10"/>
+                  <rect x="180" y="13" width="2" height="6"/>
+                  <rect x="184" y="9" width="2" height="14"/>
+                  <rect x="188" y="11" width="2" height="10"/>
+                  <rect x="192" y="14" width="2" height="4"/>
+                  <rect x="196" y="8" width="2" height="16"/>
+                </g>
+              </svg>
+              <div class="audio-wave-fill" id="audioWaveFill"></div>
+            </div>
+          </div>
+          <div class="audio-meta">
+            <p class="audio-track-title" id="audioTitle">No tracks yet</p>
+            <p class="audio-track-desc" id="audioDesc">Press P to add MP3 tracks for this musician.</p>
+          </div>
+          <div class="audio-divider"></div>
+          <ul class="audio-list" id="audioList"></ul>
+          <audio id="audioEl" preload="metadata"></audio>
+        </div>
+
+      </div><!-- /about-new-right -->
+    </div><!-- /about-new-row -->
+
+    <!-- Services & Specialties (merged into the About section) -->
+    <div class="serv-block">
+      <div class="section-label" data-i18n="serv.label">Services &amp; Specialties</div>
+      <div class="serv-grid">
+
+        <!-- Performance: musician sets their own performance specialties -->
+        <div class="serv-card">
+          <div class="serv-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+            </svg>
+          </div>
+          <p class="serv-card-title" data-i18n="svc.perf.title">Performance</p>
+          <p class="serv-card-desc" data-i18n="svc.perf.desc">Live violin performance for weddings, corporate events, private parties, and concert halls.</p>
+          <p class="serv-tag-label" data-i18n="serv.spec_label">Performance specialties</p>
+          <div class="serv-tags">
+            <span class="serv-tag" data-i18n="spec.classical">Classical</span>
+            <span class="serv-tag" data-i18n="serv.romantic">Romantic Repertoire</span>
+            <span class="serv-tag" data-i18n="spec.contemporary">Contemporary</span>
+            <span class="serv-tag" data-i18n="spec.chamber">Chamber Music</span>
+            <span class="serv-tag" data-i18n="spec.solo">Solo Performance</span>
+            <span class="serv-tag" data-i18n="spec.studio">Studio Recording</span>
+            <span class="serv-tag" data-i18n="spec.wedding">Wedding Music</span>
+            <span class="serv-tag" data-i18n="spec.corporate">Corporate Events</span>
+          </div>
+        </div>
+
+        <!-- Lessons: linked to the lessons-page filter (levels taught) -->
+        <div class="serv-card">
+          <div class="serv-card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+            </svg>
+          </div>
+          <p class="serv-card-title" data-i18n="svc.teach.title">Lessons</p>
+          <p class="serv-card-desc" data-i18n="svc.teach.desc">One-on-one violin lessons tailored to all levels — from first-time beginners to advanced repertoire.</p>
+          <p class="serv-tag-label" data-i18n="serv.levels_label">Levels taught</p>
+          <div class="serv-tags">
+            <span class="serv-tag is-on" data-i18n="serv.beginner">Beginner</span>
+            <span class="serv-tag is-on" data-i18n="serv.intermediate">Intermediate</span>
+            <span class="serv-tag is-on" data-i18n="serv.advanced">Advanced</span>
+          </div>
+          <div class="serv-card-foot">
+            <a class="serv-link" href="lessons.html"><span data-i18n="serv.find">See this teacher in lessons</span> →</a>
+          </div>
+        </div>
+
       </div>
     </div>
   </div>
 
-  <!-- Brand Marquee -->
+
+  <!-- Showreel: full-screen pinned video (200vh sticky scroll section) -->
+  <div class="highlights-section" id="highlightsSection">
+    <div style="display:flex;gap:clamp(32px,5vw,72px);align-items:flex-start;">
+      <div style="flex:1;min-width:0;">
+        <div class="section-label" data-i18n="hl.title" style="margin-bottom:32px;">Career Highlights</div>
+        <ul class="hl-list" id="hlList">
+          <li class="hl-item" data-hl="0"><span class="hl-item-title">Berlin Philharmonic</span><span class="hl-item-year">2023</span></li>
+          <li class="hl-item" data-hl="1"><span class="hl-item-title">Carnegie Hall Debut</span><span class="hl-item-year">2022</span></li>
+          <li class="hl-item" data-hl="2"><span class="hl-item-title">BBC Proms</span><span class="hl-item-year">2022</span></li>
+          <li class="hl-item" data-hl="3"><span class="hl-item-title">Verbier Festival</span><span class="hl-item-year">2021</span></li>
+          <li class="hl-item" data-hl="4"><span class="hl-item-title">Golden Melody Award</span><span class="hl-item-year">2020</span></li>
+          <li class="hl-item" data-hl="5"><span class="hl-item-title">NSO Taiwan Principal</span><span class="hl-item-year">2019</span></li>
+          <li class="hl-item" data-hl="6"><span class="hl-item-title">Menuhin Competition</span><span class="hl-item-year">2018</span></li>
+          <li class="hl-item" data-hl="7"><span class="hl-item-title">Marlboro Music Festival</span><span class="hl-item-year">2017</span></li>
+        </ul>
+      </div>
+      <div class="highlights-frame">
+        <div class="hl-frame-box" id="hlFrameBox">
+          <div class="hl-photo" data-ph="0"><div class="hl-photo-bg" style="background:linear-gradient(145deg,#0a1628,#1a3a6b,#0d2044);"></div></div>
+          <div class="hl-photo" data-ph="1"><div class="hl-photo-bg" style="background:linear-gradient(145deg,#2a1500,#7a3a00,#5c2800);"></div></div>
+          <div class="hl-photo" data-ph="2"><div class="hl-photo-bg" style="background:linear-gradient(145deg,#1a0000,#8b0000,#3d0000);"></div></div>
+          <div class="hl-photo" data-ph="3"><div class="hl-photo-bg" style="background:linear-gradient(145deg,#071a12,#0d5c32,#0a3d22);"></div></div>
+          <div class="hl-photo" data-ph="4"><div class="hl-photo-bg" style="background:linear-gradient(145deg,#1a1200,#7a5c00,#c49a00);"></div></div>
+          <div class="hl-photo" data-ph="5"><div class="hl-photo-bg" style="background:linear-gradient(145deg,#1a0820,#5c1a7a,#3d0f52);"></div></div>
+          <div class="hl-photo" data-ph="6"><div class="hl-photo-bg" style="background:linear-gradient(145deg,#0f0020,#3d0080,#1a0040);"></div></div>
+          <div class="hl-photo" data-ph="7"><div class="hl-photo-bg" style="background:linear-gradient(145deg,#071510,#1a4d2e,#0d3320);"></div></div>
+          <div class="hl-frame-idle" id="hlIdle">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="6" y="10" width="36" height="28" rx="3"/><circle cx="18" cy="20" r="4"/><path d="M6 32l10-8 8 6 6-5 12 9"/></svg>
+            <span data-i18n="hl.preview">Hover to preview</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="marquee-section">
     <div class="marquee-label" data-i18n="marquee.label">Trusted &amp; worked with</div>
     <div class="marquee-track-wrap">
@@ -921,6 +2211,124 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="marquee-divider"></div>
   </div>
 
+
+  <div class="bigvid-spacer" id="bigvidSpacer">
+    <div class="bigvid-pin" id="bigvidPin">
+      <div class="bigvid-poster" id="bigvidPoster"></div>
+      <div class="bigvid-overlay"></div>
+      <div class="bigvid-label">
+        <div class="bigvid-label-name" id="bigvidLabelName">MARTIN LIAO</div>
+        <div class="bigvid-label-sub">Showreel</div>
+      </div>
+      <div class="bigvid-nav">
+        <button class="bigvid-arrow" id="bigvidPrev" aria-label="Previous video">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <button class="bigvid-arrow" id="bigvidNext" aria-label="Next video">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div class="bigvid-caption-divider"></div>
+      <div class="bigvid-caption">
+        <div class="bigvid-caption-idx" id="bigvidIdx">01 / 01</div>
+        <div class="bigvid-caption-title" id="bigvidTitle">No tracks added</div>
+      </div>
+      <button class="bigvid-play" id="bigvidPlay" aria-label="Play video">
+        <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Career Highlights -->
+
+
+  <!-- Lesson Plans (only shown if musician has lesson subscription) -->
+  <div class="lesson-section" id="lessonSection" style="display:none">
+    <p class="lesson-top-label">(Pricing)</p>
+    <h2 class="lesson-title">Lesson Plans.</h2>
+    <p class="lesson-subtitle">Choose the plan that fits you best.</p>
+
+    <div class="lesson-toggle-row">
+      <button class="lesson-toggle-btn active" onclick="lessonToggle('inperson',this)">In-Person</button>
+      <button class="lesson-toggle-btn" onclick="lessonToggle('online',this)">Online</button>
+    </div>
+
+    <div class="lesson-plans">
+
+      <div class="lesson-card">
+        <p class="lesson-plan-name">Trial</p>
+        <p class="lesson-plan-sub">Single lesson.<br>No commitment required.</p>
+        <div class="lesson-price-row">
+          <span class="lesson-price">NT$2,000</span>
+          <span class="lesson-price-unit">/ session</span>
+        </div>
+        <p class="lesson-save">&nbsp;</p>
+        <hr class="lesson-divider">
+        <p class="lesson-features-label">What's included:</p>
+        <ul class="lesson-features">
+          <li>60-min one-on-one lesson</li>
+          <li>Level assessment &amp; learning plan</li>
+          <li>Post-lesson practice notes</li>
+          <li>Easy upgrade to monthly plan</li>
+        </ul>
+        <div class="lesson-footer">
+          <div class="lesson-timeline"><strong>Timeline:</strong>Flexible scheduling</div>
+          <button class="lesson-cta" onclick="openLesson('Trial')">Book a lesson</button>
+        </div>
+      </div>
+
+      <div class="lesson-card card-white">
+        <p class="lesson-plan-name">Monthly</p>
+        <p class="lesson-plan-sub">4 sessions per month.<br>One lesson a week.</p>
+        <div class="lesson-price-row">
+          <span class="lesson-price">NT$8,000</span>
+          <span class="lesson-price-unit">/ month</span>
+        </div>
+        <p class="lesson-save">&nbsp;</p>
+        <hr class="lesson-divider">
+        <p class="lesson-features-label">What's included:</p>
+        <ul class="lesson-features">
+          <li>60-min × 4 sessions</li>
+          <li>Weekly structured progress</li>
+          <li>Curated repertoire recommendations</li>
+          <li>Session notes &amp; audio review</li>
+          <li>Flexible rescheduling</li>
+        </ul>
+        <div class="lesson-footer">
+          <div class="lesson-timeline"><strong>Timeline:</strong>Monthly, renews anytime</div>
+          <button class="lesson-cta" onclick="openLesson('Monthly')">Book a lesson</button>
+        </div>
+      </div>
+
+      <div class="lesson-card">
+        <p class="lesson-plan-name">Quarterly</p>
+        <p class="lesson-plan-sub">12 sessions over 3 months.<br>Best value.</p>
+        <div class="lesson-price-row">
+          <span class="lesson-price">NT$19,200</span>
+          <span class="lesson-price-unit">/ quarter</span>
+        </div>
+        <p class="lesson-save">Save NT$4,800 vs. monthly rate</p>
+        <hr class="lesson-divider">
+        <p class="lesson-features-label">What's included:</p>
+        <ul class="lesson-features">
+          <li>60-min × 12 sessions</li>
+          <li>Full 3-month learning roadmap</li>
+          <li>Monthly progress reports</li>
+          <li>Custom performance repertoire</li>
+          <li>End-of-term recording session</li>
+        </ul>
+        <div class="lesson-footer">
+          <div class="lesson-timeline"><strong>Timeline:</strong>3-month commitment</div>
+          <button class="lesson-cta" onclick="openLesson('Quarterly')">Book a lesson</button>
+        </div>
+      </div>
+
+    </div>
+    <hr class="lesson-section-divider">
+  </div><!-- /lesson-section -->
+
+  <!-- Brand Marquee -->
+
   <!-- Stats -->
   <div class="section" id="statsSection">
     <div class="section-label" data-i18n="stats.label">By the numbers</div>
@@ -940,209 +2348,13 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <!-- Specialties -->
-  <div class="section">
-    <div class="section-label" data-i18n="spec.label">Specialties</div>
-    <div class="tags">
-      <span class="tag" data-i18n="spec.classical">Classical</span>
-      <span class="tag" data-i18n="spec.contemporary">Contemporary</span>
-      <span class="tag" data-i18n="spec.chamber">Chamber Music</span>
-      <span class="tag" data-i18n="spec.solo">Solo Performance</span>
-      <span class="tag" data-i18n="spec.studio">Studio Recording</span>
-      <span class="tag" data-i18n="spec.lessons">Private Lessons</span>
-      <span class="tag" data-i18n="spec.corporate">Corporate Events</span>
-      <span class="tag" data-i18n="spec.wedding">Wedding Music</span>
-    </div>
-  </div>
-
-  <!-- Career Highlights -->
-  <div class="highlights-section">
-    <div class="highlights-title" data-i18n="hl.title">Career Highlights</div>
-    <div class="highlights-body">
-
-      <!-- Left: list -->
-      <div class="highlights-list" id="hlList">
-
-        <div class="hl-item" data-hl="0">
-          <div class="hl-title">Guest Soloist — Berlin Philharmonic</div>
-          <div class="hl-detail">Brahms Violin Concerto (2023)</div>
-        </div>
-
-        <div class="hl-item" data-hl="1">
-          <div class="hl-title">Carnegie Hall Debut Recital</div>
-          <div class="hl-detail">Weill Recital Hall, New York (2022)</div>
-        </div>
-
-        <div class="hl-item" data-hl="2">
-          <div class="hl-title">BBC Proms — Guest Soloist</div>
-          <div class="hl-detail">Royal Albert Hall, London (2022)</div>
-        </div>
-
-        <div class="hl-item" data-hl="3">
-          <div class="hl-title">Verbier Festival Young Artist</div>
-          <div class="hl-detail">Masterclass with Maxim Vengerov (2023)</div>
-        </div>
-
-        <div class="hl-item" data-hl="4">
-          <div class="hl-title">Golden Melody Award — Best Classical Album</div>
-          <div class="hl-detail">Nominee, Taiwan (2023)</div>
-        </div>
-
-        <div class="hl-item" data-hl="5">
-          <div class="hl-title">Principal Violinist — National Symphony Orchestra</div>
-          <div class="hl-detail">NSO Taiwan, 2019–Present</div>
-        </div>
-
-        <div class="hl-item" data-hl="6">
-          <div class="hl-title">Menuhin Competition — Semi-Finalist</div>
-          <div class="hl-detail">International Violin Competition, Geneva (2021)</div>
-        </div>
-
-        <div class="hl-item" data-hl="7">
-          <div class="hl-title">Marlboro Music Festival</div>
-          <div class="hl-detail">Chamber Music Residency, Vermont (2022)</div>
-        </div>
-
-        <div class="hl-item" data-hl="8">
-          <div class="hl-title">Guest Soloist — London Symphony Orchestra</div>
-          <div class="hl-detail">Sibelius Violin Concerto, Barbican (2023)</div>
-        </div>
-
-        <div class="hl-item" data-hl="9">
-          <div class="hl-title">Concertmaster — Taipei Philharmonic Orchestra</div>
-          <div class="hl-detail">National Concert Hall Taipei, 2018–2021</div>
-        </div>
-
-        <div class="hl-item" data-hl="10">
-          <div class="hl-title">Aspen Music Festival — Featured Artist</div>
-          <div class="hl-detail">Summer Residency, Colorado (2021)</div>
-        </div>
-
-        <div class="hl-item" data-hl="11">
-          <div class="hl-title">Taiwan National Concerto Competition — 1st Prize</div>
-          <div class="hl-detail">Ministry of Culture, Taipei (2018)</div>
-        </div>
-
-        <div class="hl-item" data-hl="12">
-          <div class="hl-title">Annual Solo Recital — National Concert Hall Taipei</div>
-          <div class="hl-detail">Sold-Out Series, 2020–Present</div>
-        </div>
-
-        <div class="hl-item" data-hl="13">
-          <div class="hl-title">Pacific Music Festival — Invited Young Artist</div>
-          <div class="hl-detail">Sapporo, Japan (2019)</div>
-        </div>
-
-        <div class="hl-item" data-hl="14">
-          <div class="hl-title">Seoul International Music Competition — Laureate</div>
-          <div class="hl-detail">Violin Category, 2nd Prize (2017)</div>
-        </div>
-
-      </div><!-- /highlights-list -->
-
-      <!-- Right: photo frame -->
-      <div class="highlights-frame">
-        <div class="hl-frame-box" id="hlFrameBox">
-
-          <!-- idle state -->
-          <div class="hl-frame-idle" id="hlIdle">
-            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-            <span data-i18n="hl.preview">Hover to preview</span>
-          </div>
-
-          <!-- photo 0: Berlin Philharmonic -->
-          <div class="hl-photo" data-ph="0">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#0a1628 0%,#1a3a6b 50%,#0d2044 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Berlin Philharmonic · 2023</div><div class="hl-photo-caption-year">Brahms Violin Concerto</div></div>
-          </div>
-          <!-- photo 1: Carnegie Hall -->
-          <div class="hl-photo" data-ph="1">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#2a1500 0%,#7a3a00 50%,#5c2800 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Carnegie Hall Debut · 2022</div><div class="hl-photo-caption-year">Weill Recital Hall, New York</div></div>
-          </div>
-          <!-- photo 2: BBC Proms -->
-          <div class="hl-photo" data-ph="2">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#1a0000 0%,#8b0000 50%,#3d0000 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">BBC Proms · 2022</div><div class="hl-photo-caption-year">Royal Albert Hall, London</div></div>
-          </div>
-          <!-- photo 3: Verbier -->
-          <div class="hl-photo" data-ph="3">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#071a12 0%,#0d5c32 50%,#0a3d22 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Verbier Festival · 2023</div><div class="hl-photo-caption-year">Masterclass, Switzerland</div></div>
-          </div>
-          <!-- photo 4: Golden Melody -->
-          <div class="hl-photo" data-ph="4">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#1a1200 0%,#7a5c00 50%,#c49a00 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Golden Melody Award · 2023</div><div class="hl-photo-caption-year">Best Classical Album Nominee</div></div>
-          </div>
-          <!-- photo 5: NSO -->
-          <div class="hl-photo" data-ph="5">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#1a0820 0%,#5c1a7a 50%,#3d0f52 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">NSO Taiwan · 2019–Present</div><div class="hl-photo-caption-year">Principal Violinist</div></div>
-          </div>
-          <!-- photo 6: Menuhin -->
-          <div class="hl-photo" data-ph="6">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#0f0020 0%,#3d0080 50%,#1a0040 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Menuhin Competition · 2021</div><div class="hl-photo-caption-year">Semi-Finalist, Geneva</div></div>
-          </div>
-          <!-- photo 7: Marlboro -->
-          <div class="hl-photo" data-ph="7">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#071510 0%,#1a4d2e 50%,#0d3320 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Marlboro Music Festival · 2022</div><div class="hl-photo-caption-year">Chamber Music Residency, Vermont</div></div>
-          </div>
-          <!-- photo 8: LSO -->
-          <div class="hl-photo" data-ph="8">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#080c1a 0%,#1a2a5c 50%,#0d1840 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">London Symphony Orchestra · 2023</div><div class="hl-photo-caption-year">Sibelius Violin Concerto, Barbican</div></div>
-          </div>
-          <!-- photo 9: Taipei Philharmonic -->
-          <div class="hl-photo" data-ph="9">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#100818 0%,#3a1258 50%,#200840 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Taipei Philharmonic · 2018–2021</div><div class="hl-photo-caption-year">Concertmaster</div></div>
-          </div>
-          <!-- photo 10: Aspen -->
-          <div class="hl-photo" data-ph="10">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#091520 0%,#1a4870 50%,#0d3050 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Aspen Music Festival · 2021</div><div class="hl-photo-caption-year">Featured Artist, Colorado</div></div>
-          </div>
-          <!-- photo 11: Taiwan Competition -->
-          <div class="hl-photo" data-ph="11">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#200000 0%,#8b1a1a 50%,#5c0000 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Taiwan National Concerto Competition · 2018</div><div class="hl-photo-caption-year">1st Prize, Ministry of Culture</div></div>
-          </div>
-          <!-- photo 12: NCH Taipei -->
-          <div class="hl-photo" data-ph="12">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#1a1008 0%,#5c3018 50%,#3d2010 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">National Concert Hall Taipei · 2020–Present</div><div class="hl-photo-caption-year">Annual Solo Recital Series</div></div>
-          </div>
-          <!-- photo 13: Pacific Music Festival -->
-          <div class="hl-photo" data-ph="13">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#001820 0%,#005c7a 50%,#003d52 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Pacific Music Festival · 2019</div><div class="hl-photo-caption-year">Invited Young Artist, Sapporo</div></div>
-          </div>
-          <!-- photo 14: Seoul Competition -->
-          <div class="hl-photo" data-ph="14">
-            <div class="hl-photo-bg" style="background:linear-gradient(145deg,#200008 0%,#8b001a 50%,#5c0010 100%);"></div>
-            <div class="hl-photo-caption"><div class="hl-photo-caption-title">Seoul International Music Competition · 2017</div><div class="hl-photo-caption-year">Violin Laureate · 2nd Prize</div></div>
-          </div>
-
-        </div><!-- /hl-frame-box -->
-      </div><!-- /highlights-frame -->
-
-    </div><!-- /highlights-body -->
-  </div><!-- /highlights-section -->
+  <!-- (Services & Specialties moved up into the About section) -->
 
   <!-- Client Reviews -->
   <div class="reviews-section">
     <div class="reviews-header">
-      <div class="reviews-summary">
-        <div class="reviews-big-score">4.9</div>
-        <div>
-          <div class="reviews-big-stars">★★★★★</div>
-          <div class="reviews-big-count">148 Reviews · 124 Verified</div>
-        </div>
-      </div>
       <div class="reviews-count-label" data-i18n="reviews.label">Client Reviews</div>
+      <div class="reviews-big-count">148 Reviews &nbsp;·&nbsp; 32 Saves</div>
     </div>
 
     <div class="review-list">
@@ -1220,83 +2432,117 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
   </div>
 
-  <!-- ── CONTACT / ENQUIRY ── -->
-  <div class="contact-section" id="contact">
-    <!-- Left: info -->
-    <div class="contact-left">
-      <div class="contact-label">Get in touch</div>
-      <h2 class="contact-headline">Book Martin for your next event</h2>
-      <p class="contact-sub">Available for performances, recordings, and private sessions. Describe your project and Martin will reply with a personalised proposal within 24 hours.</p>
-      <div class="contact-badges">
-        <div class="contact-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          Reply within 24h
-        </div>
-        <div class="contact-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-          148 verified bookings
-        </div>
-        <div class="contact-badge">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-          Secure & confidential
-        </div>
+  <!-- People Also Viewed — other musicians the user might like -->
+  <section class="paw-section" id="pawSection">
+    <div class="paw-head">
+      <h2 class="paw-title" data-i18n="paw.title">People also viewed</h2>
+      <a class="paw-viewmore" href="musicians.html" data-i18n="paw.viewmore">View More →</a>
+    </div>
+    <div class="gallery-viewport" id="pawViewport">
+      <div class="paw-track" id="pawTrack">
+        <a class="paw-card" href="musicians.html?cat=violin">
+          <div class="paw-card-img" style="background:linear-gradient(135deg,#1a1a2e,#3a3a4a);">
+            <button class="paw-card-heart" aria-label="Favourite" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('active');">
+              <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <div class="paw-card-label">Violin</div>
+          <div class="paw-card-name">Elena Kim</div>
+          <div class="paw-card-price"><span class="paw-from">From</span>NT$4,200</div>
+          <div class="paw-card-meta">
+            <span class="paw-card-meta-item">Taipei</span>
+          </div>
+        </a>
+
+        <a class="paw-card" href="musicians.html?cat=cello">
+          <div class="paw-card-img" style="background:linear-gradient(135deg,#2a1a1a,#5a3a3a);">
+            <button class="paw-card-heart" aria-label="Favourite" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('active');">
+              <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <div class="paw-card-label">Cello</div>
+          <div class="paw-card-name">Daniel Hsu</div>
+          <div class="paw-card-price"><span class="paw-from">From</span>NT$4,800</div>
+          <div class="paw-card-meta">
+            <span class="paw-card-meta-item">Taichung</span>
+          </div>
+        </a>
+
+        <a class="paw-card" href="musicians.html?cat=piano">
+          <div class="paw-card-img" style="background:linear-gradient(135deg,#1a2a1a,#3a5a3a);">
+            <button class="paw-card-heart" aria-label="Favourite" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('active');">
+              <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <div class="paw-card-label">Piano</div>
+          <div class="paw-card-name">Sophie Tang</div>
+          <div class="paw-card-price"><span class="paw-from">From</span>NT$5,500</div>
+          <div class="paw-card-meta">
+            <span class="paw-card-meta-item">Taipei</span>
+          </div>
+        </a>
+
+        <a class="paw-card" href="musicians.html?cat=stringquartet">
+          <div class="paw-card-img" style="background:linear-gradient(135deg,#2a2a1a,#5a5a3a);">
+            <button class="paw-card-heart" aria-label="Favourite" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('active');">
+              <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <div class="paw-card-label">String Quartet</div>
+          <div class="paw-card-name">Aria Strings</div>
+          <div class="paw-card-price"><span class="paw-from">From</span>NT$28,000</div>
+          <div class="paw-card-meta">
+            <span class="paw-card-meta-item">Taipei</span>
+          </div>
+        </a>
+
+        <a class="paw-card" href="musicians.html?cat=flute">
+          <div class="paw-card-img" style="background:linear-gradient(135deg,#1a1a2a,#3a3a5a);">
+            <button class="paw-card-heart" aria-label="Favourite" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('active');">
+              <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <div class="paw-card-label">Flute</div>
+          <div class="paw-card-name">Olivia Wei</div>
+          <div class="paw-card-price"><span class="paw-from">From</span>NT$3,800</div>
+          <div class="paw-card-meta">
+            <span class="paw-card-meta-item">Kaohsiung</span>
+          </div>
+        </a>
+
+        <a class="paw-card" href="musicians.html?cat=harp">
+          <div class="paw-card-img" style="background:linear-gradient(135deg,#2a1a2a,#5a3a5a);">
+            <button class="paw-card-heart" aria-label="Favourite" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('active');">
+              <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <div class="paw-card-label">Harp</div>
+          <div class="paw-card-name">Rebecca Chou</div>
+          <div class="paw-card-price"><span class="paw-from">From</span>NT$6,200</div>
+          <div class="paw-card-meta">
+            <span class="paw-card-meta-item">Taipei</span>
+          </div>
+        </a>
+
+        <a class="paw-card" href="musicians.html?cat=violin">
+          <div class="paw-card-img" style="background:linear-gradient(135deg,#1a2a2a,#3a5a5a);">
+            <button class="paw-card-heart" aria-label="Favourite" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('active');">
+              <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+            </button>
+          </div>
+          <div class="paw-card-label">Viola</div>
+          <div class="paw-card-name">Marcus Lin</div>
+          <div class="paw-card-price"><span class="paw-from">From</span>NT$4,500</div>
+          <div class="paw-card-meta">
+            <span class="paw-card-meta-item">Tainan</span>
+          </div>
+        </a>
       </div>
     </div>
+  </section>
 
-    <!-- Right: form -->
-    <div class="contact-form">
-      <div id="cfFormView">
-        <div class="contact-form-title">Send Enquiry</div>
-        <div class="contact-form-sub">Describe your project and Martin will reply with a proposal</div>
-        <form name="musician-enquiry" method="POST" data-netlify="true" onsubmit="submitProfileEnquiry(event)">
-          <input type="hidden" name="form-name" value="musician-enquiry" />
-          <input type="hidden" name="musician" value="Martin Liao" />
-          <div class="cf-field">
-            <label class="cf-label">What can we help you with?</label>
-            <input class="cf-input" type="text" name="subject" placeholder="e.g. Live performance for corporate event" required />
-          </div>
-          <div class="cf-field">
-            <label class="cf-label">Tell us more about your project:</label>
-            <textarea class="cf-textarea" name="message" required>HI MARTIN,
-
-</textarea>
-          </div>
-          <div class="cf-row">
-            <div class="cf-field">
-              <label class="cf-label">Your name</label>
-              <input class="cf-input" type="text" name="client-name" placeholder="Your name" required />
-            </div>
-            <div class="cf-field">
-              <label class="cf-label">Email</label>
-              <input class="cf-input" type="email" name="client-email" placeholder="you@example.com" required />
-            </div>
-          </div>
-          <button type="submit" class="cf-send-btn">SEND ENQUIRY</button>
-        </form>
-      </div>
-      <div class="cf-success" id="cfSuccess">
-        <div class="cf-success-icon">✓</div>
-        <h4>Enquiry sent!</h4>
-        <p>Martin will review your project and get back to you within 24 hours.</p>
-      </div>
-    </div>
-  </div>
 
 </div>
-
-<script>
-function submitProfileEnquiry(e) {
-  e.preventDefault();
-  var form = e.target;
-  var data = new FormData(form);
-  fetch('/', { method: 'POST', body: data })
-    .catch(function(){})
-    .finally(function() {
-      document.getElementById('cfFormView').style.display = 'none';
-      document.getElementById('cfSuccess').style.display = 'block';
-    });
-}
-</script>
 
 <script>
 (function(){
@@ -1321,6 +2567,7 @@ function submitProfileEnquiry(e) {
   // ── Apply photo + position to the bg div ──
   function applyPhoto(){
     var bg = document.getElementById('photoBg');
+    var heroBg = document.querySelector('.hero-bg');
     var ph = document.getElementById('photoPlaceholder');
     if(!bg) return;
     if(state.url){
@@ -1328,11 +2575,17 @@ function submitProfileEnquiry(e) {
       bg.style.backgroundPosition = state.x + '% ' + state.y + '%';
       var zf = 1 + state.zoom/100;
       bg.style.backgroundSize = zf <= 1 ? 'cover' : Math.round(zf*100) + '%';
+      // Mirror same photo into the blurred colour-wash layer
+      if(heroBg){
+        heroBg.style.backgroundImage = "url('" + state.url + "')";
+        heroBg.style.backgroundPosition = state.x + '% ' + state.y + '%';
+      }
       if(ph) ph.classList.add('hidden');
     } else {
       bg.style.backgroundImage = '';
       bg.style.backgroundSize = 'cover';
       bg.style.backgroundPosition = state.x + '% ' + state.y + '%';
+      if(heroBg) heroBg.style.backgroundImage = '';
       if(ph) ph.classList.remove('hidden');
     }
   }
@@ -1460,6 +2713,56 @@ function submitProfileEnquiry(e) {
       '</label>',
       '<button id="mpe-save" style="width:100%;padding:9px;border:none;border-radius:8px;background:#fff;color:#000;font-weight:700;font-size:12px;cursor:pointer;margin-bottom:6px;">💾 儲存位置</button>',
       '<button id="mpe-reset" style="width:100%;padding:7px;border:1px solid rgba(255,255,255,.15);border-radius:8px;background:transparent;color:rgba(255,255,255,.4);font-size:11px;cursor:pointer;">重置照片</button>',
+      // ── Extra banner photos (for slideshow, each with X/Y/zoom) ──
+      '<div style="margin-top:18px;border-top:1px solid rgba(255,255,255,.1);padding-top:14px;">',
+        '<div style="font-size:10px;font-weight:700;opacity:.45;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px;">輪播照片 (選填)</div>',
+        // Photo 2
+        '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.07);">',
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">',
+            '<span id="mpe-s1-thumb" style="width:36px;height:27px;border-radius:4px;background:#2a2a2a;background-size:cover;background-position:center;flex-shrink:0;border:1px solid rgba(255,255,255,.1);"></span>',
+            '<span style="font-size:11px;font-weight:600;flex:1;">照片 2</span>',
+            '<label style="cursor:pointer;font-size:10px;padding:4px 10px;border:1px solid rgba(255,255,255,.25);border-radius:6px;white-space:nowrap;">上傳<input id="mpe-s1-file" type="file" accept="image/*" style="display:none;"></label>',
+            '<button id="mpe-s1-del" style="background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3);border-radius:6px;cursor:pointer;font-size:10px;padding:4px 8px;font-family:inherit;">刪</button>',
+          '</div>',
+          '<div style="display:flex;justify-content:space-between;margin-bottom:2px;"><label style="font-size:9px;opacity:.45;text-transform:uppercase;letter-spacing:.06em;">X</label><span id="mpe-s1-xval" style="font-size:9px;opacity:.4;">50%</span></div>',
+          '<input id="mpe-s1-x" type="range" min="0" max="100" step="0.5" value="50" style="width:100%;accent-color:#fff;margin-bottom:5px;">',
+          '<div style="display:flex;justify-content:space-between;margin-bottom:2px;"><label style="font-size:9px;opacity:.45;text-transform:uppercase;letter-spacing:.06em;">Y</label><span id="mpe-s1-yval" style="font-size:9px;opacity:.4;">50%</span></div>',
+          '<input id="mpe-s1-y" type="range" min="0" max="100" step="0.5" value="50" style="width:100%;accent-color:#fff;margin-bottom:5px;">',
+          '<div style="display:flex;justify-content:space-between;margin-bottom:2px;"><label style="font-size:9px;opacity:.45;text-transform:uppercase;letter-spacing:.06em;">縮放</label><span id="mpe-s1-zval" style="font-size:9px;opacity:.4;">0%</span></div>',
+          '<input id="mpe-s1-z" type="range" min="-30" max="150" step="1" value="0" style="width:100%;accent-color:#fff;">',
+        '</div>',
+        // Photo 3
+        '<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid rgba(255,255,255,.07);">',
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">',
+            '<span id="mpe-s2-thumb" style="width:36px;height:27px;border-radius:4px;background:#2a2a2a;background-size:cover;background-position:center;flex-shrink:0;border:1px solid rgba(255,255,255,.1);"></span>',
+            '<span style="font-size:11px;font-weight:600;flex:1;">照片 3</span>',
+            '<label style="cursor:pointer;font-size:10px;padding:4px 10px;border:1px solid rgba(255,255,255,.25);border-radius:6px;white-space:nowrap;">上傳<input id="mpe-s2-file" type="file" accept="image/*" style="display:none;"></label>',
+            '<button id="mpe-s2-del" style="background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3);border-radius:6px;cursor:pointer;font-size:10px;padding:4px 8px;font-family:inherit;">刪</button>',
+          '</div>',
+          '<div style="display:flex;justify-content:space-between;margin-bottom:2px;"><label style="font-size:9px;opacity:.45;text-transform:uppercase;letter-spacing:.06em;">X</label><span id="mpe-s2-xval" style="font-size:9px;opacity:.4;">50%</span></div>',
+          '<input id="mpe-s2-x" type="range" min="0" max="100" step="0.5" value="50" style="width:100%;accent-color:#fff;margin-bottom:5px;">',
+          '<div style="display:flex;justify-content:space-between;margin-bottom:2px;"><label style="font-size:9px;opacity:.45;text-transform:uppercase;letter-spacing:.06em;">Y</label><span id="mpe-s2-yval" style="font-size:9px;opacity:.4;">50%</span></div>',
+          '<input id="mpe-s2-y" type="range" min="0" max="100" step="0.5" value="50" style="width:100%;accent-color:#fff;margin-bottom:5px;">',
+          '<div style="display:flex;justify-content:space-between;margin-bottom:2px;"><label style="font-size:9px;opacity:.45;text-transform:uppercase;letter-spacing:.06em;">縮放</label><span id="mpe-s2-zval" style="font-size:9px;opacity:.4;">0%</span></div>',
+          '<input id="mpe-s2-z" type="range" min="-30" max="150" step="1" value="0" style="width:100%;accent-color:#fff;">',
+        '</div>',
+        // Photo 4
+        '<div style="margin-bottom:12px;">',
+          '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">',
+            '<span id="mpe-s3-thumb" style="width:36px;height:27px;border-radius:4px;background:#2a2a2a;background-size:cover;background-position:center;flex-shrink:0;border:1px solid rgba(255,255,255,.1);"></span>',
+            '<span style="font-size:11px;font-weight:600;flex:1;">照片 4</span>',
+            '<label style="cursor:pointer;font-size:10px;padding:4px 10px;border:1px solid rgba(255,255,255,.25);border-radius:6px;white-space:nowrap;">上傳<input id="mpe-s3-file" type="file" accept="image/*" style="display:none;"></label>',
+            '<button id="mpe-s3-del" style="background:none;border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.3);border-radius:6px;cursor:pointer;font-size:10px;padding:4px 8px;font-family:inherit;">刪</button>',
+          '</div>',
+          '<div style="display:flex;justify-content:space-between;margin-bottom:2px;"><label style="font-size:9px;opacity:.45;text-transform:uppercase;letter-spacing:.06em;">X</label><span id="mpe-s3-xval" style="font-size:9px;opacity:.4;">50%</span></div>',
+          '<input id="mpe-s3-x" type="range" min="0" max="100" step="0.5" value="50" style="width:100%;accent-color:#fff;margin-bottom:5px;">',
+          '<div style="display:flex;justify-content:space-between;margin-bottom:2px;"><label style="font-size:9px;opacity:.45;text-transform:uppercase;letter-spacing:.06em;">Y</label><span id="mpe-s3-yval" style="font-size:9px;opacity:.4;">50%</span></div>',
+          '<input id="mpe-s3-y" type="range" min="0" max="100" step="0.5" value="50" style="width:100%;accent-color:#fff;margin-bottom:5px;">',
+          '<div style="display:flex;justify-content:space-between;margin-bottom:2px;"><label style="font-size:9px;opacity:.45;text-transform:uppercase;letter-spacing:.06em;">縮放</label><span id="mpe-s3-zval" style="font-size:9px;opacity:.4;">0%</span></div>',
+          '<input id="mpe-s3-z" type="range" min="-30" max="150" step="1" value="0" style="width:100%;accent-color:#fff;">',
+        '</div>',
+        '<button id="mpe-slides-save" style="width:100%;padding:9px;border:none;border-radius:8px;background:#fff;color:#000;font-weight:700;font-size:12px;cursor:pointer;margin-top:4px;font-family:inherit;">💾 儲存輪播照片</button>',
+      '</div>',
     '</div>',
     // Highlights tab body
     '<div id="mpe-body-hl" style="padding:4px 14px 14px;display:none;max-height:460px;overflow-y:auto;flex-direction:column;">',
@@ -1610,6 +2913,98 @@ function submitProfileEnquiry(e) {
     applyHlImg(idx, null);
     refreshHlThumbs();
     showToast('第 ' + (idx+1) + ' 項已重置');
+  });
+
+  // ── Extra banner slides: upload + X/Y/zoom (photos 2-4) ──
+  var SLIDES_STORE = 'martin-hero-photos';
+  var extraSlides = (function(){
+    try{ var r=localStorage.getItem(SLIDES_STORE); return r?JSON.parse(r):[{},{},{}]; }
+    catch(e){ return [{},{},{}]; }
+  })();
+  while(extraSlides.length < 3) extraSlides.push({});
+
+  function applyExtraSlide(n){
+    var el=document.getElementById('heroSlide'+n); if(!el)return;
+    var d=extraSlides[n-1]||{};
+    if(!d.url){el.style.backgroundImage='';return;}
+    var zf=1+((d.zoom||0)/100);
+    el.style.backgroundImage    ="url('"+d.url+"')";
+    el.style.backgroundPosition =(d.x||50)+'% '+(d.y||50)+'%';
+    el.style.backgroundSize     =zf<=1?'cover':Math.round(zf*100)+'%';
+  }
+
+  function syncExtraSliders(){
+    [1,2,3].forEach(function(n){
+      var d=extraSlides[n-1]||{};
+      var x=d.x!=null?d.x:50, y=d.y!=null?d.y:50, z=d.zoom!=null?d.zoom:0;
+      var xS=document.getElementById('mpe-s'+n+'-x'),
+          yS=document.getElementById('mpe-s'+n+'-y'),
+          zS=document.getElementById('mpe-s'+n+'-z');
+      if(xS)xS.value=x; if(yS)yS.value=y; if(zS)zS.value=z;
+      var xV=document.getElementById('mpe-s'+n+'-xval'),
+          yV=document.getElementById('mpe-s'+n+'-yval'),
+          zV=document.getElementById('mpe-s'+n+'-zval');
+      if(xV)xV.textContent=Math.round(x)+'%';
+      if(yV)yV.textContent=Math.round(y)+'%';
+      if(zV)zV.textContent=(z>0?'+':'')+Math.round(z)+'%';
+      var th=document.getElementById('mpe-s'+n+'-thumb');
+      if(th)th.style.backgroundImage=d.url?"url('"+d.url+"')":'';
+    });
+  }
+  syncExtraSliders();
+  [1,2,3].forEach(applyExtraSlide);
+
+  function wireSlideControls(n){
+    var fi=document.getElementById('mpe-s'+n+'-file');
+    if(fi) fi.addEventListener('change',function(e){
+      var file=e.target.files&&e.target.files[0]; if(!file)return;
+      var r=new FileReader();
+      r.onload=function(ev){
+        compressImg(ev.target.result,function(url){
+          if(!extraSlides[n-1])extraSlides[n-1]={};
+          extraSlides[n-1].url=url;
+          if(extraSlides[n-1].x==null)extraSlides[n-1].x=50;
+          if(extraSlides[n-1].y==null)extraSlides[n-1].y=50;
+          if(extraSlides[n-1].zoom==null)extraSlides[n-1].zoom=0;
+          syncExtraSliders(); applyExtraSlide(n);
+          showToast('照片 '+(n+1)+' 已更新，記得按儲存');
+        });
+      };
+      r.readAsDataURL(file); fi.value='';
+    });
+    var xS=document.getElementById('mpe-s'+n+'-x'),xV=document.getElementById('mpe-s'+n+'-xval');
+    if(xS)xS.addEventListener('input',function(){
+      if(!extraSlides[n-1])extraSlides[n-1]={};
+      extraSlides[n-1].x=parseFloat(this.value);
+      if(xV)xV.textContent=Math.round(this.value)+'%'; applyExtraSlide(n);
+    });
+    var yS=document.getElementById('mpe-s'+n+'-y'),yV=document.getElementById('mpe-s'+n+'-yval');
+    if(yS)yS.addEventListener('input',function(){
+      if(!extraSlides[n-1])extraSlides[n-1]={};
+      extraSlides[n-1].y=parseFloat(this.value);
+      if(yV)yV.textContent=Math.round(this.value)+'%'; applyExtraSlide(n);
+    });
+    var zS=document.getElementById('mpe-s'+n+'-z'),zV=document.getElementById('mpe-s'+n+'-zval');
+    if(zS)zS.addEventListener('input',function(){
+      if(!extraSlides[n-1])extraSlides[n-1]={};
+      var v=parseFloat(this.value); extraSlides[n-1].zoom=v;
+      if(zV)zV.textContent=(v>0?'+':'')+Math.round(v)+'%'; applyExtraSlide(n);
+    });
+    var del=document.getElementById('mpe-s'+n+'-del');
+    if(del)del.addEventListener('click',function(){
+      extraSlides[n-1]={}; applyExtraSlide(n); syncExtraSliders();
+      showToast('照片 '+(n+1)+' 已刪除，記得按儲存');
+    });
+  }
+  wireSlideControls(1); wireSlideControls(2); wireSlideControls(3);
+
+  var slidesSaveBtn=document.getElementById('mpe-slides-save');
+  if(slidesSaveBtn) slidesSaveBtn.addEventListener('click',function(){
+    try{
+      localStorage.setItem(SLIDES_STORE,JSON.stringify(extraSlides));
+      if(window.__heroSlideshowReload)window.__heroSlideshowReload();
+      showToast('輪播照片已儲存！');
+    }catch(err){ showToast('儲存失敗（容量不足）'); }
   });
 
   // ── Toast ──
@@ -2122,6 +3517,220 @@ function submitProfileEnquiry(e) {
 })();
 </script>
 
+<!-- ── LESSON BOOKING MODAL (reuses .avail-* styles) ── -->
+<div class="avail-overlay" id="lessonOverlay">
+  <div class="avail-modal" id="lessonModal">
+    <button class="avail-close" id="lessonClose">✕</button>
+    <div class="avail-progress"><div class="avail-progress-fill" id="lessonProgressFill"></div></div>
+
+    <!-- Step 1: Level -->
+    <div class="avail-step active" id="lsStep1">
+      <div class="avail-step-badge" id="lsBadge1"></div>
+      <h3 class="avail-q">What's your current level?</h3>
+      <div class="avail-options-list" id="lsLevelList"></div>
+    </div>
+
+    <!-- Step 2: Goals -->
+    <div class="avail-step" id="lsStep2">
+      <div class="avail-step-badge" id="lsBadge2"></div>
+      <h3 class="avail-q">What do you want to get out of your lessons? <span style="font-weight:400;font-size:75%;">(pick any)</span></h3>
+      <div class="avail-options-list" id="lsGoalList"></div>
+    </div>
+
+    <!-- Step 3: Format -->
+    <div class="avail-step" id="lsStep3">
+      <div class="avail-step-badge" id="lsBadge3"></div>
+      <h3 class="avail-q">How would you like to take lessons?</h3>
+      <div class="avail-options-list" id="lsFormatList"></div>
+    </div>
+
+    <!-- Step 4: Schedule -->
+    <div class="avail-step" id="lsStep4">
+      <div class="avail-step-badge" id="lsBadge4"></div>
+      <h3 class="avail-q">When are you usually free? <span style="font-weight:400;font-size:75%;">(pick any)</span></h3>
+      <div class="avail-options-list" id="lsTimeList"></div>
+      <textarea class="avail-textarea" id="lsNotes" placeholder="Anything else you'd like the teacher to know? (optional)" style="margin-top:18px;"></textarea>
+    </div>
+
+    <!-- Step 5: Done -->
+    <div class="avail-step" id="lsStep5">
+      <div style="text-align:center;padding:20px 0;">
+        <div style="width:64px;height:64px;border-radius:50%;background:#16a34a;display:flex;align-items:center;justify-content:center;margin:0 auto 22px;font-size:32px;color:#fff;">✓</div>
+        <h3 class="avail-q" style="text-align:center;">Request sent!</h3>
+        <p class="avail-hint" id="lsDoneMsg" style="text-align:center;max-width:380px;margin:10px auto 0;"></p>
+      </div>
+    </div>
+
+    <div class="avail-footer" id="lsFooter">
+      <button class="avail-back-btn" id="lessonBackBtn">Back</button>
+      <button class="avail-next-btn" id="lessonNextBtn">Next</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── Lesson Booking Modal ──────────────────────────────────────────────────────
+(function(){
+  var QUESTION_STEPS = 4;       // steps 1–4 are questions; step 5 is the success screen
+  var TOTAL_STEPS = 5;
+  var currentStep = 1;
+  var state = { plan:'Trial', level:null, goals:[], format:null, times:[], notes:'' };
+
+  var LEVELS  = ['Complete beginner','Some basics','Intermediate','Advanced','Returning after a break'];
+  var GOALS   = ['Play for fun / relax','Exam or grading prep','Performance / audition prep','Learn specific songs','Build technique & theory','Other'];
+  var FORMATS = ['In-Person','Online','Either is fine'];
+  var TIMES   = ['Weekday mornings','Weekday afternoons','Weekday evenings','Weekends','I\'m flexible'];
+
+  var overlay  = document.getElementById('lessonOverlay');
+  var modal    = document.getElementById('lessonModal');
+  var progress = document.getElementById('lessonProgressFill');
+  var footer   = document.getElementById('lsFooter');
+  var backBtn  = document.getElementById('lessonBackBtn');
+  var nextBtn  = document.getElementById('lessonNextBtn');
+
+  function close(){ overlay.classList.remove('open'); document.body.style.overflow=''; }
+
+  window.openLesson = function(plan){
+    state = { plan: plan||'Trial', level:null, goals:[], format:null, times:[], notes:'' };
+    // Prefill format from the In-Person / Online toggle on the cards
+    if(window.lessonFormat === 'online') state.format = 'Online';
+    else if(window.lessonFormat === 'inperson') state.format = 'In-Person';
+    currentStep = 1;
+    renderStep();
+    overlay.classList.add('open');
+    document.body.style.overflow='hidden';
+  };
+
+  document.getElementById('lessonClose').addEventListener('click', close);
+  overlay.addEventListener('click', function(e){ if(e.target===overlay) close(); });
+  backBtn.addEventListener('click', prevStep);
+  nextBtn.addEventListener('click', nextStep);
+
+  function updateProgress(){ progress.style.width = ((currentStep-1)/(QUESTION_STEPS)*100) + '%'; }
+
+  function showStep(n){
+    for(var i=1;i<=TOTAL_STEPS;i++){
+      var el=document.getElementById('lsStep'+i);
+      if(el) el.classList.toggle('active', i===n);
+    }
+    var badge = state.plan + ' plan';
+    ['lsBadge1','lsBadge2','lsBadge3','lsBadge4'].forEach(function(id){
+      var b=document.getElementById(id); if(b) b.textContent=badge;
+    });
+    footer.style.display = n===TOTAL_STEPS ? 'none' : 'flex';
+    backBtn.style.visibility = n===1 ? 'hidden' : 'visible';
+    nextBtn.textContent = n===QUESTION_STEPS ? 'Send request' : 'Next';
+    updateProgress();
+  }
+
+  function renderStep(){
+    showStep(currentStep);
+    if(currentStep===1) renderLevel();
+    if(currentStep===2) renderGoals();
+    if(currentStep===3) renderFormat();
+    if(currentStep===4) renderTimes();
+  }
+
+  function nextStep(){
+    // Validation
+    if(currentStep===1 && !state.level){ alert('Please choose your level.'); return; }
+    if(currentStep===2 && state.goals.length===0){ alert('Please pick at least one goal.'); return; }
+    if(currentStep===3 && !state.format){ alert('Please choose a lesson format.'); return; }
+    if(currentStep===QUESTION_STEPS){ submit(); return; }
+    currentStep++;
+    renderStep();
+    modal.scrollTop = 0;
+  }
+  function prevStep(){
+    if(currentStep===1) return;
+    currentStep--;
+    renderStep();
+    modal.scrollTop = 0;
+  }
+
+  // Single-select list that auto-advances
+  function renderSingle(listId, items, key){
+    var list=document.getElementById(listId);
+    list.innerHTML='';
+    items.forEach(function(t){
+      var btn=document.createElement('button');
+      btn.className='avail-opt'+(state[key]===t?' selected':'');
+      btn.textContent=t;
+      btn.onclick=function(){
+        state[key]=t;
+        list.querySelectorAll('.avail-opt').forEach(function(b){b.classList.remove('selected');});
+        btn.classList.add('selected');
+        setTimeout(nextStep,180);
+      };
+      list.appendChild(btn);
+    });
+  }
+
+  // Multi-select list (toggle), no auto-advance
+  function renderMulti(listId, items, key){
+    var list=document.getElementById(listId);
+    list.innerHTML='';
+    items.forEach(function(t){
+      var btn=document.createElement('button');
+      btn.className='avail-opt'+(state[key].indexOf(t)>-1?' selected':'');
+      btn.textContent=t;
+      btn.onclick=function(){
+        var i=state[key].indexOf(t);
+        if(i>-1) state[key].splice(i,1); else state[key].push(t);
+        btn.classList.toggle('selected');
+      };
+      list.appendChild(btn);
+    });
+  }
+
+  function renderLevel(){ renderSingle('lsLevelList', LEVELS, 'level'); }
+  function renderGoals(){ renderMulti('lsGoalList', GOALS, 'goals'); }
+  function renderFormat(){ renderSingle('lsFormatList', FORMATS, 'format'); }
+  function renderTimes(){
+    renderMulti('lsTimeList', TIMES, 'times');
+    var ta=document.getElementById('lsNotes');
+    ta.value=state.notes;
+    ta.oninput=function(){ state.notes=this.value; };
+  }
+
+  function submit(){
+    var nameEl = document.querySelector('.about-musician-name');
+    var fullName = (window.MUSICIAN_NAME || (nameEl && nameEl.textContent) || 'Your teacher').trim();
+    var who = fullName.split(' ')[0]; // first name reads more personal
+
+    // ── Deliver the request to the musician's dashboard inbox ──
+    // Stored in localStorage so the musician dashboard can pick it up + notify.
+    // (Real cross-device delivery would POST this same object to a backend.)
+    try {
+      var customer = (localStorage.getItem('opusz_user') || '').trim();
+      var req = {
+        id: 'lr_' + Date.now(),
+        ts: new Date().toISOString(),
+        musician: fullName,
+        customer: customer || 'A prospective student',
+        plan: state.plan,
+        level: state.level,
+        goals: state.goals.slice(),
+        format: state.format,
+        times: state.times.slice(),
+        notes: state.notes.trim(),
+        read: false
+      };
+      var list = JSON.parse(localStorage.getItem('opusz_lesson_requests') || '[]');
+      list.unshift(req);                       // newest first
+      localStorage.setItem('opusz_lesson_requests', JSON.stringify(list));
+    } catch(e){ /* storage unavailable — still show success */ }
+
+    document.getElementById('lsDoneMsg').textContent =
+      'We\'ve sent your ' + state.plan + ' lesson request. ' + who + ' will get back to you to confirm the details and schedule your first lesson.';
+    currentStep = TOTAL_STEPS;
+    renderStep();
+    modal.scrollTop = 0;
+  }
+
+})();
+</script>
+
 <script>
 /* ── Count-up animation ─────────────────────────────────────────────────── */
 (function(){
@@ -2267,11 +3876,14 @@ function submitProfileEnquiry(e) {
     // ── Update page title ──
     document.title = name + ' — OPUS.Z';
 
-    // ── Hero: big decorative name ──
-    const heroName = document.getElementById('heroNameBig');
-    if (heroName) heroName.textContent = name;
+    // ── Hero: big decorative name (two copies — orig + replacement) ──
+    const heroNameBig = document.getElementById('heroNameBig');
+    if (heroNameBig) heroNameBig.querySelectorAll('span').forEach(s => s.textContent = name);
     const heroNameLeft = document.getElementById('heroNameLeft');
     if (heroNameLeft) heroNameLeft.textContent = name;
+    // Showreel label (top-left of the big video)
+    const bigvidLabel = document.getElementById('bigvidLabelName');
+    if (bigvidLabel) bigvidLabel.textContent = name.toUpperCase();
 
     // ── Hero info card ──
     const infoTitle = document.querySelector('.info-title');
@@ -2302,6 +3914,14 @@ function submitProfileEnquiry(e) {
     console.log('Profile load error:', e);
   }
 </script>
+
+<!-- ── Video lightbox ── -->
+<div class="vid-overlay" id="vidOverlay" onclick="if(event.target===this)closeVideo()">
+  <div class="vid-modal" id="vidModal">
+    <button class="vid-close" onclick="closeVideo()" aria-label="Close">✕</button>
+    <div id="vidEmbedHost"></div>
+  </div>
+</div>
 
 <!-- ── Send Enquiry modal ── -->
 <div class="enq-overlay" id="enqOverlay" onclick="if(event.target===this)closeEnquiry()">
@@ -2350,9 +3970,482 @@ function submitProfileEnquiry(e) {
     var url = localStorage.getItem('martin-profile-img');
     var el = document.getElementById('bookBarAvatar');
     if(el && url) el.style.backgroundImage = "url('" + url + "')";
+    var ab = document.getElementById('aboutAvatar');
+    if(ab && url) ab.style.backgroundImage = "url('" + url + "')";
   }
   syncBarAvatar();
   window.addEventListener('storage', syncBarAvatar);
+})();
+
+// ── Showreel: switch between videos + play in lightbox ──
+(function(){
+  var spacer = document.getElementById('bigvidSpacer');
+  if(!spacer) return;
+  var poster = document.getElementById('bigvidPoster');
+  var idxEl  = document.getElementById('bigvidIdx');
+  var titleEl= document.getElementById('bigvidTitle');
+  var playBtn= document.getElementById('bigvidPlay');
+  var prev   = document.getElementById('bigvidPrev');
+  var next   = document.getElementById('bigvidNext');
+
+  // Initial fallback title — used if window.BIGVID_DATA is empty
+  var initialTitle = titleEl ? titleEl.innerHTML : '';
+  function readData(){
+    var d = (window.BIGVID_DATA && window.BIGVID_DATA.length) ? window.BIGVID_DATA : [];
+    if(!d.length) d = [{ url:'', title: initialTitle, poster:'' }];
+    return d;
+  }
+  var data = readData();
+  var cur = 0;
+
+  // Editor saves → dispatches this event → re-pull data & re-render
+  document.addEventListener('bigvid-data-changed', function(){
+    data = readData();
+    if(cur >= data.length) cur = 0;
+    render();
+  });
+
+  function pad(n){ return n < 10 ? '0' + n : '' + n; }
+
+  function ytId(url){
+    var m = url.match(/youtube\.com\/embed\/([\w-]+)/) ||
+            url.match(/youtu\.be\/([\w-]+)/) ||
+            url.match(/youtube\.com\/watch\?v=([\w-]+)/);
+    return m ? m[1] : '';
+  }
+  function isMp4(url){ return /\.(mp4|webm|ogg)(\?|$)/i.test(url); }
+
+  var pin = document.getElementById('bigvidPin');
+  var currentEmbed = null;   // active <video> or <iframe>
+  var animating = false;     // true while a slide-in transition is running
+  var isMuted = true;        // browsers require muted for autoplay
+
+  // SVG paths for the centre mute/unmute toggle
+  var ICON_MUTED = '<path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor"/><line x1="23" y1="9" x2="17" y2="15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><line x1="17" y1="9" x2="23" y2="15" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>';
+  var ICON_SOUND = '<path d="M11 5L6 9H2v6h4l5 4V5z" fill="currentColor"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>';
+
+  function updateMuteIcon(){
+    var svg = playBtn.querySelector('svg');
+    if(!svg) return;
+    svg.setAttribute('viewBox', '0 0 24 24');
+    svg.innerHTML = isMuted ? ICON_MUTED : ICON_SOUND;
+    svg.style.marginLeft = '0';
+    svg.style.width = '42%';
+    svg.style.height = '42%';
+    playBtn.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
+  }
+
+  // Build (but don't insert) a <video>/<iframe> for the given URL. z-index:2 keeps
+  // it below the showreel controls (.bigvid-label/-caption z3, -nav/-play z4).
+  function buildEmbed(url){
+    if(!url) return null;
+    if(isMp4(url)){
+      var v = document.createElement('video');
+      v.src = url;
+      v.autoplay = true;
+      v.muted = true;          // required for autoplay to succeed
+      v.loop = true;
+      v.playsInline = true;
+      v.setAttribute('playsinline', '');
+      v.controls = false;
+      v.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:2;pointer-events:none;';
+      return v;
+    }
+    var id = ytId(url);
+    var src;
+    if(id){
+      // Loop on YouTube requires playlist=ID; mute is required for autoplay
+      src = 'https://www.youtube.com/embed/' + id +
+            '?autoplay=1&mute=1&loop=1&playlist=' + id +
+            '&controls=0&showinfo=0&rel=0&iv_load_policy=3&modestbranding=1&playsinline=1&enablejsapi=1';
+    } else {
+      // Vimeo-style URL or anything else — try common background params
+      var sep = url.indexOf('?') > -1 ? '&' : '?';
+      src = url + sep + 'autoplay=1&muted=1&loop=1&background=1';
+    }
+    var f = document.createElement('iframe');
+    f.src = src;
+    f.allow = 'autoplay; encrypted-media; picture-in-picture';
+    f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:2;pointer-events:none;';
+    return f;
+  }
+
+  function startEmbed(el){
+    if(el && el.tagName === 'VIDEO'){ el.play().catch(function(){}); el.muted = isMuted; }
+  }
+
+  // Instant swap — used on initial render and when the editor saves new data.
+  function embedVideo(url){
+    if(currentEmbed){ currentEmbed.remove(); currentEmbed = null; }
+    var el = buildEmbed(url);
+    if(!el) return;
+    pin.appendChild(el);
+    currentEmbed = el;
+    startEmbed(el);
+  }
+
+  // Animated swap — incoming video slides in over the old one, matching the
+  // hero banner: from the right when going next (dir=1), from the left for prev.
+  function transitionTo(url, dir){
+    var incoming = buildEmbed(url);
+    if(!incoming){ embedVideo(url); return; }   // empty URL → just clear
+    var outgoing = currentEmbed;
+
+    // Park incoming off-screen on the entering side (no transition yet)
+    incoming.style.zIndex = '2';
+    incoming.style.transition = 'none';
+    incoming.style.transform = 'translateX(' + (dir > 0 ? '100%' : '-100%') + ')';
+    pin.appendChild(incoming);
+    startEmbed(incoming);
+    if(outgoing) outgoing.style.zIndex = '1';   // sits beneath incoming, gets covered
+
+    currentEmbed = incoming;
+    animating = true;
+
+    incoming.offsetWidth;                        // force reflow so the start position registers
+    incoming.style.transition = 'transform 0.72s cubic-bezier(0.4,0,0.2,1)';
+    incoming.style.transform = 'translateX(0)';
+
+    setTimeout(function(){
+      if(outgoing) outgoing.remove();
+      incoming.style.transition = '';
+      animating = false;
+    }, 760);
+  }
+
+  function setMuted(val){
+    isMuted = val;
+    if(!currentEmbed){ updateMuteIcon(); return; }
+    if(currentEmbed.tagName === 'VIDEO'){
+      currentEmbed.muted = val;
+    } else if(currentEmbed.tagName === 'IFRAME'){
+      // YouTube postMessage command — requires enablejsapi=1 on the embed URL
+      try{
+        currentEmbed.contentWindow.postMessage(
+          '{"event":"command","func":"' + (val ? 'mute' : 'unMute') + '","args":""}',
+          '*'
+        );
+      } catch(e){}
+    }
+    updateMuteIcon();
+  }
+
+  function updateMeta(){
+    var d = data[cur];
+    if(idxEl)   idxEl.textContent = '(' + pad(cur + 1) + ' / ' + pad(data.length) + ')';
+    if(titleEl) titleEl.innerHTML = d.title || '';
+    prev.disabled = (cur === 0);
+    next.disabled = (cur === data.length - 1);
+    var navEl = document.querySelector('.bigvid-nav');
+    if(navEl) navEl.style.display = (data.length > 1) ? '' : 'none';
+
+    // The video itself is the visible background — hide the static poster gradient
+    if(poster) poster.classList.add('hidden');
+  }
+  function render(){            // instant — initial load / editor save
+    updateMeta();
+    embedVideo(data[cur].url);
+    updateMuteIcon();
+  }
+  function go(delta){           // animated — arrow navigation
+    if(animating) return;       // ignore clicks mid-transition
+    var nxt = cur + delta;
+    if(nxt < 0 || nxt >= data.length) return;
+    cur = nxt;
+    updateMeta();
+    transitionTo(data[cur].url, delta);   // delta>0 → slide in from right
+    updateMuteIcon();
+  }
+  prev.addEventListener('click', function(){ go(-1); });
+  next.addEventListener('click', function(){ go(1); });
+
+  // Centre button: toggle mute/unmute. Video is always playing in the background.
+  playBtn.addEventListener('click', function(){
+    if(!currentEmbed){
+      var d = data[cur];
+      if(!d.url){
+        alert('No video URL set yet — open the editor (V) and add a video URL.');
+        return;
+      }
+      embedVideo(d.url);
+    }
+    setMuted(!isMuted);
+  });
+
+  render();
+})();
+
+window.openVideo = function(url){
+  var host = document.getElementById('vidEmbedHost');
+  host.innerHTML = '';
+  var isMp4 = /\.(mp4|webm|ogg)(\?|$)/i.test(url);
+  if(isMp4){
+    var v = document.createElement('video');
+    v.src = url; v.controls = true; v.autoplay = true;
+    host.appendChild(v);
+  } else {
+    var f = document.createElement('iframe');
+    // Append autoplay param for YouTube/Vimeo without breaking other params
+    var sep = url.indexOf('?') > -1 ? '&' : '?';
+    f.src = url + sep + 'autoplay=1';
+    f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+    f.allowFullscreen = true;
+    host.appendChild(f);
+  }
+  document.getElementById('vidOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+};
+window.closeVideo = function(){
+  document.getElementById('vidOverlay').classList.remove('open');
+  document.getElementById('vidEmbedHost').innerHTML = ''; // stops playback
+  document.body.style.overflow = '';
+};
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape') closeVideo();
+});
+
+// ── Reveal the big name only after Inter font is ready (prevents FOUT flash) ──
+(function revealNameWhenFontLoaded(){
+  var nameEl = document.getElementById('heroNameBig');
+  if(!nameEl) return;
+  function show(){ nameEl.classList.add('fonts-ready'); }
+  if(document.fonts && document.fonts.ready){
+    // Most reliable: wait for ALL declared fonts to be ready
+    document.fonts.ready.then(show);
+    // Safety net — if fonts hang, show anyway after 1.2s
+    setTimeout(show, 1200);
+  } else {
+    show();
+  }
+})();
+
+// ── Hero intro: full-screen photo → shrink to inline header (1.5s) ──
+(function(){
+  var hero = document.getElementById('heroSection');
+  if(!hero || !hero.classList.contains('hero-intro')) return;
+  // Lock scroll while intro plays
+  var prevOverflow = document.documentElement.style.overflow;
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+  // Hold the full-screen state for 1.5s, then trigger the exit transitions.
+  // The CSS handles both the hero shrink AND the name-track slide-right
+  // (with wrap-around copies entering from the left) — all tied to the same
+  // hero-intro class removal so they animate in perfect sync.
+  setTimeout(function(){
+    hero.classList.remove('hero-intro');
+    // Restore scroll once the transition finishes (~1.1s)
+    setTimeout(function(){
+      document.documentElement.style.overflow = prevOverflow;
+      document.body.style.overflow = '';
+    }, 1200);
+    // Signal slideshow to initialise (after banner shrink + some buffer)
+    setTimeout(function(){
+      document.dispatchEvent(new CustomEvent('hero-intro-done'));
+    }, 1200);
+  }, 1500);
+})();
+
+// ── Hero banner slideshow (same logic as blog reel) ──
+(function(){
+  var STORE = 'martin-hero-photos'; // array of {url,x,y,zoom} for slides 1-3
+  var DELAY = 4000;
+
+  var slideEls = [
+    document.getElementById('photoBg'),      // slide 0: main profile photo
+    document.getElementById('heroSlide1'),   // slide 1
+    document.getElementById('heroSlide2'),   // slide 2
+    document.getElementById('heroSlide3'),   // slide 3
+  ];
+  var dotsEl  = document.getElementById('heroReelDots');
+  var barFill = document.getElementById('heroReelBarFill');
+  if(!dotsEl || !barFill) return;
+
+  var activeIdxs = []; // slide indices that have photos
+  var pos = 0;         // position within activeIdxs
+  var timer = null;
+
+  // Load extra photos from localStorage into slides 1-3
+  function loadExtras(){
+    try{
+      var raw = localStorage.getItem(STORE);
+      if(!raw) return;
+      var arr = JSON.parse(raw);
+      if(!Array.isArray(arr)) return;
+      arr.forEach(function(item, i){
+        var el = slideEls[i + 1]; // offset by 1 (slide 0 is handled by photo editor)
+        if(!el || !item || !item.url) return;
+        var zf = 1 + ((item.zoom||0)/100);
+        el.style.backgroundImage = "url('" + item.url + "')";
+        el.style.backgroundPosition = (item.x||50)+'% '+(item.y||50)+'%';
+        el.style.backgroundSize = zf <= 1 ? 'cover' : Math.round(zf*100)+'%';
+      });
+    }catch(e){}
+  }
+
+  function collectActive(){
+    activeIdxs = [];
+    slideEls.forEach(function(el, i){
+      if(el && el.style.backgroundImage && el.style.backgroundImage !== 'none'){
+        activeIdxs.push(i);
+      }
+    });
+    if(activeIdxs.length === 0) activeIdxs.push(0);
+  }
+
+  function buildDots(){
+    dotsEl.innerHTML = '';
+    if(activeIdxs.length <= 1){ dotsEl.style.display = 'none'; return; }
+    activeIdxs.forEach(function(_, dotPos){
+      var d = document.createElement('button');
+      d.className = 'hrd' + (dotPos === 0 ? ' hrd-active' : '');
+      d.setAttribute('aria-label', 'Slide ' + (dotPos+1));
+      (function(p){ d.addEventListener('click', function(){ goTo(p); startTimer(); }); })(dotPos);
+      dotsEl.appendChild(d);
+    });
+  }
+
+  function resetBar(){
+    barFill.style.transition = 'none';
+    barFill.style.width = '0%';
+    barFill.offsetWidth;
+    barFill.style.transition = 'width '+DELAY+'ms linear';
+    barFill.style.width = '100%';
+  }
+
+  function goTo(newPos){
+    if(newPos === pos || activeIdxs.length <= 1) return;
+    var prevEl = slideEls[activeIdxs[pos]];
+    var nextEl = slideEls[activeIdxs[newPos]];
+
+    // Kill any lingering animation (e.g. intro zoom) so it doesn't override transform
+    prevEl.style.animation = 'none';
+    nextEl.style.animation = 'none';
+
+    // Incoming: snap to off-screen right (no transition), then slide in from right
+    nextEl.style.transition = 'none';
+    nextEl.style.transform  = 'translateX(100%)';
+    nextEl.style.zIndex     = '3';
+    nextEl.offsetWidth; // force reflow so Chrome registers the starting position
+    nextEl.style.transition = 'transform 0.72s cubic-bezier(0.4,0,0.2,1)';
+    nextEl.style.transform  = 'translateX(0)';
+
+    // Outgoing: keep it in place (it gets covered by incoming), then park it
+    // NOTE: do NOT touch prevEl.style.transform here — any change would cause a flash.
+    prevEl.style.zIndex = '2';
+    setTimeout(function(){
+      prevEl.style.transition = 'none';
+      prevEl.style.transform  = 'translateX(100%)';
+      prevEl.style.zIndex     = '1';
+    }, 760);
+
+    pos = newPos;
+
+    // Update dots
+    var dots = dotsEl.querySelectorAll('.hrd');
+    dots.forEach(function(d, i){ d.classList.toggle('hrd-active', i === newPos); });
+    resetBar();
+  }
+
+  function startTimer(){
+    clearInterval(timer);
+    if(activeIdxs.length <= 1) return;
+    timer = setInterval(function(){
+      goTo((pos + 1) % activeIdxs.length);
+    }, DELAY);
+  }
+
+  // Expose so photo editor can trigger a reload
+  window.__heroSlideshowReload = function(){
+    clearInterval(timer);
+    loadExtras();
+    collectActive();
+    buildDots();
+    pos = 0;
+    if(activeIdxs.length > 1){ resetBar(); startTimer(); }
+  };
+
+  // Boot after intro animation completes
+  document.addEventListener('hero-intro-done', function(){
+    loadExtras();
+    collectActive();
+    buildDots();
+
+    // Switch from CSS-class control → inline-style control.
+    // The CSS class .hero-slide-active has transform:translateX(0) and z-index:2.
+    // We now set those via inline styles so goTo() can safely manipulate them
+    // without class changes (which would cause instant jumps / white flashes).
+    slideEls.forEach(function(el, i){
+      if(!el) return;
+      var isActive = (activeIdxs.indexOf(i) === 0); // slide 0 is initially active
+      el.style.animation  = 'none'; // kill intro zoom fill
+      el.style.transition = 'none';
+      el.style.transform  = isActive ? 'translateX(0)' : 'translateX(100%)';
+      el.style.zIndex     = isActive ? '2' : '1';
+    });
+
+    if(activeIdxs.length > 1){ resetBar(); startTimer(); }
+  }, { once: true });
+})();
+
+// ── Photo Gallery: smooth scroll + arrow nav ──
+(function(){
+  var vp = document.getElementById('galViewport');
+  var track = document.getElementById('galTrack');
+  var prev = document.getElementById('galPrev');
+  var next = document.getElementById('galNext');
+  if(!vp || !track) return;
+
+  function step(){
+    var card = track.querySelector('.gallery-card');
+    if(!card) return 320;
+    var gap = parseFloat(getComputedStyle(track).gap) || 20;
+    return card.getBoundingClientRect().width + gap;
+  }
+  // ease-in-out cubic — slow start, fast middle, slow finish (luxurious feel)
+  function easeInOutCubic(t){ return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2; }
+  var animId = null;
+  function animateTo(target){
+    if(animId) cancelAnimationFrame(animId);
+    var start = vp.scrollLeft;
+    var dist  = target - start;
+    var dur   = Math.min(1200, 650 + Math.abs(dist) * 0.5);
+    var t0    = performance.now();
+    function frame(now){
+      var p = Math.min(1, (now - t0) / dur);
+      vp.scrollLeft = start + dist * easeInOutCubic(p);
+      if(p < 1) animId = requestAnimationFrame(frame);
+      else { animId = null; updateButtons(); }
+    }
+    animId = requestAnimationFrame(frame);
+  }
+  function updateButtons(){
+    var max = vp.scrollWidth - vp.clientWidth - 1;
+    prev.disabled = vp.scrollLeft <= 0;
+    next.disabled = vp.scrollLeft >= max;
+  }
+  prev.addEventListener('click', function(){ animateTo(vp.scrollLeft - step()); });
+  next.addEventListener('click', function(){ animateTo(vp.scrollLeft + step()); });
+  vp.addEventListener('scroll', updateButtons, { passive:true });
+  window.addEventListener('resize', updateButtons);
+  vp.tabIndex = 0;
+  vp.addEventListener('keydown', function(e){
+    if(e.key === 'ArrowLeft'){ e.preventDefault(); animateTo(vp.scrollLeft - step()); }
+    if(e.key === 'ArrowRight'){ e.preventDefault(); animateTo(vp.scrollLeft + step()); }
+  });
+  // Fix: don't let horizontal container swallow vertical page scrolls.
+  // Only intercept when the user is clearly scrolling horizontally.
+  vp.addEventListener('wheel', function(e){
+    var isHoriz = Math.abs(e.deltaX) > Math.abs(e.deltaY);
+    if(isHoriz){
+      e.preventDefault();
+      if(animId) cancelAnimationFrame(animId);
+      animId = null;
+      vp.scrollLeft += e.deltaX;
+      updateButtons();
+    }
+    // vertical: no preventDefault → event bubbles up → page scrolls normally
+  }, { passive: false });
+  updateButtons();
 })();
 
 window.openEnquiry = function(type){
@@ -2381,5 +4474,485 @@ document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closeEnquiry();
 });
 </script>
+
+<script>
+/* ── Nav: scroll hide/show with lerp ── */
+(function() {
+  var navEl = document.querySelector('nav');
+  var navH = navEl ? navEl.offsetHeight : 64;
+  var navTarget = 0, navCurrent = 0, lastY = 0, raf = null;
+  function tick() {
+    navCurrent += (navTarget - navCurrent) * 0.1;
+    if (navEl) navEl.style.top = navCurrent + 'px';
+    if (Math.abs(navTarget - navCurrent) < 0.05) {
+      if (navEl) navEl.style.top = navTarget + 'px';
+      navCurrent = navTarget; raf = null;
+    } else { raf = requestAnimationFrame(tick); }
+  }
+  window.addEventListener('scroll', function() {
+    var y = window.scrollY;
+    navTarget = y < 80 ? 0 : (y > lastY ? -navH : 0);
+    lastY = y;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+})();
+
+/* ── Nav: mix-blend-mode difference + underline + char split ── */
+(function() {
+  var nav = document.querySelector('nav');
+  if (!nav) return;
+
+  function _splitToChars(el) {
+    var text = el.textContent;
+    el.innerHTML = [...text].map(function(ch) {
+      return ch === ' ' ? '<span class="nc-char nc-sp"> </span>' : '<span class="nc-char">' + ch + '</span>';
+    }).join('');
+  }
+  var navLogoFixed = document.getElementById('navLogoFixed');
+  function _resplitNav() {
+    nav.querySelectorAll('.nav-links a').forEach(function(a) { _splitToChars(a); });
+    var ln = nav.querySelector('.nav-logo-name');
+    var ls = nav.querySelector('.nav-logo-sub');
+    if (ln) _splitToChars(ln);
+    if (ls) _splitToChars(ls);
+    if (navLogoFixed) {
+      var fln = navLogoFixed.querySelector('.nav-logo-name');
+      var fls = navLogoFixed.querySelector('.nav-logo-sub');
+      if (fln) _splitToChars(fln);
+      if (fls) _splitToChars(fls);
+      navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    }
+  }
+  _resplitNav();
+  window.__navResplit = _resplitNav;
+
+  function updateColors() {
+    var megaOpen = nav.classList.contains('mega-open');
+    if (megaOpen) {
+      nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#000'; });
+      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+        var el = nav.querySelector(sel); if (!el) return;
+        el.style.color = '#000'; el.style.borderColor = 'rgba(0,0,0,.35)';
+      });
+      nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#000'; });
+      nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
+      return;
+    }
+    nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#fff'; });
+    if (navLogoFixed) navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+      var el = nav.querySelector(sel); if (!el) return;
+      el.style.color = '#fff'; el.style.borderColor = 'rgba(255,255,255,.5)';
+    });
+    nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#fff'; });
+  }
+
+  /* Inject underline span into every nav link */
+  nav.querySelectorAll('.nav-links a').forEach(function(a) {
+    if (!a.querySelector('.nav-ul')) {
+      var ul = document.createElement('span');
+      ul.className = 'nav-ul';
+      a.appendChild(ul);
+    }
+  });
+
+  updateColors();
+  window.addEventListener('scroll', updateColors, { passive: true });
+  window.addEventListener('resize', updateColors);
+  setTimeout(updateColors, 300);
+})();
+
+/* ── Page transition + bfcache fix ── */
+document.addEventListener('click', function(e) {
+  var a = e.target.closest('a[href]');
+  if (!a || a.target || e.metaKey || e.ctrlKey) return;
+  var url; try { url = new URL(a.href, location.href); } catch(err) { return; }
+  if (url.origin !== location.origin) return;
+  if (url.pathname === location.pathname && url.hash) {
+    e.preventDefault();
+    history.replaceState(null, '', url.hash);
+    var t = document.getElementById(url.hash.slice(1));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  if (url.pathname === location.pathname && !url.hash) return;
+  e.preventDefault();
+  document.documentElement.style.transition = 'opacity .22s ease';
+  document.documentElement.style.opacity = '0';
+  setTimeout(function() { location.href = a.href; }, 230);
+});
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    document.documentElement.style.transition = 'opacity .22s ease';
+    document.documentElement.style.opacity = '1';
+  }
+});
+</script>
+<script src="assets/js/smooth-scroll.js" defer></script>
+<script src="assets/js/nav-auth.js" defer></script>
+
+<script>
+// ── Lesson Plans: show only if musician has lesson subscription ──
+// In production this flag comes from the musician's subscription data in the backend.
+// For prototype: set to true to preview the section.
+(function() {
+  var MUSICIAN_HAS_LESSONS = true; // ← flip to false to hide
+
+  var sec = document.getElementById('lessonSection');
+  if (sec && MUSICIAN_HAS_LESSONS) sec.style.display = '';
+
+  // In-person / Online toggle (prototype: same price, just label change)
+  var LESSON_PRICES = {
+    inperson: { trial: 'NT$2,000', monthly: 'NT$7,200', seasonal: 'NT$19,200' },
+    online:   { trial: 'NT$2,000', monthly: 'NT$7,200', seasonal: 'NT$19,200' }
+  };
+
+  window.lessonFormat = 'inperson';
+  window.lessonToggle = function(mode, btn) {
+    document.querySelectorAll('.lesson-toggle-btn').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    window.lessonFormat = mode;
+    // (prices same for prototype — update LESSON_PRICES when real values are set)
+  };
+})();
+</script>
+
+<!-- ── Audio player + P-key editor for MP3 tracks ── -->
+<script>
+(function(){
+  var AUDIO_STORE = 'martin-audio-tracks';
+  var audioEl  = document.getElementById('audioEl');
+  var playBtn  = document.getElementById('audioPlayPause');
+  var playIcon = document.getElementById('audioPlayIcon');
+  var prevBtn  = document.getElementById('audioPrev');
+  var nextBtn  = document.getElementById('audioNext');
+  var titleEl  = document.getElementById('audioTitle');
+  var descEl   = document.getElementById('audioDesc');
+  var listEl   = document.getElementById('audioList');
+  var wave     = document.getElementById('audioWave');
+  var fill     = document.getElementById('audioWaveFill');
+  if(!audioEl) return;
+
+  var PLAY_SVG  = '<polygon points="6 4 20 12 6 20 6 4"/>';
+  var PAUSE_SVG = '<rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/>';
+
+  // Default sample tracks — used when localStorage is empty
+  window.AUDIO_TRACKS = window.AUDIO_TRACKS || [];
+
+  function loadSaved(){
+    try{
+      var raw = localStorage.getItem(AUDIO_STORE);
+      if(!raw) return null;
+      var parsed = JSON.parse(raw);
+      if(Array.isArray(parsed)) return parsed;
+    }catch(e){}
+    return null;
+  }
+  var saved = loadSaved();
+  var tracks = saved || window.AUDIO_TRACKS;
+  var cur = 0;
+
+  function render(){
+    if(!tracks.length){
+      titleEl.textContent = 'No tracks yet';
+      descEl.textContent  = 'Press P to add MP3 tracks for this musician.';
+      listEl.innerHTML = '<li class="audio-empty">No tracks added</li>';
+      return;
+    }
+    var t = tracks[cur] || tracks[0];
+    titleEl.textContent = t.title || 'Untitled';
+    descEl.textContent  = t.desc || '';
+    listEl.innerHTML = tracks.map(function(tr, i){
+      return '<li class="' + (i === cur ? 'active' : '') + '" data-i="' + i + '">' +
+        '<svg class="audio-list-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>' +
+        (tr.title || 'Untitled') + '</li>';
+    }).join('');
+    audioEl.src = t.url || '';
+  }
+
+  function setPlayingIcon(playing){
+    playIcon.innerHTML = playing ? PAUSE_SVG : PLAY_SVG;
+    playBtn.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+  }
+
+  playBtn.addEventListener('click', function(){
+    if(!tracks.length || !tracks[cur] || !tracks[cur].url) return;
+    if(audioEl.paused){ audioEl.play(); } else { audioEl.pause(); }
+  });
+  audioEl.addEventListener('play',  function(){ setPlayingIcon(true);  });
+  audioEl.addEventListener('pause', function(){ setPlayingIcon(false); });
+  audioEl.addEventListener('ended', function(){ go(1); audioEl.play().catch(function(){}); });
+  audioEl.addEventListener('timeupdate', function(){
+    if(!audioEl.duration) return;
+    fill.style.width = (audioEl.currentTime / audioEl.duration * 100) + '%';
+  });
+
+  wave.addEventListener('click', function(e){
+    if(!audioEl.duration) return;
+    var r = wave.getBoundingClientRect();
+    var pct = (e.clientX - r.left) / r.width;
+    audioEl.currentTime = audioEl.duration * pct;
+  });
+
+  function go(delta){
+    if(!tracks.length) return;
+    var n = (cur + delta + tracks.length) % tracks.length;
+    cur = n;
+    render();
+    audioEl.play().catch(function(){});
+  }
+  prevBtn.addEventListener('click', function(){ go(-1); });
+  nextBtn.addEventListener('click', function(){ go(1); });
+  listEl.addEventListener('click', function(e){
+    var li = e.target.closest('li[data-i]');
+    if(!li) return;
+    cur = parseInt(li.getAttribute('data-i'), 10);
+    render();
+    audioEl.play().catch(function(){});
+  });
+
+  render();
+
+  // Expose for the editor to refresh data
+  window.__reloadAudio = function(){
+    var s = loadSaved();
+    tracks = s || window.AUDIO_TRACKS || [];
+    if(cur >= tracks.length) cur = 0;
+    audioEl.pause();
+    setPlayingIcon(false);
+    render();
+  };
+
+  // ── Editor (localhost only — press P) ──
+  var isLocal = (location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:');
+  if(!isLocal) return;
+
+  // Build the editor UI
+  var fab = document.createElement('button');
+  fab.className = 'bve-toggle';
+  fab.style.left = '132px';     // sits beside the video editor fab
+  fab.title = 'Audio Tracks Editor (P)';
+  fab.textContent = '🎵';
+  document.body.appendChild(fab);
+
+  var panel = document.createElement('div');
+  panel.className = 'bve-panel';
+  panel.style.left = '78px';
+  panel.innerHTML =
+    '<div class="bve-head">' +
+      '<span class="bve-title">🎵 Audio tracks</span>' +
+      '<span class="bve-hint">P to toggle</span>' +
+    '</div>' +
+    '<div class="bve-body" id="apeBody"></div>' +
+    '<div class="bve-saved" id="apeSaved">Saved ✓</div>' +
+    '<div class="bve-actions">' +
+      '<button class="bve-btn bve-btn-add" id="apeAdd">＋ Add track</button>' +
+      '<button class="bve-btn bve-btn-save" id="apeSave">💾 Save</button>' +
+    '</div>';
+  document.body.appendChild(panel);
+
+  var body = panel.querySelector('#apeBody');
+  var savedFlag = panel.querySelector('#apeSaved');
+
+  function getWorking(){
+    var arr = JSON.parse(JSON.stringify(tracks || []));
+    if(!arr.length) arr.push({ url:'', title:'', desc:'' });
+    return arr;
+  }
+  var working = getWorking();
+
+  function rowHtml(v, i){
+    return '<div class="bve-row" data-i="'+i+'">' +
+      '<div class="bve-row-head">' +
+        '<span class="bve-row-num">TRACK '+(i+1)+'</span>' +
+        (working.length > 1 ? '<button class="bve-row-del" data-del="'+i+'">Remove</button>' : '') +
+      '</div>' +
+      '<div class="bve-label">MP3 URL (Cloudinary / hosted .mp3)</div>' +
+      '<input class="bve-input" data-k="url" value="'+(v.url || '').replace(/"/g,'&quot;')+'" placeholder="https://res.cloudinary.com/.../audio.mp3">' +
+      '<div class="bve-label">Title</div>' +
+      '<input class="bve-input" data-k="title" value="'+(v.title || '').replace(/"/g,'&quot;')+'" placeholder="e.g. Brahms Sonata in D minor">' +
+      '<div class="bve-label">Description (optional)</div>' +
+      '<input class="bve-input" data-k="desc" value="'+(v.desc || '').replace(/"/g,'&quot;')+'" placeholder="e.g. Recorded at NCH, 2024">' +
+    '</div>';
+  }
+  function renderEditor(){
+    body.innerHTML = working.map(rowHtml).join('');
+  }
+  renderEditor();
+
+  body.addEventListener('input', function(e){
+    var inp = e.target.closest('.bve-input');
+    if(!inp) return;
+    var row = inp.closest('.bve-row');
+    var i = parseInt(row.getAttribute('data-i'), 10);
+    working[i][inp.getAttribute('data-k')] = inp.value;
+  });
+  body.addEventListener('click', function(e){
+    var del = e.target.closest('.bve-row-del');
+    if(!del) return;
+    working.splice(parseInt(del.getAttribute('data-del'), 10), 1);
+    if(!working.length) working.push({ url:'', title:'', desc:'' });
+    renderEditor();
+  });
+  panel.querySelector('#apeAdd').addEventListener('click', function(){
+    working.push({ url:'', title:'', desc:'' });
+    renderEditor();
+    body.scrollTop = body.scrollHeight;
+  });
+  panel.querySelector('#apeSave').addEventListener('click', function(){
+    var cleaned = working.filter(function(t){ return (t.url||'').trim() || (t.title||'').trim(); });
+    try{
+      localStorage.setItem(AUDIO_STORE, JSON.stringify(cleaned));
+    } catch(err){
+      alert('Storage failed — try a smaller payload.');
+      return;
+    }
+    window.__reloadAudio();
+    working = getWorking();
+    renderEditor();
+    savedFlag.classList.add('show');
+    setTimeout(function(){ savedFlag.classList.remove('show'); }, 1600);
+  });
+
+  function togglePanel(){ panel.classList.toggle('open'); }
+  fab.addEventListener('click', togglePanel);
+  document.addEventListener('keydown', function(e){
+    if(e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.key !== 'p' && e.key !== 'P') return;
+    var t = e.target;
+    if(t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable)) return;
+    e.preventDefault();
+    togglePanel();
+  });
+})();
+</script>
+
+<!-- ── Showreel video editor (localhost only — press V to toggle) ── -->
+<button class="bve-toggle" id="bveToggle" title="Showreel Editor (V)" style="display:none">🎬</button>
+<div class="bve-panel" id="bvePanel">
+  <div class="bve-head">
+    <span class="bve-title">🎬 Showreel videos</span>
+    <span class="bve-hint">V to toggle</span>
+  </div>
+  <div class="bve-body" id="bveBody"><!-- rows injected by JS --></div>
+  <div class="bve-saved" id="bveSaved">Saved ✓</div>
+  <div class="bve-actions">
+    <button class="bve-btn bve-btn-add" id="bveAdd">＋ Add video</button>
+    <button class="bve-btn bve-btn-save" id="bveSave">💾 Save</button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var isLocal = (location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:');
+
+  // STEP 1 — Always load saved data so visitors also see the configured videos.
+  var STORE = 'martin-showreel-videos';
+  function loadSaved(){
+    try{
+      var raw = localStorage.getItem(STORE);
+      if(!raw) return null;
+      var parsed = JSON.parse(raw);
+      if(Array.isArray(parsed) && parsed.length) return parsed;
+    } catch(e){}
+    return null;
+  }
+  var saved = loadSaved();
+  if(saved){
+    window.BIGVID_DATA = saved;
+    // Force the showreel script to re-render with the saved data.
+    // It already ran once on its own — easiest: reload the renderer by simulating
+    // a click on the prev arrow if more than 1, or just trigger a custom event.
+    // Cleanest: dispatch a custom event the showreel script can listen to.
+    document.dispatchEvent(new CustomEvent('bigvid-data-changed'));
+  }
+
+  if(!isLocal) return; // public domain: no editor UI
+
+  var toggle = document.getElementById('bveToggle');
+  var panel  = document.getElementById('bvePanel');
+  var body   = document.getElementById('bveBody');
+  var saved2 = document.getElementById('bveSaved');
+  toggle.style.display = 'flex';
+
+  // Working copy — array of {url, title, poster}
+  function getWorkingData(){
+    var arr = window.BIGVID_DATA && window.BIGVID_DATA.length
+      ? JSON.parse(JSON.stringify(window.BIGVID_DATA))
+      : [];
+    if(!arr.length) arr.push({ url:'', title:'', poster:'' });
+    return arr;
+  }
+  var working = getWorkingData();
+
+  function rowHtml(v, i){
+    return '<div class="bve-row" data-i="'+i+'">' +
+      '<div class="bve-row-head">' +
+        '<span class="bve-row-num">VIDEO '+(i+1)+'</span>' +
+        (working.length > 1 ? '<button class="bve-row-del" data-del="'+i+'">Remove</button>' : '') +
+      '</div>' +
+      '<div class="bve-label">Video URL (YouTube / Vimeo / .mp4)</div>' +
+      '<input class="bve-input" data-k="url" value="'+(v.url || '').replace(/"/g,'&quot;')+'" placeholder="https://www.youtube.com/embed/...">' +
+      '<div class="bve-label">Title (caption)</div>' +
+      '<input class="bve-input" data-k="title" value="'+(v.title || '').replace(/"/g,'&quot;')+'" placeholder="e.g. Brahms Violin Concerto · 2023">' +
+      '<div class="bve-label">Poster image URL (optional)</div>' +
+      '<input class="bve-input" data-k="poster" value="'+(v.poster || '').replace(/"/g,'&quot;')+'" placeholder="https://img.youtube.com/vi/.../maxresdefault.jpg">' +
+    '</div>';
+  }
+  function renderRows(){
+    body.innerHTML = working.map(rowHtml).join('');
+  }
+  renderRows();
+
+  // Capture input changes into the working copy
+  body.addEventListener('input', function(e){
+    var inp = e.target.closest('.bve-input');
+    if(!inp) return;
+    var row = inp.closest('.bve-row');
+    var i = parseInt(row.getAttribute('data-i'), 10);
+    var k = inp.getAttribute('data-k');
+    working[i][k] = inp.value;
+  });
+  body.addEventListener('click', function(e){
+    var del = e.target.closest('.bve-row-del');
+    if(!del) return;
+    var i = parseInt(del.getAttribute('data-del'), 10);
+    working.splice(i, 1);
+    if(!working.length) working.push({ url:'', title:'', poster:'' });
+    renderRows();
+  });
+
+  document.getElementById('bveAdd').addEventListener('click', function(){
+    working.push({ url:'', title:'', poster:'' });
+    renderRows();
+    body.scrollTop = body.scrollHeight;
+  });
+
+  document.getElementById('bveSave').addEventListener('click', function(){
+    try{
+      localStorage.setItem(STORE, JSON.stringify(working));
+    } catch(err){
+      alert('Storage failed — try removing unused entries.');
+      return;
+    }
+    window.BIGVID_DATA = JSON.parse(JSON.stringify(working));
+    document.dispatchEvent(new CustomEvent('bigvid-data-changed'));
+    saved2.classList.add('show');
+    setTimeout(function(){ saved2.classList.remove('show'); }, 1600);
+  });
+
+  function togglePanel(){ panel.classList.toggle('open'); }
+  toggle.addEventListener('click', togglePanel);
+  document.addEventListener('keydown', function(e){
+    if(e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.key !== 'v' && e.key !== 'V') return;
+    var t = e.target;
+    if(t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable)) return;
+    e.preventDefault();
+    togglePanel();
+  });
+})();
+</script>
+
 </body>
 </html>

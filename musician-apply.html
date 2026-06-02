@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>音樂家申請｜Musician Application — OPUS.Z</title>
+  <meta name="description" content="Apply to join the OPUS.Z musician roster. Submit your profile, media, and performance history." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:    #fff;
+      --dark:  #111;
+      --mid:   #666;
+      --light: #ccc;
+      --line:  rgba(0,0,0,0.12);
+      --error: #c0392b;
+      --font:  'DM Sans', 'Inter', system-ui, sans-serif;
+      --nav-h: 72px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--dark);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    a { color: inherit; text-decoration: none; }
+
+/* ── NAV (canonical — identical to recent-jobs.html) ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 40px;
+  min-height: 76px;
+  background: transparent;
+  mix-blend-mode: difference;
+}
+nav.mega-open {
+  mix-blend-mode: normal;
+  background: #fff;
+  transition: background 0.22s ease;
+  --nav-fg: #000;
+}
+nav, nav.nav-on-dark { --nav-fg: #fff; }
+nav.nav-on-light { --nav-fg: #000; }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; padding-left: 50px; }
+.orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
+#navOrbFixed {
+  position: fixed; top: 18px; left: 40px;
+  z-index: 201;
+  text-decoration: none;
+  pointer-events: all;
+  display: flex; align-items: center;
+}
+#navLogoFixed {
+  position: fixed; top: 30px; left: 90px;
+  z-index: 201; mix-blend-mode: difference; color: #fff;
+  font-size: 17px; font-weight: 700; text-decoration: none; pointer-events: all;
+  display: flex; align-items: flex-start; line-height: 1;
+  transition: top 0.38s cubic-bezier(0.34,1.15,0.64,1);
+}
+#navLogoFixed:hover { top: 19px; }
+.nav-logo-spacer { width: 180px; flex-shrink: 0; }
+.nav-logo-text { display: flex; flex-direction: column; overflow: hidden; line-height: 1; }
+.nav-logo-name { display: block; }
+.nav-logo-sub {
+  display: block; font-size: 17px; font-weight: 700; letter-spacing: 0;
+  max-height: 0; overflow: hidden; opacity: 0; margin-top: 3px;
+  transition: max-height 0.38s cubic-bezier(0.34,1.15,0.64,1), opacity 0.22s ease 0.08s;
+}
+.nav-logo:hover .nav-logo-sub, #navLogoFixed:hover .nav-logo-sub {
+  max-height: 20px; opacity: 1;
+}
+.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 0; right: 0; justify-content: center; pointer-events: none; }
+.nav-links li { pointer-events: all; }
+.nav-links a {
+  text-decoration: none; font-size: 15px;
+  position: relative; padding: 11px 22px; border-radius: 50px;
+  display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1; vertical-align: middle; white-space: nowrap;
+  z-index: 0; color: transparent;
+}
+nav.mega-open .nav-links { mix-blend-mode: normal; }
+nav.mega-open .nav-links a { color: #000; }
+nav.mega-open .nav-links .nc-char { color: #000 !important; }
+.nc-char { display: inline-block; color: #fff; }
+    .nc-sp { display: inline-block; min-width: 0.3em; }
+nav.mega-open .nc-char { color: #000 !important; transition: none; }
+nav .nav-logo-name, nav .nav-logo-sub { color: transparent; }
+#navLogoFixed .nav-logo-name, #navLogoFixed .nav-logo-sub { color: #fff; }
+nav.mega-open .nav-logo-name .nc-char, nav.mega-open .nav-logo-sub .nc-char { color: #000 !important; transition: none; }
+@media (max-width: 1440px) { nav { padding: 13px 28px; } .nav-links { gap: 4px; } .nav-links a { font-size: 13px; padding: 9px 14px; } }
+@media (max-width: 1200px) { nav { padding: 11px 24px; } .nav-links { gap: 2px; } .nav-links a { font-size: 12px; padding: 8px 11px; } }
+.nav-links a::before { display: none; }
+.nav-links a:hover { opacity: 1; }
+.nav-ul {
+  position: absolute; bottom: 3px; left: 10px; right: 10px; height: 1px;
+  background: #fff; transform: scaleX(0); transform-origin: right center;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+}
+.nav-links a:hover .nav-ul { transform: scaleX(1); transform-origin: left center; }
+nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
+.hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
+.hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: opacity .2s; }
+.hamburger:hover span { opacity: .5; }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.nav-fav-btn { position: relative; background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); display: flex; align-items: center; padding: 4px; }
+.nav-login-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  color: var(--nav-fg, #fff); background: none; border: 1px solid rgba(255,255,255,.35);
+  border-radius: 50px; padding: 7px 14px; cursor: pointer; position: relative;
+}
+.nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; }
+.nav-login-btn.open svg { transform: rotate(180deg); }
+.nav-login-dropdown {
+  display: none; position: absolute; top: calc(100% + 8px); right: 0;
+  background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 10px;
+  padding: 6px 0; min-width: 160px; box-shadow: 0 8px 24px rgba(0,0,0,.1); z-index: 210;
+}
+.nav-login-btn.open .nav-login-dropdown { display: block; }
+.nav-login-dropdown a { display: block; padding: 10px 16px; font-size: 13px; color: #111; }
+.nav-login-dropdown a:hover { background: #f5f5f5; }
+.nav-login-vsep { border-top: 1px solid rgba(0,0,0,.08); margin: 3px 0; }
+.lang-toggle {
+  display: flex; align-items: center; gap: 2px;
+  font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); font-family: inherit;
+}
+.lt-opt { opacity: .4; transition: opacity .15s; }
+.lt-opt.active { opacity: 1; }
+.lt-sep { opacity: .25; }
+.nav-drawer {
+  position: fixed; top: 0; right: -260px; bottom: 0; width: 260px;
+  background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.10);
+  padding: 90px 40px 48px; display: flex; flex-direction: column; gap: 4px;
+  transition: right 0.18s ease; z-index: 300; pointer-events: none;
+}
+.nav-drawer.nd-visible { right: 0; pointer-events: auto; transition: right 0.42s cubic-bezier(0.22,1,0.36,1); }
+.nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nav-drawer a:last-child { border-bottom: none; }
+.nav-drawer a:hover { color: rgba(0,0,0,0.4); }
+.nav-drawer.nd-visible a { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
+.nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
+.nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
+.nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
+.nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
+.nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+.nd-musicians-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-align: left; opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
+.nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
+.nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+.nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.15s; }
+.nav-sub-drawer { position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.12); display: flex; flex-direction: column; transition: right 0.18s ease; z-index: 302; pointer-events: none; overflow: hidden; }
+.nav-sub-drawer.ns-visible { right: 0; pointer-events: auto; transition: right 0.38s cubic-bezier(0.22,1,0.36,1); }
+.nsd-head { display: flex; align-items: center; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+.nsd-back { background: none; border: none; cursor: pointer; font-size: 20px; color: #000; padding: 4px; display: flex; align-items: center; opacity: .5; transition: opacity .15s; }
+.nsd-back:hover { opacity: 1; }
+.nsd-title { font-size: 16px; font-weight: 700; }
+.nsd-body { overflow-y: auto; flex: 1; padding: 12px 0 40px; -webkit-overflow-scrolling: touch; }
+.nsd-group { margin-bottom: 4px; }
+.nsd-group-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(0,0,0,0.35); padding: 14px 24px 6px; }
+.nsd-group a { display: block; padding: 10px 24px; font-size: 15px; font-weight: 500; color: #000; text-decoration: none; transition: background .12s, color .12s; }
+.nsd-group a:hover { background: #f5f5f5; }
+.mega-menu {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
+  padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8,1fr); gap: 0;
+  opacity: 0; transform: translateY(-22px); pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.mega-col { padding: 0 16px; border-left: 1px solid rgba(0,0,0,0.07); opacity: 0; transform: translateY(8px); transition: opacity 0.28s ease, transform 0.28s ease; }
+.mega-col:first-child { border-left: none; padding-left: 0; }
+.mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); }
+.mega-menu.mm-visible .mega-col:nth-child(1) { transition-delay: 0.05s; }
+.mega-menu.mm-visible .mega-col:nth-child(2) { transition-delay: 0.08s; }
+.mega-menu.mm-visible .mega-col:nth-child(3) { transition-delay: 0.11s; }
+.mega-menu.mm-visible .mega-col:nth-child(4) { transition-delay: 0.14s; }
+.mega-menu.mm-visible .mega-col:nth-child(5) { transition-delay: 0.17s; }
+.mega-menu.mm-visible .mega-col:nth-child(6) { transition-delay: 0.20s; }
+.mega-col-title { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #111; margin-bottom: 10px; text-decoration: none; }
+.mega-col ul { list-style: none; padding: 0; }
+.mega-col ul li a { display: block; padding: 5px 0; font-size: 13px; color: #555; text-decoration: none; transition: color .12s; }
+.mega-col ul li a:hover { color: #000; }
+.login-modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.35); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.login-modal-overlay.open { opacity: 1; pointer-events: auto; }
+.login-modal { background: #fff; border-radius: 18px; padding: 40px 36px 32px; width: 360px; max-width: 92vw; box-shadow: 0 24px 80px rgba(0,0,0,.22); transform: translateY(12px); transition: transform .2s; position: relative; }
+.login-modal-overlay.open .login-modal { transform: translateY(0); }
+.login-modal-close { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 50%; background: #f0f0f0; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #555; }
+.login-modal-title { font-size: 22px; font-weight: 900; letter-spacing: -.03em; margin-bottom: 24px; }
+.login-modal-input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid #e0e0e0; font-size: 14px; font-family: inherit; outline: none; box-sizing: border-box; display: block; margin-bottom: 12px; }
+.login-modal-btn { width: 100%; padding: 13px; border-radius: 10px; background: #111; color: #fff; border: none; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.login-modal-footer { text-align: center; margin-top: 16px; font-size: 13px; color: #888; }
+.login-modal-footer a { color: #111; font-weight: 600; text-decoration: none; margin-left: 4px; }
+
+    /* ── PAGE LAYOUT ── */
+    .apply-page {
+      min-height: 100vh;
+      padding-top: var(--nav-h);
+    }
+
+    /* ── Hero ── */
+    .apply-hero {
+      padding: 80px 80px 60px;
+      border-bottom: 1px solid var(--line);
+    }
+    .apply-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: .2em;
+      text-transform: uppercase; color: #aaa; margin-bottom: 18px;
+    }
+    .apply-title {
+      font-size: clamp(48px, 7vw, 96px);
+      font-weight: 800; letter-spacing: -3px; line-height: 0.95;
+      color: #111; margin-bottom: 20px;
+    }
+    .apply-subtitle {
+      font-size: 16px; color: #777; font-weight: 300; max-width: 500px;
+    }
+    @media (max-width: 700px) {
+      .apply-hero { padding: 60px 24px 40px; }
+      .apply-title { letter-spacing: -1.5px; }
+    }
+
+    /* ── Form body ── */
+    .apply-form-wrap {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 80px 120px;
+    }
+    @media (max-width: 900px) { .apply-form-wrap { padding: 0 24px 80px; } }
+
+    /* ── Section header ── */
+    .form-section {
+      padding-top: 64px;
+    }
+    .section-header {
+      display: flex; align-items: baseline; gap: 16px;
+      margin-bottom: 32px; border-bottom: 2px solid #111; padding-bottom: 12px;
+    }
+    .section-num {
+      font-size: 11px; font-weight: 700; letter-spacing: .18em;
+      text-transform: uppercase; color: #aaa;
+    }
+    .section-title {
+      font-size: 22px; font-weight: 700; color: #111;
+    }
+
+    /* ── Field groups (contact.html style: border-bottom separators) ── */
+    .field-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+    }
+    .field-group {
+      display: flex; flex-direction: column;
+      border-bottom: 1px solid var(--line);
+      padding: 16px 0 10px;
+    }
+    .field-row > .field-group:first-child {
+      border-right: 1px solid var(--line); padding-right: 28px;
+    }
+    .field-row > .field-group:last-child { padding-left: 28px; }
+    .field-row.first-row .field-group,
+    .form-section > .field-group:first-of-type { border-top: 1px solid var(--line); }
+
+    .field-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: #bbb; margin-bottom: 6px;
+    }
+    .field-label sup { font-size: 8px; color: #999; }
+    .field-input {
+      background: transparent; border: none; outline: none;
+      font-size: 15px; color: #111; font-family: inherit;
+      padding: 4px 0 6px; width: 100%;
+    }
+    .field-input::placeholder { color: #ccc; }
+    textarea.field-input { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+    /* error state */
+    .field-group.has-error { border-bottom-color: var(--error); }
+    .field-error {
+      display: none; font-size: 11px; color: var(--error); margin-top: 4px; font-weight: 500;
+    }
+    .field-group.has-error .field-error { display: block; }
+    .field-group.has-error .field-input { border-color: var(--error); }
+
+    @media (max-width: 600px) {
+      .field-row { grid-template-columns: 1fr; }
+      .field-row > .field-group:first-child { border-right: none; padding-right: 0; }
+      .field-row > .field-group:last-child { padding-left: 0; }
+    }
+
+    /* ── Tag input ── */
+    .tag-input-wrap {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 4px 0 6px; align-items: center;
+    }
+    .tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #111; color: #fff; border-radius: 50px;
+      font-size: 12px; font-weight: 500; padding: 5px 12px;
+    }
+    .tag-remove {
+      background: none; border: none; cursor: pointer; color: #fff;
+      font-size: 14px; padding: 0; line-height: 1; opacity: .6;
+      font-family: inherit;
+    }
+    .tag-remove:hover { opacity: 1; }
+    .tag-ghost-input {
+      background: transparent; border: none; outline: none;
+      font-size: 15px; color: #111; font-family: inherit;
+      min-width: 120px; flex: 1; padding: 0;
+    }
+    .tag-ghost-input::placeholder { color: #ccc; }
+
+    /* ── Banner upload ── */
+    .drop-zone {
+      border: 1.5px dashed var(--line);
+      border-radius: 6px;
+      padding: 40px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      position: relative; overflow: hidden;
+      min-height: 160px; display: flex; align-items: center; justify-content: center;
+    }
+    .drop-zone:hover, .drop-zone.dragging { border-color: #111; background: #f9f9f9; }
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    .drop-zone-label {
+      pointer-events: none;
+    }
+    .drop-zone-icon { font-size: 28px; margin-bottom: 8px; }
+    .drop-zone-text { font-size: 14px; color: #888; }
+    .drop-zone-sub { font-size: 11px; color: #bbb; margin-top: 4px; }
+    .drop-zone-preview {
+      width: 100%; border-radius: 4px; display: none;
+      max-height: 240px; object-fit: cover;
+    }
+    .drop-zone.has-preview .drop-zone-label { display: none; }
+    .drop-zone.has-preview .drop-zone-preview { display: block; }
+    .drop-zone.has-preview { padding: 0; }
+
+    /* ── Media grid (additional uploads) ── */
+    .media-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+      margin-top: 12px;
+    }
+    @media (max-width: 600px) { .media-grid { grid-template-columns: repeat(2, 1fr); } }
+    .media-thumb {
+      aspect-ratio: 4/3; border-radius: 4px; overflow: hidden;
+      background: #f3f3f3; position: relative; cursor: pointer;
+      border: 1.5px dashed var(--line); display: flex; align-items: center;
+      justify-content: center;
+    }
+    .media-thumb img, .media-thumb video {
+      width: 100%; height: 100%; object-fit: cover; display: block;
+    }
+    .media-thumb .thumb-remove {
+      position: absolute; top: 4px; right: 4px;
+      background: rgba(0,0,0,.55); border: none; border-radius: 50%;
+      color: #fff; width: 22px; height: 22px; cursor: pointer;
+      font-size: 13px; display: none; align-items: center; justify-content: center;
+    }
+    .media-thumb:hover .thumb-remove { display: flex; }
+    .media-thumb.add-slot { flex-direction: column; gap: 4px; }
+    .media-thumb.add-slot span { font-size: 22px; color: #ccc; }
+    .media-thumb.add-slot small { font-size: 10px; color: #bbb; letter-spacing: .06em; text-transform: uppercase; }
+    .media-thumb.add-slot input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+
+    /* ── Experience entries ── */
+    .exp-list { display: flex; flex-direction: column; gap: 1px; }
+    .exp-entry {
+      border: 1px solid var(--line); border-radius: 6px;
+      padding: 20px 20px 16px; margin-bottom: 10px;
+      position: relative;
+    }
+    .exp-entry-head { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+    .exp-type-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+    .exp-pill {
+      padding: 5px 14px; border-radius: 50px; border: 1.5px solid var(--line);
+      font-size: 12px; font-weight: 500; cursor: pointer; transition: all .12s;
+      background: #fff; color: #555;
+    }
+    .exp-pill.active { border-color: #111; background: #111; color: #fff; }
+    .exp-remove-btn {
+      margin-left: auto; background: none; border: none; cursor: pointer;
+      font-size: 18px; color: #ccc; font-family: inherit; padding: 2px 8px;
+    }
+    .exp-remove-btn:hover { color: var(--error); }
+    .exp-fields { display: grid; grid-template-columns: 1fr 80px; gap: 0 16px; }
+    .exp-full { grid-column: 1 / -1; }
+    .exp-desc { margin-top: 6px; }
+    .exp-photo-group { margin-top: 10px; }
+    .exp-photo-small {
+      border: 1.5px dashed var(--line); border-radius: 4px;
+      padding: 10px 16px; font-size: 13px; color: #aaa;
+      cursor: pointer; position: relative; display: inline-block;
+    }
+    .exp-photo-small:hover { border-color: #999; color: #555; }
+    .exp-photo-small input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+    .exp-photo-preview {
+      display: none; max-width: 100%; max-height: 120px; border-radius: 4px; margin-top: 8px;
+    }
+    .exp-add-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      margin-top: 16px;
+      border: 1.5px solid var(--line); background: #fff;
+      padding: 10px 22px; border-radius: 50px;
+      font-size: 13px; font-weight: 600; font-family: inherit;
+      cursor: pointer; color: #555; transition: all .15s;
+    }
+    .exp-add-btn:hover { border-color: #111; color: #111; }
+
+    /* ── Checkbox pills (performance types) ── */
+    .pill-check-group { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px 0 8px; }
+    .pill-check {
+      display: none; /* hidden real checkbox */
+    }
+    .pill-check-label {
+      padding: 7px 16px; border-radius: 50px; border: 1.5px solid var(--line);
+      font-size: 13px; font-weight: 500; cursor: pointer; transition: all .12s;
+      color: #555; user-select: none;
+    }
+    .pill-check:checked + .pill-check-label { border-color: #111; background: #111; color: #fff; }
+
+    /* ── Pricing ── */
+    .price-grid { display: grid; grid-template-columns: auto 1fr; gap: 0 24px; align-items: center; }
+    .price-label { font-size: 14px; font-weight: 500; color: #555; padding: 14px 0; border-bottom: 1px solid var(--line); }
+    .price-input-wrap {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 0; border-bottom: 1px solid var(--line);
+    }
+    .price-currency { font-size: 14px; color: #aaa; font-weight: 500; }
+    .price-input {
+      border: none; outline: none; background: transparent;
+      font-size: 15px; color: #111; font-family: inherit;
+      width: 100%; padding: 4px 0;
+    }
+    .price-input::placeholder { color: #ccc; }
+    .price-note {
+      grid-column: 1 / -1; font-size: 11px; color: #bbb;
+      padding-top: 10px; line-height: 1.5;
+    }
+
+    /* ── Bio ── */
+    .bio-wrap { position: relative; }
+    .bio-counter { font-size: 11px; color: #bbb; text-align: right; margin-top: 4px; }
+
+    /* ── Submit ── */
+    .submit-row {
+      padding-top: 56px; display: flex; flex-direction: column; align-items: center; gap: 14px;
+    }
+    .submit-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      background: #111; color: #fff;
+      padding: 18px 48px; border-radius: 50px;
+      font-size: 17px; font-weight: 700; font-family: inherit;
+      border: none; cursor: pointer;
+      transition: background .2s, transform .15s, opacity .15s;
+      min-width: 240px; justify-content: center;
+    }
+    .submit-btn:hover { background: #333; transform: translateY(-1px); }
+    .submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .submit-hint { font-size: 12px; color: #aaa; }
+
+    /* ── Success overlay ── */
+    .success-overlay {
+      display: none; position: fixed; inset: 0; background: #fff;
+      z-index: 500; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 40px;
+    }
+    .success-overlay.visible { display: flex; }
+    .success-checkmark { font-size: 56px; margin-bottom: 24px; }
+    .success-title { font-size: clamp(36px, 6vw, 72px); font-weight: 800; letter-spacing: -2px; margin-bottom: 16px; }
+    .success-subtitle { font-size: 16px; color: #777; max-width: 440px; line-height: 1.6; margin-bottom: 36px; }
+    .success-back {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 32px; border-radius: 50px; border: 2px solid #111;
+      font-size: 15px; font-weight: 600; font-family: inherit; cursor: pointer;
+      background: transparent; color: #111; transition: all .15s;
+    }
+    .success-back:hover { background: #111; color: #fff; }
+
+    /* ── Reveal ── */
+    .reveal { opacity: 0; transform: translateY(20px); transition: opacity .55s ease, transform .55s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── Loading spinner ── */
+    .spinner {
+      display: none; width: 18px; height: 18px; border: 2.5px solid rgba(255,255,255,.3);
+      border-top-color: #fff; border-radius: 50%; animation: spin .7s linear infinite;
+    }
+    .submit-btn.loading .spinner { display: block; }
+    .submit-btn.loading .btn-text { opacity: .5; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
+<a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
+  <div class="orb"></div>
+</a>
+<a href="musician-platform.html" id="navLogoFixed">
+  <div class="nav-logo-text">
+    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
+    <span class="nav-logo-sub">MUSIC</span>
+  </div>
+</a>
+
+<nav>
+  <!-- Spacer to keep nav-links centered -->
+  <div class="nav-logo-spacer"></div>
+  <ul class="nav-links">
+    <li><a href="musician-platform.html" data-i18n="nav.home">Home</a></li>
+    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
+    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
+    <li><a href="recent-jobs.html">Recent Jobs</a></li>
+    <li><a href="shows.html" data-i18n="nav.news">Shows</a></li>
+    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
+  </ul>
+  <!-- MEGA MENU -->
+  <div class="mega-menu" id="artistsMegaMenu">
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a>
+      <ul>
+        <li><a href="musicians.html?cat=violin" data-i18n="menu.violin">Violin</a></li>
+        <li><a href="musicians.html?cat=viola" data-i18n="menu.viola">Viola</a></li>
+        <li><a href="musicians.html?cat=cello" data-i18n="menu.cello">Cello</a></li>
+        <li><a href="musicians.html?cat=doublebass" data-i18n="menu.doublebass">Double Bass</a></li>
+        <li><a href="musicians.html?cat=harp" data-i18n="menu.harp">Harp</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a>
+      <ul>
+        <li><a href="musicians.html?cat=flute" data-i18n="menu.flute">Flute</a></li>
+        <li><a href="musicians.html?cat=piccolo" data-i18n="menu.piccolo">Piccolo</a></li>
+        <li><a href="musicians.html?cat=oboe" data-i18n="menu.oboe">Oboe</a></li>
+        <li><a href="musicians.html?cat=clarinet" data-i18n="menu.clarinet">Clarinet</a></li>
+        <li><a href="musicians.html?cat=saxophone" data-i18n="menu.saxophone">Saxophone</a></li>
+        <li><a href="musicians.html?cat=bassoon" data-i18n="menu.bassoon">Bassoon</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a>
+      <ul>
+        <li><a href="musicians.html?cat=frenchhorn" data-i18n="menu.frenchhorn">French Horn</a></li>
+        <li><a href="musicians.html?cat=trumpet" data-i18n="menu.trumpet">Trumpet</a></li>
+        <li><a href="musicians.html?cat=trombone" data-i18n="menu.trombone">Trombone</a></li>
+        <li><a href="musicians.html?cat=euphonium" data-i18n="menu.euphonium">Euphonium</a></li>
+        <li><a href="musicians.html?cat=tuba" data-i18n="menu.tuba">Tuba</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=percussion" data-i18n="menu.percussion">Percussion</a>
+      <ul>
+        <li><a href="musicians.html?cat=timpani" data-i18n="menu.timpani">Timpani</a></li>
+        <li><a href="musicians.html?cat=marimba" data-i18n="menu.marimba">Marimba</a></li>
+        <li><a href="musicians.html?cat=vibraphone" data-i18n="menu.vibraphone">Vibraphone</a></li>
+        <li><a href="musicians.html?cat=xylophone" data-i18n="menu.xylophone">Xylophone</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=keyboard" data-i18n="menu.keyboard">Keyboard</a>
+      <ul>
+        <li><a href="musicians.html?cat=piano" data-i18n="menu.piano">Piano</a></li>
+        <li><a href="musicians.html?cat=pipeorgan" data-i18n="menu.pipeorgan">Pipe Organ</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a>
+      <ul>
+        <li><a href="musicians.html?cat=soprano" data-i18n="menu.soprano">Soprano</a></li>
+        <li><a href="musicians.html?cat=mezzosoprano" data-i18n="menu.mezzosoprano">Mezzo-soprano</a></li>
+        <li><a href="musicians.html?cat=tenor" data-i18n="menu.tenor">Tenor</a></li>
+        <li><a href="musicians.html?cat=baritone" data-i18n="menu.baritone">Baritone</a></li>
+        <li><a href="musicians.html?cat=choral" data-i18n="menu.choral">Choral</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a>
+      <ul>
+        <li><a href="musicians.html?cat=stringquartet" data-i18n="menu.stringquartet">String Quartet</a></li>
+        <li><a href="musicians.html?cat=pianotrio" data-i18n="menu.pianotrio">Piano Trio</a></li>
+        <li><a href="musicians.html?cat=stringtrio" data-i18n="menu.stringtrio">String Trio</a></li>
+        <li><a href="musicians.html?cat=windquintet" data-i18n="menu.windquintet">Wind Quintet</a></li>
+        <li><a href="musicians.html?cat=brassquintet" data-i18n="menu.brassquintet">Brass Quintet</a></li>
+        <li><a href="musicians.html?cat=pianoquintet" data-i18n="menu.pianoquintet">Piano Quintet</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html" data-i18n="menu.all">All</a>
+      <ul>
+        <li><a href="musicians.html" data-i18n="menu.allmusicians">All Musicians</a></li>
+        <li><a href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a></li>
+        <li><a href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a></li>
+        <li><a href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a></li>
+        <li><a href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a></li>
+        <li><a href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a></li>
+        <li><a href="musicians.html?cat=conductor" data-i18n="menu.conductor">Conductor</a></li><li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
+    </button>
+    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
+      <span class="login-label">Log in</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="nav-login-dropdown">
+        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
+        <div class="nav-login-vsep"></div>
+        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
+      </div>
+    </button>
+    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+      <span class="lt-opt active" data-l="en">EN</span>
+      <span class="lt-sep">/</span>
+      <span class="lt-opt" data-l="zh">中文</span>
+    </button>
+    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- Slide-in nav drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="musician-platform.html" data-i18n="nav.home">Home</a>
+  <a href="blog.html" data-i18n="nav.discover">Blog</a>
+  <button class="nd-musicians-btn" id="ndMusiciansBtn">
+    <span data-i18n="nav.artists">Musicians</span>
+    <span class="nd-arrow">›</span>
+  </button>
+  <a href="recent-jobs.html">Recent Jobs</a>
+  <a href="shows.html" data-i18n="nav.news">Shows</a>
+  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
+</div>
+
+<!-- Musicians sub-drawer -->
+<div class="nav-sub-drawer" id="navSubDrawer">
+  <div class="nsd-head">
+    <button class="nsd-back" id="nsdBack">‹</button>
+    <div class="nsd-title" data-i18n="nav.artists">Musicians</div>
+  </div>
+  <div class="nsd-body">
+    <div class="nsd-group"><div class="nsd-group-title">Strings</div><a href="musicians.html?cat=violin">Violin</a><a href="musicians.html?cat=viola">Viola</a><a href="musicians.html?cat=cello">Cello</a><a href="musicians.html?cat=doublebass">Double Bass</a><a href="musicians.html?cat=harp">Harp</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Woodwinds</div><a href="musicians.html?cat=flute">Flute</a><a href="musicians.html?cat=oboe">Oboe</a><a href="musicians.html?cat=clarinet">Clarinet</a><a href="musicians.html?cat=saxophone">Saxophone</a><a href="musicians.html?cat=bassoon">Bassoon</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Brass</div><a href="musicians.html?cat=frenchhorn">French Horn</a><a href="musicians.html?cat=trumpet">Trumpet</a><a href="musicians.html?cat=trombone">Trombone</a><a href="musicians.html?cat=tuba">Tuba</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Keyboard</div><a href="musicians.html?cat=piano">Piano</a><a href="musicians.html?cat=pipeorgan">Pipe Organ</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Voice</div><a href="musicians.html?cat=soprano">Soprano</a><a href="musicians.html?cat=mezzosoprano">Mezzo-soprano</a><a href="musicians.html?cat=tenor">Tenor</a><a href="musicians.html?cat=baritone">Baritone</a></div>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div class="login-modal-overlay" id="loginModalOverlay">
+  <div class="login-modal">
+    <button class="login-modal-close" id="loginModalClose">✕</button>
+    <div class="login-modal-title" id="loginModalTitle">Customer Login</div>
+    <input class="login-modal-input" type="email" placeholder="Email" autocomplete="email"/>
+    <input class="login-modal-input" type="password" placeholder="Password" autocomplete="current-password"/>
+    <button class="login-modal-btn">Log in</button>
+    <div class="login-modal-footer">
+      <span>No account?</span>
+      <a href="musician-platform.html#contact">Sign up →</a>
+    </div>
+  </div>
+</div>
+
+<!-- ── PAGE ── -->
+<div class="apply-page">
+
+  <!-- Hero -->
+  <div class="apply-hero reveal">
+    <p class="apply-eyebrow">（音樂家申請）</p>
+    <h1 class="apply-title">加入 OPUS.Z</h1>
+    <p class="apply-subtitle">填寫以下資料，讓我們更了解您的音樂背景與演出風格。</p>
+  </div>
+
+  <!-- Form -->
+  <div class="apply-form-wrap">
+    <form id="applyForm" novalidate>
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <!-- SECTION 1: 基本資料 -->
+      <!-- ══════════════════════════════════════════════════════ -->
+      <div class="form-section reveal">
+        <div class="section-header">
+          <span class="section-num">01</span>
+          <span class="section-title">基本資料</span>
+        </div>
+
+        <!-- Full Name -->
+        <div class="field-group" id="fg-name" style="border-top:1px solid var(--line);">
+          <label class="field-label">姓名 <sup>*</sup></label>
+          <input class="field-input" type="text" id="f-name" name="name" placeholder="您的全名" />
+          <span class="field-error">請輸入姓名</span>
+        </div>
+
+        <!-- Email -->
+        <div class="field-group" id="fg-email">
+          <label class="field-label">Email <sup>*</sup></label>
+          <input class="field-input" type="email" id="f-email" name="email" placeholder="your@email.com" />
+          <span class="field-error">請輸入有效的 Email</span>
+        </div>
+
+        <!-- Regions -->
+        <div class="field-row">
+          <div class="field-group" id="fg-region-primary" style="border-top:1px solid var(--line);">
+            <label class="field-label">主要地區 <sup>*</sup></label>
+            <input class="field-input" type="text" id="f-region-primary" name="region_primary" placeholder="例：台北、台中" />
+            <span class="field-error">請輸入主要地區</span>
+          </div>
+          <div class="field-group" id="fg-region-secondary" style="border-top:1px solid var(--line);">
+            <label class="field-label">次要地區</label>
+            <input class="field-input" type="text" id="f-region-secondary" name="region_secondary" placeholder="例：新竹、桃園" />
+          </div>
+        </div>
+
+        <!-- Instruments (tag input) -->
+        <div class="field-group" id="fg-instruments">
+          <label class="field-label">演奏樂器 <sup>*</sup></label>
+          <div class="tag-input-wrap" id="instruments-tag-wrap">
+            <input class="tag-ghost-input" id="instruments-input" type="text" placeholder="輸入樂器後按 Enter" />
+          </div>
+          <span class="field-error">請至少新增一項樂器</span>
+        </div>
+      </div><!-- /section 1 -->
+
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <!-- SECTION 2: 照片與影片 -->
+      <!-- ══════════════════════════════════════════════════════ -->
+      <div class="form-section reveal">
+        <div class="section-header">
+          <span class="section-num">02</span>
+          <span class="section-title">照片與影片</span>
+        </div>
+
+        <!-- Banner photo -->
+        <div class="field-group" id="fg-banner" style="border-top:1px solid var(--line);">
+          <label class="field-label">主要照片（橫幅）</label>
+          <div class="drop-zone" id="bannerDropZone" style="margin-top:10px;">
+            <input type="file" id="bannerInput" accept="image/*" />
+            <div class="drop-zone-label">
+              <div class="drop-zone-icon">⊕</div>
+              <div class="drop-zone-text">拖曳或點擊上傳主要照片</div>
+              <div class="drop-zone-sub">建議橫式構圖，JPG / PNG，最大 8MB</div>
+            </div>
+            <img class="drop-zone-preview" id="bannerPreview" src="" alt="" />
+          </div>
+        </div>
+
+        <!-- Additional media -->
+        <div class="field-group" id="fg-media" style="padding-bottom:18px;">
+          <label class="field-label">其他媒體（最多 8 張/影片）</label>
+          <div class="media-grid" id="mediaGrid">
+            <!-- Add slot -->
+            <div class="media-thumb add-slot" id="mediaAddSlot">
+              <span>+</span>
+              <small>新增</small>
+              <input type="file" id="mediaInput" accept="image/*,video/*" multiple />
+            </div>
+          </div>
+        </div>
+      </div><!-- /section 2 -->
+
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <!-- SECTION 3: 演出經歷 -->
+      <!-- ══════════════════════════════════════════════════════ -->
+      <div class="form-section reveal">
+        <div class="section-header">
+          <span class="section-num">03</span>
+          <span class="section-title">演出經歷</span>
+        </div>
+
+        <div class="exp-list" id="expList">
+          <!-- entries inserted by JS -->
+        </div>
+
+        <button type="button" class="exp-add-btn" id="addExpBtn">
+          + 新增經歷
+        </button>
+      </div><!-- /section 3 -->
+
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <!-- SECTION 4: 音樂檔案 -->
+      <!-- ══════════════════════════════════════════════════════ -->
+      <div class="form-section reveal">
+        <div class="section-header">
+          <span class="section-num">04</span>
+          <span class="section-title">音樂檔案</span>
+        </div>
+
+        <!-- Performance types -->
+        <div class="field-group" id="fg-perf-types" style="border-top:1px solid var(--line);">
+          <label class="field-label">演出類型</label>
+          <div class="pill-check-group" id="perfTypesGroup">
+            <input class="pill-check" type="checkbox" id="pt-wedding" value="婚禮">
+            <label class="pill-check-label" for="pt-wedding">婚禮</label>
+            <input class="pill-check" type="checkbox" id="pt-corporate" value="企業活動">
+            <label class="pill-check-label" for="pt-corporate">企業活動</label>
+            <input class="pill-check" type="checkbox" id="pt-recording" value="錄音">
+            <label class="pill-check-label" for="pt-recording">錄音</label>
+            <input class="pill-check" type="checkbox" id="pt-concert" value="音樂會">
+            <label class="pill-check-label" for="pt-concert">音樂會</label>
+            <input class="pill-check" type="checkbox" id="pt-themed" value="主題音樂會">
+            <label class="pill-check-label" for="pt-themed">主題音樂會</label>
+            <input class="pill-check" type="checkbox" id="pt-private" value="私人活動">
+            <label class="pill-check-label" for="pt-private">私人活動</label>
+            <input class="pill-check" type="checkbox" id="pt-teaching" value="教學">
+            <label class="pill-check-label" for="pt-teaching">教學</label>
+            <input class="pill-check" type="checkbox" id="pt-other" value="其他">
+            <label class="pill-check-label" for="pt-other">其他</label>
+          </div>
+        </div>
+
+        <!-- Music styles (tag input) -->
+        <div class="field-group" id="fg-styles">
+          <label class="field-label">音樂風格 / 曲風</label>
+          <div class="tag-input-wrap" id="styles-tag-wrap">
+            <input class="tag-ghost-input" id="styles-input" type="text" placeholder="輸入風格後按 Enter" />
+          </div>
+        </div>
+
+        <!-- Past collaborators (tag input) -->
+        <div class="field-group" id="fg-collabs">
+          <label class="field-label">合作廠商 / 品牌</label>
+          <div class="tag-input-wrap" id="collabs-tag-wrap">
+            <input class="tag-ghost-input" id="collabs-input" type="text" placeholder="輸入合作對象後按 Enter" />
+          </div>
+        </div>
+      </div><!-- /section 4 -->
+
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <!-- SECTION 5: 費用 -->
+      <!-- ══════════════════════════════════════════════════════ -->
+      <div class="form-section reveal">
+        <div class="section-header">
+          <span class="section-num">05</span>
+          <span class="section-title">費用</span>
+        </div>
+
+        <div class="price-grid" style="border-top:1px solid var(--line);">
+          <div class="price-label">1 小時</div>
+          <div class="price-input-wrap">
+            <span class="price-currency">NT$</span>
+            <input class="price-input" type="number" id="price-1h" name="price_1h" placeholder="例：3000" min="0" />
+          </div>
+          <div class="price-label">2 小時</div>
+          <div class="price-input-wrap">
+            <span class="price-currency">NT$</span>
+            <input class="price-input" type="number" id="price-2h" name="price_2h" placeholder="例：5500" min="0" />
+          </div>
+          <div class="price-label">3 小時</div>
+          <div class="price-input-wrap">
+            <span class="price-currency">NT$</span>
+            <input class="price-input" type="number" id="price-3h" name="price_3h" placeholder="例：7500" min="0" />
+          </div>
+          <p class="price-note">以上為參考費用，實際費用可於接案時協商</p>
+        </div>
+      </div><!-- /section 5 -->
+
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <!-- SECTION 6: 個人簡介 -->
+      <!-- ══════════════════════════════════════════════════════ -->
+      <div class="form-section reveal">
+        <div class="section-header">
+          <span class="section-num">06</span>
+          <span class="section-title">個人簡介</span>
+        </div>
+
+        <div class="field-group" style="border-top:1px solid var(--line);">
+          <label class="field-label">簡介（中文 / 英文 皆可） <sup>*</sup></label>
+          <div class="bio-wrap">
+            <textarea class="field-input" id="f-bio" name="bio" placeholder="請簡短介紹您的音樂背景、演出風格、或任何想讓客戶知道的資訊…" maxlength="500"></textarea>
+            <div class="bio-counter" id="bioCounter">0 / 500</div>
+          </div>
+        </div>
+      </div><!-- /section 6 -->
+
+
+      <!-- ══════════════════════════════════════════════════════ -->
+      <!-- Submit -->
+      <!-- ══════════════════════════════════════════════════════ -->
+      <div class="submit-row">
+        <button type="submit" class="submit-btn" id="submitBtn">
+          <span class="btn-text">提交申請 →</span>
+          <div class="spinner"></div>
+        </button>
+        <p class="submit-hint">提交後我們將於 3–5 個工作天內審核</p>
+      </div>
+
+    </form>
+  </div><!-- /apply-form-wrap -->
+</div><!-- /apply-page -->
+
+
+<!-- ── Success overlay ── -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-checkmark">✓</div>
+  <h2 class="success-title">申請已提交</h2>
+  <p class="success-subtitle">我們將在 3-5 個工作天內審核您的申請，審核結果將以 Email 通知您。</p>
+  <button class="success-back" onclick="location.href='musician-platform.html'">← 返回首頁</button>
+</div>
+
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   AUTH GUARD — redirect to musician-platform.html#login
+   if not logged in (checks opusz_customer_session)
+   ════════════════════════════════════════════════════════════ */
+(function() {
+  var session = localStorage.getItem('opusz_customer_session');
+  if (!session) {
+    location.href = 'musician-platform.html#login';
+  }
+})();
+
+/* ════════════════════════════════════════════════════════════
+   TAG INPUT HELPER
+   ════════════════════════════════════════════════════════════ */
+function TagInput(wrapId, inputId) {
+  var wrap  = document.getElementById(wrapId);
+  var input = document.getElementById(inputId);
+  var tags  = [];
+
+  function render() {
+    /* remove existing tag elements, keep input */
+    wrap.querySelectorAll('.tag').forEach(function(t) { t.remove(); });
+    tags.forEach(function(tag, i) {
+      var el = document.createElement('span');
+      el.className = 'tag';
+      el.innerHTML = tag + '<button type="button" class="tag-remove" data-i="' + i + '">×</button>';
+      wrap.insertBefore(el, input);
+    });
+  }
+
+  /* Remove on × click */
+  wrap.addEventListener('click', function(e) {
+    var btn = e.target.closest('.tag-remove');
+    if (!btn) return;
+    tags.splice(parseInt(btn.dataset.i), 1);
+    render();
+  });
+
+  /* Add on Enter or comma */
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ',') {
+      e.preventDefault();
+      var val = input.value.trim().replace(/,$/, '');
+      if (val && !tags.includes(val)) { tags.push(val); render(); }
+      input.value = '';
+    }
+    /* Backspace on empty → remove last tag */
+    if (e.key === 'Backspace' && input.value === '' && tags.length) {
+      tags.pop(); render();
+    }
+  });
+
+  return { getTags: function() { return tags.slice(); } };
+}
+
+var instrumentsTag = TagInput('instruments-tag-wrap', 'instruments-input');
+var stylesTag      = TagInput('styles-tag-wrap',      'styles-input');
+var collabsTag     = TagInput('collabs-tag-wrap',      'collabs-input');
+
+
+/* ════════════════════════════════════════════════════════════
+   BANNER PHOTO UPLOAD
+   ════════════════════════════════════════════════════════════ */
+var bannerDataUrl = null;
+var bannerDrop    = document.getElementById('bannerDropZone');
+var bannerInput   = document.getElementById('bannerInput');
+var bannerPreview = document.getElementById('bannerPreview');
+
+function loadBanner(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    bannerDataUrl = e.target.result;
+    bannerPreview.src = bannerDataUrl;
+    bannerDrop.classList.add('has-preview');
+  };
+  reader.readAsDataURL(file);
+}
+
+bannerInput.addEventListener('change', function() { loadBanner(this.files[0]); });
+bannerDrop.addEventListener('dragover', function(e) { e.preventDefault(); bannerDrop.classList.add('dragging'); });
+bannerDrop.addEventListener('dragleave', function() { bannerDrop.classList.remove('dragging'); });
+bannerDrop.addEventListener('drop', function(e) {
+  e.preventDefault(); bannerDrop.classList.remove('dragging');
+  loadBanner(e.dataTransfer.files[0]);
+});
+
+
+/* ════════════════════════════════════════════════════════════
+   ADDITIONAL MEDIA GRID
+   ════════════════════════════════════════════════════════════ */
+var mediaItems   = []; // [{dataUrl, type, name}]
+var mediaGrid    = document.getElementById('mediaGrid');
+var mediaAddSlot = document.getElementById('mediaAddSlot');
+var mediaInput   = document.getElementById('mediaInput');
+var MAX_MEDIA    = 8;
+
+function renderMediaGrid() {
+  /* clear all except add slot */
+  mediaGrid.querySelectorAll('.media-thumb:not(.add-slot)').forEach(function(t) { t.remove(); });
+  mediaItems.forEach(function(item, i) {
+    var thumb = document.createElement('div');
+    thumb.className = 'media-thumb';
+    if (item.type.startsWith('video/')) {
+      thumb.innerHTML = '<video src="' + item.dataUrl + '" muted></video>'
+        + '<button type="button" class="thumb-remove" data-i="' + i + '">×</button>';
+    } else {
+      thumb.innerHTML = '<img src="' + item.dataUrl + '" alt="" />'
+        + '<button type="button" class="thumb-remove" data-i="' + i + '">×</button>';
+    }
+    mediaGrid.insertBefore(thumb, mediaAddSlot);
+  });
+  /* hide add slot if at max */
+  mediaAddSlot.style.display = (mediaItems.length >= MAX_MEDIA) ? 'none' : '';
+}
+
+mediaInput.addEventListener('change', function() {
+  var files = Array.from(this.files);
+  var remaining = MAX_MEDIA - mediaItems.length;
+  files.slice(0, remaining).forEach(function(file) {
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      mediaItems.push({ dataUrl: e.target.result, type: file.type, name: file.name });
+      renderMediaGrid();
+    };
+    reader.readAsDataURL(file);
+  });
+  mediaInput.value = '';
+});
+
+mediaGrid.addEventListener('click', function(e) {
+  var btn = e.target.closest('.thumb-remove');
+  if (!btn) return;
+  mediaItems.splice(parseInt(btn.dataset.i), 1);
+  renderMediaGrid();
+});
+
+renderMediaGrid();
+
+
+/* ════════════════════════════════════════════════════════════
+   EXPERIENCE ENTRIES
+   ════════════════════════════════════════════════════════════ */
+var expList    = document.getElementById('expList');
+var addExpBtn  = document.getElementById('addExpBtn');
+var expEntries = [];
+var expCounter = 0;
+
+var EXP_TYPES = ['比賽', '音樂營', '演出', '合作案件'];
+
+function createExpEntry() {
+  var id  = 'exp-' + (++expCounter);
+  var entry = { id: id, type: EXP_TYPES[0], photo: null };
+  expEntries.push(entry);
+
+  var el = document.createElement('div');
+  el.className = 'exp-entry';
+  el.dataset.expId = id;
+  el.innerHTML = `
+    <div class="exp-entry-head">
+      <div class="exp-type-pills">
+        ${EXP_TYPES.map(function(t) {
+          return '<button type="button" class="exp-pill' + (t === EXP_TYPES[0] ? ' active' : '') + '" data-type="' + t + '">' + t + '</button>';
+        }).join('')}
+      </div>
+      <button type="button" class="exp-remove-btn" title="刪除">×</button>
+    </div>
+    <div class="exp-fields">
+      <div class="field-group exp-full" style="border-top:1px solid var(--line);">
+        <label class="field-label">名稱</label>
+        <input class="field-input exp-title" type="text" placeholder="例：台灣國際音樂大賽" />
+      </div>
+      <div class="field-group" style="border-top:none;">
+        <label class="field-label">年份</label>
+        <input class="field-input exp-year" type="number" placeholder="2023" min="1980" max="2099" />
+      </div>
+      <div class="field-group exp-full exp-desc">
+        <label class="field-label">描述</label>
+        <textarea class="field-input exp-description" placeholder="簡短描述此經歷…" style="min-height:60px;"></textarea>
+      </div>
+    </div>
+    <div class="exp-photo-group" style="display:none;">
+      <div class="exp-photo-small">
+        + 新增照片（選填）
+        <input type="file" class="exp-photo-input" accept="image/*" />
+      </div>
+      <img class="exp-photo-preview" src="" alt="" />
+    </div>
+  `;
+
+  /* Type pill toggle */
+  el.querySelectorAll('.exp-pill').forEach(function(pill) {
+    pill.addEventListener('click', function() {
+      el.querySelectorAll('.exp-pill').forEach(function(p) { p.classList.remove('active'); });
+      pill.classList.add('active');
+      entry.type = pill.dataset.type;
+      /* show photo upload only for 合作案件 */
+      el.querySelector('.exp-photo-group').style.display = (entry.type === '合作案件') ? '' : 'none';
+    });
+  });
+
+  /* Photo upload for 合作案件 */
+  el.querySelector('.exp-photo-input').addEventListener('change', function() {
+    var file = this.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      entry.photo = e.target.result;
+      var prev = el.querySelector('.exp-photo-preview');
+      prev.src   = entry.photo;
+      prev.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  });
+
+  /* Remove entry */
+  el.querySelector('.exp-remove-btn').addEventListener('click', function() {
+    expEntries = expEntries.filter(function(e) { return e.id !== id; });
+    el.remove();
+  });
+
+  expList.appendChild(el);
+}
+
+/* Start with one entry */
+createExpEntry();
+addExpBtn.addEventListener('click', createExpEntry);
+
+
+/* ════════════════════════════════════════════════════════════
+   BIO COUNTER
+   ════════════════════════════════════════════════════════════ */
+var bioEl      = document.getElementById('f-bio');
+var bioCounter = document.getElementById('bioCounter');
+bioEl.addEventListener('input', function() {
+  bioCounter.textContent = this.value.length + ' / 500';
+});
+
+
+/* ════════════════════════════════════════════════════════════
+   VALIDATION HELPER
+   ════════════════════════════════════════════════════════════ */
+function setError(groupId, hasError) {
+  var fg = document.getElementById(groupId);
+  if (!fg) return;
+  fg.classList.toggle('has-error', hasError);
+}
+
+function validateForm() {
+  var ok = true;
+
+  var name = document.getElementById('f-name').value.trim();
+  setError('fg-name', !name);
+  if (!name) ok = false;
+
+  var email = document.getElementById('f-email').value.trim();
+  var emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  setError('fg-email', !emailOk);
+  if (!emailOk) ok = false;
+
+  var rp = document.getElementById('f-region-primary').value.trim();
+  setError('fg-region-primary', !rp);
+  if (!rp) ok = false;
+
+  var instruments = instrumentsTag.getTags();
+  setError('fg-instruments', instruments.length === 0);
+  if (instruments.length === 0) ok = false;
+
+  var bio = bioEl.value.trim();
+  // bio is required
+  if (!bio) ok = false;
+
+  return ok;
+}
+
+
+/* ════════════════════════════════════════════════════════════
+   FORM SUBMIT
+   ════════════════════════════════════════════════════════════ */
+document.getElementById('applyForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+
+  if (!validateForm()) {
+    /* Scroll to first error */
+    var firstErr = document.querySelector('.has-error');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  var btn = document.getElementById('submitBtn');
+  btn.classList.add('loading');
+  btn.disabled = true;
+
+  /* Collect performance types */
+  var perfTypes = [];
+  document.querySelectorAll('#perfTypesGroup .pill-check:checked').forEach(function(cb) {
+    perfTypes.push(cb.value);
+  });
+
+  /* Collect experiences */
+  var experiences = [];
+  expEntries.forEach(function(entry) {
+    var el    = document.querySelector('[data-exp-id="' + entry.id + '"]');
+    if (!el) return;
+    experiences.push({
+      type:        entry.type,
+      title:       el.querySelector('.exp-title').value.trim(),
+      year:        el.querySelector('.exp-year').value,
+      description: el.querySelector('.exp-description').value.trim(),
+      photo:       entry.photo || null
+    });
+  });
+
+  /* Build payload */
+  var payload = {
+    name:             document.getElementById('f-name').value.trim(),
+    email:            document.getElementById('f-email').value.trim(),
+    region_primary:   document.getElementById('f-region-primary').value.trim(),
+    region_secondary: document.getElementById('f-region-secondary').value.trim(),
+    instruments:      instrumentsTag.getTags(),
+    banner_photo:     bannerDataUrl || null,
+    additional_media: mediaItems.map(function(m) { return { dataUrl: m.dataUrl, type: m.type, name: m.name }; }),
+    experiences:      experiences,
+    performance_types: perfTypes,
+    music_styles:     stylesTag.getTags(),
+    collaborators:    collabsTag.getTags(),
+    pricing: {
+      '1h': document.getElementById('price-1h').value || null,
+      '2h': document.getElementById('price-2h').value || null,
+      '3h': document.getElementById('price-3h').value || null
+    },
+    bio:          bioEl.value.trim(),
+    submitted_at: new Date().toISOString()
+  };
+
+  try {
+    var res = await fetch('/submit-application', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload)
+    });
+    var json = await res.json();
+    if (!json.ok) throw new Error(json.error || 'Server error');
+
+    /* Mark in localStorage */
+    localStorage.setItem('opusz_musician_applied', JSON.stringify({
+      name:  payload.name,
+      email: payload.email,
+      id:    json.id,
+      at:    payload.submitted_at
+    }));
+
+    /* Show success overlay */
+    document.getElementById('successOverlay').classList.add('visible');
+
+  } catch(err) {
+    alert('提交失敗：' + err.message);
+  } finally {
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+});
+
+
+/* ════════════════════════════════════════════════════════════
+   SCROLL REVEAL
+   ════════════════════════════════════════════════════════════ */
+var revObs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.05 });
+document.querySelectorAll('.reveal').forEach(function(el) { revObs.observe(el); });
+
+
+</script>
+
+<script>
+// ── i18n (canonical nav dictionary, identical to recent-jobs.html) ──
+var _currentLang = 'en';
+var I18N = {
+  en: {
+    'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
+    'nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
+    'menu.strings':'Strings','menu.violin':'Violin','menu.viola':'Viola',
+    'menu.cello':'Cello','menu.doublebass':'Double Bass','menu.harp':'Harp',
+    'menu.woodwinds':'Woodwinds','menu.flute':'Flute','menu.piccolo':'Piccolo',
+    'menu.oboe':'Oboe','menu.clarinet':'Clarinet','menu.saxophone':'Saxophone',
+    'menu.bassoon':'Bassoon','menu.brass':'Brass','menu.frenchhorn':'French Horn',
+    'menu.trumpet':'Trumpet','menu.trombone':'Trombone','menu.euphonium':'Euphonium',
+    'menu.tuba':'Tuba','menu.percussion':'Percussion','menu.timpani':'Timpani',
+    'menu.marimba':'Marimba','menu.vibraphone':'Vibraphone','menu.xylophone':'Xylophone',
+    'menu.keyboard':'Keyboard','menu.piano':'Piano','menu.pipeorgan':'Pipe Organ',
+    'menu.voice':'Voice','menu.soprano':'Soprano','menu.mezzosoprano':'Mezzo-soprano',
+    'menu.tenor':'Tenor','menu.baritone':'Baritone','menu.choral':'Choral',
+    'menu.chamber':'Chamber','menu.stringquartet':'String Quartet',
+    'menu.pianotrio':'Piano Trio','menu.stringtrio':'String Trio',
+    'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet',
+    'menu.pianoquintet':'Piano Quintet','menu.all':'All','menu.allmusicians':'All Musicians',
+    'menu.conductor':'Conductor','menu.tuner':'Tuner',
+    'login.customer':'Customer login','login.musician':'Musician login'
+  },
+  zh: {
+    'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
+    'nav.news':'演出','nav.contact':'聯絡','nav.lessons':'音樂老師',
+    'menu.strings':'弦樂','menu.violin':'小提琴','menu.viola':'中提琴',
+    'menu.cello':'大提琴','menu.doublebass':'低音提琴','menu.harp':'豎琴',
+    'menu.woodwinds':'木管','menu.flute':'長笛','menu.piccolo':'短笛',
+    'menu.oboe':'雙簧管','menu.clarinet':'單簧管','menu.saxophone':'薩克斯風',
+    'menu.bassoon':'低音管','menu.brass':'銅管','menu.frenchhorn':'法國號',
+    'menu.trumpet':'小號','menu.trombone':'長號','menu.euphonium':'上低音號',
+    'menu.tuba':'大號','menu.percussion':'打擊','menu.timpani':'定音鼓',
+    'menu.marimba':'馬林巴','menu.vibraphone':'顫音琴','menu.xylophone':'木琴',
+    'menu.keyboard':'鍵盤','menu.piano':'鋼琴','menu.pipeorgan':'管風琴',
+    'menu.voice':'聲樂','menu.soprano':'女高音','menu.mezzosoprano':'次女高音',
+    'menu.tenor':'男高音','menu.baritone':'男中音','menu.choral':'合唱',
+    'menu.chamber':'室樂','menu.stringquartet':'弦樂四重奏',
+    'menu.pianotrio':'鋼琴三重奏','menu.stringtrio':'弦樂三重奏',
+    'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏',
+    'menu.pianoquintet':'鋼琴五重奏','menu.all':'全部','menu.allmusicians':'所有音樂家',
+    'menu.conductor':'指揮','menu.tuner':'調音師',
+    'login.customer':'客戶登入','login.musician':'音樂家登入'
+  }
+};
+
+function switchLang(lang) {
+  _currentLang = lang;
+  var dict = I18N[lang] || I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n')];
+    if (v !== undefined) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n-ph')];
+    if (v !== undefined) el.placeholder = v;
+  });
+  document.querySelectorAll('#langToggle .lt-opt').forEach(function(o) {
+    o.classList.toggle('active', o.dataset.l === lang);
+  });
+  document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+  if (typeof window.__navResplit === 'function') window.__navResplit();
+}
+
+// ── Nav JS (identical to all pages) ──
+document.addEventListener('DOMContentLoaded', function(){
+  // Lang toggle
+  var langToggle = document.getElementById('langToggle');
+  if(langToggle){
+    langToggle.addEventListener('click', function(e){
+      var opt = e.target.closest('[data-l]');
+      switchLang(opt ? opt.dataset.l : (_currentLang === 'en' ? 'zh' : 'en'));
+    });
+  }
+
+  // Login dropdown
+  var loginBtn = document.getElementById('navLoginBtn');
+  if(loginBtn){
+    var loginLeaveTimer;
+    loginBtn.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); this.classList.add('open'); });
+    loginBtn.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
+    var dropdown = loginBtn.querySelector('.nav-login-dropdown');
+    if(dropdown){
+      dropdown.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); });
+      dropdown.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
+    }
+  }
+
+  // Login modal
+  var overlay = document.getElementById('loginModalOverlay');
+  var modalClose = document.getElementById('loginModalClose');
+  var modalTitle = document.getElementById('loginModalTitle');
+  var openCustomer = document.getElementById('openCustomerLogin');
+  function openModal(title){
+    if(modalTitle) modalTitle.textContent = title;
+    if(overlay) overlay.classList.add('open');
+    if(loginBtn) loginBtn.classList.remove('open');
+  }
+  if(openCustomer) openCustomer.addEventListener('click', function(e){ e.preventDefault(); openModal('Customer Login'); });
+  if(modalClose) modalClose.addEventListener('click', function(){ overlay.classList.remove('open'); });
+  if(overlay) overlay.addEventListener('click', function(e){ if(e.target === overlay) overlay.classList.remove('open'); });
+
+  // Hamburger drawer
+  var hamburger = document.getElementById('hamburgerBtn');
+  var drawer = document.getElementById('navDrawer');
+  var navSubDrawer = document.getElementById('navSubDrawer');
+  var drawerTimeout;
+  function openDrawer(){ clearTimeout(drawerTimeout); drawer.classList.add('nd-visible'); }
+  function closeDrawer(){ if(navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return; drawerTimeout = setTimeout(function(){ drawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
+  function closeBoth(){ drawerTimeout = setTimeout(function(){ drawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
+  if(hamburger && drawer){
+    hamburger.addEventListener('mouseenter', openDrawer);
+    hamburger.addEventListener('mouseleave', closeDrawer);
+    drawer.addEventListener('mouseenter', openDrawer);
+    drawer.addEventListener('mouseleave', closeDrawer);
+  }
+  if(navSubDrawer){ navSubDrawer.addEventListener('mouseenter', function(){ clearTimeout(drawerTimeout); }); navSubDrawer.addEventListener('mouseleave', closeBoth); }
+  var ndMusiciansBtn = document.getElementById('ndMusiciansBtn');
+  var nsdBack = document.getElementById('nsdBack');
+  if(ndMusiciansBtn && navSubDrawer){
+    ndMusiciansBtn.addEventListener('click', function(){ clearTimeout(drawerTimeout); navSubDrawer.classList.add('ns-visible'); });
+    nsdBack.addEventListener('click', function(){ navSubDrawer.classList.remove('ns-visible'); });
+  }
+
+  // Mega menu
+  var artistsTrigger = document.getElementById('artists-nav-item');
+  var megaMenu = document.getElementById('artistsMegaMenu');
+  var navEl = document.querySelector('nav');
+  if(artistsTrigger && megaMenu){
+    var artistsLink = artistsTrigger.querySelector('a');
+    var mmTimeout;
+    function openMega(){ clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); if(artistsLink) artistsLink.classList.add('mm-active'); if(navEl) navEl.classList.add('mega-open'); }
+    function closeMega(){ mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if(artistsLink) artistsLink.classList.remove('mm-active'); if(navEl) navEl.classList.remove('mega-open'); }, 80); }
+    artistsTrigger.addEventListener('mouseenter', openMega);
+    artistsTrigger.addEventListener('mouseleave', closeMega);
+    megaMenu.addEventListener('mouseenter', openMega);
+    megaMenu.addEventListener('mouseleave', closeMega);
+  }
+
+  // Fav count badge
+  function updateFavCount(){
+    var favBtn = document.getElementById('navFavBtn');
+    var favCount = document.getElementById('navFavCount');
+    if(!favBtn || !favCount) return;
+    var favs = [];
+    try{ favs = JSON.parse(localStorage.getItem('mono-favs')||'[]'); }catch(e){}
+    if(favs.length > 0){
+      favCount.textContent = favs.length;
+      favCount.style.display = 'flex';
+    } else {
+      favCount.style.display = 'none';
+    }
+  }
+  updateFavCount();
+});
+</script>
+
+<script>
+/* ── Nav: scroll hide/show with lerp ── */
+(function() {
+  var navEl = document.querySelector('nav');
+  var navH = navEl ? navEl.offsetHeight : 64;
+  var navTarget = 0, navCurrent = 0, lastY = 0, raf = null;
+  function tick() {
+    navCurrent += (navTarget - navCurrent) * 0.1;
+    if (navEl) navEl.style.top = navCurrent + 'px';
+    if (Math.abs(navTarget - navCurrent) < 0.05) {
+      if (navEl) navEl.style.top = navTarget + 'px';
+      navCurrent = navTarget; raf = null;
+    } else { raf = requestAnimationFrame(tick); }
+  }
+  window.addEventListener('scroll', function() {
+    var y = window.scrollY;
+    navTarget = y < 80 ? 0 : (y > lastY ? -navH : 0);
+    lastY = y;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+})();
+
+/* ── Nav: mix-blend-mode difference + underline + char split ── */
+(function() {
+  var nav = document.querySelector('nav');
+  if (!nav) return;
+
+  function _splitToChars(el) {
+    var text = el.textContent;
+    el.innerHTML = [...text].map(function(ch) {
+      return ch === ' ' ? '<span class="nc-char nc-sp"> </span>' : '<span class="nc-char">' + ch + '</span>';
+    }).join('');
+  }
+  var navLogoFixed = document.getElementById('navLogoFixed');
+  function _resplitNav() {
+    nav.querySelectorAll('.nav-links a').forEach(function(a) { _splitToChars(a); });
+    var ln = nav.querySelector('.nav-logo-name');
+    var ls = nav.querySelector('.nav-logo-sub');
+    if (ln) _splitToChars(ln);
+    if (ls) _splitToChars(ls);
+    if (navLogoFixed) {
+      var fln = navLogoFixed.querySelector('.nav-logo-name');
+      var fls = navLogoFixed.querySelector('.nav-logo-sub');
+      if (fln) _splitToChars(fln);
+      if (fls) _splitToChars(fls);
+      navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    }
+  }
+  _resplitNav();
+  window.__navResplit = _resplitNav;
+
+  function updateColors() {
+    var megaOpen = nav.classList.contains('mega-open');
+    if (megaOpen) {
+      nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#000'; });
+      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+        var el = nav.querySelector(sel); if (!el) return;
+        el.style.color = '#000'; el.style.borderColor = 'rgba(0,0,0,.35)';
+      });
+      nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#000'; });
+      nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
+      return;
+    }
+    nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#fff'; });
+    if (navLogoFixed) navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+      var el = nav.querySelector(sel); if (!el) return;
+      el.style.color = '#fff'; el.style.borderColor = 'rgba(255,255,255,.5)';
+    });
+    nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#fff'; });
+  }
+
+  /* Inject underline span into every nav link */
+  nav.querySelectorAll('.nav-links a').forEach(function(a) {
+    if (!a.querySelector('.nav-ul')) {
+      var ul = document.createElement('span');
+      ul.className = 'nav-ul';
+      a.appendChild(ul);
+    }
+  });
+
+  updateColors();
+  window.addEventListener('scroll', updateColors, { passive: true });
+  window.addEventListener('resize', updateColors);
+  setTimeout(updateColors, 300);
+})();
+
+/* ── Page transition + bfcache fix ── */
+document.addEventListener('click', function(e) {
+  var a = e.target.closest('a[href]');
+  if (!a || a.target || e.metaKey || e.ctrlKey) return;
+  var url; try { url = new URL(a.href, location.href); } catch(err) { return; }
+  if (url.origin !== location.origin) return;
+  if (url.pathname === location.pathname && url.hash) {
+    e.preventDefault();
+    history.replaceState(null, '', url.hash);
+    var t = document.getElementById(url.hash.slice(1));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  if (url.pathname === location.pathname && !url.hash) return;
+  e.preventDefault();
+  document.documentElement.style.transition = 'opacity .22s ease';
+  document.documentElement.style.opacity = '0';
+  setTimeout(function() { location.href = a.href; }, 230);
+});
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    document.documentElement.style.transition = 'opacity .22s ease';
+    document.documentElement.style.opacity = '1';
+  }
+});
+</script>
+<script src="assets/js/smooth-scroll.js" defer></script>
+<script src="assets/js/nav-auth.js" defer></script>
+</body>
+</html>

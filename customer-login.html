@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — OPUS.Z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'Inter', 'Helvetica Neue', sans-serif;
+  background: #f7f7f7;
+  min-height: 100vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 24px;
+}
+
+/* ── Back link ── */
+.back-link {
+  position: fixed; top: 24px; left: 28px;
+  display: flex; align-items: center; gap: 7px;
+  font-size: 14px; color: #666; text-decoration: none;
+  transition: color .15s;
+}
+.back-link:hover { color: #000; }
+.back-link svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; }
+
+/* ── Logo ── */
+.logo-wrap {
+  display: flex; flex-direction: column; align-items: center;
+  margin-bottom: 32px;
+  animation: fadeUp .5s ease both;
+}
+.logo-img {
+  width: 52px; height: 52px;
+  background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat;
+  margin-bottom: 10px;
+}
+.logo-name { font-size: 18px; font-weight: 800; letter-spacing: -.03em; color: #000; }
+
+/* ── Card ── */
+.card {
+  background: #fff; border-radius: 20px;
+  padding: 40px 36px 32px;
+  width: 100%; max-width: 420px;
+  box-shadow: 0 2px 16px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.06);
+  animation: fadeUp .55s ease .08s both;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.card-title {
+  font-size: 22px; font-weight: 800; letter-spacing: -.04em;
+  color: #000; margin-bottom: 6px;
+}
+.card-subtitle {
+  font-size: 14px; color: #888; line-height: 1.5; margin-bottom: 24px;
+}
+
+/* ── OAuth buttons ── */
+.oauth-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; padding: 13px 16px; border-radius: 12px;
+  font-size: 14px; font-weight: 600; font-family: inherit;
+  cursor: pointer; border: 1.5px solid #e0e0e0;
+  transition: background .15s, border-color .15s, transform .1s;
+  text-decoration: none; margin-bottom: 10px;
+}
+.oauth-btn:active { transform: scale(.98); }
+.oauth-btn svg, .oauth-btn img { width: 20px; height: 20px; flex-shrink: 0; }
+
+.btn-google {
+  background: #fff; color: #1f1f1f; border-color: #e0e0e0;
+}
+.btn-google:hover { background: #f8f8f8; border-color: #ccc; }
+
+.btn-facebook {
+  background: #1877F2; color: #fff; border-color: #1877F2;
+}
+.btn-facebook:hover { background: #166fe5; border-color: #166fe5; }
+
+/* ── Divider ── */
+.divider {
+  display: flex; align-items: center; gap: 12px;
+  margin: 20px 0; color: #ccc; font-size: 13px;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: #ebebeb;
+}
+
+/* ── Email fallback ── */
+label {
+  display: block; font-size: 11.5px; font-weight: 600;
+  letter-spacing: .05em; color: #888; text-transform: uppercase;
+  margin-bottom: 7px;
+}
+input[type="email"] {
+  width: 100%; padding: 13px 15px;
+  border: 1.5px solid #e0e0e0; border-radius: 11px;
+  font-size: 15px; font-family: inherit; color: #000;
+  outline: none; transition: border-color .15s, box-shadow .15s;
+  background: #fafafa; margin-bottom: 12px;
+}
+input[type="email"]:focus {
+  border-color: #000; box-shadow: 0 0 0 3px rgba(0,0,0,.07);
+  background: #fff;
+}
+input[type="email"].shake {
+  animation: shake 0.35s cubic-bezier(.36,.07,.19,.97);
+  border-color: #e53935;
+}
+@keyframes shake {
+  0%,100%{ transform:translateX(0); }
+  20%{ transform:translateX(-6px); }
+  40%{ transform:translateX(6px); }
+  60%{ transform:translateX(-4px); }
+  80%{ transform:translateX(4px); }
+}
+.submit-btn {
+  display: block; width: 100%;
+  padding: 14px; background: #000; color: #fff;
+  border: none; border-radius: 11px;
+  font-size: 14px; font-weight: 700; font-family: inherit;
+  cursor: pointer; transition: opacity .18s, transform .1s;
+}
+.submit-btn:hover { opacity: .82; }
+.submit-btn:active { transform: scale(.98); }
+
+.error-msg {
+  display: none; margin-top: 10px; padding: 10px 14px;
+  background: #fff0f0; border-radius: 8px;
+  font-size: 13px; color: #c62828; line-height: 1.4;
+}
+.error-msg.visible { display: block; }
+
+/* ── Footer note ── */
+.footer-note {
+  text-align: center; margin-top: 22px;
+  font-size: 13px; color: #aaa; line-height: 1.6;
+}
+.footer-note a { color: #555; font-weight: 600; text-decoration: none; }
+.footer-note a:hover { color: #000; }
+
+/* ── Success state ── */
+#successState {
+  display: none; flex-direction: column; align-items: center;
+  text-align: center; padding: 8px 0 16px; gap: 16px;
+}
+#successState.visible { display: flex; }
+
+.success-check {
+  width: 72px; height: 72px; border-radius: 50%;
+  background: #000; display: flex; align-items: center; justify-content: center;
+  animation: popIn .45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes popIn { from{ transform:scale(0);opacity:0; } to{ transform:scale(1);opacity:1; } }
+.success-check svg { width: 34px; height: 34px; stroke:#fff; stroke-width:2.5; fill:none; }
+.success-check svg polyline {
+  stroke-dasharray: 44; stroke-dashoffset: 44;
+  animation: drawCheck .35s ease .3s forwards;
+}
+@keyframes drawCheck { to { stroke-dashoffset: 0; } }
+.success-name {
+  font-size: 22px; font-weight: 800; letter-spacing: -.03em;
+  animation: fadeUp .4s ease .5s both;
+}
+.success-msg {
+  font-size: 14px; color: #888; line-height: 1.6;
+  animation: fadeUp .4s ease .6s both;
+}
+
+/* ── Page footer ── */
+.page-footer {
+  margin-top: 24px; font-size: 12px; color: #bbb; text-align: center;
+  animation: fadeUp .5s ease .2s both;
+}
+.page-footer a { color: #bbb; text-decoration: none; }
+.page-footer a:hover { color: #888; }
+
+/* Loading spinner on button */
+.oauth-btn.loading { opacity: .6; pointer-events: none; }
+.oauth-btn.loading::after {
+  content: ''; width: 16px; height: 16px; border-radius: 50%;
+  border: 2px solid rgba(0,0,0,.2); border-top-color: #000;
+  animation: spin .7s linear infinite; flex-shrink: 0;
+}
+.btn-facebook.loading::after { border-color: rgba(255,255,255,.3); border-top-color: #fff; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<a href="musician-platform.html" class="back-link">
+  <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+  Back
+</a>
+
+<div class="logo-wrap">
+  <div class="logo-img"></div>
+  <div class="logo-name">OPUS.Z</div>
+</div>
+
+<div class="card">
+
+  <!-- Form state -->
+  <div id="formState">
+    <div class="card-title">Sign in</div>
+    <div class="card-subtitle">New customers are welcome — sign in to get started</div>
+
+    <!-- Google -->
+    <button class="oauth-btn btn-google" id="btnGoogle">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Continue with Google
+    </button>
+
+    <!-- Facebook — hidden until FB App is configured -->
+    <!-- <button class="oauth-btn btn-facebook" id="btnFacebook">...</button> -->
+
+    <div class="divider">or</div>
+
+    <label for="emailInput">Email address</label>
+    <input type="email" id="emailInput" placeholder="your@email.com" autocomplete="email"/>
+    <button class="submit-btn" id="submitBtn">Continue with Email →</button>
+
+    <div class="error-msg" id="errorMsg"></div>
+
+    <div class="footer-note" style="margin-top:18px;">
+      By continuing you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a>
+    </div>
+  </div>
+
+  <!-- Success state -->
+  <div id="successState">
+    <div class="success-check">
+      <svg viewBox="0 0 24 24"><polyline points="4 12 9 17 20 7"/></svg>
+    </div>
+    <div class="success-name" id="successName">Welcome!</div>
+    <div class="success-msg">You're signed in. Taking you back…</div>
+  </div>
+
+</div>
+
+<div class="page-footer">
+  <a href="musician-platform.html">OPUS.Z</a> · Professional Music Services
+</div>
+
+<!-- Firebase Auth SDK -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+const firebaseConfig = {
+  apiKey:    'AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s',
+  authDomain:'opusz-45280.firebaseapp.com',
+  projectId: 'opusz-45280'
+};
+
+const app  = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Where to redirect after login
+const params   = new URLSearchParams(window.location.search);
+const redirect = params.get('redirect') || 'musician-platform.html';
+
+// ── Elements ──
+const formState  = document.getElementById('formState');
+const successEl  = document.getElementById('successState');
+const successName= document.getElementById('successName');
+const emailInput = document.getElementById('emailInput');
+const submitBtn  = document.getElementById('submitBtn');
+const btnGoogle  = document.getElementById('btnGoogle');
+const btnFacebook= document.getElementById('btnFacebook');
+const errorMsg   = document.getElementById('errorMsg');
+
+// If already logged in, go home
+if (localStorage.getItem('opusz_user')) {
+  window.location.href = redirect;
+}
+
+// ── Shared: handle signed-in user ──
+function handleUser(user) {
+  const name  = user.displayName || user.email.split('@')[0].replace(/[._-]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  const email = user.email;
+  localStorage.setItem('opusz_user', name);
+  localStorage.setItem('opusz_user_email', email);
+  showSuccess(name);
+  saveToFirestore(name, email);
+  setTimeout(() => { window.location.href = redirect; }, 1800);
+}
+
+function showSuccess(name) {
+  successName.textContent = 'Hi, ' + name + '!';
+  formState.style.display = 'none';
+  successEl.classList.add('visible');
+}
+
+function showError(msg) {
+  errorMsg.textContent = msg;
+  errorMsg.classList.add('visible');
+  setTimeout(() => errorMsg.classList.remove('visible'), 4000);
+}
+
+// ── Google Sign-In ──
+btnGoogle.addEventListener('click', async () => {
+  btnGoogle.classList.add('loading');
+  btnGoogle.querySelector('svg').style.display = 'none';
+  btnGoogle.childNodes[1].textContent = ' Signing in…';
+  try {
+    const provider = new GoogleAuthProvider();
+    const result   = await signInWithPopup(auth, provider);
+    handleUser(result.user);
+  } catch(e) {
+    btnGoogle.classList.remove('loading');
+    btnGoogle.querySelector('svg').style.display = '';
+    btnGoogle.childNodes[1].textContent = ' Continue with Google';
+    if (e.code !== 'auth/popup-closed-by-user') {
+      showError('Google sign-in failed. Please try again.');
+    }
+  }
+});
+
+// ── Facebook Sign-In ──
+btnFacebook.addEventListener('click', async () => {
+  btnFacebook.classList.add('loading');
+  try {
+    const provider = new FacebookAuthProvider();
+    const result   = await signInWithPopup(auth, provider);
+    handleUser(result.user);
+  } catch(e) {
+    btnFacebook.classList.remove('loading');
+    if (e.code !== 'auth/popup-closed-by-user') {
+      showError('Facebook sign-in failed. Please try again.');
+    }
+  }
+});
+
+// ── Email fallback ──
+function doEmailLogin() {
+  const email = emailInput.value.trim();
+  if (!email || !email.includes('@')) {
+    emailInput.classList.remove('shake');
+    void emailInput.offsetWidth;
+    emailInput.classList.add('shake');
+    emailInput.focus();
+    setTimeout(() => emailInput.classList.remove('shake'), 400);
+    return;
+  }
+  const name = email.split('@')[0].replace(/[._-]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  localStorage.setItem('opusz_user', name);
+  localStorage.setItem('opusz_user_email', email);
+  showSuccess(name);
+  saveToFirestore(name, email);
+  setTimeout(() => { window.location.href = redirect; }, 1800);
+}
+submitBtn.addEventListener('click', doEmailLogin);
+emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') doEmailLogin(); });
+
+// ── Firestore save ──
+function saveToFirestore(name, email) {
+  const API_KEY = 'AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s';
+  const PROJECT = 'opusz-45280';
+  const now     = new Date().toISOString();
+  const docId   = email.replace(/[@.]/g, '_');
+  const url = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/customers/${docId}?key=${API_KEY}`;
+  fetch(url)
+    .then(r => r.ok ? r.json() : null)
+    .then(existing => {
+      const regAt = existing?.fields?.registeredAt?.stringValue || now;
+      const body  = { fields: {
+        name:         { stringValue: name },
+        email:        { stringValue: email },
+        registeredAt: { stringValue: regAt },
+        lastLogin:    { stringValue: now },
+        type:         { stringValue: 'customer' }
+      }};
+      return fetch(url, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+    })
+    .catch(e => console.warn('Firestore error:', e));
+}
+
+// Focus email on load
+setTimeout(() => emailInput.focus(), 100);
+</script>
+
+</body>
+</html>

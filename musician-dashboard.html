@@ -488,6 +488,10 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
         <span>Earnings</span>
       </button>
+      <button class="sb-item" onclick="location.href='musician-community.html'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span>社群</span>
+      </button>
     </div>
 
     <div class="sb-section" style="margin-top:10px;">
@@ -1391,6 +1395,67 @@
     clearTimeout(notifTimer);
     notifTimer = setTimeout(() => el.classList.remove('show'), 3000);
   };
+
+  // ── Incoming lesson requests (from musician-profile booking wizard) ──
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function timeAgo(iso){
+    var t = new Date(iso).getTime(); if(isNaN(t)) return '';
+    var s = Math.floor((Date.now()-t)/1000);
+    if(s<60) return '剛剛';
+    if(s<3600) return Math.floor(s/60)+' 分鐘前';
+    if(s<86400) return Math.floor(s/3600)+' 小時前';
+    return Math.floor(s/86400)+' 天前';
+  }
+  function loadLessonRequests(){
+    var list = [];
+    try { list = JSON.parse(localStorage.getItem('opusz_lesson_requests') || '[]'); } catch(e){}
+    var unread = list.filter(function(r){ return !r.read; }).length;
+
+    // Stat card "新詢問"
+    var stat = document.getElementById('statInquiries');
+    var statSub = document.getElementById('statInquiriesSub');
+    if(stat) stat.textContent = list.length;
+    if(statSub) statSub.textContent = unread ? (unread + ' 筆課程預約待回覆') : (list.length ? '皆已查看' : '本週尚無新詢問');
+
+    // Bell: dot only when there are unread, and clicking summarises
+    var dot = document.querySelector('.topbar-btn .notif-dot');
+    if(dot) dot.style.display = unread ? '' : 'none';
+    var bell = document.querySelector('.topbar-btn');
+    if(bell) bell.setAttribute('onclick', "showNotif('" + (unread ? '你有 ' + unread + ' 筆新課程預約' : '目前沒有新通知') + "')");
+
+    // Render request cards into 最近動態
+    var box = document.getElementById('recentActivityList');
+    if(box && list.length){
+      box.innerHTML = list.map(function(r){
+        var goals = (r.goals||[]).map(esc).join('、') || '—';
+        var times = (r.times||[]).map(esc).join('、') || '—';
+        return ''
+          + '<div style="padding:16px 4px;border-bottom:1px solid #f0f0f0;">'
+          +   '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
+          +     (r.read ? '' : '<span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></span>')
+          +     '<span style="font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;background:#111;border-radius:6px;padding:3px 8px;">' + esc(r.plan) + ' 方案</span>'
+          +     '<span style="font-size:12px;color:#999;margin-left:auto;">' + esc(timeAgo(r.ts)) + '</span>'
+          +   '</div>'
+          +   '<div style="font-size:14px;font-weight:700;color:#111;margin-bottom:6px;">🎓 新課程預約 — ' + esc(r.customer) + '</div>'
+          +   '<div style="font-size:12.5px;color:#555;line-height:1.7;">'
+          +     '<div>程度：' + esc(r.level||'—') + '</div>'
+          +     '<div>目標：' + goals + '</div>'
+          +     '<div>方式：' + esc(r.format||'—') + '</div>'
+          +     '<div>時間：' + times + '</div>'
+          +     (r.notes ? '<div>備註：' + esc(r.notes) + '</div>' : '')
+          +   '</div>'
+          + '</div>';
+      }).join('');
+    }
+
+    // One-time toast on load if there are unread requests
+    if(unread && typeof showNotif === 'function'){
+      setTimeout(function(){ showNotif('你有 ' + unread + ' 筆新課程預約 🎓'); }, 600);
+    }
+  }
+  loadLessonRequests();
+  // Refresh if the tab regains focus (e.g. request submitted in another tab)
+  window.addEventListener('focus', loadLessonRequests);
 
   // Init
   window.openThread(0);

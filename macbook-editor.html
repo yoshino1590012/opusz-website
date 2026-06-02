@@ -186,6 +186,74 @@ input[type=color] {
   box-shadow: inset 0 0 0 1px rgba(0,0,0,.5);
 }
 
+/* ── Simulated Chrome browser bar ── */
+.browser-chrome {
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 54px; z-index: 20;
+  pointer-events: none; user-select: none;
+}
+.bc-tabbar {
+  height: 28px;
+  background: #DEE1E6;
+  display: flex;
+  align-items: flex-end;
+  padding: 0 8px;
+  gap: 0;
+}
+.bc-tab {
+  height: 23px;
+  background: #fff;
+  border-radius: 6px 6px 0 0;
+  display: flex; align-items: center; gap: 5px;
+  padding: 0 10px 0 8px;
+  min-width: 140px; max-width: 220px;
+  position: relative;
+  box-shadow: 1px 0 0 #c8cace, -1px 0 0 #c8cace;
+}
+.bc-favicon {
+  font-size: 8px; line-height: 1;
+  flex-shrink: 0;
+}
+.bc-tab-title {
+  flex: 1; overflow: hidden;
+  white-space: nowrap; text-overflow: ellipsis;
+  font-size: 8.5px; color: #222;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+.bc-tab-close {
+  font-size: 9px; color: #999;
+  flex-shrink: 0; margin-left: 2px;
+}
+.bc-toolbar {
+  height: 26px;
+  background: #E8EAED;
+  display: flex; align-items: center;
+  padding: 2px 10px; gap: 6px;
+  border-bottom: 1px solid #c8cace;
+}
+.bc-nav-btns { display: flex; gap: 2px; margin-right: 2px; }
+.bc-nav-btn {
+  width: 15px; height: 15px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #777;
+  font-family: -apple-system, sans-serif;
+}
+.bc-address-bar {
+  flex: 1; height: 17px;
+  background: #fff;
+  border-radius: 9px;
+  display: flex; align-items: center;
+  padding: 0 10px;
+  box-shadow: 0 0 0 1px rgba(0,0,0,.12);
+}
+.bc-url {
+  font-size: 7.5px; color: #444;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  flex: 1; text-align: center;
+}
+.bc-star { font-size: 10px; color: #888; margin-left: 4px; }
+
 /* Hinge bar */
 .macbook-hinge {
   width: 940px;
@@ -248,6 +316,194 @@ input[type=color] {
 .status-dot { width: 6px; height: 6px; border-radius: 50%; background: #789fff; flex-shrink: 0; }
 .status-dot.warn { background: #e8a040; }
 .status-dot.off  { background: #333; }
+
+/* ══════════════════════════════════════════════════════════════
+   PHOTO EDITOR PANEL
+══════════════════════════════════════════════════════════════ */
+#mbPhotoEditor {
+  position: fixed;
+  top: 0; right: 0; bottom: 0;
+  width: 300px;
+  background: #111;
+  border-left: 1px solid #252525;
+  display: none;
+  flex-direction: column;
+  z-index: 500;
+  box-shadow: -8px 0 40px rgba(0,0,0,.7);
+}
+#mbPhotoEditor.open { display: flex; }
+
+.pe-topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid #222;
+  flex-shrink: 0;
+}
+.pe-topbar-title {
+  font-size: 12px; font-weight: 700; letter-spacing: .06em;
+  text-transform: uppercase; color: #ccc;
+  display: flex; align-items: center; gap: 7px;
+}
+.pe-close {
+  background: rgba(255,255,255,.06); border: none; color: #888;
+  width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+  font-size: 13px; display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.pe-close:hover { background: rgba(255,255,255,.12); color: #ccc; }
+
+/* Tabs */
+.pe-tabs {
+  display: flex; padding: 8px 10px 0; gap: 4px; flex-shrink: 0;
+  border-bottom: 1px solid #222;
+}
+.pe-tab {
+  flex: 1; padding: 6px 2px; background: transparent;
+  border: none; border-radius: 7px 7px 0 0;
+  color: rgba(255,255,255,.35); font-size: 10px; font-weight: 700;
+  cursor: pointer; transition: all .15s; letter-spacing: .04em;
+  border-bottom: 2px solid transparent;
+}
+.pe-tab.active { color: #fff; border-bottom-color: #789fff; }
+.pe-tab:hover:not(.active) { color: rgba(255,255,255,.6); }
+
+/* Body */
+.pe-body {
+  flex: 1; overflow-y: auto; padding: 12px;
+}
+.pe-body::-webkit-scrollbar { width: 4px; }
+.pe-body::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+
+/* Mode buttons (Wide / Narrow) */
+.pe-mode-row {
+  display: flex; gap: 6px; margin-bottom: 12px;
+}
+.pe-mode-btn {
+  flex: 1; padding: 7px 4px; border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.1);
+  background: transparent; color: rgba(255,255,255,.35);
+  font-size: 11px; font-weight: 600; cursor: pointer;
+  transition: all .15s;
+}
+.pe-mode-btn.active {
+  background: rgba(255,255,255,.15); color: #fff;
+  border-color: transparent;
+}
+
+/* Sliders */
+.pe-slider-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+}
+.pe-slider-lbl { font-size: 11px; color: #666; width: 14px; }
+.pe-slider-val { font-size: 11px; color: #555; width: 36px; text-align: right; flex-shrink: 0; }
+
+/* Slot grid */
+.pe-section-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: #444; margin: 14px 0 8px;
+}
+.pe-col-label {
+  font-size: 10px; color: #555; margin: 10px 0 5px; font-weight: 600;
+}
+.pe-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+}
+.pe-card {
+  border-radius: 8px; overflow: hidden; position: relative;
+  aspect-ratio: 3/4; cursor: pointer;
+  border: 2px solid transparent; transition: border-color .2s;
+  background: rgba(255,255,255,.05);
+}
+.pe-card:hover { border-color: rgba(255,255,255,.25); }
+.pe-card.selected { border-color: rgba(120,160,255,.9); box-shadow: 0 0 0 1px rgba(120,160,255,.3); }
+.pe-card-thumb {
+  width: 100%; height: 100%;
+  background: rgba(255,255,255,.06) center/cover no-repeat;
+  transition: background-position .15s;
+}
+.pe-card-lbl {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: rgba(0,0,0,.72); padding: 3px 5px;
+  font-size: 8px; font-weight: 600;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  color: #ccc;
+}
+/* Upload button — appears on hover in top-right corner */
+.pe-card-upload {
+  position: absolute; top: 4px; right: 4px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: rgba(0,0,0,.65); border: 1px solid rgba(255,255,255,.2);
+  color: #ccc; font-size: 11px; display: flex;
+  align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .18s;
+  cursor: pointer; z-index: 2;
+}
+.pe-card:hover .pe-card-upload { opacity: 1; }
+.pe-card-upload:hover { background: rgba(60,100,255,.7) !important; color: #fff; }
+
+/* Drag hint overlay */
+.pe-card-drop-hint {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: transparent; transition: background .2s;
+  pointer-events: none; z-index: 1;
+}
+.pe-card-drop-hint span { font-size: 16px; opacity: 0; transition: opacity .2s; }
+.pe-card.drag-over .pe-card-drop-hint { background: rgba(120,160,255,.25); }
+.pe-card.drag-over .pe-card-drop-hint span { opacity: 1; }
+
+/* Selected card: show a position indicator */
+.pe-selected-hint {
+  font-size: 10px; color: #789fff; margin: 6px 0 10px;
+  display: none;
+}
+.pe-selected-hint.show { display: block; }
+
+/* Cat/Svc grid (wider cards) */
+.pe-grid-2 {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px;
+}
+.pe-card-wide {
+  border-radius: 8px; overflow: hidden; position: relative;
+  aspect-ratio: 4/3; cursor: pointer;
+  border: 2px solid transparent; transition: border-color .2s;
+  background: rgba(255,255,255,.05);
+}
+.pe-card-wide:hover { border-color: rgba(255,255,255,.25); }
+.pe-card-wide.selected { border-color: rgba(120,160,255,.9); box-shadow: 0 0 0 1px rgba(120,160,255,.3); }
+.pe-card-wide .pe-card-thumb { width:100%; height:100%; background: rgba(255,255,255,.06) center/cover no-repeat; }
+.pe-card-wide .pe-card-lbl { position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.72);padding:3px 6px;font-size:9px;font-weight:600;color:#ccc; }
+.pe-card-wide .pe-card-upload {
+  position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;
+  background:rgba(0,0,0,.65);border:1px solid rgba(255,255,255,.2);
+  color:#ccc;font-size:11px;display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .18s;cursor:pointer;z-index:2;
+}
+.pe-card-wide:hover .pe-card-upload { opacity: 1; }
+
+/* Bottom actions */
+.pe-actions {
+  padding: 10px 12px 12px; border-top: 1px solid #222; flex-shrink: 0;
+  display: flex; flex-direction: column; gap: 7px;
+}
+.pe-btn {
+  width: 100%; padding: 10px; border-radius: 10px;
+  border: none; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: opacity .15s;
+}
+.pe-btn:hover { opacity: .85; }
+.pe-btn-save { background: #2a2a2a; color: #fff; }
+.pe-btn-publish { background: #2a7a2a; color: #fff; }
+.pe-btn-secondary {
+  background: transparent; color: #555;
+  font-size: 12px; font-weight: 500;
+  border: 1px solid #252525 !important;
+  padding: 7px !important;
+  border-radius: 8px !important;
+}
+.pe-btn-row { display: flex; gap: 7px; }
+.pe-btn-row .pe-btn { flex: 1; font-size: 11px; padding: 7px; }
 </style>
 </head>
 <body>
@@ -260,8 +516,9 @@ input[type=color] {
   <span class="tb-lbl">Page</span>
   <select class="tb-select" id="pageSelect">
     <option value="musician-platform.html">Home — Platform</option>
-    <option value="shows.html">Shows</option>
+    <option value="musicians.html">Musicians Listing</option>
     <option value="musician-profile.html">Musician Profile</option>
+    <option value="shows.html">Shows</option>
   </select>
   <div class="sep"></div>
   <span class="tb-lbl">Device</span>
@@ -283,6 +540,36 @@ input[type=color] {
 
   <!-- ── Side Panel ── -->
   <div class="side">
+
+    <!-- QUICK LOGIN (editor-only, never appears on real site) -->
+    <div class="ctrl-section">
+      <div class="ctrl-head open" onclick="toggleSection(this)">
+        <span class="icon">🔑</span> 預覽登入狀態
+        <span class="arrow">▶</span>
+      </div>
+      <div class="ctrl-body open" id="quickLoginBody">
+        <div id="qlLoggedOut">
+          <div class="ctrl-input-label">名稱</div>
+          <input class="ctrl-input" id="qlName" type="text" placeholder="e.g. Martin Liao" style="width:100%;box-sizing:border-box;">
+          <div class="ctrl-input-label">Email</div>
+          <input class="ctrl-input" id="qlEmail" type="email" placeholder="e.g. you@email.com" style="width:100%;box-sizing:border-box;margin-bottom:8px;">
+          <button onclick="qlLogin()" style="width:100%;padding:7px;background:#111;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">✓ 模擬登入</button>
+        </div>
+        <div id="qlLoggedIn" style="display:none">
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 0 8px">
+            <div style="width:30px;height:30px;border-radius:50%;background:#111;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" width="14" height="14"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <div id="qlShowName" style="font-size:12px;font-weight:700;color:#eee"></div>
+              <div id="qlShowEmail" style="font-size:10px;color:#888"></div>
+            </div>
+          </div>
+          <button onclick="qlLogout()" style="width:100%;padding:7px;background:#3a1010;color:#f88;border:none;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;">✕ 登出</button>
+        </div>
+        <div style="margin-top:6px;font-size:10px;color:#555;line-height:1.4">僅在此編輯器有效，不影響真實網站</div>
+      </div>
+    </div>
 
     <!-- VISIBILITY -->
     <div class="ctrl-section">
@@ -512,6 +799,27 @@ input[type=color] {
           <div class="macbook-lid" id="macbookLid">
             <div class="macbook-camera"></div>
             <div class="macbook-screen" id="macbookScreen">
+              <!-- Simulated Chrome browser bar -->
+              <div class="browser-chrome" id="browserChrome">
+                <div class="bc-tabbar">
+                  <div class="bc-tab">
+                    <span class="bc-favicon">🎵</span>
+                    <span class="bc-tab-title" id="bcTabTitle">OPUS.Z</span>
+                    <span class="bc-tab-close">✕</span>
+                  </div>
+                </div>
+                <div class="bc-toolbar">
+                  <div class="bc-nav-btns">
+                    <span class="bc-nav-btn">‹</span>
+                    <span class="bc-nav-btn">›</span>
+                    <span class="bc-nav-btn">↻</span>
+                  </div>
+                  <div class="bc-address-bar">
+                    <span class="bc-url" id="bcUrl">localhost:8080/musician-platform.html</span>
+                  </div>
+                  <span class="bc-star">☆</span>
+                </div>
+              </div>
               <iframe class="preview-iframe" id="previewFrame" src="musician-platform.html"></iframe>
             </div>
           </div>
@@ -541,6 +849,176 @@ input[type=color] {
 <div class="statusbar">
   <div class="status-dot" id="statusDot"></div>
   <span id="statusMsg">Ready — adjust controls and click Save All</span>
+</div>
+
+<!-- ══ PHOTO EDITOR PANEL ══ -->
+<div id="mbPhotoEditor">
+  <div class="pe-topbar">
+    <div class="pe-topbar-title">📷 Photo Editor</div>
+    <button class="pe-close" onclick="closePE()">✕</button>
+  </div>
+
+  <!-- Tabs -->
+  <div class="pe-tabs">
+    <button class="pe-tab active" id="mbPeTab-hero"      onclick="mbPeSetTab('hero')">Hero</button>
+    <button class="pe-tab"        id="mbPeTab-musicians" onclick="mbPeSetTab('musicians')">樂手</button>
+    <button class="pe-tab"        id="mbPeTab-cat"       onclick="mbPeSetTab('cat')">分類</button>
+    <button class="pe-tab"        id="mbPeTab-svc"       onclick="mbPeSetTab('svc')">Services</button>
+    <button class="pe-tab"        id="mbPeTab-poster"    onclick="mbPeSetTab('poster')">Shows</button>
+    <button class="pe-tab"        id="mbPeTab-blog"      onclick="mbPeSetTab('blog')">Blog</button>
+  </div>
+
+  <!-- Tab bodies -->
+  <div class="pe-body">
+
+    <!-- ── HERO ── -->
+    <div id="mbPePanel-hero">
+      <div class="pe-mode-row" style="margin-top:4px;">
+        <button class="pe-mode-btn active" id="mbPeModeW" onclick="mbPeSetMode('wide')">⬛ Wide</button>
+        <button class="pe-mode-btn"        id="mbPeModeN" onclick="mbPeSetMode('narrow')">▭ Narrow</button>
+      </div>
+
+      <div class="pe-section-title" id="mbPeColLabel">選取照片以調整位置</div>
+      <div class="pe-selected-hint" id="mbPeSelectedHint">← 選取中</div>
+
+      <div class="pe-slider-row">
+        <span class="pe-slider-lbl">X</span>
+        <input type="range" id="mbPeX" min="0" max="100" value="50"
+          oninput="mbPeUpdatePos()">
+        <span class="pe-slider-val" id="mbPeXV">50%</span>
+      </div>
+      <div class="pe-slider-row">
+        <span class="pe-slider-lbl">Y</span>
+        <input type="range" id="mbPeY" min="0" max="100" value="50"
+          oninput="mbPeUpdatePos()">
+        <span class="pe-slider-val" id="mbPeYV">50%</span>
+      </div>
+      <div class="pe-slider-row">
+        <span class="pe-slider-lbl">⤡</span>
+        <input type="range" id="mbPeZ" min="100" max="200" value="100"
+          oninput="mbPeUpdatePos()">
+        <span class="pe-slider-val" id="mbPeZV">100%</span>
+      </div>
+
+      <!-- Col 1 slots -->
+      <div class="pe-col-label" id="mbPeCol1Lbl">▶ 欄1</div>
+      <div class="pe-grid" id="mbPeSlots1"></div>
+      <!-- Col 2 slots -->
+      <div class="pe-col-label" id="mbPeCol2Lbl">▶ 欄2</div>
+      <div class="pe-grid" id="mbPeSlots2"></div>
+    </div>
+
+    <!-- ── CATEGORIES ── -->
+    <div id="mbPePanel-cat" style="display:none">
+      <!-- State toggle -->
+      <div class="pe-mode-row" style="margin-top:4px;">
+        <button class="pe-mode-btn active" id="mbPeCatStateC" onclick="mbPeSetCatState('collapsed')">▣ 收合狀態</button>
+        <button class="pe-mode-btn"        id="mbPeCatStateE" onclick="mbPeSetCatState('expanded')">⬜ 展開狀態</button>
+      </div>
+
+      <div class="pe-section-title" id="mbPeCatColLabel">選取照片以調整位置</div>
+      <div class="pe-selected-hint" id="mbPeCatSelectedHint">← 選取中</div>
+
+      <div class="pe-slider-row">
+        <span class="pe-slider-lbl">X</span>
+        <input type="range" id="mbPeCatX" min="0" max="100" value="50" oninput="mbPeCatUpdatePos()">
+        <span class="pe-slider-val" id="mbPeCatXV">50%</span>
+      </div>
+      <div class="pe-slider-row">
+        <span class="pe-slider-lbl">Y</span>
+        <input type="range" id="mbPeCatY" min="0" max="100" value="50" oninput="mbPeCatUpdatePos()">
+        <span class="pe-slider-val" id="mbPeCatYV">50%</span>
+      </div>
+      <div class="pe-slider-row">
+        <span class="pe-slider-lbl">⤡</span>
+        <input type="range" id="mbPeCatZ" min="100" max="200" value="100" oninput="mbPeCatUpdatePos()">
+        <span class="pe-slider-val" id="mbPeCatZV">100%</span>
+      </div>
+
+      <div class="pe-section-title" style="margin-top:4px;">分類格照片</div>
+      <div class="pe-grid-2" id="mbPeCatSlots"></div>
+    </div>
+
+    <!-- ── SERVICES ── -->
+    <div id="mbPePanel-svc" style="display:none">
+      <div class="pe-section-title" style="margin-top:4px;">Services 照片</div>
+      <div class="pe-grid-2" id="mbPeSvcSlots"></div>
+    </div>
+
+    <!-- ── SHOWS / POSTER ── -->
+    <div id="mbPePanel-poster" style="display:none">
+      <div class="pe-section-title" style="margin-top:4px;">Show 海報</div>
+      <div class="pe-grid-2" id="mbPePosterSlots"></div>
+    </div>
+
+    <!-- ── MUSICIANS ── -->
+    <div id="mbPePanel-musicians" style="display:none">
+
+      <!-- Hero Banner -->
+      <div class="pe-section-title" style="margin-top:4px;">Hero Banner 上方大圖</div>
+
+      <div style="margin-bottom:6px;">
+        <input type="file" id="mbMusBannerFileIn" accept="image/*" style="display:none">
+        <button class="pe-btn pe-btn-secondary" id="mbMusBannerBtn" style="width:100%;text-align:center;padding:9px;"
+          onclick="document.getElementById('mbMusBannerFileIn').click()">⬆ Upload Banner Photo</button>
+      </div>
+
+      <div style="font-size:10px;color:#555;margin:6px 0 4px;">Banner 影片 URL</div>
+      <input class="ctrl-input" type="url" id="mbMusBannerVideo" placeholder="https://res.cloudinary.com/…/video.mp4"
+        style="margin-top:0;font-size:11px;" oninput="mbMusSaveHero()">
+
+      <div style="font-size:10px;color:#444;margin-top:8px;padding:8px;background:#181818;border-radius:6px;line-height:1.6;">
+        💡 在預覽視窗內點一下，再按 <strong style="color:#789fff">P</strong> 可開啟完整 Banner 位置調整
+      </div>
+
+      <!-- Musician card photos -->
+      <div class="pe-section-title" style="margin-top:16px;">樂手頭像照片</div>
+      <div style="font-size:10px;color:#555;margin-bottom:8px;line-height:1.5;">
+        點擊 📷 上傳。<strong style="color:#ccc">💾 儲存</strong> 後頁面重新載入生效。
+      </div>
+      <div id="mbMusGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;"></div>
+
+    </div><!-- /musicians panel -->
+
+    <!-- ── BLOG ── -->
+    <div id="mbPePanel-blog" style="display:none">
+      <div class="pe-section-title" id="mbPeBlogColLabel" style="margin-top:4px;">選取照片以調整位置</div>
+      <div class="pe-selected-hint" id="mbPeBlogSelectedHint">← 選取中</div>
+
+      <div class="pe-slider-row">
+        <span class="pe-slider-lbl">X</span>
+        <input type="range" id="mbPeBlogX" min="0" max="100" value="50" oninput="mbPeBlogUpdatePos()">
+        <span class="pe-slider-val" id="mbPeBlogXV">50%</span>
+      </div>
+      <div class="pe-slider-row">
+        <span class="pe-slider-lbl">Y</span>
+        <input type="range" id="mbPeBlogY" min="0" max="100" value="50" oninput="mbPeBlogUpdatePos()">
+        <span class="pe-slider-val" id="mbPeBlogYV">50%</span>
+      </div>
+      <div class="pe-slider-row">
+        <span class="pe-slider-lbl">⤡</span>
+        <input type="range" id="mbPeBlogZ" min="100" max="200" value="100" oninput="mbPeBlogUpdatePos()">
+        <span class="pe-slider-val" id="mbPeBlogZV">100%</span>
+      </div>
+
+      <div class="pe-section-title" style="margin-top:4px;">部落格封面照片</div>
+      <div class="pe-grid-2" id="mbPeBlogSlots"></div>
+    </div>
+
+  </div><!-- /pe-body -->
+
+  <!-- Hidden file input -->
+  <input type="file" id="mbPeFileIn" accept="image/*" style="display:none">
+
+  <!-- Bottom actions -->
+  <div class="pe-actions">
+    <button class="pe-btn pe-btn-save"    onclick="mbPeSave()">💾 儲存設定</button>
+    <button class="pe-btn pe-btn-publish" onclick="mbPePublish()">🚀 發佈到網站</button>
+    <div class="pe-btn-row">
+      <button class="pe-btn pe-btn-secondary" onclick="mbPeReset()">重置此分頁</button>
+      <button class="pe-btn pe-btn-secondary" onclick="mbPeClearCache()">清除快取</button>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -690,13 +1168,21 @@ function generateCss() {
   // Custom CSS
   if (s.customCss && s.customCss.trim()) lines.push(s.customCss.trim());
 
-  if (!lines.length) return '/* No MacBook overrides set */';
+  // Footer brand — always 3× size in MacBook view
+  const footerOverride =
+    `\n/* MacBook footer brand 3× */\n` +
+    `.sf-brand  { height: clamp(240px, 96vw, 1920px) !important; }\n` +
+    `.sf-letter { font-size: clamp(90px, 81vw, 1680px) !important; }\n` +
+    `.sf-dot    { font-size: clamp(78px, 69vw, 1440px) !important; }`;
+
+  if (!lines.length) return footerOverride;
 
   return (
     `/* OPUS.Z MacBook Overrides — ${BREAKPOINT_MIN}px – ${BREAKPOINT_MAX}px */\n` +
     `@media (min-width: ${BREAKPOINT_MIN}px) and (max-width: ${BREAKPOINT_MAX}px) {\n` +
     `  ${lines.join('\n  ')}\n` +
-    `}`
+    `}` +
+    footerOverride
   );
 }
 
@@ -775,6 +1261,8 @@ function showPhotoPreview(key, url) {
 // ────────────────────────────────────────────────────────────────────
 // DEVICE DIMENSIONS
 // ────────────────────────────────────────────────────────────────────
+const CHROME_H = 54; // simulated browser chrome bar height (px, in screen coords)
+
 function applyDeviceDims() {
   const sel = document.getElementById('deviceSelect');
   const opt = sel.options[sel.selectedIndex];
@@ -782,15 +1270,23 @@ function applyDeviceDims() {
   const h = parseInt(opt.dataset.h);
 
   // Scale page width to fit 904px screen area
-  const scaleX = SCREEN_W / w;
-  const scaledH = Math.round(h * scaleX);
+  const scaleX   = SCREEN_W / w;
+  const scaledH  = Math.round(h * scaleX);   // e.g. 800 × 0.706 = 565px
 
+  // Browser chrome takes CHROME_H px; remaining space is for page content
+  const contentScaledH = scaledH - CHROME_H;           // 565 - 54 = 511px
+  const contentH       = Math.round(contentScaledH / scaleX); // 511 / 0.706 ≈ 724px
+
+  // Screen height stays the same (chrome + content = scaledH)
   macbookScreen.style.height = scaledH + 'px';
-  frame.style.width  = w + 'px';
-  frame.style.height = h + 'px';
-  frame.style.transform = `scale(${scaleX})`;
-  // Correct for the scaling collapsing vertical space
-  frame.style.marginBottom = (scaledH - h) + 'px';
+
+  // iframe sits below chrome bar via margin-top, height is reduced accordingly
+  frame.style.marginTop    = CHROME_H + 'px';
+  frame.style.width        = w + 'px';
+  frame.style.height       = contentH + 'px';       // ≈724px (real viewport height)
+  frame.style.transform    = `scale(${scaleX})`;
+  // Correct for scaling: layout 54 + contentH + marginBottom = scaledH
+  frame.style.marginBottom = (scaledH - CHROME_H - contentH) + 'px';
 }
 
 // ────────────────────────────────────────────────────────────────────
@@ -803,30 +1299,671 @@ function setZoom(v) {
 }
 
 // ────────────────────────────────────────────────────────────────────
-// PHOTO EDITOR — open inside iframe
+// PHOTO EDITOR — native panel (reads/writes same localStorage as iframe)
 // ────────────────────────────────────────────────────────────────────
+const IMG_PFX  = 'mono-img-';
+const POS_KEY  = 'mono-photo-pos-v3';
+
+const HERO_SLOTS = [
+  { cls:'p1',  col:'欄1-1', grp:1 }, { cls:'p4',  col:'欄1-2', grp:1 },
+  { cls:'p3',  col:'欄1-3', grp:1 }, { cls:'p6',  col:'欄1-4', grp:1 },
+  { cls:'p7',  col:'欄1-5', grp:1 }, { cls:'p8',  col:'欄1-6', grp:1 },
+  { cls:'p9',  col:'欄1-7', grp:1 },
+  { cls:'p2',  col:'欄2-1', grp:2 }, { cls:'p5',  col:'欄2-2', grp:2 },
+  { cls:'p10', col:'欄2-3', grp:2 }, { cls:'p11', col:'欄2-4', grp:2 },
+  { cls:'p12', col:'欄2-5', grp:2 }, { cls:'p13', col:'欄2-6', grp:2 },
+  { cls:'p14', col:'欄2-7', grp:2 },
+];
+const CAT_SLOTS = [
+  { cls:'cat-strings', label:'弦樂 · Strings' },
+  { cls:'cat-piano',   label:'鋼琴 · Piano' },
+  { cls:'cat-winds',   label:'管樂 · Wind & Brass' },
+  { cls:'cat-compose', label:'作曲 · Composition' },
+  { cls:'cat-chamber', label:'室內樂 · Chamber' },
+  { cls:'cat-perc',    label:'打擊樂 · Percussion' },
+];
+const SVC_SLOTS = [
+  { cls:'svc0', label:'Live Performance' }, { cls:'svc1', label:'Session Work' },
+  { cls:'svc2', label:'Music Lesson' },     { cls:'svc3', label:'Corporate Event' },
+  { cls:'svc4', label:'Artist Branding' },
+];
+const POSTER_SLOTS = [
+  { cls:'wc1', label:'Show 1 · Strings Night' },
+  { cls:'wc2', label:'Show 2 · Piano Recital' },
+  { cls:'wc3', label:'Show 3 · Chamber Music' },
+];
+const BLOG_SLOTS = [
+  { cls:'bi1', label:'Blog 1 · About' },
+  { cls:'bi2', label:'Blog 2 · Wedding' },
+  { cls:'bi3', label:'Blog 3 · Career' },
+  { cls:'bi4', label:'Blog 4 · Branding' },
+];
+
+let mbPeTab = 'hero';
+let mbPeMode = 'wide';        // 'wide' | 'narrow'
+let mbPeActiveSlot = null;    // { cls, tab }
+
 function openPhotoEditor() {
-  try {
-    const win = frame.contentWindow;
-    if (typeof win.openPE === 'function') {
-      win.openPE();
-    } else {
-      // openPE not ready yet — inject a trigger after short delay
-      status('⏳ 照片編輯器載入中，請稍候再按…', 'warn');
-      setTimeout(() => {
-        try { frame.contentWindow.openPE(); } catch(e) {}
-      }, 800);
-    }
-  } catch(e) {
-    status('⚠ 請先 Reload，再點 📷', 'warn');
-  }
+  const panel = document.getElementById('mbPhotoEditor');
+  panel.classList.add('open');
+  mbPeRenderAll();
+  mbPeLoadPos();
+  status('📷 照片編輯器已開啟', 'ok');
+}
+function closePE() {
+  document.getElementById('mbPhotoEditor').classList.remove('open');
 }
 
-// Forward P key to photo editor (when not typing in an input)
+function mbPeSetTab(t) {
+  mbPeTab = t;
+  ['hero','musicians','cat','svc','poster','blog'].forEach(id => {
+    document.getElementById('mbPeTab-' + id).classList.toggle('active', id === t);
+    document.getElementById('mbPePanel-' + id).style.display = id === t ? '' : 'none';
+  });
+  if (t === 'musicians') mbMusRenderGrid();
+}
+
+function mbPeSetMode(m) {
+  mbPeMode = m;
+  document.getElementById('mbPeModeW').classList.toggle('active', m === 'wide');
+  document.getElementById('mbPeModeN').classList.toggle('active', m === 'narrow');
+  document.getElementById('mbPeColLabel').textContent =
+    (m === 'wide' ? '欄 1' : '欄 2') + ' — 位置 & 大小';
+  mbPeLoadPos();
+}
+
+/* ── Render slot cards ── */
+function mbPeRenderAll() {
+  mbPeRenderSlots('mbPeSlots1', HERO_SLOTS.filter(s => s.grp === 1));
+  mbPeRenderSlots('mbPeSlots2', HERO_SLOTS.filter(s => s.grp === 2));
+  mbPeRenderSlots('mbPeCatSlots', CAT_SLOTS, true);
+  mbPeRenderSlots('mbPeSvcSlots', SVC_SLOTS, true);
+  mbPeRenderSlots('mbPePosterSlots', POSTER_SLOTS, true);
+  mbPeRenderSlots('mbPeBlogSlots', BLOG_SLOTS, true);
+  // Async: fill in IDB thumbnails for any slot not in localStorage
+  const all = [...HERO_SLOTS, ...CAT_SLOTS, ...SVC_SLOTS, ...POSTER_SLOTS, ...BLOG_SLOTS];
+  all.forEach(async slot => {
+    if (!localStorage.getItem(IMG_PFX + slot.cls)) {
+      const url = await mbPeLoadThumb(slot.cls);
+      if (url) {
+        const thumb = document.getElementById('mbPeThumb-' + slot.cls);
+        if (thumb) thumb.style.backgroundImage = `url('${url}')`;
+      }
+    }
+  });
+}
+
+async function mbPeLoadThumb(cls) {
+  const lsVal = localStorage.getItem(IMG_PFX + cls);
+  if (lsVal) return lsVal;
+  try { return await mbPeIDB.get(IMG_PFX + cls) || ''; } catch(e) { return ''; }
+}
+
+/* ══════════════════════════════════════════════════════════════
+   MUSICIANS TAB — reads/writes same localStorage keys as musicians.html
+══════════════════════════════════════════════════════════════ */
+const MUS_HERO_KEY  = 'mono-hero-photo';  // banner photo (base64 / URL)
+const MUS_VIDEO_KEY = 'mono-hero-video';  // banner video URL
+const MUS_PHOTO_PFX = 'mono-mphoto-';    // per-musician: mono-mphoto-{id}
+const MUS_AUDIO_PFX = 'mono-maudio-';
+
+let mbMusActiveId = null; // musician id being edited
+
+// Load musician list from iframe MUSICIANS array (same-origin only on localhost)
+function mbMusGetList() {
+  try {
+    const m = frame.contentWindow.MUSICIANS;
+    if (m && m.length) return m;
+  } catch(e) {}
+  // Fallback: use what we know from mock data
+  return [{ id:1, name:'Martin', instrument:'Violin', emoji:'🎻', color:'#1a1a2e' }];
+}
+
+function mbMusRenderGrid() {
+  const grid = document.getElementById('mbMusGrid');
+  if (!grid) return;
+
+  // Banner state
+  const bannerPhoto = localStorage.getItem(MUS_HERO_KEY) || '';
+  const bannerVideo = localStorage.getItem(MUS_VIDEO_KEY) || '';
+  const bannerBtn = document.getElementById('mbMusBannerBtn');
+  if (bannerBtn) bannerBtn.textContent = bannerPhoto ? '✓ Banner set — click to change' : '⬆ Upload Banner Photo';
+  const videoIn = document.getElementById('mbMusBannerVideo');
+  if (videoIn) videoIn.value = bannerVideo;
+
+  // Render musician cards
+  const musicians = mbMusGetList();
+  grid.innerHTML = '';
+  musicians.forEach(m => {
+    const photo = localStorage.getItem(MUS_PHOTO_PFX + m.id) || '';
+    const card = document.createElement('div');
+    card.className = 'pe-card';
+    card.style.aspectRatio = '1/1';
+    card.dataset.musId = m.id;
+
+    const thumb = document.createElement('div');
+    thumb.className = 'pe-card-thumb';
+    thumb.id = 'mbMusThumb-' + m.id;
+    if (photo) {
+      thumb.style.backgroundImage = `url('${photo}')`;
+      thumb.style.backgroundSize  = 'cover';
+      thumb.style.backgroundPosition = 'center';
+    } else {
+      thumb.style.cssText = `background:linear-gradient(135deg,${m.color||'#1a1a2e'},#111);display:flex;align-items:center;justify-content:center;font-size:22px;`;
+      thumb.textContent = m.emoji || '🎵';
+    }
+
+    const upBtn = document.createElement('div');
+    upBtn.className = 'pe-card-upload';
+    upBtn.title = '換照片';
+    upBtn.textContent = '📷';
+    upBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      mbMusActiveId = m.id;
+      document.getElementById('mbMusPhotoFileIn') && document.getElementById('mbMusPhotoFileIn').remove();
+      const fi = document.createElement('input');
+      fi.type = 'file'; fi.accept = 'image/*'; fi.id = 'mbMusPhotoFileIn'; fi.style.display = 'none';
+      fi.addEventListener('change', function() { if (this.files[0]) mbMusLoadPhoto(m.id, this.files[0]); this.remove(); });
+      document.body.appendChild(fi);
+      fi.click();
+    });
+
+    const hint = document.createElement('div');
+    hint.className = 'pe-card-drop-hint';
+    hint.innerHTML = '<span>⬇</span>';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'pe-card-lbl';
+    lbl.textContent = m.name + ' · ' + m.instrument;
+
+    card.append(thumb, upBtn, hint, lbl);
+
+    // Drag and drop
+    card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => {
+      e.preventDefault(); card.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) mbMusLoadPhoto(m.id, file);
+    });
+
+    grid.appendChild(card);
+  });
+}
+
+/* Compress + save musician photo to localStorage */
+function mbMusLoadPhoto(musId, file) {
+  status('⏳ 正在處理照片…', 'warn');
+  const reader = new FileReader();
+  reader.onload = e => {
+    mbPeCompress(e.target.result, compressed => {
+      // Update thumbnail
+      const thumb = document.getElementById('mbMusThumb-' + musId);
+      if (thumb) {
+        thumb.style.backgroundImage = `url('${compressed}')`;
+        thumb.style.backgroundSize  = 'cover';
+        thumb.style.backgroundPosition = 'center';
+        thumb.textContent = '';
+      }
+      // Save to localStorage (same key as musicians.html expects)
+      try {
+        localStorage.setItem(MUS_PHOTO_PFX + musId, compressed);
+        status('✓ 樂手照片已儲存 (id=' + musId + ')  — 點 💾 重新載入', 'ok');
+      } catch(err) {
+        status('⚠ 儲存失敗（localStorage 已滿）', 'warn');
+      }
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+/* Banner photo upload */
+document.addEventListener('DOMContentLoaded', function() {
+  var bannerFileIn = document.getElementById('mbMusBannerFileIn');
+  if (bannerFileIn) {
+    bannerFileIn.addEventListener('change', function() {
+      if (!this.files[0]) return;
+      status('⏳ 正在處理 Banner…', 'warn');
+      const reader = new FileReader();
+      reader.onload = e => {
+        mbPeCompress(e.target.result, compressed => {
+          try {
+            localStorage.setItem(MUS_HERO_KEY, compressed);
+            const btn = document.getElementById('mbMusBannerBtn');
+            if (btn) btn.textContent = '✓ Banner set — click to change';
+            status('✓ Banner 照片已儲存 — 點 💾 重新載入', 'ok');
+          } catch(err) {
+            status('⚠ 儲存失敗（localStorage 已滿）', 'warn');
+          }
+        });
+      };
+      reader.readAsDataURL(this.files[0]);
+      this.value = '';
+    });
+  }
+});
+
+function mbMusSaveHero() {
+  const videoUrl = (document.getElementById('mbMusBannerVideo') || {}).value || '';
+  if (videoUrl) localStorage.setItem(MUS_VIDEO_KEY, videoUrl);
+  else localStorage.removeItem(MUS_VIDEO_KEY);
+  status('Video URL saved — click 💾 to reload', 'ok');
+}
+
+/* ══════════════════════════════════════════════════════════════ */
+
+let mbPeSelectedCls = null; // currently selected card cls
+let mbPeCatSelectedCls = null;
+let mbPeCatState = 'collapsed'; // 'collapsed' | 'expanded'
+let mbPeBlogSelectedCls = null;
+
+function mbPeSelectCard(cls) {
+  mbPeSelectedCls = cls;
+  // Deselect all cards
+  document.querySelectorAll('.pe-card, .pe-card-wide').forEach(c => c.classList.remove('selected'));
+  // Select this card
+  const card = document.querySelector(`[data-cls="${cls}"]`);
+  if (card) card.classList.add('selected');
+  // Load position into sliders
+  mbPeLoadSlotPos(cls);
+  // Determine which tab this slot belongs to
+  const allSlots = [...HERO_SLOTS, ...CAT_SLOTS, ...SVC_SLOTS, ...POSTER_SLOTS, ...BLOG_SLOTS];
+  const slot = allSlots.find(s => s.cls === cls);
+  const slotLabel = slot ? (slot.col || slot.label) : cls;
+  // Update hint label for whichever panel is active
+  const isCat = CAT_SLOTS.some(s => s.cls === cls);
+  const isBlog = BLOG_SLOTS.some(s => s.cls === cls);
+  if (isCat) {
+    mbPeCatSelectedCls = cls;
+    const catHint = document.getElementById('mbPeCatSelectedHint');
+    if (catHint) { catHint.textContent = '✦ ' + slotLabel; catHint.classList.add('show'); }
+    document.getElementById('mbPeCatColLabel').textContent = '位置 & 大小';
+    mbPeCatLoadSlotPos(cls);
+    return;
+  }
+  if (isBlog) {
+    mbPeBlogSelectedCls = cls;
+    const blogHint = document.getElementById('mbPeBlogSelectedHint');
+    if (blogHint) { blogHint.textContent = '✦ ' + slotLabel; blogHint.classList.add('show'); }
+    document.getElementById('mbPeBlogColLabel').textContent = '位置 & 大小';
+    mbPeBlogLoadSlotPos(cls);
+    return;
+  }
+  const hint = document.getElementById('mbPeSelectedHint');
+  if (hint) {
+    hint.textContent = '✦ ' + slotLabel;
+    hint.classList.add('show');
+  }
+  document.getElementById('mbPeColLabel').textContent = '位置 & 大小';
+}
+
+function mbPeRenderSlots(containerId, slots, wide) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  slots.forEach(slot => {
+    const imgUrl = localStorage.getItem(IMG_PFX + slot.cls) || '';
+    const card = document.createElement('div');
+    card.className = wide ? 'pe-card-wide' : 'pe-card';
+    card.dataset.cls = slot.cls;
+
+    const thumb = document.createElement('div');
+    thumb.className = 'pe-card-thumb';
+    thumb.id = 'mbPeThumb-' + slot.cls;
+    if (imgUrl) thumb.style.backgroundImage = `url('${imgUrl}')`;
+
+    // Upload button (📷 top-right, visible on hover)
+    const upBtn = document.createElement('div');
+    upBtn.className = 'pe-card-upload';
+    upBtn.title = '換照片';
+    upBtn.textContent = '📷';
+    upBtn.addEventListener('click', e => {
+      e.stopPropagation();
+      mbPeActiveSlot = { cls: slot.cls, tab: mbPeTab };
+      document.getElementById('mbPeFileIn').click();
+    });
+
+    const hint = document.createElement('div');
+    hint.className = 'pe-card-drop-hint';
+    hint.innerHTML = '<span>⬇</span>';
+
+    const lbl = document.createElement('div');
+    lbl.className = 'pe-card-lbl';
+    lbl.textContent = slot.col || slot.label;
+
+    card.append(thumb, upBtn, hint, lbl);
+
+    // Click card body = SELECT (not upload)
+    card.addEventListener('click', () => mbPeSelectCard(slot.cls));
+
+    // Drag-and-drop → upload
+    card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
+    card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+    card.addEventListener('drop', e => {
+      e.preventDefault(); card.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file && file.type.startsWith('image/')) {
+        mbPeActiveSlot = { cls: slot.cls, tab: mbPeTab };
+        mbPeLoadFile(file);
+      }
+    });
+
+    container.appendChild(card);
+  });
+}
+
+/* ── File picker ── */
+document.getElementById('mbPeFileIn').addEventListener('change', function() {
+  if (this.files[0]) mbPeLoadFile(this.files[0]);
+  this.value = '';
+});
+
+/* Compress image to ≤1400px JPEG (same as standard PE) */
+function mbPeCompress(dataUrl, cb) {
+  const img = new Image();
+  img.onload = () => {
+    const MAX = 1400, w = img.naturalWidth, h = img.naturalHeight;
+    const scale = Math.min(1, MAX / Math.max(w, h));
+    const cv = document.createElement('canvas');
+    cv.width  = Math.round(w * scale);
+    cv.height = Math.round(h * scale);
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    cb(cv.toDataURL('image/jpeg', 0.82));
+  };
+  img.onerror = () => cb(dataUrl);
+  img.src = dataUrl;
+}
+
+async function mbPeLoadFile(file) {
+  const cls = mbPeActiveSlot && mbPeActiveSlot.cls;
+  if (!cls) return;
+  status('⏳ 正在處理照片…', 'warn');
+
+  const reader = new FileReader();
+  reader.onload = async e => {
+    // 1. Compress first
+    mbPeCompress(e.target.result, async compressed => {
+      // 2. Update thumbnail immediately with compressed preview
+      const thumb = document.getElementById('mbPeThumb-' + cls);
+      if (thumb) thumb.style.backgroundImage = `url('${compressed}')`;
+
+      // 3. Try uploading to server (same endpoint as standard PE)
+      try {
+        const r = await fetch('/upload-file', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cls, dataUrl: compressed })
+        });
+        const d = await r.json();
+        if (d.ok && d.path) {
+          // Server returned a file path — store the tiny path string
+          try { localStorage.setItem(IMG_PFX + cls, d.path); } catch(err) {}
+          status('✓ 照片已儲存到伺服器', 'ok');
+          return;
+        }
+      } catch(uploadErr) {
+        // Server not running — fall back to IndexedDB
+      }
+
+      // 4. Fallback: save to IndexedDB (avoids localStorage 5MB limit)
+      try {
+        await mbPeIDB.set(IMG_PFX + cls, compressed);
+        // Also try localStorage with compressed (usually fine now)
+        try { localStorage.setItem(IMG_PFX + cls, compressed); } catch(e) {
+          // localStorage full — IDB is the only copy, that's OK
+          localStorage.removeItem(IMG_PFX + cls); // ensure no stale entry
+        }
+        status('✓ 照片暫存到本機（server未連線）', 'ok');
+      } catch(idbErr) {
+        status('⚠ 無法儲存照片：' + idbErr.message, 'warn');
+      }
+    });
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ── Minimal IndexedDB wrapper (same DB as musician-platform.html) ── */
+const mbPeIDB = (() => {
+  let _db = null;
+  function open() {
+    if (_db) return Promise.resolve(_db);
+    return new Promise((res, rej) => {
+      const req = indexedDB.open('opusz-mono-images', 1);
+      req.onupgradeneeded = e => e.target.result.createObjectStore('imgs');
+      req.onsuccess = e => { _db = e.target.result; res(_db); };
+      req.onerror = () => rej(req.error);
+    });
+  }
+  return {
+    set(key, val) {
+      return open().then(db => new Promise((res, rej) => {
+        const tx = db.transaction('imgs', 'readwrite');
+        const r  = val === null ? tx.objectStore('imgs').delete(key)
+                                : tx.objectStore('imgs').put(val, key);
+        r.onsuccess = () => res(); r.onerror = () => rej(r.error);
+      }));
+    },
+    get(key) {
+      return open().then(db => new Promise((res, rej) => {
+        const r = db.transaction('imgs').objectStore('imgs').get(key);
+        r.onsuccess = () => res(r.result || null); r.onerror = () => rej(r.error);
+      }));
+    }
+  };
+})();
+
+/* ── Position sliders — per-slot ── */
+function mbPeGetPosKeys(tab) {
+  // hero slots use x/y/zoom + xN/yN/zN; others use xC/yC/zC
+  if (tab === 'hero') {
+    return mbPeMode === 'wide'
+      ? { tab:'hero', xk:'x',  yk:'y',  zk:'zoom' }
+      : { tab:'hero', xk:'xN', yk:'yN', zk:'zN'   };
+  }
+  return { tab, xk:'xC', yk:'yC', zk:'zC' };
+}
+
+function mbPeLoadSlotPos(cls) {
+  try {
+    const pos  = JSON.parse(localStorage.getItem(POS_KEY) || '{}');
+    const { tab, xk, yk, zk } = mbPeGetPosKeys(mbPeTab);
+    const section = pos[tab] || {};
+    const d = section[cls] || {};
+    const x = d[xk] !== undefined ? d[xk] : 50;
+    const y = d[yk] !== undefined ? d[yk] : 50;
+    const rawZ = d[zk] !== undefined ? d[zk] : 1;
+    const z = Math.round(rawZ * 100);
+    document.getElementById('mbPeX').value = x;
+    document.getElementById('mbPeY').value = y;
+    document.getElementById('mbPeZ').value = Math.min(200, Math.max(100, z));
+    document.getElementById('mbPeXV').textContent = Math.round(x) + '%';
+    document.getElementById('mbPeYV').textContent = Math.round(y) + '%';
+    document.getElementById('mbPeZV').textContent = Math.min(200, Math.max(100, z)) + '%';
+  } catch(e) {}
+}
+
+// Kept for backward compat (called by mode switch)
+function mbPeLoadPos() {
+  if (mbPeSelectedCls) mbPeLoadSlotPos(mbPeSelectedCls);
+}
+
+/* ── Cat state toggle ── */
+function mbPeSetCatState(state) {
+  mbPeCatState = state;
+  document.getElementById('mbPeCatStateC').classList.toggle('active', state === 'collapsed');
+  document.getElementById('mbPeCatStateE').classList.toggle('active', state === 'expanded');
+  if (mbPeCatSelectedCls) mbPeCatLoadSlotPos(mbPeCatSelectedCls);
+}
+
+function mbPeCatLoadSlotPos(cls) {
+  try {
+    const pos = JSON.parse(localStorage.getItem(POS_KEY) || '{}');
+    const section = pos['cat'] || {};
+    const d = section[cls] || {};
+    const isExp = mbPeCatState === 'expanded';
+    const x = isExp ? (d.xE !== undefined ? d.xE : 50) : (d.xC !== undefined ? d.xC : 50);
+    const y = isExp ? (d.yE !== undefined ? d.yE : 50) : (d.yC !== undefined ? d.yC : 50);
+    const rawZ = isExp ? (d.zE !== undefined ? d.zE : 1) : (d.zC !== undefined ? d.zC : 1);
+    const z = Math.round(rawZ * 100);
+    document.getElementById('mbPeCatX').value = x;
+    document.getElementById('mbPeCatY').value = y;
+    document.getElementById('mbPeCatZ').value = Math.min(200, Math.max(100, z));
+    document.getElementById('mbPeCatXV').textContent = Math.round(x) + '%';
+    document.getElementById('mbPeCatYV').textContent = Math.round(y) + '%';
+    document.getElementById('mbPeCatZV').textContent = Math.min(200, Math.max(100, z)) + '%';
+  } catch(e) {}
+}
+
+function mbPeCatUpdatePos() {
+  if (!mbPeCatSelectedCls) { status('先點選一張照片', 'warn'); return; }
+  const x = parseInt(document.getElementById('mbPeCatX').value);
+  const y = parseInt(document.getElementById('mbPeCatY').value);
+  const z = parseInt(document.getElementById('mbPeCatZ').value);
+  document.getElementById('mbPeCatXV').textContent = x + '%';
+  document.getElementById('mbPeCatYV').textContent = y + '%';
+  document.getElementById('mbPeCatZV').textContent = z + '%';
+  try {
+    const pos = JSON.parse(localStorage.getItem(POS_KEY) || '{}');
+    if (!pos['cat']) pos['cat'] = {};
+    if (!pos['cat'][mbPeCatSelectedCls]) pos['cat'][mbPeCatSelectedCls] = {};
+    const isExp = mbPeCatState === 'expanded';
+    if (isExp) {
+      pos['cat'][mbPeCatSelectedCls].xE = x;
+      pos['cat'][mbPeCatSelectedCls].yE = y;
+      pos['cat'][mbPeCatSelectedCls].zE = z / 100;
+    } else {
+      pos['cat'][mbPeCatSelectedCls].xC = x;
+      pos['cat'][mbPeCatSelectedCls].yC = y;
+      pos['cat'][mbPeCatSelectedCls].zC = z / 100;
+    }
+    localStorage.setItem(POS_KEY, JSON.stringify(pos));
+    const thumb = document.getElementById('mbPeThumb-' + mbPeCatSelectedCls);
+    if (thumb) thumb.style.backgroundPosition = x + '% ' + y + '%';
+  } catch(e) {}
+}
+
+/* ── Blog position ── */
+function mbPeBlogLoadSlotPos(cls) {
+  try {
+    const pos = JSON.parse(localStorage.getItem(POS_KEY) || '{}');
+    const section = pos['blog'] || {};
+    const d = section[cls] || {};
+    const x = d.x !== undefined ? d.x : 50;
+    const y = d.y !== undefined ? d.y : 50;
+    const rawZ = d.zoom !== undefined ? d.zoom : 1;
+    const z = Math.round(rawZ * 100);
+    document.getElementById('mbPeBlogX').value = x;
+    document.getElementById('mbPeBlogY').value = y;
+    document.getElementById('mbPeBlogZ').value = Math.min(200, Math.max(100, z));
+    document.getElementById('mbPeBlogXV').textContent = Math.round(x) + '%';
+    document.getElementById('mbPeBlogYV').textContent = Math.round(y) + '%';
+    document.getElementById('mbPeBlogZV').textContent = Math.min(200, Math.max(100, z)) + '%';
+  } catch(e) {}
+}
+
+function mbPeBlogUpdatePos() {
+  if (!mbPeBlogSelectedCls) { status('先點選一張照片', 'warn'); return; }
+  const x = parseInt(document.getElementById('mbPeBlogX').value);
+  const y = parseInt(document.getElementById('mbPeBlogY').value);
+  const z = parseInt(document.getElementById('mbPeBlogZ').value);
+  document.getElementById('mbPeBlogXV').textContent = x + '%';
+  document.getElementById('mbPeBlogYV').textContent = y + '%';
+  document.getElementById('mbPeBlogZV').textContent = z + '%';
+  try {
+    const pos = JSON.parse(localStorage.getItem(POS_KEY) || '{}');
+    if (!pos['blog']) pos['blog'] = {};
+    if (!pos['blog'][mbPeBlogSelectedCls]) pos['blog'][mbPeBlogSelectedCls] = {};
+    pos['blog'][mbPeBlogSelectedCls].x    = x;
+    pos['blog'][mbPeBlogSelectedCls].y    = y;
+    pos['blog'][mbPeBlogSelectedCls].zoom = z / 100;
+    localStorage.setItem(POS_KEY, JSON.stringify(pos));
+    const thumb = document.getElementById('mbPeThumb-' + mbPeBlogSelectedCls);
+    if (thumb) thumb.style.backgroundPosition = x + '% ' + y + '%';
+  } catch(e) {}
+}
+
+function mbPeUpdatePos() {
+  if (!mbPeSelectedCls) { status('先點選一張照片', 'warn'); return; }
+  const x = parseInt(document.getElementById('mbPeX').value);
+  const y = parseInt(document.getElementById('mbPeY').value);
+  const z = parseInt(document.getElementById('mbPeZ').value);
+  document.getElementById('mbPeXV').textContent = x + '%';
+  document.getElementById('mbPeYV').textContent = y + '%';
+  document.getElementById('mbPeZV').textContent = z + '%';
+  // Write to localStorage for this specific slot
+  try {
+    const pos = JSON.parse(localStorage.getItem(POS_KEY) || '{}');
+    const { tab, xk, yk, zk } = mbPeGetPosKeys(mbPeTab);
+    if (!pos[tab]) pos[tab] = {};
+    if (!pos[tab][mbPeSelectedCls]) pos[tab][mbPeSelectedCls] = {};
+    pos[tab][mbPeSelectedCls][xk] = x;
+    pos[tab][mbPeSelectedCls][yk] = y;
+    pos[tab][mbPeSelectedCls][zk] = z / 100;
+    localStorage.setItem(POS_KEY, JSON.stringify(pos));
+    // Live-update the thumbnail background position
+    const thumb = document.getElementById('mbPeThumb-' + mbPeSelectedCls);
+    if (thumb) thumb.style.backgroundPosition = x + '% ' + y + '%';
+  } catch(e) {}
+}
+
+/* ── Save / Publish / Reset ── */
+function mbPeSave() {
+  // Reload iframe so it picks up all localStorage changes
+  reloadFrame();
+  status('✓ 儲存完成 — 頁面重新載入中…', 'ok');
+}
+
+async function mbPePublish() {
+  const btn = document.querySelector('#mbPhotoEditor .pe-btn-publish');
+  if (btn) { btn.textContent = '⏳ 發佈中...'; btn.disabled = true; }
+  try {
+    await fetch('/git-push', { method: 'POST' });
+    status('🚀 已發佈！約30秒後網站更新', 'ok');
+  } catch(e) {
+    status('⚠ 無法連線 — 請確認 server.py 在執行', 'warn');
+  }
+  if (btn) { btn.textContent = '🚀 發佈到網站'; btn.disabled = false; }
+}
+
+function mbPeReset() {
+  if (!confirm('重置「' + mbPeTab + '」分頁的所有照片位置？')) return;
+  try {
+    const pos = JSON.parse(localStorage.getItem(POS_KEY) || '{}');
+    delete pos[mbPeTab];
+    localStorage.setItem(POS_KEY, JSON.stringify(pos));
+    mbPeLoadPos();
+    reloadFrame();
+    status('✓ 已重置', 'ok');
+  } catch(e) {}
+}
+
+async function mbPeClearCache() {
+  if (!confirm('清除所有本地快取照片？\n（已上傳到伺服器的照片不受影響）')) return;
+  const all = [...HERO_SLOTS, ...CAT_SLOTS, ...SVC_SLOTS, ...POSTER_SLOTS, ...BLOG_SLOTS];
+  for (const s of all) {
+    try { localStorage.removeItem(IMG_PFX + s.cls); } catch(e){}
+    try { await mbPeIDB.set(IMG_PFX + s.cls, null); } catch(e){}
+  }
+  // Also clear musician photos
+  mbMusGetList().forEach(m => {
+    try { localStorage.removeItem(MUS_PHOTO_PFX + m.id); } catch(e){}
+  });
+  try { localStorage.removeItem(MUS_HERO_KEY); } catch(e){}
+  mbPeRenderAll();
+  if (mbPeTab === 'musicians') mbMusRenderGrid();
+  reloadFrame();
+  status('✓ 快取已清除', 'ok');
+}
+
+// P key → open/close photo editor (works regardless of focus)
 document.addEventListener('keydown', function(e) {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
+  // Only block P if focus is in a real text input (not range/checkbox/etc.)
   const t = e.target;
-  if (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable) return;
+  const isTextInput = (t.tagName === 'TEXTAREA') ||
+    (t.tagName === 'INPUT' && (t.type === 'text' || t.type === 'email' || t.type === '' || !t.type)) ||
+    t.isContentEditable;
+  if (isTextInput) return;
   if (e.key === 'p' || e.key === 'P') { e.preventDefault(); openPhotoEditor(); }
 });
 
@@ -873,6 +2010,51 @@ function toggleSection(head) {
   head.classList.toggle('open');
   head.nextElementSibling.classList.toggle('open');
 }
+
+// ── QUICK LOGIN (editor-only) ──────────────────────────────────────────
+function qlReloadFrame() {
+  var f = document.getElementById('previewFrame');
+  var src = f.src;
+  f.src = '';
+  setTimeout(function() { f.src = src; }, 80);
+}
+function qlRefreshUI() {
+  var user  = localStorage.getItem('opusz_user');
+  var email = localStorage.getItem('opusz_user_email') || '';
+  var loggedOut = document.getElementById('qlLoggedOut');
+  var loggedIn  = document.getElementById('qlLoggedIn');
+  if (!loggedOut || !loggedIn) return;
+  if (user) {
+    loggedOut.style.display = 'none';
+    loggedIn.style.display  = '';
+    document.getElementById('qlShowName').textContent  = user;
+    document.getElementById('qlShowEmail').textContent = email;
+  } else {
+    loggedOut.style.display = '';
+    loggedIn.style.display  = 'none';
+  }
+}
+function qlLogin() {
+  var name  = document.getElementById('qlName').value.trim();
+  var email = document.getElementById('qlEmail').value.trim();
+  if (!name) { alert('請輸入名稱'); return; }
+  localStorage.setItem('opusz_user', name);
+  if (email) localStorage.setItem('opusz_user_email', email);
+  qlRefreshUI();
+  qlReloadFrame();
+}
+function qlLogout() {
+  localStorage.removeItem('opusz_user');
+  localStorage.removeItem('opusz_user_email');
+  qlRefreshUI();
+  qlReloadFrame();
+}
+// init on load
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', qlRefreshUI);
+} else {
+  qlRefreshUI();
+}
 function status(msg, st) {
   document.getElementById('statusMsg').textContent = msg;
   const dot = document.getElementById('statusDot');
@@ -885,6 +2067,18 @@ function status(msg, st) {
 document.getElementById('pageSelect').addEventListener('change', function() {
   frame.src = this.value;
   status('Loading ' + this.value + '…', 'off');
+  // Update simulated browser address bar
+  document.getElementById('bcUrl').textContent = 'localhost:8080/' + this.value;
+  const titles = {
+    'musician-platform.html': 'OPUS.Z — Home',
+    'shows.html': 'Upcoming Shows — OPUS.Z',
+    'musician-profile.html': 'Musician Profile — OPUS.Z',
+    'musicians.html': 'Musicians — OPUS.Z',
+    'recent-jobs.html': 'Recent Jobs — OPUS.Z',
+    'contact.html': 'Contact — OPUS.Z',
+    'blog.html': 'Blog — OPUS.Z'
+  };
+  document.getElementById('bcTabTitle').textContent = titles[this.value] || 'OPUS.Z';
 });
 document.getElementById('deviceSelect').addEventListener('change', function() {
   applyDeviceDims();
@@ -893,6 +2087,15 @@ document.getElementById('deviceSelect').addEventListener('change', function() {
 frame.addEventListener('load', function() {
   injectCss();
   injectContent();
+  // Auto-switch photo editor tab based on loaded page
+  const src = frame.src || '';
+  if (src.includes('musicians.html')) {
+    // Slight delay to let iframe JS fully execute (MUSICIANS array populated)
+    setTimeout(function() {
+      if (mbPeTab !== 'musicians') mbPeSetTab('musicians');
+      else mbMusRenderGrid();
+    }, 400);
+  }
   status('Loaded — MacBook CSS applied  (breakpoint: ' + BREAKPOINT_MIN + 'px – ' + BREAKPOINT_MAX + 'px)', 'ok');
 });
 

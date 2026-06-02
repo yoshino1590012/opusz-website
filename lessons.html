@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Find a Teacher — OPUS.Z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--black:#0a0a0a;--white:#fff;--gray:#f5f5f5;--mid:#888;--radius:12px;}
+body{font-family:'Inter',sans-serif;color:var(--black);background:#fff;-webkit-font-smoothing:antialiased;}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 40px;
+  min-height: 76px;
+  background: transparent;
+  mix-blend-mode: difference;
+}
+nav.mega-open {
+  mix-blend-mode: normal;
+  background: #fff;
+  transition: background 0.22s ease;
+  --nav-fg: #000;
+}
+nav, nav.nav-on-dark { --nav-fg: #fff; }
+nav.nav-on-light { --nav-fg: #000; }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; padding-left: 50px; }
+.orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
+#navOrbFixed {
+  position: fixed; top: 18px; left: 40px;
+  z-index: 201;
+  text-decoration: none;
+  pointer-events: all;
+  display: flex; align-items: center;
+}
+#navLogoFixed {
+  position: fixed; top: 30px; left: 90px;
+  z-index: 201; mix-blend-mode: difference; color: #fff;
+  font-size: 17px; font-weight: 700; text-decoration: none; pointer-events: all;
+  display: flex; align-items: flex-start; line-height: 1;
+  transition: top 0.38s cubic-bezier(0.34,1.15,0.64,1);
+}
+#navLogoFixed:hover { top: 19px; }
+.nav-logo-spacer { width: 180px; flex-shrink: 0; }
+.nav-logo-text { display: flex; flex-direction: column; overflow: hidden; line-height: 1; }
+.nav-logo-name { display: block; }
+.nav-logo-sub {
+  display: block; font-size: 17px; font-weight: 700; letter-spacing: 0;
+  max-height: 0; overflow: hidden; opacity: 0; margin-top: 3px;
+  transition: max-height 0.38s cubic-bezier(0.34,1.15,0.64,1), opacity 0.22s ease 0.08s;
+}
+.nav-logo:hover .nav-logo-sub, #navLogoFixed:hover .nav-logo-sub {
+  max-height: 20px; opacity: 1;
+}
+.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 0; right: 0; justify-content: center; pointer-events: none; }
+.nav-links li { pointer-events: all; }
+.nav-links a {
+  text-decoration: none; font-size: 15px;
+  position: relative; padding: 11px 22px; border-radius: 50px;
+  display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1; vertical-align: middle; white-space: nowrap;
+  z-index: 0; color: transparent;
+}
+nav.mega-open .nav-links { mix-blend-mode: normal; }
+nav.mega-open .nav-links a { color: #000; }
+nav.mega-open .nav-links .nc-char { color: #000 !important; }
+.nc-char { display: inline-block; color: #fff; }
+    .nc-sp { display: inline-block; min-width: 0.3em; }
+nav.mega-open .nc-char { color: #000 !important; transition: none; }
+nav .nav-logo-name, nav .nav-logo-sub { color: transparent; }
+#navLogoFixed .nav-logo-name, #navLogoFixed .nav-logo-sub { color: #fff; }
+nav.mega-open .nav-logo-name .nc-char, nav.mega-open .nav-logo-sub .nc-char { color: #000 !important; transition: none; }
+@media (max-width: 1440px) { nav { padding: 13px 28px; } .nav-links { gap: 4px; } .nav-links a { font-size: 13px; padding: 9px 14px; } }
+@media (max-width: 1200px) { nav { padding: 11px 24px; } .nav-links { gap: 2px; } .nav-links a { font-size: 12px; padding: 8px 11px; } }
+.nav-links a::before { display: none; }
+.nav-links a:hover { opacity: 1; }
+.nav-ul {
+  position: absolute; bottom: 3px; left: 10px; right: 10px; height: 1px;
+  background: #fff; transform: scaleX(0); transform-origin: right center;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+}
+.nav-links a:hover .nav-ul { transform: scaleX(1); transform-origin: left center; }
+nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
+.hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
+.hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: opacity .2s; }
+.hamburger:hover span { opacity: .5; }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.nav-fav-btn { position: relative; background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); display: flex; align-items: center; padding: 4px; }
+.nav-fav-count { position:absolute; top:0; right:0; background:#e05; color:#fff; font-size:9px; font-weight:700; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; line-height:1; }
+.nav-login-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  color: var(--nav-fg, #fff); background: none; border: 1px solid rgba(255,255,255,.35);
+  border-radius: 50px; padding: 7px 14px; cursor: pointer; position: relative;
+}
+.nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; }
+.nav-login-btn.open svg { transform: rotate(180deg); }
+.nav-login-dropdown {
+  display: none; position: absolute; top: calc(100% + 8px); right: 0;
+  background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 10px;
+  padding: 6px 0; min-width: 160px; box-shadow: 0 8px 24px rgba(0,0,0,.1); z-index: 210;
+}
+.nav-login-btn.open .nav-login-dropdown { display: block; }
+.nav-login-dropdown a { display: block; padding: 10px 16px; font-size: 13px; color: #111; }
+.nav-login-dropdown a:hover { background: #f5f5f5; }
+.nav-login-vsep { border-top: 1px solid rgba(0,0,0,.08); margin: 3px 0; }
+.lang-toggle {
+  display: flex; align-items: center; gap: 2px;
+  font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); font-family: inherit;
+}
+.lt-opt { opacity: .4; transition: opacity .15s; }
+.lt-opt.active { opacity: 1; }
+.lt-sep { opacity: .25; }
+.nav-drawer {
+  position: fixed; top: 0; right: -260px; bottom: 0; width: 260px;
+  background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.10);
+  padding: 90px 40px 48px; display: flex; flex-direction: column; gap: 4px;
+  transition: right 0.18s ease; z-index: 300; pointer-events: none;
+}
+.nav-drawer.nd-visible { right: 0; pointer-events: auto; transition: right 0.42s cubic-bezier(0.22,1,0.36,1); }
+.nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nav-drawer a:last-child { border-bottom: none; }
+.nav-drawer a:hover { color: rgba(0,0,0,0.4); }
+.nav-drawer.nd-visible a { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
+.nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
+.nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
+.nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
+.nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
+.nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+.nd-musicians-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-align: left; opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
+.nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
+.nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+.nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.15s; }
+.nav-sub-drawer { position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.12); display: flex; flex-direction: column; transition: right 0.18s ease; z-index: 302; pointer-events: none; overflow: hidden; }
+.nav-sub-drawer.ns-visible { right: 0; pointer-events: auto; transition: right 0.38s cubic-bezier(0.22,1,0.36,1); }
+.nsd-head { display: flex; align-items: center; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+.nsd-back { background: none; border: none; cursor: pointer; font-size: 20px; color: #000; padding: 4px; display: flex; align-items: center; opacity: .5; transition: opacity .15s; }
+.nsd-back:hover { opacity: 1; }
+.nsd-title { font-size: 16px; font-weight: 700; }
+.nsd-body { overflow-y: auto; flex: 1; padding: 12px 0 40px; -webkit-overflow-scrolling: touch; }
+.nsd-group { margin-bottom: 4px; }
+.nsd-group-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(0,0,0,0.35); padding: 14px 24px 6px; }
+.nsd-group a { display: block; padding: 10px 24px; font-size: 15px; font-weight: 500; color: #000; text-decoration: none; transition: background .12s, color .12s; }
+.nsd-group a:hover { background: #f5f5f5; }
+.mega-menu {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
+  padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8,1fr); gap: 0;
+  opacity: 0; transform: translateY(-22px); pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.mega-col { padding: 0 16px; border-left: 1px solid rgba(0,0,0,0.07); opacity: 0; transform: translateY(8px); transition: opacity 0.28s ease, transform 0.28s ease; }
+.mega-col:first-child { border-left: none; padding-left: 0; }
+.mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); }
+.mega-menu.mm-visible .mega-col:nth-child(1) { transition-delay: 0.05s; }
+.mega-menu.mm-visible .mega-col:nth-child(2) { transition-delay: 0.08s; }
+.mega-menu.mm-visible .mega-col:nth-child(3) { transition-delay: 0.11s; }
+.mega-menu.mm-visible .mega-col:nth-child(4) { transition-delay: 0.14s; }
+.mega-menu.mm-visible .mega-col:nth-child(5) { transition-delay: 0.17s; }
+.mega-menu.mm-visible .mega-col:nth-child(6) { transition-delay: 0.20s; }
+.mega-col-title { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #111; margin-bottom: 10px; text-decoration: none; }
+.mega-col ul { list-style: none; padding: 0; }
+.mega-col ul li a { display: block; padding: 5px 0; font-size: 13px; color: #555; text-decoration: none; transition: color .12s; }
+.mega-col ul li a:hover { color: #000; }
+/* Customer-login modal (nav) — reuses .login-modal classes; show via .open */
+.login-modal-overlay.open { display: flex; }
+
+/* ── HERO ── */
+.hero-section{position:relative;padding:120px 48px 56px;min-height:320px;background:#111;overflow:hidden;}
+#heroBg{position:absolute;inset:0;background:linear-gradient(135deg,#0a1a2e 0%,#0a0a0a 100%);z-index:0;}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.2) 0%,rgba(0,0,0,.5) 100%);z-index:1;}
+.hero-content{position:relative;z-index:2;}
+.hero-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:5px 14px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.8);margin-bottom:16px;}
+.hero-title{font-size:clamp(28px,4vw,52px);font-weight:800;color:#fff;line-height:1.15;letter-spacing:-.02em;margin-bottom:10px;}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.65);max-width:500px;line-height:1.6;margin-bottom:28px;}
+.hero-search-wrap{display:flex;gap:0;max-width:560px;}
+.hero-search{flex:1;padding:14px 20px;border:none;border-radius:8px 0 0 8px;font-size:15px;font-family:inherit;outline:none;background:#fff;}
+.hero-search-btn{padding:14px 26px;background:var(--black);color:#fff;border:none;border-radius:0 8px 8px 0;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s;}
+.hero-search-btn:hover{background:#333;}
+
+/* ── INSTRUMENT FILTER PILLS ── */
+.inst-filter{background:#fff;border-bottom:1px solid #eee;padding:16px 48px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:64px;z-index:99;}
+.inst-pill{padding:7px 16px;border:1.5px solid #e0e0e0;border-radius:20px;font-size:13px;font-weight:600;color:#555;background:#fff;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit;}
+.inst-pill:hover{border-color:#999;color:#000;}
+.inst-pill.active{background:#0a0a0a;border-color:#0a0a0a;color:#fff;}
+.inst-divider{width:1px;height:20px;background:#e8e8e8;flex-shrink:0;}
+.inst-filter-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.filter-count{font-size:13px;color:var(--mid);white-space:nowrap;}
+
+/* ── ADVANCED FILTER DROPDOWNS (second row of inst-filter) ── */
+.fdrop{position:relative;}
+.fdrop-btn{padding:7px 14px;border:1.5px solid #e0e0e0;border-radius:20px;font-size:13px;font-weight:600;color:#555;background:#fff;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:6px;white-space:nowrap;transition:all .15s;}
+.fdrop-btn:hover{border-color:#999;color:#000;}
+.fdrop-btn.set{background:#0a0a0a;border-color:#0a0a0a;color:#fff;}
+.fdrop-btn .fdrop-caret{font-size:9px;opacity:.7;}
+.fdrop-menu{position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1px solid #eaeaea;border-radius:12px;box-shadow:0 10px 36px rgba(0,0,0,.14);padding:6px;min-width:170px;z-index:120;display:none;}
+.fdrop.open .fdrop-menu{display:block;}
+.fdrop-opt{padding:9px 12px;border-radius:8px;font-size:13px;color:#333;cursor:pointer;white-space:nowrap;}
+.fdrop-opt:hover{background:#f4f4f4;}
+.fdrop-opt.active{background:#0a0a0a;color:#fff;}
+
+/* ── FIND-A-TEACHER QUIZ (POPUP MODAL) ── */
+.quiz-overlay{position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;
+  background:rgba(8,8,12,.62);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;transition:opacity .25s ease;}
+.quiz-overlay.open{display:flex;opacity:1;}
+.quiz-modal{position:relative;width:100%;max-width:600px;background:#fff;color:#111;border-radius:22px;
+  box-shadow:0 30px 90px rgba(0,0,0,.35);border:1px solid rgba(0,0,0,.06);overflow:hidden;
+  transform:translateY(14px) scale(.98);transition:transform .28s cubic-bezier(.2,.9,.3,1);}
+.quiz-overlay.open .quiz-modal{transform:translateY(0) scale(1);}
+.quiz-close{position:absolute;top:16px;right:16px;width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;
+  background:#f0f0f0;color:#444;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;
+  transition:background .15s;z-index:2;}
+.quiz-close:hover{background:#e2e2e2;color:#000;}
+.fq-inner{padding:40px 44px 34px;}
+.fq-intro{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:18px;}
+.fq-head{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.fq-step-label{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#999;white-space:nowrap;}
+.fq-progress{flex:1;height:4px;background:#ececec;border-radius:4px;overflow:hidden;}
+.fq-progress-fill{height:100%;width:25%;background:#111;border-radius:4px;transition:width .35s cubic-bezier(.7,0,.2,1);}
+.fq-question{font-size:clamp(20px,2.4vw,26px);font-weight:800;letter-spacing:-.02em;margin-bottom:20px;line-height:1.15;color:#111;}
+/* padding-top/bottom give the -1px hover lift room so the top border isn't clipped by overflow */
+.fq-options{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;max-height:324px;overflow-y:auto;padding:4px 4px 2px;margin-left:-4px;margin-right:-4px;}
+.fq-opt{padding:11px 20px;border:1.5px solid #e0e0e0;border-radius:50px;font-size:14px;font-weight:600;color:#333;background:#fff;cursor:pointer;font-family:inherit;transition:border-color .15s,background .15s,transform .15s,color .15s;}
+.fq-opt:hover{border-color:#111;background:#f6f6f6;color:#000;transform:translateY(-1px);}
+.fq-group-label{width:100%;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#aaa;margin:8px 0 2px;}
+.fq-nav{display:flex;align-items:center;gap:18px;}
+.fq-back,.fq-skip{background:none;border:none;color:#888;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:4px 0;transition:color .15s;}
+.fq-back:hover,.fq-skip:hover{color:#000;}
+.fq-back[disabled]{opacity:.3;cursor:default;}
+.fq-skip{margin-left:auto;text-decoration:underline;}
+.fq-reopen{display:none;align-items:center;gap:8px;padding:7px 16px;border:1.5px solid #d9d9d9;border-radius:20px;font-size:13px;font-weight:600;color:#333;background:#fff;cursor:pointer;font-family:inherit;transition:all .15s;}
+.fq-reopen:hover{border-color:#0a0a0a;color:#000;}
+.fq-reopen.show{display:inline-flex;}
+@media(max-width:560px){.fq-inner{padding:30px 22px 26px;}}
+
+/* ── GRID ── */
+.grid-section{padding:40px 48px 80px;}
+.musician-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+@media(max-width:900px){.musician-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.musician-grid{grid-template-columns:1fr;}.inst-filter{padding:12px 20px;}.grid-section{padding:24px 20px 60px;}.hero-section{padding:96px 20px 28px;}.hero-search-wrap{max-width:100%;}}
+
+/* ── CARD (identical to musicians.html) ── */
+.mcard{border-radius:var(--radius);overflow:hidden;background:#fff;border:1.5px solid #efefef;transition:box-shadow .25s,transform .25s;cursor:pointer;position:relative;}
+.mcard:hover{box-shadow:0 14px 44px rgba(0,0,0,.13);transform:translateY(-3px);}
+.mcard-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#f0f0f0;}
+.mcard-photo-zoom{position:absolute;inset:0;transition:transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);transform-origin:center center;}
+.mcard:hover .mcard-photo-zoom{transform:scale(1.06);}
+.mcard-photo-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;}
+.mcard-heart{position:absolute;top:10px;right:10px;width:34px;height:34px;background:rgba(255,255,255,.9);backdrop-filter:blur(4px);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;transition:background .15s,transform .15s;}
+.mcard-heart:hover{background:#fff;transform:scale(1.12);}
+.mcard-heart svg{transition:fill .15s,stroke .15s;}
+.mcard-heart.active svg{fill:#e05;stroke:#e05;}
+.mcard-explore-photo{position:absolute;bottom:12px;right:14px;transform:translateY(6px) scale(0.85);transform-origin:bottom right;z-index:5;opacity:0;pointer-events:none;transition:opacity .24s ease,transform .38s cubic-bezier(0.34,1.35,0.64,1);background:rgba(255,255,255,0.96);backdrop-filter:blur(8px);color:#000;font-family:inherit;font-size:11.5px;font-weight:700;padding:7px 18px;border-radius:50px;white-space:nowrap;letter-spacing:.04em;box-shadow:0 2px 12px rgba(0,0,0,.12);}
+.mcard:hover .mcard-explore-photo{opacity:1;transform:translateY(0) scale(1);}
+.mcard-play-photo{position:absolute;bottom:12px;left:14px;z-index:5;width:42px;height:42px;background:rgba(200,200,200,0.55);backdrop-filter:blur(12px);border:1.5px solid rgba(255,255,255,0.5);border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .18s,border-color .2s;}
+.mcard-play-photo:hover{background:rgba(200,200,200,0.82);transform:scale(1.1);}
+.mcard-play-photo svg{display:block;filter:drop-shadow(0 1px 2px rgba(0,0,0,.25));}
+.mcard-playing .mcard-play-photo{background:rgba(220,0,85,0.75);border-color:rgba(255,255,255,.35);}
+.mcard-photo-link{display:block;text-decoration:none;color:inherit;}
+.mcard-body{padding:16px;}
+.mcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.mcard-rating{display:flex;align-items:center;gap:4px;}
+.mcard-reviews{font-size:11px;color:var(--mid);}
+.mcard-location{font-size:12px;color:var(--mid);display:flex;align-items:center;gap:3px;margin-bottom:8px;}
+.mcard-location svg{flex-shrink:0;}
+.mcard-name{font-size:20px;font-weight:800;margin-bottom:4px;line-height:1.2;letter-spacing:-.01em;}
+.mcard-instrument{font-size:13px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:.10em;margin-bottom:8px;}
+.mcard-bio{font-size:12px;color:#888;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+/* Lesson price badge */
+.mcard-lesson-price{display:inline-flex;align-items:center;gap:4px;margin-top:10px;padding:5px 12px;background:#f5f5f5;border-radius:6px;font-size:12px;font-weight:700;color:#111;}
+.mcard-lesson-price .from{font-weight:400;color:#888;font-size:11px;}
+.mcard-enq-btn{display:block;width:100%;margin-top:12px;padding:9px 0;background:#0a0a0a;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:background .15s;}
+.mcard-enq-btn:hover{background:#333;}
+
+/* ── NO RESULTS ── */
+.no-results{text-align:center;padding:80px 20px;color:var(--mid);}
+.no-results svg{margin-bottom:16px;opacity:.3;}
+.no-results p{font-size:15px;}
+
+/* ── AUDIO BAR ── */
+.audio-bar{position:fixed;bottom:0;left:0;right:0;background:#0a0a0a;color:#fff;padding:12px 24px;display:none;align-items:center;gap:12px;z-index:300;font-size:13px;}
+.audio-bar.active{display:flex;}
+.audio-bar-name{font-weight:700;}
+.audio-bar-inst{opacity:.55;font-size:12px;}
+.audio-bar-stop{margin-left:auto;background:none;border:1px solid rgba(255,255,255,.3);color:#fff;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit;}
+
+/* ── LOGIN MODAL ── */
+.login-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:center;justify-content:center;}
+.login-modal{background:#fff;border-radius:16px;padding:36px 32px 28px;width:100%;max-width:380px;position:relative;}
+.login-modal-close{position:absolute;top:14px;right:14px;background:none;border:none;font-size:18px;cursor:pointer;color:#666;}
+.login-modal-title{font-size:20px;font-weight:800;margin-bottom:20px;}
+.login-modal-input{width:100%;padding:12px 14px;border:1.5px solid #e8e8e8;border-radius:10px;font-size:14px;font-family:inherit;outline:none;margin-bottom:12px;transition:border-color .15s;background:#fafafa;}
+.login-modal-input:focus{border-color:#111;background:#fff;}
+.login-modal-btn{width:100%;padding:13px;background:#000;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;transition:background .15s;}
+.login-modal-btn:hover{background:#333;}
+.login-modal-footer{text-align:center;margin-top:16px;font-size:13px;color:#888;}
+.login-modal-footer a{color:#111;font-weight:600;text-decoration:none;margin-left:4px;}
+
+/* ── FAV MODAL ── */
+.fav-modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:400;display:none;align-items:center;justify-content:center;}
+.fav-modal-overlay.open{display:flex;}
+.fav-modal{background:#fff;border-radius:16px;padding:0;width:100%;max-width:480px;max-height:80vh;display:flex;flex-direction:column;}
+.fav-modal-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid #f0f0f0;}
+.fav-modal-head h3{font-size:16px;font-weight:700;}
+.fav-modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:#666;}
+.fav-modal-body{overflow-y:auto;padding:8px 0;flex:1;}
+.fav-item{display:flex;align-items:center;gap:12px;padding:12px 24px;cursor:pointer;transition:background .12s;}
+.fav-item:hover{background:#f8f8f8;}
+.fav-thumb{width:44px;height:44px;border-radius:8px;flex-shrink:0;}
+.fav-name{font-size:14px;font-weight:700;}
+.fav-inst{font-size:12px;color:var(--mid);}
+.fav-empty{text-align:center;padding:32px;font-size:14px;color:var(--mid);}
+
+/* ── MEDIA EDITOR ── */
+.med-overlay{position:fixed;inset:0;z-index:10000;pointer-events:none;opacity:0;transition:opacity .2s;}
+.med-overlay.open{opacity:1;}
+.med-panel{
+  position:fixed;top:80px;right:24px;
+  background:#1a1a1a;color:#fff;
+  width:320px;max-height:calc(100vh - 100px);
+  overflow-y:auto;display:flex;flex-direction:column;
+  border-radius:14px;box-shadow:0 12px 48px rgba(0,0,0,.5);
+  pointer-events:auto;
+  user-select:none;-webkit-user-select:none;
+}
+.med-head{padding:14px 16px 12px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#1a1a1a;z-index:2;cursor:grab;border-radius:14px 14px 0 0;}
+.med-head:active{cursor:grabbing;}
+.med-drag-dots{display:flex;flex-direction:column;gap:3px;margin-right:10px;opacity:.35;}
+.med-drag-dots span{display:block;width:14px;height:2px;background:#fff;border-radius:2px;}
+.med-head h3{font-size:14px;font-weight:700;}
+.med-head-sub{font-size:10px;color:rgba(255,255,255,.35);margin-top:2px;}
+.med-close{background:rgba(255,255,255,.08);border:none;color:rgba(255,255,255,.6);cursor:pointer;font-size:13px;padding:5px 8px;border-radius:6px;transition:background .15s;flex-shrink:0;}
+.med-close:hover{background:rgba(255,255,255,.18);}
+.med-body{padding:16px;flex:1;}
+.med-card{margin-bottom:20px;border:1px solid rgba(255,255,255,.08);border-radius:10px;overflow:hidden;}
+.med-card-head{display:flex;align-items:center;gap:10px;padding:12px;background:rgba(255,255,255,.04);}
+.med-thumb{width:44px;height:44px;border-radius:8px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;}
+.med-thumb img{width:100%;height:100%;object-fit:cover;}
+.med-thumb video{width:100%;height:100%;object-fit:cover;}
+.med-card-name{font-size:13px;font-weight:700;}
+.med-card-inst{font-size:11px;color:rgba(255,255,255,.4);}
+.med-card-body{padding:12px;}
+.med-label{font-size:9px;font-weight:700;color:rgba(255,255,255,.3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;}
+.med-upload-btn{width:100%;padding:8px;border:1.5px dashed rgba(255,255,255,.2);border-radius:6px;background:transparent;color:rgba(255,255,255,.6);font-size:11px;font-family:inherit;cursor:pointer;text-align:center;margin-bottom:8px;transition:border-color .15s;}
+.med-upload-btn:hover{border-color:rgba(255,255,255,.5);}
+.med-url-input{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:7px 10px;color:#fff;font-size:11px;box-sizing:border-box;outline:none;margin-bottom:6px;font-family:inherit;}
+.med-url-input::placeholder{color:rgba(255,255,255,.25);}
+.med-url-input:focus{border-color:rgba(255,255,255,.3);}
+.med-save-btn{width:100%;padding:8px;border:none;border-radius:6px;background:#fff;color:#000;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit;}
+.med-save-btn:hover{background:#eee;}
+.med-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:99999;opacity:0;transition:opacity .2s;pointer-events:none;}
+.med-toast.show{opacity:1;}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
+<a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
+  <div class="orb"></div>
+</a>
+<a href="musician-platform.html" id="navLogoFixed">
+  <div class="nav-logo-text">
+    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
+    <span class="nav-logo-sub">MUSIC</span>
+  </div>
+</a>
+
+<nav>
+  <!-- Spacer to keep nav-links centered -->
+  <div class="nav-logo-spacer"></div>
+  <ul class="nav-links">
+    <li><a href="musician-platform.html" data-i18n="nav.home">Home</a></li>
+    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
+    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
+    <li><a href="recent-jobs.html">Recent Jobs</a></li>
+    <li><a href="shows.html" data-i18n="nav.news">Shows</a></li>
+    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
+  </ul>
+  <!-- MEGA MENU -->
+  <div class="mega-menu" id="artistsMegaMenu">
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a>
+      <ul>
+        <li><a href="musicians.html?cat=violin" data-i18n="menu.violin">Violin</a></li>
+        <li><a href="musicians.html?cat=viola" data-i18n="menu.viola">Viola</a></li>
+        <li><a href="musicians.html?cat=cello" data-i18n="menu.cello">Cello</a></li>
+        <li><a href="musicians.html?cat=doublebass" data-i18n="menu.doublebass">Double Bass</a></li>
+        <li><a href="musicians.html?cat=harp" data-i18n="menu.harp">Harp</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a>
+      <ul>
+        <li><a href="musicians.html?cat=flute" data-i18n="menu.flute">Flute</a></li>
+        <li><a href="musicians.html?cat=piccolo" data-i18n="menu.piccolo">Piccolo</a></li>
+        <li><a href="musicians.html?cat=oboe" data-i18n="menu.oboe">Oboe</a></li>
+        <li><a href="musicians.html?cat=clarinet" data-i18n="menu.clarinet">Clarinet</a></li>
+        <li><a href="musicians.html?cat=saxophone" data-i18n="menu.saxophone">Saxophone</a></li>
+        <li><a href="musicians.html?cat=bassoon" data-i18n="menu.bassoon">Bassoon</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a>
+      <ul>
+        <li><a href="musicians.html?cat=frenchhorn" data-i18n="menu.frenchhorn">French Horn</a></li>
+        <li><a href="musicians.html?cat=trumpet" data-i18n="menu.trumpet">Trumpet</a></li>
+        <li><a href="musicians.html?cat=trombone" data-i18n="menu.trombone">Trombone</a></li>
+        <li><a href="musicians.html?cat=euphonium" data-i18n="menu.euphonium">Euphonium</a></li>
+        <li><a href="musicians.html?cat=tuba" data-i18n="menu.tuba">Tuba</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=percussion" data-i18n="menu.percussion">Percussion</a>
+      <ul>
+        <li><a href="musicians.html?cat=timpani" data-i18n="menu.timpani">Timpani</a></li>
+        <li><a href="musicians.html?cat=marimba" data-i18n="menu.marimba">Marimba</a></li>
+        <li><a href="musicians.html?cat=vibraphone" data-i18n="menu.vibraphone">Vibraphone</a></li>
+        <li><a href="musicians.html?cat=xylophone" data-i18n="menu.xylophone">Xylophone</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=keyboard" data-i18n="menu.keyboard">Keyboard</a>
+      <ul>
+        <li><a href="musicians.html?cat=piano" data-i18n="menu.piano">Piano</a></li>
+        <li><a href="musicians.html?cat=pipeorgan" data-i18n="menu.pipeorgan">Pipe Organ</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a>
+      <ul>
+        <li><a href="musicians.html?cat=soprano" data-i18n="menu.soprano">Soprano</a></li>
+        <li><a href="musicians.html?cat=mezzosoprano" data-i18n="menu.mezzosoprano">Mezzo-soprano</a></li>
+        <li><a href="musicians.html?cat=tenor" data-i18n="menu.tenor">Tenor</a></li>
+        <li><a href="musicians.html?cat=baritone" data-i18n="menu.baritone">Baritone</a></li>
+        <li><a href="musicians.html?cat=choral" data-i18n="menu.choral">Choral</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a>
+      <ul>
+        <li><a href="musicians.html?cat=stringquartet" data-i18n="menu.stringquartet">String Quartet</a></li>
+        <li><a href="musicians.html?cat=pianotrio" data-i18n="menu.pianotrio">Piano Trio</a></li>
+        <li><a href="musicians.html?cat=stringtrio" data-i18n="menu.stringtrio">String Trio</a></li>
+        <li><a href="musicians.html?cat=windquintet" data-i18n="menu.windquintet">Wind Quintet</a></li>
+        <li><a href="musicians.html?cat=brassquintet" data-i18n="menu.brassquintet">Brass Quintet</a></li>
+        <li><a href="musicians.html?cat=pianoquintet" data-i18n="menu.pianoquintet">Piano Quintet</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html" data-i18n="menu.all">All</a>
+      <ul>
+        <li><a href="musicians.html" data-i18n="menu.allmusicians">All Musicians</a></li>
+        <li><a href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a></li>
+        <li><a href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a></li>
+        <li><a href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a></li>
+        <li><a href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a></li>
+        <li><a href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a></li>
+        <li><a href="musicians.html?cat=conductor" data-i18n="menu.conductor">Conductor</a></li>
+        <li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
+    </button>
+    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
+      <span class="login-label">Log in</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="nav-login-dropdown">
+        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
+        <div class="nav-login-vsep"></div>
+        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
+      </div>
+    </button>
+    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+      <span class="lt-opt active" data-l="en">EN</span>
+      <span class="lt-sep">/</span>
+      <span class="lt-opt" data-l="zh">中文</span>
+    </button>
+    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- Slide-in nav drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="musician-platform.html" data-i18n="nav.home">Home</a>
+  <a href="blog.html" data-i18n="nav.discover">Blog</a>
+  <button class="nd-musicians-btn" id="ndMusiciansBtn">
+    <span data-i18n="nav.artists">Musicians</span>
+    <span class="nd-arrow">›</span>
+  </button>
+  <a href="recent-jobs.html">Recent Jobs</a>
+  <a href="shows.html" data-i18n="nav.news">Shows</a>
+  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
+</div>
+
+<!-- Musicians sub-drawer -->
+<div class="nav-sub-drawer" id="navSubDrawer">
+  <div class="nsd-head">
+    <button class="nsd-back" id="nsdBack">‹</button>
+    <div class="nsd-title" data-i18n="nav.artists">Musicians</div>
+  </div>
+  <div class="nsd-body">
+    <div class="nsd-group"><div class="nsd-group-title">Strings</div><a href="musicians.html?cat=violin">Violin</a><a href="musicians.html?cat=viola">Viola</a><a href="musicians.html?cat=cello">Cello</a><a href="musicians.html?cat=doublebass">Double Bass</a><a href="musicians.html?cat=harp">Harp</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Woodwinds</div><a href="musicians.html?cat=flute">Flute</a><a href="musicians.html?cat=oboe">Oboe</a><a href="musicians.html?cat=clarinet">Clarinet</a><a href="musicians.html?cat=saxophone">Saxophone</a><a href="musicians.html?cat=bassoon">Bassoon</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Brass</div><a href="musicians.html?cat=frenchhorn">French Horn</a><a href="musicians.html?cat=trumpet">Trumpet</a><a href="musicians.html?cat=trombone">Trombone</a><a href="musicians.html?cat=tuba">Tuba</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Keyboard</div><a href="musicians.html?cat=piano">Piano</a><a href="musicians.html?cat=pipeorgan">Pipe Organ</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Voice</div><a href="musicians.html?cat=soprano">Soprano</a><a href="musicians.html?cat=mezzosoprano">Mezzo-soprano</a><a href="musicians.html?cat=tenor">Tenor</a><a href="musicians.html?cat=baritone">Baritone</a></div>
+  </div>
+</div>
+
+<!-- Login Modal (nav customer login) -->
+<div class="login-modal-overlay" id="loginModalOverlay">
+  <div class="login-modal">
+    <button class="login-modal-close" id="loginModalClose">✕</button>
+    <div class="login-modal-title" id="loginModalTitle">Customer Login</div>
+    <input class="login-modal-input" type="email" placeholder="Email" autocomplete="email"/>
+    <input class="login-modal-input" type="password" placeholder="Password" autocomplete="current-password"/>
+    <button class="login-modal-btn">Log in</button>
+    <div class="login-modal-footer">
+      <span>No account?</span>
+      <a href="musician-platform.html#contact">Sign up →</a>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero-section">
+  <div id="heroBg"></div>
+  <div id="heroBgMedia" style="position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-tag">🎓 Music Lessons</div>
+    <h1 class="hero-title" id="heroTitle">Find a Teacher</h1>
+    <p class="hero-sub" id="heroSub">Book one-on-one lessons with professional musicians. All levels welcome.</p>
+    <div class="hero-search-wrap">
+      <input class="hero-search" type="text" id="searchInput" placeholder="Search teachers...">
+      <button class="hero-search-btn" onclick="doSearch()" id="searchBtn">Search</button>
+    </div>
+  </div>
+</section>
+
+<!-- FIND-A-TEACHER QUIZ (popup modal) -->
+<div class="quiz-overlay" id="quizOverlay">
+  <div class="quiz-modal" role="dialog" aria-modal="true" aria-label="Find a teacher survey">
+    <button class="quiz-close" id="quizClose" aria-label="關閉">✕</button>
+    <div class="fq-inner">
+      <div class="fq-intro">🎯 快速幫你找到合適的老師</div>
+      <div class="fq-head">
+        <div class="fq-step-label" id="fqStepLabel">Step 1 / 5</div>
+        <div class="fq-progress"><div class="fq-progress-fill" id="fqProgress"></div></div>
+      </div>
+      <h3 class="fq-question" id="fqQuestion"></h3>
+      <div class="fq-options" id="fqOptions"></div>
+      <div class="fq-nav">
+        <button class="fq-back" id="fqBack" disabled>← 上一步</button>
+        <button class="fq-skip" id="fqSkip">略過問卷</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INSTRUMENT FILTER PILLS -->
+<div class="inst-filter" id="instFilter">
+  <button class="inst-pill active" data-inst="" onclick="setInst(this,'')">All</button>
+  <button class="inst-pill" data-inst="Violin" onclick="setInst(this,'Violin')">Violin</button>
+  <button class="inst-pill" data-inst="Viola" onclick="setInst(this,'Viola')">Viola</button>
+  <button class="inst-pill" data-inst="Cello" onclick="setInst(this,'Cello')">Cello</button>
+  <button class="inst-pill" data-inst="Piano" onclick="setInst(this,'Piano')">Piano</button>
+  <button class="inst-pill" data-inst="Flute" onclick="setInst(this,'Flute')">Flute</button>
+  <button class="inst-pill" data-inst="Saxophone" onclick="setInst(this,'Saxophone')">Saxophone</button>
+  <button class="inst-pill" data-inst="Trumpet" onclick="setInst(this,'Trumpet')">Trumpet</button>
+  <button class="inst-pill" data-inst="Guitar" onclick="setInst(this,'Guitar')">Guitar</button>
+  <button class="inst-pill" data-inst="Voice" onclick="setInst(this,'Voice')">Voice</button>
+  <div class="inst-divider"></div>
+
+  <!-- Advanced filters (mirror the quiz; also editable directly) -->
+  <div class="fdrop" data-filter="level">
+    <button class="fdrop-btn" type="button"><span class="fdrop-lbl" data-ql="f_level">Level</span><span class="fdrop-caret">▼</span></button>
+    <div class="fdrop-menu">
+      <div class="fdrop-opt active" data-val="" data-ql="any">Any</div>
+      <div class="fdrop-opt" data-val="Beginner" data-ql="beginner">Beginner</div>
+      <div class="fdrop-opt" data-val="Intermediate" data-ql="intermediate">Intermediate</div>
+      <div class="fdrop-opt" data-val="Advanced" data-ql="advanced">Advanced</div>
+    </div>
+  </div>
+  <div class="fdrop" data-filter="budget">
+    <button class="fdrop-btn" type="button"><span class="fdrop-lbl" data-ql="f_budget">Budget</span><span class="fdrop-caret">▼</span></button>
+    <div class="fdrop-menu">
+      <div class="fdrop-opt active" data-val="" data-ql="any">Any</div>
+      <div class="fdrop-opt" data-val="0-1800" data-ql="b1">Under NT$1,800</div>
+      <div class="fdrop-opt" data-val="1800-2000" data-ql="b2">NT$1,800–2,000</div>
+      <div class="fdrop-opt" data-val="2000-99999" data-ql="b3">NT$2,000+</div>
+    </div>
+  </div>
+  <div class="fdrop" data-filter="format">
+    <button class="fdrop-btn" type="button"><span class="fdrop-lbl" data-ql="f_format">Format</span><span class="fdrop-caret">▼</span></button>
+    <div class="fdrop-menu">
+      <div class="fdrop-opt active" data-val="" data-ql="any">Any</div>
+      <div class="fdrop-opt" data-val="Online" data-ql="online">Online</div>
+      <div class="fdrop-opt" data-val="In-person" data-ql="inperson">In-person</div>
+    </div>
+  </div>
+  <div class="fdrop" data-filter="time">
+    <button class="fdrop-btn" type="button"><span class="fdrop-lbl" data-ql="f_time">Time</span><span class="fdrop-caret">▼</span></button>
+    <div class="fdrop-menu">
+      <div class="fdrop-opt active" data-val="" data-ql="any">Any</div>
+      <div class="fdrop-opt" data-val="Weekday" data-ql="weekday">Weekday</div>
+      <div class="fdrop-opt" data-val="Weekend" data-ql="weekend">Weekend</div>
+    </div>
+  </div>
+
+  <div class="inst-filter-right">
+    <button class="fq-reopen" id="fqReopen" data-ql="reopen">🎯 Redo survey</button>
+    <span class="filter-count" id="filterCount"></span>
+  </div>
+</div>
+
+<!-- GRID -->
+<section class="grid-section">
+  <div class="musician-grid" id="musicianGrid"></div>
+  <div class="no-results" id="noResults" style="display:none">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <p id="noResultsText">No teachers found. Try a different instrument.</p>
+  </div>
+</section>
+
+<!-- AUDIO BAR -->
+<div class="audio-bar" id="audioBar">
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+  <div><div class="audio-bar-name" id="audioBarName">—</div><div class="audio-bar-inst" id="audioBarInst">—</div></div>
+  <button class="audio-bar-stop" onclick="stopAudio()">■ Stop</button>
+</div>
+
+<!-- LOGIN REQUIRED MODAL -->
+<div class="login-modal-overlay" id="loginRequiredModal" style="display:none;align-items:center;justify-content:center;">
+  <div class="login-modal" style="max-width:360px;text-align:center;padding:36px 32px 28px;">
+    <div style="font-size:36px;margin-bottom:12px;">🔒</div>
+    <h3 id="lrTitle" style="font-size:18px;font-weight:700;margin-bottom:8px;">Login Required</h3>
+    <p id="lrDesc" style="font-size:14px;color:#666;margin-bottom:24px;line-height:1.6;">Please log in to save teachers to your favourites.</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <a id="lrLoginBtn" href="musician-login.html" style="padding:11px 28px;background:#000;color:#fff;border-radius:50px;font-size:14px;font-weight:700;text-decoration:none;">Log in / Sign up</a>
+      <button onclick="document.getElementById('loginRequiredModal').style.display='none'" style="padding:11px 22px;background:#f0f0f0;color:#333;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAVOURITES MODAL -->
+<div class="fav-modal-overlay" id="favModal">
+  <div class="fav-modal">
+    <div class="fav-modal-head">
+      <h3 id="favModalTitle">My Favourites</h3>
+      <button class="fav-modal-close" id="favModalClose">✕</button>
+    </div>
+    <div class="fav-modal-body" id="favModalBody"></div>
+  </div>
+</div>
+
+<script>
+// ── Data: musicians with lessons:true ────────────────────────────────────────
+// lessons:true = subscription enabled for teaching
+var TEACHERS = [
+  {id:1, name:'Martin', instrument:'Violin', country:'Taiwan', region:'台北', style:'Classical', rating:4.9, reviews:148, bio:'Principal violinist with 15 years of orchestral experience. Specialises in Romantic and Contemporary repertoire.', emoji:'🎻', color:'#1a1a2e', profileUrl:'musician-profile.html', lessonFrom:2000, saves:33, levels:['Beginner','Intermediate','Advanced'], formats:['In-person','Online'], days:['Weekday','Weekend']},
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+var currentCat = '';       // '' | strings | woodwind | brass | percussion | keyboard | guitar | voice
+var currentInst = '';
+var currentLevel = '';     // '' | Beginner | Intermediate | Advanced
+var currentBudget = '';    // '' | 'min-max' e.g. '1800-2000'
+var currentFormat = '';    // '' | Online | In-person
+var currentDay = '';       // '' | Weekday | Weekend
+var currentRegion = '';    // '' | 台北 | 台中 | ...
+var searchQuery = '';
+var favourites = JSON.parse(localStorage.getItem('mono-favs') || '[]');
+var currentAudio = null;
+var currentPlayingId = null;
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+(function(){
+  updateFavBtn();
+  renderGrid();
+  document.getElementById('navFavBtn').addEventListener('click', function(){
+    if(!localStorage.getItem('opusz_user')){
+      document.getElementById('loginRequiredModal').style.display='flex'; return;
+    }
+    document.getElementById('favModal').classList.toggle('open'); renderFavModal();
+  });
+  document.getElementById('favModalClose').addEventListener('click', function(){document.getElementById('favModal').classList.remove('open');});
+  document.getElementById('favModal').addEventListener('click', function(e){if(e.target===this)this.classList.remove('open');});
+  document.getElementById('loginRequiredModal').addEventListener('click', function(e){if(e.target===this)this.style.display='none';});
+  document.getElementById('searchInput').addEventListener('keydown', function(e){if(e.key==='Enter')doSearch();});
+})();
+
+function setInst(btn, inst){
+  currentInst = inst;
+  syncFilterUI();
+  renderGrid();
+}
+
+function doSearch(){
+  searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+  renderGrid();
+}
+
+// ── Advanced filter dropdowns (mirror quiz, editable directly) ──────────────
+var FILTER_DEFAULT_KEY = {level:'f_level', budget:'f_budget', format:'f_format', time:'f_time'};
+
+function filterValOf(type){
+  return type==='level' ? currentLevel : type==='budget' ? currentBudget :
+         type==='format' ? currentFormat : type==='time' ? currentDay : '';
+}
+
+function setFilter(type, val){
+  if(type==='level') currentLevel = val;
+  else if(type==='budget') currentBudget = val;
+  else if(type==='format') currentFormat = val;
+  else if(type==='time') currentDay = val;
+  syncFilterUI();
+  renderGrid();
+}
+
+function syncFilterUI(){
+  document.querySelectorAll('.inst-pill').forEach(function(p){
+    p.classList.toggle('active', (p.getAttribute('data-inst')||'')===currentInst);
+  });
+  document.querySelectorAll('.fdrop').forEach(function(drop){
+    var type = drop.getAttribute('data-filter');
+    var val = filterValOf(type);
+    var btn = drop.querySelector('.fdrop-btn');
+    var lblEl = drop.querySelector('.fdrop-lbl');
+    var activeOpt = null;
+    drop.querySelectorAll('.fdrop-opt').forEach(function(o){
+      var on = (o.getAttribute('data-val')||'')===(val||'');
+      o.classList.toggle('active', on);
+      if(on && o.getAttribute('data-val')) activeOpt = o;
+    });
+    if(val && activeOpt){ btn.classList.add('set'); lblEl.textContent = activeOpt.textContent; lblEl.removeAttribute('data-ql'); }
+    else { btn.classList.remove('set'); lblEl.setAttribute('data-ql', FILTER_DEFAULT_KEY[type]); lblEl.textContent = t(FILTER_DEFAULT_KEY[type]); }
+  });
+  var anyActive = currentCat || currentInst || currentLevel || currentBudget || currentFormat || currentDay || currentRegion;
+  document.getElementById('fqReopen').classList.toggle('show', !!anyActive || quizDone);
+}
+
+document.querySelectorAll('.fdrop').forEach(function(drop){
+  var type = drop.getAttribute('data-filter');
+  drop.querySelector('.fdrop-btn').addEventListener('click', function(e){
+    e.stopPropagation();
+    var wasOpen = drop.classList.contains('open');
+    document.querySelectorAll('.fdrop').forEach(function(d){d.classList.remove('open');});
+    if(!wasOpen) drop.classList.add('open');
+  });
+  drop.querySelectorAll('.fdrop-opt').forEach(function(opt){
+    opt.addEventListener('click', function(){ setFilter(type, opt.getAttribute('data-val')); drop.classList.remove('open'); });
+  });
+});
+document.addEventListener('click', function(){
+  document.querySelectorAll('.fdrop').forEach(function(d){d.classList.remove('open');});
+});
+
+// ── Find-a-teacher quiz (popup modal, dynamic steps, i18n) ──────────────────
+var quizDone = false;
+// _currentLang is declared in a later <script>; ensure it exists for this block
+window._currentLang = window._currentLang || 'en';
+
+// Quiz / filter translations (zh + en)
+var QUIZ_T = {
+  intro:{zh:'🎯 快速幫你找到合適的老師', en:'🎯 Find your ideal teacher in seconds'},
+  stepWord:{zh:'步驟', en:'Step'},
+  back:{zh:'← 上一步', en:'← Back'},
+  skip:{zh:'略過問卷', en:'Skip survey'},
+  q_cat:{zh:'想學哪一類樂器？', en:'Which instrument family?'},
+  q_level:{zh:'你目前的程度是？', en:"What's your level?"},
+  q_budget:{zh:'每堂課的預算範圍？', en:'Budget per lesson?'},
+  q_format:{zh:'偏好的上課方式？', en:'Preferred lesson format?'},
+  q_time:{zh:'偏好的上課時間？', en:'Preferred lesson time?'},
+  q_region:{zh:'希望在哪個地區上課？', en:'Which area?'},
+  any:{zh:'不限', en:'Any'},
+  anyFamily:{zh:'此類都可以', en:'Any in this family'},
+  anyRegion:{zh:'不限地區', en:'Any area'},
+  beginner:{zh:'初學', en:'Beginner'}, intermediate:{zh:'中級', en:'Intermediate'}, advanced:{zh:'進階', en:'Advanced'},
+  online:{zh:'線上', en:'Online'}, inperson:{zh:'實體', en:'In-person'},
+  weekday:{zh:'平日', en:'Weekday'}, weekend:{zh:'週末', en:'Weekend'},
+  b1:{zh:'NT$1,800 以下', en:'Under NT$1,800'}, b2:{zh:'NT$1,800–2,000', en:'NT$1,800–2,000'}, b3:{zh:'NT$2,000 以上', en:'NT$2,000+'},
+  f_level:{zh:'程度', en:'Level'}, f_budget:{zh:'預算', en:'Budget'}, f_format:{zh:'上課方式', en:'Format'}, f_time:{zh:'上課時間', en:'Time'},
+  reopen:{zh:'🎯 重做問卷', en:'🎯 Redo survey'}
+};
+function t(k){ var e = QUIZ_T[k]; return e ? (e[_currentLang]||e.en) : k; }
+
+// Instrument taxonomy: category {v, zh, en, insts:[[value(en), zh]]}
+var CATEGORIES = [
+  {v:'strings',    zh:'弦樂', en:'Strings',    insts:[['Violin','小提琴'],['Viola','中提琴'],['Cello','大提琴'],['Double Bass','低音提琴'],['Harp','豎琴']]},
+  {v:'woodwind',   zh:'木管', en:'Woodwinds',  insts:[['Flute','長笛'],['Piccolo','短笛'],['Oboe','雙簧管'],['Clarinet','單簧管'],['Saxophone','薩克斯風'],['Bassoon','低音管']]},
+  {v:'brass',      zh:'銅管', en:'Brass',      insts:[['French Horn','法國號'],['Trumpet','小號'],['Trombone','長號'],['Euphonium','次中音號'],['Tuba','低音號']]},
+  {v:'percussion', zh:'擊樂', en:'Percussion', insts:[['Timpani','定音鼓'],['Marimba','馬林巴'],['Vibraphone','顫音琴'],['Drums','爵士鼓']]},
+  {v:'keyboard',   zh:'鍵盤', en:'Keyboard',   insts:[['Piano','鋼琴'],['Pipe Organ','管風琴']]},
+  {v:'guitar',     zh:'吉他', en:'Guitar',     insts:[['Guitar','古典吉他'],['Electric Guitar','電吉他'],['Bass','貝斯']]},
+  {v:'voice',      zh:'聲樂', en:'Voice',      insts:[['Soprano','女高音'],['Mezzo-soprano','次女高音'],['Tenor','男高音'],['Baritone','男中音'],['Choral','合唱']]}
+];
+var CAT_OF = {};
+CATEGORIES.forEach(function(c){ c.insts.forEach(function(p){ CAT_OF[p[0]] = c.v; }); });
+
+// Taiwan regions — value stays Chinese (matches teacher data); EN labels for display
+var REGION_EN = {'台北':'Taipei','新北':'New Taipei','基隆':'Keelung','桃園':'Taoyuan','新竹':'Hsinchu','宜蘭':'Yilan','台中':'Taichung','苗栗':'Miaoli','彰化':'Changhua','南投':'Nantou','雲林':'Yunlin','嘉義':'Chiayi','台南':'Tainan','高雄':'Kaohsiung','屏東':'Pingtung','花蓮':'Hualien','台東':'Taitung','澎湖':'Penghu','金門':'Kinmen','連江':'Lienchiang'};
+var REGIONS = [
+  {zh:'北部', en:'North',   list:['台北','新北','基隆','桃園','新竹','宜蘭']},
+  {zh:'中部', en:'Central', list:['台中','苗栗','彰化','南投','雲林']},
+  {zh:'南部', en:'South',   list:['嘉義','台南','高雄','屏東']},
+  {zh:'東部', en:'East',    list:['花蓮','台東']},
+  {zh:'離島', en:'Islands', list:['澎湖','金門','連江']}
+];
+function catLabel(c){ return _currentLang==='zh' ? c.zh : c.en; }
+function instLabel(p){ return _currentLang==='zh' ? p[1] : p[0]; }
+function regionLabel(r){ return _currentLang==='zh' ? r : (REGION_EN[r]||r); }
+
+var quizStep = 0;
+var quizAns = {};
+
+// Build the active step list dynamically (instrument step only if a category was picked)
+function buildSteps(){
+  var steps = [];
+  steps.push({key:'cat', q:t('q_cat'), opts:[{l:t('any'),v:''}].concat(CATEGORIES.map(function(c){return {l:catLabel(c), v:c.v};}))});
+  if(quizAns.cat){
+    var cat = CATEGORIES.filter(function(c){return c.v===quizAns.cat;})[0];
+    if(cat){
+      var instQ = _currentLang==='zh' ? ('選擇樂器（'+cat.zh+'）') : ('Choose a '+cat.en+' instrument');
+      steps.push({key:'inst', q:instQ, opts:[{l:t('anyFamily'),v:''}].concat(cat.insts.map(function(p){return {l:instLabel(p), v:p[0]};}))});
+    }
+  }
+  steps.push({key:'level',  q:t('q_level'),  opts:[{l:t('any'),v:''},{l:t('beginner'),v:'Beginner'},{l:t('intermediate'),v:'Intermediate'},{l:t('advanced'),v:'Advanced'}]});
+  steps.push({key:'budget', q:t('q_budget'), opts:[{l:t('any'),v:''},{l:t('b1'),v:'0-1800'},{l:t('b2'),v:'1800-2000'},{l:t('b3'),v:'2000-99999'}]});
+  steps.push({key:'format', q:t('q_format'), opts:[{l:t('any'),v:''},{l:t('online'),v:'Online'},{l:t('inperson'),v:'In-person'}]});
+  steps.push({key:'time',   q:t('q_time'),   opts:[{l:t('any'),v:''},{l:t('weekday'),v:'Weekday'},{l:t('weekend'),v:'Weekend'}]});
+  steps.push({key:'region', q:t('q_region'), grouped:REGIONS, opts:[{l:t('anyRegion'),v:''}]});
+  return steps;
+}
+
+function renderQuizStep(){
+  var steps = buildSteps();
+  if(quizStep >= steps.length) quizStep = steps.length-1;
+  var s = steps[quizStep];
+  document.querySelector('.fq-intro').textContent = t('intro');
+  document.getElementById('fqStepLabel').textContent = t('stepWord')+' '+(quizStep+1)+' / '+steps.length;
+  document.getElementById('fqProgress').style.width = ((quizStep+1)/steps.length*100)+'%';
+  document.getElementById('fqQuestion').textContent = s.q;
+  document.getElementById('fqBack').textContent = t('back');
+  document.getElementById('fqSkip').textContent = t('skip');
+
+  var html = '';
+  s.opts.forEach(function(o){ html += '<button class="fq-opt" data-v="'+o.v+'">'+o.l+'</button>'; });
+  if(s.grouped){
+    s.grouped.forEach(function(g){
+      html += '<div class="fq-group-label">'+(_currentLang==='zh'?g.zh:g.en)+'</div>';
+      g.list.forEach(function(r){ html += '<button class="fq-opt" data-v="'+r+'">'+regionLabel(r)+'</button>'; });
+    });
+  }
+  var box = document.getElementById('fqOptions');
+  box.innerHTML = html;
+  box.querySelectorAll('.fq-opt').forEach(function(btn){
+    btn.addEventListener('click', function(){ quizPick(s.key, btn.getAttribute('data-v')); });
+  });
+  document.getElementById('fqBack').disabled = (quizStep===0);
+}
+
+function quizPick(key, val){
+  quizAns[key] = val;
+  if(key==='cat') quizAns.inst = '';   // new category invalidates instrument
+  var steps = buildSteps();
+  if(quizStep < steps.length-1){ quizStep++; renderQuizStep(); }
+  else finishQuiz();
+}
+
+function finishQuiz(){
+  currentCat    = quizAns.cat    || '';
+  currentInst   = quizAns.inst   || '';
+  currentLevel  = quizAns.level  || '';
+  currentBudget = quizAns.budget || '';
+  currentFormat = quizAns.format || '';
+  currentDay    = quizAns.time   || '';
+  currentRegion = quizAns.region || '';
+  quizDone = true;
+  closeQuiz();
+  syncFilterUI();
+  renderGrid();
+  var tf = document.getElementById('instFilter');
+  if(tf) window.scrollTo({top: Math.max(0, tf.offsetTop - 70), behavior:'smooth'});
+}
+
+function openQuiz(){
+  quizStep = 0; quizAns = {};
+  renderQuizStep();
+  document.getElementById('quizOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeQuiz(){
+  document.getElementById('quizOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function skipQuiz(){     // skip / close without applying
+  quizDone = true;
+  closeQuiz();
+  syncFilterUI();
+}
+
+// Translate the filter-bar dropdowns + reopen button; refresh open quiz
+function updateQuizI18n(){
+  document.querySelectorAll('[data-ql]').forEach(function(el){ el.textContent = t(el.getAttribute('data-ql')); });
+  syncFilterUI();
+  if(document.getElementById('quizOverlay').classList.contains('open')) renderQuizStep();
+}
+
+document.getElementById('fqBack').addEventListener('click', function(){ if(quizStep>0){ quizStep--; renderQuizStep(); } });
+document.getElementById('fqSkip').addEventListener('click', skipQuiz);
+document.getElementById('quizClose').addEventListener('click', skipQuiz);
+document.getElementById('quizOverlay').addEventListener('click', function(e){ if(e.target===this) skipQuiz(); });
+document.addEventListener('keydown', function(e){ if(e.key==='Escape' && document.getElementById('quizOverlay').classList.contains('open')) skipQuiz(); });
+document.getElementById('fqReopen').addEventListener('click', openQuiz);
+
+updateQuizI18n();   // set filter labels to current language
+openQuiz();         // auto-open the survey on first paint
+
+function getFiltered(){
+  return TEACHERS.filter(function(m){
+    if(currentInst){ if(m.instrument !== currentInst) return false; }
+    else if(currentCat){ if(CAT_OF[m.instrument] !== currentCat) return false; }
+    if(currentRegion && m.region !== currentRegion) return false;
+    if(currentLevel && (m.levels||[]).indexOf(currentLevel)===-1) return false;
+    if(currentBudget){
+      var p = currentBudget.split('-'), lo = +p[0], hi = +p[1];
+      if(m.lessonFrom < lo || m.lessonFrom > hi) return false;
+    }
+    if(currentFormat && (m.formats||[]).indexOf(currentFormat)===-1) return false;
+    if(currentDay && (m.days||[]).indexOf(currentDay)===-1) return false;
+    if(searchQuery && m.name.toLowerCase().indexOf(searchQuery)===-1 && m.instrument.toLowerCase().indexOf(searchQuery)===-1 && m.bio.toLowerCase().indexOf(searchQuery)===-1) return false;
+    return true;
+  });
+}
+
+function renderGrid(){
+  var list = getFiltered();
+  var grid = document.getElementById('musicianGrid');
+  var noRes = document.getElementById('noResults');
+  document.getElementById('filterCount').textContent = list.length + (list.length === 1 ? ' teacher' : ' teachers');
+
+  if(!list.length){
+    grid.innerHTML=''; noRes.style.display='block'; return;
+  }
+  noRes.style.display='none';
+
+  grid.innerHTML = list.map(function(m){
+    var isFav = favourites.indexOf(m.id)!==-1;
+    var savedPhoto = localStorage.getItem('mono-mphoto-'+m.id)||'';
+    var savedVideo = localStorage.getItem('mono-mvideo-'+m.id)||'';
+    var mx = localStorage.getItem('mxys-x-'+m.id)||'0';
+    var my = localStorage.getItem('mxys-y-'+m.id)||'0';
+    var ms = localStorage.getItem('mxys-s-'+m.id)||'1';
+    var xysStyle = 'transform:translate('+mx+'px,'+my+'px) scale('+ms+');transform-origin:center center;';
+    var mediaHtml;
+    if(savedPhoto){
+      mediaHtml='<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'"><img src="'+savedPhoto+'" alt="'+m.name+'" style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;"></div>';
+    }else if(savedVideo){
+      mediaHtml='<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'"><video src="'+savedVideo+'" muted loop autoplay playsinline style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;"></video></div>';
+    }else{
+      mediaHtml='<div class="mcard-photo-placeholder" style="background:linear-gradient(135deg,'+m.color+',#1a1a1a);color:rgba(255,255,255,.15);font-size:56px;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">'+m.emoji+'</div>';
+    }
+    var isPlaying = currentPlayingId===m.id;
+    var playIcon = isPlaying
+      ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
+      : '<svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><polygon points="7 3 21 12 7 21 7 3"/></svg>';
+    var photoLink = m.profileUrl||'#';
+    return '<div class="mcard'+(isPlaying?' mcard-playing':'')+'" data-id="'+m.id+'">' +
+      '<a href="'+photoLink+'" class="mcard-photo-link">' +
+        '<div class="mcard-photo" style="position:relative;">' +
+          '<div class="mcard-photo-zoom">'+mediaHtml+'</div>' +
+          '<button class="mcard-heart'+(isFav?' active':'')+'" onclick="toggleFav(event,'+m.id+')" aria-label="Favourite" style="position:absolute;top:10px;right:10px;z-index:6;">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
+          '</button>' +
+          '<span class="mcard-explore-photo">View Profile →</span>' +
+          '<button class="mcard-play-photo" onclick="togglePlay(event,'+m.id+')" title="Preview">'+playIcon+'</button>' +
+        '</div>' +
+      '</a>' +
+      '<div class="mcard-body">' +
+        '<div class="mcard-top"><div class="mcard-rating"><span class="mcard-reviews">💬 '+m.reviews+' &nbsp;🤍 '+(m.saves||Math.round(m.reviews*0.22))+'</span></div></div>' +
+        '<div class="mcard-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+m.region+'</div>' +
+        '<div class="mcard-name">'+m.name+'</div>' +
+        '<div class="mcard-instrument">'+m.instrument+'</div>' +
+        '<div class="mcard-bio">'+m.bio+'</div>' +
+        '<div class="mcard-lesson-price"><span class="from">From </span>NT$'+m.lessonFrom.toLocaleString()+' / session</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ── Favourites ────────────────────────────────────────────────────────────────
+function toggleFav(e, id){
+  e.stopPropagation();
+  if(!localStorage.getItem('opusz_user')){
+    var modal=document.getElementById('loginRequiredModal'); if(modal)modal.style.display='flex'; return;
+  }
+  var idx=favourites.indexOf(id);
+  if(idx===-1){favourites.push(id);}else{favourites.splice(idx,1);}
+  localStorage.setItem('mono-favs',JSON.stringify(favourites));
+  updateFavBtn();
+  var card=document.querySelector('.mcard[data-id="'+id+'"]');
+  if(card){var heart=card.querySelector('.mcard-heart');if(heart)heart.classList.toggle('active',favourites.indexOf(id)!==-1);}
+  if(document.getElementById('favModal').classList.contains('open'))renderFavModal();
+}
+function updateFavBtn(){
+  var count=favourites.length;
+  var el=document.getElementById('navFavCount');
+  if(el){el.textContent=count;el.style.display=count?'flex':'none';}
+}
+function renderFavModal(){
+  var body=document.getElementById('favModalBody');
+  if(!favourites.length){body.innerHTML='<div class="fav-empty">No favourite teachers yet</div>';return;}
+  body.innerHTML=favourites.map(function(id){
+    var m=TEACHERS.find(function(x){return x.id===id;});if(!m)return'';
+    return '<div class="fav-item"><div class="fav-thumb" style="background:linear-gradient(135deg,'+m.color+',#1a1a1a);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;">'+m.emoji+'</div><div><div class="fav-name">'+m.name+'</div><div class="fav-inst">'+m.instrument+'</div></div></div>';
+  }).join('');
+}
+
+// ── Audio preview ─────────────────────────────────────────────────────────────
+// Resolve the audio a musician card should preview.
+// Source of truth = the track that plays on the musician's profile page
+// (the right-side player, stored under 'martin-audio-tracks'), so the snippet
+// you hear from the card === the song that plays after you click into the profile.
+function getCardAudio(id){
+  try{
+    var raw=localStorage.getItem('martin-audio-tracks');
+    if(raw){
+      var tr=JSON.parse(raw);
+      if(Array.isArray(tr)&&tr.length&&tr[0]&&tr[0].url){
+        return {url:tr[0].url, title:tr[0].title||''};
+      }
+    }
+  }catch(e){}
+  // Fallback: older per-card override
+  var legacy=localStorage.getItem('mono-maudio-'+id)||'';
+  return {url:legacy, title:''};
+}
+function togglePlay(e, id){
+  e.preventDefault(); e.stopPropagation();
+  var m=TEACHERS.find(function(x){return x.id===id;});if(!m)return;
+  var a=getCardAudio(id);
+  if(!a.url){return;}
+  if(currentPlayingId===id){stopAudio();return;}
+  if(currentAudio){currentAudio.pause();currentAudio=null;}
+  currentPlayingId=id;
+  currentAudio=new Audio(a.url);
+  currentAudio.play();
+  document.getElementById('audioBar').classList.add('active');
+  document.getElementById('audioBarName').textContent=m.name;
+  document.getElementById('audioBarInst').textContent=a.title||m.instrument;
+  renderGrid();
+  currentAudio.addEventListener('ended',stopAudio);
+}
+function stopAudio(){
+  if(currentAudio){currentAudio.pause();currentAudio=null;}
+  currentPlayingId=null;
+  document.getElementById('audioBar').classList.remove('active');
+  renderGrid();
+}
+
+</script>
+
+<script>
+// ── Nav i18n ──
+var _currentLang = 'en';
+var I18N = {
+  en: {
+    'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
+    'nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
+    'menu.strings':'Strings','menu.violin':'Violin','menu.viola':'Viola',
+    'menu.cello':'Cello','menu.doublebass':'Double Bass','menu.harp':'Harp',
+    'menu.woodwinds':'Woodwinds','menu.flute':'Flute','menu.piccolo':'Piccolo',
+    'menu.oboe':'Oboe','menu.clarinet':'Clarinet','menu.saxophone':'Saxophone',
+    'menu.bassoon':'Bassoon','menu.brass':'Brass','menu.frenchhorn':'French Horn',
+    'menu.trumpet':'Trumpet','menu.trombone':'Trombone','menu.euphonium':'Euphonium',
+    'menu.tuba':'Tuba','menu.percussion':'Percussion','menu.timpani':'Timpani',
+    'menu.marimba':'Marimba','menu.vibraphone':'Vibraphone','menu.xylophone':'Xylophone',
+    'menu.keyboard':'Keyboard','menu.piano':'Piano','menu.pipeorgan':'Pipe Organ',
+    'menu.voice':'Voice','menu.soprano':'Soprano','menu.mezzosoprano':'Mezzo-soprano',
+    'menu.tenor':'Tenor','menu.baritone':'Baritone','menu.choral':'Choral',
+    'menu.chamber':'Chamber','menu.stringquartet':'String Quartet',
+    'menu.pianotrio':'Piano Trio','menu.stringtrio':'String Trio',
+    'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet',
+    'menu.pianoquintet':'Piano Quintet','menu.all':'All','menu.allmusicians':'All Musicians',
+    'menu.conductor':'Conductor','menu.tuner':'Tuner',
+    'login.customer':'Customer login','login.musician':'Musician login'
+  },
+  zh: {
+    'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
+    'nav.news':'演出','nav.contact':'聯絡','nav.lessons':'音樂老師',
+    'menu.strings':'弦樂','menu.violin':'小提琴','menu.viola':'中提琴',
+    'menu.cello':'大提琴','menu.doublebass':'低音提琴','menu.harp':'豎琴',
+    'menu.woodwinds':'木管','menu.flute':'長笛','menu.piccolo':'短笛',
+    'menu.oboe':'雙簧管','menu.clarinet':'單簧管','menu.saxophone':'薩克斯風',
+    'menu.bassoon':'低音管','menu.brass':'銅管','menu.frenchhorn':'法國號',
+    'menu.trumpet':'小號','menu.trombone':'長號','menu.euphonium':'上低音號',
+    'menu.tuba':'大號','menu.percussion':'打擊','menu.timpani':'定音鼓',
+    'menu.marimba':'馬林巴','menu.vibraphone':'顫音琴','menu.xylophone':'木琴',
+    'menu.keyboard':'鍵盤','menu.piano':'鋼琴','menu.pipeorgan':'管風琴',
+    'menu.voice':'聲樂','menu.soprano':'女高音','menu.mezzosoprano':'次女高音',
+    'menu.tenor':'男高音','menu.baritone':'男中音','menu.choral':'合唱',
+    'menu.chamber':'室樂','menu.stringquartet':'弦樂四重奏',
+    'menu.pianotrio':'鋼琴三重奏','menu.stringtrio':'弦樂三重奏',
+    'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏',
+    'menu.pianoquintet':'鋼琴五重奏','menu.all':'全部','menu.allmusicians':'所有音樂家',
+    'menu.conductor':'指揮','menu.tuner':'調音師',
+    'login.customer':'客戶登入','login.musician':'音樂家登入'
+  }
+};
+var MENU_I18N = I18N;
+
+function switchLang(lang) {
+  _currentLang = lang;
+  var dict = I18N[lang] || I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n')];
+    if (v !== undefined) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n-ph')];
+    if (v !== undefined) el.placeholder = v;
+  });
+  document.querySelectorAll('#langToggle .lt-opt').forEach(function(o) {
+    o.classList.toggle('active', o.dataset.l === lang);
+  });
+  document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+  if (typeof window.__navResplit === 'function') window.__navResplit();
+  if (typeof updateQuizI18n === 'function') updateQuizI18n();
+}
+function setLang(l){ switchLang(l); }
+
+// ── Nav JS (identical to all pages) ──
+document.addEventListener('DOMContentLoaded', function(){
+  // Lang toggle
+  var langToggle = document.getElementById('langToggle');
+  if(langToggle){
+    langToggle.addEventListener('click', function(e){
+      var opt = e.target.closest('[data-l]');
+      switchLang(opt ? opt.dataset.l : (_currentLang === 'en' ? 'zh' : 'en'));
+    });
+  }
+
+  // Login dropdown
+  var loginBtn = document.getElementById('navLoginBtn');
+  if(loginBtn){
+    var loginLeaveTimer;
+    loginBtn.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); this.classList.add('open'); });
+    loginBtn.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
+    var dropdown = loginBtn.querySelector('.nav-login-dropdown');
+    if(dropdown){
+      dropdown.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); });
+      dropdown.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
+    }
+  }
+
+  // Login modal
+  var overlay = document.getElementById('loginModalOverlay');
+  var modalClose = document.getElementById('loginModalClose');
+  var modalTitle = document.getElementById('loginModalTitle');
+  var openCustomer = document.getElementById('openCustomerLogin');
+  function openModal(title){
+    if(modalTitle) modalTitle.textContent = title;
+    if(overlay) overlay.classList.add('open');
+    if(loginBtn) loginBtn.classList.remove('open');
+  }
+  if(openCustomer) openCustomer.addEventListener('click', function(e){ e.preventDefault(); openModal('Customer Login'); });
+  if(modalClose) modalClose.addEventListener('click', function(){ overlay.classList.remove('open'); });
+  if(overlay) overlay.addEventListener('click', function(e){ if(e.target === overlay) overlay.classList.remove('open'); });
+
+  // Hamburger drawer
+  var hamburger = document.getElementById('hamburgerBtn');
+  var drawer = document.getElementById('navDrawer');
+  var navSubDrawer = document.getElementById('navSubDrawer');
+  var drawerTimeout;
+  function openDrawer(){ clearTimeout(drawerTimeout); drawer.classList.add('nd-visible'); }
+  function closeDrawer(){ if(navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return; drawerTimeout = setTimeout(function(){ drawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
+  function closeBoth(){ drawerTimeout = setTimeout(function(){ drawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
+  if(hamburger && drawer){
+    hamburger.addEventListener('mouseenter', openDrawer);
+    hamburger.addEventListener('mouseleave', closeDrawer);
+    drawer.addEventListener('mouseenter', openDrawer);
+    drawer.addEventListener('mouseleave', closeDrawer);
+  }
+  if(navSubDrawer){ navSubDrawer.addEventListener('mouseenter', function(){ clearTimeout(drawerTimeout); }); navSubDrawer.addEventListener('mouseleave', closeBoth); }
+  var ndMusiciansBtn = document.getElementById('ndMusiciansBtn');
+  var nsdBack = document.getElementById('nsdBack');
+  if(ndMusiciansBtn && navSubDrawer){
+    ndMusiciansBtn.addEventListener('click', function(){ clearTimeout(drawerTimeout); navSubDrawer.classList.add('ns-visible'); });
+    nsdBack.addEventListener('click', function(){ navSubDrawer.classList.remove('ns-visible'); });
+  }
+
+  // Mega menu
+  var artistsTrigger = document.getElementById('artists-nav-item');
+  var megaMenu = document.getElementById('artistsMegaMenu');
+  var navEl = document.querySelector('nav');
+  if(artistsTrigger && megaMenu){
+    var artistsLink = artistsTrigger.querySelector('a');
+    var mmTimeout;
+    function openMega(){ clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); if(artistsLink) artistsLink.classList.add('mm-active'); if(navEl) navEl.classList.add('mega-open'); }
+    function closeMega(){ mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if(artistsLink) artistsLink.classList.remove('mm-active'); if(navEl) navEl.classList.remove('mega-open'); }, 80); }
+    artistsTrigger.addEventListener('mouseenter', openMega);
+    artistsTrigger.addEventListener('mouseleave', closeMega);
+    megaMenu.addEventListener('mouseenter', openMega);
+    megaMenu.addEventListener('mouseleave', closeMega);
+  }
+});
+</script>
+
+<script>
+/* ── Nav: scroll hide/show with lerp ── */
+(function() {
+  var navEl = document.querySelector('nav');
+  var navH = navEl ? navEl.offsetHeight : 64;
+  var navTarget = 0, navCurrent = 0, lastY = 0, raf = null;
+  function tick() {
+    navCurrent += (navTarget - navCurrent) * 0.1;
+    if (navEl) navEl.style.top = navCurrent + 'px';
+    if (Math.abs(navTarget - navCurrent) < 0.05) {
+      if (navEl) navEl.style.top = navTarget + 'px';
+      navCurrent = navTarget; raf = null;
+    } else { raf = requestAnimationFrame(tick); }
+  }
+  window.addEventListener('scroll', function() {
+    var y = window.scrollY;
+    navTarget = y < 80 ? 0 : (y > lastY ? -navH : 0);
+    lastY = y;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+})();
+
+/* ── Nav: mix-blend-mode difference + underline + char split ── */
+(function() {
+  var nav = document.querySelector('nav');
+  if (!nav) return;
+
+  function _splitToChars(el) {
+    var text = el.textContent;
+    el.innerHTML = [...text].map(function(ch) {
+      return ch === ' ' ? '<span class="nc-char nc-sp"> </span>' : '<span class="nc-char">' + ch + '</span>';
+    }).join('');
+  }
+  var navLogoFixed = document.getElementById('navLogoFixed');
+  function _resplitNav() {
+    nav.querySelectorAll('.nav-links a').forEach(function(a) { _splitToChars(a); });
+    var ln = nav.querySelector('.nav-logo-name');
+    var ls = nav.querySelector('.nav-logo-sub');
+    if (ln) _splitToChars(ln);
+    if (ls) _splitToChars(ls);
+    if (navLogoFixed) {
+      var fln = navLogoFixed.querySelector('.nav-logo-name');
+      var fls = navLogoFixed.querySelector('.nav-logo-sub');
+      if (fln) _splitToChars(fln);
+      if (fls) _splitToChars(fls);
+      navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    }
+  }
+  _resplitNav();
+  window.__navResplit = _resplitNav;
+
+  function updateColors() {
+    var megaOpen = nav.classList.contains('mega-open');
+    if (megaOpen) {
+      nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#000'; });
+      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+        var el = nav.querySelector(sel); if (!el) return;
+        el.style.color = '#000'; el.style.borderColor = 'rgba(0,0,0,.35)';
+      });
+      nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#000'; });
+      nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
+      return;
+    }
+    nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#fff'; });
+    if (navLogoFixed) navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+      var el = nav.querySelector(sel); if (!el) return;
+      el.style.color = '#fff'; el.style.borderColor = 'rgba(255,255,255,.5)';
+    });
+    nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#fff'; });
+  }
+
+  /* Inject underline span into every nav link */
+  nav.querySelectorAll('.nav-links a').forEach(function(a) {
+    if (!a.querySelector('.nav-ul')) {
+      var ul = document.createElement('span');
+      ul.className = 'nav-ul';
+      a.appendChild(ul);
+    }
+  });
+
+  updateColors();
+  window.addEventListener('scroll', updateColors, { passive: true });
+  window.addEventListener('resize', updateColors);
+  setTimeout(updateColors, 300);
+})();
+
+/* ── Page transition + bfcache fix ── */
+document.addEventListener('click', function(e) {
+  var a = e.target.closest('a[href]');
+  if (!a || a.target || e.metaKey || e.ctrlKey) return;
+  var url; try { url = new URL(a.href, location.href); } catch(err) { return; }
+  if (url.origin !== location.origin) return;
+  if (url.pathname === location.pathname && url.hash) {
+    e.preventDefault();
+    history.replaceState(null, '', url.hash);
+    var t = document.getElementById(url.hash.slice(1));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  if (url.pathname === location.pathname && !url.hash) return;
+  e.preventDefault();
+  document.documentElement.style.transition = 'opacity .22s ease';
+  document.documentElement.style.opacity = '0';
+  setTimeout(function() { location.href = a.href; }, 230);
+});
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    document.documentElement.style.transition = 'opacity .22s ease';
+    document.documentElement.style.opacity = '1';
+  }
+});
+</script>
+
+<!-- LESSONS MEDIA EDITOR PANEL -->
+<div class="med-overlay" id="medOverlay">
+  <div class="med-panel" id="medPanel">
+    <div class="med-head" id="medDragHandle">
+      <div class="med-drag-dots"><span></span><span></span><span></span></div>
+      <div style="flex:1;min-width:0;">
+        <div id="medTitle" style="font-size:13px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Editor</div>
+        <div id="medSub" class="med-head-sub"></div>
+      </div>
+      <button class="med-close" onclick="closeEditor()">✕</button>
+    </div>
+    <div class="med-body" id="medBody"></div>
+  </div>
+</div>
+<div class="med-toast" id="medToast"></div>
+
+<script>
+// ── LESSONS MEDIA EDITOR ────────────────────────────────────────────────────
+// ── Image Compress Helper ──
+function compressImage(file, maxPx, quality, callback){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    var img = new Image();
+    img.onload = function(){
+      var w = img.width, h = img.height;
+      if(w > maxPx || h > maxPx){
+        var ratio = Math.min(maxPx/w, maxPx/h);
+        w = Math.round(w*ratio); h = Math.round(h*ratio);
+      }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ── XYS slider row builder ──
+function xysRow(prefix, id){
+  var isHero = (prefix === 'lhero-');
+  var x = parseFloat(localStorage.getItem(prefix+'x-'+id)||'0');
+  var y = parseFloat(localStorage.getItem(prefix+'y-'+id)||'0');
+  var s = parseFloat(localStorage.getItem(prefix+'s-'+id)||'1');
+  var xyMin = isHero ? '-600' : '-200';
+  var xyMax = isHero ? '600' : '200';
+  var sMin  = isHero ? '0.1' : '0.3';
+  var sMax  = isHero ? '5.0' : '2.5';
+  var sStep = '0.05';
+  var sl = 'width:100%;accent-color:#fff;cursor:pointer;';
+  return '<div style="display:grid;grid-template-columns:16px 1fr 36px;align-items:center;gap:4px;margin-bottom:3px;">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.3)">X</span>' +
+    '<input type="range" min="'+xyMin+'" max="'+xyMax+'" step="1" value="'+x+'" style="'+sl+'" oninput="liveXYS(\''+prefix+'\',\''+id+'\',\'x\',this.value)" id="'+prefix+'xr-'+id+'">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.4);text-align:right" id="'+prefix+'xv-'+id+'">'+x+'</span></div>' +
+    '<div style="display:grid;grid-template-columns:16px 1fr 36px;align-items:center;gap:4px;margin-bottom:3px;">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.3)">Y</span>' +
+    '<input type="range" min="'+xyMin+'" max="'+xyMax+'" step="1" value="'+y+'" style="'+sl+'" oninput="liveXYS(\''+prefix+'\',\''+id+'\',\'y\',this.value)" id="'+prefix+'yr-'+id+'">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.4);text-align:right" id="'+prefix+'yv-'+id+'">'+y+'</span></div>' +
+    '<div style="display:grid;grid-template-columns:16px 1fr 36px;align-items:center;gap:4px;margin-bottom:6px;">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.3)">S</span>' +
+    '<input type="range" min="'+sMin+'" max="'+sMax+'" step="'+sStep+'" value="'+s+'" style="'+sl+'" oninput="liveXYS(\''+prefix+'\',\''+id+'\',\'s\',this.value)" id="'+prefix+'sr-'+id+'">' +
+    '<span style="font-size:9px;color:rgba(255,255,255,.4);text-align:right" id="'+prefix+'sv-'+id+'">'+s+'×</span></div>';
+}
+
+function liveXYS(prefix, id, axis, val){
+  document.getElementById(prefix+(axis==='s'?'sv':''+axis+'v')+'-'+id).textContent = axis==='s' ? parseFloat(val).toFixed(2)+'×' : val;
+  applyXYS(prefix, id);
+  saveXYS(prefix, id);
+}
+
+function applyXYS(prefix, id){
+  var xEl = document.getElementById(prefix+'xr-'+id);
+  var yEl = document.getElementById(prefix+'yr-'+id);
+  var sEl = document.getElementById(prefix+'sr-'+id);
+  if(!xEl) return;
+  var x = xEl.value, y = yEl.value, s = sEl.value;
+  var t = 'translate('+x+'px,'+y+'px) scale('+s+')';
+  if(prefix==='lhero-'){
+    var bgm = document.getElementById('heroBgMedia');
+    var target = bgm ? bgm.querySelector('.hero-media-el') : null;
+    if(target) target.style.transform = t;
+  } else {
+    var card = document.querySelector('.mcard[data-id="'+id+'"] .mcard-photo .photo-pan');
+    if(card){ card.style.transform = t; card.style.transformOrigin = 'center center'; }
+  }
+}
+
+function saveXYS(prefix, id){
+  var x = (document.getElementById(prefix+'xr-'+id)||{}).value||'0';
+  var y = (document.getElementById(prefix+'yr-'+id)||{}).value||'0';
+  var s = (document.getElementById(prefix+'sr-'+id)||{}).value||'1';
+  localStorage.setItem(prefix+'x-'+id, x);
+  localStorage.setItem(prefix+'y-'+id, y);
+  localStorage.setItem(prefix+'s-'+id, s);
+}
+
+function applyHeroMedia(){
+  var photo = localStorage.getItem('lessons-hero-photo')||'';
+  var video = localStorage.getItem('lessons-hero-video')||'';
+  var bgm = document.getElementById('heroBgMedia');
+  if(!bgm) return;
+  bgm.innerHTML = '';
+  bgm.style.backgroundImage = '';
+  var hx = localStorage.getItem('lhero-x-lhero')||'0';
+  var hy = localStorage.getItem('lhero-y-lhero')||'0';
+  var hs = localStorage.getItem('lhero-s-lhero')||'1';
+  var savedT = 'translate('+hx+'px,'+hy+'px) scale('+hs+')';
+  var mediaStyle = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:center center;transform:'+savedT+';';
+  if(photo){
+    var img = document.createElement('img');
+    img.className = 'hero-media-el';
+    img.src = photo;
+    img.style.cssText = mediaStyle;
+    bgm.appendChild(img);
+  } else if(video){
+    var vid = document.createElement('video');
+    vid.className = 'hero-media-el';
+    vid.src = video; vid.muted = true; vid.loop = true; vid.autoplay = true; vid.playsInline = true;
+    vid.style.cssText = mediaStyle;
+    bgm.appendChild(vid);
+    vid.play().catch(function(){});
+  }
+}
+
+// ── Editor ──
+function openEditor(){
+  var list = TEACHERS;
+  var body  = document.getElementById('medBody');
+  var title = document.getElementById('medTitle');
+  var sub   = document.getElementById('medSub');
+  title.textContent = 'Lessons — Photo Editor';
+  sub.textContent = list.length + ' teacher' + (list.length!==1?'s':'') + ' · Press P / Esc to close';
+
+  // ── Hero Banner section ──
+  var heroPhoto = localStorage.getItem('lessons-hero-photo')||'';
+  var heroVideo = localStorage.getItem('lessons-hero-video')||'';
+  var heroHtml =
+    '<div class="med-card" style="border-color:rgba(255,255,255,.2);">' +
+    '<div class="med-card-head" style="background:rgba(255,255,255,.08);">' +
+      '<div class="med-thumb" style="background:#333;font-size:16px;display:flex;align-items:center;justify-content:center;">🖼</div>' +
+      '<div><div class="med-card-name">Hero Banner</div><div class="med-card-inst">Page header photo / video</div></div>' +
+    '</div>' +
+    '<div class="med-card-body">' +
+      '<div class="med-label">Photo (upload)</div>' +
+      '<input type="file" accept="image/*" id="lhero-photo-file" style="display:none" onchange="handleUpload(\'lhero\',this)">' +
+      '<button class="med-upload-btn" onclick="document.getElementById(\'lhero-photo-file\').click()">'+(heroPhoto?'✓ Photo set — click to change':'⬆ Upload Photo')+'</button>' +
+      '<div class="med-label">or Video URL</div>' +
+      '<input class="med-url-input" id="lhero-video-url" value="'+heroVideo+'" placeholder="https://res.cloudinary.com/…/video.mp4">' +
+      '<div class="med-label" style="margin-top:8px;">Position & Scale</div>' +
+      xysRow('lhero-','lhero') +
+      '<div style="display:flex;gap:6px;margin-bottom:0;">' +
+        '<button class="med-save-btn" style="flex:1;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);" onclick="resetXYS(\'lhero-\',\'lhero\')">↺ Reset</button>' +
+        '<button class="med-save-btn" style="flex:2;" onclick="saveHero()">💾 Save Banner</button>' +
+      '</div>' +
+    '</div></div>';
+
+  // ── Teacher sections ──
+  var teacherHtml = list.map(function(m){
+    var photo = localStorage.getItem('mono-mphoto-'+m.id)||'';
+    var video = localStorage.getItem('mono-mvideo-'+m.id)||'';
+    var audio = localStorage.getItem('mono-maudio-'+m.id)||'';
+    var thumbHtml = photo ? '<img src="'+photo+'" style="width:100%;height:100%;object-fit:cover;">' : '<span style="font-size:22px;">'+m.emoji+'</span>';
+    return '<div class="med-card" id="medc-'+m.id+'">' +
+      '<div class="med-card-head">' +
+        '<div class="med-thumb" id="medthumb-'+m.id+'" style="background:linear-gradient(135deg,'+m.color+',#111);">'+thumbHtml+'</div>' +
+        '<div><div class="med-card-name">'+m.name+'</div><div class="med-card-inst">'+m.instrument+' · '+m.region+'</div></div>' +
+      '</div>' +
+      '<div class="med-card-body">' +
+        '<div class="med-label">Photo <span style="color:rgba(255,255,255,.25);font-weight:400;text-transform:none;letter-spacing:0;">(auto-compressed)</span></div>' +
+        '<input type="file" accept="image/*" id="medphoto-'+m.id+'" style="display:none" onchange="handleUpload('+m.id+',this)">' +
+        '<button class="med-upload-btn" id="medbtn-'+m.id+'" onclick="document.getElementById(\'medphoto-'+m.id+'\').click()">'+(photo?'✓ Photo set — click to change':'⬆ Upload Photo')+'</button>' +
+        '<div class="med-label">or Video URL</div>' +
+        '<input class="med-url-input" id="medvideo-'+m.id+'" value="'+video+'" placeholder="https://res.cloudinary.com/…/video.mp4">' +
+        '<div class="med-label" style="margin-top:4px;">Position & Scale</div>' +
+        xysRow('mxys-', m.id) +
+        '<div style="display:flex;gap:6px;margin-bottom:8px;">' +
+          '<button class="med-save-btn" style="flex:1;background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);" onclick="resetXYS(\'mxys-\','+m.id+')">↺ Reset</button>' +
+        '</div>' +
+        '<div class="med-label">Audio Recording URL</div>' +
+        '<input class="med-url-input" id="medaudio-'+m.id+'" value="'+audio+'" placeholder="https://res.cloudinary.com/…/audio.mp3">' +
+        '<button class="med-save-btn" onclick="saveTeacher('+m.id+')">💾 Save</button>' +
+      '</div></div>';
+  }).join('');
+
+  body.innerHTML = heroHtml + teacherHtml;
+  var panel = document.getElementById('medPanel');
+  if(panel){ panel.style.left=''; panel.style.top='80px'; panel.style.right='24px'; }
+  document.getElementById('medOverlay').classList.add('open');
+}
+
+function closeEditor(){
+  document.getElementById('medOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── Draggable editor panel ──
+(function(){
+  var panel, handle, dragging=false, ox=0, oy=0;
+  document.addEventListener('DOMContentLoaded', function(){
+    panel  = document.getElementById('medPanel');
+    handle = document.getElementById('medDragHandle');
+    if(!panel || !handle) return;
+    handle.addEventListener('mousedown', function(e){
+      if(e.target.closest('.med-close')) return;
+      dragging = true;
+      var rect = panel.getBoundingClientRect();
+      ox = e.clientX - rect.left;
+      oy = e.clientY - rect.top;
+      panel.style.transition = 'none';
+      document.body.style.userSelect = 'none';
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e){
+      if(!dragging) return;
+      var x = e.clientX - ox;
+      var y = e.clientY - oy;
+      x = Math.max(0, Math.min(window.innerWidth  - panel.offsetWidth,  x));
+      y = Math.max(0, Math.min(window.innerHeight - panel.offsetHeight, y));
+      panel.style.left = x + 'px';
+      panel.style.top  = y + 'px';
+      panel.style.right = 'auto';
+    });
+    document.addEventListener('mouseup', function(){
+      dragging = false;
+      document.body.style.userSelect = '';
+    });
+  });
+})();
+
+function handleUpload(id, input){
+  if(!input.files || !input.files[0]) return;
+  var isHero = (id === 'hero' || id === 'lhero');
+  compressImage(input.files[0], isHero ? 1400 : 900, 0.78, function(dataUrl){
+    if(isHero){
+      input.dataset.dataUrl = dataUrl;
+      var hf = document.querySelector('#lhero-photo-file');
+      if(hf) hf.dataset.dataUrl = dataUrl;
+      var btn = document.querySelector('[onclick="document.getElementById(\'lhero-photo-file\').click()"]');
+      if(btn) btn.textContent = '✓ Photo set — click to change';
+    } else {
+      var thumb = document.getElementById('medthumb-'+id);
+      if(thumb) thumb.innerHTML = '<img src="'+dataUrl+'" style="width:100%;height:100%;object-fit:cover;">';
+      var btn = document.getElementById('medbtn-'+id);
+      if(btn) btn.textContent = '✓ Photo set — click to change';
+      var inp = document.getElementById('medphoto-'+id);
+      if(inp) inp.dataset.dataUrl = dataUrl;
+    }
+  });
+}
+
+function saveHero(){
+  var photoInp = document.getElementById('lhero-photo-file');
+  var videoUrl = (document.getElementById('lhero-video-url')||{}).value||'';
+  if(photoInp && photoInp.dataset.dataUrl){
+    try{ localStorage.setItem('lessons-hero-photo', photoInp.dataset.dataUrl);
+         localStorage.removeItem('lessons-hero-video'); }
+    catch(e){ showMedToast('⚠ Image too large even after compression'); return; }
+  } else if(videoUrl.trim()){
+    localStorage.setItem('lessons-hero-video', videoUrl.trim());
+    localStorage.removeItem('lessons-hero-photo');
+  } else {
+    localStorage.removeItem('lessons-hero-photo');
+    localStorage.removeItem('lessons-hero-video');
+  }
+  saveXYS('lhero-','lhero');
+  applyHeroMedia();
+  applyXYS('lhero-','lhero');
+  showMedToast('Banner saved ✓');
+}
+
+function saveTeacher(id){
+  var photoInp = document.getElementById('medphoto-'+id);
+  var videoVal = (document.getElementById('medvideo-'+id)||{}).value||'';
+  var audioVal = (document.getElementById('medaudio-'+id)||{}).value||'';
+  if(photoInp && photoInp.dataset.dataUrl){
+    try{ localStorage.setItem('mono-mphoto-'+id, photoInp.dataset.dataUrl);
+         localStorage.removeItem('mono-mvideo-'+id); }
+    catch(e){ showMedToast('⚠ Storage full — try clearing some photos'); return; }
+  } else if(videoVal.trim()){
+    localStorage.setItem('mono-mvideo-'+id, videoVal.trim());
+    localStorage.removeItem('mono-mphoto-'+id);
+  }
+  if(audioVal.trim()) localStorage.setItem('mono-maudio-'+id, audioVal.trim());
+  else localStorage.removeItem('mono-maudio-'+id);
+  saveXYS('mxys-', id);
+  var t = TEACHERS.find(function(m){return m.id===id;});
+  showMedToast((t?t.name:'Teacher') + ' saved ✓');
+  renderGrid();
+}
+
+function resetXYS(prefix, id){
+  localStorage.setItem(prefix+'x-'+id, '0');
+  localStorage.setItem(prefix+'y-'+id, '0');
+  localStorage.setItem(prefix+'s-'+id, '1');
+  var xEl = document.getElementById(prefix+'xr-'+id);
+  var yEl = document.getElementById(prefix+'yr-'+id);
+  var sEl = document.getElementById(prefix+'sr-'+id);
+  if(xEl){ xEl.value = 0; var xv=document.getElementById(prefix+'xv-'+id); if(xv) xv.textContent='0'; }
+  if(yEl){ yEl.value = 0; var yv=document.getElementById(prefix+'yv-'+id); if(yv) yv.textContent='0'; }
+  if(sEl){ sEl.value = 1; var sv=document.getElementById(prefix+'sv-'+id); if(sv) sv.textContent='1×'; }
+  applyXYS(prefix, id);
+  if(prefix==='lhero-') showMedToast('Hero position reset ✓');
+  else showMedToast('Position reset ✓');
+}
+
+function showMedToast(msg){
+  var t = document.getElementById('medToast');
+  if(!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 2400);
+}
+
+// P key open / Esc close
+document.addEventListener('keydown', function(e){
+  if(e.key==='p'||e.key==='P'){
+    if(['INPUT','TEXTAREA','SELECT'].indexOf((document.activeElement||{}).tagName||'')!==-1) return;
+    openEditor();
+  }
+  if(e.key==='Escape') closeEditor();
+});
+
+// Apply saved hero banner on load
+window.addEventListener('load', function(){
+  applyHeroMedia();
+  applyXYS('lhero-','lhero');
+});
+</script>
+
+<script src="assets/js/smooth-scroll.js" defer></script>
+<script src="assets/js/nav-auth.js" defer></script>
+</body>
+</html>

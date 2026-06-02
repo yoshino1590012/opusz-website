@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Favourites — OPUS.Z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --black:#0a0a0a;--white:#fff;--gray:#f5f5f5;--mid:#888;--radius:12px;
+  --nav-fg:#fff;
+}
+body{font-family:'Inter',sans-serif;color:var(--black);background:#fff;-webkit-font-smoothing:antialiased;}
+
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 40px;
+  min-height: 76px;
+  background: transparent;
+  mix-blend-mode: difference;
+}
+nav.mega-open {
+  mix-blend-mode: normal;
+  background: #fff;
+  transition: background 0.22s ease;
+  --nav-fg: #000;
+}
+nav, nav.nav-on-dark { --nav-fg: #fff; }
+nav.nav-on-light { --nav-fg: #000; }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; padding-left: 50px; }
+.orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
+#navOrbFixed {
+  position: fixed; top: 18px; left: 40px;
+  z-index: 201;
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+  pointer-events: all;
+  color: #000;
+  font-size: 17px; font-weight: 700;
+}
+.nav-logo-spacer { width: 180px; flex-shrink: 0; }
+.nav-logo-text { display: flex; flex-direction: column; overflow: hidden; line-height: 1; }
+.nav-logo-name { display: block; }
+.nav-logo-sub {
+  display: block; font-size: 17px; font-weight: 700; letter-spacing: 0;
+  max-height: 0; overflow: hidden; opacity: 0; transform: translateY(5px);
+  transition: max-height 0.38s cubic-bezier(0.34,1.15,0.64,1), opacity 0.28s ease,
+              transform 0.38s cubic-bezier(0.34,1.15,0.64,1), margin-top 0.38s cubic-bezier(0.34,1.15,0.64,1);
+  margin-top: 0;
+}
+.nav-logo:hover .nav-logo-sub, #navOrbFixed:hover .nav-logo-sub {
+  max-height: 28px; opacity: 1; transform: translateY(0); margin-top: 2px;
+}
+.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 0; right: 0; justify-content: center; pointer-events: none; }
+.nav-links li { pointer-events: all; }
+.nav-links a {
+  text-decoration: none; font-size: 15px;
+  position: relative; padding: 11px 22px; border-radius: 50px;
+  display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1; vertical-align: middle; white-space: nowrap;
+  z-index: 0; color: transparent;
+}
+nav.mega-open .nav-links { mix-blend-mode: normal; }
+nav.mega-open .nav-links a { color: #000; }
+nav.mega-open .nav-links .nc-char { color: #000 !important; }
+.nc-char { display: inline-block; color: #fff; }
+.nc-sp { display: inline-block; min-width: 0.3em; }
+nav.mega-open .nc-char { color: #000 !important; transition: none; }
+nav .nav-logo-name, nav .nav-logo-sub { color: transparent; }
+#navOrbFixed .nav-logo-name, #navOrbFixed .nav-logo-sub { color: #000; }
+nav.mega-open .nav-logo-name .nc-char, nav.mega-open .nav-logo-sub .nc-char { color: #000 !important; transition: none; }
+@media (max-width: 1440px) { nav { padding: 13px 28px; } .nav-links { gap: 4px; } .nav-links a { font-size: 13px; padding: 9px 14px; } }
+@media (max-width: 1200px) { nav { padding: 11px 24px; } .nav-links { gap: 2px; } .nav-links a { font-size: 12px; padding: 8px 11px; } }
+.nav-links a::before { display: none; }
+.nav-links a:hover { opacity: 1; }
+.nav-ul {
+  position: absolute; bottom: 3px; left: 10px; right: 10px; height: 1px;
+  background: #fff; transform: scaleX(0); transform-origin: right center;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+}
+.nav-links a:hover .nav-ul { transform: scaleX(1); transform-origin: left center; }
+nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
+.hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
+.hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: opacity .2s; }
+.hamburger:hover span { opacity: .5; }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.nav-fav-btn { position: relative; background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); display: flex; align-items: center; padding: 6px; }
+.nav-fav-btn:hover { opacity: .65; }
+.nav-fav-btn svg { display: block; }
+.nav-fav-count { position:absolute; top:0; right:0; background:#e05; color:#fff; font-size:9px; font-weight:700; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; line-height:1; }
+.nav-login-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  color: var(--nav-fg, #fff); background: none; border: 1px solid rgba(255,255,255,.35);
+  border-radius: 50px; padding: 7px 14px; cursor: pointer; position: relative;
+}
+.nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; }
+.nav-login-btn.open svg { transform: rotate(180deg); }
+.nav-login-dropdown {
+  display: none; position: absolute; top: calc(100% + 8px); right: 0;
+  background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 10px;
+  padding: 6px 0; min-width: 160px; box-shadow: 0 8px 24px rgba(0,0,0,.1); z-index: 210;
+}
+.nav-login-btn.open .nav-login-dropdown { display: block; }
+.nav-login-dropdown a { display: block; padding: 10px 16px; font-size: 13px; color: #111; }
+.nav-login-dropdown a:hover { background: #f5f5f5; }
+.nav-login-vsep { border-top: 1px solid rgba(0,0,0,.08); margin: 3px 0; }
+.lang-toggle {
+  display: flex; align-items: center; gap: 2px;
+  font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); font-family: inherit;
+}
+.lt-opt { opacity: .4; transition: opacity .15s; }
+.lt-opt.active { opacity: 1; }
+.lt-sep { opacity: .25; }
+.nav-drawer {
+  position: fixed; top: 0; right: -260px; bottom: 0; width: 260px;
+  background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.10);
+  padding: 90px 40px 48px; display: flex; flex-direction: column; gap: 4px;
+  transition: right 0.18s ease; z-index: 300; pointer-events: none;
+}
+.nav-drawer.nd-visible { right: 0; pointer-events: auto; transition: right 0.42s cubic-bezier(0.22,1,0.36,1); }
+.nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nav-drawer a:last-child { border-bottom: none; }
+.nav-drawer a:hover { color: rgba(0,0,0,0.4); }
+.nav-drawer.nd-visible a { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
+.nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
+.nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
+.nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
+.nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
+.nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+.nd-musicians-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-align: left; opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
+.nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
+.nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+.nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.15s; }
+.nav-sub-drawer { position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.12); display: flex; flex-direction: column; transition: right 0.18s ease; z-index: 302; pointer-events: none; overflow: hidden; }
+.nav-sub-drawer.ns-visible { right: 0; pointer-events: auto; transition: right 0.38s cubic-bezier(0.22,1,0.36,1); }
+.nsd-head { display: flex; align-items: center; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+.nsd-back { background: none; border: none; cursor: pointer; font-size: 20px; color: #000; padding: 4px; display: flex; align-items: center; opacity: .5; transition: opacity .15s; }
+.nsd-back:hover { opacity: 1; }
+.nsd-title { font-size: 16px; font-weight: 700; }
+.nsd-body { overflow-y: auto; flex: 1; padding: 12px 0 40px; -webkit-overflow-scrolling: touch; }
+.nsd-group { margin-bottom: 4px; }
+.nsd-group-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(0,0,0,0.35); padding: 14px 24px 6px; }
+.nsd-group a, .nsd-link { display: block; padding: 10px 24px; font-size: 15px; font-weight: 500; color: #000; text-decoration: none; transition: background .12s, color .12s; }
+.nsd-group a:hover, .nsd-link:hover { background: #f5f5f5; }
+.mega-menu {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
+  padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8,1fr); gap: 0;
+  opacity: 0; transform: translateY(-22px); pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.mega-col { padding: 0 16px; border-left: 1px solid rgba(0,0,0,0.07); opacity: 0; transform: translateY(8px); transition: opacity 0.28s ease, transform 0.28s ease; }
+.mega-col:first-child { border-left: none; padding-left: 0; }
+.mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); }
+.mega-menu.mm-visible .mega-col:nth-child(1) { transition-delay: 0.05s; }
+.mega-menu.mm-visible .mega-col:nth-child(2) { transition-delay: 0.08s; }
+.mega-menu.mm-visible .mega-col:nth-child(3) { transition-delay: 0.11s; }
+.mega-menu.mm-visible .mega-col:nth-child(4) { transition-delay: 0.14s; }
+.mega-menu.mm-visible .mega-col:nth-child(5) { transition-delay: 0.17s; }
+.mega-menu.mm-visible .mega-col:nth-child(6) { transition-delay: 0.20s; }
+.mega-col-title { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #111; margin-bottom: 10px; text-decoration: none; }
+.mega-col ul { list-style: none; padding: 0; }
+.mega-col ul li a { display: block; padding: 5px 0; font-size: 13px; color: #555; text-decoration: none; transition: color .12s; }
+.mega-col ul li a:hover { color: #000; }
+.login-modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.35); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.login-modal-overlay.open { opacity: 1; pointer-events: auto; }
+.login-modal { background: #fff; border-radius: 18px; padding: 40px 36px 32px; width: 360px; max-width: 92vw; box-shadow: 0 24px 80px rgba(0,0,0,.22); transform: translateY(12px); transition: transform .2s; position: relative; }
+.login-modal-overlay.open .login-modal { transform: translateY(0); }
+.login-modal-close { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 50%; background: #f0f0f0; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #555; transition: background .15s; }
+.login-modal-close:hover { background: #e0e0e0; }
+.login-modal-title { font-size: 22px; font-weight: 900; letter-spacing: -.03em; margin-bottom: 24px; }
+.login-modal-input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid #e0e0e0; font-size: 14px; font-family: inherit; outline: none; transition: border-color .15s; box-sizing: border-box; display: block; margin-bottom: 12px; }
+.login-modal-input:focus { border-color: #111; }
+.login-modal-btn { width: 100%; padding: 13px; border-radius: 10px; background: #111; color: #fff; border: none; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; margin-top: 4px; }
+.login-modal-footer { text-align: center; margin-top: 16px; font-size: 13px; color: #888; }
+.login-modal-footer a { color: #111; font-weight: 600; text-decoration: none; margin-left: 4px; }
+
+/* ── HERO ── */
+.hero{position:relative;min-height:320px;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%);overflow:hidden;display:flex;align-items:flex-end;}
+.hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,rgba(0,0,0,.2) 60%,transparent 100%);}
+.hero-content{position:relative;z-index:2;padding:112px 48px 40px;width:100%;max-width:900px;}
+.hero-breadcrumb{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
+.hero-breadcrumb a{color:rgba(255,255,255,.5);text-decoration:none;}
+.hero-breadcrumb a:hover{color:#fff;}
+.hero-title{font-size:clamp(28px,4vw,52px);font-weight:800;color:#fff;line-height:1.15;letter-spacing:-.02em;margin-bottom:10px;}
+.hero-sub{font-size:15px;color:rgba(255,255,255,.65);max-width:500px;line-height:1.6;}
+
+/* ── GRID SECTION ── */
+.grid-section{padding:40px 48px 80px;}
+.grid-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:28px;}
+.grid-section-title{font-size:18px;font-weight:700;letter-spacing:-.02em;}
+.grid-count{font-size:13px;color:var(--mid);}
+.musician-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
+@media(max-width:900px){.musician-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.musician-grid{grid-template-columns:1fr;}.grid-section{padding:24px 20px 60px;}.hero-content{padding:96px 20px 28px;}}
+
+/* ── CARD ── */
+.mcard{border-radius:var(--radius);overflow:hidden;background:#fff;border:1.5px solid #efefef;transition:box-shadow .25s,transform .25s;cursor:pointer;position:relative;}
+.mcard:hover{box-shadow:0 14px 44px rgba(0,0,0,.13);transform:translateY(-3px);}
+.mcard-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#f0f0f0;}
+.mcard-photo img{object-fit:contain;}
+.mcard-photo-zoom{position:absolute;inset:0;transition:transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);transform-origin:center center;}
+.mcard:hover .mcard-photo-zoom{transform:scale(1.06);}
+.mcard-photo-placeholder{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:48px;}
+.mcard-heart{position:absolute;top:10px;right:10px;width:34px;height:34px;background:rgba(255,255,255,.9);backdrop-filter:blur(4px);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;transition:background .15s,transform .15s;}
+.mcard-heart:hover{background:#fff;transform:scale(1.12);}
+.mcard-heart svg{transition:fill .15s,stroke .15s;}
+.mcard-heart.active svg{fill:#e05;stroke:#e05;}
+.mcard-explore-photo{
+  position:absolute;bottom:12px;right:14px;
+  transform:translateY(6px) scale(0.85);transform-origin:bottom right;
+  z-index:5;opacity:0;pointer-events:none;
+  transition:opacity .24s ease, transform .38s cubic-bezier(0.34,1.35,0.64,1);
+  background:rgba(255,255,255,0.96);backdrop-filter:blur(8px);
+  color:#000;font-family:inherit;font-size:11.5px;font-weight:700;
+  padding:7px 18px;border-radius:50px;
+  white-space:nowrap;letter-spacing:.04em;
+  box-shadow:0 2px 12px rgba(0,0,0,.12);
+}
+.mcard:hover .mcard-explore-photo{opacity:1;transform:translateY(0) scale(1);}
+.mcard-photo-link{display:block;text-decoration:none;color:inherit;}
+.mcard-body{padding:16px;}
+.mcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.mcard-rating{display:flex;align-items:center;gap:4px;}
+.mcard-stars{color:#f5a623;font-size:12px;letter-spacing:1px;}
+.mcard-rating-val{font-size:12px;font-weight:600;color:#555;}
+.mcard-reviews{font-size:11px;color:var(--mid);}
+.mcard-location{font-size:12px;color:var(--mid);display:flex;align-items:center;gap:3px;margin-bottom:8px;}
+.mcard-location svg{flex-shrink:0;}
+.mcard-name{font-size:15px;font-weight:700;margin-bottom:3px;line-height:1.3;}
+.mcard-instrument{font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
+.mcard-bio{font-size:12.5px;color:#555;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.mcard-enq-btn{display:block;width:100%;margin-top:12px;padding:9px 0;background:#0a0a0a;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:700;font-family:inherit;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:background .15s;}
+.mcard-enq-btn:hover{background:#333;}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:80px 20px;color:var(--mid);}
+.empty-state svg{opacity:.25;margin-bottom:20px;}
+.empty-state h2{font-size:22px;font-weight:700;color:#333;margin-bottom:12px;}
+.empty-state p{font-size:15px;color:var(--mid);line-height:1.6;}
+.empty-state a{color:var(--black);font-weight:600;text-decoration:underline;text-underline-offset:3px;}
+.empty-state a:hover{opacity:.65;}
+</style>
+<link rel="icon" href="/favicon.ico?v=3" />
+<link rel="icon" type="image/png" href="/favicon.png?v=3" />
+</head>
+<body>
+
+<!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
+<a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
+  <div class="orb"></div>
+  <div class="nav-logo-text"><span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span><span class="nav-logo-sub">MUSIC</span></div>
+</a>
+
+<nav>
+  <div class="nav-logo-spacer"></div>
+  <ul class="nav-links">
+    <li><a href="musician-platform.html" data-i18n="nav.home">Home</a></li>
+    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
+    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
+    <li><a href="recent-jobs.html">Recent Jobs</a></li>
+    <li><a href="shows.html" data-i18n="nav.news">Shows</a></li>
+    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
+  </ul>
+  <!-- MEGA MENU -->
+  <div class="mega-menu" id="artistsMegaMenu">
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a>
+      <ul>
+        <li><a href="musicians.html?cat=violin"     data-i18n="menu.violin">Violin</a></li>
+        <li><a href="musicians.html?cat=viola"      data-i18n="menu.viola">Viola</a></li>
+        <li><a href="musicians.html?cat=cello"      data-i18n="menu.cello">Cello</a></li>
+        <li><a href="musicians.html?cat=doublebass" data-i18n="menu.doublebass">Double Bass</a></li>
+        <li><a href="musicians.html?cat=harp"       data-i18n="menu.harp">Harp</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a>
+      <ul>
+        <li><a href="musicians.html?cat=flute"      data-i18n="menu.flute">Flute</a></li>
+        <li><a href="musicians.html?cat=piccolo"    data-i18n="menu.piccolo">Piccolo</a></li>
+        <li><a href="musicians.html?cat=oboe"       data-i18n="menu.oboe">Oboe</a></li>
+        <li><a href="musicians.html?cat=clarinet"   data-i18n="menu.clarinet">Clarinet</a></li>
+        <li><a href="musicians.html?cat=saxophone"  data-i18n="menu.saxophone">Saxophone</a></li>
+        <li><a href="musicians.html?cat=bassoon"    data-i18n="menu.bassoon">Bassoon</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a>
+      <ul>
+        <li><a href="musicians.html?cat=frenchhorn" data-i18n="menu.frenchhorn">French Horn</a></li>
+        <li><a href="musicians.html?cat=trumpet"    data-i18n="menu.trumpet">Trumpet</a></li>
+        <li><a href="musicians.html?cat=trombone"   data-i18n="menu.trombone">Trombone</a></li>
+        <li><a href="musicians.html?cat=euphonium"  data-i18n="menu.euphonium">Euphonium</a></li>
+        <li><a href="musicians.html?cat=tuba"       data-i18n="menu.tuba">Tuba</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=percussion" data-i18n="menu.percussion">Percussion</a>
+      <ul>
+        <li><a href="musicians.html?cat=timpani"    data-i18n="menu.timpani">Timpani</a></li>
+        <li><a href="musicians.html?cat=marimba"    data-i18n="menu.marimba">Marimba</a></li>
+        <li><a href="musicians.html?cat=vibraphone" data-i18n="menu.vibraphone">Vibraphone</a></li>
+        <li><a href="musicians.html?cat=xylophone"  data-i18n="menu.xylophone">Xylophone</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=keyboard" data-i18n="menu.keyboard">Keyboard</a>
+      <ul>
+        <li><a href="musicians.html?cat=piano"      data-i18n="menu.piano">Piano</a></li>
+        <li><a href="musicians.html?cat=pipeorgan"  data-i18n="menu.pipeorgan">Pipe Organ</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a>
+      <ul>
+        <li><a href="musicians.html?cat=soprano"      data-i18n="menu.soprano">Soprano</a></li>
+        <li><a href="musicians.html?cat=mezzosoprano" data-i18n="menu.mezzosoprano">Mezzo-soprano</a></li>
+        <li><a href="musicians.html?cat=tenor"        data-i18n="menu.tenor">Tenor</a></li>
+        <li><a href="musicians.html?cat=baritone"     data-i18n="menu.baritone">Baritone</a></li>
+        <li><a href="musicians.html?cat=choral"       data-i18n="menu.choral">Choral</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a>
+      <ul>
+        <li><a href="musicians.html?cat=stringquartet" data-i18n="menu.stringquartet">String Quartet</a></li>
+        <li><a href="musicians.html?cat=pianotrio"     data-i18n="menu.pianotrio">Piano Trio</a></li>
+        <li><a href="musicians.html?cat=stringtrio"    data-i18n="menu.stringtrio">String Trio</a></li>
+        <li><a href="musicians.html?cat=windquintet"   data-i18n="menu.windquintet">Wind Quintet</a></li>
+        <li><a href="musicians.html?cat=brassquintet"  data-i18n="menu.brassquintet">Brass Quintet</a></li>
+        <li><a href="musicians.html?cat=pianoquintet"  data-i18n="menu.pianoquintet">Piano Quintet</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html" data-i18n="menu.all">All</a>
+      <ul>
+        <li><a href="musicians.html"                    data-i18n="menu.allmusicians">All Musicians</a></li>
+        <li><a href="musicians.html?cat=strings"        data-i18n="menu.strings">Strings</a></li>
+        <li><a href="musicians.html?cat=woodwinds"      data-i18n="menu.woodwinds">Woodwinds</a></li>
+        <li><a href="musicians.html?cat=brass"          data-i18n="menu.brass">Brass</a></li>
+        <li><a href="musicians.html?cat=voice"          data-i18n="menu.voice">Voice</a></li>
+        <li><a href="musicians.html?cat=chamber"        data-i18n="menu.chamber">Chamber</a></li>
+        <li><a href="musicians.html?cat=conductor"      data-i18n="menu.conductor">Conductor</a></li><li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
+    </button>
+    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
+      <span class="login-label">Log in</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="nav-login-dropdown">
+        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
+        <div class="nav-login-vsep"></div>
+        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
+      </div>
+    </button>
+    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+      <span class="lt-opt active" data-l="en">EN</span>
+      <span class="lt-sep">/</span>
+      <span class="lt-opt" data-l="zh">中文</span>
+    </button>
+    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- Slide-in nav drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="musician-platform.html" data-i18n="nav.home">Home</a>
+  <a href="blog.html" data-i18n="nav.discover">Blog</a>
+  <button class="nd-musicians-btn" id="ndMusiciansBtn">
+    <span data-i18n="nav.artists">Musicians</span>
+    <span class="nd-arrow">›</span>
+  </button>
+  <a href="recent-jobs.html">Recent Jobs</a>
+  <a href="shows.html" data-i18n="nav.news">Shows</a>
+  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
+</div>
+
+<!-- Musicians sub-drawer -->
+<div class="nav-sub-drawer" id="navSubDrawer">
+  <div class="nsd-head">
+    <button class="nsd-back" id="nsdBack">&#8249;</button>
+    <div class="nsd-title" data-i18n="nav.artists">Musicians</div>
+  </div>
+  <div class="nsd-body">
+    <div class="nsd-group"><div class="nsd-group-title">Strings</div><a href="musicians.html?cat=violin">Violin</a><a href="musicians.html?cat=viola">Viola</a><a href="musicians.html?cat=cello">Cello</a><a href="musicians.html?cat=doublebass">Double Bass</a><a href="musicians.html?cat=harp">Harp</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Woodwinds</div><a href="musicians.html?cat=flute">Flute</a><a href="musicians.html?cat=oboe">Oboe</a><a href="musicians.html?cat=clarinet">Clarinet</a><a href="musicians.html?cat=saxophone">Saxophone</a><a href="musicians.html?cat=bassoon">Bassoon</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Brass</div><a href="musicians.html?cat=frenchhorn">French Horn</a><a href="musicians.html?cat=trumpet">Trumpet</a><a href="musicians.html?cat=trombone">Trombone</a><a href="musicians.html?cat=tuba">Tuba</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Keyboard</div><a href="musicians.html?cat=piano">Piano</a><a href="musicians.html?cat=pipeorgan">Pipe Organ</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Voice</div><a href="musicians.html?cat=soprano">Soprano</a><a href="musicians.html?cat=mezzosoprano">Mezzo-soprano</a><a href="musicians.html?cat=tenor">Tenor</a><a href="musicians.html?cat=baritone">Baritone</a></div>
+  </div>
+</div>
+
+<!-- Login Modal -->
+<div class="login-modal-overlay" id="loginModalOverlay">
+  <div class="login-modal">
+    <button class="login-modal-close" id="loginModalClose">&#10005;</button>
+    <div class="login-modal-title" id="loginModalTitle">Customer Login</div>
+    <input class="login-modal-input" type="email" placeholder="Email" autocomplete="email"/>
+    <input class="login-modal-input" type="password" placeholder="Password" autocomplete="current-password"/>
+    <button class="login-modal-btn">Log in</button>
+    <div class="login-modal-footer">
+      <span>No account?</span>
+      <a href="musician-platform.html#contact">Sign up &#8594;</a>
+    </div>
+  </div>
+</div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-breadcrumb">
+      <a href="musician-platform.html">Home</a>
+      <span>&#8250;</span>
+      <span id="heroBreadCurrent">My Favourites</span>
+    </div>
+    <h1 class="hero-title" id="heroTitle">My Favourites</h1>
+    <p class="hero-sub" id="heroSub">Your saved musicians, all in one place.</p>
+  </div>
+</section>
+
+<!-- GRID SECTION -->
+<section class="grid-section" id="gridSection">
+  <div class="grid-section-head">
+    <div class="grid-section-title" id="gridSectionTitle">Saved Musicians</div>
+    <div class="grid-count" id="gridCount"></div>
+  </div>
+  <div class="musician-grid" id="musicianGrid"></div>
+  <div class="empty-state" id="emptyState" style="display:none;">
+    <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    <h2 id="emptyTitle">No favourites yet</h2>
+    <p id="emptyMsg">You haven&#39;t saved any musicians yet.<br><a href="musicians.html" id="browseMusicianLink">Browse musicians &#8594;</a></p>
+  </div>
+</section>
+
+<script>
+// ── I18N ──────────────────────────────────────────────────────────────────────
+var _currentLang = 'en';
+var I18N = {
+  en: {
+    'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
+    'nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
+    'menu.strings':'Strings','menu.violin':'Violin','menu.viola':'Viola',
+    'menu.cello':'Cello','menu.doublebass':'Double Bass','menu.harp':'Harp',
+    'menu.woodwinds':'Woodwinds','menu.flute':'Flute','menu.piccolo':'Piccolo',
+    'menu.oboe':'Oboe','menu.clarinet':'Clarinet','menu.saxophone':'Saxophone',
+    'menu.bassoon':'Bassoon','menu.brass':'Brass','menu.frenchhorn':'French Horn',
+    'menu.trumpet':'Trumpet','menu.trombone':'Trombone','menu.euphonium':'Euphonium',
+    'menu.tuba':'Tuba','menu.percussion':'Percussion','menu.timpani':'Timpani',
+    'menu.marimba':'Marimba','menu.vibraphone':'Vibraphone','menu.xylophone':'Xylophone',
+    'menu.keyboard':'Keyboard','menu.piano':'Piano','menu.pipeorgan':'Pipe Organ',
+    'menu.voice':'Voice','menu.soprano':'Soprano','menu.mezzosoprano':'Mezzo-soprano',
+    'menu.tenor':'Tenor','menu.baritone':'Baritone','menu.choral':'Choral',
+    'menu.chamber':'Chamber','menu.stringquartet':'String Quartet',
+    'menu.pianotrio':'Piano Trio','menu.stringtrio':'String Trio',
+    'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet',
+    'menu.pianoquintet':'Piano Quintet','menu.all':'All','menu.allmusicians':'All Musicians',
+    'menu.conductor':'Conductor','menu.tuner':'Tuner',
+    'login.customer':'Customer login','login.musician':'Musician login'
+  },
+  zh: {
+    'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
+    'nav.news':'演出','nav.contact':'聯絡','nav.lessons':'音樂老師',
+    'menu.strings':'弦樂','menu.violin':'小提琴','menu.viola':'中提琴',
+    'menu.cello':'大提琴','menu.doublebass':'低音提琴','menu.harp':'豎琴',
+    'menu.woodwinds':'木管','menu.flute':'長笛','menu.piccolo':'短笛',
+    'menu.oboe':'雙簧管','menu.clarinet':'單簧管','menu.saxophone':'薩克斯風',
+    'menu.bassoon':'低音管','menu.brass':'銅管','menu.frenchhorn':'法國號',
+    'menu.trumpet':'小號','menu.trombone':'長號','menu.euphonium':'上低音號',
+    'menu.tuba':'大號','menu.percussion':'打擊','menu.timpani':'定音鼓',
+    'menu.marimba':'馬林巴','menu.vibraphone':'顫音琴','menu.xylophone':'木琴',
+    'menu.keyboard':'鍵盤','menu.piano':'鋼琴','menu.pipeorgan':'管風琴',
+    'menu.voice':'聲樂','menu.soprano':'女高音','menu.mezzosoprano':'次女高音',
+    'menu.tenor':'男高音','menu.baritone':'男中音','menu.choral':'合唱',
+    'menu.chamber':'室樂','menu.stringquartet':'弦樂四重奏',
+    'menu.pianotrio':'鋼琴三重奏','menu.stringtrio':'弦樂三重奏',
+    'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏',
+    'menu.pianoquintet':'鋼琴五重奏','menu.all':'全部','menu.allmusicians':'所有音樂家',
+    'menu.conductor':'指揮','menu.tuner':'調音師',
+    'login.customer':'客戶登入','login.musician':'音樂家登入'
+  }
+};
+
+function switchLang(lang) {
+  _currentLang = lang;
+  var dict = I18N[lang] || I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n')];
+    if (v !== undefined) el.textContent = v;
+  });
+  document.querySelectorAll('#langToggle .lt-opt').forEach(function(o) {
+    o.classList.toggle('active', o.dataset.l === lang);
+  });
+  document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+  if (typeof window.__navResplit === 'function') window.__navResplit();
+  // Update page-specific text
+  document.getElementById('heroTitle').textContent = lang === 'zh' ? '我的收藏' : 'My Favourites';
+  document.getElementById('heroSub').textContent = lang === 'zh' ? '您儲存的音樂家，一覽無遺。' : 'Your saved musicians, all in one place.';
+  document.getElementById('heroBreadCurrent').textContent = lang === 'zh' ? '我的收藏' : 'My Favourites';
+  document.getElementById('gridSectionTitle').textContent = lang === 'zh' ? '已收藏的音樂家' : 'Saved Musicians';
+  renderGrid();
+}
+
+// ── MUSICIANS data (fallback; will be replaced by Firebase data if available) ──
+var MUSICIANS = [
+  {id:1, name:'Martin', instrument:'Violin', country:'Taiwan', region:'台北', style:'Classical', level:'Professional', rating:4.9, reviews:148, bio:'Principal violinist with 15 years of orchestral experience. Specialises in Romantic and Contemporary repertoire.', emoji:'🎻', color:'#1a1a2e', profileUrl:'musician-profile.html'},
+];
+
+// ── State ─────────────────────────────────────────────────────────────────────
+var favourites = [];
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function renderStars(r) {
+  var full = Math.floor(r), half = (r - full) >= 0.5;
+  var s = '';
+  for (var i = 0; i < full; i++) s += '★';
+  if (half) s += '½';
+  return s;
+}
+
+// ── Render grid ───────────────────────────────────────────────────────────────
+function renderGrid() {
+  var grid      = document.getElementById('musicianGrid');
+  var emptyState = document.getElementById('emptyState');
+  var gridCount  = document.getElementById('gridCount');
+  var emptyTitle = document.getElementById('emptyTitle');
+  var emptyMsg   = document.getElementById('emptyMsg');
+  var browseLnk  = document.getElementById('browseMusicianLink');
+
+  // Filter MUSICIANS to only those in favourites
+  var list = MUSICIANS.filter(function(m) { return favourites.indexOf(m.id) !== -1; });
+
+  if (!list.length) {
+    grid.innerHTML = '';
+    grid.style.display = 'none';
+    emptyState.style.display = 'block';
+    emptyTitle.textContent = _currentLang === 'zh' ? '尚無收藏' : 'No favourites yet';
+    emptyMsg.innerHTML = _currentLang === 'zh'
+      ? '您還沒有收藏任何音樂家。<br><a href="musicians.html" id="browseMusicianLink">瀏覽音樂家 &#8594;</a>'
+      : 'You haven&#39;t saved any musicians yet.<br><a href="musicians.html" id="browseMusicianLink">Browse musicians &#8594;</a>';
+    gridCount.textContent = '';
+    return;
+  }
+
+  grid.style.display = '';
+  emptyState.style.display = 'none';
+  gridCount.textContent = list.length + (_currentLang === 'zh' ? ' 位音樂家' : ' musician' + (list.length !== 1 ? 's' : ''));
+
+  grid.innerHTML = list.map(function(m) {
+    var isFav = true; // all cards here are favourites
+    var stars  = renderStars(m.rating);
+    var savedPhoto = localStorage.getItem('mono-mphoto-' + m.id) || '';
+    var savedVideo = localStorage.getItem('mono-mvideo-' + m.id) || '';
+    var mx = localStorage.getItem('mxys-x-' + m.id) || '0';
+    var my = localStorage.getItem('mxys-y-' + m.id) || '0';
+    var ms = localStorage.getItem('mxys-s-' + m.id) || '1';
+    var xysStyle = 'transform:translate(' + mx + 'px,' + my + 'px) scale(' + ms + ');transform-origin:center center;';
+    var mediaHtml;
+    if (savedPhoto) {
+      mediaHtml = '<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;' + xysStyle + '">' +
+        '<img src="' + savedPhoto + '" alt="' + m.name + '" style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;">' +
+        '</div>';
+    } else if (savedVideo) {
+      mediaHtml = '<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;' + xysStyle + '">' +
+        '<video src="' + savedVideo + '" muted loop autoplay playsinline style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;"></video>' +
+        '</div>';
+    } else {
+      mediaHtml = '<div class="mcard-photo-placeholder" style="background:linear-gradient(135deg,' + m.color + ',#1a1a1a);color:rgba(255,255,255,.15);font-size:56px;position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">' + m.emoji + '</div>';
+    }
+    var photoLink = m.profileUrl || '#';
+    var photoLinkExtra = m.profileUrl ? '' : ' onclick="return false;"';
+    return '<div class="mcard" data-id="' + m.id + '">' +
+      '<a href="' + photoLink + '" class="mcard-photo-link"' + photoLinkExtra + '>' +
+        '<div class="mcard-photo" style="position:relative;">' +
+          '<div class="mcard-photo-zoom">' + mediaHtml + '</div>' +
+          '<button class="mcard-heart active" onclick="toggleFav(event,' + m.id + ')" aria-label="Remove from favourites" style="position:absolute;top:10px;right:10px;z-index:6;">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="#e05" stroke="#e05" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
+          '</button>' +
+          '<span class="mcard-explore-photo">Explore &#8594;</span>' +
+        '</div>' +
+      '</a>' +
+      '<div class="mcard-body">' +
+        '<div class="mcard-top">' +
+          '<div class="mcard-rating">' +
+            '<span class="mcard-stars">' + stars + '</span>' +
+            '<span class="mcard-rating-val">' + m.rating.toFixed(1) + '</span>' +
+            '<span class="mcard-reviews">(' + m.reviews + ')</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="mcard-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>' + m.region + '</div>' +
+        '<div class="mcard-name">' + m.name + '</div>' +
+        '<div class="mcard-instrument">' + m.instrument + '</div>' +
+        '<div class="mcard-bio">' + m.bio + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+// ── Favourites ────────────────────────────────────────────────────────────────
+function toggleFav(e, id) {
+  e.stopPropagation();
+  e.preventDefault();
+  var idx = favourites.indexOf(id);
+  if (idx !== -1) {
+    favourites.splice(idx, 1);
+  } else {
+    favourites.push(id);
+  }
+  localStorage.setItem('mono-favs', JSON.stringify(favourites));
+  updateFavBtn();
+  renderGrid();
+}
+
+function updateFavBtn() {
+  var count = favourites.length;
+  var el = document.getElementById('navFavCount');
+  if (el) { el.textContent = count; el.style.display = count ? 'flex' : 'none'; }
+}
+
+// ── Nav Fav Btn — scroll to grid on this page ─────────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+  var favBtn = document.getElementById('navFavBtn');
+  if (favBtn) {
+    favBtn.addEventListener('click', function() {
+      document.getElementById('gridSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  // Lang toggle
+  var lt = document.getElementById('langToggle');
+  if (lt) lt.addEventListener('click', function(e) {
+    var opt = e.target.closest('[data-l]');
+    switchLang(opt ? opt.dataset.l : (_currentLang === 'en' ? 'zh' : 'en'));
+  });
+
+  // Login dropdown
+  var loginBtn = document.getElementById('navLoginBtn');
+  if (loginBtn) {
+    var loginLeaveTimer;
+    loginBtn.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); this.classList.add('open'); });
+    loginBtn.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
+    var dropdown = loginBtn.querySelector('.nav-login-dropdown');
+    if (dropdown) {
+      dropdown.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); });
+      dropdown.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
+    }
+  }
+
+  // Login modal
+  var overlay    = document.getElementById('loginModalOverlay');
+  var modalClose = document.getElementById('loginModalClose');
+  var modalTitle = document.getElementById('loginModalTitle');
+  function openModal(type) { if (overlay) { modalTitle.textContent = type === 'customer' ? 'Customer Login' : 'Musician Login'; overlay.classList.add('open'); document.body.style.overflow = 'hidden'; } }
+  function closeModal() { if (overlay) { overlay.classList.remove('open'); document.body.style.overflow = ''; } }
+  var custBtn = document.getElementById('openCustomerLogin');
+  if (custBtn) custBtn.addEventListener('click', function(e) { e.preventDefault(); loginBtn.classList.remove('open'); openModal('customer'); });
+  if (modalClose) modalClose.addEventListener('click', closeModal);
+  if (overlay) overlay.addEventListener('click', function(e) { if (e.target === overlay) closeModal(); });
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModal(); });
+
+  // Hamburger drawer
+  var hamburgerBtn = document.getElementById('hamburgerBtn');
+  var navDrawer    = document.getElementById('navDrawer');
+  var navSubDrawer = document.getElementById('navSubDrawer');
+  var drawerTimeout;
+  function openDrawer() { clearTimeout(drawerTimeout); navDrawer.classList.add('nd-visible'); }
+  function closeDrawer() {
+    if (navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return;
+    drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if (navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120);
+  }
+  function closeBoth() { drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if (navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
+  if (hamburgerBtn && navDrawer) {
+    hamburgerBtn.addEventListener('mouseenter', openDrawer);
+    hamburgerBtn.addEventListener('mouseleave', closeDrawer);
+    navDrawer.addEventListener('mouseenter', openDrawer);
+    navDrawer.addEventListener('mouseleave', closeDrawer);
+  }
+  if (navSubDrawer) {
+    navSubDrawer.addEventListener('mouseenter', function() { clearTimeout(drawerTimeout); });
+    navSubDrawer.addEventListener('mouseleave', closeBoth);
+  }
+  var ndMusiciansBtn = document.getElementById('ndMusiciansBtn');
+  var nsdBack = document.getElementById('nsdBack');
+  if (ndMusiciansBtn && navSubDrawer) {
+    ndMusiciansBtn.addEventListener('click', function() { clearTimeout(drawerTimeout); navSubDrawer.classList.add('ns-visible'); });
+    if (nsdBack) nsdBack.addEventListener('click', function() { navSubDrawer.classList.remove('ns-visible'); });
+  }
+
+  // Mega menu
+  var artistsTrigger = document.getElementById('artists-nav-item');
+  var megaMenu       = document.getElementById('artistsMegaMenu');
+  var navEl          = document.querySelector('nav');
+  if (artistsTrigger && megaMenu) {
+    var artistsLink = artistsTrigger.querySelector('a');
+    var mmTimeout;
+    function openMega() { clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); if (artistsLink) artistsLink.classList.add('mm-active'); if (navEl) navEl.classList.add('mega-open'); }
+    function closeMega() { mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if (artistsLink) artistsLink.classList.remove('mm-active'); setTimeout(function(){ if (navEl) navEl.classList.remove('mega-open'); }, 320); }, 200); }
+    artistsTrigger.addEventListener('mouseenter', openMega);
+    artistsTrigger.addEventListener('mouseleave', closeMega);
+    megaMenu.addEventListener('mouseenter', function() { clearTimeout(mmTimeout); });
+    megaMenu.addEventListener('mouseleave', closeMega);
+  }
+
+  // ── Init page ──
+  favourites = JSON.parse(localStorage.getItem('mono-favs') || '[]');
+  updateFavBtn();
+  renderGrid();
+});
+
+/* ── Nav: scroll hide/show with lerp ── */
+(function() {
+  var navEl = document.querySelector('nav');
+  var navH = navEl ? navEl.offsetHeight : 64;
+  var navTarget = 0, navCurrent = 0, lastY = 0, raf = null;
+  function tick() {
+    navCurrent += (navTarget - navCurrent) * 0.1;
+    if (navEl) navEl.style.top = navCurrent + 'px';
+    if (Math.abs(navTarget - navCurrent) < 0.05) {
+      if (navEl) navEl.style.top = navTarget + 'px';
+      navCurrent = navTarget; raf = null;
+    } else { raf = requestAnimationFrame(tick); }
+  }
+  window.addEventListener('scroll', function() {
+    var y = window.scrollY;
+    navTarget = y < 80 ? 0 : (y > lastY ? -navH : 0);
+    lastY = y;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+})();
+
+/* ── Nav: mix-blend-mode difference + underline + char split (auto-colour) ── */
+(function() {
+  var nav = document.querySelector('nav');
+  if (!nav) return;
+
+  function _splitToChars(el) {
+    var text = el.textContent;
+    el.innerHTML = [...text].map(function(ch) {
+      return ch === ' ' ? '<span class="nc-char nc-sp"> </span>' : '<span class="nc-char">' + ch + '</span>';
+    }).join('');
+  }
+  function _resplitNav() {
+    nav.querySelectorAll('.nav-links a').forEach(function(a) { _splitToChars(a); });
+    var ln = nav.querySelector('.nav-logo-name');
+    var ls = nav.querySelector('.nav-logo-sub');
+    if (ln) _splitToChars(ln);
+    if (ls) _splitToChars(ls);
+  }
+  _resplitNav();
+  window.__navResplit = _resplitNav;
+
+  function updateColors() {
+    var megaOpen = nav.classList.contains('mega-open');
+    if (megaOpen) {
+      nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#000'; });
+      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+        var el = nav.querySelector(sel); if (!el) return;
+        el.style.color = '#000'; el.style.borderColor = 'rgba(0,0,0,.35)';
+      });
+      nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#000'; });
+      nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
+      return;
+    }
+    nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#fff'; });
+    ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+      var el = nav.querySelector(sel); if (!el) return;
+      el.style.color = '#fff'; el.style.borderColor = 'rgba(255,255,255,.5)';
+    });
+    nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#fff'; });
+  }
+
+  /* Inject underline span into every nav link */
+  nav.querySelectorAll('.nav-links a').forEach(function(a) {
+    if (!a.querySelector('.nav-ul')) {
+      var ul = document.createElement('span');
+      ul.className = 'nav-ul';
+      a.appendChild(ul);
+    }
+  });
+
+  updateColors();
+  window.addEventListener('scroll', updateColors, { passive: true });
+  window.addEventListener('resize', updateColors);
+  setTimeout(updateColors, 300);
+})();
+</script>
+
+<!-- Load real musicians from Firestore and re-render favs if IDs match -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
+    authDomain: "opusz-45280.firebaseapp.com",
+    projectId: "opusz-45280",
+    storageBucket: "opusz-45280.firebasestorage.app",
+    messagingSenderId: "304745430147",
+    appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
+  };
+
+  const CARD_COLORS = ['#1a1a2e','#16213e','#0f3460','#1a0c0c','#0a2a1a','#1a150a','#101a2e','#1e1a0a','#0a1a10','#1a0a1a'];
+
+  try {
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+    const snap = await getDocs(collection(db, 'musicians'));
+    if (!snap.empty) {
+      const realMusicians = [];
+      let colorIdx = 0;
+      snap.forEach((d) => {
+        const p = d.data();
+        if (p.status === 'suspended') return;
+        const insts = Array.isArray(p.instruments) ? p.instruments : (p.instrument ? [p.instrument] : []);
+        const primaryInst = insts[0] || '—';
+        realMusicians.push({
+          id:         d.id,
+          uid:        d.id,
+          name:       p.name || p.email.split('@')[0],
+          instrument: primaryInst,
+          instruments: insts,
+          country:    (p.primaryRegion || '').split(' · ')[0] || 'Taiwan',
+          region:     (p.primaryRegion || '').split(' · ').slice(1).join(' · ') || p.primaryRegion || '—',
+          style:      'Classical',
+          level:      'Professional',
+          rating:     0,
+          reviews:    0,
+          bio:        p.bio || '',
+          emoji:      '🎵',
+          color:      CARD_COLORS[colorIdx++ % CARD_COLORS.length],
+          profileUrl: 'musician-profile.html?uid=' + d.id
+        });
+      });
+      if (realMusicians.length > 0) {
+        window.MUSICIANS = realMusicians;
+        renderGrid();
+      }
+    }
+  } catch(e) {
+    console.log('Firestore load error:', e);
+  }
+</script>
+
+<script src="assets/js/smooth-scroll.js" defer></script>
+<script src="assets/js/nav-auth.js" defer></script>
+</body>
+</html>

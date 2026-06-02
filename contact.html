@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact｜Let's Connect — OPUS.Z</title>
+  <meta name="description" content="Get in touch with OPUS.Z. Book a musician, plan your event, or partner with us — we'd love to hear from you." />
+  <link rel="canonical" href="https://opuszmusic.com/contact.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Contact OPUS.Z — Let's Connect" />
+  <meta property="og:description" content="Reach out to OPUS.Z for musician bookings, event planning, and partnerships." />
+  <meta property="og:url" content="https://opuszmusic.com/contact.html" />
+  <meta property="og:site_name" content="OPUS.Z" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:    #f0efec;
+      --dark:  #0f0f0f;
+      --black: #000;
+      --white: #fff;
+      --mid:   #888;
+      --line:  rgba(0,0,0,0.10);
+      --font:  'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--dark);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 40px;
+      min-height: 76px;
+      background: transparent;
+      mix-blend-mode: difference;
+    }
+    nav.mega-open {
+      mix-blend-mode: normal;
+      background: #fff;
+      transition: background 0.22s ease;
+      --nav-fg: #000;
+    }
+    nav, nav.nav-on-dark { --nav-fg: #fff; }
+    nav.nav-on-light { --nav-fg: #000; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; padding-left: 50px; }
+    .orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
+    #navOrbFixed {
+      position: fixed; top: 18px; left: 40px;
+      z-index: 201;
+      text-decoration: none;
+      pointer-events: all;
+      display: flex; align-items: center;
+    }
+    #navLogoFixed {
+      position: fixed; top: 30px; left: 90px;
+      z-index: 201; mix-blend-mode: difference; color: #fff;
+      font-size: 17px; font-weight: 700; text-decoration: none; pointer-events: all;
+      display: flex; align-items: flex-start; line-height: 1;
+      transition: top 0.38s cubic-bezier(0.34,1.15,0.64,1);
+    }
+    #navLogoFixed:hover { top: 19px; }
+    .nav-logo-spacer { width: 180px; flex-shrink: 0; }
+    .nav-logo-text { display: flex; flex-direction: column; overflow: hidden; line-height: 1; }
+    .nav-logo-name { display: block; }
+    .nav-logo-sub {
+      display: block; font-size: 17px; font-weight: 700; letter-spacing: 0;
+      max-height: 0; overflow: hidden; opacity: 0; margin-top: 3px;
+      transition: max-height 0.38s cubic-bezier(0.34,1.15,0.64,1), opacity 0.22s ease 0.08s;
+    }
+    .nav-logo:hover .nav-logo-sub, #navLogoFixed:hover .nav-logo-sub {
+      max-height: 20px; opacity: 1;
+    }
+    .nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 0; right: 0; justify-content: center; pointer-events: none; }
+    .nav-links li { pointer-events: all; }
+    .nav-links a {
+      text-decoration: none; font-size: 15px;
+      position: relative; padding: 11px 22px; border-radius: 50px;
+      display: inline-flex; align-items: center; justify-content: center;
+      line-height: 1; vertical-align: middle; white-space: nowrap;
+      z-index: 0; color: transparent;
+    }
+    nav.mega-open .nav-links { mix-blend-mode: normal; }
+    nav.mega-open .nav-links a { color: #000; }
+    nav.mega-open .nav-links .nc-char { color: #000 !important; }
+    .nc-char { display: inline-block; color: #fff; }
+    .nc-sp { display: inline-block; min-width: 0.3em; }
+    nav.mega-open .nc-char { color: #000 !important; transition: none; }
+    nav .nav-logo-name, nav .nav-logo-sub { color: transparent; }
+    #navLogoFixed .nav-logo-name, #navLogoFixed .nav-logo-sub { color: #fff; }
+    nav.mega-open .nav-logo-name .nc-char, nav.mega-open .nav-logo-sub .nc-char { color: #000 !important; transition: none; }
+    @media (max-width: 1440px) { nav { padding: 13px 28px; } .nav-links { gap: 4px; } .nav-links a { font-size: 13px; padding: 9px 14px; } }
+    @media (max-width: 1200px) { nav { padding: 11px 24px; } .nav-links { gap: 2px; } .nav-links a { font-size: 12px; padding: 8px 11px; } }
+    .nav-links a::before { display: none; }
+    .nav-links a:hover { opacity: 1; }
+    .nav-ul {
+      position: absolute; bottom: 3px; left: 10px; right: 10px; height: 1px;
+      background: #fff; transform: scaleX(0); transform-origin: right center;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      pointer-events: none;
+    }
+    .nav-links a:hover .nav-ul { transform: scaleX(1); transform-origin: left center; }
+    nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
+    .hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
+    .hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: opacity .2s; }
+    .hamburger:hover span { opacity: .5; }
+    .nav-right { display: flex; align-items: center; gap: 14px; }
+    .nav-fav-btn { position: relative; background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); display: flex; align-items: center; padding: 4px; }
+    .nav-login-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 13px; font-weight: 500; font-family: inherit;
+      color: var(--nav-fg, #fff); background: none; border: 1px solid rgba(255,255,255,.35);
+      border-radius: 50px; padding: 7px 14px; cursor: pointer; position: relative;
+    }
+    .nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; }
+    .nav-login-btn.open svg { transform: rotate(180deg); }
+    .nav-login-dropdown {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 10px;
+      padding: 6px 0; min-width: 160px; box-shadow: 0 8px 24px rgba(0,0,0,.1); z-index: 210;
+    }
+    .nav-login-btn.open .nav-login-dropdown { display: block; }
+    .nav-login-dropdown a { display: block; padding: 10px 16px; font-size: 13px; color: #111; }
+    .nav-login-dropdown a:hover { background: #f5f5f5; }
+    .nav-login-vsep { border-top: 1px solid rgba(0,0,0,.08); margin: 3px 0; }
+    .lang-toggle {
+      display: flex; align-items: center; gap: 2px;
+      font-size: 12px; font-weight: 600; letter-spacing: .04em;
+      background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); font-family: inherit;
+    }
+    .lt-opt { opacity: .4; transition: opacity .15s; }
+    .lt-opt.active { opacity: 1; }
+    .lt-sep { opacity: .25; }
+    .nav-drawer {
+      position: fixed; top: 0; right: -260px; bottom: 0; width: 260px;
+      background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.10);
+      padding: 90px 40px 48px; display: flex; flex-direction: column; gap: 4px;
+      transition: right 0.18s ease; z-index: 300; pointer-events: none;
+    }
+    .nav-drawer.nd-visible { right: 0; pointer-events: auto; transition: right 0.42s cubic-bezier(0.22,1,0.36,1); }
+    .nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+    .nav-drawer a:last-child { border-bottom: none; }
+    .nav-drawer a:hover { color: rgba(0,0,0,0.4); }
+    .nav-drawer.nd-visible a { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
+    .nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
+    .nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
+    .nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
+    .nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
+    .nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+    .nd-musicians-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-align: left; opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+    .nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
+    .nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
+    .nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+    .nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.15s; }
+    .nav-sub-drawer { position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.12); display: flex; flex-direction: column; transition: right 0.18s ease; z-index: 302; pointer-events: none; overflow: hidden; }
+    .nav-sub-drawer.ns-visible { right: 0; pointer-events: auto; transition: right 0.38s cubic-bezier(0.22,1,0.36,1); }
+    .nsd-head { display: flex; align-items: center; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+    .nsd-back { background: none; border: none; cursor: pointer; font-size: 20px; color: #000; padding: 4px; display: flex; align-items: center; opacity: .5; transition: opacity .15s; }
+    .nsd-back:hover { opacity: 1; }
+    .nsd-title { font-size: 16px; font-weight: 700; }
+    .nsd-body { overflow-y: auto; flex: 1; padding: 12px 0 40px; -webkit-overflow-scrolling: touch; }
+    .nsd-group { margin-bottom: 4px; }
+    .nsd-group-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(0,0,0,0.35); padding: 14px 24px 6px; }
+    .nsd-group a { display: block; padding: 10px 24px; font-size: 15px; font-weight: 500; color: #000; text-decoration: none; transition: background .12s, color .12s; }
+    .nsd-group a:hover { background: #f5f5f5; }
+    .mega-menu {
+      position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
+      padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8,1fr); gap: 0;
+      opacity: 0; transform: translateY(-22px); pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+    .mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .mega-col { padding: 0 16px; border-left: 1px solid rgba(0,0,0,0.07); opacity: 0; transform: translateY(8px); transition: opacity 0.28s ease, transform 0.28s ease; }
+    .mega-col:first-child { border-left: none; padding-left: 0; }
+    .mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+    .mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); }
+    .mega-menu.mm-visible .mega-col:nth-child(1) { transition-delay: 0.05s; }
+    .mega-menu.mm-visible .mega-col:nth-child(2) { transition-delay: 0.08s; }
+    .mega-menu.mm-visible .mega-col:nth-child(3) { transition-delay: 0.11s; }
+    .mega-menu.mm-visible .mega-col:nth-child(4) { transition-delay: 0.14s; }
+    .mega-menu.mm-visible .mega-col:nth-child(5) { transition-delay: 0.17s; }
+    .mega-menu.mm-visible .mega-col:nth-child(6) { transition-delay: 0.20s; }
+    .mega-col-title { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #111; margin-bottom: 10px; text-decoration: none; }
+    .mega-col ul { list-style: none; padding: 0; }
+    .mega-col ul li a { display: block; padding: 5px 0; font-size: 13px; color: #555; text-decoration: none; transition: color .12s; }
+    .mega-col ul li a:hover { color: #000; }
+
+    /* ─── PAGE ─── */
+    .contact-page {
+      min-height: 100vh;
+      background: var(--bg);
+    }
+
+    /* ── Hero heading ── */
+    .cp-hero {
+      padding: 160px 80px 80px;
+      text-align: center;
+    }
+    .cp-eyebrow {
+      font-size: 12px; font-weight: 500; letter-spacing: .18em;
+      text-transform: uppercase; color: #999; margin-bottom: 20px;
+    }
+    .cp-title {
+      font-size: clamp(56px, 9vw, 120px);
+      font-weight: 800; letter-spacing: -4px; line-height: 0.95;
+      color: #111; margin: 0;
+    }
+    .cp-subtitle {
+      margin-top: 24px; font-size: 17px; color: #777; font-weight: 300; letter-spacing: 0.01em;
+    }
+
+    /* ── Two-column body ── */
+    .cp-body {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 80px 120px;
+      gap: 80px;
+      border-top: 1px solid rgba(0,0,0,.1);
+    }
+
+    /* ─ Left: testimonial card + info ─ */
+    .cp-left { padding-top: 60px; }
+
+    /* Info rows */
+    .cp-info { margin-top: 0; display: flex; flex-direction: column; gap: 20px; }
+    .cpi-row { display: flex; align-items: flex-start; gap: 14px; }
+    .cpi-icon {
+      width: 38px; height: 38px; background: rgba(0,0,0,.06); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .cpi-icon svg { width: 16px; height: 16px; stroke: #555; }
+    .cpi-label { font-size: 10px; text-transform: uppercase; letter-spacing: .12em; color: #aaa; margin-bottom: 2px; }
+    .cpi-val { font-size: 14px; font-weight: 500; color: #111; }
+
+    /* ─ Right: form ─ */
+    .cp-right { padding-top: 60px; }
+
+    .cp-form-eyebrow {
+      font-size: 11px; font-weight: 600; letter-spacing: .2em;
+      text-transform: uppercase; color: #aaa; margin-bottom: 36px;
+    }
+
+    .cp-fields { display: flex; flex-direction: column; }
+
+    .cp-row { display: grid; grid-template-columns: 1fr 1fr; }
+
+    .cpf-group {
+      display: flex; flex-direction: column;
+      border-bottom: 1px solid rgba(0,0,0,.12);
+      padding: 16px 0 8px;
+    }
+    .cp-fields > .cpf-group:first-child,
+    .cp-row:first-child .cpf-group { border-top: 1px solid rgba(0,0,0,.12); }
+    .cp-row .cpf-group:first-child { border-right: 1px solid rgba(0,0,0,.12); padding-right: 24px; }
+    .cp-row .cpf-group:last-child  { padding-left: 24px; }
+
+    .cpf-label {
+      font-size: 10px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; color: #bbb; margin-bottom: 5px;
+    }
+    .cpf-label sup { font-size: 8px; color: #999; }
+    .cp-input {
+      background: transparent; border: none; outline: none;
+      font-size: 15px; color: #111; font-family: inherit;
+      padding: 4px 0 6px; width: 100%;
+    }
+    .cp-input::placeholder { color: #ccc; }
+    select.cp-input { cursor: pointer; -webkit-appearance: none; }
+    textarea.cp-input { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+    .cp-submit-row { margin-top: 36px; display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+    .cp-btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: #111; color: #fff;
+      padding: 15px 36px; border-radius: 50px;
+      font-size: 15px; font-weight: 600; font-family: inherit;
+      border: none; cursor: pointer;
+      transition: background .2s, transform .15s;
+    }
+    .cp-btn:hover { background: #333; transform: translateY(-1px); }
+    .cp-btn svg { width: 15px; height: 15px; }
+    .cp-terms { font-size: 11px; color: #aaa; line-height: 1.5; max-width: 260px; }
+    .cp-terms a { color: #888; text-decoration: underline; }
+
+    /* ── Success banner ── */
+    .cp-success {
+      display: none; margin-top: 28px;
+      background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px;
+      padding: 16px 20px; font-size: 14px; color: #166534;
+    }
+    .cp-success.visible { display: block; }
+
+    /* ─── FOOTER ─── */
+    .site-footer {
+      background: #111; color: rgba(255,255,255,.55);
+      padding: 56px 80px 40px;
+    }
+    .footer-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 40px; margin-bottom: 48px; }
+    .footer-col__label { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #fff; margin-bottom: 16px; }
+    .footer-col__body { font-size: 14px; line-height: 1.8; }
+    .footer-col__body a { color: rgba(255,255,255,.55); }
+    .footer-col__body a:hover { color: #fff; }
+    .footer-col__links { display: flex; flex-direction: column; gap: 10px; }
+    .footer-col__links a { font-size: 14px; color: rgba(255,255,255,.55); }
+    .footer-col__links a:hover { color: #fff; }
+    .footer-subscribe { display: flex; margin-top: 14px; }
+    .footer-subscribe input { flex: 1; padding: 11px 14px; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15); border-right: none; font-size: 13px; font-family: inherit; color: #fff; outline: none; }
+    .footer-subscribe input::placeholder { color: rgba(255,255,255,.3); }
+    .footer-subscribe button { padding: 11px 18px; background: #fff; color: #111; font-size: 12px; font-weight: 700; font-family: inherit; letter-spacing: .08em; text-transform: uppercase; border: none; cursor: pointer; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,.08); padding-top: 28px; font-size: 12px; }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .cp-hero { padding: 130px 32px 60px; }
+      .cp-body { grid-template-columns: 1fr; padding: 0 32px 80px; gap: 0; }
+      .cp-left { border-bottom: 1px solid rgba(0,0,0,.1); padding-bottom: 48px; }
+      .cp-right { padding-top: 48px; }
+      .nav-links { display: none; }
+      .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+      .site-footer { padding: 48px 32px 32px; }
+    }
+    @media (max-width: 600px) {
+      .cp-title { letter-spacing: -2px; }
+      .cp-row { grid-template-columns: 1fr; }
+      .cp-row .cpf-group:first-child { border-right: none; padding-right: 0; }
+      .cp-row .cpf-group:last-child  { padding-left: 0; }
+      .cp-submit-row { flex-direction: column; align-items: flex-start; }
+    }
+
+    /* reveal */
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.6s ease, transform 0.6s ease; }
+    .reveal.visible { opacity: 1; transform: none; }
+  </style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
+<a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
+  <div class="orb"></div>
+</a>
+<a href="musician-platform.html" id="navLogoFixed">
+  <div class="nav-logo-text">
+    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
+    <span class="nav-logo-sub">MUSIC</span>
+  </div>
+</a>
+
+<nav>
+  <!-- Spacer to keep nav-links centered -->
+  <div class="nav-logo-spacer"></div>
+  <ul class="nav-links">
+    <li><a href="musician-platform.html" data-i18n="nav.home">Home</a></li>
+    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
+    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
+    <li><a href="recent-jobs.html">Recent Jobs</a></li>
+    <li><a href="shows.html" data-i18n="nav.news">Shows</a></li>
+    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
+  </ul>
+  <!-- MEGA MENU -->
+  <div class="mega-menu" id="artistsMegaMenu">
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a>
+      <ul>
+        <li><a href="musicians.html?cat=violin" data-i18n="menu.violin">Violin</a></li>
+        <li><a href="musicians.html?cat=viola" data-i18n="menu.viola">Viola</a></li>
+        <li><a href="musicians.html?cat=cello" data-i18n="menu.cello">Cello</a></li>
+        <li><a href="musicians.html?cat=doublebass" data-i18n="menu.doublebass">Double Bass</a></li>
+        <li><a href="musicians.html?cat=harp" data-i18n="menu.harp">Harp</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a>
+      <ul>
+        <li><a href="musicians.html?cat=flute" data-i18n="menu.flute">Flute</a></li>
+        <li><a href="musicians.html?cat=piccolo" data-i18n="menu.piccolo">Piccolo</a></li>
+        <li><a href="musicians.html?cat=oboe" data-i18n="menu.oboe">Oboe</a></li>
+        <li><a href="musicians.html?cat=clarinet" data-i18n="menu.clarinet">Clarinet</a></li>
+        <li><a href="musicians.html?cat=saxophone" data-i18n="menu.saxophone">Saxophone</a></li>
+        <li><a href="musicians.html?cat=bassoon" data-i18n="menu.bassoon">Bassoon</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a>
+      <ul>
+        <li><a href="musicians.html?cat=frenchhorn" data-i18n="menu.frenchhorn">French Horn</a></li>
+        <li><a href="musicians.html?cat=trumpet" data-i18n="menu.trumpet">Trumpet</a></li>
+        <li><a href="musicians.html?cat=trombone" data-i18n="menu.trombone">Trombone</a></li>
+        <li><a href="musicians.html?cat=euphonium" data-i18n="menu.euphonium">Euphonium</a></li>
+        <li><a href="musicians.html?cat=tuba" data-i18n="menu.tuba">Tuba</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=percussion" data-i18n="menu.percussion">Percussion</a>
+      <ul>
+        <li><a href="musicians.html?cat=timpani" data-i18n="menu.timpani">Timpani</a></li>
+        <li><a href="musicians.html?cat=marimba" data-i18n="menu.marimba">Marimba</a></li>
+        <li><a href="musicians.html?cat=vibraphone" data-i18n="menu.vibraphone">Vibraphone</a></li>
+        <li><a href="musicians.html?cat=xylophone" data-i18n="menu.xylophone">Xylophone</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=keyboard" data-i18n="menu.keyboard">Keyboard</a>
+      <ul>
+        <li><a href="musicians.html?cat=piano" data-i18n="menu.piano">Piano</a></li>
+        <li><a href="musicians.html?cat=pipeorgan" data-i18n="menu.pipeorgan">Pipe Organ</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a>
+      <ul>
+        <li><a href="musicians.html?cat=soprano" data-i18n="menu.soprano">Soprano</a></li>
+        <li><a href="musicians.html?cat=mezzosoprano" data-i18n="menu.mezzosoprano">Mezzo-soprano</a></li>
+        <li><a href="musicians.html?cat=tenor" data-i18n="menu.tenor">Tenor</a></li>
+        <li><a href="musicians.html?cat=baritone" data-i18n="menu.baritone">Baritone</a></li>
+        <li><a href="musicians.html?cat=choral" data-i18n="menu.choral">Choral</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a>
+      <ul>
+        <li><a href="musicians.html?cat=stringquartet" data-i18n="menu.stringquartet">String Quartet</a></li>
+        <li><a href="musicians.html?cat=pianotrio" data-i18n="menu.pianotrio">Piano Trio</a></li>
+        <li><a href="musicians.html?cat=stringtrio" data-i18n="menu.stringtrio">String Trio</a></li>
+        <li><a href="musicians.html?cat=windquintet" data-i18n="menu.windquintet">Wind Quintet</a></li>
+        <li><a href="musicians.html?cat=brassquintet" data-i18n="menu.brassquintet">Brass Quintet</a></li>
+        <li><a href="musicians.html?cat=pianoquintet" data-i18n="menu.pianoquintet">Piano Quintet</a></li>
+      </ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html" data-i18n="menu.all">All</a>
+      <ul>
+        <li><a href="musicians.html" data-i18n="menu.allmusicians">All Musicians</a></li>
+        <li><a href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a></li>
+        <li><a href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a></li>
+        <li><a href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a></li>
+        <li><a href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a></li>
+        <li><a href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a></li>
+        <li><a href="musicians.html?cat=conductor" data-i18n="menu.conductor">Conductor</a></li><li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="nav-right">
+    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
+    </button>
+    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
+      <span class="login-label">Log in</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="nav-login-dropdown">
+        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
+        <div class="nav-login-vsep"></div>
+        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
+      </div>
+    </button>
+    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+      <span class="lt-opt active" data-l="en">EN</span>
+      <span class="lt-sep">/</span>
+      <span class="lt-opt" data-l="zh">中文</span>
+    </button>
+    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
+  </div>
+</nav>
+
+<!-- Slide-in nav drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="musician-platform.html" data-i18n="nav.home">Home</a>
+  <a href="blog.html" data-i18n="nav.discover">Blog</a>
+  <button class="nd-musicians-btn" id="ndMusiciansBtn">
+    <span data-i18n="nav.artists">Musicians</span>
+    <span class="nd-arrow">›</span>
+  </button>
+  <a href="recent-jobs.html">Recent Jobs</a>
+  <a href="shows.html" data-i18n="nav.news">Shows</a>
+  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
+</div>
+
+<!-- Musicians sub-drawer -->
+<div class="nav-sub-drawer" id="navSubDrawer">
+  <div class="nsd-head">
+    <button class="nsd-back" id="nsdBack">‹</button>
+    <div class="nsd-title" data-i18n="nav.artists">Musicians</div>
+  </div>
+  <div class="nsd-body">
+    <div class="nsd-group"><div class="nsd-group-title">Strings</div><a href="musicians.html?cat=violin">Violin</a><a href="musicians.html?cat=viola">Viola</a><a href="musicians.html?cat=cello">Cello</a><a href="musicians.html?cat=doublebass">Double Bass</a><a href="musicians.html?cat=harp">Harp</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Woodwinds</div><a href="musicians.html?cat=flute">Flute</a><a href="musicians.html?cat=oboe">Oboe</a><a href="musicians.html?cat=clarinet">Clarinet</a><a href="musicians.html?cat=saxophone">Saxophone</a><a href="musicians.html?cat=bassoon">Bassoon</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Brass</div><a href="musicians.html?cat=frenchhorn">French Horn</a><a href="musicians.html?cat=trumpet">Trumpet</a><a href="musicians.html?cat=trombone">Trombone</a><a href="musicians.html?cat=tuba">Tuba</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Keyboard</div><a href="musicians.html?cat=piano">Piano</a><a href="musicians.html?cat=pipeorgan">Pipe Organ</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Voice</div><a href="musicians.html?cat=soprano">Soprano</a><a href="musicians.html?cat=mezzosoprano">Mezzo-soprano</a><a href="musicians.html?cat=tenor">Tenor</a><a href="musicians.html?cat=baritone">Baritone</a></div>
+  </div>
+</div>
+
+
+<!-- ─── PAGE CONTENT ─── -->
+<div class="contact-page">
+
+  <!-- Hero -->
+  <div class="cp-hero reveal">
+    <p class="cp-eyebrow" data-i18n="contact.eyebrow">(Contact)</p>
+    <h1 class="cp-title" data-i18n="contact.title">Let's Connect</h1>
+    <p class="cp-subtitle" data-i18n="contact.subtitle">We'd love to hear from you — whether you're booking a musician or joining our roster.</p>
+  </div>
+
+  <!-- Two-column body -->
+  <div class="cp-body">
+
+    <!-- LEFT -->
+    <div class="cp-left reveal">
+<div class="cp-info">
+        <div class="cpi-row">
+          <div class="cpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="cpi-label" data-i18n="contact.info.email">Email</div>
+            <div class="cpi-val">tzutung.liao@gmail.com</div>
+          </div>
+        </div>
+        <div class="cpi-row">
+          <div class="cpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.22 2.18 2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.06 6.06l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="cpi-label" data-i18n="contact.info.phone">Phone</div>
+            <div class="cpi-val">+886 972238828</div>
+          </div>
+        </div>
+        <div class="cpi-row">
+          <div class="cpi-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div>
+            <div class="cpi-label" data-i18n="contact.info.location">Location</div>
+            <div class="cpi-val">Taipei, Taiwan</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Form -->
+    <div class="cp-right reveal">
+      <p class="cp-form-eyebrow" data-i18n="contact.form.eyebrow">(Fill the form)</p>
+      <form class="cp-fields" id="contactForm" name="contact" method="POST" data-netlify="true" action="/newsletter-success.html">
+        <input type="hidden" name="form-name" value="contact" />
+
+        <div class="cp-row">
+          <div class="cpf-group">
+            <label class="cpf-label"><span data-i18n="contact.form.name">Name</span> <sup>*</sup></label>
+            <input class="cp-input" type="text" name="name" placeholder="Your name" data-i18n-ph="contact.ph.name" required />
+          </div>
+          <div class="cpf-group">
+            <label class="cpf-label"><span data-i18n="contact.form.email">Email</span> <sup>*</sup></label>
+            <input class="cp-input" type="email" name="email" placeholder="your@email.com" data-i18n-ph="contact.ph.email" required />
+          </div>
+        </div>
+
+        <div class="cp-row">
+          <div class="cpf-group">
+            <label class="cpf-label" data-i18n="contact.form.subject">Subject</label>
+            <input class="cp-input" type="text" name="subject" placeholder="What's this about?" data-i18n-ph="contact.ph.subject" />
+          </div>
+          <div class="cpf-group">
+            <label class="cpf-label" data-i18n="contact.form.category">Category</label>
+            <select class="cp-input" name="category">
+              <option value="" disabled selected data-i18n-opt="contact.form.select">Select one…</option>
+              <option data-i18n-opt="contact.opt.book">Book a Musician</option>
+              <option data-i18n-opt="contact.opt.wedding">Wedding / Event Planning</option>
+              <option data-i18n-opt="contact.opt.join">Join as Musician</option>
+              <option data-i18n-opt="contact.opt.corporate">Corporate Event</option>
+              <option>Partnership</option>
+              <option>Promotional Materials</option>
+              <option data-i18n-opt="contact.opt.other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="cpf-group">
+          <label class="cpf-label" data-i18n="contact.form.message">Message</label>
+          <textarea class="cp-input" name="message" placeholder="Tell us more about your event, vision, or question…" data-i18n-ph="contact.ph.message"></textarea>
+        </div>
+
+        <div class="cp-submit-row">
+          <button type="submit" class="cp-btn">
+            <span data-i18n="contact.form.btn">Contact Us</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+          <p class="cp-terms"><span id="cpLegal" data-i18n="contact.form.legal">By submitting you accept our Terms and Privacy Policy.</span></p>
+        </div>
+
+        <div class="cp-success" id="cpSuccess" data-i18n="contact.form.success">
+          ✓ Message sent! We'll get back to you within 24 hours.
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ─── FOOTER ─── -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-col__label">Contact</div>
+      <div class="footer-col__body">
+        Taipei, Taiwan<br>
+        <a href="mailto:tzutung.liao@gmail.com">tzutung.liao@gmail.com</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__label" data-i18n="footer.follow">Follow</div>
+      <div class="footer-col__links">
+        <a href="#">@opuszmusic</a>
+        <a href="#">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">YouTube</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__label" data-i18n="footer.newsletter">Newsletter</div>
+      <div class="footer-col__body" data-i18n="footer.tagline">Stay close to the music.</div>
+      <form class="footer-subscribe" name="newsletter-footer" method="POST" data-netlify="true" action="/newsletter-success.html">
+        <input type="hidden" name="form-name" value="newsletter-footer" />
+        <input type="email" name="email" placeholder="Your email" data-i18n-ph="footer.ph.email" required />
+        <button type="submit" data-i18n="footer.subscribe">Subscribe</button>
+      </form>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>OPUS.Z</span>
+    <span data-i18n="footer.copy">© 2026 OPUS.Z. All rights reserved.</span>
+  </div>
+</footer>
+
+
+<script>
+/* ─── NAV scripts ─── */
+var _currentLang = 'en';
+var I18N = {
+  en: {
+    'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians','nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
+    'login.customer':'Customer login','login.musician':'Musician login',
+    'contact.eyebrow':'(Contact)',
+    'contact.title':'Let\'s Connect',
+    'contact.subtitle':'We\'d love to hear from you — whether you\'re booking a musician or joining our roster.',
+    'contact.info.email':'Email',
+    'contact.info.phone':'Phone',
+    'contact.info.location':'Location',
+    'contact.form.eyebrow':'(Fill the form)',
+    'contact.form.name':'Name',
+    'contact.form.email':'Email',
+    'contact.form.subject':'Subject',
+    'contact.form.category':'Category',
+    'contact.form.message':'Message',
+    'contact.form.btn':'Contact Us',
+    'contact.form.legal':'By submitting you accept our Terms and Privacy Policy.',
+    'contact.form.success':'✓ Message sent! We\'ll get back to you within 24 hours.',
+    'footer.copy':'© 2026 OPUS.Z. All rights reserved.',
+    'footer.follow':'Follow',
+    'footer.newsletter':'Newsletter',
+    'footer.tagline':'Stay close to the music.',
+    'footer.subscribe':'Subscribe'
+  },
+  zh: {
+    'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家','nav.news':'演出','nav.contact':'聯絡','nav.lessons':'音樂老師',
+    'login.customer':'客戶登入','login.musician':'音樂家登入',
+    'contact.eyebrow':'（聯絡我們）',
+    'contact.title':'讓我們聯繫',
+    'contact.subtitle':'無論您是想預約音樂家，還是想加入我們的陣容，我們都很樂意聽您說。',
+    'contact.info.email':'電子郵件',
+    'contact.info.phone':'電話',
+    'contact.info.location':'地點',
+    'contact.form.eyebrow':'（填寫表單）',
+    'contact.form.name':'姓名',
+    'contact.form.email':'電子郵件',
+    'contact.form.subject':'主旨',
+    'contact.form.category':'類別',
+    'contact.form.message':'訊息',
+    'contact.form.btn':'聯絡我們',
+    'contact.form.legal':'提交即表示您同意我們的服務條款與隱私政策。',
+    'contact.form.success':'✓ 訊息已送出！我們將在 24 小時內回覆您。',
+    'footer.copy':'© 2026 OPUS.Z 版權所有。',
+    'footer.follow':'追蹤我們',
+    'footer.newsletter':'電子報',
+    'footer.tagline':'與音樂保持連結。',
+    'footer.subscribe':'訂閱'
+  }
+};
+var PH = {
+  en: {
+    'contact.ph.name':'Your name',
+    'contact.ph.email':'your@email.com',
+    'contact.ph.subject':'What\'s this about?',
+    'contact.ph.message':'Tell us more about your event, vision, or question…',
+    'contact.form.select':'Select one…',
+    'contact.opt.book':'Book a Musician',
+    'contact.opt.wedding':'Wedding / Event Planning',
+    'contact.opt.join':'Join as Musician',
+    'contact.opt.corporate':'Corporate Event',
+    'contact.opt.other':'Other',
+    'footer.ph.email':'Your email'
+  },
+  zh: {
+    'contact.ph.name':'您的姓名',
+    'contact.ph.email':'your@email.com',
+    'contact.ph.subject':'主旨',
+    'contact.ph.message':'您想告訴我們什麼？',
+    'contact.form.select':'請選擇…',
+    'contact.opt.book':'預約音樂家',
+    'contact.opt.wedding':'婚禮 / 活動策劃',
+    'contact.opt.join':'加入成為音樂家',
+    'contact.opt.corporate':'企業活動',
+    'contact.opt.other':'其他',
+    'footer.ph.email':'電子郵件'
+  }
+};
+function switchLang(lang) {
+  _currentLang = lang;
+  var dict = I18N[lang] || I18N.en;
+  var phDict = PH[lang] || PH.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n')];
+    if (v !== undefined) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el) {
+    var v = phDict[el.getAttribute('data-i18n-ph')];
+    if (v !== undefined) el.placeholder = v;
+  });
+  document.querySelectorAll('[data-i18n-opt]').forEach(function(el) {
+    var v = phDict[el.getAttribute('data-i18n-opt')];
+    if (v !== undefined) el.textContent = v;
+  });
+  document.querySelectorAll('#langToggle .lt-opt').forEach(function(o) {
+    o.classList.toggle('active', o.dataset.l === lang);
+  });
+  document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+  if (typeof window.__navResplit === 'function') window.__navResplit();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  /* Lang */
+  var lt = document.getElementById('langToggle');
+  if (lt) lt.addEventListener('click', function(e) {
+    var opt = e.target.closest('[data-l]');
+    switchLang(opt ? opt.dataset.l : (_currentLang === 'en' ? 'zh' : 'en'));
+  });
+
+  /* Login dropdown */
+  var loginBtn = document.getElementById('navLoginBtn');
+  if (loginBtn) {
+    var lTimer;
+    loginBtn.addEventListener('mouseenter', function() { clearTimeout(lTimer); this.classList.add('open'); });
+    loginBtn.addEventListener('mouseleave', function() { lTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
+    var dd = loginBtn.querySelector('.nav-login-dropdown');
+    if (dd) {
+      dd.addEventListener('mouseenter', function() { clearTimeout(lTimer); });
+      dd.addEventListener('mouseleave', function() { lTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
+    }
+  }
+
+  /* Hamburger drawer */
+  var hamburgerBtn = document.getElementById('hamburgerBtn');
+  var navDrawer    = document.getElementById('navDrawer');
+  var navSubDrawer = document.getElementById('navSubDrawer');
+  var dTimer;
+  function openD()  { clearTimeout(dTimer); navDrawer.classList.add('nd-visible'); }
+  function closeD() { dTimer = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('mouseenter', openD);
+    hamburgerBtn.addEventListener('mouseleave', closeD);
+    navDrawer.addEventListener('mouseenter', openD);
+    navDrawer.addEventListener('mouseleave', closeD);
+    if (navSubDrawer) {
+      navSubDrawer.addEventListener('mouseenter', function() { clearTimeout(dTimer); });
+      navSubDrawer.addEventListener('mouseleave', function() { dTimer = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); navSubDrawer.classList.remove('ns-visible'); }, 120); });
+    }
+    var ndBtn   = document.getElementById('ndMusiciansBtn');
+    var nsdBack = document.getElementById('nsdBack');
+    if (ndBtn && navSubDrawer) {
+      ndBtn.addEventListener('click', function() { clearTimeout(dTimer); navSubDrawer.classList.add('ns-visible'); });
+      if (nsdBack) nsdBack.addEventListener('click', function() { navSubDrawer.classList.remove('ns-visible'); });
+    }
+  }
+
+  /* Mega menu */
+  var artistsTrigger = document.getElementById('artists-nav-item');
+  var megaMenu = document.getElementById('artistsMegaMenu');
+  if (artistsTrigger && megaMenu) {
+    var navEl = document.querySelector('nav');
+    var mmT;
+    function openM()  { clearTimeout(mmT); megaMenu.classList.add('mm-visible'); if(navEl) navEl.classList.add('mega-open'); }
+    function closeM() { mmT = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if(navEl) navEl.classList.remove('mega-open'); }, 80); }
+    artistsTrigger.addEventListener('mouseenter', openM);
+    artistsTrigger.addEventListener('mouseleave', closeM);
+    megaMenu.addEventListener('mouseenter', function() { clearTimeout(mmT); });
+    megaMenu.addEventListener('mouseleave', closeM);
+  }
+
+  /* Nav underline spans */
+  document.querySelectorAll('.nav-links a').forEach(function(a) {
+    var ul = document.createElement('span');
+    ul.className = 'nav-ul';
+    a.appendChild(ul);
+  });
+
+  /* Split chars for color */
+  var nav = document.querySelector('nav');
+  function splitToChars(el) {
+    var text = el.textContent;
+    el.innerHTML = [...text].map(function(ch) {
+      return ch === ' ' ? '<span class="nc-char nc-sp"> </span>' : '<span class="nc-char">' + ch + '</span>';
+    }).join('');
+  }
+  var navLogoFixed = document.getElementById('navLogoFixed');
+  function resplitNav() {
+    if (!nav) return;
+    nav.querySelectorAll('.nav-links a').forEach(function(a) { splitToChars(a); });
+    var ln = nav.querySelector('.nav-logo-name');
+    var ls = nav.querySelector('.nav-logo-sub');
+    if (ln) splitToChars(ln);
+    if (ls) splitToChars(ls);
+    if (navLogoFixed) {
+      var fln = navLogoFixed.querySelector('.nav-logo-name');
+      var fls = navLogoFixed.querySelector('.nav-logo-sub');
+      if (fln) splitToChars(fln);
+      if (fls) splitToChars(fls);
+      navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    }
+  }
+  resplitNav();
+  window.__navResplit = resplitNav;
+
+  /* Form: show success banner (client-side only for demo) */
+  var form = document.getElementById('contactForm');
+  var successEl = document.getElementById('cpSuccess');
+  if (form && successEl) {
+    form.addEventListener('submit', function(e) {
+      /* Let Netlify handle actual submission — just show banner after short delay */
+      setTimeout(function() {
+        successEl.classList.add('visible');
+        form.reset();
+      }, 400);
+    });
+  }
+});
+
+/* ── Nav: scroll hide/show with lerp ── */
+(function() {
+  var navEl = document.querySelector('nav');
+  var navH = navEl ? navEl.offsetHeight : 64;
+  var navTarget = 0, navCurrent = 0, lastY = 0, raf = null;
+  function tick() {
+    navCurrent += (navTarget - navCurrent) * 0.1;
+    if (navEl) navEl.style.top = navCurrent + 'px';
+    if (Math.abs(navTarget - navCurrent) < 0.05) {
+      if (navEl) navEl.style.top = navTarget + 'px';
+      navCurrent = navTarget; raf = null;
+    } else { raf = requestAnimationFrame(tick); }
+  }
+  window.addEventListener('scroll', function() {
+    var y = window.scrollY;
+    navTarget = y < 80 ? 0 : (y > lastY ? -navH : 0);
+    lastY = y;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+})();
+
+/* ── Nav: mix-blend-mode difference + underline + char split ── */
+(function() {
+  var nav = document.querySelector('nav');
+  if (!nav) return;
+
+  function _splitToChars(el) {
+    var text = el.textContent;
+    el.innerHTML = [...text].map(function(ch) {
+      return ch === ' ' ? '<span class="nc-char nc-sp"> </span>' : '<span class="nc-char">' + ch + '</span>';
+    }).join('');
+  }
+  var navLogoFixed = document.getElementById('navLogoFixed');
+  function _resplitNav() {
+    nav.querySelectorAll('.nav-links a').forEach(function(a) { _splitToChars(a); });
+    var ln = nav.querySelector('.nav-logo-name');
+    var ls = nav.querySelector('.nav-logo-sub');
+    if (ln) _splitToChars(ln);
+    if (ls) _splitToChars(ls);
+    if (navLogoFixed) {
+      var fln = navLogoFixed.querySelector('.nav-logo-name');
+      var fls = navLogoFixed.querySelector('.nav-logo-sub');
+      if (fln) _splitToChars(fln);
+      if (fls) _splitToChars(fls);
+      navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    }
+  }
+  _resplitNav();
+  window.__navResplit = _resplitNav;
+
+  function updateColors() {
+    var megaOpen = nav.classList.contains('mega-open');
+    if (megaOpen) {
+      nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#000'; });
+      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+        var el = nav.querySelector(sel); if (!el) return;
+        el.style.color = '#000'; el.style.borderColor = 'rgba(0,0,0,.35)';
+      });
+      nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#000'; });
+      nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
+      return;
+    }
+    nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#fff'; });
+    if (navLogoFixed) navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+      var el = nav.querySelector(sel); if (!el) return;
+      el.style.color = '#fff'; el.style.borderColor = 'rgba(255,255,255,.5)';
+    });
+    nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#fff'; });
+  }
+
+  /* Inject underline span into every nav link */
+  nav.querySelectorAll('.nav-links a').forEach(function(a) {
+    if (!a.querySelector('.nav-ul')) {
+      var ul = document.createElement('span');
+      ul.className = 'nav-ul';
+      a.appendChild(ul);
+    }
+  });
+
+  updateColors();
+  window.addEventListener('scroll', updateColors, { passive: true });
+  window.addEventListener('resize', updateColors);
+  setTimeout(updateColors, 300);
+})();
+
+/* ── Scroll reveal ── */
+var revObs = new IntersectionObserver(function(entries) {
+  entries.forEach(function(e) { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.06 });
+document.querySelectorAll('.reveal').forEach(function(el) { revObs.observe(el); });
+
+/* ── Page transition + bfcache fix ── */
+document.addEventListener('click', function(e) {
+  var a = e.target.closest('a[href]');
+  if (!a || a.target || e.metaKey || e.ctrlKey) return;
+  var url; try { url = new URL(a.href, location.href); } catch(err) { return; }
+  if (url.origin !== location.origin) return;
+  if (url.pathname === location.pathname && url.hash) {
+    e.preventDefault();
+    history.replaceState(null, '', url.hash);
+    var t = document.getElementById(url.hash.slice(1));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  if (url.pathname === location.pathname && !url.hash) return;
+  e.preventDefault();
+  document.documentElement.style.transition = 'opacity .22s ease';
+  document.documentElement.style.opacity = '0';
+  setTimeout(function() { location.href = a.href; }, 230);
+});
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    document.documentElement.style.transition = 'opacity .22s ease';
+    document.documentElement.style.opacity = '1';
+  }
+});
+</script>
+<script src="assets/js/nav-auth.js" defer></script>
+</body>
+</html>

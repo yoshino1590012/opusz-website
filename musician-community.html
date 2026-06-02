@@ -1,0 +1,1964 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#000000">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="OPUS.Z 社群">
+<link rel="apple-touch-icon" href="assets/images/LOGO/opusz-logo-cropped.png">
+<title>OPUS.Z 樂手社群</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+<style>
+/* ── RESET & BASE ── */
+:root {
+  --black: #000;
+  --white: #fff;
+  --bg: #f2f2f2;
+  --card: #fff;
+  --border: #eee;
+  --gray: #999;
+  --mid: #555;
+  --light: #f5f5f5;
+  --accent: #ee0055;
+  --purple: #9333ea;
+  --blue: #0ea5e9;
+  --sidebar-w: 260px;
+  --right-w: 280px;
+  --topbar-h: 60px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+body {
+  font-family: 'Inter', 'Calibri', 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--black);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ── LAYOUT ── */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ── LEFT SIDEBAR ── */
+.sidebar-left {
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  height: 100vh;
+  position: fixed;
+  top: 0; left: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  overflow-y: auto;
+}
+.sidebar-left::-webkit-scrollbar { width: 4px; }
+.sidebar-left::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 4px; }
+
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 20px 16px;
+  text-decoration: none;
+  color: var(--black);
+}
+.sidebar-logo-orb {
+  width: 34px; height: 34px;
+  background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat;
+  flex-shrink: 0;
+}
+.sidebar-logo-text {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--black);
+}
+
+.sidebar-back {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 20px 14px;
+  font-size: 12px;
+  color: var(--gray);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.sidebar-back:hover { color: var(--black); }
+.sidebar-back svg { width: 14px; height: 14px; }
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 4px 16px;
+}
+
+.sidebar-section-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gray);
+  padding: 12px 20px 4px;
+}
+
+.sidebar-nav {
+  list-style: none;
+  padding: 4px 10px;
+}
+.sidebar-nav li {}
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--mid);
+  text-decoration: none;
+  border-radius: 10px;
+  border-left: 3px solid transparent;
+  transition: background 0.12s, color 0.12s;
+  cursor: pointer;
+}
+.sidebar-nav a:hover {
+  background: var(--light);
+  color: var(--black);
+}
+.sidebar-nav a.active {
+  font-weight: 700;
+  color: var(--black);
+  background: var(--light);
+  border-left: 3px solid var(--black);
+  border-radius: 0 10px 10px 0;
+}
+.sidebar-nav .channel-emoji,
+.sidebar-install-link .channel-emoji {
+  display: none;
+}
+.sidebar-nav .channel-name {
+  flex: 1;
+}
+
+.sidebar-install-link a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--mid);
+  text-decoration: none;
+  border-radius: 10px;
+  border-left: 3px solid transparent;
+  transition: background 0.12s, color 0.12s;
+}
+.sidebar-install-link a:hover {
+  background: var(--light);
+  color: var(--black);
+}
+.sidebar-install-link a.active {
+  font-weight: 700;
+  color: var(--black);
+  background: var(--light);
+  border-left: 3px solid var(--black);
+  border-radius: 0 10px 10px 0;
+}
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 20px;
+  font-size: 11px;
+  color: #bbb;
+  border-top: 1px solid var(--border);
+  line-height: 1.5;
+}
+
+/* ── MAIN AREA ── */
+.main-area {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ── TOP BAR ── */
+.topbar {
+  height: var(--topbar-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  gap: 16px;
+}
+.topbar-title {
+  font-size: 17px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+.online-indicator {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: var(--mid);
+  white-space: nowrap;
+}
+.online-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  flex-shrink: 0;
+}
+.topbar-stats {
+  font-size: 13px;
+  color: var(--gray);
+  white-space: nowrap;
+}
+.topbar-stats strong { color: var(--black); }
+.btn-post {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 50px;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.btn-post:hover { opacity: 0.75; }
+
+/* Hamburger (mobile) */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: var(--black);
+}
+.hamburger svg { width: 22px; height: 22px; }
+
+/* ── CONTENT WRAPPER ── */
+.content-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 24px 24px 60px;
+  gap: 24px;
+}
+
+/* ── FEED ── */
+.feed-col {
+  flex: 1;
+  max-width: 680px;
+  min-width: 0;
+}
+
+/* ── POST COMPOSER ── */
+.composer-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  margin-bottom: 16px;
+}
+.composer-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.composer-avatar {
+  width: 40px; height: 40px;
+  border-radius: 50%;
+  background: #e0e0e0;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+.composer-avatar svg { width: 20px; height: 20px; color: #999; }
+.composer-input {
+  flex: 1;
+}
+.composer-textarea {
+  width: 100%;
+  border: none;
+  outline: none;
+  resize: none;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--black);
+  background: transparent;
+  min-height: 44px;
+  padding-top: 10px;
+  line-height: 1.5;
+}
+.composer-textarea::placeholder { color: #bbb; }
+.composer-actions {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+.composer-actions.visible { display: flex; }
+.composer-attach-btns {
+  display: flex;
+  gap: 4px;
+}
+.btn-attach {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 7px 10px;
+  font-size: 13px;
+  color: var(--mid);
+  border-radius: 8px;
+  font-family: inherit;
+  transition: background 0.12s;
+  display: flex; align-items: center; gap: 5px;
+}
+.btn-attach:hover { background: var(--light); }
+.btn-publish {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 50px;
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.btn-publish:hover { opacity: 0.75; }
+
+/* ── CHANNEL LABEL ── */
+.channel-label-bar {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  padding: 0 0 12px;
+  font-size: 13px;
+  color: var(--gray);
+}
+.channel-label-bar .channel-label-tag {
+  background: var(--black);
+  color: var(--white);
+  border-radius: 50px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ── POST CARDS ── */
+.post-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 18px 18px 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  margin-bottom: 12px;
+  position: relative;
+  overflow: hidden;
+  border-left: 4px solid transparent;
+}
+.post-card.post-opportunity { border-left-color: var(--purple); }
+.post-card.post-event { border-left-color: var(--blue); }
+.post-card.post-pinned { border-left-color: #f59e0b; }
+
+.post-pin-badge {
+  position: absolute;
+  top: 14px; right: 16px;
+  font-size: 11px;
+  color: var(--gray);
+  display: flex; align-items: center; gap: 4px;
+}
+.post-pin-badge svg { width: 12px; height: 12px; }
+
+.post-more-btn {
+  position: absolute;
+  top: 14px; right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+  color: var(--gray);
+  font-size: 18px;
+  line-height: 1;
+  transition: background 0.12s;
+}
+.post-more-btn:hover { background: var(--light); }
+.post-card.post-pinned .post-more-btn { right: 80px; }
+
+.post-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.post-avatar {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+.post-meta {
+  flex: 1;
+  min-width: 0;
+}
+.post-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--black);
+  line-height: 1.3;
+}
+.post-name .official-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 50px;
+  margin-left: 6px;
+  vertical-align: middle;
+  letter-spacing: 0.03em;
+}
+.post-sub {
+  font-size: 12px;
+  color: var(--gray);
+  margin-top: 1px;
+}
+
+.post-body {
+  font-size: 14px;
+  line-height: 1.65;
+  color: #1a1a1a;
+  margin-bottom: 14px;
+  white-space: pre-wrap;
+}
+.post-body .channel-tag {
+  display: inline-block;
+  background: var(--light);
+  color: var(--mid);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 50px;
+  margin-bottom: 8px;
+}
+
+/* Rules list inside post */
+.rules-list {
+  margin: 10px 0 0 0;
+  padding-left: 0;
+  list-style: none;
+}
+.rules-list li {
+  display: flex;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 13px;
+  color: var(--mid);
+  border-bottom: 1px solid #f5f5f5;
+}
+.rules-list li:last-child { border-bottom: none; }
+.rules-list li .rule-num {
+  font-weight: 700;
+  color: var(--black);
+  min-width: 20px;
+}
+
+/* Opportunity card */
+.opp-card {
+  background: #faf5ff;
+  border: 1px solid #e9d5ff;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.opp-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--purple);
+  margin-bottom: 10px;
+}
+.opp-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+}
+.opp-detail {
+  font-size: 12px;
+  color: var(--mid);
+  display: flex;
+  gap: 5px;
+}
+.opp-detail strong { color: var(--black); }
+.opp-cta {
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--purple);
+  font-weight: 600;
+}
+
+/* Event card */
+.event-card {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+}
+.event-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--blue);
+  margin-bottom: 10px;
+}
+.event-details {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.event-detail {
+  font-size: 12px;
+  color: var(--mid);
+  display: flex;
+  gap: 5px;
+}
+.event-detail strong { color: var(--black); }
+
+/* Image embed */
+.post-image {
+  width: 100%;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  display: block;
+  object-fit: cover;
+  max-height: 360px;
+}
+
+/* YouTube link card */
+.link-card {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  text-decoration: none;
+  display: block;
+  transition: box-shadow 0.15s;
+}
+.link-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+.link-card-thumb {
+  position: relative;
+  background: #111;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+.link-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  opacity: 0.9;
+}
+.link-card-play {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.link-card-play-btn {
+  width: 52px; height: 52px;
+  background: rgba(0,0,0,.7);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+}
+.link-card-play-btn svg { width: 22px; height: 22px; fill: #fff; margin-left: 3px; }
+.link-card-info {
+  padding: 10px 14px;
+  background: var(--white);
+}
+.link-card-source {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--gray);
+  margin-bottom: 4px;
+}
+.link-card-title-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--black);
+  line-height: 1.4;
+}
+.link-card-desc {
+  font-size: 12px;
+  color: var(--gray);
+  margin-top: 2px;
+}
+
+/* Post footer */
+.post-footer {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 0;
+  border-top: 1px solid #f2f2f2;
+  margin-top: 2px;
+}
+.post-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--gray);
+  padding: 7px 10px;
+  border-radius: 8px;
+  transition: background 0.12s, color 0.12s;
+  line-height: 1;
+}
+.post-action-btn:hover { background: var(--light); color: var(--mid); }
+.post-action-btn.liked { color: var(--accent); }
+.post-action-btn svg { width: 16px; height: 16px; }
+.post-action-btn.liked svg { fill: var(--accent); stroke: var(--accent); }
+.post-action-spacer { flex: 1; }
+.post-bookmark-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 7px 10px;
+  border-radius: 8px;
+  color: var(--gray);
+  transition: background 0.12s;
+}
+.post-bookmark-btn:hover { background: var(--light); }
+.post-bookmark-btn svg { width: 16px; height: 16px; }
+
+/* ── COMMENTS ── */
+.comments-section {
+  display: none;
+  padding: 12px 0 16px;
+  border-top: 1px solid var(--border);
+  margin-top: 0;
+}
+.comments-section.open { display: block; }
+.comment-item {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.comment-avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+}
+.comment-bubble {
+  flex: 1;
+  background: var(--light);
+  border-radius: 12px;
+  padding: 9px 12px;
+}
+.comment-bubble-name {
+  font-size: 12px;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+.comment-bubble-text {
+  font-size: 13px;
+  color: var(--mid);
+  line-height: 1.5;
+}
+.comment-input-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 4px;
+}
+.comment-input {
+  flex: 1;
+  border: 1px solid var(--border);
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  background: var(--white);
+  transition: border-color 0.15s;
+}
+.comment-input:focus { border-color: #aaa; }
+.comment-submit-btn {
+  background: var(--black);
+  color: var(--white);
+  border: none;
+  border-radius: 50px;
+  padding: 8px 16px;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.comment-submit-btn:hover { opacity: 0.75; }
+
+/* ── RIGHT SIDEBAR ── */
+.sidebar-right {
+  width: var(--right-w);
+  min-width: var(--right-w);
+  flex-shrink: 0;
+  position: sticky;
+  top: calc(var(--topbar-h) + 24px);
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: calc(100vh - var(--topbar-h) - 48px);
+  overflow-y: auto;
+}
+.sidebar-right::-webkit-scrollbar { width: 0; }
+
+.right-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.right-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Members list */
+.member-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+}
+.member-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+  position: relative;
+}
+.member-status-dot {
+  position: absolute;
+  bottom: 0; right: 0;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+}
+.member-status-dot.online { background: #22c55e; }
+.member-status-dot.offline { background: #d1d5db; }
+.member-info { flex: 1; min-width: 0; }
+.member-name {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.member-instrument {
+  font-size: 11px;
+  color: var(--gray);
+}
+.view-all-members {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mid);
+  text-decoration: none;
+  padding: 8px;
+  border-radius: 8px;
+  margin-top: 6px;
+  transition: background 0.12s, color 0.12s;
+}
+.view-all-members:hover { background: var(--light); color: var(--black); }
+
+/* PWA Install Card */
+.install-card {
+  background: var(--light);
+  border-radius: 16px;
+  padding: 16px;
+}
+.install-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.install-card-subtitle {
+  font-size: 12px;
+  color: var(--gray);
+  margin-bottom: 14px;
+  line-height: 1.4;
+}
+.install-platform {
+  margin-bottom: 12px;
+}
+.install-platform-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--mid);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.install-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.install-steps li {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--mid);
+  line-height: 1.4;
+}
+.install-step-num {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--black);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+/* ── PWA INSTALL PAGE ── */
+.install-page {
+  display: none;
+  padding: 40px 0;
+}
+.install-page.active { display: block; }
+.install-page-hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.install-page-icon {
+  width: 80px; height: 80px;
+  background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat;
+  border-radius: 20px;
+  margin: 0 auto 16px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.12);
+}
+.install-page-hero h1 {
+  font-size: 28px;
+  font-weight: 800;
+  margin-bottom: 8px;
+}
+.install-page-hero p {
+  font-size: 15px;
+  color: var(--gray);
+  max-width: 400px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+.install-section-card {
+  background: var(--card);
+  border-radius: 20px;
+  padding: 28px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,.06);
+}
+.install-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.install-section-platform-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px;
+}
+.install-section-platform-icon.ios { background: #f0f0f0; }
+.install-section-platform-icon.android { background: #e8f5e9; }
+.install-section-title {
+  font-size: 17px;
+  font-weight: 700;
+}
+.install-section-browser {
+  font-size: 13px;
+  color: var(--gray);
+}
+.install-steps-large {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.install-steps-large li {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.install-step-num-large {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--black);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.install-step-content {
+  flex: 1;
+  padding-top: 4px;
+}
+.install-step-title {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+.install-step-desc {
+  font-size: 13px;
+  color: var(--gray);
+  line-height: 1.5;
+}
+.install-step-icon-inline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px; height: 24px;
+  background: var(--light);
+  border-radius: 6px;
+  font-size: 13px;
+  vertical-align: middle;
+  margin: 0 2px;
+}
+.install-tip {
+  background: #fff8e1;
+  border: 1px solid #fde68a;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  color: #78350f;
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+}
+.install-tip-icon { font-size: 16px; flex-shrink: 0; }
+
+/* ── MOBILE OVERLAY ── */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.35);
+  z-index: 99;
+}
+.sidebar-overlay.active { display: block; }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--gray);
+}
+.empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.4; }
+.empty-state h3 { font-size: 16px; font-weight: 700; color: var(--mid); margin-bottom: 6px; }
+.empty-state p { font-size: 14px; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1100px) {
+  .sidebar-right { display: none; }
+}
+@media (max-width: 768px) {
+  .sidebar-left {
+    transform: translateX(-100%);
+    transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+    z-index: 101;
+  }
+  .sidebar-left.mobile-open {
+    transform: translateX(0);
+  }
+  .main-area { margin-left: 0; }
+  .hamburger { display: flex; }
+  .topbar { padding: 0 16px; }
+  .topbar-stats { display: none; }
+  .content-wrap { padding: 16px 12px 60px; }
+  .online-indicator { display: none; }
+  .install-section-card { padding: 20px; }
+}
+@media (max-width: 480px) {
+  .btn-post span { display: none; }
+  .btn-post::after { content: '＋'; }
+}
+
+/* ── FADE IN ANIMATION ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.post-card {
+  animation: fadeUp 0.25s ease forwards;
+}
+
+/* ── NEW POST BADGE ── */
+.new-post-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 50px;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+</style>
+</head>
+<body>
+
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<div class="app-shell">
+
+  <!-- ── LEFT SIDEBAR ── -->
+  <aside class="sidebar-left" id="sidebarLeft">
+    <a class="sidebar-logo" href="musician-platform.html">
+      <div class="sidebar-logo-orb"></div>
+      <span class="sidebar-logo-text">OPUS.Z</span>
+    </a>
+
+    <a class="sidebar-back" href="musician-platform.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      返回平台
+    </a>
+
+    <div class="sidebar-divider"></div>
+
+    <ul class="sidebar-nav" id="channelNav">
+      <li><a href="#" class="active" data-channel="all">
+        <span class="channel-emoji">📰</span>
+        <span class="channel-name">全部動態</span>
+      </a></li>
+    </ul>
+
+    <div class="sidebar-divider"></div>
+
+    <ul class="sidebar-nav">
+      <li><a href="#" data-channel="announcements">
+        <span class="channel-emoji">📢</span>
+        <span class="channel-name">公告 &amp; 須知</span>
+      </a></li>
+      <li><a href="#" data-channel="hello">
+        <span class="channel-emoji">👋</span>
+        <span class="channel-name">說哈囉</span>
+      </a></li>
+      <li><a href="#" data-channel="discuss">
+        <span class="channel-emoji">💬</span>
+        <span class="channel-name">討論 &amp; 建議</span>
+      </a></li>
+      <li><a href="#" data-channel="opportunities">
+        <span class="channel-emoji">🎯</span>
+        <span class="channel-name">機會 &amp; 活動</span>
+      </a></li>
+      <li><a href="#" data-channel="music">
+        <span class="channel-emoji">🎵</span>
+        <span class="channel-name">宣傳你的音樂</span>
+      </a></li>
+    </ul>
+
+    <div class="sidebar-divider"></div>
+
+    <div class="sidebar-install-link" style="padding: 4px 10px;">
+      <a href="#" data-channel="install" id="installNavLink">
+        <span class="channel-emoji">📱</span>
+        <span class="channel-name">安裝手機App</span>
+      </a>
+    </div>
+
+    <div class="sidebar-footer">
+      OPUS.Z Community<br>
+      <strong>47 位成員</strong>
+    </div>
+  </aside>
+
+  <!-- ── MAIN AREA ── -->
+  <div class="main-area">
+
+    <!-- TOP BAR -->
+    <header class="topbar" id="topbar">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <button class="hamburger" id="hamburgerBtn" aria-label="選單">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <h1 class="topbar-title" id="topbarTitle">全部動態</h1>
+      </div>
+      <div class="topbar-right">
+        <div class="online-indicator">
+          <div class="online-dot"></div>
+          <span><strong>12 人在線</strong></span>
+        </div>
+        <div class="topbar-stats">總共 <strong>47</strong> 位成員</div>
+        <button class="btn-post" id="openComposerBtn"><span>＋ 發文</span></button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="content-wrap">
+
+      <!-- FEED COLUMN -->
+      <div class="feed-col" id="feedCol">
+
+        <!-- POST COMPOSER -->
+        <div class="composer-card" id="composerCard">
+          <div class="composer-top">
+            <div class="composer-avatar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                <circle cx="12" cy="7" r="4"/>
+              </svg>
+            </div>
+            <div class="composer-input">
+              <textarea class="composer-textarea" id="composerTextarea" rows="2" placeholder="分享你的想法..."></textarea>
+              <div class="composer-actions" id="composerActions">
+                <div class="composer-attach-btns">
+                  <button class="btn-attach">📷 照片</button>
+                  <button class="btn-attach">🎬 影片</button>
+                  <button class="btn-attach">🔗 連結</button>
+                </div>
+                <button class="btn-publish" id="publishBtn">發布</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- FEED -->
+        <div id="postsContainer"></div>
+
+      </div>
+
+      <!-- RIGHT SIDEBAR -->
+      <aside class="sidebar-right">
+
+        <!-- Members -->
+        <div class="right-card">
+          <div class="right-card-title">👥 社群成員</div>
+          <div id="membersList"></div>
+          <a href="#" class="view-all-members">查看所有 47 位成員 →</a>
+        </div>
+
+        <!-- Install Guide (compact) -->
+        <div class="install-card">
+          <div class="install-card-title">📱 把 OPUS.Z 社群加到手機！</div>
+          <div class="install-card-subtitle">像 App 一樣使用，隨時查看社群動態</div>
+
+          <div class="install-platform">
+            <div class="install-platform-label"> iOS · Safari</div>
+            <ol class="install-steps">
+              <li><div class="install-step-num">1</div><span>用 Safari 開啟此頁面</span></li>
+              <li><div class="install-step-num">2</div><span>點下方 □↑ 分享按鈕</span></li>
+              <li><div class="install-step-num">3</div><span>選「加入主畫面」</span></li>
+            </ol>
+          </div>
+
+          <div class="install-platform">
+            <div class="install-platform-label"> Android · Chrome</div>
+            <ol class="install-steps">
+              <li><div class="install-step-num">1</div><span>用 Chrome 開啟此頁面</span></li>
+              <li><div class="install-step-num">2</div><span>點右上角 ⋮ 選單</span></li>
+              <li><div class="install-step-num">3</div><span>選「新增至主螢幕」</span></li>
+            </ol>
+          </div>
+        </div>
+
+      </aside>
+
+    </div><!-- /content-wrap -->
+
+    <!-- PWA INSTALL PAGE (shown when install channel selected) -->
+    <div class="content-wrap" id="installPage" style="display:none;">
+      <div class="feed-col">
+        <div class="install-page active">
+
+          <div class="install-page-hero">
+            <div class="install-page-icon"></div>
+            <h1>安裝 OPUS.Z 社群</h1>
+            <p>將社群加到手機主畫面，享受原生 App 般的使用體驗，隨時隨地與樂手夥伴保持聯繫。</p>
+          </div>
+
+          <!-- iOS -->
+          <div class="install-section-card">
+            <div class="install-section-header">
+              <div class="install-section-platform-icon ios">🍎</div>
+              <div>
+                <div class="install-section-title">iPhone / iPad</div>
+                <div class="install-section-browser">需使用 Safari 瀏覽器</div>
+              </div>
+            </div>
+            <ol class="install-steps-large">
+              <li>
+                <div class="install-step-num-large">1</div>
+                <div class="install-step-content">
+                  <div class="install-step-title">用 Safari 開啟此頁面</div>
+                  <div class="install-step-desc">請確認您使用的是 Apple 內建的 Safari 瀏覽器，其他瀏覽器（Chrome、Firefox）無法加入主畫面。</div>
+                </div>
+              </li>
+              <li>
+                <div class="install-step-num-large">2</div>
+                <div class="install-step-content">
+                  <div class="install-step-title">點擊底部的分享按鈕</div>
+                  <div class="install-step-desc">點擊畫面下方工具列中的 <span class="install-step-icon-inline">□↑</span> 分享圖示（看起來像一個方框加上向上的箭頭）。</div>
+                </div>
+              </li>
+              <li>
+                <div class="install-step-num-large">3</div>
+                <div class="install-step-content">
+                  <div class="install-step-title">選擇「加入主畫面」</div>
+                  <div class="install-step-desc">在分享選單中向下滾動，找到並點擊「加入主畫面（Add to Home Screen）」選項。</div>
+                </div>
+              </li>
+              <li>
+                <div class="install-step-num-large">4</div>
+                <div class="install-step-content">
+                  <div class="install-step-title">確認名稱並點「新增」</div>
+                  <div class="install-step-desc">您可以自訂圖示名稱，建議保持「OPUS.Z 社群」，然後點擊右上角「新增」完成安裝。</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <!-- Android -->
+          <div class="install-section-card">
+            <div class="install-section-header">
+              <div class="install-section-platform-icon android">🤖</div>
+              <div>
+                <div class="install-section-title">Android 手機 / 平板</div>
+                <div class="install-section-browser">需使用 Chrome 瀏覽器</div>
+              </div>
+            </div>
+            <ol class="install-steps-large">
+              <li>
+                <div class="install-step-num-large">1</div>
+                <div class="install-step-content">
+                  <div class="install-step-title">用 Chrome 開啟此頁面</div>
+                  <div class="install-step-desc">請使用 Google Chrome 瀏覽器瀏覽此頁面以獲得最佳安裝體驗。</div>
+                </div>
+              </li>
+              <li>
+                <div class="install-step-num-large">2</div>
+                <div class="install-step-content">
+                  <div class="install-step-title">點擊右上角選單</div>
+                  <div class="install-step-desc">點擊 Chrome 瀏覽器右上角的 <span class="install-step-icon-inline">⋮</span> 三點選單圖示。</div>
+                </div>
+              </li>
+              <li>
+                <div class="install-step-num-large">3</div>
+                <div class="install-step-content">
+                  <div class="install-step-title">選擇「新增至主螢幕」</div>
+                  <div class="install-step-desc">在下拉選單中找到「新增至主螢幕（Add to Home screen）」並點擊。部分裝置會顯示「安裝應用程式」。</div>
+                </div>
+              </li>
+              <li>
+                <div class="install-step-num-large">4</div>
+                <div class="install-step-content">
+                  <div class="install-step-title">確認安裝</div>
+                  <div class="install-step-desc">系統會顯示確認對話框，點擊「新增」即完成安裝。圖示將出現在您的主畫面上。</div>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <div class="install-tip">
+            <span class="install-tip-icon">💡</span>
+            <span>安裝後，OPUS.Z 社群將以全螢幕模式開啟，並支援離線瀏覽已載入的內容，使用體驗和原生 App 幾乎一樣！</span>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /installPage -->
+
+  </div><!-- /main-area -->
+
+</div><!-- /app-shell -->
+
+<script src="assets/js/nav-auth.js" defer></script>
+<script>
+// ── AUTH CHECK ──────────────────────────────────────────────────────────────
+(function() {
+  var user = localStorage.getItem('opusz_user');
+  if (!user) {
+    window.location.href = 'musician-platform.html';
+  }
+})();
+
+// ── DATA ────────────────────────────────────────────────────────────────────
+var MEMBERS = [
+  { name: 'OPUS.Z官方', instrument: '平台管理員', color: '#000', initials: 'OZ', online: true },
+  { name: '陳威霖', instrument: '小提琴手', color: '#7c3aed', initials: '陳', online: true },
+  { name: '李美珊', instrument: '鋼琴手', color: '#0891b2', initials: '李', online: true },
+  { name: '林靜宜', instrument: '大提琴手', color: '#059669', initials: '林', online: false },
+  { name: '王建明', instrument: '吉他手', color: '#d97706', initials: '王', online: true },
+];
+
+var POSTS = [
+  {
+    id: 'p1',
+    channel: 'announcements',
+    author: 'OPUS.Z官方',
+    isOfficial: true,
+    role: '平台管理員',
+    avatarColor: '#000',
+    initials: 'OZ',
+    timestamp: '7天前',
+    isPinned: true,
+    type: 'pinned',
+    content: '🎉 歡迎加入 OPUS.Z 樂手社群！\n\n這裡是我們樂手的專屬交流空間，希望大家能在這裡分享演出心得、交流技巧、找到合作夥伴，共同讓台灣的現場音樂更加精彩。\n\n以下是社群的基本使用指南：',
+    rules: [
+      { num: '①', text: '在「說哈囉」頻道自我介紹，讓大家認識你！' },
+      { num: '②', text: '有演出機會或活動消息，歡迎分享到「機會 & 活動」頻道' },
+      { num: '③', text: '完成新錄音或演出，到「宣傳你的音樂」頻道分享！' },
+      { num: '④', text: '有任何問題或建議，歡迎到「討論 & 建議」提出' },
+    ],
+    likes: 24,
+    comments: 0,
+    commentList: [],
+  },
+  {
+    id: 'p2',
+    channel: 'announcements',
+    author: 'OPUS.Z官方',
+    isOfficial: true,
+    role: '平台管理員',
+    avatarColor: '#000',
+    initials: 'OZ',
+    timestamp: '6天前',
+    isPinned: true,
+    type: 'pinned',
+    content: '📋 社群守則\n\n為了維護良好的交流環境，請所有成員遵守以下守則：',
+    rules: [
+      { num: '1.', text: '保持友善、專業的交流態度，尊重每位成員' },
+      { num: '2.', text: '禁止發布不實資訊或惡意競爭內容' },
+      { num: '3.', text: '廣告宣傳請限制在「宣傳你的音樂」頻道' },
+      { num: '4.', text: '個人私訊請透過平台訊息功能進行' },
+      { num: '5.', text: '違反守則者將由管理員處理，情節嚴重者移除社群資格' },
+    ],
+    likes: 18,
+    comments: 0,
+    commentList: [],
+  },
+  {
+    id: 'p3',
+    channel: 'hello',
+    author: '陳威霖',
+    isOfficial: false,
+    role: '小提琴手',
+    avatarColor: '#7c3aed',
+    initials: '陳',
+    timestamp: '5天前',
+    type: 'normal',
+    content: '大家好！我是陳威霖，主要是小提琴手，在台灣從事現場演奏已經八年了，主要做婚禮、企業活動和音樂會。\n\n很高興能加入這個社群，期待和大家交流、合作！如果有需要弦樂演奏的場合，歡迎找我聊聊 🎻',
+    likes: 5,
+    comments: 2,
+    commentList: [
+      { author: '李美珊', avatarColor: '#0891b2', initials: '李', text: '歡迎歡迎！我也是做婚禮居多，之後可以多交流！' },
+      { author: 'OPUS.Z官方', avatarColor: '#000', initials: 'OZ', text: '歡迎加入社群，陳威霖！期待你的分享 🎉' },
+    ],
+  },
+  {
+    id: 'p4',
+    channel: 'hello',
+    author: '李美珊',
+    isOfficial: false,
+    role: '鋼琴手',
+    avatarColor: '#0891b2',
+    initials: '李',
+    timestamp: '4天前',
+    type: 'normal',
+    content: '嗨大家！我是李美珊，鋼琴手。\n\n最近剛完成一個很棒的錄音項目——幫一部台灣獨立電影錄製配樂，整個過程超有成就感！期待和這裡的大家多多交流，也很期待聽到大家的演出分享 🎹✨',
+    likes: 8,
+    comments: 0,
+    commentList: [],
+  },
+  {
+    id: 'p5',
+    channel: 'discuss',
+    author: '林靜宜',
+    isOfficial: false,
+    role: '大提琴手',
+    avatarColor: '#059669',
+    initials: '林',
+    timestamp: '3天前',
+    type: 'normal',
+    content: '想請教大家一個問題：婚禮弦樂四重奏的行情大概是多少？\n\n我最近接到一個詢問，對方是蠻有規模的飯店婚宴，大概演奏90分鐘，不確定怎麼報價比較合理，怕報太低顯得不專業，報太高又怕嚇跑客戶...\n\n有經驗的前輩可以分享嗎？謝謝 🙏',
+    likes: 15,
+    comments: 6,
+    commentList: [
+      { author: '陳威霖', avatarColor: '#7c3aed', initials: '陳', text: '台北地區的行情大概是四重奏 NT$20,000~35,000，依場地、曲目難度和交通費調整。飯店婚宴通常可以往高報。' },
+      { author: '王建明', avatarColor: '#d97706', initials: '王', text: '同意威霖說的，另外記得把停車費和裝卸時間也算進去，很多人忘記這塊。' },
+      { author: '李美珊', avatarColor: '#0891b2', initials: '李', text: '我通常會先問清楚是否提供謝師費和餐點，這些也會影響報價。' },
+    ],
+  },
+  {
+    id: 'p6',
+    channel: 'discuss',
+    author: '王建明',
+    isOfficial: false,
+    role: '吉他手 / 音樂統籌',
+    avatarColor: '#d97706',
+    initials: '王',
+    timestamp: '2天前',
+    type: 'normal',
+    content: '分享一個工作上的心得：\n\n跟客戶溝通時，一定要事先確認場地的音響設備狀況！上週差點出狀況——到了現場才發現場地只有一個小PA音箱，完全不夠用，還好我有帶備用設備才解決。\n\n建議大家可以準備一個「場地確認清單」，把電源插座數量、音響系統、燈光控制、更衣空間等等都列進去，提前和客戶或場地確認。這樣可以避免很多臨場的突發狀況！',
+    likes: 22,
+    comments: 8,
+    commentList: [
+      { author: '林靜宜', avatarColor: '#059669', initials: '林', text: '太有共鳴了！我也有過類似的經驗，現在都會提前一週聯絡場地確認。' },
+      { author: '陳威霖', avatarColor: '#7c3aed', initials: '陳', text: '清單的概念很好！可以考慮整理成模板分享給大家？' },
+    ],
+  },
+  {
+    id: 'p7',
+    channel: 'opportunities',
+    author: 'OPUS.Z官方',
+    isOfficial: true,
+    role: '平台管理員',
+    avatarColor: '#000',
+    initials: 'OZ',
+    timestamp: '1天前',
+    type: 'opportunity',
+    content: '🎯 演出機會媒合',
+    opportunity: {
+      title: '企業年會弦樂四重奏',
+      date: '2026/07/15（週三）',
+      location: '台北101 89樓宴客廳',
+      budget: 'NT$15,000 起',
+      duration: '90分鐘（含彩排）',
+      contact: '有興趣請私訊 OPUS.Z官方',
+    },
+    likes: 31,
+    comments: 4,
+    commentList: [
+      { author: '陳威霖', avatarColor: '#7c3aed', initials: '陳', text: '我有興趣！已私訊了。' },
+      { author: '林靜宜', avatarColor: '#059669', initials: '林', text: '請問樂手需要自備譜架嗎？' },
+    ],
+  },
+  {
+    id: 'p8',
+    channel: 'opportunities',
+    author: '張小明',
+    isOfficial: false,
+    role: '活動統籌',
+    avatarColor: '#be185d',
+    initials: '張',
+    timestamp: '20小時前',
+    type: 'event',
+    content: '📅 活動通知！',
+    event: {
+      title: 'OPUS.Z 樂手交流派對',
+      date: '2026年6月20日 週六',
+      time: '下午 3:00 – 6:00',
+      location: '台北大安區 Coffee Salon',
+      address: '大安路一段 78 號 B1',
+      note: '免費入場，名額限定 30 人，請提前報名',
+    },
+    likes: 19,
+    comments: 5,
+    commentList: [
+      { author: '李美珊', avatarColor: '#0891b2', initials: '李', text: '好期待！請問需要提前報名嗎？' },
+      { author: '陳威霖', avatarColor: '#7c3aed', initials: '陳', text: '一定會去！' },
+    ],
+  },
+  {
+    id: 'p9',
+    channel: 'music',
+    author: '陳威霖',
+    isOfficial: false,
+    role: '小提琴手',
+    avatarColor: '#7c3aed',
+    initials: '陳',
+    timestamp: '18小時前',
+    type: 'link',
+    content: '最新錄音出爐！🎵\n\n這是上個月和四重奏一起錄製的德弗札克《美國》弦樂四重奏第一樂章，錄製地點在台北的 Studio B。\n\n非常感謝這次合作的夥伴們，希望大家喜歡！',
+    linkCard: {
+      source: 'YouTube',
+      title: '德弗札克《美國》弦樂四重奏 Op.96 — 第一樂章 | 陳威霖四重奏',
+      desc: '2025年錄音室錄音 · Studio B Taipei · 18分鐘',
+      thumb: 'https://picsum.photos/seed/dvorak-quartet/800/450',
+    },
+    likes: 34,
+    comments: 7,
+    commentList: [
+      { author: '李美珊', avatarColor: '#0891b2', initials: '李', text: '太美了！音色真的很暖，錄音品質也很好 👏' },
+      { author: '林靜宜', avatarColor: '#059669', initials: '林', text: '這個錄音室有多少費用啊？有在考慮錄音。' },
+    ],
+  },
+  {
+    id: 'p10',
+    channel: 'music',
+    author: '李美珊',
+    isOfficial: false,
+    role: '鋼琴手',
+    avatarColor: '#0891b2',
+    initials: '李',
+    timestamp: '12小時前',
+    type: 'photo',
+    content: '分享我最近的演出片段！\n\n這是上個月在台北國家音樂廳的獨奏會，曲目是蕭邦第一號鋼琴協奏曲，和國家交響樂團合作演出，是我音樂生涯中很重要的一場音樂會 🎹✨\n\n感謝當天到場支持的所有朋友，也謝謝指揮和NSO的樂手們！',
+    photo: 'https://picsum.photos/seed/piano-concert/800/500',
+    likes: 47,
+    comments: 12,
+    commentList: [
+      { author: '陳威霖', avatarColor: '#7c3aed', initials: '陳', text: '太厲害了！跟NSO合作真的是很棒的成就！' },
+      { author: '王建明', avatarColor: '#d97706', initials: '王', text: '美珊加油！期待下次的演出 🎉' },
+      { author: '林靜宜', avatarColor: '#059669', initials: '林', text: '蕭邦協奏曲！超夢幻的曲目，希望我也有機會去聽現場。' },
+    ],
+  },
+];
+
+var CHANNEL_TITLES = {
+  all: '全部動態',
+  announcements: '📢 公告 & 須知',
+  hello: '👋 說哈囉',
+  discuss: '💬 討論 & 建議',
+  opportunities: '🎯 機會 & 活動',
+  music: '🎵 宣傳你的音樂',
+  install: '📱 安裝手機App',
+};
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+var currentChannel = 'all';
+var likedPosts = JSON.parse(localStorage.getItem('opusz_comm_likes') || '{}');
+var userPosts = [];
+
+// ── UTILS ────────────────────────────────────────────────────────────────────
+function saveLikes() {
+  localStorage.setItem('opusz_comm_likes', JSON.stringify(likedPosts));
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function getCurrentUserInfo() {
+  var name = localStorage.getItem('opusz_user') || '我';
+  var initials = name.charAt(0) || '我';
+  return { name: name, initials: initials, color: '#555' };
+}
+
+// ── BUILD POST HTML ──────────────────────────────────────────────────────────
+function buildPostHTML(post) {
+  var liked = !!likedPosts[post.id];
+  var likeCount = (post.likes || 0) + (liked ? 0 : 0); // actual count managed separately
+
+  var cardClass = 'post-card';
+  if (post.type === 'opportunity') cardClass += ' post-opportunity';
+  if (post.type === 'event') cardClass += ' post-event';
+  if (post.isPinned) cardClass += ' post-pinned';
+
+  var html = '<div class="' + cardClass + '" data-post-id="' + post.id + '">';
+
+  // Pin badge
+  if (post.isPinned) {
+    html += '<div class="post-pin-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> 置頂</div>';
+  }
+
+  // More btn
+  html += '<button class="post-more-btn">···</button>';
+
+  // Header
+  html += '<div class="post-header">';
+  html += '<div class="post-avatar" style="background:' + post.avatarColor + '">' + post.initials + '</div>';
+  html += '<div class="post-meta">';
+  html += '<div class="post-name">' + escHtml(post.author);
+  if (post.isOfficial) html += '<span class="official-badge">✦ 官方</span>';
+  html += '</div>';
+  html += '<div class="post-sub">' + escHtml(post.role) + ' · ' + post.timestamp + '</div>';
+  html += '</div>';
+  html += '</div>'; // /post-header
+
+  // Body
+  html += '<div class="post-body">';
+
+  if (post.type === 'opportunity') {
+    html += '<div class="opp-card">';
+    html += '<div class="opp-card-title">🎯 ' + escHtml(post.opportunity.title) + '</div>';
+    html += '<div class="opp-details">';
+    html += '<div class="opp-detail">📅 <span><strong>日期</strong><br>' + escHtml(post.opportunity.date) + '</span></div>';
+    html += '<div class="opp-detail">📍 <span><strong>地點</strong><br>' + escHtml(post.opportunity.location) + '</span></div>';
+    html += '<div class="opp-detail">💰 <span><strong>預算</strong><br>' + escHtml(post.opportunity.budget) + '</span></div>';
+    html += '<div class="opp-detail">⏱ <span><strong>時長</strong><br>' + escHtml(post.opportunity.duration) + '</span></div>';
+    html += '</div>';
+    html += '<div class="opp-cta">→ ' + escHtml(post.opportunity.contact) + '</div>';
+    html += '</div>';
+  } else if (post.type === 'event') {
+    html += escHtml(post.content) + '\n\n';
+    html += '<div class="event-card">';
+    html += '<div class="event-card-title">📅 ' + escHtml(post.event.title) + '</div>';
+    html += '<div class="event-details">';
+    html += '<div class="event-detail">🗓 <span><strong>日期：</strong>' + escHtml(post.event.date) + '</span></div>';
+    html += '<div class="event-detail">🕒 <span><strong>時間：</strong>' + escHtml(post.event.time) + '</span></div>';
+    html += '<div class="event-detail">📍 <span><strong>地點：</strong>' + escHtml(post.event.location) + '</span></div>';
+    html += '<div class="event-detail">🏠 <span><strong>地址：</strong>' + escHtml(post.event.address) + '</span></div>';
+    html += '<div class="event-detail">ℹ️ <span>' + escHtml(post.event.note) + '</span></div>';
+    html += '</div>';
+    html += '</div>';
+  } else if (post.type === 'link') {
+    html += escHtml(post.content);
+    html += '</div>';
+    html += '<a href="#" class="link-card" onclick="return false">';
+    html += '<div class="link-card-thumb">';
+    html += '<img src="' + post.linkCard.thumb + '" alt="thumbnail" loading="lazy">';
+    html += '<div class="link-card-play"><div class="link-card-play-btn"><svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg></div></div>';
+    html += '</div>';
+    html += '<div class="link-card-info">';
+    html += '<div class="link-card-source">' + escHtml(post.linkCard.source) + '</div>';
+    html += '<div class="link-card-title-text">' + escHtml(post.linkCard.title) + '</div>';
+    html += '<div class="link-card-desc">' + escHtml(post.linkCard.desc) + '</div>';
+    html += '</div>';
+    html += '</a>';
+    html += '<div style="height:0">';  // close body div below
+  } else if (post.type === 'photo') {
+    html += escHtml(post.content);
+    html += '</div>';
+    html += '<img class="post-image" src="' + post.photo + '" alt="post photo" loading="lazy">';
+    html += '<div style="height:0">';
+  } else {
+    // normal or pinned
+    html += escHtml(post.content);
+    if (post.rules && post.rules.length) {
+      html += '<ul class="rules-list">';
+      post.rules.forEach(function(r) {
+        html += '<li><span class="rule-num">' + r.num + '</span><span>' + escHtml(r.text) + '</span></li>';
+      });
+      html += '</ul>';
+    }
+  }
+
+  html += '</div>'; // /post-body
+
+  // Footer
+  html += '<div class="post-footer">';
+  html += '<button class="post-action-btn like-btn' + (liked ? ' liked' : '') + '" data-post-id="' + post.id + '">';
+  html += '<svg viewBox="0 0 24 24" fill="' + (liked ? 'currentColor' : 'none') + '" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';
+  html += '<span class="like-count">' + (post.likes || 0) + '</span></button>';
+
+  html += '<button class="post-action-btn comment-toggle-btn" data-post-id="' + post.id + '">';
+  html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+  html += '<span>' + (post.commentList ? post.commentList.length : 0) + '</span></button>';
+
+  html += '<button class="post-action-btn">';
+  html += '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>';
+  html += '<span>分享</span></button>';
+
+  html += '<div class="post-action-spacer"></div>';
+  html += '<button class="post-bookmark-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></button>';
+  html += '</div>'; // /post-footer
+
+  // Comments section
+  html += '<div class="comments-section" id="comments-' + post.id + '">';
+  if (post.commentList && post.commentList.length) {
+    post.commentList.forEach(function(c) {
+      html += buildCommentHTML(c);
+    });
+  }
+  html += '<div class="comment-input-row">';
+  html += '<input type="text" class="comment-input" placeholder="發表留言..." data-post-id="' + post.id + '">';
+  html += '<button class="comment-submit-btn" data-post-id="' + post.id + '">回覆</button>';
+  html += '</div>';
+  html += '</div>'; // /comments-section
+
+  html += '</div>'; // /post-card
+  return html;
+}
+
+function buildCommentHTML(c) {
+  var html = '<div class="comment-item">';
+  html += '<div class="comment-avatar" style="background:' + c.avatarColor + '">' + c.initials + '</div>';
+  html += '<div class="comment-bubble">';
+  html += '<div class="comment-bubble-name">' + escHtml(c.author) + '</div>';
+  html += '<div class="comment-bubble-text">' + escHtml(c.text) + '</div>';
+  html += '</div>';
+  html += '</div>';
+  return html;
+}
+
+// ── RENDER FEED ──────────────────────────────────────────────────────────────
+function renderFeed(channel) {
+  var container = document.getElementById('postsContainer');
+  var feedCol = document.getElementById('feedCol');
+  var composerCard = document.getElementById('composerCard');
+  var installPage = document.getElementById('installPage');
+  var contentWrap = document.querySelector('.content-wrap');
+
+  if (channel === 'install') {
+    feedCol.style.display = 'none';
+    document.querySelector('.sidebar-right') && (document.querySelector('.sidebar-right').style.display = 'none');
+    installPage.style.display = 'flex';
+    return;
+  } else {
+    feedCol.style.display = 'block';
+    var sr = document.querySelector('.sidebar-right');
+    if (sr) sr.style.display = '';
+    installPage.style.display = 'none';
+  }
+
+  var posts = channel === 'all'
+    ? [].concat(userPosts, POSTS)
+    : [].concat(
+        userPosts.filter(function(p){ return p.channel === channel; }),
+        POSTS.filter(function(p){ return p.channel === channel; })
+      );
+
+  if (!posts.length) {
+    container.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg><h3>還沒有貼文</h3><p>成為第一個在這個頻道發文的人！</p></div>';
+    return;
+  }
+
+  container.innerHTML = posts.map(buildPostHTML).join('');
+
+  // Bind events
+  container.querySelectorAll('.like-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = btn.dataset.postId;
+      var countEl = btn.querySelector('.like-count');
+      var svgPath = btn.querySelector('svg');
+      var count = parseInt(countEl.textContent, 10);
+      if (likedPosts[id]) {
+        delete likedPosts[id];
+        btn.classList.remove('liked');
+        svgPath.setAttribute('fill', 'none');
+        countEl.textContent = count - 1;
+      } else {
+        likedPosts[id] = true;
+        btn.classList.add('liked');
+        svgPath.setAttribute('fill', 'currentColor');
+        countEl.textContent = count + 1;
+      }
+      saveLikes();
+    });
+  });
+
+  container.querySelectorAll('.comment-toggle-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = btn.dataset.postId;
+      var section = document.getElementById('comments-' + id);
+      if (section) {
+        section.classList.toggle('open');
+        if (section.classList.contains('open')) {
+          var input = section.querySelector('.comment-input');
+          if (input) setTimeout(function(){ input.focus(); }, 50);
+        }
+      }
+    });
+  });
+
+  container.querySelectorAll('.comment-submit-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var id = btn.dataset.postId;
+      var input = btn.previousElementSibling;
+      var text = input.value.trim();
+      if (!text) return;
+      var u = getCurrentUserInfo();
+      var commentHTML = buildCommentHTML({ author: u.name, avatarColor: u.color, initials: u.initials, text: text });
+      var section = document.getElementById('comments-' + id);
+      var inputRow = section.querySelector('.comment-input-row');
+      var tempDiv = document.createElement('div');
+      tempDiv.innerHTML = commentHTML;
+      section.insertBefore(tempDiv.firstChild, inputRow);
+      input.value = '';
+      // update count in toggle btn
+      var toggleBtn = container.querySelector('.comment-toggle-btn[data-post-id="' + id + '"] span');
+      if (toggleBtn) toggleBtn.textContent = parseInt(toggleBtn.textContent, 10) + 1;
+    });
+  });
+
+  // Enter key for comment input
+  container.querySelectorAll('.comment-input').forEach(function(inp) {
+    inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        inp.nextElementSibling.click();
+      }
+    });
+  });
+}
+
+// ── CHANNEL NAVIGATION ───────────────────────────────────────────────────────
+function activateChannel(channel) {
+  currentChannel = channel;
+
+  // Update nav links
+  document.querySelectorAll('[data-channel]').forEach(function(el) {
+    if (el.dataset.channel === channel) {
+      el.classList.add('active');
+    } else {
+      el.classList.remove('active');
+    }
+  });
+
+  // Update topbar title
+  document.getElementById('topbarTitle').textContent = CHANNEL_TITLES[channel] || channel;
+
+  // Render
+  renderFeed(channel);
+
+  // Close mobile sidebar
+  document.getElementById('sidebarLeft').classList.remove('mobile-open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+document.querySelectorAll('[data-channel]').forEach(function(link) {
+  link.addEventListener('click', function(e) {
+    e.preventDefault();
+    activateChannel(link.dataset.channel);
+  });
+});
+
+// ── COMPOSER ─────────────────────────────────────────────────────────────────
+var composerTextarea = document.getElementById('composerTextarea');
+var composerActions = document.getElementById('composerActions');
+
+composerTextarea.addEventListener('focus', function() {
+  composerActions.classList.add('visible');
+  composerTextarea.style.minHeight = '80px';
+});
+
+document.getElementById('openComposerBtn').addEventListener('click', function() {
+  composerTextarea.focus();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+document.getElementById('publishBtn').addEventListener('click', function() {
+  var text = composerTextarea.value.trim();
+  if (!text) return;
+  var u = getCurrentUserInfo();
+  var newPost = {
+    id: 'user-' + Date.now(),
+    channel: currentChannel === 'all' ? 'discuss' : currentChannel,
+    author: u.name,
+    isOfficial: false,
+    role: '樂手',
+    avatarColor: u.color,
+    initials: u.initials,
+    timestamp: '剛剛',
+    type: 'normal',
+    content: text,
+    likes: 0,
+    comments: 0,
+    commentList: [],
+    isNew: true,
+  };
+  userPosts.unshift(newPost);
+  composerTextarea.value = '';
+  composerActions.classList.remove('visible');
+  composerTextarea.style.minHeight = '44px';
+  renderFeed(currentChannel);
+  // scroll to top of feed
+  document.getElementById('postsContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+// Click outside composer to collapse
+document.addEventListener('click', function(e) {
+  var card = document.getElementById('composerCard');
+  if (card && !card.contains(e.target)) {
+    if (!composerTextarea.value.trim()) {
+      composerActions.classList.remove('visible');
+      composerTextarea.style.minHeight = '44px';
+    }
+  }
+});
+
+// ── MOBILE HAMBURGER ────────────────────────────────────────────────────────
+document.getElementById('hamburgerBtn').addEventListener('click', function() {
+  document.getElementById('sidebarLeft').classList.toggle('mobile-open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+});
+document.getElementById('sidebarOverlay').addEventListener('click', function() {
+  document.getElementById('sidebarLeft').classList.remove('mobile-open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+});
+
+// ── MEMBERS LIST ─────────────────────────────────────────────────────────────
+function renderMembers() {
+  var html = '';
+  MEMBERS.forEach(function(m) {
+    html += '<div class="member-item">';
+    html += '<div class="member-avatar" style="background:' + m.color + '">' + m.initials;
+    html += '<div class="member-status-dot ' + (m.online ? 'online' : 'offline') + '"></div>';
+    html += '</div>';
+    html += '<div class="member-info"><div class="member-name">' + escHtml(m.name) + '</div>';
+    html += '<div class="member-instrument">' + escHtml(m.instrument) + '</div></div>';
+    html += '</div>';
+  });
+  document.getElementById('membersList').innerHTML = html;
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+renderMembers();
+renderFeed('all');
+</script>
+</body>
+</html>

@@ -13,61 +13,165 @@
 body{font-family:'Inter',sans-serif;color:var(--black);background:#fff;-webkit-font-smoothing:antialiased;}
 
 /* ── NAV ── */
-nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; padding: 0 32px; display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.92); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border-bottom: 1px solid rgba(0,0,0,0.06); }
-.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: var(--black); }
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 40px;
+  min-height: 76px;
+  background: transparent;
+  mix-blend-mode: difference;
+}
+nav.mega-open {
+  mix-blend-mode: normal;
+  background: #fff;
+  transition: background 0.22s ease;
+  --nav-fg: #000;
+}
+nav, nav.nav-on-dark { --nav-fg: #fff; }
+nav.nav-on-light { --nav-fg: #000; }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; padding-left: 50px; }
 .orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
-.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 50%; transform: translateX(-50%); }
-.nav-links a { text-decoration: none; color: var(--black); font-size: 15px; position: relative; padding: 11px 22px; border-radius: 50px; display: inline-flex; align-items: center; justify-content: center; line-height: 1; vertical-align: middle; transition: none; z-index: 0; }
-.nav-links a::before { content: ''; position: absolute; inset: 0; border-radius: 50px; background: rgba(255,255,255,0.72); backdrop-filter: blur(6px); border: 1px solid rgba(0,0,0,0.07); box-shadow: 0 2px 10px rgba(0,0,0,0.07), inset 0 1.5px 1.5px rgba(255,255,255,0.95), inset 0 -1px 1px rgba(0,0,0,0.04); transform: scaleX(0); transform-origin: left center; transition: none; z-index: -1; }
-.nav-links a:hover::before { transform: scaleX(1); transition: transform 0.48s cubic-bezier(0.34, 1.18, 0.64, 1); }
+#navOrbFixed {
+  position: fixed; top: 18px; left: 40px;
+  z-index: 201;
+  text-decoration: none;
+  pointer-events: all;
+  display: flex; align-items: center;
+}
+#navLogoFixed {
+  position: fixed; top: 30px; left: 90px;
+  z-index: 201; mix-blend-mode: difference; color: #fff;
+  font-size: 17px; font-weight: 700; text-decoration: none; pointer-events: all;
+  display: flex; align-items: flex-start; line-height: 1;
+  transition: top 0.38s cubic-bezier(0.34,1.15,0.64,1);
+}
+#navLogoFixed:hover { top: 19px; }
+.nav-logo-spacer { width: 180px; flex-shrink: 0; }
+.nav-logo-text { display: flex; flex-direction: column; overflow: hidden; line-height: 1; }
+.nav-logo-name { display: block; }
+.nav-logo-sub {
+  display: block; font-size: 17px; font-weight: 700; letter-spacing: 0;
+  max-height: 0; overflow: hidden; opacity: 0; margin-top: 3px;
+  transition: max-height 0.38s cubic-bezier(0.34,1.15,0.64,1), opacity 0.22s ease 0.08s;
+}
+.nav-logo:hover .nav-logo-sub, #navLogoFixed:hover .nav-logo-sub {
+  max-height: 20px; opacity: 1;
+}
+.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 0; right: 0; justify-content: center; pointer-events: none; }
+.nav-links li { pointer-events: all; }
+.nav-links a {
+  text-decoration: none; font-size: 15px;
+  position: relative; padding: 11px 22px; border-radius: 50px;
+  display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1; vertical-align: middle; white-space: nowrap;
+  z-index: 0; color: transparent;
+}
+nav.mega-open .nav-links { mix-blend-mode: normal; }
+nav.mega-open .nav-links a { color: #000; }
+nav.mega-open .nav-links .nc-char { color: #000 !important; }
+.nc-char { display: inline-block; color: #fff; }
+    .nc-sp { display: inline-block; min-width: 0.3em; }
+nav.mega-open .nc-char { color: #000 !important; transition: none; }
+nav .nav-logo-name, nav .nav-logo-sub { color: transparent; }
+#navLogoFixed .nav-logo-name, #navLogoFixed .nav-logo-sub { color: #fff; }
+nav.mega-open .nav-logo-name .nc-char, nav.mega-open .nav-logo-sub .nc-char { color: #000 !important; transition: none; }
+@media (max-width: 1440px) { nav { padding: 13px 28px; } .nav-links { gap: 4px; } .nav-links a { font-size: 13px; padding: 9px 14px; } }
+@media (max-width: 1200px) { nav { padding: 11px 24px; } .nav-links { gap: 2px; } .nav-links a { font-size: 12px; padding: 8px 11px; } }
+.nav-links a::before { display: none; }
 .nav-links a:hover { opacity: 1; }
-.nav-links a.nav-active::before { transform: scaleX(1); }
+.nav-ul {
+  position: absolute; bottom: 3px; left: 10px; right: 10px; height: 1px;
+  background: #fff; transform: scaleX(0); transform-origin: right center;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+}
+.nav-links a:hover .nav-ul { transform: scaleX(1); transform-origin: left center; }
+nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
-.hamburger span { display: block; width: 26px; height: 2px; background: var(--black); transition: opacity .2s; }
+.hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: opacity .2s; }
 .hamburger:hover span { opacity: .5; }
-.nav-drawer { position: fixed; top: 0; right: -260px; bottom: 0; width: 260px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.10); padding: 90px 40px 48px; display: flex; flex-direction: column; gap: 4px; transition: right 0.18s ease; z-index: 300; pointer-events: none; }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+.nav-fav-btn { position: relative; background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); display: flex; align-items: center; padding: 4px; }
+.nav-fav-count { position:absolute; top:0; right:0; background:#e05; color:#fff; font-size:9px; font-weight:700; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; line-height:1; }
+.nav-login-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 13px; font-weight: 500; font-family: inherit;
+  color: var(--nav-fg, #fff); background: none; border: 1px solid rgba(255,255,255,.35);
+  border-radius: 50px; padding: 7px 14px; cursor: pointer; position: relative;
+}
+.nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; }
+.nav-login-btn.open svg { transform: rotate(180deg); }
+.nav-login-dropdown {
+  display: none; position: absolute; top: calc(100% + 8px); right: 0;
+  background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 10px;
+  padding: 6px 0; min-width: 160px; box-shadow: 0 8px 24px rgba(0,0,0,.1); z-index: 210;
+}
+.nav-login-btn.open .nav-login-dropdown { display: block; }
+.nav-login-dropdown a { display: block; padding: 10px 16px; font-size: 13px; color: #111; }
+.nav-login-dropdown a:hover { background: #f5f5f5; }
+.nav-login-vsep { border-top: 1px solid rgba(0,0,0,.08); margin: 3px 0; }
+.lang-toggle {
+  display: flex; align-items: center; gap: 2px;
+  font-size: 12px; font-weight: 600; letter-spacing: .04em;
+  background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); font-family: inherit;
+}
+.lt-opt { opacity: .4; transition: opacity .15s; }
+.lt-opt.active { opacity: 1; }
+.lt-sep { opacity: .25; }
+.nav-drawer {
+  position: fixed; top: 0; right: -260px; bottom: 0; width: 260px;
+  background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.10);
+  padding: 90px 40px 48px; display: flex; flex-direction: column; gap: 4px;
+  transition: right 0.18s ease; z-index: 300; pointer-events: none;
+}
 .nav-drawer.nd-visible { right: 0; pointer-events: auto; transition: right 0.42s cubic-bezier(0.22,1,0.36,1); }
-.nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: var(--black); text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
 .nav-drawer a:last-child { border-bottom: none; }
 .nav-drawer a:hover { color: rgba(0,0,0,0.4); }
 .nav-drawer.nd-visible a { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
-.nav-drawer.nd-visible a:nth-child(1){transition-delay:0.07s;}.nav-drawer.nd-visible a:nth-child(2){transition-delay:0.11s;}.nav-drawer.nd-visible a:nth-child(3){transition-delay:0.15s;}.nav-drawer.nd-visible a:nth-child(4){transition-delay:0.19s;}.nav-drawer.nd-visible a:nth-child(5){transition-delay:0.23s;}
-.mega-menu { position: absolute; top: 100%; left: 0; right: 0; background: #fff; border-top: 1px solid rgba(0,0,0,0.05); box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05); padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8, 1fr); gap: 0; opacity: 0; transform: translateY(-22px); pointer-events: none; transition: opacity 0.18s ease, transform 0.18s ease; z-index: 199; }
-.mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; transition: opacity 0.46s cubic-bezier(0.22,1,0.36,1), transform 0.46s cubic-bezier(0.22,1,0.36,1); }
-.mega-col { padding: 0 18px 0 0; border-right: 1px solid rgba(0,0,0,0.055); margin-right: 18px; opacity: 0; transform: translateY(-14px); transition: opacity 0.14s ease, transform 0.14s ease; }
+.nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
+.nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
+.nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
+.nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
+.nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+.nd-musicians-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-align: left; opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
+.nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
+.nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+.nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.15s; }
+.nav-sub-drawer { position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.12); display: flex; flex-direction: column; transition: right 0.18s ease; z-index: 302; pointer-events: none; overflow: hidden; }
+.nav-sub-drawer.ns-visible { right: 0; pointer-events: auto; transition: right 0.38s cubic-bezier(0.22,1,0.36,1); }
+.nsd-head { display: flex; align-items: center; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+.nsd-back { background: none; border: none; cursor: pointer; font-size: 20px; color: #000; padding: 4px; display: flex; align-items: center; opacity: .5; transition: opacity .15s; }
+.nsd-back:hover { opacity: 1; }
+.nsd-title { font-size: 16px; font-weight: 700; }
+.nsd-body { overflow-y: auto; flex: 1; padding: 12px 0 40px; -webkit-overflow-scrolling: touch; }
+.nsd-group { margin-bottom: 4px; }
+.nsd-group-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(0,0,0,0.35); padding: 14px 24px 6px; }
+.nsd-group a, .nsd-link { display: block; padding: 10px 24px; font-size: 15px; font-weight: 500; color: #000; text-decoration: none; transition: background .12s, color .12s; }
+.nsd-group a:hover, .nsd-link:hover { background: #f5f5f5; }
+.mega-menu {
+  position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
+  padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8,1fr); gap: 0;
+  opacity: 0; transform: translateY(-22px); pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+}
+.mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+.mega-col { padding: 0 16px; border-left: 1px solid rgba(0,0,0,0.07); opacity: 0; transform: translateY(8px); transition: opacity 0.28s ease, transform 0.28s ease; }
+.mega-col:first-child { border-left: none; padding-left: 0; }
 .mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
-.mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); transition: opacity 0.4s cubic-bezier(0.22,1,0.36,1), transform 0.4s cubic-bezier(0.22,1,0.36,1); }
-.mega-menu.mm-visible .mega-col:nth-child(1){transition-delay:0.05s;}.mega-menu.mm-visible .mega-col:nth-child(2){transition-delay:0.08s;}.mega-menu.mm-visible .mega-col:nth-child(3){transition-delay:0.11s;}.mega-menu.mm-visible .mega-col:nth-child(4){transition-delay:0.14s;}.mega-menu.mm-visible .mega-col:nth-child(5){transition-delay:0.17s;}.mega-menu.mm-visible .mega-col:nth-child(6){transition-delay:0.20s;}.mega-menu.mm-visible .mega-col:nth-child(7){transition-delay:0.23s;}.mega-menu.mm-visible .mega-col:nth-child(8){transition-delay:0.26s;}
-.mega-col-title { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: rgba(0,0,0,0.35); text-decoration: none; margin-bottom: 16px; padding-bottom: 10px; width: 100%; border-bottom: 1px solid rgba(0,0,0,0.07); position: relative; cursor: pointer; transition: color 0.2s ease; }
-.mega-col-title::after { content: ''; position: absolute; bottom: -1px; left: 0; width: 100%; height: 1.5px; background: var(--black); transform: scaleX(0); transform-origin: left center; transition: none; }
-.mega-col-title:hover { color: rgba(0,0,0,0.75); }
-.mega-col-title:hover::after { transform: scaleX(1); transition: transform 0.38s cubic-bezier(0.22,1,0.36,1); }
-.mega-col ul { list-style: none; display: flex; flex-direction: column; gap: 1px; }
-.mega-col ul li a { display: block; padding: 5px 0; font-size: 13.5px; font-weight: 450; color: var(--black); text-decoration: none; border-radius: 6px; transition: opacity 0.18s ease; }
-.mega-col ul li a:hover { opacity: 0.45; }
-#musicians-nav-item > a.mm-active::before { transform: scaleX(1) !important; }
-.lang-toggle { display: flex; align-items: center; gap: 2px; background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--black); }
-.lang-toggle .lt-opt { padding: 3px 8px; border-radius: 5px; transition: background .2s, color .2s; }
-.lang-toggle .lt-opt.active { background: var(--black); color: var(--white); }
-.lang-toggle .lt-sep { opacity: .25; font-weight: 400; }
-.nav-right { display: flex; align-items: center; gap: 14px; }
-.nav-fav-btn { position:relative; background:none; border:none; cursor:pointer; padding:6px; display:flex; align-items:center; color:var(--black); transition:color .15s; }
-.nav-fav-btn:hover { color:#e05; }
-.nav-fav-btn svg { display:block; }
-.nav-fav-count { position:absolute; top:0; right:0; background:#e05; color:#fff; font-size:9px; font-weight:700; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; line-height:1; }
-.nav-login-btn { display: inline-flex; align-items: center; gap: 6px; background: transparent; color: var(--black); border: 1.5px solid var(--black); border-radius: 8px; padding: 9px 18px; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; position: relative; z-index: 0; transition: none; line-height: 1; }
-.nav-login-btn::before { content: ''; position: absolute; inset: 0; border-radius: 6px; background: rgba(255,255,255,0.82); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); box-shadow: inset 0 1.5px 1.5px rgba(255,255,255,.95); transform: scaleX(0); transform-origin: left center; transition: none; z-index: -1; }
-.nav-login-btn:hover::before { transform: scaleX(1); transition: transform 0.48s cubic-bezier(0.34, 1.18, 0.64, 1); }
-.nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; flex-shrink: 0; position: relative; z-index: 1; }
-.nav-login-btn span.login-label { position: relative; z-index: 1; }
-.nav-login-btn.open svg { transform: rotate(180deg); }
-.nav-login-dropdown { position: absolute; top: calc(100% + 8px); right: 0; background: #fff; border-radius: 10px; box-shadow: 0 6px 32px rgba(0,0,0,.13), 0 0 0 1px rgba(0,0,0,.07); padding: 0; min-width: 0; opacity: 0; pointer-events: none; transform: translateY(-4px); transition: opacity .15s, transform .15s; z-index: 999; white-space: nowrap; display: flex; align-items: stretch; }
-.nav-login-btn.open .nav-login-dropdown { opacity: 1; pointer-events: auto; transform: translateY(0); }
-.nav-login-dropdown a { display: flex; align-items: center; justify-content: center; padding: 13px 22px; font-size: 13.5px; font-weight: 600; color: #111; text-decoration: none; transition: background .15s; }
-.nav-login-dropdown a:first-child { border-radius: 10px 0 0 10px; }
-.nav-login-dropdown a:last-of-type { border-radius: 0 10px 10px 0; }
-.nav-login-dropdown a:hover { background: #f5f5f5; }
-.nav-login-vsep { width: 1px; background: #e8e8e8; flex-shrink: 0; margin: 8px 0; }
+.mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); }
+.mega-menu.mm-visible .mega-col:nth-child(1) { transition-delay: 0.05s; }
+.mega-menu.mm-visible .mega-col:nth-child(2) { transition-delay: 0.08s; }
+.mega-menu.mm-visible .mega-col:nth-child(3) { transition-delay: 0.11s; }
+.mega-menu.mm-visible .mega-col:nth-child(4) { transition-delay: 0.14s; }
+.mega-menu.mm-visible .mega-col:nth-child(5) { transition-delay: 0.17s; }
+.mega-menu.mm-visible .mega-col:nth-child(6) { transition-delay: 0.20s; }
+.mega-col-title { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #111; margin-bottom: 10px; text-decoration: none; }
+.mega-col ul { list-style: none; padding: 0; }
+.mega-col ul li a { display: block; padding: 5px 0; font-size: 13px; color: #555; text-decoration: none; transition: color .12s; }
+.mega-col ul li a:hover { color: #000; }
 .login-modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.35); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
 .login-modal-overlay.open { opacity: 1; pointer-events: auto; }
 .login-modal { background: #fff; border-radius: 18px; padding: 40px 36px 32px; width: 360px; max-width: 92vw; box-shadow: 0 24px 80px rgba(0,0,0,.22); transform: translateY(12px); transition: transform .2s; position: relative; }
@@ -82,10 +186,10 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
 .login-modal-footer a { color: #111; font-weight: 600; text-decoration: none; margin-left: 4px; }
 
 /* ── HERO ── */
-.hero{margin-top:64px;position:relative;min-height:300px;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%);overflow:hidden;display:flex;align-items:flex-end;}
+.hero{position:relative;min-height:364px;background:linear-gradient(135deg,#0a0a0a 0%,#1a1a2e 50%,#16213e 100%);overflow:hidden;display:flex;align-items:flex-end;}
 .hero-bg{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.35;}
 .hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.85) 0%,rgba(0,0,0,.2) 60%,transparent 100%);}
-.hero-content{position:relative;z-index:2;padding:48px 48px 40px;width:100%;max-width:900px;}
+.hero-content{position:relative;z-index:2;padding:112px 48px 40px;width:100%;max-width:900px;}
 .hero-breadcrumb{font-size:12px;color:rgba(255,255,255,.5);margin-bottom:14px;display:flex;align-items:center;gap:6px;}
 .hero-breadcrumb a{color:rgba(255,255,255,.5);text-decoration:none;}
 .hero-breadcrumb a:hover{color:#fff;}
@@ -108,7 +212,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
 .grid-section{padding:40px 48px 80px;}
 .musician-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;}
 @media(max-width:900px){.musician-grid{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:560px){.musician-grid{grid-template-columns:1fr;} .filter-bar{padding:12px 20px;} .grid-section{padding:24px 20px 60px;} .hero-content{padding:32px 20px 28px;} .hero-search-wrap{max-width:100%;}}
+@media(max-width:560px){.musician-grid{grid-template-columns:1fr;} .filter-bar{padding:12px 20px;} .grid-section{padding:24px 20px 60px;} .hero-content{padding:96px 20px 28px;} .hero-search-wrap{max-width:100%;}}
 
 /* ── CARD ── */
 .mcard{border-radius:var(--radius);overflow:hidden;background:#fff;border:1.5px solid #efefef;transition:box-shadow .25s,transform .25s;cursor:pointer;position:relative;}
@@ -156,14 +260,14 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
 .mcard-body{padding:16px;}
 .mcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
 .mcard-rating{display:flex;align-items:center;gap:4px;}
-.mcard-stars{color:#f5a623;font-size:12px;letter-spacing:1px;}
-.mcard-rating-val{font-size:12px;font-weight:600;color:#555;}
+.mcard-stars{display:none;}
+.mcard-rating-val{display:none;}
 .mcard-reviews{font-size:11px;color:var(--mid);}
 .mcard-location{font-size:12px;color:var(--mid);display:flex;align-items:center;gap:3px;margin-bottom:8px;}
 .mcard-location svg{flex-shrink:0;}
-.mcard-name{font-size:15px;font-weight:700;margin-bottom:3px;line-height:1.3;}
-.mcard-instrument{font-size:11px;font-weight:600;color:var(--mid);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px;}
-.mcard-bio{font-size:12.5px;color:#555;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.mcard-name{font-size:20px;font-weight:800;margin-bottom:4px;line-height:1.2;letter-spacing:-.01em;}
+.mcard-instrument{font-size:13px;font-weight:700;color:#000;text-transform:uppercase;letter-spacing:.10em;margin-bottom:8px;}
+.mcard-bio{font-size:12px;color:#888;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 /* Footer: no separator line */
 .mcard-footer{display:none;}
 
@@ -278,15 +382,27 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
 <body>
 
 <!-- NAV -->
+<!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
+<a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
+  <div class="orb"></div>
+</a>
+<a href="musician-platform.html" id="navLogoFixed">
+  <div class="nav-logo-text">
+    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
+    <span class="nav-logo-sub">MUSIC</span>
+  </div>
+</a>
+
 <nav>
-  <a href="musician-platform.html" class="nav-logo"><div class="orb"></div><span>OPUS.Z</span></a>
+  <!-- Spacer to keep nav-links centered -->
+  <div class="nav-logo-spacer"></div>
   <ul class="nav-links">
-    <li><a href="musician-platform.html">Home</a></li>
-    <li><a href="blog.html">Blog</a></li>
-    <li id="musicians-nav-item"><a href="musicians.html" class="nav-active">Musicians</a></li>
+    <li><a href="musician-platform.html" data-i18n="nav.home">Home</a></li>
+    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
+    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
     <li><a href="recent-jobs.html">Recent Jobs</a></li>
-    <li><a href="shows.html">Shows</a></li>
-    <li><a href="musician-platform.html#contact">Contact</a></li>
+    <li><a href="shows.html" data-i18n="nav.news">Shows</a></li>
+    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
   </ul>
   <!-- MEGA MENU -->
   <div class="mega-menu" id="artistsMegaMenu">
@@ -367,7 +483,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
         <li><a href="musicians.html?cat=brass"          data-i18n="menu.brass">Brass</a></li>
         <li><a href="musicians.html?cat=voice"          data-i18n="menu.voice">Voice</a></li>
         <li><a href="musicians.html?cat=chamber"        data-i18n="menu.chamber">Chamber</a></li>
-        <li><a href="musicians.html?cat=conductor"      data-i18n="menu.conductor">Conductor</a></li>
+        <li><a href="musicians.html?cat=conductor"      data-i18n="menu.conductor">Conductor</a></li><li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li>
       </ul>
     </div>
   </div>
@@ -376,13 +492,14 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
     </button>
+    <div id="navInlineAccount" style="display:none"></div>
     <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
       <span class="login-label">Log in</span>
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
       <div class="nav-login-dropdown">
-        <a href="#" id="openCustomerLogin">Customer login</a>
+        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
         <div class="nav-login-vsep"></div>
-        <a href="#" id="openMusicianLogin">Musician login</a>
+        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
       </div>
     </button>
     <button class="lang-toggle" id="langToggle" aria-label="Switch language">
@@ -394,13 +511,32 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
   </div>
 </nav>
 <div class="nav-drawer" id="navDrawer">
-  <a href="musician-platform.html">Home</a>
-  <a href="blog.html">Blog</a>
-  <a href="musicians.html">Musicians</a>
+  <a href="musician-platform.html" data-i18n="nav.home">Home</a>
+  <a href="blog.html" data-i18n="nav.discover">Blog</a>
+  <button class="nd-musicians-btn" id="ndMusiciansBtn">
+    <span data-i18n="nav.artists">Musicians</span>
+    <span class="nd-arrow">›</span>
+  </button>
   <a href="recent-jobs.html">Recent Jobs</a>
-  <a href="shows.html">Shows</a>
-  <a href="musician-platform.html#contact">Contact</a>
+  <a href="shows.html" data-i18n="nav.news">Shows</a>
+  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
 </div>
+
+<!-- Musicians sub-drawer -->
+<div class="nav-sub-drawer" id="navSubDrawer">
+  <div class="nsd-head">
+    <button class="nsd-back" id="nsdBack">‹</button>
+    <div class="nsd-title" data-i18n="nav.artists">Musicians</div>
+  </div>
+  <div class="nsd-body">
+    <div class="nsd-group"><div class="nsd-group-title">Strings</div><a href="musicians.html?cat=violin">Violin</a><a href="musicians.html?cat=viola">Viola</a><a href="musicians.html?cat=cello">Cello</a><a href="musicians.html?cat=doublebass">Double Bass</a><a href="musicians.html?cat=harp">Harp</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Woodwinds</div><a href="musicians.html?cat=flute">Flute</a><a href="musicians.html?cat=oboe">Oboe</a><a href="musicians.html?cat=clarinet">Clarinet</a><a href="musicians.html?cat=saxophone">Saxophone</a><a href="musicians.html?cat=bassoon">Bassoon</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Brass</div><a href="musicians.html?cat=frenchhorn">French Horn</a><a href="musicians.html?cat=trumpet">Trumpet</a><a href="musicians.html?cat=trombone">Trombone</a><a href="musicians.html?cat=tuba">Tuba</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Keyboard</div><a href="musicians.html?cat=piano">Piano</a><a href="musicians.html?cat=pipeorgan">Pipe Organ</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Voice</div><a href="musicians.html?cat=soprano">Soprano</a><a href="musicians.html?cat=mezzosoprano">Mezzo-soprano</a><a href="musicians.html?cat=tenor">Tenor</a><a href="musicians.html?cat=baritone">Baritone</a></div>
+  </div>
+</div>
+
 <!-- Login Modal -->
 <div class="login-modal-overlay" id="loginModalOverlay">
   <div class="login-modal">
@@ -461,9 +597,7 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
   </select>
   <div class="filter-sort">
     <select class="filter-select" id="filterSort" onchange="applyFilters()">
-      <option value="rating">Top Rated</option>
       <option value="newest">Newest</option>
-      <option value="reviews">Most Reviews</option>
     </select>
     <span class="filter-count" id="filterCount"></span>
   </div>
@@ -486,6 +620,19 @@ nav { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 64px; pa
     <div class="audio-bar-inst" id="audioBarInst">—</div>
   </div>
   <button class="audio-bar-stop" onclick="stopAudio()">■ Stop</button>
+</div>
+
+<!-- LOGIN REQUIRED MODAL -->
+<div class="fav-modal-overlay" id="loginRequiredModal" style="display:none;align-items:center;justify-content:center;">
+  <div class="fav-modal" style="max-width:360px;text-align:center;padding:36px 32px 28px;">
+    <div style="font-size:36px;margin-bottom:12px;">🔒</div>
+    <h3 id="lrTitle" style="font-size:18px;font-weight:700;margin-bottom:8px;">請先登入</h3>
+    <p id="lrDesc" style="font-size:14px;color:#666;margin-bottom:24px;line-height:1.6;">登入帳號後才能將音樂家加入最愛收藏。</p>
+    <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+      <a id="lrLoginBtn" href="musician-login.html" style="padding:11px 28px;background:#000;color:#fff;border-radius:50px;font-size:14px;font-weight:700;text-decoration:none;">登入 / 註冊</a>
+      <button onclick="document.getElementById('loginRequiredModal').style.display='none'" style="padding:11px 22px;background:#f0f0f0;color:#333;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;">取消</button>
+    </div>
+  </div>
 </div>
 
 <!-- FAVOURITES MODAL -->
@@ -547,10 +694,17 @@ var CAT_MAP = {
   setHero();
   renderGrid();
 
-  // Fav modal
-  document.getElementById('navFavBtn').addEventListener('click', function(){ document.getElementById('favModal').classList.toggle('open'); renderFavModal(); });
+  // Fav modal — require login
+  document.getElementById('navFavBtn').addEventListener('click', function(){
+    if (!localStorage.getItem('opusz_user')) {
+      document.getElementById('loginRequiredModal').style.display = 'flex';
+      return;
+    }
+    document.getElementById('favModal').classList.toggle('open'); renderFavModal();
+  });
   document.getElementById('favModalClose').addEventListener('click', function(){ document.getElementById('favModal').classList.remove('open'); });
   document.getElementById('favModal').addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open'); });
+  document.getElementById('loginRequiredModal').addEventListener('click', function(e){ if(e.target===this) this.style.display='none'; });
 
   // Search on enter
   document.getElementById('searchInput').addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch(); });
@@ -558,6 +712,7 @@ var CAT_MAP = {
 
 var MENU_I18N = {
   en: {
+    'nav.lessons':'Lessons',
     'menu.strings':'Strings','menu.woodwinds':'Woodwinds','menu.brass':'Brass',
     'menu.percussion':'Percussion','menu.keyboard':'Keyboard','menu.voice':'Voice',
     'menu.chamber':'Chamber','menu.all':'All','menu.allmusicians':'All Musicians',
@@ -570,11 +725,12 @@ var MENU_I18N = {
     'menu.timpani':'Timpani','menu.marimba':'Marimba','menu.vibraphone':'Vibraphone','menu.xylophone':'Xylophone',
     'menu.piano':'Piano','menu.pipeorgan':'Pipe Organ',
     'menu.soprano':'Soprano','menu.mezzosoprano':'Mezzo-soprano','menu.tenor':'Tenor',
-    'menu.baritone':'Baritone','menu.choral':'Choral','menu.conductor':'Conductor',
+    'menu.baritone':'Baritone','menu.choral':'Choral','menu.conductor':'Conductor','menu.tuner':'Tuner',
     'menu.stringquartet':'String Quartet','menu.pianotrio':'Piano Trio','menu.stringtrio':'String Trio',
     'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet','menu.pianoquintet':'Piano Quintet'
   },
   zh: {
+    'nav.lessons':'音樂老師',
     'menu.strings':'弦樂','menu.woodwinds':'木管','menu.brass':'銅管',
     'menu.percussion':'打擊樂','menu.keyboard':'鍵盤','menu.voice':'聲樂',
     'menu.chamber':'室內樂','menu.all':'全部','menu.allmusicians':'所有音樂家',
@@ -587,7 +743,7 @@ var MENU_I18N = {
     'menu.timpani':'定音鼓','menu.marimba':'馬林巴','menu.vibraphone':'顫音琴','menu.xylophone':'木琴',
     'menu.piano':'鋼琴','menu.pipeorgan':'管風琴',
     'menu.soprano':'女高音','menu.mezzosoprano':'次女高音','menu.tenor':'男高音',
-    'menu.baritone':'男中音','menu.choral':'合唱','menu.conductor':'指揮',
+    'menu.baritone':'男中音','menu.choral':'合唱','menu.conductor':'指揮','menu.tuner':'調音師',
     'menu.stringquartet':'弦樂四重奏','menu.pianotrio':'鋼琴三重奏','menu.stringtrio':'弦樂三重奏',
     'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏','menu.pianoquintet':'鋼琴五重奏'
   }
@@ -605,6 +761,9 @@ function setLang(l){
   setHero();
   renderGrid();
   document.getElementById('favModalTitle').textContent = l==='zh' ? '我的收藏' : 'My Favourites';
+  var lrT = document.getElementById('lrTitle'); if(lrT) lrT.textContent = l==='zh' ? '請先登入' : 'Login Required';
+  var lrD = document.getElementById('lrDesc'); if(lrD) lrD.textContent = l==='zh' ? '登入帳號後才能將音樂家加入最愛收藏。' : 'Please log in to save musicians to your favourites.';
+  var lrB = document.getElementById('lrLoginBtn'); if(lrB) lrB.textContent = l==='zh' ? '登入 / 註冊' : 'Log in / Sign up';
   document.getElementById('searchBtn').textContent = l==='zh' ? '搜尋' : 'Search';
   document.getElementById('filterLabel').textContent = l==='zh' ? '篩選' : 'Filter';
   document.getElementById('filterCountry').options[0].text = l==='zh' ? '所有地區' : 'All Regions';
@@ -748,16 +907,13 @@ function renderGrid(){
       '<div class="mcard-body">' +
         '<div class="mcard-top">' +
           '<div class="mcard-rating">' +
-            '<span class="mcard-stars">'+stars+'</span>' +
-            '<span class="mcard-rating-val">'+m.rating.toFixed(1)+'</span>' +
-            '<span class="mcard-reviews">('+m.reviews+')</span>' +
+            '<span class="mcard-reviews">💬 '+m.reviews+' &nbsp;🤍 '+(m.saves||Math.round(m.reviews*0.22))+'</span>' +
           '</div>' +
         '</div>' +
         '<div class="mcard-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+m.region+'</div>' +
         '<div class="mcard-name">'+m.name+'</div>' +
         '<div class="mcard-instrument">'+m.instrument+'</div>' +
         '<div class="mcard-bio">'+m.bio+'</div>' +
-        '<button class="mcard-enq-btn" onclick="openEnquiry(event,'+m.id+')">Send Enquiry</button>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -774,6 +930,12 @@ function renderStars(r){
 // ── Favourites ────────────────────────────────────────────────────────────────
 function toggleFav(e, id){
   e.stopPropagation();
+  // Must be logged in to save favourites
+  if (!localStorage.getItem('opusz_user')) {
+    var modal = document.getElementById('loginRequiredModal');
+    if (modal) { modal.style.display = 'flex'; }
+    return;
+  }
   var idx = favourites.indexOf(id);
   if(idx===-1){ favourites.push(id); } else { favourites.splice(idx,1); }
   localStorage.setItem('mono-favs', JSON.stringify(favourites));
@@ -858,47 +1020,113 @@ document.addEventListener('DOMContentLoaded', function(){
     setLang(lang);
     document.querySelectorAll('#langToggle .lt-opt').forEach(function(o){ o.classList.toggle('active', o.dataset.l===lang); });
   });
-  // Login dropdown
+  // Login / Account dropdown
   var loginBtn = document.getElementById('navLoginBtn');
-  if(loginBtn){
-    loginBtn.addEventListener('click', function(e){ e.stopPropagation(); this.classList.toggle('open'); });
-    document.addEventListener('click', function(){ loginBtn.classList.remove('open'); });
+  var musUser  = localStorage.getItem('opusz_user');
+  var musEmail = localStorage.getItem('opusz_user_email') || '';
+
+  if (loginBtn && musUser) {
+    // ── LOGGED IN: transform navLoginBtn into My Account ──────────────
+    var label = loginBtn.querySelector('.login-label');
+    if (label) label.textContent = 'My Account';
+
+    var drop = loginBtn.querySelector('.nav-login-dropdown');
+    if (drop) {
+      drop.innerHTML =
+        '<div style="padding:10px 14px 8px;border-bottom:1px solid rgba(0,0,0,.08);pointer-events:none">' +
+          '<div style="font-size:13px;font-weight:700;color:#111">' + musUser + '</div>' +
+          '<div style="font-size:11px;color:#999">' + musEmail + '</div>' +
+        '</div>' +
+        '<a href="messages.html" style="display:flex;align-items:center;font-weight:700;">Messages' +
+          '<span id="dropMsgBadge" style="background:#e05;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto;display:none">0</span>' +
+        '</a>' +
+        '<div class="nav-login-vsep"></div>' +
+        '<a href="customer-profile.html#bookings">My Bookings</a>' +
+        '<a href="customer-profile.html">My Profile</a>' +
+        '<div class="nav-login-vsep"></div>' +
+        '<a href="#" id="musLogoutBtn" style="color:#c00;font-weight:600;">Log Out</a>';
+
+      // Unread badge
+      var musConvs = JSON.parse(localStorage.getItem('opusz_convs') || 'null');
+      var musUnread = musConvs
+        ? musConvs.filter(function(c){ return !c.archived && c.unread > 0; }).reduce(function(s,c){ return s + c.unread; }, 0)
+        : 2;
+      var musBadge = document.getElementById('dropMsgBadge');
+      if (musBadge && musUnread > 0) { musBadge.textContent = musUnread; musBadge.style.display = 'inline'; }
+
+      // Logout
+      var musLogout = document.getElementById('musLogoutBtn');
+      if (musLogout) musLogout.addEventListener('click', function(e) {
+        e.preventDefault();
+        localStorage.removeItem('opusz_user');
+        localStorage.removeItem('opusz_user_email');
+        window.location.reload();
+      });
+    }
+
+    // Hover open/close (same as login)
+    var accLeaveTimer;
+    loginBtn.addEventListener('mouseenter', function() { clearTimeout(accLeaveTimer); this.classList.add('open'); });
+    loginBtn.addEventListener('mouseleave', function() { accLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
+    if (drop) {
+      drop.addEventListener('mouseenter', function() { clearTimeout(accLeaveTimer); });
+      drop.addEventListener('mouseleave', function() { accLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
+    }
+
+  } else if (loginBtn) {
+    // ── NOT LOGGED IN: keep original login dropdown ───────────────────
+    var loginLeaveTimer;
+    loginBtn.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); this.classList.add('open'); });
+    loginBtn.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
+    var dropdown = loginBtn.querySelector('.nav-login-dropdown');
+    if (dropdown) {
+      dropdown.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); });
+      dropdown.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
+    }
+    // Login modal
+    var overlay = document.getElementById('loginModalOverlay');
+    var modalClose = document.getElementById('loginModalClose');
+    var modalTitle = document.getElementById('loginModalTitle');
+    function openModal(type){ if(overlay){ modalTitle.textContent = type==='customer'?'Customer Login':'Musician Login'; overlay.classList.add('open'); document.body.style.overflow='hidden'; } }
+    function closeModal(){ if(overlay){ overlay.classList.remove('open'); document.body.style.overflow=''; } }
+    var custBtn = document.getElementById('openCustomerLogin');
+    if(custBtn) custBtn.addEventListener('click', function(e){ e.preventDefault(); loginBtn.classList.remove('open'); openModal('customer'); });
+    if(modalClose) modalClose.addEventListener('click', closeModal);
+    if(overlay) overlay.addEventListener('click', function(e){ if(e.target===overlay) closeModal(); });
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
   }
-  // Login modal
-  var overlay = document.getElementById('loginModalOverlay');
-  var modalClose = document.getElementById('loginModalClose');
-  var modalTitle = document.getElementById('loginModalTitle');
-  function openModal(type){ if(overlay){ modalTitle.textContent = type==='customer'?'Customer Login':'Musician Login'; overlay.classList.add('open'); document.body.style.overflow='hidden'; } }
-  function closeModal(){ if(overlay){ overlay.classList.remove('open'); document.body.style.overflow=''; } }
-  var custBtn = document.getElementById('openCustomerLogin');
-  var musBtn  = document.getElementById('openMusicianLogin');
-  if(custBtn) custBtn.addEventListener('click', function(e){ e.preventDefault(); loginBtn.classList.remove('open'); openModal('customer'); });
-  if(musBtn)  musBtn.addEventListener('click',  function(e){ e.preventDefault(); loginBtn.classList.remove('open'); openModal('musician'); });
-  if(modalClose) modalClose.addEventListener('click', closeModal);
-  if(overlay) overlay.addEventListener('click', function(e){ if(e.target===overlay) closeModal(); });
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
   // Hamburger drawer
   var hamburgerBtn = document.getElementById('hamburgerBtn');
   var navDrawer    = document.getElementById('navDrawer');
+  var navSubDrawer = document.getElementById('navSubDrawer');
   var drawerTimeout;
+  function openDrawer(){ clearTimeout(drawerTimeout); navDrawer.classList.add('nd-visible'); }
+  function closeDrawer(){ if(navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return; drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
+  function closeBoth(){ drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
   if(hamburgerBtn && navDrawer){
-    function openDrawer(){ clearTimeout(drawerTimeout); navDrawer.classList.add('nd-visible'); }
-    function closeDrawer(){ drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); }, 80); }
     hamburgerBtn.addEventListener('mouseenter', openDrawer);
     hamburgerBtn.addEventListener('mouseleave', closeDrawer);
     navDrawer.addEventListener('mouseenter', openDrawer);
     navDrawer.addEventListener('mouseleave', closeDrawer);
   }
+  if(navSubDrawer){ navSubDrawer.addEventListener('mouseenter', function(){ clearTimeout(drawerTimeout); }); navSubDrawer.addEventListener('mouseleave', closeBoth); }
+  var ndMusiciansBtn = document.getElementById('ndMusiciansBtn');
+  var nsdBack = document.getElementById('nsdBack');
+  if(ndMusiciansBtn && navSubDrawer){
+    ndMusiciansBtn.addEventListener('click', function(){ clearTimeout(drawerTimeout); navSubDrawer.classList.add('ns-visible'); });
+    nsdBack.addEventListener('click', function(){ navSubDrawer.classList.remove('ns-visible'); });
+  }
   // Mega menu
-  var musiciansTrigger = document.getElementById('musicians-nav-item');
+  var artistsTrigger = document.getElementById('artists-nav-item');
   var megaMenu = document.getElementById('artistsMegaMenu');
-  if(musiciansTrigger && megaMenu){
-    var musLink = musiciansTrigger.querySelector('a');
+  var navEl = document.querySelector('nav');
+  if(artistsTrigger && megaMenu){
+    var artistsLink = artistsTrigger.querySelector('a');
     var mmTimeout;
-    function openMega(){ clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); if(musLink) musLink.classList.add('mm-active'); }
-    function closeMega(){ mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if(musLink) musLink.classList.remove('mm-active'); }, 80); }
-    musiciansTrigger.addEventListener('mouseenter', openMega);
-    musiciansTrigger.addEventListener('mouseleave', closeMega);
+    function openMega(){ clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); if(artistsLink) artistsLink.classList.add('mm-active'); if(navEl) navEl.classList.add('mega-open'); }
+    function closeMega(){ mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if(artistsLink) artistsLink.classList.remove('mm-active'); if(navEl) navEl.classList.remove('mega-open'); }, 80); }
+    artistsTrigger.addEventListener('mouseenter', openMega);
+    artistsTrigger.addEventListener('mouseleave', closeMega);
     megaMenu.addEventListener('mouseenter', openMega);
     megaMenu.addEventListener('mouseleave', closeMega);
   }
@@ -954,6 +1182,8 @@ function xysRow(prefix, id){
 function liveXYS(prefix, id, axis, val){
   document.getElementById(prefix+(axis==='s'?'sv':''+axis+'v')+'-'+id).textContent = axis==='s' ? parseFloat(val).toFixed(2)+'×' : val;
   applyXYS(prefix, id);
+  // Auto-persist on every slider input — no need to remember to click Save
+  saveXYS(prefix, id);
 }
 
 function applyXYS(prefix, id){
@@ -1383,5 +1613,121 @@ function submitEnquiry(e) {
 document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeEnquiryBtn(); });
 </script>
 
+<script>
+/* ── Nav: scroll hide/show with lerp ── */
+(function() {
+  var navEl = document.querySelector('nav');
+  var navH = navEl ? navEl.offsetHeight : 64;
+  var navTarget = 0, navCurrent = 0, lastY = 0, raf = null;
+  function tick() {
+    navCurrent += (navTarget - navCurrent) * 0.1;
+    if (navEl) navEl.style.top = navCurrent + 'px';
+    if (Math.abs(navTarget - navCurrent) < 0.05) {
+      if (navEl) navEl.style.top = navTarget + 'px';
+      navCurrent = navTarget; raf = null;
+    } else { raf = requestAnimationFrame(tick); }
+  }
+  window.addEventListener('scroll', function() {
+    var y = window.scrollY;
+    navTarget = y < 80 ? 0 : (y > lastY ? -navH : 0);
+    lastY = y;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+})();
+
+/* ── Nav: mix-blend-mode difference + underline + char split ── */
+(function() {
+  var nav = document.querySelector('nav');
+  if (!nav) return;
+
+  function _splitToChars(el) {
+    var text = el.textContent;
+    el.innerHTML = [...text].map(function(ch) {
+      return ch === ' ' ? '<span class="nc-char nc-sp"> </span>' : '<span class="nc-char">' + ch + '</span>';
+    }).join('');
+  }
+  var navLogoFixed = document.getElementById('navLogoFixed');
+  function _resplitNav() {
+    nav.querySelectorAll('.nav-links a').forEach(function(a) { _splitToChars(a); });
+    var ln = nav.querySelector('.nav-logo-name');
+    var ls = nav.querySelector('.nav-logo-sub');
+    if (ln) _splitToChars(ln);
+    if (ls) _splitToChars(ls);
+    if (navLogoFixed) {
+      var fln = navLogoFixed.querySelector('.nav-logo-name');
+      var fls = navLogoFixed.querySelector('.nav-logo-sub');
+      if (fln) _splitToChars(fln);
+      if (fls) _splitToChars(fls);
+      navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    }
+  }
+  _resplitNav();
+  window.__navResplit = _resplitNav;
+
+  function updateColors() {
+    var megaOpen = nav.classList.contains('mega-open');
+    if (megaOpen) {
+      nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#000'; });
+      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+        var el = nav.querySelector(sel); if (!el) return;
+        el.style.color = '#000'; el.style.borderColor = 'rgba(0,0,0,.35)';
+      });
+      nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#000'; });
+      nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
+      return;
+    }
+    nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#fff'; });
+    if (navLogoFixed) navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+      var el = nav.querySelector(sel); if (!el) return;
+      el.style.color = '#fff'; el.style.borderColor = 'rgba(255,255,255,.5)';
+    });
+    nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#fff'; });
+  }
+
+  /* Inject underline span into every nav link */
+  nav.querySelectorAll('.nav-links a').forEach(function(a) {
+    if (!a.querySelector('.nav-ul')) {
+      var ul = document.createElement('span');
+      ul.className = 'nav-ul';
+      a.appendChild(ul);
+    }
+  });
+
+  updateColors();
+  window.addEventListener('scroll', updateColors, { passive: true });
+  window.addEventListener('resize', updateColors);
+  setTimeout(updateColors, 300);
+})();
+
+/* ── Page transition + bfcache fix ── */
+document.addEventListener('click', function(e) {
+  var a = e.target.closest('a[href]');
+  if (!a || a.target || e.metaKey || e.ctrlKey) return;
+  var url; try { url = new URL(a.href, location.href); } catch(err) { return; }
+  if (url.origin !== location.origin) return;
+  if (url.pathname === location.pathname && url.hash) {
+    e.preventDefault();
+    history.replaceState(null, '', url.hash);
+    var t = document.getElementById(url.hash.slice(1));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  if (url.pathname === location.pathname && !url.hash) return;
+  e.preventDefault();
+  document.documentElement.style.transition = 'opacity .22s ease';
+  document.documentElement.style.opacity = '0';
+  setTimeout(function() { location.href = a.href; }, 230);
+});
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    document.documentElement.style.transition = 'opacity .22s ease';
+    document.documentElement.style.opacity = '1';
+  }
+});
+</script>
+
+<script src="assets/js/smooth-scroll.js" defer></script>
+<script src="assets/js/nav-auth.js" defer></script>
 </body>
 </html>

@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Blog — OPUS.Z</title>
-  <meta name="description" content="Insights on classical music, live performance, artist branding, and the music industry from OPUS.Z." />
+  <title>Blog｜古典音樂家 × 產業洞察 × 職涯訪談 — OPUS.Z</title>
+  <meta name="description" content="OPUS.Z Blog——古典與當代音樂的職涯訪談、產業趨勢、婚禮與活動音樂實務指南。為音樂家、活動主辦方、新人提供專業內容。" />
+  <meta name="keywords" content="OPUS.Z Blog, 古典音樂, 音樂家訪談, 婚禮音樂, 音樂家職涯, 台灣古典音樂, 音樂產業" />
+  <link rel="canonical" href="https://opuszmusic.com/blog.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="OPUS.Z Blog — 古典音樂家 × 產業洞察 × 職涯訪談" />
+  <meta property="og:description" content="OPUS.Z Blog：古典與當代音樂的職涯訪談、產業趨勢、婚禮與活動音樂指南。" />
+  <meta property="og:url" content="https://opuszmusic.com/blog.html" />
+  <meta property="og:site_name" content="OPUS.Z" />
+  <meta property="og:locale" content="zh_TW" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet" />
@@ -14,6 +22,8 @@
     :root {
       --bg:    #edece9;
       --dark:  #0f0f0f;
+      --black: #000;
+      --white: #fff;
       --mid:   #888;
       --line:  rgba(0,0,0,0.10);
       --font:  'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -43,71 +53,323 @@
       --line: rgba(255,255,255,0.11);
       --mid: rgba(255,255,255,0.44);
     }
-    body.lights-off .site-header {
-      background: rgba(10,10,10,0.92);
-      border-bottom-color: rgba(255,255,255,0.1);
-    }
-    body.lights-off .site-header__logo,
-    body.lights-off .site-header__menu { color: #fff; }
-    body.lights-off .page-masthead { border-bottom-color: rgba(255,255,255,0.1); }
+    body.lights-off nav { background: rgba(10,10,10,0.08); }
 
-    /* ── HEADER ── */
-    .site-header {
+    /* ── NAV ── */
+    nav {
       position: fixed; top: 0; left: 0; right: 0; z-index: 200;
       display: flex; align-items: center; justify-content: space-between;
-      padding: 18px var(--pad);
-      background: rgba(237,236,233,0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--line);
+      padding: 18px 40px;
+      min-height: 76px;
+      background: transparent;
+      mix-blend-mode: difference;
     }
-    .site-header__logo { font-size: 17px; font-weight: 700; letter-spacing: -.02em; color: var(--dark); }
-    .site-header__menu {
-      font-size: 10px; font-weight: 500; letter-spacing: .20em;
-      text-transform: uppercase; color: var(--dark);
-      background: none; border: none; cursor: pointer;
+    nav.mega-open {
+      mix-blend-mode: normal;
+      background: #fff;
+      transition: background 0.22s ease;
+      --nav-fg: #000;
     }
-    .site-header__menu:hover { opacity: .5; }
+    nav, nav.nav-on-dark { --nav-fg: #fff; }
+    nav.nav-on-light { --nav-fg: #000; }
+    .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; padding-left: 50px; }
+    .orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
+    #navOrbFixed {
+      position: fixed; top: 18px; left: 40px;
+      z-index: 201;
+      text-decoration: none;
+      pointer-events: all;
+      display: flex; align-items: center;
+    }
+    #navLogoFixed {
+      position: fixed; top: 30px; left: 90px; /* default: centres 17px text on 40px orb (18+20-8.5≈30) */
+      z-index: 201;
+      mix-blend-mode: difference;
+      color: #fff;
+      font-size: 17px; font-weight: 700;
+      text-decoration: none;
+      pointer-events: all;
+      display: flex; align-items: flex-start;
+      line-height: 1;
+      transition: top 0.38s cubic-bezier(0.34,1.15,0.64,1);
+    }
+    /* On hover: two 17px lines + 3px gap = 37px total; centre at orb Y=38 → top = 38-37/2 ≈ 19px */
+    #navLogoFixed:hover { top: 19px; }
+    .nav-logo-spacer { width: 180px; flex-shrink: 0; }
+    .nav-logo-text { display: flex; flex-direction: column; line-height: 1; }
+    .nav-logo-name { display: block; }
+    .nav-logo-sub {
+      display: block; font-size: 17px; font-weight: 700; letter-spacing: 0;
+      max-height: 0; overflow: hidden; opacity: 0;
+      margin-top: 3px;
+      transition: max-height 0.38s cubic-bezier(0.34,1.15,0.64,1), opacity 0.22s ease 0.08s;
+    }
+    .nav-logo:hover .nav-logo-sub, #navLogoFixed:hover .nav-logo-sub {
+      max-height: 20px; opacity: 1;
+    }
+    .nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 0; right: 0; justify-content: center; pointer-events: none; }
+    .nav-links li { pointer-events: all; }
+    .nav-links a {
+      text-decoration: none; font-size: 15px;
+      position: relative; padding: 11px 22px; border-radius: 50px;
+      display: inline-flex; align-items: center; justify-content: center;
+      line-height: 1; vertical-align: middle; white-space: nowrap;
+      z-index: 0; color: transparent;
+    }
+    nav.mega-open .nav-links { mix-blend-mode: normal; }
+    nav.mega-open .nav-links a { color: #000; }
+    nav.mega-open .nav-links .nc-char { color: #000 !important; }
+    .nc-char { display: inline-block; color: #fff; }
+    .nc-sp { display: inline-block; min-width: 0.3em; }
+    nav.mega-open .nc-char { color: #000 !important; transition: none; }
+    nav .nav-logo-name, nav .nav-logo-sub { color: transparent; }
+    #navLogoFixed .nav-logo-name, #navLogoFixed .nav-logo-sub { color: #fff; }
+    nav.mega-open .nav-logo-name .nc-char, nav.mega-open .nav-logo-sub .nc-char { color: #000 !important; transition: none; }
+    @media (max-width: 1440px) { nav { padding: 13px 28px; } .nav-links { gap: 4px; } .nav-links a { font-size: 13px; padding: 9px 14px; } }
+    @media (max-width: 1200px) { nav { padding: 11px 24px; } .nav-links { gap: 2px; } .nav-links a { font-size: 12px; padding: 8px 11px; } }
+    .nav-links a::before { display: none; }
+    .nav-links a:hover { opacity: 1; }
+    .nav-ul {
+      position: absolute; bottom: 3px; left: 10px; right: 10px; height: 1px;
+      background: #fff; transform: scaleX(0); transform-origin: right center;
+      transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      pointer-events: none;
+    }
+    .nav-links a:hover .nav-ul { transform: scaleX(1); transform-origin: left center; }
+    nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
+    .hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
+    .hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: opacity .2s; }
+    .hamburger:hover span { opacity: .5; }
+    .nav-right { display: flex; align-items: center; gap: 14px; }
+    .nav-fav-btn { position: relative; background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); display: flex; align-items: center; padding: 4px; }
+    .nav-login-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 13px; font-weight: 500; font-family: inherit;
+      color: var(--nav-fg, #fff); background: none; border: 1px solid rgba(255,255,255,.35);
+      border-radius: 50px; padding: 7px 14px; cursor: pointer; position: relative;
+    }
+    .nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; }
+    .nav-login-btn.open svg { transform: rotate(180deg); }
+    .nav-login-dropdown {
+      display: none; position: absolute; top: calc(100% + 8px); right: 0;
+      background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 10px;
+      padding: 6px 0; min-width: 160px; box-shadow: 0 8px 24px rgba(0,0,0,.1); z-index: 210;
+    }
+    .nav-login-btn.open .nav-login-dropdown { display: block; }
+    .nav-login-dropdown a { display: block; padding: 10px 16px; font-size: 13px; color: #111; }
+    .nav-login-dropdown a:hover { background: #f5f5f5; }
+    .nav-login-vsep { border-top: 1px solid rgba(0,0,0,.08); margin: 3px 0; }
+    .lang-toggle {
+      display: flex; align-items: center; gap: 2px;
+      font-size: 12px; font-weight: 600; letter-spacing: .04em;
+      background: none; border: none; cursor: pointer; color: var(--nav-fg, #fff); font-family: inherit;
+    }
+    .lt-opt { opacity: .4; transition: opacity .15s; }
+    .lt-opt.active { opacity: 1; }
+    .lt-sep { opacity: .25; }
+    .nav-drawer {
+      position: fixed; top: 0; right: -260px; bottom: 0; width: 260px;
+      background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.10);
+      padding: 90px 40px 48px; display: flex; flex-direction: column; gap: 4px;
+      transition: right 0.18s ease; z-index: 300; pointer-events: none;
+    }
+    .nav-drawer.nd-visible { right: 0; pointer-events: auto; transition: right 0.42s cubic-bezier(0.22,1,0.36,1); }
+    .nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+    .nav-drawer a:last-child { border-bottom: none; }
+    .nav-drawer a:hover { color: rgba(0,0,0,0.4); }
+    .nav-drawer.nd-visible a { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
+    .nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
+    .nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
+    .nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
+    .nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
+    .nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+    .nd-musicians-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-align: left; opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+    .nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
+    .nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
+    .nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+    .nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.15s; }
+    .nav-sub-drawer { position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.12); display: flex; flex-direction: column; transition: right 0.18s ease; z-index: 302; pointer-events: none; overflow: hidden; }
+    .nav-sub-drawer.ns-visible { right: 0; pointer-events: auto; transition: right 0.38s cubic-bezier(0.22,1,0.36,1); }
+    .nsd-head { display: flex; align-items: center; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; }
+    .nsd-back { background: none; border: none; cursor: pointer; font-size: 20px; color: #000; padding: 4px; display: flex; align-items: center; opacity: .5; transition: opacity .15s; }
+    .nsd-back:hover { opacity: 1; }
+    .nsd-title { font-size: 16px; font-weight: 700; }
+    .nsd-body { overflow-y: auto; flex: 1; padding: 12px 0 40px; -webkit-overflow-scrolling: touch; }
+    .nsd-group { margin-bottom: 4px; }
+    .nsd-group-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(0,0,0,0.35); padding: 14px 24px 6px; }
+    .nsd-group a { display: block; padding: 10px 24px; font-size: 15px; font-weight: 500; color: #000; text-decoration: none; transition: background .12s, color .12s; }
+    .nsd-group a:hover { background: #f5f5f5; }
+    .mega-menu {
+      position: absolute; top: 100%; left: 0; right: 0; background: #fff;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
+      padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8,1fr); gap: 0;
+      opacity: 0; transform: translateY(-22px); pointer-events: none;
+      transition: opacity 0.22s ease, transform 0.22s ease;
+    }
+    .mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
+    .mega-col { padding: 0 16px; border-left: 1px solid rgba(0,0,0,0.07); opacity: 0; transform: translateY(8px); transition: opacity 0.28s ease, transform 0.28s ease; }
+    .mega-col:first-child { border-left: none; padding-left: 0; }
+    .mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+    .mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); }
+    .mega-menu.mm-visible .mega-col:nth-child(1) { transition-delay: 0.05s; }
+    .mega-menu.mm-visible .mega-col:nth-child(2) { transition-delay: 0.08s; }
+    .mega-menu.mm-visible .mega-col:nth-child(3) { transition-delay: 0.11s; }
+    .mega-menu.mm-visible .mega-col:nth-child(4) { transition-delay: 0.14s; }
+    .mega-menu.mm-visible .mega-col:nth-child(5) { transition-delay: 0.17s; }
+    .mega-menu.mm-visible .mega-col:nth-child(6) { transition-delay: 0.20s; }
+    .mega-col-title { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #111; margin-bottom: 10px; text-decoration: none; }
+    .mega-col ul { list-style: none; padding: 0; }
+    .mega-col ul li a { display: block; padding: 5px 0; font-size: 13px; color: #555; text-decoration: none; transition: color .12s; }
+    .mega-col ul li a:hover { color: #000; }
+    /* ── Lang Toggle ── */
+    .lang-toggle { display: flex; align-items: center; gap: 2px; background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--nav-fg); }
+    .lang-toggle .lt-opt { padding: 3px 8px; border-radius: 5px; transition: background .2s, color .2s; }
+    .lang-toggle .lt-opt.active { border: 1.5px solid currentColor; border-radius: 4px; }
+    nav.mega-open .lang-toggle .lt-opt.active { border-color: #000; color: #000; }
+    .lang-toggle .lt-sep { opacity: .25; font-weight: 400; }
+    /* ── Fav Button ── */
+    .nav-fav-btn { position: relative; background: none; border: none; cursor: pointer; padding: 6px; display: flex; align-items: center; color: var(--nav-fg); }
+    .nav-fav-btn:hover { opacity: .65; }
+    .nav-fav-btn svg { display: block; }
+    .nav-fav-count { position: absolute; top: 0; right: 0; background: #e05; color: #fff; font-size: 9px; font-weight: 700; border-radius: 50%; width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; line-height: 1; }
+    /* ── Login Button ── */
+    .nav-login-btn {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: transparent; color: var(--nav-fg);
+      border: 1.5px solid var(--nav-fg); border-radius: 0;
+      padding: 9px 18px; font-size: 14px; font-weight: 700;
+      font-family: inherit; cursor: pointer; white-space: nowrap;
+      position: relative; z-index: 0; line-height: 1;
+    }
+    .nav-login-btn::before { display: none; }
+    .nav-login-btn:hover { opacity: 1; }
+    .nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; flex-shrink: 0; position: relative; z-index: 1; }
+    .nav-login-btn span.login-label { position: relative; z-index: 1; }
+    .nav-login-btn.open svg { transform: rotate(180deg); }
+    .nav-login-dropdown {
+      position: absolute; top: calc(100% + 8px); right: 0; background: #fff; border-radius: 10px;
+      box-shadow: 0 6px 32px rgba(0,0,0,.13), 0 0 0 1px rgba(0,0,0,.07);
+      padding: 0; min-width: 0; opacity: 0; pointer-events: none; transform: translateY(-4px);
+      transition: opacity .15s, transform .15s; z-index: 999; white-space: nowrap;
+      display: flex; align-items: stretch;
+    }
+    .nav-login-btn.open .nav-login-dropdown { opacity: 1; pointer-events: auto; transform: translateY(0); }
+    .nav-login-dropdown a { display: flex; align-items: center; justify-content: center; padding: 13px 22px; font-size: 13.5px; font-weight: 600; color: #111; text-decoration: none; transition: background .15s; }
+    .nav-login-dropdown a:first-child { border-radius: 10px 0 0 10px; }
+    .nav-login-dropdown a:last-of-type { border-radius: 0 10px 10px 0; }
+    .nav-login-dropdown a:hover { background: #f5f5f5; }
+    .nav-login-vsep { width: 1px; background: #e8e8e8; flex-shrink: 0; margin: 8px 0; }
+    @media(max-width:760px){ .nav-login-btn span.login-label { display: none; } }
 
-    /* ── NAV OVERLAY ── */
-    .site-nav {
-      position: fixed; inset: 0; z-index: 300;
-      background: var(--dark); color: #fff;
+    /* ── HERO REEL ── */
+    .hero-reel {
+      margin-top: 0;
+      position: relative;
+      height: clamp(400px, 54vw, 660px);
+      overflow: hidden;
+      background: #111;
+    }
+    .reel-slide {
+      position: absolute; inset: 0;
+      z-index: 1;
+      transform: translateX(100%);
+    }
+    .reel-slide.is-active {
+      transform: translateX(0);
+      z-index: 2;
+    }
+    .rs-bg {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      transition: transform .7s ease;
+    }
+    .reel-slide.is-active:hover .rs-bg { transform: scale(1.025); }
+    .rs-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.15) 52%, transparent 78%);
+    }
+    .rs-body {
+      position: absolute; bottom: 54px; left: 0; right: 0;
+      padding: 0 var(--pad);
+      z-index: 1;
+    }
+    .rs-tag {
+      font-size: 10px; font-weight: 600; letter-spacing: .22em;
+      text-transform: uppercase; color: rgba(255,255,255,.55);
+      margin-bottom: 12px;
+    }
+    .rs-title {
+      font-size: clamp(22px, 3.2vw, 48px);
+      font-weight: 200; letter-spacing: -.04em; line-height: 1.15;
+      color: #fff;
+    }
+    .reel-bottom {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 var(--pad) 14px;
+      z-index: 10;
+    }
+    .reel-dots { display: flex; gap: 8px; align-items: center; }
+    .rd {
+      width: 28px; height: 2px;
+      background: rgba(255,255,255,.35);
+      border: none; cursor: pointer; padding: 0;
+      transition: background .25s, width .25s;
+    }
+    .rd.rd-active { width: 42px; background: #fff; }
+    .reel-upnext { display: flex; align-items: center; gap: 10px; }
+    .reel-un-label {
+      font-size: 9px; font-weight: 600; letter-spacing: .22em;
+      text-transform: uppercase; color: rgba(255,255,255,.45);
+      white-space: nowrap;
+    }
+    .reel-un-title {
+      font-size: 12px; font-weight: 300; color: rgba(255,255,255,.8);
+      max-width: 220px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .reel-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: rgba(255,255,255,.15); z-index: 11;
+    }
+    .reel-bar__fill { height: 100%; width: 0%; background: #fff; }
+
+    /* ── FEATURED: PHOTO CARDS ── */
+    .feat__grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border-bottom: 1px solid var(--line);
+      margin-top: 18px;
+    }
+    @media (max-width: 800px) {
+      .feat__grid { grid-template-columns: 1fr; }
+      .feat__card { border-right: none !important; border-bottom: 1px solid var(--line); }
+      .feat__card:last-child { border-bottom: none; }
+    }
+    .feat__card {
       display: flex; flex-direction: column;
-      padding: 18px var(--pad) 40px;
-      opacity: 0; pointer-events: none;
-      transition: opacity .3s ease;
+      padding-bottom: 32px;
+      border-right: 1px solid var(--line);
+      text-decoration: none; color: var(--dark);
+      transition: background .2s;
     }
-    .site-nav.open { opacity: 1; pointer-events: all; }
-    .site-nav__top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 56px; }
-    .site-nav__logo { font-size: 17px; font-weight: 700; letter-spacing: -.02em; }
-    .site-nav__close { font-size: 10px; letter-spacing: .20em; text-transform: uppercase; background: none; border: none; color: #fff; cursor: pointer; }
-    .site-nav__close:hover { opacity: .5; }
-    .site-nav__links { display: flex; flex-direction: column; gap: 0; flex: 1; }
-    .site-nav__links a {
-      font-size: clamp(26px, 4vw, 50px); font-weight: 200;
-      letter-spacing: -.02em; line-height: 1.2; color: #fff;
-      border-bottom: 1px solid rgba(255,255,255,.08); padding: 14px 0;
-      transition: opacity .2s;
+    .feat__card:last-child { border-right: none; }
+    .feat__card:hover { background: rgba(0,0,0,.025); }
+    .feat__img { width: 100%; aspect-ratio: 16/10; overflow: hidden; }
+    .feat__img-in {
+      width: 100%; height: 100%;
+      background-size: cover; background-position: center;
+      transition: transform .7s ease;
     }
-    .site-nav__links a:hover { opacity: .4; }
-    .site-nav__bottom { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.3); }
-
-    /* ── PAGE MASTHEAD ── */
-    /* Sits directly under the fixed header, like MAS Context */
-    .page-masthead {
-      margin-top: 55px; /* clear fixed header */
-      padding: 40px var(--pad) 0;
-      border-bottom: 1px solid var(--line);
-      display: flex; align-items: flex-end; justify-content: space-between;
-      padding-bottom: 18px;
+    .feat__card:hover .feat__img-in { transform: scale(1.04); }
+    .feat__bd { padding: 20px 24px 0; display: flex; flex-direction: column; gap: 9px; }
+    .feat__tag {
+      font-size: 10px; font-weight: 600; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--mid);
     }
-    .page-masthead__title {
-      font-size: clamp(28px, 4vw, 52px);
-      font-weight: 200; letter-spacing: -.04em; line-height: 1;
+    .feat__title {
+      font-size: clamp(15px, 1.4vw, 21px);
+      font-weight: 300; line-height: 1.28; letter-spacing: -.025em;
     }
-    .page-masthead__meta {
-      font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--mid);
-    }
+    .feat__sub { font-size: 12.5px; color: var(--mid); line-height: 1.65; }
 
     /* ── SECTION LABEL ── */
     .mag-label {
@@ -121,73 +383,48 @@
     }
     .mag-label__rule { flex: 1; height: 1px; background: var(--line); }
 
-    /* ── FEATURED: TEXT-ONLY 3-COL (like MAS Context top row) ── */
-    .mag-text-3 {
-      display: grid; grid-template-columns: repeat(3, 1fr);
-      border-bottom: 1px solid var(--line);
-      margin-top: 18px;
-    }
-    @media (max-width: 800px) {
-      .mag-text-3 { grid-template-columns: 1fr; }
-      .mag-text-card { border-right: none !important; border-bottom: 1px solid var(--line); }
-      .mag-text-card:last-child { border-bottom: none; }
-    }
-    .mag-text-card {
-      padding: 24px var(--pad) 32px;
-      border-right: 1px solid var(--line);
-      display: flex; flex-direction: column; gap: 10px;
-      text-decoration: none; color: var(--dark);
-      transition: background .2s;
-    }
-    .mag-text-card:last-child { border-right: none; }
-    .mag-text-card:hover { background: rgba(0,0,0,.025); }
-    .mag-text-card__tag {
-      font-size: 10px; font-weight: 600; letter-spacing: .2em;
-      text-transform: uppercase; color: var(--mid);
-    }
-    .mag-text-card__title {
-      font-size: clamp(16px, 1.6vw, 22px);
-      font-weight: 300; line-height: 1.28; letter-spacing: -.025em;
-    }
-    .mag-text-card__excerpt {
-      font-size: 12.5px; color: var(--mid); line-height: 1.65;
-      margin-top: auto; padding-top: 10px;
-    }
-    .mag-text-card__date {
-      font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
-      color: rgba(0,0,0,.3); margin-top: 4px;
-    }
 
     /* ── MIXED LAYOUT ── */
     .mag-mixed {
-      display: grid; grid-template-columns: 260px 1fr 1fr;
+      display: grid; grid-template-columns: 300px 1fr 1fr;
+      grid-template-rows: 460px;      /* square-ish cards, left list ~300px wide */
       border-bottom: 1px solid var(--line);
       margin-top: 0;
     }
     @media (max-width: 900px) {
-      .mag-mixed { grid-template-columns: 1fr; }
+      .mag-mixed { grid-template-columns: 1fr; grid-template-rows: auto; }
       .mag-mixed__list { border-right: none; border-bottom: 1px solid var(--line); }
       .mag-large-card { min-height: 280px; border-right: none !important; border-bottom: 1px solid var(--line); }
     }
-    .mag-mixed__list { border-right: 1px solid var(--line); display: flex; flex-direction: column; }
+    .mag-mixed__list {
+      border-right: 1px solid var(--line);
+      display: flex; flex-direction: column;
+      overflow: hidden; /* don't let content push past 460px */
+    }
     .mag-mini {
-      display: flex; align-items: flex-start; gap: 14px;
-      padding: 18px var(--pad); border-bottom: 1px solid var(--line);
+      display: flex; align-items: center; gap: 16px;
+      padding: 18px 20px;
+      border-bottom: 1px solid var(--line);
       text-decoration: none; color: var(--dark); transition: background .2s;
+      flex: 1 1 0;                    /* 3 items share the 460px row evenly */
+      min-height: 0;
     }
     .mag-mini:last-child { border-bottom: none; }
     .mag-mini:hover { background: rgba(0,0,0,.03); }
-    .mag-mini__img { width: 60px; height: 60px; flex-shrink: 0; overflow: hidden; }
+    .mag-mini__img { width: 80px; height: 64px; flex-shrink: 0; overflow: hidden; border-radius: 4px; }
     .mag-mini__img-inner { width: 100%; height: 100%; background-size: cover; background-position: center; }
     .mag-mini__body { flex: 1; min-width: 0; }
-    .mag-mini__tag { font-size: 9.5px; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--mid); margin-bottom: 5px; }
-    .mag-mini__title { font-size: 12.5px; font-weight: 400; line-height: 1.45; }
-    /* Large photo cards */
+    .mag-mini__tag {
+      font-size: 9px; font-weight: 600; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--mid); margin-bottom: 6px;
+    }
+    .mag-mini__title { font-size: 16px; font-weight: 400; line-height: 1.42; }
+    /* Large photo cards — fill the fixed grid row height */
     .mag-large-card {
       position: relative; overflow: hidden;
       border-right: 1px solid var(--line);
       text-decoration: none; color: #fff;
-      display: block; min-height: 320px;
+      display: block;
     }
     .mag-large-card:last-child { border-right: none; }
     .mag-large-card__bg {
@@ -198,11 +435,11 @@
     .mag-large-card:hover .mag-large-card__bg { transform: scale(1.04); }
     .mag-large-card__overlay {
       position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,.65) 0%, transparent 60%);
+      background: linear-gradient(to top, rgba(0,0,0,.72) 0%, rgba(0,0,0,.1) 55%, transparent 80%);
     }
-    .mag-large-card__body { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px; z-index: 1; }
-    .mag-large-card__tag { font-size: 9.5px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: rgba(255,255,255,.65); margin-bottom: 6px; }
-    .mag-large-card__title { font-size: clamp(14px, 1.2vw, 18px); font-weight: 300; line-height: 1.35; letter-spacing: -.01em; }
+    .mag-large-card__body { position: absolute; bottom: 0; left: 0; right: 0; padding: 28px; z-index: 1; }
+    .mag-large-card__tag { font-size: 9px; font-weight: 600; letter-spacing: .20em; text-transform: uppercase; color: rgba(255,255,255,.6); margin-bottom: 8px; }
+    .mag-large-card__title { font-size: clamp(15px, 1.4vw, 20px); font-weight: 300; line-height: 1.32; letter-spacing: -.01em; }
 
     /* ── HOME BREAKER (lights-off) ── */
     /* Background is transparent — body background darkens through it.
@@ -329,68 +566,201 @@
 </head>
 <body>
 
-<!-- ── HEADER ── -->
-<header class="site-header" id="siteHeader">
-  <a class="site-header__logo" href="musician-platform.html">OPUS.Z</a>
-  <button class="site-header__menu" id="menuBtn">MENU</button>
-</header>
+<!-- ── NAV ── -->
+<!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
+<a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
+  <div class="orb"></div>
+</a>
+<a href="musician-platform.html" id="navLogoFixed">
+  <div class="nav-logo-text">
+    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
+    <span class="nav-logo-sub">MUSIC</span>
+  </div>
+</a>
 
-<!-- ── NAV OVERLAY ── -->
-<nav class="site-nav" id="siteNav">
-  <div class="site-nav__top">
-    <span class="site-nav__logo">OPUS.Z</span>
-    <button class="site-nav__close" id="navClose">CLOSE</button>
+<nav>
+  <!-- Spacer to keep nav-links centered -->
+  <div class="nav-logo-spacer"></div>
+
+  <ul class="nav-links">
+    <li><a href="musician-platform.html" data-i18n="nav.home">Home</a></li>
+    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
+    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
+    <li><a href="recent-jobs.html">Recent Jobs</a></li>
+    <li><a href="shows.html" data-i18n="nav.news">Shows</a></li>
+    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
+  </ul>
+  <!-- MEGA MENU -->
+  <div class="mega-menu" id="artistsMegaMenu">
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a>
+      <ul><li><a href="musicians.html?cat=violin" data-i18n="menu.violin">Violin</a></li><li><a href="musicians.html?cat=viola" data-i18n="menu.viola">Viola</a></li><li><a href="musicians.html?cat=cello" data-i18n="menu.cello">Cello</a></li><li><a href="musicians.html?cat=doublebass" data-i18n="menu.doublebass">Double Bass</a></li><li><a href="musicians.html?cat=harp" data-i18n="menu.harp">Harp</a></li></ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a>
+      <ul><li><a href="musicians.html?cat=flute" data-i18n="menu.flute">Flute</a></li><li><a href="musicians.html?cat=piccolo" data-i18n="menu.piccolo">Piccolo</a></li><li><a href="musicians.html?cat=oboe" data-i18n="menu.oboe">Oboe</a></li><li><a href="musicians.html?cat=clarinet" data-i18n="menu.clarinet">Clarinet</a></li><li><a href="musicians.html?cat=saxophone" data-i18n="menu.saxophone">Saxophone</a></li><li><a href="musicians.html?cat=bassoon" data-i18n="menu.bassoon">Bassoon</a></li></ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a>
+      <ul><li><a href="musicians.html?cat=frenchhorn" data-i18n="menu.frenchhorn">French Horn</a></li><li><a href="musicians.html?cat=trumpet" data-i18n="menu.trumpet">Trumpet</a></li><li><a href="musicians.html?cat=trombone" data-i18n="menu.trombone">Trombone</a></li><li><a href="musicians.html?cat=euphonium" data-i18n="menu.euphonium">Euphonium</a></li><li><a href="musicians.html?cat=tuba" data-i18n="menu.tuba">Tuba</a></li></ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=percussion" data-i18n="menu.percussion">Percussion</a>
+      <ul><li><a href="musicians.html?cat=timpani" data-i18n="menu.timpani">Timpani</a></li><li><a href="musicians.html?cat=marimba" data-i18n="menu.marimba">Marimba</a></li><li><a href="musicians.html?cat=vibraphone" data-i18n="menu.vibraphone">Vibraphone</a></li><li><a href="musicians.html?cat=xylophone" data-i18n="menu.xylophone">Xylophone</a></li></ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=keyboard" data-i18n="menu.keyboard">Keyboard</a>
+      <ul><li><a href="musicians.html?cat=piano" data-i18n="menu.piano">Piano</a></li><li><a href="musicians.html?cat=pipeorgan" data-i18n="menu.pipeorgan">Pipe Organ</a></li></ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a>
+      <ul><li><a href="musicians.html?cat=soprano" data-i18n="menu.soprano">Soprano</a></li><li><a href="musicians.html?cat=mezzosoprano" data-i18n="menu.mezzosoprano">Mezzo-soprano</a></li><li><a href="musicians.html?cat=tenor" data-i18n="menu.tenor">Tenor</a></li><li><a href="musicians.html?cat=baritone" data-i18n="menu.baritone">Baritone</a></li><li><a href="musicians.html?cat=choral" data-i18n="menu.choral">Choral</a></li></ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a>
+      <ul><li><a href="musicians.html?cat=stringquartet" data-i18n="menu.stringquartet">String Quartet</a></li><li><a href="musicians.html?cat=pianotrio" data-i18n="menu.pianotrio">Piano Trio</a></li><li><a href="musicians.html?cat=stringtrio" data-i18n="menu.stringtrio">String Trio</a></li><li><a href="musicians.html?cat=windquintet" data-i18n="menu.windquintet">Wind Quintet</a></li><li><a href="musicians.html?cat=brassquintet" data-i18n="menu.brassquintet">Brass Quintet</a></li><li><a href="musicians.html?cat=pianoquintet" data-i18n="menu.pianoquintet">Piano Quintet</a></li></ul>
+    </div>
+    <div class="mega-col">
+      <a class="mega-col-title" href="musicians.html" data-i18n="menu.all">All</a>
+      <ul><li><a href="musicians.html" data-i18n="menu.allmusicians">All Musicians</a></li><li><a href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a></li><li><a href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a></li><li><a href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a></li><li><a href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a></li><li><a href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a></li><li><a href="musicians.html?cat=conductor" data-i18n="menu.conductor">Conductor</a></li><li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li></ul>
+    </div>
   </div>
-  <div class="site-nav__links">
-    <a href="musician-platform.html">Home</a>
-    <a href="blog.html">Blog</a>
-    <a href="musicians.html">Musicians</a>
-    <a href="recent-jobs.html">Recent Jobs</a>
-    <a href="shows.html">Shows</a>
-    <a href="musician-platform.html#contact">Contact</a>
+
+  <div class="nav-right">
+    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
+    </button>
+    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
+      <span class="login-label">Log in</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <div class="nav-login-dropdown">
+        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
+        <div class="nav-login-vsep"></div>
+        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
+      </div>
+    </button>
+    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+      <span class="lt-opt active" data-l="en">EN</span>
+      <span class="lt-sep">/</span>
+      <span class="lt-opt" data-l="zh">中文</span>
+    </button>
+    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
   </div>
-  <div class="site-nav__bottom">© 2026 OPUS.Z — All rights reserved</div>
 </nav>
 
-<!-- ── PAGE MASTHEAD ── -->
-<div class="page-masthead">
-  <h1 class="page-masthead__title">Journal</h1>
-  <span class="page-masthead__meta">OPUS.Z — Vol. 1, 2026</span>
+<!-- Slide-in nav drawer -->
+<div class="nav-drawer" id="navDrawer">
+  <a href="musician-platform.html" data-i18n="nav.home">Home</a>
+  <a href="blog.html" data-i18n="nav.discover">Blog</a>
+  <button class="nd-musicians-btn" id="ndMusiciansBtn">
+    <span data-i18n="nav.artists">Musicians</span>
+    <span class="nd-arrow">›</span>
+  </button>
+  <a href="recent-jobs.html">Recent Jobs</a>
+  <a href="shows.html" data-i18n="nav.news">Shows</a>
+  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
 </div>
+
+<!-- Musicians sub-drawer -->
+<div class="nav-sub-drawer" id="navSubDrawer">
+  <div class="nsd-head">
+    <button class="nsd-back" id="nsdBack">‹</button>
+    <div class="nsd-title">Musicians</div>
+  </div>
+  <div class="nsd-body">
+    <div class="nsd-group"><div class="nsd-group-title">Strings</div><a href="musicians.html?cat=violin">Violin</a><a href="musicians.html?cat=viola">Viola</a><a href="musicians.html?cat=cello">Cello</a><a href="musicians.html?cat=doublebass">Double Bass</a><a href="musicians.html?cat=harp">Harp</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Woodwinds</div><a href="musicians.html?cat=flute">Flute</a><a href="musicians.html?cat=oboe">Oboe</a><a href="musicians.html?cat=clarinet">Clarinet</a><a href="musicians.html?cat=saxophone">Saxophone</a><a href="musicians.html?cat=bassoon">Bassoon</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Brass</div><a href="musicians.html?cat=frenchhorn">French Horn</a><a href="musicians.html?cat=trumpet">Trumpet</a><a href="musicians.html?cat=trombone">Trombone</a><a href="musicians.html?cat=tuba">Tuba</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Keyboard</div><a href="musicians.html?cat=piano">Piano</a><a href="musicians.html?cat=pipeorgan">Pipe Organ</a></div>
+    <div class="nsd-group"><div class="nsd-group-title">Voice</div><a href="musicians.html?cat=soprano">Soprano</a><a href="musicians.html?cat=mezzosoprano">Mezzo-soprano</a><a href="musicians.html?cat=tenor">Tenor</a><a href="musicians.html?cat=baritone">Baritone</a></div>
+  </div>
+</div>
+
+<!-- ── HERO REEL ── -->
+<section class="hero-reel" id="heroReel">
+
+  <div class="reel-slide is-active" data-title="婚禮弦樂四重奏怎麼選？台灣婚禮音樂完整指南">
+    <div class="rs-bg c8" data-photo-id="reel-1"></div>
+    <div class="rs-overlay"></div>
+    <div class="rs-body">
+      <div class="rs-tag" data-i18n="blog.tag.about">About OPUS.Z</div>
+      <h2 class="rs-title">OPUS.Z：我們正在重新定義<br>音樂家的工作方式</h2>
+    </div>
+  </div>
+
+  <div class="reel-slide" data-title="從皇家音樂院到台灣舞台——一位小提琴家的職涯選擇">
+    <div class="rs-bg c2" data-photo-id="reel-2"></div>
+    <div class="rs-overlay"></div>
+    <div class="rs-body">
+      <div class="rs-tag" data-i18n="blog.tag.industry">Industry</div>
+      <h2 class="rs-title">婚禮弦樂四重奏怎麼選？<br>台灣婚禮音樂完整指南</h2>
+    </div>
+  </div>
+
+  <div class="reel-slide" data-title="OPUS.Z：我們正在重新定義音樂家的工作方式">
+    <div class="rs-bg c4" data-photo-id="reel-3"></div>
+    <div class="rs-overlay"></div>
+    <div class="rs-body">
+      <div class="rs-tag" data-i18n="blog.tag.interview">Interview</div>
+      <h2 class="rs-title">從皇家音樂院到台灣舞台——<br>一位小提琴家的職涯選擇</h2>
+    </div>
+  </div>
+
+  <div class="reel-bottom">
+    <div class="reel-dots">
+      <button class="rd rd-active" data-to="0"></button>
+      <button class="rd" data-to="1"></button>
+      <button class="rd" data-to="2"></button>
+    </div>
+    <div class="reel-upnext">
+      <span class="reel-un-label" data-i18n="blog.upnext">UP NEXT</span>
+      <span class="reel-un-title" id="reelUnTitle"></span>
+    </div>
+  </div>
+
+  <div class="reel-bar"><div class="reel-bar__fill" id="reelBarFill"></div></div>
+
+</section>
 
 
 <!-- ═══ FEATURED ═══ -->
 <div class="mag-label reveal">
-  <span>Featured</span>
+  <span data-i18n="blog.featured">Featured</span>
   <div class="mag-label__rule"></div>
 </div>
 
-<!-- Text-only 3-col — same editorial pattern as MAS Context top row -->
-<div class="mag-text-3">
-  <a class="mag-text-card reveal" href="blog-opusz-intro.html">
-    <div class="mag-text-card__tag">About OPUS.Z</div>
-    <h2 class="mag-text-card__title">OPUS.Z：我們正在重新定義音樂家的工作方式</h2>
-    <p class="mag-text-card__excerpt">從古典到當代，我們連結真正有能力的音樂家和真正需要他們的客戶。</p>
-    <div class="mag-text-card__date">May 28, 2026</div>
+<div class="feat__grid">
+  <a class="feat__card reveal" href="blog-opusz-intro.html">
+    <div class="feat__img"><div class="feat__img-in c8" data-photo-id="feat-1"></div></div>
+    <div class="feat__bd">
+      <div class="feat__tag" data-i18n="blog.tag.about">About OPUS.Z</div>
+      <h2 class="feat__title">OPUS.Z：我們正在重新定義音樂家的工作方式</h2>
+      <p class="feat__sub">從古典到當代，我們連結真正有能力的音樂家和真正需要他們的客戶。</p>
+    </div>
   </a>
-  <a class="mag-text-card reveal" href="#" style="transition-delay:.07s">
-    <div class="mag-text-card__tag">Industry</div>
-    <h2 class="mag-text-card__title">婚禮弦樂四重奏怎麼選？台灣婚禮音樂完整指南</h2>
-    <p class="mag-text-card__excerpt">從曲目選擇到現場準備，幫你找到最合適的婚禮音樂家陣容。</p>
-    <div class="mag-text-card__date">Apr 15, 2026</div>
+  <a class="feat__card reveal" href="blog-wedding-quartet.html" style="transition-delay:.07s">
+    <div class="feat__img"><div class="feat__img-in c2" data-photo-id="feat-2"></div></div>
+    <div class="feat__bd">
+      <div class="feat__tag" data-i18n="blog.tag.industry">Industry</div>
+      <h2 class="feat__title">婚禮弦樂四重奏怎麼選？台灣婚禮音樂完整指南</h2>
+      <p class="feat__sub">從曲目選擇到現場準備，幫你找到最合適的婚禮音樂家陣容。</p>
+    </div>
   </a>
-  <a class="mag-text-card reveal" href="#" style="transition-delay:.14s">
-    <div class="mag-text-card__tag">Interview</div>
-    <h2 class="mag-text-card__title">從皇家音樂院到台灣舞台——一位小提琴家的職涯選擇</h2>
-    <p class="mag-text-card__excerpt">我們專訪 OPUS.Z 旗下的青年音樂家，聊聊她如何在國際與本地演出之間找到平衡。</p>
-    <div class="mag-text-card__date">Mar 10, 2026</div>
+  <a class="feat__card reveal" href="blog-violinist-career.html" style="transition-delay:.14s">
+    <div class="feat__img"><div class="feat__img-in c4" data-photo-id="feat-3"></div></div>
+    <div class="feat__bd">
+      <div class="feat__tag" data-i18n="blog.tag.interview">Interview</div>
+      <h2 class="feat__title">從皇家音樂院到台灣舞台——一位小提琴家的職涯選擇</h2>
+      <p class="feat__sub">我們專訪 OPUS.Z 旗下的青年音樂家，聊聊她如何在國際與本地演出之間找到平衡。</p>
+    </div>
   </a>
 </div>
 
 
 <!-- ═══ RECENT — mixed layout ═══ -->
 <div class="mag-label reveal">
-  <span>Recent</span>
+  <span data-i18n="blog.recent">Recent</span>
   <div class="mag-label__rule"></div>
 </div>
 
@@ -399,51 +769,44 @@
   <!-- Left: thumbnail list -->
   <div class="mag-mixed__list">
     <a class="mag-mini" href="#">
-      <div class="mag-mini__img"><div class="mag-mini__img-inner c4"></div></div>
+      <div class="mag-mini__img"><div class="mag-mini__img-inner c4" data-photo-id="mini-1"></div></div>
       <div class="mag-mini__body">
         <div class="mag-mini__tag">Tips · Nov 2025</div>
         <div class="mag-mini__title">The power of authenticity in modern music branding</div>
       </div>
     </a>
     <a class="mag-mini" href="#">
-      <div class="mag-mini__img"><div class="mag-mini__img-inner c5"></div></div>
+      <div class="mag-mini__img"><div class="mag-mini__img-inner c5" data-photo-id="mini-2"></div></div>
       <div class="mag-mini__body">
         <div class="mag-mini__tag">Industry · Jul 2025</div>
         <div class="mag-mini__title">From bedroom producer to booked artist: building momentum</div>
       </div>
     </a>
     <a class="mag-mini" href="#">
-      <div class="mag-mini__img"><div class="mag-mini__img-inner c6"></div></div>
+      <div class="mag-mini__img"><div class="mag-mini__img-inner c6" data-photo-id="mini-3"></div></div>
       <div class="mag-mini__body">
         <div class="mag-mini__tag">Tips · May 2025</div>
         <div class="mag-mini__title">Why great artists are discovered through clarity, not volume</div>
-      </div>
-    </a>
-    <a class="mag-mini" href="#">
-      <div class="mag-mini__img"><div class="mag-mini__img-inner c7"></div></div>
-      <div class="mag-mini__body">
-        <div class="mag-mini__tag">Industry · Mar 2025</div>
-        <div class="mag-mini__title">How to price your performance in the Taiwan market</div>
       </div>
     </a>
   </div>
 
   <!-- Center: large photo card -->
   <a class="mag-large-card" href="#">
-    <div class="mag-large-card__bg c8"></div>
+    <div class="mag-large-card__bg c8" data-photo-id="large-1"></div>
     <div class="mag-large-card__overlay"></div>
     <div class="mag-large-card__body">
-      <div class="mag-large-card__tag">Interview</div>
+      <div class="mag-large-card__tag" data-i18n="blog.tag.interview">Interview</div>
       <div class="mag-large-card__title">古典音樂家如何在數位時代找到自己的定位</div>
     </div>
   </a>
 
   <!-- Right: large photo card -->
   <a class="mag-large-card" href="#">
-    <div class="mag-large-card__bg c9"></div>
+    <div class="mag-large-card__bg c9" data-photo-id="large-2"></div>
     <div class="mag-large-card__overlay"></div>
     <div class="mag-large-card__body">
-      <div class="mag-large-card__tag">Industry</div>
+      <div class="mag-large-card__tag" data-i18n="blog.tag.industry">Industry</div>
       <div class="mag-large-card__title">企業活動音樂策劃全指南：從選角到現場執行</div>
     </div>
   </a>
@@ -463,22 +826,22 @@
       </div>
     </div>
 
-    <div class="home-breaker__label">What we offer</div>
+    <div class="home-breaker__label" data-i18n="blog.offer.label">What we offer</div>
     <div class="home-breaker__grid">
       <div class="breaker-item">
         <div class="breaker-item__num">01</div>
-        <div class="breaker-item__title">Live Performance</div>
-        <div class="breaker-item__sub">Weddings, corporate events, concert productions, opening ceremonies</div>
+        <div class="breaker-item__title" data-i18n="blog.offer.live">Live Performance</div>
+        <div class="breaker-item__sub" data-i18n="blog.offer.live.sub">Weddings, corporate events, concert productions, opening ceremonies</div>
       </div>
       <div class="breaker-item">
         <div class="breaker-item__num">02</div>
-        <div class="breaker-item__title">Session Work</div>
-        <div class="breaker-item__sub">Studio recordings, film scores, album productions</div>
+        <div class="breaker-item__title" data-i18n="blog.offer.session">Session Work</div>
+        <div class="breaker-item__sub" data-i18n="blog.offer.session.sub">Studio recordings, film scores, album productions</div>
       </div>
       <div class="breaker-item">
         <div class="breaker-item__num">03</div>
-        <div class="breaker-item__title">Artist Branding</div>
-        <div class="breaker-item__sub">Build a profile that books gigs and builds a lasting career</div>
+        <div class="breaker-item__title" data-i18n="blog.offer.branding">Artist Branding</div>
+        <div class="breaker-item__sub" data-i18n="blog.offer.branding.sub">Build a profile that books gigs and builds a lasting career</div>
       </div>
     </div>
   </div>
@@ -487,32 +850,32 @@
 
 <!-- ═══ MORE ARTICLES ═══ -->
 <div class="mag-label reveal">
-  <span>More from OPUS.Z</span>
+  <span data-i18n="blog.more">More from OPUS.Z</span>
   <div class="mag-label__rule"></div>
 </div>
 
 <div class="mag-grid-4">
   <a class="mag-small reveal" href="#">
     <div class="mag-small__img"><div class="mag-small__img-inner c7"></div></div>
-    <div class="mag-small__tag">Industry</div>
+    <div class="mag-small__tag" data-i18n="blog.tag.industry">Industry</div>
     <h3 class="mag-small__title">Designing your artist profile that books gigs and scales</h3>
     <div class="mag-small__date">Apr 10, 2025</div>
   </a>
   <a class="mag-small reveal" href="#" style="transition-delay:.07s">
     <div class="mag-small__img"><div class="mag-small__img-inner c8"></div></div>
-    <div class="mag-small__tag">Industry</div>
+    <div class="mag-small__tag" data-i18n="blog.tag.industry">Industry</div>
     <h3 class="mag-small__title">How classical musicians are entering the corporate event market</h3>
     <div class="mag-small__date">Mar 5, 2025</div>
   </a>
   <a class="mag-small reveal" href="#" style="transition-delay:.14s">
     <div class="mag-small__img"><div class="mag-small__img-inner c9"></div></div>
-    <div class="mag-small__tag">Tips</div>
+    <div class="mag-small__tag" data-i18n="blog.tag.tips">Tips</div>
     <h3 class="mag-small__title">Building a lasting brand as a performing musician in Asia</h3>
     <div class="mag-small__date">Feb 18, 2025</div>
   </a>
   <a class="mag-small reveal" href="#" style="transition-delay:.21s">
     <div class="mag-small__img"><div class="mag-small__img-inner c10"></div></div>
-    <div class="mag-small__tag">Tips</div>
+    <div class="mag-small__tag" data-i18n="blog.tag.tips">Tips</div>
     <h3 class="mag-small__title">Session work vs. live gigs: which path is right for you?</h3>
     <div class="mag-small__date">Jan 22, 2025</div>
   </a>
@@ -523,15 +886,15 @@
 <footer class="site-footer">
   <div class="footer-grid">
     <div class="footer-col">
-      <div class="footer-col__label">Contact</div>
+      <div class="footer-col__label" data-i18n="blog.footer.contact">Contact</div>
       <div class="footer-col__body">
         Taipei, Taiwan<br>
-        <a href="mailto:info@opuszmusic.com">info@opuszmusic.com</a><br><br>
+        <a href="mailto:tzutung.liao@gmail.com">tzutung.liao@gmail.com</a><br><br>
         <a href="musician-platform.html#contact">Send a message →</a>
       </div>
     </div>
     <div class="footer-col">
-      <div class="footer-col__label">Follow</div>
+      <div class="footer-col__label" data-i18n="blog.footer.follow">Follow</div>
       <div class="footer-col__links">
         <a href="#">@opuszmusic</a>
         <a href="#">Instagram</a>
@@ -540,37 +903,373 @@
       </div>
     </div>
     <div class="footer-col">
-      <div class="footer-col__label">Subscribe</div>
-      <div class="footer-col__body">Sign up for our newsletter:</div>
+      <div class="footer-col__label" data-i18n="blog.footer.subscribe">Subscribe</div>
+      <div class="footer-col__body" data-i18n="blog.footer.newsletter">Sign up for our newsletter:</div>
       <form class="footer-subscribe" name="newsletter" method="POST" data-netlify="true" action="/newsletter-success.html">
         <input type="hidden" name="form-name" value="newsletter" />
-        <input type="email" name="email" placeholder="Your email" required />
-        <button type="submit">Subscribe</button>
+        <input type="email" name="email" placeholder="Your email" data-i18n-ph="blog.footer.email.ph" required />
+        <button type="submit" data-i18n="blog.footer.subscribe.btn">Subscribe</button>
       </form>
     </div>
   </div>
   <div class="footer-bottom">
     <span>OPUS.Z</span>
-    <span>© 2026 OPUS.Z. All rights reserved.</span>
+    <span data-i18n="blog.footer.copy">© 2026 OPUS.Z. All rights reserved.</span>
   </div>
 </footer>
 
 <script>
-/* ── HEADER ── */
-document.getElementById('menuBtn').addEventListener('click', () =>
-  document.getElementById('siteNav').classList.add('open'));
-document.getElementById('navClose').addEventListener('click', () =>
-  document.getElementById('siteNav').classList.remove('open'));
-document.getElementById('siteNav').addEventListener('click', e => {
-  if (e.target === document.getElementById('siteNav'))
-    document.getElementById('siteNav').classList.remove('open');
+/* ── Favourites badge + navigation ── */
+(function() {
+  var count = JSON.parse(localStorage.getItem('mono-favs') || '[]').length;
+  var el = document.getElementById('navFavCount');
+  if (el) { el.textContent = count; el.style.display = count ? 'flex' : 'none'; }
+  var btn = document.getElementById('navFavBtn');
+  if (btn) btn.addEventListener('click', function() { window.location.href = 'favourites.html'; });
+})();
+
+/* ── NAV: Lang toggle, login dropdown, hamburger drawer, mega-menu ── */
+var _currentLang = 'en';
+var I18N = {
+  en: {
+    'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
+    'nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
+    'menu.strings':'Strings','menu.violin':'Violin','menu.viola':'Viola',
+    'menu.cello':'Cello','menu.doublebass':'Double Bass','menu.harp':'Harp',
+    'menu.woodwinds':'Woodwinds','menu.flute':'Flute','menu.piccolo':'Piccolo',
+    'menu.oboe':'Oboe','menu.clarinet':'Clarinet','menu.saxophone':'Saxophone',
+    'menu.bassoon':'Bassoon','menu.brass':'Brass','menu.frenchhorn':'French Horn',
+    'menu.trumpet':'Trumpet','menu.trombone':'Trombone','menu.euphonium':'Euphonium',
+    'menu.tuba':'Tuba','menu.percussion':'Percussion','menu.timpani':'Timpani',
+    'menu.marimba':'Marimba','menu.vibraphone':'Vibraphone','menu.xylophone':'Xylophone',
+    'menu.keyboard':'Keyboard','menu.piano':'Piano','menu.pipeorgan':'Pipe Organ',
+    'menu.voice':'Voice','menu.soprano':'Soprano','menu.mezzosoprano':'Mezzo-soprano',
+    'menu.tenor':'Tenor','menu.baritone':'Baritone','menu.choral':'Choral',
+    'menu.chamber':'Chamber','menu.stringquartet':'String Quartet',
+    'menu.pianotrio':'Piano Trio','menu.stringtrio':'String Trio',
+    'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet',
+    'menu.pianoquintet':'Piano Quintet','menu.all':'All','menu.allmusicians':'All Musicians',
+    'menu.conductor':'Conductor','menu.tuner':'Tuner',
+    'login.customer':'Customer login','login.musician':'Musician login',
+    'blog.featured':'Featured','blog.recent':'Recent','blog.more':'More from OPUS.Z',
+    'blog.tag.about':'About OPUS.Z','blog.tag.industry':'Industry',
+    'blog.tag.interview':'Interview','blog.tag.tips':'Tips',
+    'blog.upnext':'UP NEXT',
+    'blog.offer.label':'What we offer',
+    'blog.offer.live':'Live Performance',
+    'blog.offer.live.sub':'Weddings, corporate events, concert productions, opening ceremonies',
+    'blog.offer.session':'Session Work',
+    'blog.offer.session.sub':'Studio recordings, film scores, album productions',
+    'blog.offer.branding':'Artist Branding',
+    'blog.offer.branding.sub':'Build a profile that books gigs and builds a lasting career',
+    'blog.footer.contact':'Contact','blog.footer.follow':'Follow',
+    'blog.footer.subscribe':'Subscribe','blog.footer.newsletter':'Sign up for our newsletter:',
+    'blog.footer.email.ph':'Your email','blog.footer.subscribe.btn':'Subscribe',
+    'blog.footer.copy':'© 2026 OPUS.Z. All rights reserved.'
+  },
+  zh: {
+    'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
+    'nav.news':'演出','nav.contact':'聯絡','nav.lessons':'音樂老師',
+    'menu.strings':'弦樂','menu.violin':'小提琴','menu.viola':'中提琴',
+    'menu.cello':'大提琴','menu.doublebass':'低音提琴','menu.harp':'豎琴',
+    'menu.woodwinds':'木管','menu.flute':'長笛','menu.piccolo':'短笛',
+    'menu.oboe':'雙簧管','menu.clarinet':'單簧管','menu.saxophone':'薩克斯風',
+    'menu.bassoon':'低音管','menu.brass':'銅管','menu.frenchhorn':'法國號',
+    'menu.trumpet':'小號','menu.trombone':'長號','menu.euphonium':'上低音號',
+    'menu.tuba':'大號','menu.percussion':'打擊','menu.timpani':'定音鼓',
+    'menu.marimba':'馬林巴','menu.vibraphone':'顫音琴','menu.xylophone':'木琴',
+    'menu.keyboard':'鍵盤','menu.piano':'鋼琴','menu.pipeorgan':'管風琴',
+    'menu.voice':'聲樂','menu.soprano':'女高音','menu.mezzosoprano':'次女高音',
+    'menu.tenor':'男高音','menu.baritone':'男中音','menu.choral':'合唱',
+    'menu.chamber':'室樂','menu.stringquartet':'弦樂四重奏',
+    'menu.pianotrio':'鋼琴三重奏','menu.stringtrio':'弦樂三重奏',
+    'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏',
+    'menu.pianoquintet':'鋼琴五重奏','menu.all':'全部','menu.allmusicians':'所有音樂家',
+    'menu.conductor':'指揮','menu.tuner':'調音師',
+    'login.customer':'客戶登入','login.musician':'音樂家登入',
+    'blog.featured':'精選','blog.recent':'最新','blog.more':'更多內容',
+    'blog.tag.about':'關於 OPUS.Z','blog.tag.industry':'產業動態',
+    'blog.tag.interview':'專訪','blog.tag.tips':'實用技巧',
+    'blog.upnext':'下一篇',
+    'blog.offer.label':'我們提供的服務',
+    'blog.offer.live':'現場演出',
+    'blog.offer.live.sub':'婚禮、企業活動、音樂會製作、開幕典禮',
+    'blog.offer.session':'錄音工作',
+    'blog.offer.session.sub':'錄音室錄音、電影配樂、專輯製作',
+    'blog.offer.branding':'藝術家品牌',
+    'blog.offer.branding.sub':'建立專業形象，持續接案、累積長遠職涯',
+    'blog.footer.contact':'聯絡','blog.footer.follow':'追蹤',
+    'blog.footer.subscribe':'訂閱','blog.footer.newsletter':'訂閱我們的電子報：',
+    'blog.footer.email.ph':'電子郵件','blog.footer.subscribe.btn':'訂閱',
+    'blog.footer.copy':'© 2026 OPUS.Z 版權所有。'
+  }
+};
+function switchLang(lang) {
+  _currentLang = lang;
+  var dict = I18N[lang] || I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n')];
+    if (v !== undefined) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n-ph')];
+    if (v !== undefined) el.placeholder = v;
+  });
+  document.querySelectorAll('#langToggle .lt-opt').forEach(function(o) {
+    o.classList.toggle('active', o.dataset.l === lang);
+  });
+  document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+  if (typeof window.__navResplit === 'function') window.__navResplit();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  /* Lang toggle */
+  var lt = document.getElementById('langToggle');
+  if (lt) lt.addEventListener('click', function(e) {
+    var opt = e.target.closest('[data-l]');
+    switchLang(opt ? opt.dataset.l : (_currentLang === 'en' ? 'zh' : 'en'));
+  });
+
+  /* Login dropdown */
+  var loginBtn = document.getElementById('navLoginBtn');
+  if (loginBtn) {
+    var loginLeaveTimer;
+    loginBtn.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); this.classList.add('open'); });
+    loginBtn.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
+    var dropdown = loginBtn.querySelector('.nav-login-dropdown');
+    if (dropdown) {
+      dropdown.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); });
+      dropdown.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
+    }
+  }
+
+  /* Hamburger drawer */
+  var hamburgerBtn = document.getElementById('hamburgerBtn');
+  var navDrawer    = document.getElementById('navDrawer');
+  var navSubDrawer = document.getElementById('navSubDrawer');
+  var drawerTimeout;
+  function openDrawer()  { clearTimeout(drawerTimeout); navDrawer.classList.add('nd-visible'); }
+  function closeDrawer() {
+    if (navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return;
+    drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if (navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120);
+  }
+  function closeBoth() { drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if (navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
+  if (hamburgerBtn) {
+    hamburgerBtn.addEventListener('mouseenter', openDrawer);
+    hamburgerBtn.addEventListener('mouseleave', closeDrawer);
+    navDrawer.addEventListener('mouseenter', openDrawer);
+    navDrawer.addEventListener('mouseleave', closeDrawer);
+    if (navSubDrawer) {
+      navSubDrawer.addEventListener('mouseenter', function() { clearTimeout(drawerTimeout); });
+      navSubDrawer.addEventListener('mouseleave', closeBoth);
+    }
+    var ndBtn  = document.getElementById('ndMusiciansBtn');
+    var nsdBack = document.getElementById('nsdBack');
+    if (ndBtn && navSubDrawer) {
+      ndBtn.addEventListener('click', function() { clearTimeout(drawerTimeout); navSubDrawer.classList.add('ns-visible'); });
+      if (nsdBack) nsdBack.addEventListener('click', function() { navSubDrawer.classList.remove('ns-visible'); });
+    }
+  }
+
+  /* Mega menu */
+  var artistsTrigger = document.getElementById('artists-nav-item');
+  var megaMenu       = document.getElementById('artistsMegaMenu');
+  if (artistsTrigger && megaMenu) {
+    var artistsLink = artistsTrigger.querySelector('a');
+    var navEl2      = document.querySelector('nav');
+    var mmTimeout;
+    function openMega()  { clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); if (artistsLink) artistsLink.classList.add('mm-active'); if (navEl2) navEl2.classList.add('mega-open'); }
+    function closeMega() { mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if (artistsLink) artistsLink.classList.remove('mm-active'); setTimeout(function(){ if (navEl2) navEl2.classList.remove('mega-open'); }, 320); }, 200); }
+    artistsTrigger.addEventListener('mouseenter', openMega);
+    artistsTrigger.addEventListener('mouseleave', closeMega);
+    megaMenu.addEventListener('mouseenter', function() { clearTimeout(mmTimeout); });
+    megaMenu.addEventListener('mouseleave', closeMega);
+  }
 });
+
+/* ── Nav: scroll hide/show with lerp ── */
+(function() {
+  var navEl = document.querySelector('nav');
+  var navH = navEl ? navEl.offsetHeight : 64;
+  var navTarget = 0, navCurrent = 0, lastY = 0, raf = null;
+  function tick() {
+    navCurrent += (navTarget - navCurrent) * 0.1;
+    if (navEl) navEl.style.top = navCurrent + 'px';
+    if (Math.abs(navTarget - navCurrent) < 0.05) {
+      if (navEl) navEl.style.top = navTarget + 'px';
+      navCurrent = navTarget; raf = null;
+    } else { raf = requestAnimationFrame(tick); }
+  }
+  window.addEventListener('scroll', function() {
+    var y = window.scrollY;
+    navTarget = y < 80 ? 0 : (y > lastY ? -navH : 0);
+    lastY = y;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+})();
+
+/* ── Nav: mix-blend-mode difference + underline + char split ── */
+(function() {
+  var nav = document.querySelector('nav');
+  if (!nav) return;
+
+  function _splitToChars(el) {
+    var text = el.textContent;
+    el.innerHTML = [...text].map(function(ch) {
+      return ch === ' ' ? '<span class="nc-char nc-sp"> </span>' : '<span class="nc-char">' + ch + '</span>';
+    }).join('');
+  }
+  var navLogoFixed = document.getElementById('navLogoFixed');
+  function _resplitNav() {
+    nav.querySelectorAll('.nav-links a').forEach(function(a) { _splitToChars(a); });
+    var ln = nav.querySelector('.nav-logo-name');
+    var ls = nav.querySelector('.nav-logo-sub');
+    if (ln) _splitToChars(ln);
+    if (ls) _splitToChars(ls);
+    if (navLogoFixed) {
+      var fln = navLogoFixed.querySelector('.nav-logo-name');
+      var fls = navLogoFixed.querySelector('.nav-logo-sub');
+      if (fln) _splitToChars(fln);
+      if (fls) _splitToChars(fls);
+      navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    }
+  }
+  _resplitNav();
+  window.__navResplit = _resplitNav;
+
+  function updateColors() {
+    var megaOpen = nav.classList.contains('mega-open');
+    if (megaOpen) {
+      nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#000'; });
+      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+        var el = nav.querySelector(sel); if (!el) return;
+        el.style.color = '#000'; el.style.borderColor = 'rgba(0,0,0,.35)';
+      });
+      nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#000'; });
+      nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
+      return;
+    }
+    nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#fff'; });
+    if (navLogoFixed) navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+      var el = nav.querySelector(sel); if (!el) return;
+      el.style.color = '#fff'; el.style.borderColor = 'rgba(255,255,255,.5)';
+    });
+    nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#fff'; });
+  }
+
+  /* Inject underline span into every nav link */
+  nav.querySelectorAll('.nav-links a').forEach(function(a) {
+    if (!a.querySelector('.nav-ul')) {
+      var ul = document.createElement('span');
+      ul.className = 'nav-ul';
+      a.appendChild(ul);
+    }
+  });
+
+  updateColors();
+  window.addEventListener('scroll', updateColors, { passive: true });
+  window.addEventListener('resize', updateColors);
+  setTimeout(updateColors, 300);
+})();
 
 /* ── SCROLL REVEAL ── */
 const revealObs = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
 }, { threshold: 0.06, rootMargin: '0px 0px -20px 0px' });
 document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+/* ── HERO REEL ── */
+(function () {
+  const reel    = document.getElementById('heroReel');
+  if (!reel) return;
+  const slides  = Array.from(reel.querySelectorAll('.reel-slide'));
+  const dots    = Array.from(reel.querySelectorAll('.rd'));
+  const unTitle = document.getElementById('reelUnTitle');
+  const barFill = document.getElementById('reelBarFill');
+  const total   = slides.length;
+  const DELAY   = 5000; /* ms between auto-advances */
+  let current   = 0;
+  let timer     = null;
+
+  /* Read the "data-title" from each slide for the UP NEXT label */
+  const titles = slides.map(s => s.dataset.title || '');
+
+  /* ── initial state: first slide visible, rest off-screen right ── */
+  slides.forEach((s, i) => {
+    s.style.transition = 'none';
+    s.style.transform  = i === 0 ? 'translateX(0)' : 'translateX(100%)';
+    s.style.zIndex     = i === 0 ? '2' : '1';
+  });
+
+  function updateUpNext() {
+    if (unTitle) unTitle.textContent = titles[(current + 1) % total];
+  }
+
+  function resetBar() {
+    barFill.style.transition = 'none';
+    barFill.style.width      = '0%';
+    /* force reflow so the reset actually takes */
+    barFill.offsetWidth;
+    barFill.style.transition = `width ${DELAY}ms linear`;
+    barFill.style.width      = '100%';
+  }
+
+  function goTo(next) {
+    if (next === current) return;
+    const prev     = current;
+    current        = next;
+    const incoming = slides[next];
+    const outgoing = slides[prev];
+
+    /* Place incoming off-screen right (no animation) */
+    incoming.style.transition = 'none';
+    incoming.style.transform  = 'translateX(100%)';
+    incoming.style.zIndex     = '3';
+
+    /* Force reflow so the browser registers the starting position */
+    incoming.offsetWidth;
+
+    /* Slide incoming in from right */
+    incoming.style.transition = 'transform 0.72s cubic-bezier(0.4, 0, 0.2, 1)';
+    incoming.style.transform  = 'translateX(0)';
+
+    /* Outgoing stays put but lower z — gets covered */
+    outgoing.style.zIndex     = '2';
+
+    /* After transition ends, park outgoing off-screen right */
+    setTimeout(() => {
+      outgoing.style.transition = 'none';
+      outgoing.style.transform  = 'translateX(100%)';
+      outgoing.style.zIndex     = '1';
+    }, 760);
+
+    /* Update dots */
+    dots.forEach((d, i) => d.classList.toggle('rd-active', i === next));
+
+    /* Update UP NEXT + progress bar */
+    updateUpNext();
+    resetBar();
+  }
+
+  function startTimer() {
+    clearInterval(timer);
+    timer = setInterval(() => goTo((current + 1) % total), DELAY);
+  }
+
+  /* Dot clicks */
+  dots.forEach((d, i) => {
+    d.addEventListener('click', () => {
+      goTo(i);
+      startTimer();   /* restart timer from now */
+    });
+  });
+
+  /* Boot */
+  updateUpNext();
+  resetBar();
+  startTimer();
+})();
 
 /* ── LIGHTS-OFF ANIMATION ──
    No overlay. Body background transitions to dark, text turns white.
@@ -582,16 +1281,872 @@ if (breaker) {
     const r   = breaker.getBoundingClientRect();
     const vh  = window.innerHeight;
     const h   = breaker.offsetHeight;
-    // ON:  section top has entered lower 80% of viewport from below
-    // OFF: section hasn't arrived yet (top > 80%vh)
+    // ON:  section top has entered the CENTER of viewport (45%) from below
+    // OFF: section hasn't arrived yet (top > 45%vh)
     //      OR section has mostly scrolled past (top < -70% of section height)
-    const on = r.top < vh * 0.8 && r.top > -(h * 0.75);
+    // Using 45% (not 80%) to avoid triggering on initial page load when
+    // the section is visible but below the fold midpoint.
+    const on = r.top < vh * 0.45 && r.top > -(h * 0.75);
     document.body.classList.toggle('lights-off', on);
   }
   window.addEventListener('scroll', checkLights, { passive: true });
   checkLights(); // run on load
 }
+
+/* ── Page transition + bfcache fix ── */
+document.addEventListener('click', function(e) {
+  var a = e.target.closest('a[href]');
+  if (!a || a.target || e.metaKey || e.ctrlKey) return;
+  var url; try { url = new URL(a.href, location.href); } catch(err) { return; }
+  if (url.origin !== location.origin) return;
+  if (url.pathname === location.pathname && url.hash) {
+    e.preventDefault();
+    history.replaceState(null, '', url.hash);
+    var t = document.getElementById(url.hash.slice(1));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  if (url.pathname === location.pathname && !url.hash) return;
+  e.preventDefault();
+  document.documentElement.style.transition = 'opacity .22s ease';
+  document.documentElement.style.opacity = '0';
+  setTimeout(function() { location.href = a.href; }, 230);
+});
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    document.documentElement.style.transition = 'opacity .22s ease';
+    document.documentElement.style.opacity = '1';
+  }
+});
 </script>
 
+<script src="assets/js/smooth-scroll.js" defer></script>
+
+<!-- ─────────────────────────────────────────────────────────────
+     PHOTO EDITOR — localhost only
+     Tagged slots: data-photo-id="reel-1..3", "feat-1..3",
+                   "mini-1..3", "large-1..2"
+     Storage: localStorage key "blog-photo:<id>" → {url,x,y,zoom}
+     ───────────────────────────────────────────────────────────── -->
+<style>
+  /* Floating ✎ toggle button (localhost only) */
+  .ebp-toggle{
+    position:fixed; bottom:24px; left:24px; z-index:9998;
+    width:44px; height:44px; border-radius:50%;
+    background:rgba(255,255,255,.12); backdrop-filter:blur(10px);
+    border:1px solid rgba(255,255,255,.2);
+    color:#fff; font-size:18px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+    transition:background .15s;
+    box-shadow:0 2px 14px rgba(0,0,0,.4);
+  }
+  .ebp-toggle:hover{ background:rgba(255,255,255,.22); }
+
+  /* Side panel — draggable, matches the look from shows.html */
+  .ebp-panel{
+    position:fixed; bottom:80px; left:24px; z-index:9998;
+    width:320px; max-height:80vh;
+    background:rgba(18,18,18,.96); backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.12); border-radius:16px;
+    display:none; flex-direction:column; overflow:hidden;
+    box-shadow:0 24px 60px rgba(0,0,0,.6);
+    user-select:none; -webkit-user-select:none;
+    color:#fff; font-family:-apple-system,system-ui,sans-serif;
+  }
+  .ebp-panel.ebp-open{ display:flex; }
+  .ebp-handle{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 16px 10px;
+    border-bottom:1px solid rgba(255,255,255,.08);
+    cursor:grab; flex-shrink:0;
+  }
+  .ebp-handle:active{ cursor:grabbing; }
+  .ebp-handle-title{ font-size:12px; font-weight:700; color:#fff; letter-spacing:.04em; }
+  .ebp-handle-hint{ font-size:10px; color:rgba(255,255,255,.3); }
+
+  /* Tabs */
+  .ebp-tabs{
+    display:flex; border-bottom:1px solid rgba(255,255,255,.08);
+    flex-shrink:0;
+  }
+  .ebp-tab{
+    flex:1; padding:11px 8px; background:transparent; border:none;
+    font:600 11px/1 -apple-system,system-ui,sans-serif;
+    letter-spacing:.06em; text-transform:uppercase;
+    color:rgba(255,255,255,.4); cursor:pointer;
+    border-bottom:2px solid transparent;
+    transition:color .15s, border-color .15s;
+  }
+  .ebp-tab.ebp-tab-active{ color:#fff; border-bottom-color:#fff; }
+
+  /* Body / panes */
+  .ebp-body{ overflow-y:auto; flex:1; padding:14px; scrollbar-width:thin; }
+  .ebp-pane{ display:none; }
+  .ebp-pane.ebp-visible{ display:block; }
+  .ebp-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:8px;
+  }
+  .ebp-thumb{
+    aspect-ratio:16/9; border-radius:6px; overflow:hidden;
+    background:#2a2a36 center/cover no-repeat;
+    border:1px solid rgba(255,255,255,.08);
+    cursor:pointer; position:relative;
+    transition:transform .15s, border-color .15s;
+  }
+  .ebp-thumb:hover{ transform:scale(1.03); border-color:rgba(255,255,255,.35); }
+  .ebp-thumb[data-shape="portrait"]{ aspect-ratio:3/4; }
+  .ebp-thumb-label{
+    position:absolute; left:6px; bottom:6px;
+    background:rgba(0,0,0,.6); color:#fff;
+    font-size:10px; font-weight:600;
+    padding:3px 6px; border-radius:4px;
+  }
+  .ebp-thumb-empty{
+    display:flex; align-items:center; justify-content:center;
+    color:rgba(255,255,255,.25); font-size:18px;
+  }
+  .ebp-thumb.ebp-active{
+    border-color:#fff; box-shadow:0 0 0 2px rgba(255,255,255,.18);
+  }
+
+  /* Inline editor (X / Y / Zoom sliders) for selected slot */
+  .ebp-inline{
+    margin-top:14px; padding-top:14px;
+    border-top:1px solid rgba(255,255,255,.08);
+    display:none;
+  }
+  .ebp-inline.show{ display:block; }
+  .ebp-inline-title{
+    font-size:11px; font-weight:700; color:#fff;
+    letter-spacing:.06em; text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .ebp-inline-row{ display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+  .ebp-inline-label{
+    width:18px; font-size:10px; font-weight:700;
+    color:rgba(255,255,255,.4); letter-spacing:.04em;
+  }
+  .ebp-inline-slider{
+    flex:1; -webkit-appearance:none; background:transparent;
+    accent-color:#fff; cursor:pointer;
+  }
+  .ebp-inline-slider::-webkit-slider-runnable-track{
+    height:3px; background:rgba(255,255,255,.15); border-radius:2px;
+  }
+  .ebp-inline-slider::-webkit-slider-thumb{
+    -webkit-appearance:none; width:14px; height:14px;
+    background:#fff; border-radius:50%; margin-top:-6px;
+    cursor:pointer;
+  }
+  .ebp-inline-val{
+    font-size:10px; color:rgba(255,255,255,.55);
+    width:36px; text-align:right;
+  }
+  .ebp-inline-actions{ display:flex; gap:6px; margin-top:10px; }
+  .ebp-inline-btn{
+    flex:1; padding:8px; border-radius:8px; cursor:pointer;
+    font:600 11px/1 -apple-system,system-ui,sans-serif;
+    letter-spacing:.04em; border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.08); color:#fff;
+    transition:background .15s;
+  }
+  .ebp-inline-btn:hover{ background:rgba(255,255,255,.18); }
+  .ebp-inline-btn-danger{ color:rgba(255,140,140,.9); border-color:rgba(255,100,100,.2); }
+  .ebp-inline-btn-danger:hover{ background:rgba(255,80,80,.12); }
+
+  /* Footer buttons */
+  .ebp-actions{ padding:0 14px 14px; display:flex; flex-direction:column; gap:8px; flex-shrink:0; }
+  .ebp-btn{
+    width:100%; padding:10px; border-radius:10px;
+    font:700 12px/1 -apple-system,system-ui,sans-serif;
+    letter-spacing:.04em; cursor:pointer; border:none;
+    transition:background .15s, opacity .15s;
+  }
+  .ebp-btn-save{ background:#fff; color:#0a0a0a; }
+  .ebp-btn-save:hover{ background:#f0f0f0; }
+  .ebp-btn-publish{ background:#2ea44f; color:#fff; }
+  .ebp-btn-publish:hover{ background:#36b859; }
+  .ebp-btn-reset{ background:transparent; color:rgba(255,100,100,.8); border:1px solid rgba(255,100,100,.25); }
+  .ebp-btn-reset:hover{ background:rgba(255,80,80,.1); }
+  .ebp-badge{
+    display:none; text-align:center;
+    padding:6px; font-size:11px; color:rgba(120,255,120,.85);
+  }
+  .ebp-badge.show{ display:block; }
+
+  .pe-overlay{
+    position: fixed; inset: 0; z-index: 10000;
+    background: rgba(8,8,12,.92);
+    display: none; align-items: center; justify-content: center;
+    padding: 24px;
+  }
+  .pe-overlay.open{ display: flex; }
+  .pe-modal{
+    width: min(960px, 100%); max-height: 92vh;
+    background: #181820; color: #fff; border-radius: 16px;
+    display: flex; flex-direction: column;
+    box-shadow: 0 24px 80px rgba(0,0,0,.5);
+    overflow: hidden;
+    font-family: -apple-system, system-ui, sans-serif;
+  }
+  .pe-head{
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 22px; border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .pe-title{ font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+  .pe-id{ font-size: 11px; color: rgba(255,255,255,.45); margin-left: 8px; font-weight: 500; }
+  .pe-close{
+    width: 32px; height: 32px; border: none; background: transparent;
+    color: rgba(255,255,255,.6); font-size: 22px; cursor: pointer; border-radius: 8px;
+  }
+  .pe-close:hover{ background: rgba(255,255,255,.08); color: #fff; }
+  .pe-canvas-wrap{
+    flex: 1; min-height: 0;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px; background: #0e0e14; overflow: hidden;
+  }
+  .pe-canvas{
+    position: relative;
+    width: 100%; max-width: 720px; aspect-ratio: 16/9;
+    background: #2a2a36 center/cover no-repeat;
+    border-radius: 6px; overflow: hidden;
+    cursor: grab;
+    user-select: none; -webkit-user-select: none;
+  }
+  .pe-canvas.dragging{ cursor: grabbing; }
+  .pe-canvas[data-shape="square"]{ aspect-ratio: 1; max-width: 480px; }
+  .pe-canvas[data-shape="portrait"]{ aspect-ratio: 3/4; max-width: 420px; }
+  .pe-canvas-empty{
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,.4); font-size: 13px; pointer-events: none;
+  }
+  .pe-controls{
+    padding: 18px 22px 20px;
+    border-top: 1px solid rgba(255,255,255,.08);
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .pe-row{ display: flex; align-items: center; gap: 14px; }
+  .pe-label{
+    font-size: 11px; font-weight: 700; letter-spacing: .1em;
+    text-transform: uppercase; color: rgba(255,255,255,.55);
+    min-width: 70px;
+  }
+  .pe-slider{ flex: 1; -webkit-appearance: none; background: transparent; }
+  .pe-slider::-webkit-slider-runnable-track{
+    height: 4px; background: rgba(255,255,255,.15); border-radius: 2px;
+  }
+  .pe-slider::-webkit-slider-thumb{
+    -webkit-appearance: none; width: 18px; height: 18px;
+    background: #fff; border-radius: 50%; margin-top: -7px;
+    cursor: pointer;
+  }
+  .pe-val{ font-size: 12px; color: rgba(255,255,255,.7); min-width: 44px; text-align: right; }
+  .pe-hint{ font-size: 12px; color: rgba(255,255,255,.4); }
+  .pe-actions{
+    display: flex; gap: 10px; padding: 16px 22px 20px;
+    border-top: 1px solid rgba(255,255,255,.08);
+  }
+  .pe-btn{
+    flex: 1; padding: 13px; border-radius: 10px;
+    font: 700 13px/1 -apple-system, system-ui, sans-serif;
+    letter-spacing: .04em; cursor: pointer; border: none;
+    transition: background .15s, opacity .15s;
+  }
+  .pe-btn-upload{ background: rgba(255,255,255,.12); color: #fff; }
+  .pe-btn-upload:hover{ background: rgba(255,255,255,.2); }
+  .pe-btn-remove{ background: transparent; color: rgba(255,100,100,.85); border: 1px solid rgba(255,100,100,.3); }
+  .pe-btn-remove:hover{ background: rgba(255,80,80,.1); }
+  .pe-btn-cancel{ background: transparent; color: rgba(255,255,255,.6); border: 1px solid rgba(255,255,255,.15); }
+  .pe-btn-cancel:hover{ background: rgba(255,255,255,.06); color: #fff; }
+  .pe-btn-save{ background: #fff; color: #000; }
+  .pe-btn-save:hover{ background: #f0f0f0; }
+  .pe-btn[disabled]{ opacity: .35; cursor: not-allowed; }
+
+  /* ══ MACBOOK 13" — blog banner 20% shorter ══ */
+  @media (max-width: 1400px) {
+    .hero-reel {
+      height: clamp(320px, 43.2vw, 528px); /* 80% of clamp(400px,54vw,660px) */
+    }
+  }
+</style>
+
+<!-- Photo editor side panel — localhost only -->
+<button class="ebp-toggle" id="ebpToggle" title="Photo Editor (P)" style="display:none">✎</button>
+<div class="ebp-panel" id="ebpPanel">
+  <div class="ebp-handle" id="ebpHandle">
+    <span class="ebp-handle-title">✎ Photo Editor</span>
+    <span class="ebp-handle-hint">P 開閉 · 拖曳移動</span>
+  </div>
+  <div class="ebp-tabs">
+    <button class="ebp-tab ebp-tab-active" data-pane="reel">Hero Reel</button>
+    <button class="ebp-tab" data-pane="feat">Featured</button>
+    <button class="ebp-tab" data-pane="recent">Recent</button>
+  </div>
+  <div class="ebp-body">
+    <div class="ebp-pane ebp-visible" id="ebpPane-reel">
+      <div class="ebp-grid" id="ebpGrid-reel"></div>
+    </div>
+    <div class="ebp-pane" id="ebpPane-feat">
+      <div class="ebp-grid" id="ebpGrid-feat"></div>
+    </div>
+    <div class="ebp-pane" id="ebpPane-recent">
+      <div class="ebp-grid" id="ebpGrid-recent"></div>
+    </div>
+    <!-- Inline X / Y / Zoom controls — shared across panes, shows the active slot -->
+    <div class="ebp-inline" id="ebpInline">
+      <div class="ebp-inline-title" id="ebpInlineTitle">— Selected slot —</div>
+      <div class="ebp-inline-row">
+        <span class="ebp-inline-label">X</span>
+        <input type="range" class="ebp-inline-slider" id="ebpInX" min="0" max="100" value="50">
+        <span class="ebp-inline-val" id="ebpInXv">50%</span>
+      </div>
+      <div class="ebp-inline-row">
+        <span class="ebp-inline-label">Y</span>
+        <input type="range" class="ebp-inline-slider" id="ebpInY" min="0" max="100" value="50">
+        <span class="ebp-inline-val" id="ebpInYv">50%</span>
+      </div>
+      <div class="ebp-inline-row">
+        <span class="ebp-inline-label">⊕</span>
+        <input type="range" class="ebp-inline-slider" id="ebpInZ" min="0" max="200" value="0">
+        <span class="ebp-inline-val" id="ebpInZv">100%</span>
+      </div>
+      <div class="ebp-inline-actions">
+        <button class="ebp-inline-btn" id="ebpInUpload">⬆ Upload</button>
+        <button class="ebp-inline-btn" id="ebpInFit">⌖ Reset</button>
+        <button class="ebp-inline-btn ebp-inline-btn-danger" id="ebpInRemove">🗑 Remove</button>
+      </div>
+    </div>
+  </div>
+  <div class="ebp-actions">
+    <div class="ebp-badge" id="ebpBadge">Saved ✓</div>
+    <button class="ebp-btn ebp-btn-save" id="ebpSave">💾 Save (refresh)</button>
+    <button class="ebp-btn ebp-btn-publish" id="ebpPublish">🚀 發佈到網站</button>
+    <button class="ebp-btn ebp-btn-reset" id="ebpReset">🗑 清除所有照片</button>
+  </div>
+</div>
+
+<div class="pe-overlay" id="peOverlay" onclick="if(event.target===this)PE.close()">
+  <div class="pe-modal">
+    <div class="pe-head">
+      <div>
+        <span class="pe-title">Edit photo</span>
+        <span class="pe-id" id="peId"></span>
+      </div>
+      <button class="pe-close" onclick="PE.close()" aria-label="Close">✕</button>
+    </div>
+    <div class="pe-canvas-wrap">
+      <div class="pe-canvas" id="peCanvas">
+        <div class="pe-canvas-empty" id="peEmpty">Upload a photo to start</div>
+      </div>
+    </div>
+    <div class="pe-controls">
+      <div class="pe-row">
+        <span class="pe-label">Zoom</span>
+        <input type="range" class="pe-slider" id="peZoom" min="0" max="200" value="0" />
+        <span class="pe-val" id="peZoomVal">100%</span>
+      </div>
+      <div class="pe-hint">Drag the photo to reposition · Mouse wheel inside the canvas also zooms</div>
+    </div>
+    <div class="pe-actions">
+      <button class="pe-btn pe-btn-upload" onclick="PE.pickFile()">Upload Photo</button>
+      <button class="pe-btn pe-btn-remove" onclick="PE.remove()">Remove</button>
+      <button class="pe-btn pe-btn-cancel" onclick="PE.close()">Cancel</button>
+      <button class="pe-btn pe-btn-save" id="peSave" onclick="PE.save()" disabled>Save</button>
+    </div>
+  </div>
+</div>
+<input type="file" id="peFileInput"  accept="image/*" style="display:none" />
+<input type="file" id="ebpFileInput" accept="image/*" style="display:none" />
+
+<script>
+(function(){
+  var isLocal = (location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:');
+  var STORE = function(id){ return 'blog-photo:' + id; };
+  var SHAPE = {
+    'reel-1':'wide', 'reel-2':'wide', 'reel-3':'wide',
+    'feat-1':'wide', 'feat-2':'wide', 'feat-3':'wide',
+    'mini-1':'wide', 'mini-2':'wide', 'mini-3':'wide',
+    'large-1':'portrait', 'large-2':'portrait'
+  };
+
+  function applyAll(){
+    document.querySelectorAll('[data-photo-id]').forEach(function(el){
+      var id = el.getAttribute('data-photo-id');
+      var raw = localStorage.getItem(STORE(id));
+      if(!raw) return;
+      try{
+        var d = JSON.parse(raw);
+        if(!d.url) return;
+        el.style.backgroundImage = "url('" + d.url + "')";
+        el.style.backgroundPosition = (d.x||50) + '% ' + (d.y||50) + '%';
+        var z = d.zoom || 0;
+        el.style.backgroundSize = z<=0 ? 'cover' : (100 + z) + '%';
+      } catch(e){}
+    });
+  }
+  applyAll();
+
+  if(!isLocal) return;  // public domain: stop here, no editor UI
+
+  var current = { id:null, url:'', x:50, y:50, zoom:0 };
+  var overlay = document.getElementById('peOverlay');
+  var canvas  = document.getElementById('peCanvas');
+  var empty   = document.getElementById('peEmpty');
+  var zoomEl  = document.getElementById('peZoom');
+  var zoomVal = document.getElementById('peZoomVal');
+  var saveBtn = document.getElementById('peSave');
+  var idEl    = document.getElementById('peId');
+  var fileIn  = document.getElementById('peFileInput');
+
+  function renderPreview(){
+    if(!current.url){
+      canvas.style.backgroundImage = '';
+      empty.style.display = 'flex';
+      saveBtn.disabled = true;
+      return;
+    }
+    empty.style.display = 'none';
+    canvas.style.backgroundImage = "url('" + current.url + "')";
+    canvas.style.backgroundPosition = current.x + '% ' + current.y + '%';
+    canvas.style.backgroundSize = current.zoom<=0 ? 'cover' : (100 + current.zoom) + '%';
+    saveBtn.disabled = false;
+    zoomEl.value = current.zoom;
+    zoomVal.textContent = (100 + current.zoom) + '%';
+  }
+
+  function open(id){
+    current.id = id;
+    idEl.textContent = id;
+    canvas.setAttribute('data-shape', SHAPE[id]||'wide');
+    var raw = localStorage.getItem(STORE(id));
+    if(raw){
+      try{
+        var d = JSON.parse(raw);
+        current.url = d.url || '';
+        current.x   = d.x != null ? d.x : 50;
+        current.y   = d.y != null ? d.y : 50;
+        current.zoom= d.zoom || 0;
+      } catch(e){
+        current.url=''; current.x=50; current.y=50; current.zoom=0;
+      }
+    } else {
+      current.url=''; current.x=50; current.y=50; current.zoom=0;
+    }
+    renderPreview();
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function close(){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+    current.id = null;
+  }
+
+  // Drag to reposition
+  var dragging = false, dragStart = null;
+  canvas.addEventListener('pointerdown', function(e){
+    if(!current.url) return;
+    dragging = true;
+    canvas.classList.add('dragging');
+    canvas.setPointerCapture(e.pointerId);
+    dragStart = { sx:e.clientX, sy:e.clientY, x:current.x, y:current.y };
+  });
+  canvas.addEventListener('pointermove', function(e){
+    if(!dragging) return;
+    var r = canvas.getBoundingClientRect();
+    var dx = -(e.clientX - dragStart.sx) / r.width  * 100;
+    var dy = -(e.clientY - dragStart.sy) / r.height * 100;
+    current.x = Math.max(0, Math.min(100, dragStart.x + dx));
+    current.y = Math.max(0, Math.min(100, dragStart.y + dy));
+    renderPreview();
+  });
+  canvas.addEventListener('pointerup', function(e){
+    dragging = false;
+    canvas.classList.remove('dragging');
+    try{ canvas.releasePointerCapture(e.pointerId); }catch(_){ }
+  });
+  canvas.addEventListener('pointercancel', function(){
+    dragging = false; canvas.classList.remove('dragging');
+  });
+
+  // Zoom: slider + wheel
+  zoomEl.addEventListener('input', function(){
+    current.zoom = parseInt(zoomEl.value,10) || 0;
+    renderPreview();
+  });
+  canvas.addEventListener('wheel', function(e){
+    if(!current.url) return;
+    e.preventDefault();
+    current.zoom = Math.max(0, Math.min(200, current.zoom + (e.deltaY < 0 ? 6 : -6)));
+    renderPreview();
+  }, { passive:false });
+
+  // File upload — decode → resize max 1600w → JPEG 0.82 → base64
+  function pickFile(){ fileIn.click(); }
+  fileIn.addEventListener('change', function(){
+    var f = fileIn.files && fileIn.files[0];
+    if(!f) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      var img = new Image();
+      img.onload = function(){
+        var maxW = 1600;
+        var scale = Math.min(1, maxW / img.width);
+        var w = Math.round(img.width * scale);
+        var h = Math.round(img.height * scale);
+        var c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        try{
+          current.url = c.toDataURL('image/jpeg', 0.82);
+          current.x = 50; current.y = 50; current.zoom = 0;
+          renderPreview();
+        } catch(err){
+          alert('Image too large to process. Try a smaller file.');
+        }
+      };
+      img.src = reader.result;
+    };
+    reader.readAsDataURL(f);
+    fileIn.value = '';
+  });
+
+  function save(){
+    if(!current.id || !current.url) return;
+    var payload = JSON.stringify({
+      url: current.url, x: current.x, y: current.y, zoom: current.zoom
+    });
+    try{
+      localStorage.setItem(STORE(current.id), payload);
+    } catch(err){
+      alert('Storage full — try a smaller image.');
+      return;
+    }
+    applyAll();
+    close();
+  }
+  function remove(){
+    if(!current.id) return;
+    if(!confirm('Remove this photo?')) return;
+    localStorage.removeItem(STORE(current.id));
+    var el = document.querySelector('[data-photo-id="'+current.id+'"]');
+    if(el){
+      el.style.backgroundImage = '';
+      el.style.backgroundPosition = '';
+      el.style.backgroundSize = '';
+    }
+    close();
+  }
+
+  // Photos on page are no longer directly clickable — editor opens from panel only.
+
+  document.addEventListener('keydown', function(e){
+    if(e.key === 'Escape' && overlay.classList.contains('open')) close();
+  });
+
+  window.PE = { open:open, close:close, pickFile:pickFile, save:save, remove:remove };
+
+  // ════════════════════════════════════════════════════════════
+  //  SIDE PANEL — tabs, thumbnails, drag, P-key toggle, publish
+  // ════════════════════════════════════════════════════════════
+  var panel  = document.getElementById('ebpPanel');
+  var toggle = document.getElementById('ebpToggle');
+  var handle = document.getElementById('ebpHandle');
+  toggle.style.display = 'flex';
+
+  // Slot groupings shown in each tab
+  var GROUPS = {
+    reel:   ['reel-1','reel-2','reel-3'],
+    feat:   ['feat-1','feat-2','feat-3'],
+    recent: ['mini-1','mini-2','mini-3','large-1','large-2']
+  };
+  var LABELS = {
+    'reel-1':'Slide 1','reel-2':'Slide 2','reel-3':'Slide 3',
+    'feat-1':'Featured 1','feat-2':'Featured 2','feat-3':'Featured 3',
+    'mini-1':'Mini 1','mini-2':'Mini 2','mini-3':'Mini 3',
+    'large-1':'Large 1','large-2':'Large 2'
+  };
+
+  // Render thumbnails for every group based on current localStorage
+  function renderThumbs(){
+    Object.keys(GROUPS).forEach(function(group){
+      var gridEl = document.getElementById('ebpGrid-'+group);
+      gridEl.innerHTML = GROUPS[group].map(function(id){
+        var raw = localStorage.getItem(STORE(id));
+        var bg = '', empty = true;
+        if(raw){
+          try{
+            var d = JSON.parse(raw);
+            if(d.url){
+              bg = "background-image:url('"+d.url+"');" +
+                   "background-position:"+(d.x||50)+"% "+(d.y||50)+"%;" +
+                   "background-size:"+(d.zoom<=0?'cover':(100+d.zoom)+'%')+";";
+              empty = false;
+            }
+          } catch(e){}
+        }
+        var shape = SHAPE[id]==='portrait' ? 'portrait' : 'wide';
+        return '<div class="ebp-thumb '+(empty?'ebp-thumb-empty':'')+'" '+
+               'data-shape="'+shape+'" data-slot-id="'+id+'" style="'+bg+'">' +
+               (empty?'+':'')+
+               '<div class="ebp-thumb-label">'+LABELS[id]+'</div>' +
+               '</div>';
+      }).join('');
+    });
+  }
+  renderThumbs();
+
+  // ── Inline X/Y/Zoom editor for the selected slot ──
+  var activeSlot = null;
+  var inlineBox  = document.getElementById('ebpInline');
+  var inlineTtl  = document.getElementById('ebpInlineTitle');
+  var inX  = document.getElementById('ebpInX');
+  var inY  = document.getElementById('ebpInY');
+  var inZ  = document.getElementById('ebpInZ');
+  var inXv = document.getElementById('ebpInXv');
+  var inYv = document.getElementById('ebpInYv');
+  var inZv = document.getElementById('ebpInZv');
+
+  function loadInline(id){
+    activeSlot = id;
+    inlineBox.classList.add('show');
+    inlineTtl.textContent = LABELS[id];
+    var raw = localStorage.getItem(STORE(id));
+    var d = { url:'', x:50, y:50, zoom:0 };
+    if(raw){
+      try{
+        var s = JSON.parse(raw);
+        if(s.url) d.url = s.url;
+        if(s.x  != null) d.x  = s.x;
+        if(s.y  != null) d.y  = s.y;
+        if(s.zoom != null) d.zoom = s.zoom;
+      } catch(e){}
+    }
+    inX.value = d.x; inXv.textContent = Math.round(d.x) + '%';
+    inY.value = d.y; inYv.textContent = Math.round(d.y) + '%';
+    inZ.value = d.zoom; inZv.textContent = (100 + d.zoom) + '%';
+    // Mark active thumbnail
+    panel.querySelectorAll('.ebp-thumb').forEach(function(t){
+      t.classList.toggle('ebp-active', t.getAttribute('data-slot-id') === id);
+    });
+  }
+
+  // Live-update on every slider input — auto-saves so refresh persists
+  function liveUpdate(){
+    if(!activeSlot) return;
+    var raw = localStorage.getItem(STORE(activeSlot));
+    if(!raw){
+      // No image yet → ignore (uploading will create the entry)
+      return;
+    }
+    try{
+      var d = JSON.parse(raw);
+      d.x = parseFloat(inX.value);
+      d.y = parseFloat(inY.value);
+      d.zoom = parseFloat(inZ.value);
+      inXv.textContent = Math.round(d.x) + '%';
+      inYv.textContent = Math.round(d.y) + '%';
+      inZv.textContent = (100 + d.zoom) + '%';
+      localStorage.setItem(STORE(activeSlot), JSON.stringify(d));
+      // Live-apply to the actual page slot
+      var el = document.querySelector('[data-photo-id="'+activeSlot+'"]');
+      if(el){
+        el.style.backgroundPosition = d.x + '% ' + d.y + '%';
+        el.style.backgroundSize = d.zoom<=0 ? 'cover' : (100+d.zoom) + '%';
+      }
+      // Also refresh the thumbnail
+      var thumb = panel.querySelector('[data-slot-id="'+activeSlot+'"]');
+      if(thumb){
+        thumb.style.backgroundPosition = d.x + '% ' + d.y + '%';
+        thumb.style.backgroundSize = d.zoom<=0 ? 'cover' : (100+d.zoom) + '%';
+      }
+    } catch(e){}
+  }
+  inX.addEventListener('input', liveUpdate);
+  inY.addEventListener('input', liveUpdate);
+  inZ.addEventListener('input', liveUpdate);
+
+  // Reset selected slot to center+100%
+  document.getElementById('ebpInFit').addEventListener('click', function(){
+    if(!activeSlot) return;
+    inX.value = 50; inY.value = 50; inZ.value = 0;
+    liveUpdate();
+  });
+  // Upload for selected slot — dedicated file input (separate from modal's)
+  (function(){
+    var fi = document.getElementById('ebpFileInput');
+    fi.addEventListener('change', function(){
+      var slot = activeSlot;
+      var f = fi.files && fi.files[0];
+      fi.value = '';
+      if(!f || !slot) return;
+      var reader = new FileReader();
+      reader.onload = function(){
+        var img = new Image();
+        img.onload = function(){
+          var maxW = 1600;
+          var scale = Math.min(1, maxW / img.width);
+          var w = Math.round(img.width * scale);
+          var h = Math.round(img.height * scale);
+          var c = document.createElement('canvas');
+          c.width = w; c.height = h;
+          c.getContext('2d').drawImage(img, 0, 0, w, h);
+          try{
+            var dataUrl = c.toDataURL('image/jpeg', 0.82);
+            var payload = { url:dataUrl, x:50, y:50, zoom:0 };
+            localStorage.setItem(STORE(slot), JSON.stringify(payload));
+            applyAll();
+            renderThumbs();
+            loadInline(slot);
+          } catch(err){
+            alert('Image too large.');
+          }
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(f);
+    });
+    document.getElementById('ebpInUpload').addEventListener('click', function(){
+      if(!activeSlot) return;
+      fi.click();
+    });
+  })();
+  // Remove selected slot
+  document.getElementById('ebpInRemove').addEventListener('click', function(){
+    if(!activeSlot) return;
+    if(!confirm('Remove photo for ' + LABELS[activeSlot] + '?')) return;
+    localStorage.removeItem(STORE(activeSlot));
+    var el = document.querySelector('[data-photo-id="'+activeSlot+'"]');
+    if(el){
+      el.style.backgroundImage='';
+      el.style.backgroundPosition='';
+      el.style.backgroundSize='';
+    }
+    renderThumbs();
+    loadInline(activeSlot);
+  });
+
+  // Thumbnail click → load slot into inline editor (instead of opening modal)
+  panel.addEventListener('click', function(e){
+    var t = e.target.closest('.ebp-thumb');
+    if(!t) return;
+    loadInline(t.getAttribute('data-slot-id'));
+  });
+
+  // Patch the original save() to also refresh the panel thumbnails
+  var _originalSave = save;
+  save = function(){
+    var prevId = current.id;
+    _originalSave();
+    renderThumbs();
+  };
+  // Patch remove() too
+  var _originalRemove = remove;
+  remove = function(){
+    _originalRemove();
+    renderThumbs();
+  };
+  window.PE.save = save;
+  window.PE.remove = remove;
+
+  // Tab switching
+  panel.querySelectorAll('.ebp-tab').forEach(function(tab){
+    tab.addEventListener('click', function(){
+      panel.querySelectorAll('.ebp-tab').forEach(function(t){ t.classList.remove('ebp-tab-active'); });
+      tab.classList.add('ebp-tab-active');
+      panel.querySelectorAll('.ebp-pane').forEach(function(p){ p.classList.remove('ebp-visible'); });
+      document.getElementById('ebpPane-'+tab.dataset.pane).classList.add('ebp-visible');
+    });
+  });
+
+  // Toggle (P key + button) — but NOT while modal is open
+  function togglePanel(){
+    panel.classList.toggle('ebp-open');
+    if(panel.classList.contains('ebp-open')) renderThumbs(); // refresh on open
+  }
+  toggle.addEventListener('click', togglePanel);
+  document.addEventListener('keydown', function(e){
+    if(e.metaKey || e.ctrlKey || e.altKey) return;
+    if(e.key !== 'p' && e.key !== 'P') return;
+    var t = e.target;
+    if(t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable)) return;
+    if(overlay.classList.contains('open')) return; // modal open → P does nothing
+    e.preventDefault();
+    togglePanel();
+  });
+
+  // Drag-to-move
+  (function(){
+    var dragging=false, ox=0, oy=0;
+    handle.addEventListener('mousedown', function(e){
+      dragging = true;
+      var r = panel.getBoundingClientRect();
+      panel.style.bottom='auto';
+      panel.style.top = r.top + 'px';
+      panel.style.left= r.left+ 'px';
+      ox = e.clientX - r.left;
+      oy = e.clientY - r.top;
+      handle.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e){
+      if(!dragging) return;
+      panel.style.left = (e.clientX - ox) + 'px';
+      panel.style.top  = (e.clientY - oy) + 'px';
+    });
+    document.addEventListener('mouseup', function(){
+      if(!dragging) return;
+      dragging=false;
+      handle.style.cursor='grab';
+    });
+  })();
+
+  // Save button — flash the badge (data is already auto-saved on modal save)
+  document.getElementById('ebpSave').addEventListener('click', function(){
+    applyAll();
+    renderThumbs();
+    var b = document.getElementById('ebpBadge');
+    b.classList.add('show');
+    setTimeout(function(){ b.classList.remove('show'); }, 1600);
+  });
+
+  // Publish — try server endpoint if available (works with shows.html's git-push setup)
+  document.getElementById('ebpPublish').addEventListener('click', function(){
+    var btn = this;
+    btn.textContent = '⏳ 發佈中...';
+    btn.disabled = true;
+    fetch('/git-push', { method:'POST' })
+      .then(function(r){
+        btn.textContent = '✅ 已送出！';
+        setTimeout(function(){ btn.textContent='🚀 發佈到網站'; btn.disabled=false; }, 2500);
+        alert('🚀 已發佈！約 30 秒後公開網站更新');
+      })
+      .catch(function(){
+        btn.textContent = '🚀 發佈到網站';
+        btn.disabled = false;
+        alert('⚠️ 找不到本地伺服器的 /git-push 端點。\n如果是純前端 localStorage，照片只會存在你這台電腦的瀏覽器。');
+      });
+  });
+
+  // Reset all — wipe every blog photo
+  document.getElementById('ebpReset').addEventListener('click', function(){
+    if(!confirm('清除全部 11 張照片？無法復原。')) return;
+    Object.keys(GROUPS).forEach(function(g){
+      GROUPS[g].forEach(function(id){
+        localStorage.removeItem(STORE(id));
+        var el = document.querySelector('[data-photo-id="'+id+'"]');
+        if(el){
+          el.style.backgroundImage='';
+          el.style.backgroundPosition='';
+          el.style.backgroundSize='';
+        }
+      });
+    });
+    renderThumbs();
+  });
+})();
+</script>
+<script src="assets/js/nav-auth.js" defer></script>
 </body>
 </html>

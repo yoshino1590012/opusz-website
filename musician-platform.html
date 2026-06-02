@@ -25,8 +25,13 @@ nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 200;
   display: flex; align-items: center; justify-content: space-between;
   padding: 18px 40px;
+  min-height: 76px; /* keep same height as when orb was inside (18+40+18) */
   background: transparent;
+  mix-blend-mode: difference;
   /* No CSS transition — JS lerp handles the damping */
+}
+nav.mega-open {
+  mix-blend-mode: normal;
 }
 
 /* ── Nav colour modes — still used for hover-bubble style switching ── */
@@ -42,60 +47,94 @@ nav.mega-open {
 }
 
 /* Apply the colour var */
-.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: transparent; }
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; padding-left: 50px; }
 .orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
+#navOrbFixed {
+  position: fixed; top: 18px; left: 40px;
+  z-index: 201; /* above nav (200) — orb only, no blend mode so red stays red */
+  text-decoration: none;
+  pointer-events: all;
+  display: flex; align-items: center;
+}
+/* Logo TEXT: separate fixed element so mix-blend-mode blends at the stacking-context level */
+#navLogoFixed {
+  position: fixed; top: 30px; left: 90px; /* default: centres 17px text on 40px orb */
+  z-index: 201;
+  mix-blend-mode: difference;
+  color: #fff;
+  font-size: 17px; font-weight: 700;
+  text-decoration: none;
+  pointer-events: all;
+  display: flex; align-items: flex-start;
+  line-height: 1;
+  transition: top 0.38s cubic-bezier(0.34,1.15,0.64,1);
+}
+/* On hover: two 17px lines + 3px gap = 37px; centre at orb Y=38 → top ≈ 19px */
+#navLogoFixed:hover { top: 19px; }
+.nav-logo-spacer { width: 180px; flex-shrink: 0; }
 
 /* ── Logo hover expand (OPUS.Z → + MUSIC) ── */
 .nav-logo-text {
-  display: flex; flex-direction: column; overflow: hidden; line-height: 1;
+  display: flex; flex-direction: column; line-height: 1;
 }
 .nav-logo-name { display: block; }
 .nav-logo-sub {
   display: block;
   font-size: 17px; font-weight: 700; letter-spacing: 0;
   max-height: 0; overflow: hidden; opacity: 0;
-  transform: translateY(5px);
+  margin-top: 3px;
   transition:
     max-height 0.38s cubic-bezier(0.34, 1.15, 0.64, 1),
-    opacity    0.28s ease,
-    transform  0.38s cubic-bezier(0.34, 1.15, 0.64, 1),
-    margin-top 0.38s cubic-bezier(0.34, 1.15, 0.64, 1);
-  margin-top: 0;
+    opacity    0.22s ease 0.08s;
 }
-.nav-logo:hover .nav-logo-sub {
-  max-height: 28px; opacity: 1;
-  transform: translateY(0);
-  margin-top: 2px;
+.nav-logo:hover .nav-logo-sub,
+#navLogoFixed:hover .nav-logo-sub {
+  max-height: 20px; opacity: 1;
 }
 .nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 0; right: 0; justify-content: center; pointer-events: none; }
 .nav-links li { pointer-events: all; }
 .nav-links a {
-  text-decoration: none; font-size: 15px;
+  text-decoration: none; font-size: 15px; font-weight: 300; letter-spacing: 0.04em;
   position: relative; padding: 11px 22px; border-radius: 50px;
   display: inline-flex; align-items: center; justify-content: center;
   line-height: 1; vertical-align: middle; white-space: nowrap;
   z-index: 0;
   color: transparent; /* individual .nc-char spans carry the color */
 }
+nav.mega-open .nav-links {
+  mix-blend-mode: normal;
+}
 nav.mega-open .nav-links a {
-  color: transparent;
+  color: #000;
+}
+nav.mega-open .nav-links .nc-char {
+  color: #000 !important;
 }
 /* Per-character color spans — JS sets color on each one individually */
 .nc-char {
   display: inline-block;
   color: #fff;
-  transition: color 0.06s ease;
+}
+.nc-sp {
+  display: inline-block;
+  min-width: 0.3em; /* preserve space width inside flex container */
 }
 nav.mega-open .nc-char {
   color: #000 !important;
   transition: none;
 }
 
-/* Logo text: JS-controlled per-character as well */
-.nav-logo-name,
-.nav-logo-sub {
+/* Logo text inside nav: JS-controlled per-character */
+nav .nav-logo-name,
+nav .nav-logo-sub {
   color: transparent; /* .nc-char children carry the color */
 }
+/* Logo text chars: always #fff — mix-blend-mode:difference on #navLogoFixed handles inversion */
+#navLogoFixed .nav-logo-name,
+#navLogoFixed .nav-logo-sub {
+  color: #fff;
+}
+#navLogoFixed .nc-char { color: #fff; }
 nav.mega-open .nav-logo-name .nc-char,
 nav.mega-open .nav-logo-sub .nc-char {
   color: #000 !important;
@@ -114,20 +153,29 @@ nav.mega-open .nav-logo-sub .nc-char {
   .nav-links a { font-size: 12px; padding: 8px 11px; }
 }
 
-/* ── Bubble hover effect ── */
-.nav-links a::before {
-  content: ''; position: absolute; inset: 0; border-radius: 50px;
-  transform: scaleX(0); transform-origin: left center;
-  transition: none;
-  z-index: -1;
-  /* shared structure — colours swap per mode below */
-}
-/* 滑鼠移上：加速→減速彈入，帶輕微過衝感 */
-.nav-links a:hover::before {
-  transform: scaleX(1);
-  transition: transform 0.48s cubic-bezier(0.34, 1.18, 0.64, 1);
-}
+/* Bubble hover effect removed */
+.nav-links a::before { display: none; }
 .nav-links a:hover { opacity: 1; }
+
+/* ── Underline hover: grows left→right on enter, shrinks right→left on leave ── */
+.nav-ul {
+  position: absolute;
+  bottom: 3px;
+  left: 10px; right: 10px;
+  height: 1px;
+  background: #fff;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+}
+.nav-links a:hover .nav-ul {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+nav.mega-open .nav-links a:hover .nav-ul {
+  background: #000; /* mega-open turns nav white so underline must be dark */
+}
 
 /* Bubble on DARK background — frosted dark glass with white specular rim */
 nav.nav-on-dark .nav-links a::before {
@@ -364,7 +412,8 @@ nav.mega-open .nav-links a::before {
   background: #f8f8f8;
 }
 /* All heroCard children above the canvas */
-#heroCard > *:not(#heroCanvas) { position: relative; z-index: 1; }
+#heroCard > *:not(#heroCanvas):not(#hcCardOverlay) { position: relative; z-index: 1; }
+#hcCardOverlay { position: absolute; z-index: 5; }
 
 /* WRK-style: upper content zone — title + meta info, floats up in Phase 1 */
 .hc-upper {
@@ -445,6 +494,7 @@ nav.mega-open .nav-links a::before {
 #heroPhraseOverlay {
   position: absolute !important; inset: 0;
   pointer-events: none; z-index: 2;
+  mix-blend-mode: difference;
 }
 .hp-phrase {
   position: absolute;
@@ -454,11 +504,10 @@ nav.mega-open .nav-links a::before {
   font-weight: 300;
   letter-spacing: 0.015em;
   line-height: 1.5;
-  color: rgba(15,15,15,0.88);
+  color: #fff;
   max-width: 700px;
   white-space: nowrap;
   opacity: 0;
-  will-change: opacity, filter;
 }
 .hp-zh {
   display: block;
@@ -468,6 +517,7 @@ nav.mega-open .nav-links a::before {
   margin-top: 4px;
   white-space: normal;
 }
+.hp-char { display: inline; }
 /* Big title: at top of hc-upper, near-full-width like WRK */
 .hero-big-title {
   display: flex;
@@ -476,15 +526,16 @@ nav.mega-open .nav-links a::before {
   align-items: center;
   text-align: center;
   padding: 0; pointer-events: none;
+  margin-top: -2.5vh;
 }
 .hero-big-title .ht-word {
-  font-size: calc(100vw * 0.22);   /* renders at 100vw; at scale=0.6 visually = 60vw*0.22 (same as before) */
-  font-weight: 900; color: var(--black); line-height: 1.0; letter-spacing: -0.03em;
+  font-size: calc(100vw * 0.253);
+  font-weight: 700; color: var(--black); line-height: 1.0; letter-spacing: -0.03em;
   white-space: nowrap;
 }
 @media (max-width: 700px) {
   .hero-big-title { flex-direction: column; align-items: flex-start; gap: 0; }
-  .hero-big-title .ht-word { font-size: calc(100vw * 0.32); }
+  .hero-big-title .ht-word { font-size: calc(100vw * 0.368); }
 }
 /* Dots: inside card at the bottom, padding matches card content padding */
 .hero-dots-bar { position: absolute; bottom: 22px; left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 clamp(20px,4vw,58px); z-index: 4; pointer-events: none; }
@@ -494,8 +545,8 @@ nav.mega-open .nav-links a::before {
 /* ── Phase-4 card overlay: services + buttons float in bottom-left as card shrinks ── */
 .hc-card-overlay {
   position: absolute;
-  bottom: calc(var(--k) * 52px);
-  left: clamp(20px, 3.5vw, 52px);
+  bottom: clamp(48px, 5.5vw, 96px);
+  left: clamp(48px, 5.5vw, 96px);
   z-index: 5;
   pointer-events: none;
 }
@@ -512,12 +563,43 @@ nav.mega-open .nav-links a::before {
   list-style: none; display: flex; flex-direction: column;
   gap: calc(var(--k)*9px); align-items: flex-start;
 }
-.hco-services li { font-size: calc(var(--k)*14px); font-weight: 600; }
+.hco-services li {
+  font-size: calc(var(--k)*25.5px); font-weight: 600;
+  display: flex; align-items: center;
+  cursor: default;
+}
+/* Dot pseudo-element — slides in from left on hover */
+.hco-services li::before {
+  content: '';
+  width: calc(var(--k)*8px); height: calc(var(--k)*8px);
+  border-radius: 50%; background: #000; flex-shrink: 0;
+  opacity: 0;
+  transform: translateX(calc(var(--k)*-18px));
+  margin-right: 0;
+  transition: opacity .28s ease, transform .35s cubic-bezier(.16,1,.3,1), margin-right .35s cubic-bezier(.16,1,.3,1);
+}
+.hco-services li:hover::before {
+  opacity: 1;
+  transform: translateX(0);
+  margin-right: calc(var(--k)*10px);
+}
+.hco-services li:hover {
+  transform: translateX(calc(var(--k)*12px));
+}
+/* Reveal stagger (keep opacity/transform for page-load animation) */
 .hco-services li:nth-child(1) { transition: opacity .4s ease 0ms,   transform .5s cubic-bezier(.16,1,.3,1) 0ms; }
 .hco-services li:nth-child(2) { transition: opacity .4s ease 60ms,  transform .5s cubic-bezier(.16,1,.3,1) 60ms; }
 .hco-services li:nth-child(3) { transition: opacity .4s ease 120ms, transform .5s cubic-bezier(.16,1,.3,1) 120ms; }
 .hco-services li:nth-child(4) { transition: opacity .4s ease 180ms, transform .5s cubic-bezier(.16,1,.3,1) 180ms; }
 .hco-services li:nth-child(5) { transition: opacity .4s ease 240ms, transform .5s cubic-bezier(.16,1,.3,1) 240ms; }
+/* After reveal: switch to hover transitions */
+.hco-visible .hco-services li:nth-child(1),
+.hco-visible .hco-services li:nth-child(2),
+.hco-visible .hco-services li:nth-child(3),
+.hco-visible .hco-services li:nth-child(4),
+.hco-visible .hco-services li:nth-child(5) {
+  transition: transform .35s cubic-bezier(.16,1,.3,1);
+}
 .hco-btns {
   display: flex; gap: calc(var(--k)*10px);
   margin-top: calc(var(--k)*20px); flex-wrap: wrap;
@@ -537,9 +619,9 @@ nav.mega-open .nav-links a::before {
   border-radius: calc(var(--k)*6px); font-size: calc(var(--k)*13px);
   font-weight: 700; text-decoration: none; letter-spacing: .04em;
   border: calc(var(--k)*2px) solid var(--black); font-family: inherit;
-  transition: background .2s; cursor: pointer;
+  transition: background .2s, color .2s, border-color .2s; cursor: pointer;
 }
-.hco-btn-pri:hover { background: #222; }
+.hco-btn-pri:hover { background: #fff; color: #000; border-color: #000; }
 .hco-btn-out {
   display: inline-flex; align-items: center;
   background: transparent; color: var(--black);
@@ -656,7 +738,7 @@ nav.mega-open .nav-links a::before {
 }
 .rj-review-item { border-top: 1px solid #f0f0f0; padding: 18px 0; }
 .rj-review-item:first-of-type { border-top: none; padding-top: 0; }
-.rj-review-stars { color: #f0a030; font-size: 13px; margin-bottom: 8px; }
+.rj-review-stars { display: none; }
 .rj-review-text { font-size: 13px; color: #444; line-height: 1.6; font-style: italic; margin-bottom: 10px; }
 .rj-review-meta { font-size: 11.5px; color: #aaa; font-weight: 600; }
 .rj-review-collab {
@@ -744,13 +826,16 @@ nav.mega-open .nav-links a::before {
   overflow: hidden;
   position: relative;
   cursor: pointer;
-  transition: flex 0.65s cubic-bezier(0.16,1,0.3,1);
+  /* Softer ease-out (less aggressive deceleration) → no "snap to stop" feel.
+     will-change hints GPU compositing for the bg layer underneath. */
+  transition: flex 0.79s cubic-bezier(0.33, 1, 0.68, 1);
 }
 .cat-panel.active { flex: 6; }
 .cat-panel-bg {
   position: absolute; inset: 0;
   background-size: cover; background-position: center; background-repeat: no-repeat;
-  transition: transform 0.8s cubic-bezier(0.16,1,0.3,1);
+  transition: transform 0.97s cubic-bezier(0.33, 1, 0.68, 1);
+  will-change: transform;
 }
 .cat-panel-overlay {
   position: absolute; inset: 0;
@@ -851,8 +936,8 @@ nav.mega-open .nav-links a::before {
 .vision-img-inner::after { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 30% 50%,rgba(0,0,0,.6) 0%,transparent 70%); }
 
 /* ── SERVICES ── */
-.services { background: var(--white); position: relative; min-height: 80vh; display: grid; grid-template-columns: 1fr 480px; padding: 20px 0; }
-.svc-left { padding: 0 40px 40px 220px; position: relative; }
+.services { background: var(--white); position: relative; display: grid; grid-template-columns: 1fr 480px; padding: 20px 0 0; }
+.svc-left { padding: 0 40px 115px 220px; position: relative; }
 .svc-vr { position: absolute; left: 128px; top: 0; bottom: 0; width: 1px; background: #e2e2e2; }
 .svc-dot-m { position: absolute; left: 118px; top: 152px; width: 20px; height: 20px; background: var(--black); border-radius: 50%; }
 .svc-header { display: flex; justify-content: space-between; align-items: center; padding: 40px 0 0 0; margin-bottom: 20px; }
@@ -862,7 +947,7 @@ nav.mega-open .nav-links a::before {
 .svc-num { font-size: 13px; color: var(--gray); min-width: 40px; }
 .svc-name { font-size: clamp(48px,6.5vw,88px); font-weight: 900; letter-spacing: -2px; line-height: 1; color: #d8d8d8; transition: color .3s; }
 .svc-item.active .svc-name, .svc-item:hover .svc-name { color: var(--black); }
-.svc-right { position: sticky; top: 80px; height: calc(100vh - 80px); padding: 60px 52px 40px 52px; display: flex; flex-direction: column; gap: 20px; }
+.svc-right { position: sticky; top: 80px; align-self: start; padding: 60px 52px 40px 52px; display: flex; flex-direction: column; gap: 20px; }
 .svc-btn { background: var(--black); color: var(--white); padding: 14px 28px; border-radius: 50px; font-size: 15px; font-weight: 500; text-decoration: none; width: fit-content; align-self: flex-end; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
 .svc-img { width: 100%; aspect-ratio: 4/5; border-radius: 12px; overflow: hidden; transition: background .4s; }
 .svc-img-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transition: background .4s; }
@@ -1102,12 +1187,17 @@ nav.mega-open .nav-links a::before {
 }
 
 /* ── ABOUT ── */
-.about { background: var(--white); padding: 100px 38px 80px; position: relative; }
-.about-hd { display: grid; grid-template-columns: 130px 1fr; margin-bottom: 16px; }
-.about-bl { font-size: 14px; font-weight: 600; display: flex; justify-content: flex-end; padding-right: 24px; }
+.about {
+  background: var(--white);
+  padding: 115px 38px 80px;
+  position: relative;
+  border-top: 1px solid rgba(0,0,0,0.10);
+}
+.about-hd { margin-bottom: 16px; padding: 0 clamp(28px,6vw,96px); }
+.about-bl { display: none; }
 .about-hl { font-size: clamp(34px,4vw,54px); font-weight: 900; line-height: 1.1; letter-spacing: -1.5px; max-width: 680px; }
-.about-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding-left: 130px; margin-top: 60px; }
-.card-dark { background: var(--black); color: var(--white); border-radius: 18px; padding: 38px 40px; }
+.about-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 0 clamp(28px,6vw,96px); margin-top: 60px; }
+.card-dark { background: linear-gradient(145deg, #131313, #1e1a16); color: var(--white); border-radius: 18px; padding: 38px 40px; }
 .cl { font-size: 12px; opacity: .65; margin-bottom: 28px; }
 .cs { font-size: 70px; font-weight: 900; line-height: 1; }
 .cd { font-size: 15px; margin-top: 12px; opacity: .75; line-height: 1.5; }
@@ -1115,7 +1205,7 @@ nav.mega-open .nav-links a::before {
 .av { width: 34px; height: 34px; border-radius: 50%; border: 2.5px solid var(--black); margin-left: -8px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: white; }
 .av:first-child { margin-left: 0; }
 .av1{background:#c0392b;}.av2{background:#2980b9;}.av3{background:#27ae60;}.av4{background:#8e44ad;}.avm{background:#555;font-size:10px;}
-.card-purple { background: linear-gradient(135deg,#6b3fff,#0098e0); color: var(--white); border-radius: 18px; padding: 38px 40px; position: relative; overflow: hidden; }
+.card-purple { background: linear-gradient(135deg, #0d1520 0%, #1a2d47 55%, #1e3555 100%); color: var(--white); border-radius: 18px; padding: 38px 40px; position: relative; overflow: hidden; }
 .cbox { background: rgba(255,255,255,.15); border-radius: 12px; padding: 16px 20px; margin-top: 28px; backdrop-filter: blur(8px); }
 .cbox-l { font-size: 11px; opacity: .7; margin-bottom: 4px; }
 .cbox-t { font-size: 17px; font-weight: 600; }
@@ -1194,7 +1284,8 @@ nav.mega-open .nav-links a::before {
 .blog-hl { font-size: clamp(42px,5.5vw,72px); font-weight: 900; letter-spacing: -2px; }
 .blog-see-all { background: var(--black); color: var(--white); padding: 14px 28px; border-radius: 50px; font-size: 15px; font-weight: 500; text-decoration: none; flex-shrink: 0; }
 .blog-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
-.blog-card { cursor: pointer; }
+.blog-card { cursor: pointer; text-decoration: none; color: inherit; display: block; }
+.blog-tag { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #888; margin-bottom: 6px; }
 .blog-img { width: 100%; aspect-ratio: 1; border-radius: 12px; overflow: hidden; position: relative; margin-bottom: 16px; background: #e8e8e8; }
 .blog-img-inner { width: 100%; height: 100%; background-size: cover; background-position: center; }
 .bi1 { background: linear-gradient(135deg,#c8c8c0,#a0a098); }
@@ -1231,24 +1322,171 @@ nav.mega-open .nav-links a::before {
 .orb-purple { width: 52px; height: 52px; border-radius: 50%; background: conic-gradient(from 200deg,#9b59b6,#3498db,#1abc9c,#f39c12,#e74c3c,#9b59b6); }
 
 /* ── CONTACT ── */
-.contact { position: relative; min-height: 80vh; overflow: hidden; display: flex; align-items: center; }
-.contact-bg { position: absolute; inset: 0; }
-.contact-bg-inner { width: 100%; height: 100%; background: linear-gradient(160deg,#0a0a12,#1a1a28); }
-.contact-vr { position: absolute; left: 128px; top: 0; bottom: 0; width: 1px; background: rgba(255,255,255,.08); }
-.contact-dot-m { position: absolute; left: 118px; top: 60px; width: 20px; height: 20px; background: rgba(255,255,255,.5); border-radius: 50%; }
-.contact-form-wrap { position: relative; z-index: 5; padding: 80px 38px; width: 100%; display: flex; justify-content: center; }
-.contact-card { background: rgba(255,255,255,.12); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,.15); border-radius: 4px; padding: 48px 52px; width: min(540px,90vw); }
-.contact-sublabel { font-size: 13px; color: rgba(255,255,255,.5); margin-bottom: 16px; }
-.contact-hl { font-size: clamp(40px,5vw,60px); font-weight: 900; color: white; letter-spacing: -2px; margin-bottom: 32px; }
-.contact-fields { display: flex; flex-direction: column; gap: 12px; }
-.contact-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.contact-input { width: 100%; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2); border-radius: 8px; padding: 14px 16px; font-size: 15px; color: white; font-family: inherit; outline: none; transition: border-color .2s; }
-.contact-input::placeholder { color: rgba(255,255,255,.45); }
-.contact-input:focus { border-color: rgba(255,255,255,.5); }
-.contact-btn { width: 100%; background: var(--black); color: var(--white); padding: 16px; border-radius: 50px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; margin-top: 4px; font-family: inherit; transition: opacity .2s; }
-.contact-btn:hover { opacity: .8; }
-.contact-terms { font-size: 12px; color: rgba(255,255,255,.4); line-height: 1.5; margin-top: 12px; }
-.contact-terms a { color: rgba(255,255,255,.6); }
+/* ── CONTACT REDESIGN ── */
+.contact {
+  position: relative;
+  background: #f5f5f3;
+  overflow: hidden;
+}
+.contact-hero {
+  text-align: center;
+  padding: 120px 40px 80px;
+}
+.contact-eyebrow {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 18px;
+}
+.contact-hl {
+  font-size: clamp(48px, 7vw, 96px);
+  font-weight: 800;
+  letter-spacing: -3px;
+  line-height: 1;
+  color: #111;
+  margin: 0;
+}
+.contact-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid rgba(0,0,0,.1);
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px 100px;
+}
+/* ---- left: testimonial ---- */
+.contact-left {
+  padding: 60px 60px 60px 0;
+  border-right: 1px solid rgba(0,0,0,.1);
+}
+.ct-card {
+  background: #1a1a1a;
+  border-radius: 16px;
+  overflow: hidden;
+  position: relative;
+  max-width: 340px;
+}
+.ct-card-img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  object-position: top;
+  display: block;
+  filter: grayscale(20%);
+}
+.ct-card-img-placeholder {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: linear-gradient(160deg, #222, #333, #1a1a1a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ct-card-img-placeholder svg { opacity: .3; }
+.ct-card-body {
+  padding: 24px 24px 28px;
+}
+.ct-stars { display: none; }
+.ct-quote { font-size: 14px; color: rgba(255,255,255,.75); line-height: 1.6; margin-bottom: 16px; font-style: italic; }
+.ct-name { font-size: 13px; font-weight: 600; color: #fff; }
+.ct-title { font-size: 12px; color: rgba(255,255,255,.45); margin-top: 2px; }
+.contact-left-info {
+  margin-top: 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.cli-item {
+  display: flex; align-items: center; gap: 12px;
+  text-decoration: none; color: inherit;
+  transition: opacity .15s ease;
+}
+a.cli-item:hover { opacity: .65; }
+a.cli-item:hover .cli-icon { background: #ddd; }
+.cli-icon { transition: background .15s ease; }
+.cli-icon {
+  width: 36px; height: 36px;
+  background: #eee;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.cli-icon svg { width: 16px; height: 16px; }
+.cli-label { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: .1em; }
+.cli-value { font-size: 14px; color: #111; font-weight: 500; }
+/* ---- right: form ---- */
+.contact-right {
+  padding: 60px 0 60px 60px;
+}
+.contact-form-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: #999;
+  margin-bottom: 32px;
+}
+.contact-fields { display: flex; flex-direction: column; gap: 0; }
+.contact-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.cf-group {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid rgba(0,0,0,.12);
+  padding: 18px 0 6px;
+}
+.cf-group:first-child { border-top: 1px solid rgba(0,0,0,.12); }
+.contact-row .cf-group:first-child { border-right: 1px solid rgba(0,0,0,.12); padding-right: 20px; }
+.contact-row .cf-group:last-child  { padding-left: 20px; }
+.cf-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 4px;
+}
+.cf-label sup { color: #888; font-size: 9px; }
+.contact-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 15px;
+  color: #111;
+  font-family: inherit;
+  padding: 4px 0 6px;
+  width: 100%;
+}
+.contact-input::placeholder { color: #ccc; }
+select.contact-input { cursor: pointer; -webkit-appearance: none; appearance: none; }
+.contact-btn {
+  margin-top: 32px;
+  background: #111;
+  color: #fff;
+  padding: 16px 40px;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background .2s, transform .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.contact-btn:hover { background: #333; transform: translateY(-1px); }
+.contact-btn svg { width: 16px; height: 16px; }
+.contact-terms { font-size: 12px; color: #aaa; line-height: 1.5; margin-top: 14px; }
+.contact-terms a { color: #888; text-decoration: underline; }
+@media (max-width: 768px) {
+  .contact-body { grid-template-columns: 1fr; padding: 0 24px 60px; }
+  .contact-left { padding: 40px 0; border-right: none; border-bottom: 1px solid rgba(0,0,0,.1); }
+  .contact-right { padding: 40px 0; }
+  .contact-hero { padding: 100px 24px 60px; }
+}
 
 /* ── FOOTER ── */
 /* ── NEW FOOTER ── */
@@ -1264,6 +1502,10 @@ nav.mega-open .nav-links a::before {
 .sf-letter-wrap { display: flex; justify-content: center; align-items: flex-end; }
 .sf-letter { display: block; font-family: 'Roboto Flex', 'Inter', sans-serif; font-size: clamp(30px, 27vw, 560px); font-weight: 220; line-height: 0.86; color: #000; will-change: font-variation-settings; }
 .sf-dot { font-size: clamp(26px, 23vw, 480px); line-height: 1; align-self: flex-end; }
+/* MacBook editor iframe — footer brand (20% between base and 3×), equal top/bottom spacing */
+html.in-macbook-iframe .sf-brand  { height: clamp(80px, 30vw, 600px) !important; align-items: center !important; }
+html.in-macbook-iframe .sf-letter { font-size: clamp(29px, 26vw, 543px) !important; }
+html.in-macbook-iframe .sf-dot    { font-size: clamp(25px, 22vw, 466px) !important; align-self: auto !important; }
 
 /* ── BOTTOM NAV ── */
 /* ── Bottom nav ── */
@@ -1308,7 +1550,7 @@ nav.mega-open .nav-links a::before {
   transition: opacity 0.4s ease;
 }
 #intro .intro-logo {
-  font-size: clamp(26px, 4vw, 48px);
+  font-size: clamp(18px, 2.8vw, 34px);
   font-weight: 300;
   color: #fff;
   letter-spacing: 0.12em;
@@ -1338,7 +1580,7 @@ nav.mega-open .nav-links a::before {
 /* ── HERO REVEAL: all card elements start hidden, animate in after intro ── */
 /* Big title: per-character clip-reveal */
 .ht-word { display: inline-block; }
-.ht-c { overflow: hidden; display: inline-block; vertical-align: bottom; }
+.ht-c { overflow: hidden; display: inline-block; vertical-align: bottom; padding: 0 0.07em; margin: 0 -0.07em; }
 .ht-inner { display: inline-block; transform: translateY(112%); }
 #heroCard.hero-revealed .ht-inner {
   transform: translateY(0);
@@ -1388,31 +1630,34 @@ nav.mega-open .nav-links a::before {
 
 /* ── MEGA MENU ── */
 .mega-menu {
-  position: absolute; top: 100%; left: 0; right: 0;
+  position: fixed; top: 76px; left: 0; right: 0;
   background: #fff;
   box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
   padding: 36px 40px 40px;
   display: grid; grid-template-columns: repeat(8, 1fr); gap: 0;
-  /* 預設：在上方隱藏，離開時快速縮回 */
   opacity: 0; transform: translateY(-22px);
   pointer-events: none;
   transition: opacity 0.18s ease, transform 0.18s ease;
   z-index: 199;
-  /* 裁切掉從 nav 上方溢出的部分，讓滑入感更明顯 */
   clip-path: inset(0 0 0 0);
 }
 .mega-menu.mm-visible {
   opacity: 1; transform: translateY(0);
   pointer-events: auto;
-  /* 慢入快出的彈性曲線：加速衝進來，末端柔和停止 */
   transition: opacity 0.46s cubic-bezier(0.22,1,0.36,1),
               transform 0.46s cubic-bezier(0.22,1,0.36,1);
+}
+/* 退場：優雅地向上淡出 */
+.mega-menu.mm-closing {
+  opacity: 0; transform: translateY(-16px);
+  pointer-events: none;
+  transition: opacity 0.38s cubic-bezier(0.4,0,0.2,1),
+              transform 0.38s cubic-bezier(0.4,0,0.2,1);
 }
 .mega-col {
   padding: 0 28px 0 0;
   border-right: 1px solid rgba(0,0,0,0.055);
   margin-right: 28px;
-  /* 欄位從上往下滑入，初始偏移比 menu 多一點製造層次 */
   opacity: 0; transform: translateY(-14px);
   transition: opacity 0.14s ease, transform 0.14s ease;
 }
@@ -1430,6 +1675,19 @@ nav.mega-open .nav-links a::before {
 .mega-menu.mm-visible .mega-col:nth-child(6) { transition-delay: 0.20s; }
 .mega-menu.mm-visible .mega-col:nth-child(7) { transition-delay: 0.23s; }
 .mega-menu.mm-visible .mega-col:nth-child(8) { transition-delay: 0.26s; }
+/* 退場時欄位依序往上消失（反向 delay）*/
+.mega-menu.mm-closing .mega-col {
+  opacity: 0; transform: translateY(-10px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.mega-menu.mm-closing .mega-col:nth-child(8) { transition-delay: 0.00s; }
+.mega-menu.mm-closing .mega-col:nth-child(7) { transition-delay: 0.03s; }
+.mega-menu.mm-closing .mega-col:nth-child(6) { transition-delay: 0.06s; }
+.mega-menu.mm-closing .mega-col:nth-child(5) { transition-delay: 0.09s; }
+.mega-menu.mm-closing .mega-col:nth-child(4) { transition-delay: 0.12s; }
+.mega-menu.mm-closing .mega-col:nth-child(3) { transition-delay: 0.15s; }
+.mega-menu.mm-closing .mega-col:nth-child(2) { transition-delay: 0.18s; }
+.mega-menu.mm-closing .mega-col:nth-child(1) { transition-delay: 0.21s; }
 .mega-col-title {
   display: inline-block;
   font-size: 10px; font-weight: 700; letter-spacing: .12em;
@@ -1473,7 +1731,7 @@ nav.mega-open .nav-links a::before {
 .lang-toggle {
   display: flex; align-items: center; gap: 2px;
   background: none; border: none; cursor: pointer; padding: 0;
-  font-family: inherit; font-size: 13px; font-weight: 600; color: var(--nav-fg);
+  font-family: inherit; font-size: 15px; font-weight: 300; color: var(--nav-fg); letter-spacing: 0.04em;
 }
 .lang-toggle .lt-opt {
   padding: 3px 8px; border-radius: 5px;
@@ -1490,14 +1748,23 @@ nav.mega-open .lang-toggle .lt-opt.active { border-color: #000; color: #000; }
 .nav-fav-btn:hover { opacity:.65; }
 nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 .nav-fav-btn svg { display:block; }
-.nav-fav-count { position:absolute; top:0; right:0; background:#e05; color:#fff; font-size:9px; font-weight:700; border-radius:50%; width:14px; height:14px; display:flex; align-items:center; justify-content:center; line-height:1; }
+.nav-fav-count { display:none; } /* replaced by #navFavBadge outside nav */
+/* Fixed badge — always red, never inverted by mix-blend-mode */
+#navFavBadge {
+  position: fixed; z-index: 202;
+  background: #e05; color: #fff;
+  font-size: 9px; font-weight: 700;
+  border-radius: 50%; width: 14px; height: 14px;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1; pointer-events: none;
+}
 
 /* ── Login Button ── */
 .nav-login-btn {
   display: inline-flex; align-items: center; gap: 6px;
   background: transparent; color: var(--nav-fg);
   border: 1.5px solid var(--nav-fg); border-radius: 0;
-  padding: 9px 18px; font-size: 14px; font-weight: 700;
+  padding: 9px 18px; font-size: 15px; font-weight: 300; letter-spacing: 0.04em;
   font-family: inherit; cursor: pointer; white-space: nowrap;
   position: relative; z-index: 0;
   line-height: 1;
@@ -1508,34 +1775,132 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 .nav-login-btn span.login-label { position: relative; z-index: 1; }
 .nav-login-btn.open svg { transform: rotate(180deg); }
 
-/* Dropdown */
+/* Dropdown — fixed outside nav to escape mix-blend-mode */
 .nav-login-dropdown {
-  position: absolute; top: calc(100% + 8px); right: 0;
-  background: #fff; border-radius: 10px;
-  box-shadow: 0 6px 32px rgba(0,0,0,.13), 0 0 0 1px rgba(0,0,0,.07);
-  padding: 0; min-width: 0;
-  opacity: 0; pointer-events: none; transform: translateY(-4px);
-  transition: opacity .15s, transform .15s;
-  z-index: 999; white-space: nowrap;
-  display: flex; align-items: stretch;
+  position: fixed;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.13), 0 2px 8px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.06);
+  padding: 6px; min-width: 200px;
+  opacity: 0; pointer-events: none;
+  transform: translateY(-6px) scale(.97);
+  transform-origin: top right;
+  transition: opacity .18s cubic-bezier(.4,0,.2,1), transform .18s cubic-bezier(.4,0,.2,1);
+  z-index: 9999; white-space: nowrap;
+  display: flex; flex-direction: column; gap: 2px;
+  mix-blend-mode: normal;
+  isolation: isolate;
+  /* filter forces a brand-new GPU compositing layer — guaranteed escape from
+     Chrome's fixed-element mix-blend-mode bleed bug */
+  filter: drop-shadow(0 0 0 transparent);
 }
-.nav-login-btn.open .nav-login-dropdown {
-  opacity: 1; pointer-events: auto; transform: translateY(0);
+/* Login dropdown is positioned OUTSIDE nav element (see HTML comment ~line 2161),
+   so nav's mix-blend-mode doesn't affect it. We do NOT touch nav-links — letting
+   them keep their blend-mode-driven auto-contrast (#fff blended with backdrop).
+   Forcing #000 here was a bug: difference-blend then inverted black to white,
+   making nav-links invisible on light backgrounds. */
+.nav-login-dropdown.open {
+  opacity: 1; pointer-events: auto;
+  transform: translateY(0) scale(1);
 }
 .nav-login-dropdown a {
-  display: flex; align-items: center; justify-content: center;
-  padding: 13px 22px;
-  font-size: 13.5px; font-weight: 600; color: #111;
-  text-decoration: none; transition: background .15s;
-  border-radius: 0;
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px;
+  font-size: 13px; font-weight: 600; color: #111 !important;
+  text-decoration: none;
+  border-radius: 9px;
+  transition: background .13s;
+  letter-spacing: .01em;
+  background: transparent !important;
 }
-.nav-login-dropdown a:first-child { border-radius: 10px 0 0 10px; }
-.nav-login-dropdown a:last-of-type { border-radius: 0 10px 10px 0; }
-.nav-login-dropdown a:hover { background: #f5f5f5; }
+.nav-login-dropdown a:hover { background: #f2f2f2 !important; }
+.nav-login-dropdown a::before {
+  content: '';
+  display: inline-block;
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: #f0f0f0;
+  flex-shrink: 0;
+  background-size: 16px; background-position: center; background-repeat: no-repeat;
+}
+/* Customer icon */
+#openCustomerLogin::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+}
+/* Musician icon */
+#openMusicianLogin::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18V5l12-2v13'/%3E%3Ccircle cx='6' cy='18' r='3'/%3E%3Ccircle cx='18' cy='16' r='3'/%3E%3C/svg%3E");
+}
 .nav-login-vsep {
-  width: 1px; background: #e8e8e8; flex-shrink: 0; margin: 8px 0;
+  height: 1px; background: #ebebeb; margin: 2px 8px; flex-shrink: 0;
 }
 @media(max-width:760px){ .nav-login-btn span.login-label { display:none; } }
+
+/* My Account dropdown: no icon boxes, clean text-only rows */
+#accountDropdown a::before { display: none; }
+#accountDropdown a { padding: 11px 18px; justify-content: center; text-align: center; }
+
+/* ── My Account avatar button (fixed, outside nav to escape mix-blend-mode) ── */
+/* My Account button sits inside nav — hidden until logged in, no border box */
+#navAccountBtn {
+  display: none;
+  border: none;
+  padding: 6px 2px;
+}
+#navAccountBtn.open svg { transform: rotate(180deg); }
+
+/* Account dropdown (fixed, same style as login dropdown) */
+.nav-account-dropdown-fixed {
+  position: fixed;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.13), 0 2px 8px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.06);
+  padding: 8px; min-width: 220px;
+  opacity: 0; pointer-events: none;
+  transform: translateY(-6px) scale(.97);
+  transform-origin: top right;
+  transition: opacity .18s cubic-bezier(.4,0,.2,1), transform .18s cubic-bezier(.4,0,.2,1);
+  z-index: 9999; mix-blend-mode: normal;
+}
+.nav-account-dropdown-fixed.open {
+  opacity: 1; pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+/* User info header inside dropdown */
+.nav-acc-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid #f0f0f0; margin-bottom: 4px;
+}
+.nav-acc-header-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: #111; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; flex-shrink: 0;
+}
+.nav-acc-header-info { display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+.nav-acc-header-name { font-size: 13.5px; font-weight: 700; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nav-acc-header-email { font-size: 11.5px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Dropdown items */
+.nav-account-dropdown-fixed a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; font-size: 13px; font-weight: 600;
+  color: #111 !important; text-decoration: none;
+  border-radius: 10px; transition: background .13s;
+}
+.nav-account-dropdown-fixed a:hover { background: #f4f4f4; }
+.nav-account-dropdown-fixed a .acc-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: #f0f0f0; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0;
+}
+.nav-account-dropdown-fixed a .acc-icon svg { width: 14px; height: 14px; stroke: #555; fill: none; stroke-width: 2; }
+.nav-acc-sep { height: 1px; background: #f0f0f0; margin: 4px 8px; }
+.nav-account-dropdown-fixed .acc-logout { color: #c00 !important; }
+.nav-account-dropdown-fixed .acc-logout .acc-icon { background: #fff0f0; }
+.nav-account-dropdown-fixed .acc-logout .acc-icon svg { stroke: #c00; }
 
 /* ── Login Modal ── */
 .login-modal-overlay {
@@ -1563,7 +1928,10 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 .login-modal-close:hover { background: #e0e0e0; }
 .login-modal-title {
   font-size: 22px; font-weight: 900; letter-spacing: -.03em;
-  margin-bottom: 24px;
+  margin-bottom: 6px;
+}
+.login-modal-subtitle {
+  font-size: 13.5px; color: #888; margin-bottom: 24px; line-height: 1.45;
 }
 .login-modal-input {
   width: 100%; padding: 12px 14px; border-radius: 10px;
@@ -1572,6 +1940,17 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   margin-bottom: 12px;
 }
 .login-modal-input:focus { border-color: #000; }
+.login-modal-input.shake {
+  animation: inputShake 0.35s cubic-bezier(.36,.07,.19,.97);
+  border-color: #e53935;
+}
+@keyframes inputShake {
+  0%,100%{ transform:translateX(0); }
+  20%    { transform:translateX(-6px); }
+  40%    { transform:translateX(6px); }
+  60%    { transform:translateX(-4px); }
+  80%    { transform:translateX(4px); }
+}
 .login-modal-btn {
   width: 100%; padding: 13px; background: #000; color: #fff;
   border: none; border-radius: 10px; font-size: 15px; font-weight: 700;
@@ -1584,6 +1963,75 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   font-size: 13px; color: #888;
 }
 .login-modal-footer a { color: #000; font-weight: 700; text-decoration: none; border-bottom: 1px solid #000; }
+
+/* ── Login success state ── */
+.login-modal-success {
+  display: none; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center; padding: 20px 0 8px;
+  gap: 14px;
+}
+.login-modal-success.visible { display: flex; }
+.login-success-check {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: #000; display: flex; align-items: center; justify-content: center;
+  animation: successPop 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+}
+@keyframes successPop {
+  from { transform: scale(0); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+.login-success-check svg { width: 30px; height: 30px; stroke: #fff; stroke-width: 2.5; fill: none; }
+.login-success-check svg polyline {
+  stroke-dasharray: 40;
+  stroke-dashoffset: 40;
+  animation: drawCheck 0.35s ease 0.3s forwards;
+}
+@keyframes drawCheck {
+  to { stroke-dashoffset: 0; }
+}
+.login-success-name {
+  font-size: 20px; font-weight: 900; letter-spacing: -.02em;
+  animation: fadeUp 0.4s ease 0.5s both;
+}
+.login-success-msg {
+  font-size: 13.5px; color: #888; line-height: 1.45;
+  animation: fadeUp 0.4s ease 0.6s both;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(8px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* ── MACBOOK 13" (≤1400px) ── */
+@media (max-width: 1400px) {
+  /* Categories section */
+  .categories { padding: 40px 0 50px; }
+  .cat-header { padding: 0 clamp(28px,6vw,96px) 24px; }
+  .cat-accordion { height: clamp(200px,26vw,350px); }
+  /* What's On */
+  .work-title { font-size: clamp(36px,4.5vw,62px); letter-spacing: -2px; line-height: 1; white-space: nowrap; }
+  .work-count { display: none; }
+  /* Services */
+  .services { grid-template-columns: 1fr 360px; }
+  .svc-left { padding: 0 24px 32px 140px; }
+  .svc-vr { left: 80px; }
+  .svc-dot-m { left: 70px; }
+  .svc-header { padding: 24px 0 0 0; margin-bottom: 12px; }
+  .svc-list { padding-top: 20px; }
+  .svc-item { padding: 7px 0; gap: 14px; }
+  .svc-name { font-size: clamp(28px, 3.6vw, 52px); }
+  .svc-right { padding: 36px 32px 28px 32px; gap: 14px; }
+  /* Footer brand — same size as MacBook editor iframe view */
+  .sf-brand  { height: clamp(80px, 30vw, 600px); align-items: center; }
+  .sf-letter { font-size: clamp(29px, 26vw, 543px); }
+  .sf-dot    { font-size: clamp(25px, 22vw, 466px); align-self: auto; }
+  /* Hero card overlay (services + buttons): reduce --k so content fits MacBook viewport */
+  #heroCard { --k: 0.86; }
+  /* Services items: 20% bigger than --k baseline */
+  .hco-services li { font-size: calc(var(--k) * 30.6px); }
+  /* Overlay: slightly right and up */
+  .hc-card-overlay { bottom: clamp(28px, 3.1vw, 54px); left: clamp(28px, 3.1vw, 54px); }
+}
 
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
@@ -1619,6 +2067,14 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   #site-footer { padding: 48px 24px 0; }
   .sf-copy-bar { flex-direction: column; gap: 12px; align-items: flex-start; }
 }
+
+/* ── MacBook 13"/14" breakpoint (901px – 1600px) ── */
+@media (min-width: 901px) and (max-width: 1600px) {
+  .hp-phrase {
+    font-size: clamp(14px, 1.5vw, 22px);
+    left: clamp(24px, 8vw, 120px);
+  }
+}
 </style>
 <!-- VIDEO CONFIG — edited by server.py on Save. DO NOT move this tag. -->
 <script id="sv-video-config" type="application/json">
@@ -1643,23 +2099,81 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   <div class="intro-logo"><span class="il"><span class="il-c">O</span></span><span class="il"><span class="il-c">P</span></span><span class="il"><span class="il-c">U</span></span><span class="il"><span class="il-c">S</span></span><span class="il"><span class="il-c">.</span></span><span class="il"><span class="il-c">Z</span></span></div>
 </div>
 
+<!-- Orb: no blend mode, stays red -->
+<a href="#home" id="navOrbFixed" aria-hidden="true" tabindex="-1">
+  <div class="orb"></div>
+</a>
+<!-- Logo text: own stacking context with mix-blend-mode:difference → auto-contrasts like nav links -->
+<a href="#home" id="navLogoFixed">
+  <div class="nav-logo-text">
+    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
+    <span class="nav-logo-sub">MUSIC</span>
+  </div>
+</a>
+
 <!-- NAV -->
 <nav class="nav-on-light">
-  <a href="#home" class="nav-logo">
-    <div class="orb"></div>
-    <div class="nav-logo-text">
-      <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
-      <span class="nav-logo-sub">MUSIC</span>
-    </div>
-  </a>
+  <!-- logo moved to #navOrbFixed above nav to avoid mix-blend-mode -->
+  <span class="nav-logo-spacer"></span>
   <ul class="nav-links">
     <li><a href="#home"        data-i18n="nav.home">Home</a></li>
     <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
-    <li id="artists-nav-item"><a href="#discover" data-i18n="nav.artists">Musicians</a></li>
+    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
     <li><a href="recent-jobs.html">Recent Jobs</a></li>
     <li><a href="shows.html"   data-i18n="nav.news">Shows</a></li>
-    <li><a href="#contact"     data-i18n="nav.contact">Contact</a></li>
+    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
   </ul>
+
+  <div class="nav-right">
+    <!-- Favourites Button -->
+    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <!-- badge handled externally to escape mix-blend-mode -->
+    </button>
+    <!-- Login Button (shown when logged out) -->
+    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
+      <span class="login-label">Log in</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <!-- My Account Button (shown when logged in) -->
+    <button class="nav-login-btn nav-account-btn" id="navAccountBtn" aria-label="My Account" style="display:none">
+      <span class="account-name" id="navAccountName">My Account</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
+      <span class="lt-opt active" data-l="en">EN</span>
+      <span class="lt-sep">/</span>
+      <span class="lt-opt" data-l="zh">中文</span>
+    </button>
+    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
+  </div>
+
+</nav>
+
+<!-- Fav count badge — outside nav to escape mix-blend-mode, stays red always -->
+<span id="navFavBadge" style="display:none">0</span>
+
+
+  <!-- Login Dropdown (outside nav to escape mix-blend-mode) -->
+  <div class="nav-login-dropdown" id="loginDropdown">
+    <a href="customer-login.html" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
+    <div class="nav-login-vsep"></div>
+    <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
+  </div>
+
+  <!-- My Account Dropdown (outside nav to escape mix-blend-mode) -->
+  <div class="nav-login-dropdown acc-menu" id="accountDropdown">
+    <a href="messages.html" style="font-weight:700;">Messages <span class="nav-msg-badge" id="dropMsgBadge" style="display:none;background:#e05;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto;">0</span></a>
+    <div class="nav-login-vsep"></div>
+    <a href="musician-community.html" style="font-weight:700;">🎵 樂手社群</a>
+    <div class="nav-login-vsep"></div>
+    <a href="customer-profile.html#bookings">My Bookings</a>
+    <div class="nav-login-vsep"></div>
+    <a href="customer-profile.html">My Profile</a>
+    <div class="nav-login-vsep"></div>
+    <a href="#" id="navLogoutBtn" style="color:#c00">Log Out</a>
+  </div>
+
   <!-- MEGA MENU -->
   <div class="mega-menu" id="artistsMegaMenu">
     <div class="mega-col">
@@ -1739,36 +2253,10 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
         <li><a href="musicians.html?cat=brass"          data-i18n="menu.brass">Brass</a></li>
         <li><a href="musicians.html?cat=voice"          data-i18n="menu.voice">Voice</a></li>
         <li><a href="musicians.html?cat=chamber"        data-i18n="menu.chamber">Chamber</a></li>
-        <li><a href="musicians.html?cat=conductor"      data-i18n="menu.conductor">Conductor</a></li>
+        <li><a href="musicians.html?cat=conductor"      data-i18n="menu.conductor">Conductor</a></li><li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li>
       </ul>
     </div>
   </div>
-
-  <div class="nav-right">
-    <!-- Favourites Button -->
-    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
-    </button>
-    <!-- Login Button -->
-    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
-      <span class="login-label">Log in</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-      <div class="nav-login-dropdown">
-        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
-        <div class="nav-login-vsep"></div>
-        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
-      </div>
-    </button>
-    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
-      <span class="lt-opt active" data-l="en">EN</span>
-      <span class="lt-sep">/</span>
-      <span class="lt-opt" data-l="zh">中文</span>
-    </button>
-    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
-  </div>
-
-</nav>
 
 <!-- Slide-in nav drawer (outside nav to avoid backdrop-filter stacking context) -->
 <div class="nav-drawer" id="navDrawer">
@@ -1778,8 +2266,9 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     <span data-i18n="nav.artists">Musicians</span>
     <span class="nd-arrow">›</span>
   </button>
+  <a href="recent-jobs.html">Recent Jobs</a>
   <a href="shows.html" data-i18n="nav.news">Shows</a>
-  <a href="#contact"  data-i18n="nav.contact">Contact</a>
+  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
 </div>
 
 <!-- Musicians sub-drawer -->
@@ -1847,6 +2336,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
       <div class="nsd-group-title" data-i18n="menu.all">All</div>
       <a href="musicians.html"                    data-i18n="menu.allmusicians">All Musicians</a>
       <a href="musicians.html?cat=conductor"      data-i18n="menu.conductor">Conductor</a>
+      <a href="musicians.html?cat=tuner"          data-i18n="menu.tuner">Tuner</a>
     </div>
   </div>
 </div>
@@ -1909,16 +2399,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
         <div class="hero-big-title">
           <span class="ht-word"><span class="ht-c"><span class="ht-inner">O</span></span><span class="ht-c"><span class="ht-inner">P</span></span><span class="ht-c"><span class="ht-inner">U</span></span><span class="ht-c"><span class="ht-inner">S</span></span><span class="ht-c"><span class="ht-inner">.</span></span><span class="ht-c"><span class="ht-inner">Z</span></span></span>
         </div>
-        <div class="hc-meta-row">
-          <div class="hero-right">
-            <p class="hero-tagline" data-tid="hero-tagline">No generic gigs. No empty promises. Only real musicians and smart connections that drive careers and build lasting brands.</p>
-            <div class="hero-btns">
-              <a href="#artists" class="hero-btn-primary" data-tid="hero-cta" data-i18n="hero.findArtists">Find Artists</a>
-              <button class="hero-btn-outline" id="heroCreateProject" data-i18n="hero.createProject">Create a Project</button>
-            </div>
-          </div>
-          <!-- hero-services removed -->
-        </div>
+        <!-- hero-meta-row removed -->
       </div>
 
       <!-- Phase-4 overlay: services list above buttons, left-aligned -->
@@ -1927,12 +2408,12 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
           <ul class="hco-services">
             <li data-i18n="svc.name.0">Live Performance</li>
             <li data-i18n="svc.name.1">Session Work</li>
-            <li data-i18n="svc.name.2">Music Lesson &amp; Masterclass</li>
+            <li data-i18n="svc.name.2">Music Lesson</li>
             <li data-i18n="svc.name.3">Corporate Event</li>
             <li data-i18n="svc.name.4">Artist Branding</li>
           </ul>
           <div class="hco-btns">
-            <a href="#artists" class="hco-btn-pri" data-i18n="hero.findArtists">Find Artists</a>
+            <a href="musicians.html" class="hco-btn-pri" data-i18n="hero.findArtists">Find Artists</a>
             <button class="hco-btn-out" id="hcoCreateProject" data-i18n="hero.createProject">Create a Project</button>
           </div>
         </div>
@@ -1940,13 +2421,12 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 
       <!-- Cinematic phrase overlay -->
       <div id="heroPhraseOverlay">
-        <p class="hp-phrase" id="hpPhrase0">Find your perfect musician.<br><span class="hp-zh">找到你完美的音樂家。</span></p>
-        <p class="hp-phrase" id="hpPhrase1">You came to the right place.<br><span class="hp-zh">你來對地方了。</span></p>
-        <p class="hp-phrase" id="hpPhrase2">Taiwan's top musicians, on demand.<br><span class="hp-zh">台灣頂尖音樂家，隨時為你。</span></p>
+        <p class="hp-phrase" id="hpPhrase0"><span data-i18n="hero.phrase0">Find your perfect musician.</span><br><span class="hp-zh" data-i18n="hero.phrase0.zh">找到你完美的音樂家。</span></p>
+        <p class="hp-phrase" id="hpPhrase1"><span data-i18n="hero.phrase1">You came to the right place.</span><br><span class="hp-zh" data-i18n="hero.phrase1.zh">你來對地方了。</span></p>
+        <p class="hp-phrase" id="hpPhrase2"><span data-i18n="hero.phrase2">Taiwan's top musicians, on demand.</span><br><span class="hp-zh" data-i18n="hero.phrase2.zh">台灣頂尖音樂家，隨時為你。</span></p>
       </div>
 
-      <!-- Fixed elements: dot, copyright, dots-bar -->
-      <div class="hero-copyright">© 2026 OPUS.Z</div>
+      <!-- hero-copyright removed -->
     </div>
     <div class="scroll-pill">Scroll Down</div>
   </div>
@@ -2181,13 +2661,13 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     <ul class="svc-list" id="svcList">
       <li class="svc-item" data-i="0"><span class="svc-num">(001)</span><span class="svc-name" data-i18n="svc.name.0">Live Performance</span></li>
       <li class="svc-item active" data-i="1"><span class="svc-num">(002)</span><span class="svc-name" data-i18n="svc.name.1">Session Work</span></li>
-      <li class="svc-item" data-i="2"><span class="svc-num">(003)</span><span class="svc-name" data-i18n="svc.name.2">Music Lesson &amp; Masterclass</span></li>
+      <li class="svc-item" data-i="2"><span class="svc-num">(003)</span><span class="svc-name" data-i18n="svc.name.2">Music Lesson</span></li>
       <li class="svc-item" data-i="3"><span class="svc-num">(004)</span><span class="svc-name" data-i18n="svc.name.3">Corporate Event</span></li>
       <li class="svc-item" data-i="4"><span class="svc-num">(005)</span><span class="svc-name" data-i18n="svc.name.4">Artist Branding</span></li>
     </ul>
   </div>
   <div class="svc-right">
-    <a href="#contact" class="svc-btn" data-i18n="svc.btn">Get Started</a>
+    <a href="contact.html" class="svc-btn" data-i18n="svc.btn">Get Started</a>
     <div class="svc-img"><div class="svc-img-inner" id="svcImgBg" style="background:linear-gradient(135deg,#e8c84a,#f0a060);background-size:cover;background-position:50% 50%;background-repeat:no-repeat;"></div></div>
     <p class="svc-desc" id="svcDesc">Find session musicians for studio recordings. Fast, professional, hassle-free.</p>
   </div>
@@ -2197,22 +2677,19 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 <!-- ABOUT -->
 <section class="about" id="about">
   <div class="about-hd">
-    <div style="position:relative;display:flex;align-items:flex-start;justify-content:flex-end;padding-right:24px;padding-top:4px;">
-      <span class="about-bl">OPUS.Z</span>
-    </div>
-    <h2 class="about-hl reveal">We connect musicians with focus, intention, and impact.</h2>
+    <h2 class="about-hl reveal" data-i18n="about.hl">We connect musicians with focus, intention, and impact.</h2>
   </div>
   <div class="about-cards">
     <div class="card-dark reveal">
-      <div class="cl">(Our musicians)</div>
+      <div class="cl" data-i18n="about.card1.label">(Our musicians)</div>
       <div class="cs">+30</div>
-      <div class="cd">elite classical musicians<br>across Taiwan &amp; the USA</div>
+      <div class="cd" data-i18n-html="about.card1.desc">elite classical musicians<br>across Taiwan &amp; the USA</div>
       <div class="cavs">
         <div class="av av1">C</div><div class="av av2">Y</div><div class="av av3">L</div><div class="av av4">W</div><div class="av avm">+26</div>
       </div>
     </div>
     <div class="card-purple reveal" style="transition-delay:.15s;">
-      <div class="cl">(Instant matching)</div>
+      <div class="cl" data-i18n="about.card2.label">(Instant matching)</div>
       <div class="chat-ui">
         <div class="chat-time">Today 19:14</div>
         <div class="chat-row chat-right">
@@ -2250,45 +2727,143 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     <a href="blog.html" class="blog-see-all" data-i18n="blog.seeall">See all</a>
   </div>
   <div class="blog-grid reveal" style="transition-delay:.1s;">
-    <div class="blog-card">
+    <a class="blog-card" href="blog-opusz-intro.html">
       <div class="blog-img"><div class="blog-img-inner bi1"></div><div class="blog-arrow">↗</div></div>
-      <div class="blog-date">November 11, 2025</div>
-      <div class="blog-title">The power of authenticity in modern music branding</div>
-    </div>
-    <div class="blog-card">
+      <div class="blog-tag" data-i18n="blog.tag.about">About OPUS.Z</div>
+      <div class="blog-date" data-i18n="blog.date.1">May 1, 2025</div>
+      <div class="blog-title" data-i18n="blog.card.title.1">OPUS.Z: Redefining How Musicians Work</div>
+    </a>
+    <a class="blog-card" href="blog-wedding-quartet.html">
       <div class="blog-img"><div class="blog-img-inner bi2"></div><div class="blog-arrow">↗</div></div>
-      <div class="blog-date">July 10, 2025</div>
-      <div class="blog-title">From bedroom producer to booked artist: building momentum</div>
-    </div>
-    <div class="blog-card">
+      <div class="blog-tag" data-i18n="blog.tag.industry">Industry</div>
+      <div class="blog-date" data-i18n="blog.date.2">April 15, 2025</div>
+      <div class="blog-title" data-i18n="blog.card.title.2">How to Choose a Wedding String Quartet: A Complete Taiwan Guide</div>
+    </a>
+    <a class="blog-card" href="blog-violinist-career.html">
       <div class="blog-img"><div class="blog-img-inner bi3"></div><div class="blog-arrow" style="background:rgba(255,255,255,.15);color:white;">↗</div></div>
-      <div class="blog-date">May 10, 2025</div>
-      <div class="blog-title">Why great artists are discovered through clarity, not volume</div>
-    </div>
-    <div class="blog-card">
+      <div class="blog-tag" data-i18n="blog.tag.interview">Interview</div>
+      <div class="blog-date" data-i18n="blog.date.3">March 20, 2025</div>
+      <div class="blog-title" data-i18n="blog.card.title.3">From the Royal Academy to Taiwan — One Violinist's Career Journey</div>
+    </a>
+    <a class="blog-card" href="blog.html">
       <div class="blog-img"><div class="blog-img-inner bi4"></div><div class="blog-arrow" style="background:rgba(255,255,255,.15);color:white;">↗</div></div>
-      <div class="blog-date">April 10, 2025</div>
-      <div class="blog-title">Designing your artist profile that books gigs and scales</div>
-    </div>
+      <div class="blog-tag" data-i18n="blog.tag.tips">Tips</div>
+      <div class="blog-date" data-i18n="blog.date.4">November 11, 2025</div>
+      <div class="blog-title" data-i18n="blog.card.title.4">The Power of Authenticity in Modern Music Branding</div>
+    </a>
   </div>
 </section>
 
-<!-- CONTACT -->
-<section class="contact" id="contact">
-  <div class="contact-bg"><div class="contact-bg-inner"></div></div>
-  <div class="contact-form-wrap">
-    <div class="contact-card reveal">
-      <div class="contact-sublabel" data-i18n="contact.label">(Contact us)</div>
-      <h2 class="contact-hl">Let's talk.</h2>
-      <div class="contact-fields">
-        <div class="contact-row">
-          <input class="contact-input" type="text" placeholder="First name" data-i18n-ph="contact.first">
-          <input class="contact-input" type="text" placeholder="Last name" data-i18n-ph="contact.last">
+<!-- CONTACT — moved to contact.html -->
+<section class="contact" id="contact" style="display:none">
+  <!-- Hero heading -->
+  <div class="contact-hero">
+    <p class="contact-eyebrow">(Contact)</p>
+    <h2 class="contact-hl">Let's Connect</h2>
+  </div>
+
+  <!-- Two-column body -->
+  <div class="contact-body">
+
+    <!-- LEFT: testimonial + info -->
+    <div class="contact-left">
+      <div class="ct-card">
+        <div class="ct-card-img-placeholder">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" width="80" height="80">
+            <circle cx="40" cy="30" r="16" stroke="white" stroke-width="2"/>
+            <path d="M10 70c0-16.569 13.431-30 30-30s30 13.431 30 30" stroke="white" stroke-width="2"/>
+          </svg>
         </div>
-        <input class="contact-input" type="email" placeholder="Email" data-i18n-ph="contact.email">
-        <button class="contact-btn" data-i18n="contact.btn">Contact Us</button>
+        <div class="ct-card-body">
+          <div class="ct-stars">★★★★★</div>
+          <p class="ct-quote">"Working with OPUS.Z was seamless — they matched us with exactly the right musician within hours."</p>
+          <p class="ct-name">Emily Chen</p>
+          <p class="ct-title">Event Director, Luminary Weddings</p>
+        </div>
       </div>
-      <p class="contact-terms">By contacting us, you accept our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
+
+      <div class="contact-left-info">
+        <a class="cli-item" href="mailto:tzutung.liao@gmail.com">
+          <div class="cli-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="cli-label">Email</div>
+            <div class="cli-value">tzutung.liao@gmail.com</div>
+          </div>
+        </a>
+        <a class="cli-item" href="tel:+886972238828">
+          <div class="cli-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8 19.79 19.79 0 01.22 2.18 2 2 0 012.18 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.06 6.06l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="cli-label">Phone</div>
+            <div class="cli-value">+886 972238828</div>
+          </div>
+        </a>
+        <div class="cli-item">
+          <div class="cli-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+          </div>
+          <div>
+            <div class="cli-label">Location</div>
+            <div class="cli-value">Taipei, Taiwan</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: form -->
+    <div class="contact-right">
+      <p class="contact-form-label">(Fill the form)</p>
+      <form class="contact-fields" name="contact" method="POST" data-netlify="true" action="#contact">
+        <input type="hidden" name="form-name" value="contact" />
+        <div class="contact-row">
+          <div class="cf-group">
+            <label class="cf-label">Name <sup>*</sup></label>
+            <input class="contact-input" type="text" name="name" placeholder="Your name" required>
+          </div>
+          <div class="cf-group">
+            <label class="cf-label">Email <sup>*</sup></label>
+            <input class="contact-input" type="email" name="email" placeholder="your@email.com" required>
+          </div>
+        </div>
+        <div class="contact-row">
+          <div class="cf-group">
+            <label class="cf-label">Subject</label>
+            <input class="contact-input" type="text" name="subject" placeholder="What's this about?">
+          </div>
+          <div class="cf-group">
+            <label class="cf-label">Category</label>
+            <select class="contact-input" name="category">
+              <option value="" disabled selected>Select one…</option>
+              <option>Book a Musician</option>
+              <option>Event Planning</option>
+              <option>Join as Musician</option>
+              <option>Partnership</option>
+              <option>Promotional Materials</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="cf-group">
+          <label class="cf-label">Message</label>
+          <textarea class="contact-input" name="message" rows="4" placeholder="Tell us more…" style="resize:vertical; min-height:100px;"></textarea>
+        </div>
+        <div>
+          <button type="submit" class="contact-btn">
+            Contact Us
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+          <p class="contact-terms">By submitting, you accept our <a href="#">Terms</a> and <a href="#">Privacy Policy</a>.</p>
+        </div>
+      </form>
     </div>
   </div>
 </section>
@@ -2296,19 +2871,20 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 <!-- NEWSLETTER -->
 <section id="newsletter" style="background:#fff; border-top:1px solid rgba(0,0,0,0.08); padding:100px 80px;">
   <div style="max-width:600px;">
-    <p style="font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#999;margin-bottom:24px;">Newsletter</p>
-    <h2 style="font-size:clamp(36px,5vw,64px);font-weight:800;letter-spacing:-2px;line-height:1.05;margin-bottom:20px;">Stay close to the music.</h2>
-    <p style="font-size:15px;color:#666;line-height:1.7;margin-bottom:36px;">Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.</p>
+    <p style="font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#999;margin-bottom:24px;" data-i18n="newsletter.label">Newsletter</p>
+    <h2 style="font-size:clamp(36px,5vw,64px);font-weight:800;letter-spacing:-2px;line-height:1.05;margin-bottom:20px;" data-i18n="newsletter.title">Stay close to the music.</h2>
+    <p style="font-size:15px;color:#666;line-height:1.7;margin-bottom:36px;" data-i18n="newsletter.body">Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.</p>
     <form name="newsletter" method="POST" data-netlify="true" action="/newsletter-success.html" style="display:flex;gap:0;max-width:480px;">
       <input type="hidden" name="form-name" value="newsletter" />
-      <input type="email" name="email" placeholder="Enter email" required
+      <input type="email" name="email" placeholder="Enter email" required data-i18n-ph="newsletter.email_ph"
         style="flex:1;padding:14px 18px;border:1.5px solid #ddd;border-right:none;font-size:14px;font-family:inherit;outline:none;background:#f8f8f8;color:#111;" />
       <button type="submit"
-        style="padding:14px 28px;background:#111;color:#fff;border:none;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s;">
+        style="padding:14px 28px;background:#111;color:#fff;border:none;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;font-family:inherit;white-space:nowrap;transition:background .2s;"
+        data-i18n="newsletter.btn">
         SUBSCRIBE
       </button>
     </form>
-    <p style="font-size:11px;color:#bbb;margin-top:14px;">No spam. Unsubscribe anytime.</p>
+    <p style="font-size:11px;color:#bbb;margin-top:14px;" data-i18n="newsletter.note">No spam. Unsubscribe anytime.</p>
   </div>
 </section>
 
@@ -2316,35 +2892,35 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 <footer id="site-footer">
   <div class="sf-links">
     <div class="sf-col">
-      <a href="#home">Home</a>
-      <a href="#discover">Discover</a>
-      <a href="musicians.html">All Musicians</a>
-      <a href="recent-jobs.html">Recent Jobs</a>
+      <a href="#home" data-i18n="footer.link.home">Home</a>
+      <a href="#discover" data-i18n="footer.link.discover">Discover</a>
+      <a href="musicians.html" data-i18n="footer.link.allmusicians">All Musicians</a>
+      <a href="recent-jobs.html" data-i18n="footer.link.recentjobs">Recent Jobs</a>
     </div>
     <div class="sf-col">
-      <a href="musicians.html?cat=strings">Strings</a>
-      <a href="musicians.html?cat=piano">Piano</a>
-      <a href="musicians.html?cat=woodwinds">Woodwinds</a>
-      <a href="musicians.html?cat=chamber">Chamber Music</a>
+      <a href="musicians.html?cat=strings" data-i18n="footer.link.strings">Strings</a>
+      <a href="musicians.html?cat=piano" data-i18n="footer.link.piano">Piano</a>
+      <a href="musicians.html?cat=woodwinds" data-i18n="footer.link.woodwinds">Woodwinds</a>
+      <a href="musicians.html?cat=chamber" data-i18n="footer.link.chamber">Chamber Music</a>
     </div>
     <div class="sf-col">
-      <a href="#contact">Contact</a>
-      <a href="#about">About</a>
-      <a href="#blog">Blog</a>
-      <a href="#artists">Musicians</a>
+      <a href="contact.html" data-i18n="footer.link.contact">Contact</a>
+      <a href="#about" data-i18n="footer.link.about">About</a>
+      <a href="#blog" data-i18n="footer.link.blog">Blog</a>
+      <a href="#artists" data-i18n="footer.link.musicians">Musicians</a>
     </div>
     <div class="sf-col">
-      <a href="#">Instagram</a>
-      <a href="#">YouTube</a>
-      <a href="#">TikTok</a>
-      <a href="#">Facebook</a>
+      <a href="#" data-i18n="footer.link.instagram">Instagram</a>
+      <a href="#" data-i18n="footer.link.youtube">YouTube</a>
+      <a href="#" data-i18n="footer.link.tiktok">TikTok</a>
+      <a href="#" data-i18n="footer.link.facebook">Facebook</a>
     </div>
   </div>
   <div class="sf-copy-bar">
-    <span>© 2026 OPUS.Z. All rights reserved.</span>
+    <span data-i18n="footer.copy">© 2026 OPUS.Z. All rights reserved.</span>
     <div class="sf-copy-right">
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
+      <a href="#" data-i18n="footer.privacy">Privacy Policy</a>
+      <a href="#" data-i18n="footer.terms">Terms of Service</a>
     </div>
   </div>
   <div class="sf-brand" id="sfBrand">
@@ -2360,23 +2936,25 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 <!-- STICKY BOTTOM NAV -->
 <div class="bottom-nav" id="bottomNav">
   <div class="bn-slider" id="bnSlider"></div>
-  <a href="#home"          class="bn-item" data-sec="home">Home</a>
-  <a href="#discover"      class="bn-item" data-sec="discover">Browse</a>
-  <a href="#artists"       class="bn-item" data-sec="artists">Shows</a>
+  <a href="#home"          class="bn-item" data-sec="home"><span data-i18n="bn.home">Home</span></a>
+  <a href="#discover"      class="bn-item" data-sec="discover"><span data-i18n="bn.browse">Browse</span></a>
+  <a href="#artists"       class="bn-item" data-sec="artists"><span data-i18n="bn.shows">Shows</span></a>
   <a href="#showreel-grid" class="bn-item" data-sec="showreel-grid">Showcase</a>
-  <a href="#services"      class="bn-item" data-sec="services">Services</a>
-  <a href="#blog"          class="bn-item" data-sec="blog">Blog</a>
-  <a href="#contact"       class="bn-item" data-sec="contact">Contact</a>
-  <a href="#site-footer"   class="bn-item" data-sec="site-footer">Footer</a>
+  <a href="#services"      class="bn-item" data-sec="services"><span data-i18n="bn.services">Services</span></a>
+  <a href="#blog"          class="bn-item" data-sec="blog"><span data-i18n="bn.blog">Blog</span></a>
+  <a href="#site-footer"   class="bn-item" data-sec="site-footer"><span data-i18n="bn.footer">Footer</span></a>
 </div>
 
 <script>
+// ── MacBook editor iframe detection ──────────────────────────────────────
+(function(){ try { if(window !== window.top) document.documentElement.classList.add('in-macbook-iframe'); } catch(e){} })();
+
 // ── i18n ──────────────────────────────────────────────────────────────────
 let _currentLang = 'en';
 const I18N = {
   en: {
     'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
-    'nav.artists_short':'Musicians','nav.news':'Shows','nav.contact':'Contact',
+    'nav.artists_short':'Musicians','nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
     'login.customer':'Customer login','login.musician':'Musician login',
     'login.email':'Email','login.password':'Password',
     'login.btn':'Log in','login.noAccount':'No account?','login.signup':'Sign up →',
@@ -2387,12 +2965,18 @@ const I18N = {
     'cat.compose':'Composition','cat.chamber':'Chamber','cat.perc':'Percussion',
     'cat.more':'More categories',
     'svc.label':'(Services)','svc.name.0':'Live Performance','svc.name.1':'Session Work',
-    'svc.name.2':'Music Lesson & Masterclass','svc.name.3':'Corporate Event','svc.name.4':'Artist Branding','svc.btn':'Get Started',
+    'svc.name.2':'Music Lesson','svc.name.3':'Corporate Event','svc.name.4':'Artist Branding','svc.btn':'Get Started',
     'work.artists':'Musicians','work.cta':'View all musicians',
     'about.team':'(Team of experts)','about.desc':'musicians registered<br>across the platform',
     'about.collab':'(Live collaboration)','about.booking':'Booking request received',
     'about.realtime':'Real-time booking and<br>talent discovery',
     'blog.label':'(Blog)','blog.seeall':'See all',
+    'blog.tag.about':'About OPUS.Z','blog.tag.industry':'Industry','blog.tag.interview':'Interview','blog.tag.tips':'Tips',
+    'blog.date.1':'May 1, 2025','blog.date.2':'April 15, 2025','blog.date.3':'March 20, 2025','blog.date.4':'November 11, 2025',
+    'blog.card.title.1':'OPUS.Z: Redefining How Musicians Work',
+    'blog.card.title.2':'How to Choose a Wedding String Quartet: A Complete Taiwan Guide',
+    'blog.card.title.3':'From the Royal Academy to Taiwan — One Violinist\'s Career Journey',
+    'blog.card.title.4':'The Power of Authenticity in Modern Music Branding',
     'pricing.label':'(Pricing)','pricing.starter':'Starter',
     'pricing.starter.desc':'Built for emerging musicians establishing their presence.',
     'pricing.free':'Free','pricing.growth':'Growth',
@@ -2420,7 +3004,7 @@ const I18N = {
     'menu.timpani':'Timpani','menu.marimba':'Marimba','menu.vibraphone':'Vibraphone','menu.xylophone':'Xylophone',
     'menu.piano':'Piano','menu.pipeorgan':'Pipe Organ',
     'menu.soprano':'Soprano','menu.mezzosoprano':'Mezzo-soprano','menu.tenor':'Tenor',
-    'menu.baritone':'Baritone','menu.choral':'Choral','menu.conductor':'Conductor',
+    'menu.baritone':'Baritone','menu.choral':'Choral','menu.conductor':'Conductor','menu.tuner':'Tuner',
     'menu.stringquartet':'String Quartet','menu.pianotrio':'Piano Trio','menu.stringtrio':'String Trio',
     'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet','menu.pianoquintet':'Piano Quintet',
     'footer.social_label':'(Social)',
@@ -2428,10 +3012,51 @@ const I18N = {
     'footer.page.artists1':'Artists I','footer.page.artists2':'Artists II','footer.page.artists3':'Artists III',
     'footer.page.blog1':'Blog I','footer.page.blog2':'Blog II','footer.page.blog3':'Blog III',
     'footer.page.contact1':'Contact I','footer.page.contact2':'Contact II','footer.page.contact3':'Contact III',
+    'hero.phrase0':'Find your perfect musician.',
+    'hero.phrase0.zh':'找到你完美的音樂家。',
+    'hero.phrase1':'You came to the right place.',
+    'hero.phrase1.zh':'你來對地方了。',
+    'hero.phrase2':'Taiwan\'s top musicians, on demand.',
+    'hero.phrase2.zh':'台灣頂尖音樂家，隨時為你。',
+    'about.hl':'We connect musicians with focus, intention, and impact.',
+    'about.card1.label':'(Our musicians)',
+    'about.card1.desc':'elite classical musicians<br>across Taiwan &amp; the USA',
+    'about.card2.label':'(Instant matching)',
+    'newsletter.label':'Newsletter',
+    'newsletter.title':'Stay close to the music.',
+    'newsletter.body':'Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.',
+    'newsletter.note':'No spam. Unsubscribe anytime.',
+    'newsletter.btn':'SUBSCRIBE',
+    'newsletter.email_ph':'Enter email',
+    'footer.copy':'© 2026 OPUS.Z. All rights reserved.',
+    'footer.privacy':'Privacy Policy',
+    'footer.terms':'Terms of Service',
+    'footer.link.home':'Home',
+    'footer.link.discover':'Discover',
+    'footer.link.allmusicians':'All Musicians',
+    'footer.link.recentjobs':'Recent Jobs',
+    'footer.link.strings':'Strings',
+    'footer.link.piano':'Piano',
+    'footer.link.woodwinds':'Woodwinds',
+    'footer.link.chamber':'Chamber Music',
+    'footer.link.contact':'Contact',
+    'footer.link.about':'About',
+    'footer.link.blog':'Blog',
+    'footer.link.musicians':'Musicians',
+    'footer.link.instagram':'Instagram',
+    'footer.link.youtube':'YouTube',
+    'footer.link.tiktok':'TikTok',
+    'footer.link.facebook':'Facebook',
+    'bn.home':'Home',
+    'bn.browse':'Browse',
+    'bn.shows':'Shows',
+    'bn.services':'Services',
+    'bn.blog':'Blog',
+    'bn.footer':'Footer',
   },
   zh: {
     'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家 (12)',
-    'nav.artists_short':'音樂家','nav.news':'近期演出','nav.contact':'聯絡我們',
+    'nav.artists_short':'音樂家','nav.news':'近期演出','nav.contact':'聯絡我們','nav.lessons':'音樂老師',
     'login.customer':'客戶登入','login.musician':'樂手登入',
     'login.email':'電郵地址','login.password':'密碼',
     'login.btn':'登入','login.noAccount':'還沒有帳號？','login.signup':'立即註冊 →',
@@ -2442,12 +3067,18 @@ const I18N = {
     'cat.compose':'作曲','cat.chamber':'室內樂','cat.perc':'打擊樂',
     'cat.more':'更多分類',
     'svc.label':'（服務項目）','svc.name.0':'現場演出','svc.name.1':'錄音工作',
-    'svc.name.2':'音樂課程與大師班','svc.name.3':'企業活動','svc.name.4':'藝人品牌','svc.btn':'開始合作',
+    'svc.name.2':'音樂課程','svc.name.3':'企業活動','svc.name.4':'藝人品牌','svc.btn':'開始合作',
     'work.artists':'音樂家','work.cta':'查看所有音樂家',
     'about.team':'（專業團隊）','about.desc':'位音樂家<br>已在平台上登錄',
     'about.collab':'（即時協作）','about.booking':'已收到預約請求',
     'about.realtime':'即時預約與<br>人才探索',
     'blog.label':'（部落格）','blog.seeall':'查看全部',
+    'blog.tag.about':'關於 OPUS.Z','blog.tag.industry':'產業動態','blog.tag.interview':'專訪','blog.tag.tips':'技巧分享',
+    'blog.date.1':'2025 年 5 月 1 日','blog.date.2':'2025 年 4 月 15 日','blog.date.3':'2025 年 3 月 20 日','blog.date.4':'2025 年 11 月 11 日',
+    'blog.card.title.1':'OPUS.Z：我們正在重新定義音樂家的工作方式',
+    'blog.card.title.2':'婚禮弦樂四重奏怎麼選？台灣婚禮音樂完整指南',
+    'blog.card.title.3':'從皇家音樂院到台灣舞台——一位小提琴家的職涯選擇',
+    'blog.card.title.4':'在現代音樂品牌中保持真實性的力量',
     'pricing.label':'（定價方案）','pricing.starter':'入門方案',
     'pricing.starter.desc':'專為正在建立個人形象的新興音樂家所設計。',
     'pricing.free':'免費','pricing.growth':'成長方案',
@@ -2475,7 +3106,7 @@ const I18N = {
     'menu.timpani':'定音鼓','menu.marimba':'馬林巴','menu.vibraphone':'顫音琴','menu.xylophone':'木琴',
     'menu.piano':'鋼琴','menu.pipeorgan':'管風琴',
     'menu.soprano':'女高音','menu.mezzosoprano':'次女高音','menu.tenor':'男高音',
-    'menu.baritone':'男中音','menu.choral':'合唱','menu.conductor':'指揮',
+    'menu.baritone':'男中音','menu.choral':'合唱','menu.conductor':'指揮','menu.tuner':'調音師',
     'menu.stringquartet':'弦樂四重奏','menu.pianotrio':'鋼琴三重奏','menu.stringtrio':'弦樂三重奏',
     'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏','menu.pianoquintet':'鋼琴五重奏',
     'footer.social_label':'（社群媒體）',
@@ -2483,6 +3114,47 @@ const I18N = {
     'footer.page.artists1':'音樂家 I','footer.page.artists2':'音樂家 II','footer.page.artists3':'音樂家 III',
     'footer.page.blog1':'部落格 I','footer.page.blog2':'部落格 II','footer.page.blog3':'部落格 III',
     'footer.page.contact1':'聯絡 I','footer.page.contact2':'聯絡 II','footer.page.contact3':'聯絡 III',
+    'hero.phrase0':'Find your perfect musician.',
+    'hero.phrase0.zh':'找到你完美的音樂家。',
+    'hero.phrase1':'You came to the right place.',
+    'hero.phrase1.zh':'你來對地方了。',
+    'hero.phrase2':'Taiwan\'s top musicians, on demand.',
+    'hero.phrase2.zh':'台灣頂尖音樂家，隨時為你。',
+    'about.hl':'我們以專注、用心與影響力，連結每一位音樂家。',
+    'about.card1.label':'（我們的音樂家）',
+    'about.card1.desc':'位頂尖古典音樂家<br>橫跨台灣與美國',
+    'about.card2.label':'（即時配對）',
+    'newsletter.label':'電子報',
+    'newsletter.title':'與音樂保持連結。',
+    'newsletter.body':'獲取 OPUS.Z 獨家資訊——新音樂家、即將到來的演出及產業洞察，直送您的信箱。',
+    'newsletter.note':'無垃圾郵件，隨時可取消訂閱。',
+    'newsletter.btn':'訂閱',
+    'newsletter.email_ph':'電子郵件',
+    'footer.copy':'© 2026 OPUS.Z 版權所有。',
+    'footer.privacy':'隱私政策',
+    'footer.terms':'服務條款',
+    'footer.link.home':'首頁',
+    'footer.link.discover':'探索',
+    'footer.link.allmusicians':'所有音樂家',
+    'footer.link.recentjobs':'近期演出',
+    'footer.link.strings':'弦樂',
+    'footer.link.piano':'鋼琴',
+    'footer.link.woodwinds':'木管樂',
+    'footer.link.chamber':'室內樂',
+    'footer.link.contact':'聯絡我們',
+    'footer.link.about':'關於我們',
+    'footer.link.blog':'部落格',
+    'footer.link.musicians':'音樂家',
+    'footer.link.instagram':'Instagram',
+    'footer.link.youtube':'YouTube',
+    'footer.link.tiktok':'TikTok',
+    'footer.link.facebook':'Facebook',
+    'bn.home':'首頁',
+    'bn.browse':'探索',
+    'bn.shows':'演出',
+    'bn.services':'服務',
+    'bn.blog':'部落格',
+    'bn.footer':'底部',
   }
 };
 
@@ -2526,6 +3198,38 @@ function switchLang(lang) {
 }
 
 // Wire lang toggle
+/* ── Favourites badge + navigation ── */
+(function() {
+  var count = JSON.parse(localStorage.getItem('mono-favs') || '[]').length;
+  var badge = document.getElementById('navFavBadge');
+  var btn   = document.getElementById('navFavBtn');
+
+  function positionBadge() {
+    if (!badge || !btn) return;
+    var r = btn.getBoundingClientRect();
+    badge.style.top  = (r.top - 2) + 'px';
+    badge.style.left = (r.right - 10) + 'px';
+  }
+
+  if (badge) {
+    badge.textContent = count;
+    badge.style.display = count ? 'flex' : 'none';
+    positionBadge();
+    window.addEventListener('resize', positionBadge);
+    window.addEventListener('scroll', positionBadge, { passive: true });
+  }
+
+  if (btn) btn.addEventListener('click', function() {
+    if (!localStorage.getItem('opusz_user')) {
+      var overlay = document.getElementById('loginRequiredModal');
+      if (overlay) { overlay.style.display = 'flex'; return; }
+      if (confirm('請先登入才能查看最愛清單。\n\n前往登入頁面？')) window.location.href = 'musician-login.html';
+      return;
+    }
+    window.location.href = 'favourites.html';
+  });
+})();
+
 document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('langToggle').addEventListener('click', e => {
     const opt = e.target.closest('[data-l]');
@@ -2533,30 +3237,61 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Login dropdown ──
-  const loginBtn = document.getElementById('navLoginBtn');
-  if (loginBtn) {
+  const loginBtn  = document.getElementById('navLoginBtn');
+  const loginDrop = document.getElementById('loginDropdown');
+  if (loginBtn && loginDrop) {
     let loginLeaveTimer;
-    loginBtn.addEventListener('mouseenter', function() {
+
+    function positionLoginDrop() {
+      const r = loginBtn.getBoundingClientRect();
+      loginDrop.style.top  = (r.bottom + 10) + 'px';
+      loginDrop.style.right = (window.innerWidth - r.right) + 'px';
+      loginDrop.style.left  = 'auto';
+    }
+    const navEl = document.querySelector('nav');
+    function openLoginDrop() {
       clearTimeout(loginLeaveTimer);
-      this.classList.add('open');
-    });
-    loginBtn.addEventListener('mouseleave', function() {
+      loginBtn.classList.add('open');
+      positionLoginDrop();
+      loginDrop.classList.add('open');
+      if (navEl) {
+        navEl.classList.add('login-drop-open');
+        // Force immediate colour refresh so nav-links don't stay invisible white
+        if (window.__opuszUpdateNavColors) window.__opuszUpdateNavColors();
+      }
+    }
+    function closeLoginDrop() {
       loginLeaveTimer = setTimeout(() => {
         loginBtn.classList.remove('open');
-      }, 180); // small delay so dropdown is reachable
-    });
-    // Keep open when hovering dropdown
-    const dropdown = loginBtn.querySelector('.nav-login-dropdown');
-    if (dropdown) {
-      dropdown.addEventListener('mouseenter', function() {
-        clearTimeout(loginLeaveTimer);
-      });
-      dropdown.addEventListener('mouseleave', function() {
-        loginLeaveTimer = setTimeout(() => {
-          loginBtn.classList.remove('open');
-        }, 120);
-      });
+        loginDrop.classList.remove('open');
+        if (navEl) {
+          navEl.classList.remove('login-drop-open');
+          if (window.__opuszUpdateNavColors) window.__opuszUpdateNavColors();
+        }
+      }, 160);
     }
+
+    loginBtn.addEventListener('mouseenter', openLoginDrop);
+    loginBtn.addEventListener('mouseleave', closeLoginDrop);
+    loginDrop.addEventListener('mouseenter', () => clearTimeout(loginLeaveTimer));
+    loginDrop.addEventListener('mouseleave', closeLoginDrop);
+    // Also support click on mobile
+    loginBtn.addEventListener('click', function(e) {
+      if (loginDrop.classList.contains('open')) {
+        loginDrop.classList.remove('open');
+        loginBtn.classList.remove('open');
+        if (navEl) navEl.classList.remove('login-drop-open');
+      } else {
+        openLoginDrop();
+      }
+    });
+    document.addEventListener('click', function(e) {
+      if (!loginBtn.contains(e.target) && !loginDrop.contains(e.target)) {
+        loginDrop.classList.remove('open');
+        loginBtn.classList.remove('open');
+        if (navEl) navEl.classList.remove('login-drop-open');
+      }
+    });
   }
 
   // ── Hamburger Drawer ──
@@ -2593,6 +3328,21 @@ document.addEventListener('DOMContentLoaded', () => {
   if (navSubDrawer) {
     navSubDrawer.addEventListener('mouseenter', () => clearTimeout(drawerTimeout));
     navSubDrawer.addEventListener('mouseleave', closeBoth);
+
+    // Trap wheel scroll inside drawer — don't let it leak to the main page
+    navSubDrawer.addEventListener('wheel', function(e) {
+      const body = this.querySelector('.nsd-body');
+      if (!body) return;
+      const atTop    = body.scrollTop === 0;
+      const atBottom = body.scrollTop + body.clientHeight >= body.scrollHeight - 1;
+      if ((e.deltaY < 0 && atTop) || (e.deltaY > 0 && atBottom)) {
+        e.preventDefault(); // already at edge — stop page scroll too
+      } else {
+        e.stopPropagation(); // mid-scroll — let drawer scroll, stop page
+        body.scrollTop += e.deltaY;
+        e.preventDefault();
+      }
+    }, { passive: false });
   }
 
   // ── Musicians sub-drawer (mobile / click) ──
@@ -2623,10 +3373,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function closeMega() {
     mmTimeout = setTimeout(() => {
+      // 退場：加 mm-closing 觸發優雅動畫，再移除 mm-visible
+      megaMenu.classList.add('mm-closing');
       megaMenu.classList.remove('mm-visible');
       artistsLink.classList.remove('mm-active');
-      if (navEl2) navEl2.classList.remove('mega-open');
-    }, 80); // small grace period so cursor can move into menu
+      // 等退場動畫跑完（最長 0.21+0.28 = ~0.5s）再清 class
+      setTimeout(() => {
+        megaMenu.classList.remove('mm-closing');
+        if (navEl2) navEl2.classList.remove('mega-open');
+      }, 520);
+    }, 200);
   }
 
   artistsTrigger.addEventListener('mouseenter', openMega);
@@ -2874,7 +3630,7 @@ window.addEventListener('scroll', () => {
 
   // ── Phase 2: video scrubs 0→5s, musicians rise to centre (0 → 2.5vh) ──
   const p2  = Math.max(0, Math.min(1, sy / (vh * 2.5)));
-  const p2e = p2 * p2 * (3 - 2 * p2);
+  const p2e = p2 * (2 - p2);  // ease-out-quad: immediate response on first scroll, same total range
 
   // ── Phase 3: last ~1s plays, position locked at centre (2.5vh → 3.5vh) ──
   const p3  = Math.max(0, Math.min(1, (sy - vh * 2.5) / (vh * 1.0)));
@@ -2901,9 +3657,9 @@ window.addEventListener('scroll', () => {
   // ── Cinematic phrases: blur crossfade driven by scroll (0.6vh → 3.3vh) ──
   // Each phrase: [scrollStart, scrollEnd] in vh units
   const phraseRanges = [
-    [0.60, 1.60],   // "Real musicians."
-    [1.30, 2.40],   // "Real connections."
-    [2.10, 3.30],   // "Real careers."
+    [0.20, 1.20],   // phrase 1
+    [0.90, 2.00],   // phrase 2
+    [1.70, 2.90],   // phrase 3
   ];
   const MAX_BLUR = 16; // px
   for (let i = 0; i < 3; i++) {
@@ -2996,8 +3752,8 @@ window.addEventListener('resize', () => {
   let navCurrent   = 0;
 
   function tick() {
-    // Scroll
-    currentY += (targetY - currentY) * 0.08;
+    // Scroll — lower factor = heavier glide / more momentum past stop point
+    currentY += (targetY - currentY) * 0.058;
     window.scrollTo(0, currentY);
     // Nav hide/show: animate top (not transform) so nav has no compositing layer
     // — this lets mix-blend-mode on children blend against real page content
@@ -3108,7 +3864,7 @@ applySvcImg(1);
   const bn      = document.getElementById('bottomNav');
   const slider  = document.getElementById('bnSlider');
   const items   = document.querySelectorAll('.bn-item');
-  const SEC_IDS = ['home','discover','artists','showreel-grid','services','blog','contact','site-footer'];
+  const SEC_IDS = ['home','discover','artists','showreel-grid','services','blog','site-footer'];
 
   let _activeIdx    = -1;
   let _sliderReady  = false;
@@ -3247,12 +4003,21 @@ applySvcImg(1);
     ).join('');
   }
 
+  const navLogoFixed = document.getElementById('navLogoFixed');
+
   function _resplitNav() {
     nav.querySelectorAll('.nav-links a').forEach(a => _splitToChars(a));
     const ln = nav.querySelector('.nav-logo-name');
     const ls = nav.querySelector('.nav-logo-sub');
     if (ln) _splitToChars(ln);
     if (ls) _splitToChars(ls);
+    // Also split logo text in #navLogoFixed
+    if (navLogoFixed) {
+      const fln = navLogoFixed.querySelector('.nav-logo-name');
+      const fls = navLogoFixed.querySelector('.nav-logo-sub');
+      if (fln) _splitToChars(fln);
+      if (fls) _splitToChars(fls);
+    }
   }
 
   _resplitNav();
@@ -3261,104 +4026,46 @@ applySvcImg(1);
 
   function updateColors() {
     const megaOpen = nav.classList.contains('mega-open');
+    // NOTE: login-drop-open intentionally NOT handled here. The dropdown lives
+    // outside <nav>, so nav's blend mode keeps working normally and nav-links
+    // text auto-contrasts via mix-blend-mode: difference. Forcing #000 here
+    // would get inverted to white by the blend → nav becomes invisible.
 
     if (megaOpen) {
-      // CSS mega-open rules override via nav.mega-open .nc-char { color:#000 }
-      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(sel => {
+      nav.querySelectorAll('.nc-char').forEach(s => s.style.color = '#000');
+      ['.nav-fav-btn','.lang-toggle','.hamburger'].forEach(sel => {
         const el = nav.querySelector(sel);
-        if (el) { el.style.color = ''; el.style.borderColor = ''; }
+        if (!el) return;
+        el.style.color = '#000';
+        el.style.borderColor = 'rgba(0,0,0,.35)';
       });
-      nav.querySelectorAll('.hamburger span').forEach(s => s.style.background = '');
-      nav.querySelectorAll('.nc-char').forEach(s => s.style.color = '');
+      nav.querySelectorAll('.nav-login-btn').forEach(el => {
+        el.style.color = '#000';
+        el.style.borderColor = 'rgba(0,0,0,.35)';
+      });
+      nav.querySelectorAll('.hamburger span').forEach(s => s.style.background = '#000');
       nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
       return;
     }
 
-    // ── Per-character color: each letter independently reads its background ──
-    nav.querySelectorAll('.nc-char').forEach(span => {
-      const r  = span.getBoundingClientRect();
-      if (r.width === 0) return; // skip invisible (e.g. collapsed logo sub)
-      const cx = r.left + r.width  / 2;
-      const cy = r.top  + r.height / 2;
-      const isDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, span) < 0.5;
-      span.style.color = isDark ? '#fff' : '#000';
-    });
-
-    // ── nav-on-dark/light class: drives hover-bubble glass style ──
-    let navCenterDark = true;
-    const logoEl = nav.querySelector('.nav-logo');
-    if (logoEl) {
-      const r  = logoEl.getBoundingClientRect();
-      const cx = r.left + r.width  / 2;
-      const cy = r.top  + r.height / 2;
-      navCenterDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, logoEl) < 0.5;
-    }
-    nav.classList.toggle('nav-on-dark',  navCenterDark);
-    nav.classList.toggle('nav-on-light', !navCenterDark);
-
-    // ── hp-phrase: read canvas region directly — if ≥10% pixels are dark → white text ──
-    const heroCanvas = document.getElementById('heroCanvas');
-    const heroCtx = heroCanvas ? heroCanvas.getContext('2d') : null;
-    document.querySelectorAll('.hp-phrase').forEach(phrase => {
-      const pr = phrase.getBoundingClientRect();
-      if (pr.width === 0 || pr.height === 0) return;
-      let isDark = false;
-      if (heroCtx) {
-        try {
-          const cr = heroCanvas.getBoundingClientRect();
-          const px = Math.round(pr.left - cr.left);
-          const py = Math.round(pr.top  - cr.top);
-          const pw = Math.round(pr.width);
-          const ph = Math.round(pr.height * 0.65);
-          const sx = Math.max(0, px), sy = Math.max(0, py);
-          const sw = Math.min(pw, heroCanvas.width  - sx);
-          const sh = Math.min(ph, heroCanvas.height - sy);
-          if (sw > 0 && sh > 0) {
-            const data = heroCtx.getImageData(sx, sy, sw, sh).data;
-            let dark = 0, total = 0;
-            for (let i = 0; i < data.length; i += 16) { // every 4th pixel
-              if (data[i+3] > 30) {
-                total++;
-                const lum = 0.299*data[i]/255 + 0.587*data[i+1]/255 + 0.114*data[i+2]/255;
-                if (lum < 0.6) dark++;
-              }
-            }
-            isDark = total > 0 && (dark / total) > 0.08;
-          }
-        } catch(e) { /* tainted canvas */ }
-      }
-      if (!isDark) {
-        // fallback: check CSS bg via point sampling
-        const cols = [0.06, 0.25, 0.5, 0.75, 0.92];
-        const cy = pr.top + pr.height * 0.4;
-        isDark = cols.some(fx => _bgLumAt(pr.left + pr.width * fx, cy, phrase) < 0.5);
-      }
-      const fg = isDark ? '#fff' : 'rgba(15,15,15,0.88)';
-      phrase.style.color = fg;
-      const zhEl = phrase.querySelector('.hp-zh');
-      if (zhEl) zhEl.style.color = fg;
-    });
-
-    // ── Elements without character spans: JS color as before ──
-    const extras = [
-      { sel: '.nav-fav-btn',   border: false },
-      { sel: '.lang-toggle',   border: false },
-      { sel: '.nav-login-btn', border: true  },
-      { sel: '.hamburger',     border: false },
-    ];
-    extras.forEach(({ sel, border }) => {
+    // ── Nav uses mix-blend-mode: difference → all elements must be #fff ──
+    // Blend mode automatically makes #fff appear dark on light bg, light on dark bg.
+    nav.querySelectorAll('.nc-char').forEach(s => s.style.color = '#fff');
+    // #navLogoFixed has its own mix-blend-mode:difference stacking context → always #fff
+    if (navLogoFixed) navLogoFixed.querySelectorAll('.nc-char').forEach(s => s.style.color = '#fff');
+    ['.nav-fav-btn','.lang-toggle','.hamburger'].forEach(sel => {
       const el = nav.querySelector(sel);
       if (!el) return;
-      const r  = el.getBoundingClientRect();
-      const cx = r.left + r.width  / 2;
-      const cy = r.top  + r.height / 2;
-      const isDark = _overDarkHeroChar(cx, cy) || _bgLumAt(cx, cy, el) < 0.5;
-      const fg = isDark ? '#fff' : '#000';
-      el.style.color = fg;
-      if (border) el.style.borderColor = isDark ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.35)';
-      if (el.classList.contains('hamburger'))
-        el.querySelectorAll('span').forEach(s => s.style.background = fg);
+      el.style.color = '#fff';
+      el.style.borderColor = 'rgba(255,255,255,.5)';
     });
+    nav.querySelectorAll('.nav-login-btn').forEach(el => {
+      el.style.color = '#fff';
+      el.style.borderColor = 'rgba(255,255,255,.5)';
+    });
+    nav.querySelectorAll('.hamburger span').forEach(s => s.style.background = '#fff');
+
+    // hp-phrase color is handled by mix-blend-mode: difference in CSS (pixel-perfect, no JS needed)
   }
 
   // Run every animation frame while scrolling for smooth per-character response
@@ -3369,10 +4076,40 @@ applySvcImg(1);
     requestAnimationFrame(() => { _rafPending = false; updateColors(); });
   }
 
+  // ── Inject underline span into every nav link ────────────────────────────
+  nav.querySelectorAll('.nav-links a').forEach(a => {
+    const ul = document.createElement('span');
+    ul.className = 'nav-ul';
+    a.appendChild(ul);
+  });
+
+  // ── Split each hp-phrase into per-char spans (run once at init) ──────────
+  (function _initPhraseChars() {
+    function wrapNode(node) {
+      if (node.nodeType === 3) { // text node → wrap each char
+        const frag = document.createDocumentFragment();
+        [...node.textContent].forEach(ch => {
+          const s = document.createElement('span');
+          s.className = 'hp-char';
+          s.textContent = ch;
+          frag.appendChild(s);
+        });
+        node.parentNode.replaceChild(frag, node);
+      } else if (node.nodeType === 1 && node.nodeName !== 'BR') {
+        [...node.childNodes].forEach(wrapNode);
+      }
+    }
+    document.querySelectorAll('.hp-phrase').forEach(p => {
+      [...p.childNodes].forEach(wrapNode);
+    });
+  })();
+
   window.addEventListener('scroll', _scheduleUpdate, { passive: true });
   window.addEventListener('resize', _scheduleUpdate);
   updateColors();
   setTimeout(updateColors, 400);
+  // Expose so external triggers (e.g. login dropdown open/close) can force refresh
+  window.__opuszUpdateNavColors = updateColors;
 })();
 
 // Smooth scroll — use the IIFE's targetY so wheel events don't snap back
@@ -3500,7 +4237,7 @@ try {
   /* ── Upload ALL in-browser photos to server (converts IDB base64 → real files) ── */
   /* onProgress(done, total, cls) called after each upload */
   async function _syncAllPhotosToServer(onProgress) {
-    var allSlots = heroSlots.concat(catSlots).concat(svcSlots).concat(posterSlots);
+    var allSlots = heroSlots.concat(catSlots).concat(svcSlots).concat(posterSlots).concat(blogSlots);
     // First pass: collect slots that actually need uploading
     var toUpload = [];
     for (var i = 0; i < allSlots.length; i++) {
@@ -3563,7 +4300,8 @@ try {
       try { localStorage.setItem(IMG_PFX + cls, dataUrl); } catch(e) {}
       return true;
     }
-    // base64 image — upload to server immediately
+    // base64 image — save to IDB immediately as instant backup, then try server upload
+    await IDB_MONO.set(IMG_PFX + cls, dataUrl); // survives refresh even if server fails
     showToast('⏳ 正在儲存照片...');
     try {
       var r = await fetch('/upload-file', {
@@ -3574,7 +4312,7 @@ try {
       var d = await r.json();
       if (d.ok && d.path) {
         try { localStorage.setItem(IMG_PFX + cls, d.path); } catch(e) {}
-        // Clear stale IDB entry
+        // Clear IDB now that we have a permanent file path on server
         await IDB_MONO.set(IMG_PFX + cls, null);
         _syncConfigToServer();
         showToast('✅ 照片已儲存！');
@@ -3582,8 +4320,9 @@ try {
       }
       throw new Error(d.error || 'upload failed');
     } catch(e) {
-      showToast('⚠️ 伺服器未啟動 — 請先雙擊「啟動OPUSZ編輯器.command」');
-      return false;
+      // Server not running — photo already saved in IDB, will restore on next refresh
+      showToast('📦 照片已暫存至瀏覽器！啟動伺服器後點「發佈」可上傳至網站。');
+      return true;
     }
   }
 
@@ -3647,6 +4386,10 @@ try {
           var url = localStorage.getItem(IMG_PFX + d.cls);
           if (url) { pS[d.cls].url = url; applyPoster(d.cls); }
         });
+        blogSlots.forEach(function(d) {
+          var url = localStorage.getItem(IMG_PFX + d.cls);
+          if (url) { blS[d.cls].url = url; applyBlog(d.cls); }
+        });
       }
     } catch(e) {} // config.json doesn't exist yet — that's fine
   }
@@ -3656,13 +4399,14 @@ try {
   function savePhotoPos(instant) {
     clearTimeout(_posTimer);
     function _do() {
-      var pos = { hero:{}, cat:{}, svc:{}, poster:{} };
+      var pos = { hero:{}, cat:{}, svc:{}, poster:{}, blog:{} };
       heroSlots.forEach(function(d){ var h=hS[d.cls]; var o={x:h.x,y:h.y,zoom:h.zoom}; if(h.xN!==undefined){o.xN=h.xN;o.yN=h.yN;o.zN=h.zN;} pos.hero[d.cls]=o; });
       pos.hero.colRatios = {c1:_heroColRatios.c1, c2:_heroColRatios.c2};
       pos.hero.colSpeeds = {c1:_heroColSpeeds.c1, c2:_heroColSpeeds.c2};
       catSlots.forEach(function(d){ pos.cat[d.cls]={xC:cS[d.cls].xC,yC:cS[d.cls].yC,zC:cS[d.cls].zC,xE:cS[d.cls].xE,yE:cS[d.cls].yE,zE:cS[d.cls].zE,label:cS[d.cls].label,sub:cS[d.cls].sub,aspect:cS[d.cls].aspect||null}; });
       svcSlots.forEach(function(d){ var v=svS[d.cls]; var o={x:v.x,y:v.y,zoom:v.zoom}; if(v.xN!==undefined){o.xN=v.xN;o.yN=v.yN;o.zN=v.zN;} pos.svc[d.cls]=o; });
       posterSlots.forEach(function(d){ var p=pS[d.cls]; var o={x:p.x,y:p.y,zoom:p.zoom}; if(p.xN!==undefined){o.xN=p.xN;o.yN=p.yN;o.zN=p.zN;} pos.poster[d.cls]=o; });
+      blogSlots.forEach(function(d){ var b=blS[d.cls]; pos.blog[d.cls]={x:b.x,y:b.y,zoom:b.zoom,url:localStorage.getItem(IMG_PFX+d.cls)||''}; });
       try { localStorage.setItem(POS_KEY, JSON.stringify(pos)); } catch(e){}
       _syncConfigToServer();
     }
@@ -3706,6 +4450,12 @@ try {
     { cls:'svc2', label:'Music Lesson'              },
     { cls:'svc3', label:'Corporate Event'           },
     { cls:'svc4', label:'Artist Branding'           },
+  ];
+  const blogSlots = [
+    { cls:'bi1', label:'Blog 1 · About'    },
+    { cls:'bi2', label:'Blog 2 · Wedding'  },
+    { cls:'bi3', label:'Blog 3 · Career'   },
+    { cls:'bi4', label:'Blog 4 · Branding' },
   ];
 
   // ── Load state (v3: per-slot image keys + separate position key) ──
@@ -3792,15 +4542,23 @@ try {
     return s;
   }
 
+  function loadBlog() {
+    var pos = _loadPos(); var bp = (pos.blog)||{};
+    var s = {};
+    blogSlots.forEach(function(d){ var p=bp[d.cls]||{}; s[d.cls]={ x:p.x??50, y:p.y??50, zoom:p.zoom??0, url:localStorage.getItem(IMG_PFX+d.cls)||'' }; });
+    return s;
+  }
+
   const hS = loadHero();
   applyColRatios(); // re-run with any saved ratios from localStorage
   const cS = loadCat();
   const pS = loadPoster();
   const svS = loadSvc();
+  const blS = loadBlog();
 
   // ── Async: migrate localStorage base64 → IDB, then load all images from IDB ──
   (async () => {
-    const allSlots = heroSlots.concat(catSlots).concat(posterSlots).concat(svcSlots);
+    const allSlots = heroSlots.concat(catSlots).concat(posterSlots).concat(svcSlots).concat(blogSlots);
     // Migration pass: move any existing base64 from localStorage → IDB
     for (const d of allSlots) {
       const lsVal = localStorage.getItem(IMG_PFX + d.cls);
@@ -3835,6 +4593,12 @@ try {
           svS[d.cls].url = url;
           if (typeof applySvcEditor === 'function') applySvcEditor(d.cls);
         }
+      }
+    }
+    for (const d of blogSlots) {
+      if (blS[d.cls] && !blS[d.cls].url) {
+        const url = await IDB_MONO.get(IMG_PFX + d.cls);
+        if (url) { blS[d.cls].url = url; applyBlog(d.cls); }
       }
     }
   })();
@@ -3975,6 +4739,19 @@ try {
     bg.style.backgroundSize = `${Math.round(fW)}px ${Math.round(fH)}px`;
   }
   catSlots.forEach(s => applyCat(s.cls));
+
+  // ── Apply Blog ──
+  function applyBlog(cls) {
+    var s = blS[cls];
+    if (!s || !s.url) return;
+    var el = document.querySelector('.blog-img-inner.' + cls);
+    if (!el) return;
+    el.style.backgroundImage = "url('" + s.url + "')";
+    el.style.backgroundPosition = (s.x ?? 50) + '% ' + (s.y ?? 50) + '%';
+    el.style.backgroundSize = s.zoom > 0 ? ((100 + s.zoom) + '%') : 'cover';
+  }
+  blogSlots.forEach(function(s) { applyBlog(s.cls); });
+
   // Expose for switchLang to re-render panel names on language change
   window._applyCatAll = () => {
     catSlots.forEach(s => applyCat(s.cls));
@@ -4035,6 +4812,7 @@ try {
         <button id="pe-tab-svc"    style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.4);font-size:10px;font-weight:600;cursor:pointer;">🎼 Services</button>
         <button id="pe-tab-poster" style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.4);font-size:10px;font-weight:600;cursor:pointer;">🎭 Shows</button>
         <button id="pe-tab-video"  style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.4);font-size:10px;font-weight:600;cursor:pointer;">🎞 Videos</button>
+        <button id="pe-tab-blog"   style="flex:1;padding:6px 4px;border-radius:8px;border:1px solid rgba(255,255,255,.1);background:transparent;color:rgba(255,255,255,.4);font-size:10px;font-weight:600;cursor:pointer;">📝 Blog</button>
       </div>
       <!-- Breakpoint mode toggle -->
       <div style="display:flex;gap:4px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:2px;">
@@ -4066,6 +4844,11 @@ try {
         <div id="pe-vid-inputs"></div>
         <button id="pe-vid-save" style="width:100%;padding:9px;border:none;border-radius:8px;background:#fff;color:#000;font-weight:700;font-size:12px;cursor:pointer;margin-top:4px;margin-bottom:14px;">💾 Save Videos</button>
       </div>
+      <div id="pe-blog-tab" style="display:none;">
+        <div style="font-size:9px;font-weight:700;opacity:.35;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Blog Cover Photos</div>
+        <div id="pe-blog-slots" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;"></div>
+        <div id="pe-blog-controls" style="border-top:1px solid rgba(255,255,255,.1);padding-top:14px;"></div>
+      </div>
     </div>
     <div style="padding:12px 18px 18px;flex-shrink:0;border-top:1px solid rgba(255,255,255,.08);margin-top:10px;">
       <button id="pe-save"  style="width:100%;padding:9px;border:none;border-radius:8px;background:#fff;color:#000;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:.02em;">💾 儲存設定</button>
@@ -4083,6 +4866,7 @@ try {
   document.getElementById('pe-tab-svc'   ).addEventListener('click',()=>setTab('svc'));
   document.getElementById('pe-tab-poster').addEventListener('click',()=>setTab('poster'));
   document.getElementById('pe-tab-video' ).addEventListener('click',()=>setTab('video'));
+  document.getElementById('pe-tab-blog'  ).addEventListener('click',()=>setTab('blog'));
   function setTab(t){
     activeTab=t;
     document.getElementById('pe-hero-tab'  ).style.display=t==='hero'  ?'block':'none';
@@ -4090,6 +4874,7 @@ try {
     document.getElementById('pe-svc-tab'   ).style.display=t==='svc'   ?'block':'none';
     document.getElementById('pe-poster-tab').style.display=t==='poster'?'block':'none';
     document.getElementById('pe-video-tab' ).style.display=t==='video' ?'block':'none';
+    document.getElementById('pe-blog-tab'  ).style.display=t==='blog'  ?'block':'none';
     const on ='background:rgba(255,255,255,0.15);color:#fff;border-color:transparent;';
     const off='background:transparent;color:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.1);';
     const base='flex:1;padding:6px 4px;border-radius:8px;font-size:10px;font-weight:600;cursor:pointer;';
@@ -4098,6 +4883,7 @@ try {
     document.getElementById('pe-tab-svc'   ).setAttribute('style',base+(t==='svc'   ?on:off));
     document.getElementById('pe-tab-poster').setAttribute('style',base+(t==='poster'?on:off));
     document.getElementById('pe-tab-video' ).setAttribute('style',base+(t==='video' ?on:off));
+    document.getElementById('pe-tab-blog'  ).setAttribute('style',base+(t==='blog'  ?on:off));
   }
   // Expose setTab so video JS can switch to the video tab
   window._peSetTab = setTab;
@@ -4133,7 +4919,7 @@ try {
   });
   document.getElementById('pe-reset').addEventListener('click',()=>{
     // Remove per-slot images for active tab
-    var slotLists = { hero:heroSlots, cat:catSlots, svc:svcSlots, poster:posterSlots };
+    var slotLists = { hero:heroSlots, cat:catSlots, svc:svcSlots, poster:posterSlots, blog:blogSlots };
     (slotLists[activeTab]||heroSlots).forEach(function(d){ localStorage.removeItem(IMG_PFX+d.cls); });
     // Remove position data for active tab
     var pos = _loadPos();
@@ -4143,7 +4929,7 @@ try {
   });
   document.getElementById('pe-clear-idb').addEventListener('click', async () => {
     if (!confirm('清除所有本地快取照片？\n（已上傳到伺服器的照片不受影響，只清除瀏覽器快取）')) return;
-    var allSlots = heroSlots.concat(catSlots).concat(svcSlots).concat(posterSlots);
+    var allSlots = heroSlots.concat(catSlots).concat(svcSlots).concat(posterSlots).concat(blogSlots);
     for (var s of allSlots) {
       await IDB_MONO.set(IMG_PFX + s.cls, null);
       localStorage.removeItem(IMG_PFX + s.cls);
@@ -4371,7 +5157,7 @@ try {
             document.querySelectorAll(`.${cls}`).forEach(el=>el.style.backgroundImage=`url('${dataUrl}')`);
             document.getElementById(`pe-thumb-${cls}`).style.backgroundImage=`url('${dataUrl}')`;
             document.getElementById(`pe-label-${cls}`).textContent=col+' · '+file.name.slice(0,12);
-            if(saveImgSlot(cls, dataUrl)) showToast('照片已儲存 ✓');
+            saveImgSlot(cls, dataUrl); // async — handles its own toasts
             selectHero(cls);
           });
         };
@@ -4450,7 +5236,7 @@ try {
             if(bg)bg.style.backgroundImage=`url('${dataUrl}')`;
             document.getElementById(`pe-thumb-${cls}`).style.backgroundImage=`url('${dataUrl}')`;
             document.getElementById(`pe-label-${cls}`).textContent=label+' · '+file.name.slice(0,10);
-            if(saveImgSlot(cls, dataUrl)) showToast('照片已儲存 ✓');
+            saveImgSlot(cls, dataUrl); // async — handles its own toasts
             selectCat(cls);
           });
         };
@@ -4601,7 +5387,7 @@ try {
             document.getElementById(`pe-label-${cls}`).textContent = label + ' · ' + file.name.slice(0,14);
             applyPoster(cls);
             selectPoster(cls);
-            if(saveImgSlot(cls, dataUrl)) showToast('海報已儲存 ✓');
+            saveImgSlot(cls, dataUrl); // async — handles its own toasts
           });
         };
         reader.readAsDataURL(file);
@@ -4699,7 +5485,7 @@ try {
             document.getElementById(`pe-label-${cls}`).textContent = label + ' · ' + file.name.slice(0,14);
             applySvcEditor(cls);
             selectSvc(cls);
-            if(saveImgSlot(cls, dataUrl)) showToast('服務圖已儲存 ✓');
+            saveImgSlot(cls, dataUrl); // async — handles its own toasts
           });
         };
         reader.readAsDataURL(file);
@@ -4758,7 +5544,7 @@ try {
           document.getElementById(`pe-label-${cls}`).textContent = lbl + ' · ' + file.name.slice(0,14);
           applySvcEditor(cls);
           renderSvcControls();
-          if(saveImgSlot(cls, dataUrl)) showToast('服務圖已儲存 ✓');
+          saveImgSlot(cls, dataUrl); // async — handles its own toasts
         });
       };
       reader.readAsDataURL(file);
@@ -4779,6 +5565,79 @@ try {
     svSlider('sv-z','sv-lz','zoom','zN');
   }
   selectSvc(svcSlots[0].cls);
+
+  // ══════════════════════════════
+  // BLOG TAB
+  // ══════════════════════════════
+  const blogSlotsEl = document.getElementById('pe-blog-slots');
+  const blogCtrlEl  = document.getElementById('pe-blog-controls');
+  let activeBlog    = blogSlots[0].cls;
+
+  blogSlots.forEach(({cls, label}) => {
+    makeCard(cls, label, blS[cls].url, blS[cls].x, blS[cls].y, blogSlotsEl,
+      file => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          compressImg(e.target.result, dataUrl => {
+            blS[cls].url = dataUrl;
+            document.getElementById(`pe-thumb-${cls}`).style.backgroundImage = `url('${dataUrl}')`;
+            document.getElementById(`pe-label-${cls}`).textContent = label + ' · ' + file.name.slice(0,14);
+            applyBlog(cls);
+            selectBlog(cls);
+            saveImgSlot(cls, dataUrl);
+          });
+        };
+        reader.readAsDataURL(file);
+      },
+      () => selectBlog(cls)
+    );
+  });
+
+  function selectBlog(cls) {
+    activeBlog = cls;
+    highlightCard(blogSlotsEl, cls);
+    renderBlogControls();
+  }
+
+  function renderBlogControls() {
+    const cls = activeBlog;
+    const s   = blS[cls];
+    const lbl = blogSlots.find(x => x.cls === cls).label;
+    const x    = s.x ?? 50;
+    const y    = s.y ?? 50;
+    const zoom = s.zoom ?? 0;
+    blogCtrlEl.innerHTML = `
+      <div style="font-size:11px;font-weight:700;margin-bottom:12px;opacity:.6">${lbl}</div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="width:14px;opacity:.5;font-size:11px">X</span>
+        <input id="bl-x" type="range" min="0" max="100" value="${x}" style="flex:1;accent-color:#fff;cursor:pointer">
+        <span id="bl-lx" style="width:28px;text-align:right;opacity:.6;font-size:11px">${x}%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <span style="width:14px;opacity:.5;font-size:11px">Y</span>
+        <input id="bl-y" type="range" min="0" max="100" value="${y}" style="flex:1;accent-color:#fff;cursor:pointer">
+        <span id="bl-ly" style="width:28px;text-align:right;opacity:.6;font-size:11px">${y}%</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span style="width:14px;opacity:.5;font-size:11px">🔍</span>
+        <input id="bl-z" type="range" min="0" max="150" value="${zoom}" style="flex:1;accent-color:#fff;cursor:pointer">
+        <span id="bl-lz" style="width:28px;text-align:right;opacity:.6;font-size:11px">${zoom}%</span>
+      </div>
+    `;
+    function blSlider(id, lblId, key) {
+      document.getElementById(id).addEventListener('input', function() {
+        const v = +this.value;
+        document.getElementById(lblId).textContent = v + '%';
+        blS[activeBlog][key] = v;
+        applyBlog(activeBlog);
+        savePhotoPos();
+      });
+    }
+    blSlider('bl-x','bl-lx','x');
+    blSlider('bl-y','bl-ly','y');
+    blSlider('bl-z','bl-lz','zoom');
+  }
+  selectBlog(blogSlots[0].cls);
 
   // ── Wide / Narrow mode toggle ──
   (function(){
@@ -4872,7 +5731,9 @@ var _inIframe = (window.self !== window.top);
     if(e.metaKey||e.ctrlKey||e.altKey) return;
     if(e.key==='p'||e.key==='P'){
       var t=e.target;
-      if(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable) return;
+      // Allow if focus is inside the OPUS.Z editor panel (mono-editor class) even if it's an input
+      var inEditorPanel = t.closest && t.closest('#mono-editor,#opusz-editor,.mono-editor-panel');
+      if(!inEditorPanel && (t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) return;
       e.preventDefault();
       openPE();
     }
@@ -4882,7 +5743,7 @@ var _inIframe = (window.self !== window.top);
     var btn=document.createElement('button');
     btn.title='Photo Editor  (P)';
     btn.textContent='📷';
-    btn.style.cssText='position:fixed;bottom:28px;left:28px;z-index:99998;width:48px;height:48px;border-radius:50%;border:none;background:rgba(0,0,0,0.72);color:#fff;font-size:22px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.45);transition:transform .15s,opacity .15s;';
+    btn.style.cssText='position:fixed;bottom:88px;right:28px;z-index:99998;width:48px;height:48px;border-radius:50%;border:none;background:rgba(0,0,0,0.72);color:#fff;font-size:22px;cursor:pointer;backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.45);transition:transform .15s,opacity .15s;';
     btn.onmouseenter=function(){this.style.transform='scale(1.13)';};
     btn.onmouseleave=function(){this.style.transform='scale(1)';};
     btn.onclick=function(){ openPE(); };
@@ -5036,22 +5897,7 @@ var _inIframe = (window.self !== window.top);
     };
   } catch(e){}
 
-  // Floating 📐 FAB button — localhost only
-  if(location.hostname==='localhost'||location.hostname==='127.0.0.1'){
-    var rbtn = document.createElement('button');
-    rbtn.title = '響應式預覽  (R)';
-    rbtn.textContent = '📐';
-    rbtn.style.cssText =
-      'position:fixed;bottom:28px;left:86px;z-index:99997;' +
-      'width:48px;height:48px;border-radius:50%;border:none;' +
-      'background:rgba(0,0,0,0.72);color:#fff;font-size:20px;cursor:pointer;' +
-      'backdrop-filter:blur(10px);box-shadow:0 2px 14px rgba(0,0,0,.45);' +
-      'transition:transform .15s;';
-    rbtn.onmouseenter = function(){ this.style.transform='scale(1.13)'; };
-    rbtn.onmouseleave = function(){ this.style.transform=''; };
-    rbtn.onclick = function(){ visible ? hide() : show(); };
-    document.body.appendChild(rbtn);
-  }
+  // Floating 📐 FAB button — hidden (not needed)
 })();
 
 /* ── O key → Site Manager ── */
@@ -5082,17 +5928,34 @@ window.addEventListener('keydown', function(e){
     }, 450);
   }));
 
-  // Fade-out on leaving (same-origin links only, skip hash/download)
+  // Hash anchor clicks: use replaceState so they don't pollute browser history
+  // (without this, every #section click adds a history entry → back button goes through them all)
   document.addEventListener('click', e => {
     const a = e.target.closest('a[href]');
     if (!a || a.target || e.metaKey || e.ctrlKey) return;
     const url = new URL(a.href, location.href);
     if (url.origin !== location.origin) return;
-    if (url.pathname === location.pathname && url.hash) return; // anchor scroll
+    if (url.pathname === location.pathname && url.hash) {
+      // Same-page anchor: replace (not push) so back button stays clean
+      e.preventDefault();
+      history.replaceState(null, '', url.hash);
+      const target = document.getElementById(url.hash.slice(1));
+      if (target) target.scrollIntoView({ behavior: 'smooth' });
+      return;
+    }
+    // Cross-page navigation: fade out then navigate
     e.preventDefault();
     document.documentElement.style.transition = 'opacity .22s ease';
     document.documentElement.style.opacity = '0';
     setTimeout(() => location.href = a.href, 230);
+  });
+
+  // On back/forward: ensure page is visible (in case bfcache restored opacity:0 state)
+  window.addEventListener('pageshow', e => {
+    if (e.persisted) {
+      document.documentElement.style.transition = 'opacity .22s ease';
+      document.documentElement.style.opacity = '1';
+    }
   });
 })();
 </script>
@@ -5802,45 +6665,219 @@ window.addEventListener('keydown', function(e){
 <div class="login-modal-overlay" id="loginModalOverlay">
   <div class="login-modal">
     <button class="login-modal-close" id="loginModalClose">✕</button>
-    <div class="login-modal-title" id="loginModalTitle">Customer Login</div>
-    <input class="login-modal-input" type="email" placeholder="Email" data-i18n-ph="login.email" autocomplete="email"/>
-    <input class="login-modal-input" type="password" placeholder="Password" data-i18n-ph="login.password" autocomplete="current-password"/>
-    <button class="login-modal-btn" data-i18n="login.btn">Log in</button>
-    <div class="login-modal-footer">
-      <span data-i18n="login.noAccount">No account?</span>
-      <a href="#contact" id="loginSignupLink" data-i18n="login.signup">Sign up →</a>
+
+    <!-- Form state -->
+    <div id="loginModalForm">
+      <div class="login-modal-title" id="loginModalTitle">Welcome back</div>
+      <div class="login-modal-subtitle" id="loginModalSubtitle">Enter your email to access your account</div>
+      <input class="login-modal-input" type="email" id="loginEmailInput" placeholder="your@email.com" autocomplete="email"/>
+      <button class="login-modal-btn" id="loginSubmitBtn">Continue →</button>
+      <div class="login-modal-footer">
+        <span data-i18n="login.noAccount">New here?</span>
+        <a href="#contact" id="loginSignupLink">Contact us to register →</a>
+      </div>
     </div>
+
+    <!-- Success state -->
+    <div class="login-modal-success" id="loginSuccessState">
+      <div class="login-success-check">
+        <svg viewBox="0 0 24 24"><polyline points="4 12 9 17 20 7"/></svg>
+      </div>
+      <div class="login-success-name" id="loginSuccessName">Welcome!</div>
+      <div class="login-success-msg" id="loginSuccessMsg">You're now logged in.<br>Your bookings and preferences are saved.</div>
+    </div>
+
   </div>
 </div>
 
 <script>
 (function(){
-  var overlay = document.getElementById('loginModalOverlay');
-  var title   = document.getElementById('loginModalTitle');
-  var closeBtn= document.getElementById('loginModalClose');
-  var signupLink = document.getElementById('loginSignupLink');
+  var overlay      = document.getElementById('loginModalOverlay');
+  var closeBtn     = document.getElementById('loginModalClose');
+  var signupLink   = document.getElementById('loginSignupLink');
+  var loginBtn   = document.getElementById('navLoginBtn');
+  var accountBtn = document.getElementById('navAccountBtn');
+  var logoutBtn  = document.getElementById('navLogoutBtn');
+  var formEl       = document.getElementById('loginModalForm');
+  var successEl    = document.getElementById('loginSuccessState');
+  var successName  = document.getElementById('loginSuccessName');
+  var successMsg   = document.getElementById('loginSuccessMsg');
+  var emailInput   = document.getElementById('loginEmailInput');
+  var submitBtn    = document.getElementById('loginSubmitBtn');
+  var titleEl      = document.getElementById('loginModalTitle');
+  var subtitleEl   = document.getElementById('loginModalSubtitle');
 
-  var TITLES = {
-    en: { customer:'Customer Login', musician:'Musician Login' },
-    zh: { customer:'客戶登入',       musician:'樂手登入' }
+  var COPY = {
+    en: {
+      title:    'Welcome back',
+      subtitle: 'Enter your email to access your account',
+      btn:      'Continue →',
+      sucName:  function(n){ return 'Hi, ' + n + '!'; },
+      sucMsg:   'You\'re now logged in.<br>Your bookings and preferences are saved.'
+    },
+    zh: {
+      title:    '歡迎回來',
+      subtitle: '輸入您的 Email 以繼續',
+      btn:      '繼續 →',
+      sucName:  function(n){ return '嗨，' + n + '！'; },
+      sucMsg:   '您已成功登入。<br>您的預約記錄已保存。'
+    }
   };
 
+  /* ── Nav auth state: swap Login ↔ My Account ── */
+  var accDrop = document.getElementById('accountDropdown');
+  function updateNavAuth() {
+    var user = localStorage.getItem('opusz_user');
+    if (user) {
+      if(loginBtn)   loginBtn.style.display   = 'none';
+      if(accountBtn) accountBtn.style.display = 'inline-flex';
+    } else {
+      if(loginBtn)   loginBtn.style.display   = '';
+      if(accountBtn){ accountBtn.style.display = 'none'; accountBtn.classList.remove('open'); }
+      if(accDrop)    accDrop.classList.remove('open');
+    }
+  }
+  updateNavAuth();
+
+  /* ── My Account dropdown (lives outside nav → plain white, no blend-mode artifacts) ── */
+  if (accountBtn && accDrop) {
+    var accTimer;
+    function openAccDrop() {
+      clearTimeout(accTimer);
+      var r = accountBtn.getBoundingClientRect();
+      accDrop.style.top   = (r.bottom + 10) + 'px';
+      accDrop.style.right = (window.innerWidth - r.right) + 'px';
+      accDrop.style.left  = 'auto';
+      accDrop.classList.add('open');
+      accountBtn.classList.add('open');
+    }
+    function closeAccDrop() {
+      accTimer = setTimeout(function(){
+        accDrop.classList.remove('open');
+        accountBtn.classList.remove('open');
+      }, 160);
+    }
+    accountBtn.addEventListener('mouseenter', openAccDrop);
+    accountBtn.addEventListener('mouseleave', closeAccDrop);
+    accDrop.addEventListener('mouseenter', function(){ clearTimeout(accTimer); });
+    accDrop.addEventListener('mouseleave', closeAccDrop);
+    accountBtn.addEventListener('click', function(){
+      if(accountBtn.classList.contains('open')) closeAccDrop();
+      else openAccDrop();
+    });
+    document.addEventListener('click', function(e){
+      if(!accountBtn.contains(e.target) && !accDrop.contains(e.target)){
+        accDrop.classList.remove('open');
+        accountBtn.classList.remove('open');
+      }
+    });
+  }
+
+  /* ── Logout ── */
+  function doLogout(e) {
+    if(e){
+      e.preventDefault();
+      // Stop the global click handler (line ~5933) from treating href="#" as a
+      // cross-page nav and fading the page to opacity:0 (the "white screen" bug)
+      e.stopImmediatePropagation();
+    }
+    localStorage.removeItem('opusz_user');
+    localStorage.removeItem('opusz_user_email');
+    updateNavAuth();
+    // Close the account dropdown so user sees the new "Log in" button immediately
+    if(accDrop) accDrop.classList.remove('open');
+    if(accountBtn) accountBtn.classList.remove('open');
+  }
+  // Capture phase → runs BEFORE the global document-level click handler
+  if(logoutBtn) logoutBtn.addEventListener('click', doLogout, true);
+
+  /* ── Login modal open/close ── */
+  function resetModal() {
+    formEl.style.display = '';
+    successEl.classList.remove('visible');
+    if(emailInput){ emailInput.value = ''; emailInput.classList.remove('shake'); }
+  }
   function openModal(type){
     var lang = window._currentLang || 'en';
-    title.textContent = TITLES[lang] ? TITLES[lang][type] : TITLES.en[type];
+    var c = COPY[lang] || COPY.en;
+    if(titleEl)    titleEl.textContent    = c.title;
+    if(subtitleEl) subtitleEl.textContent = c.subtitle;
+    if(submitBtn)  submitBtn.textContent  = c.btn;
+    overlay.dataset.type = type;
+    resetModal();
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
+    setTimeout(function(){ if(emailInput) emailInput.focus(); }, 120);
   }
   function closeModal(){
     overlay.classList.remove('open');
     document.body.style.overflow = '';
   }
 
+  /* ── Handle login submit ── */
+  function doLogin() {
+    var email = emailInput ? emailInput.value.trim() : '';
+    if (!email || !email.includes('@')) {
+      if(emailInput){
+        emailInput.classList.remove('shake');
+        void emailInput.offsetWidth; // reflow to restart animation
+        emailInput.classList.add('shake');
+        emailInput.focus();
+        setTimeout(function(){ emailInput.classList.remove('shake'); }, 400);
+      }
+      return;
+    }
+    var name = email.split('@')[0].replace(/[._-]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+    localStorage.setItem('opusz_user', name);
+    localStorage.setItem('opusz_user_email', email);
+
+    // Show success state
+    var lang = window._currentLang || 'en';
+    var c = COPY[lang] || COPY.en;
+    if(successName) successName.textContent = c.sucName(name);
+    if(successMsg)  successMsg.innerHTML    = c.sucMsg;
+    formEl.style.display = 'none';
+    successEl.classList.add('visible');
+    updateNavAuth();
+
+    // Auto-close after 2s
+    setTimeout(closeModal, 2200);
+
+    // Save to Firestore (fire-and-forget)
+    (function saveToFirestore(name, email) {
+      var API_KEY = 'AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s';
+      var PROJECT = 'opusz-45280';
+      var now = new Date().toISOString();
+      var docId = email.replace(/[@.]/g, '_');
+      var url = 'https://firestore.googleapis.com/v1/projects/' + PROJECT +
+                '/databases/(default)/documents/customers/' + docId + '?key=' + API_KEY;
+      fetch(url)
+        .then(function(r){ return r.ok ? r.json() : null; })
+        .then(function(existing){
+          var regAt = (existing && existing.fields && existing.fields.registeredAt)
+                      ? existing.fields.registeredAt.stringValue : now;
+          var body = { fields: {
+            name:         { stringValue: name },
+            email:        { stringValue: email },
+            registeredAt: { stringValue: regAt },
+            lastLogin:    { stringValue: now },
+            type:         { stringValue: 'customer' }
+          }};
+          return fetch(url, { method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body) });
+        })
+        .catch(function(e){ console.warn('Firestore save error:', e); });
+    })(name, email);
+  }
+
+  if(submitBtn) submitBtn.addEventListener('click', doLogin);
+  if(emailInput) emailInput.addEventListener('keydown', function(e){ if(e.key==='Enter') doLogin(); });
+
   var cBtn = document.getElementById('openCustomerLogin');
   var mBtn = document.getElementById('openMusicianLogin');
-  if(cBtn) cBtn.addEventListener('click', function(e){ e.preventDefault(); document.getElementById('navLoginBtn').classList.remove('open'); openModal('customer'); });
-  if(mBtn) mBtn.addEventListener('click', function(e){ e.preventDefault(); document.getElementById('navLoginBtn').classList.remove('open'); openModal('musician'); });
-  if(closeBtn) closeBtn.addEventListener('click', closeModal);
+  // Customer login → full page (href already set; no preventDefault needed)
+  if(cBtn) cBtn.addEventListener('click', function(){ if(loginBtn) loginBtn.classList.remove('open'); });
+  if(mBtn) mBtn.addEventListener('click', function(e){ e.preventDefault(); if(loginBtn) loginBtn.classList.remove('open'); openModal('musician'); });
+  if(closeBtn)   closeBtn.addEventListener('click', closeModal);
   if(signupLink) signupLink.addEventListener('click', closeModal);
   overlay.addEventListener('click', function(e){ if(e.target===overlay) closeModal(); });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
@@ -6010,6 +7047,111 @@ window.addEventListener('keydown', function(e){
   });
 
   document.addEventListener('mousemove', onMove);
+})();
+</script>
+
+<!-- ── Background colour palette for "Explore Classical Music Experts" section ── -->
+<style>
+#catBgPalette{
+  position:fixed; right:20px; bottom:20px; z-index:9999;
+  width:230px; background:#fff; border-radius:14px;
+  box-shadow:0 8px 40px rgba(0,0,0,.22), 0 0 0 1px rgba(0,0,0,.06);
+  font-family:'Inter',sans-serif; overflow:hidden;
+  transition:transform .25s ease, opacity .25s ease;
+}
+#catBgPalette.collapsed{ transform:translateY(calc(100% - 44px)); }
+#catBgPalette .cbp-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 14px; cursor:pointer; user-select:none;
+  background:#111; color:#fff;
+}
+#catBgPalette .cbp-head h4{ font-size:12px; font-weight:600; margin:0; letter-spacing:.02em; }
+#catBgPalette .cbp-toggle{ font-size:14px; line-height:1; transition:transform .25s; }
+#catBgPalette.collapsed .cbp-toggle{ transform:rotate(180deg); }
+#catBgPalette .cbp-body{ padding:14px; }
+#catBgPalette .cbp-swatches{ display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin-bottom:14px; }
+#catBgPalette .cbp-sw{
+  aspect-ratio:1; border-radius:7px; cursor:pointer;
+  border:2px solid transparent; transition:transform .12s, border-color .12s;
+}
+#catBgPalette .cbp-sw:hover{ transform:scale(1.12); }
+#catBgPalette .cbp-sw.active{ border-color:#0a84ff; }
+#catBgPalette .cbp-custom{ display:flex; align-items:center; gap:10px; }
+#catBgPalette input[type=color]{
+  width:38px; height:30px; border:1px solid #ddd; border-radius:7px;
+  padding:0; background:none; cursor:pointer; flex-shrink:0;
+}
+#catBgPalette .cbp-hex{
+  flex:1; font-size:12px; font-family:ui-monospace,monospace; color:#222;
+  border:1px solid #e3e3e3; border-radius:7px; padding:6px 8px; width:100%;
+  text-transform:uppercase; outline:none;
+}
+#catBgPalette .cbp-reset{
+  margin-top:12px; width:100%; padding:7px; font-size:11px; font-weight:600;
+  background:#f1f1f1; color:#444; border:none; border-radius:7px; cursor:pointer;
+}
+#catBgPalette .cbp-reset:hover{ background:#e7e7e7; }
+</style>
+<div id="catBgPalette">
+  <div class="cbp-head" id="cbpHead">
+    <h4>🎨 區塊背景色</h4>
+    <span class="cbp-toggle">▾</span>
+  </div>
+  <div class="cbp-body">
+    <div class="cbp-swatches" id="cbpSwatches"></div>
+    <div class="cbp-custom">
+      <input type="color" id="cbpColor" value="#000000">
+      <input type="text" class="cbp-hex" id="cbpHex" value="#000000" maxlength="7">
+    </div>
+    <button class="cbp-reset" id="cbpReset">重設為黑色</button>
+  </div>
+</div>
+<script>
+(function(){
+  var KEY = 'catBgColor';
+  var DEFAULT = '#000000';
+  var PRESETS = ['#000000','#141414','#1c1c2e','#0f1f1c','#241218','#0d1b2a',
+                 '#2b2118','#3a0d0d','#1a1a1a','#101820','#f5f5f5','#ffffff'];
+
+  var section = document.querySelector('.categories');
+  var swatches = document.getElementById('cbpSwatches');
+  var colorInput = document.getElementById('cbpColor');
+  var hexInput = document.getElementById('cbpHex');
+
+  function apply(c){
+    if(section) section.style.background = c;
+    colorInput.value = c;
+    hexInput.value = c.toUpperCase();
+    try{ localStorage.setItem(KEY, c); }catch(e){}
+    document.querySelectorAll('#cbpSwatches .cbp-sw').forEach(function(s){
+      s.classList.toggle('active', s.dataset.c.toLowerCase() === c.toLowerCase());
+    });
+  }
+
+  PRESETS.forEach(function(c){
+    var sw = document.createElement('div');
+    sw.className = 'cbp-sw';
+    sw.style.background = c;
+    sw.dataset.c = c;
+    sw.title = c;
+    sw.addEventListener('click', function(){ apply(c); });
+    swatches.appendChild(sw);
+  });
+
+  colorInput.addEventListener('input', function(){ apply(colorInput.value); });
+  hexInput.addEventListener('change', function(){
+    var v = hexInput.value.trim();
+    if(/^#?[0-9a-fA-F]{6}$/.test(v)){ apply(v[0]==='#'?v:'#'+v); }
+  });
+  document.getElementById('cbpReset').addEventListener('click', function(){ apply(DEFAULT); });
+
+  document.getElementById('cbpHead').addEventListener('click', function(){
+    document.getElementById('catBgPalette').classList.toggle('collapsed');
+  });
+
+  var saved = DEFAULT;
+  try{ saved = localStorage.getItem(KEY) || DEFAULT; }catch(e){}
+  apply(saved);
 })();
 </script>
 

@@ -1,46 +1,18 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>OPUS.Z：重新定義音樂家的工作方式｜古典與當代音樂家媒合平台</title>
-  <meta name="description" content="OPUS.Z 是專為古典與當代音樂家打造的專業媒合平台，連結真正有實力的音樂家與企業活動、婚禮、錄音、教學等需求。台灣首個音樂家專業職涯平台。" />
-  <meta name="keywords" content="OPUS.Z, 音樂家媒合, 古典音樂家, 台灣音樂家, 音樂家平台, 音樂家預約, 企業活動音樂, 婚禮音樂, 錄音 session musician, 音樂家品牌" />
-  <meta name="author" content="OPUS.Z" />
-  <link rel="canonical" href="https://opuszmusic.com/blog-opusz-intro.html" />
-  <!-- Open Graph -->
-  <meta property="og:type" content="article" />
-  <meta property="og:title" content="OPUS.Z：重新定義音樂家的工作方式" />
-  <meta property="og:description" content="專為古典與當代音樂家打造的專業媒合平台，連結真正有實力的音樂家與真正需要他們的客戶。" />
-  <meta property="og:url" content="https://opuszmusic.com/blog-opusz-intro.html" />
-  <meta property="og:site_name" content="OPUS.Z" />
-  <meta property="og:locale" content="zh_TW" />
-  <meta property="article:published_time" content="2026-05-28" />
-  <meta property="article:section" content="About OPUS.Z" />
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="OPUS.Z：重新定義音樂家的工作方式" />
-  <meta name="twitter:description" content="專為古典與當代音樂家打造的專業媒合平台。" />
-  <!-- Article JSON-LD -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Article",
-    "headline": "OPUS.Z：我們正在重新定義音樂家的工作方式",
-    "description": "專為古典與當代音樂家打造的專業媒合平台，連結真正有實力的音樂家與真正需要他們的客戶。",
-    "author": { "@type": "Organization", "name": "OPUS.Z" },
-    "publisher": { "@type": "Organization", "name": "OPUS.Z" },
-    "datePublished": "2026-05-28",
-    "inLanguage": "zh-TW",
-    "mainEntityOfPage": "https://opuszmusic.com/blog-opusz-intro.html"
-  }
-  </script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root { --black: #111; --white: #fff; --gray: #888; --accent: #c8321a; }
-    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--white); color: var(--black); }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Messages — OPUS.Z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+<style>
+:root{--white:#fff;--black:#000;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
+body{font-family:'Inter','Helvetica Neue',sans-serif;background:#f5f5f5;color:#111;overflow-x:hidden;}
 
-/* ── NAV ── */
+/* ── NAV (canonical — identical to recent-jobs.html) ── */
 nav {
   position: fixed; top: 0; left: 0; right: 0; z-index: 200;
   display: flex; align-items: center; justify-content: space-between;
@@ -199,116 +171,167 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .mega-col ul { list-style: none; padding: 0; }
 .mega-col ul li a { display: block; padding: 5px 0; font-size: 13px; color: #555; text-decoration: none; transition: color .12s; }
 .mega-col ul li a:hover { color: #000; }
+.login-modal-overlay { position: fixed; inset: 0; z-index: 2000; background: rgba(0,0,0,.35); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.login-modal-overlay.open { opacity: 1; pointer-events: auto; }
+.login-modal { background: #fff; border-radius: 18px; padding: 40px 36px 32px; width: 360px; max-width: 92vw; box-shadow: 0 24px 80px rgba(0,0,0,.22); transform: translateY(12px); transition: transform .2s; position: relative; }
+.login-modal-overlay.open .login-modal { transform: translateY(0); }
+.login-modal-close { position: absolute; top: 16px; right: 16px; width: 28px; height: 28px; border-radius: 50%; background: #f0f0f0; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; color: #555; }
+.login-modal-title { font-size: 22px; font-weight: 900; letter-spacing: -.03em; margin-bottom: 24px; }
+.login-modal-input { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1.5px solid #e0e0e0; font-size: 14px; font-family: inherit; outline: none; box-sizing: border-box; display: block; margin-bottom: 12px; }
+.login-modal-btn { width: 100%; padding: 13px; border-radius: 10px; background: #111; color: #fff; border: none; font-size: 15px; font-weight: 700; font-family: inherit; cursor: pointer; }
+.login-modal-footer { text-align: center; margin-top: 16px; font-size: 13px; color: #888; }
+.login-modal-footer a { color: #111; font-weight: 600; text-decoration: none; margin-left: 4px; }
+@media(max-width:900px){.nav-links{display:none;}}
 
-    /* ARTICLE HEADER */
-    .article-header {
-      margin-top: 64px;
-      padding: 80px 80px 60px;
-      max-width: 900px;
-      margin-left: auto; margin-right: auto;
-    }
-    .article-back { display: inline-flex; align-items: center; gap: 8px; text-decoration: none; color: var(--gray); font-size: 14px; margin-bottom: 40px; }
-    .article-back:hover { color: var(--black); }
-    .article-tag { font-size: 12px; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 20px; }
-    .article-title { font-size: clamp(32px, 5vw, 58px); font-weight: 900; letter-spacing: -2px; line-height: 1.1; margin-bottom: 24px; }
-    .article-meta { display: flex; align-items: center; gap: 20px; color: var(--gray); font-size: 14px; padding-bottom: 40px; border-bottom: 1px solid #e8e8e8; }
+/* ── PAGE WRAP ── */
+.msg-page{margin-top:76px;min-height:calc(100vh - 76px);}
 
-    /* HERO IMAGE */
-    .article-hero-img {
-      width: 100%; max-width: 900px;
-      margin: 0 auto 60px;
-      aspect-ratio: 16/7;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-      border-radius: 16px; overflow: hidden;
-      display: block;
-    }
+/* ── INBOX VIEW ── */
+#inboxView{background:#fff;min-height:calc(100vh - 76px);}
+.inbox-inner{max-width:1100px;margin:0 auto;padding:0;}
 
-    /* BODY */
-    .article-body {
-      max-width: 680px;
-      margin: 0 auto;
-      padding: 0 40px 80px;
-      font-size: 18px;
-      line-height: 1.8;
-      color: #333;
-    }
-    .article-body h2 {
-      font-size: 26px; font-weight: 800; color: var(--black);
-      letter-spacing: -0.5px; margin: 48px 0 16px;
-    }
-    .article-body p { margin-bottom: 24px; }
-    .article-body strong { color: var(--black); font-weight: 700; }
-    .article-body blockquote {
-      border-left: 4px solid var(--black);
-      padding: 8px 24px;
-      margin: 32px 0;
-      font-size: 20px; font-weight: 600; color: var(--black);
-      font-style: italic;
-    }
-    .article-body ul { padding-left: 24px; margin-bottom: 24px; }
-    .article-body li { margin-bottom: 10px; }
+/* Inbox header */
+.inbox-top{padding:40px 48px 0;}
+.inbox-title{font-size:32px;font-weight:800;letter-spacing:-.02em;color:#111;margin-bottom:20px;}
+.inbox-header-row{display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.inbox-tabs{display:flex;border-bottom:2px solid #f0f0f0;margin:0 48px;}
+.inbox-tab{padding:14px 0;margin-right:28px;font-size:14px;font-weight:500;color:#aaa;border:none;background:none;font-family:inherit;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:color .15s,border-color .15s;display:flex;align-items:center;gap:7px;}
+.inbox-tab.active{color:#111;border-bottom-color:#111;}
+.inbox-tab:hover:not(.active){color:#555;}
+.inbox-tab-badge{background:#e05;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;}
 
-    /* CTA BOX */
-    .article-cta {
-      max-width: 680px; margin: 0 auto 80px;
-      padding: 0 40px;
-    }
-    .cta-box {
-      background: var(--black); color: var(--white);
-      border-radius: 20px; padding: 48px 52px;
-      display: flex; justify-content: space-between; align-items: center; gap: 32px;
-    }
-    .cta-box-title { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; }
-    .cta-box-sub { font-size: 15px; opacity: 0.7; }
-    .cta-box-btn {
-      display: inline-block; white-space: nowrap;
-      background: var(--white); color: var(--black);
-      padding: 16px 32px; border-radius: 50px;
-      font-size: 15px; font-weight: 700; text-decoration: none;
-      flex-shrink: 0;
-    }
-    .cta-box-btn:hover { opacity: 0.85; }
+/* Search bar - right side of inbox-top */
+.inbox-search{display:flex;align-items:center;gap:8px;border:1.5px solid #e8e8e8;border-radius:8px;padding:9px 14px;background:#fff;min-width:220px;}
+.inbox-search input{border:none;outline:none;font-size:13px;font-family:inherit;color:#111;background:none;width:100%;}
+.inbox-search input::placeholder{color:#bbb;}
+.inbox-search svg{flex-shrink:0;opacity:.35;}
 
-    /* MORE ARTICLES */
-    .more-articles {
-      border-top: 1px solid #e8e8e8;
-      padding: 60px 80px;
-    }
-    .more-title { font-size: 20px; font-weight: 700; margin-bottom: 32px; }
-    .more-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-    .more-card { text-decoration: none; color: inherit; }
-    .more-card:hover .more-card-title { opacity: 0.6; }
-    .more-img { width: 100%; aspect-ratio: 3/2; border-radius: 12px; margin-bottom: 14px; }
-    .more-img-1 { background: #d4cfc8; }
-    .more-img-2 { background: #c8321a; }
-    .more-img-3 { background: #1a1a1a; }
-    .more-card-date { font-size: 12px; color: var(--gray); margin-bottom: 6px; }
-    .more-card-title { font-size: 15px; font-weight: 600; line-height: 1.4; transition: opacity .2s; }
+/* Conversation list */
+.conv-list{border-top:1px solid #f0f0f0;}
+.conv-row{display:flex;align-items:center;gap:0;padding:0 32px;border-bottom:1px solid #f0f0f0;cursor:pointer;transition:background .12s;position:relative;}
+.conv-row:hover{background:#fafafa;}
+.conv-row.unread{background:#fff;}
+.conv-checkbox{padding:14px 12px 14px 16px;flex-shrink:0;}
+.conv-checkbox input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:#111;}
+.conv-dot-col{width:20px;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.conv-unread-dot{width:8px;height:8px;border-radius:50%;background:#3b82f6;flex-shrink:0;}
+.conv-avatar{width:38px;height:38px;border-radius:50%;background:#e8e8e8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#888;margin:0 14px 0 10px;overflow:hidden;}
+.conv-avatar img{width:100%;height:100%;object-fit:cover;}
+.conv-body{flex:1;min-width:0;padding:18px 0;}
+.conv-name{font-size:14px;font-weight:500;color:#555;display:flex;align-items:center;gap:8px;margin-bottom:3px;}
+.conv-row.unread .conv-name{font-weight:700;color:#111;}
+.conv-subject{font-size:14px;font-weight:400;color:#bbb;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:520px;}
+.conv-row.unread .conv-subject{font-weight:700;color:#111;}
+.conv-preview-inline{color:#aaa;font-weight:400;}
+.conv-row.unread .conv-preview-inline{color:#555;}
+.conv-date{font-size:12px;color:#bbb;flex-shrink:0;padding-left:20px;}
+.conv-row.unread .conv-date{color:#555;font-weight:600;}
 
-    footer {
-      padding: 40px 80px; border-top: 1px solid #e8e8e8;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .footer-logo { font-size: 18px; font-weight: 900; letter-spacing: -1px; }
-    .footer-copy { font-size: 13px; color: var(--gray); }
+/* ── DETAIL VIEW ── */
+#detailView{display:none;background:#fff;min-height:calc(100vh - 76px);}
 
-    @media (max-width: 768px) {
-      nav { padding: 0 20px; }
-      .article-header { padding: 48px 24px 40px; }
-      .article-body { padding: 0 24px 60px; font-size: 16px; }
-      .article-cta { padding: 0 24px; }
-      .cta-box { flex-direction: column; padding: 36px 32px; }
-      .more-articles { padding: 40px 24px; }
-      .more-grid { grid-template-columns: 1fr; }
-      footer { flex-direction: column; gap: 12px; padding: 32px 24px; }
-    }
-  </style>
-  <link rel="icon" href="/favicon.ico?v=3" />
-  <link rel="icon" type="image/png" href="/favicon.png?v=3" />
+/* Back bar */
+.detail-back-bar{padding:14px 48px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:8px;}
+.detail-back-btn{display:inline-flex;align-items:center;gap:6px;background:none;border:none;font-size:13px;font-weight:500;color:#888;cursor:pointer;font-family:inherit;padding:6px 0;transition:color .12s;}
+.detail-back-btn:hover{color:#111;}
+.detail-back-btn svg{width:16px;height:16px;}
+
+/* Job info bar */
+.detail-job-bar{padding:18px 48px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:14px;}
+.detail-job-avatar{width:44px;height:44px;border-radius:8px;background:#e8e8e8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#888;overflow:hidden;}
+.detail-job-avatar img{width:100%;height:100%;object-fit:cover;}
+.detail-job-info{flex:1;min-width:0;}
+.detail-job-title{font-size:16px;font-weight:700;color:#111;letter-spacing:-.01em;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.detail-job-by{font-size:12px;color:#aaa;margin-top:3px;}
+.detail-status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;flex-shrink:0;}
+.detail-status-badge.active{background:#f0fdf4;color:#16a34a;}
+.detail-status-badge.open{background:#eff6ff;color:#3b82f6;}
+.detail-status-badge.completed{background:#f9fafb;color:#6b7280;}
+.detail-status-badge.pending{background:#fffbeb;color:#d97706;}
+
+/* Two-column body */
+.detail-body{display:flex;align-items:stretch;min-height:calc(100vh - 76px - 53px - 80px);}
+
+/* Chat column */
+.chat-col{flex:1;min-width:0;display:flex;flex-direction:column;border-right:1px solid #ebebeb;}
+.chat-bubbles{flex:1;overflow-y:auto;padding:28px 40px;display:flex;flex-direction:column;gap:20px;min-height:320px;max-height:calc(100vh - 76px - 53px - 80px - 160px);}
+.bubble-row{display:flex;gap:12px;align-items:flex-start;}
+.bubble-row.me{flex-direction:row-reverse;}
+.bubble-avatar{width:36px;height:36px;border-radius:50%;background:#e8e8e8;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#888;overflow:hidden;}
+.bubble-avatar img{width:100%;height:100%;object-fit:cover;}
+.bubble-wrap{max-width:68%;}
+.bubble-meta{font-size:10px;color:#bbb;margin-bottom:5px;display:flex;align-items:center;gap:8px;}
+.bubble-row.me .bubble-meta{flex-direction:row-reverse;text-align:right;}
+.bubble-meta-name{font-weight:600;color:#888;}
+.bubble-translate-link{cursor:pointer;text-decoration:underline;opacity:.7;font-size:10px;}
+.bubble{padding:12px 16px;border-radius:16px;font-size:13.5px;line-height:1.6;color:#111;background:#f2f2f2;border-radius:4px 16px 16px 16px;}
+.bubble-row.me .bubble{background:#111;color:#fff;border-radius:16px 4px 16px 16px;}
+.bubble-attachment{display:flex;align-items:center;gap:8px;padding:10px 13px;background:rgba(255,255,255,.14);border-radius:8px;margin-top:7px;font-size:12px;color:inherit;cursor:pointer;}
+.bubble-row:not(.me) .bubble-attachment{background:#fff;border:1.5px solid #ebebeb;color:#555;}
+.bubble-attachment svg{flex-shrink:0;}
+
+/* Composer area */
+.composer-files{display:flex;flex-wrap:wrap;gap:7px;padding:10px 40px 0;background:#fff;}
+.composer-file-chip{display:inline-flex;align-items:center;gap:6px;padding:5px 10px;background:#f5f5f5;border-radius:6px;font-size:12px;color:#555;}
+.composer-file-chip button{background:none;border:none;cursor:pointer;color:#aaa;font-size:15px;line-height:1;padding:0;}
+.composer-file-chip button:hover{color:#e05;}
+.chat-composer{border-top:1px solid #ebebeb;padding:16px 40px 20px;background:#fff;flex-shrink:0;}
+.composer-box{border:1.5px solid #e0e0e0;border-radius:10px;overflow:hidden;transition:border-color .15s;}
+.composer-box:focus-within{border-color:#aaa;}
+.composer-box textarea{width:100%;padding:14px 16px;border:none;outline:none;font-size:13.5px;font-family:inherit;color:#111;resize:none;min-height:72px;line-height:1.55;background:#fff;}
+.composer-toolbar{display:flex;align-items:center;gap:10px;padding:8px 12px;border-top:1px solid #f0f0f0;background:#fafafa;}
+.attach-label{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#888;cursor:pointer;padding:5px 10px;border-radius:6px;transition:background .12s;font-weight:500;}
+.attach-label:hover{background:#f0f0f0;}
+.attach-label svg{flex-shrink:0;}
+.composer-sep{color:#ddd;font-size:12px;}
+.composer-hint{font-size:11.5px;color:#bbb;}
+.send-btn{margin-left:auto;padding:8px 22px;background:#111;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;font-family:inherit;cursor:pointer;transition:opacity .15s;flex-shrink:0;}
+.send-btn:hover{opacity:.8;}
+
+/* Right sidebar */
+.sidebar-col{width:260px;flex-shrink:0;padding:24px 22px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;max-height:calc(100vh - 76px - 53px - 80px);}
+.sidebar-contact-card{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding-bottom:18px;border-bottom:1px solid #f0f0f0;}
+.sidebar-avatar{width:60px;height:60px;border-radius:50%;background:#e8e8e8;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:#888;overflow:hidden;}
+.sidebar-avatar img{width:100%;height:100%;object-fit:cover;}
+.sidebar-name{font-size:14px;font-weight:700;color:#111;line-height:1.2;}
+.sidebar-role{font-size:12px;color:#888;}
+.sidebar-stars{display:flex;align-items:center;justify-content:center;gap:2px;margin-top:2px;}
+.sidebar-star{color:#f59e0b;font-size:13px;}
+.sidebar-reviews{font-size:11px;color:#bbb;}
+.sidebar-section{display:flex;flex-direction:column;gap:5px;}
+.sidebar-label{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#bbb;}
+.sidebar-value{font-size:13px;color:#111;font-weight:500;line-height:1.4;}
+.sidebar-status-badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;}
+.sidebar-status-badge.active{background:#f0fdf4;color:#16a34a;}
+.sidebar-status-badge.open{background:#eff6ff;color:#3b82f6;}
+.sidebar-status-badge.completed{background:#f9fafb;color:#6b7280;}
+.sidebar-actions-section{display:flex;flex-direction:column;gap:4px;}
+.sidebar-actions-title{font-size:13px;font-weight:700;color:#111;margin-bottom:6px;}
+.sidebar-action-link{font-size:13px;color:#555;cursor:pointer;padding:6px 0;border-bottom:1px solid #f5f5f5;transition:color .12s;text-decoration:none;display:block;}
+.sidebar-action-link:hover{color:#111;}
+.sidebar-translate select{width:100%;padding:8px 10px;border:1.5px solid #e8e8e8;border-radius:8px;font-size:13px;font-family:inherit;color:#555;outline:none;background:#fff;}
+
+/* Empty state */
+.empty-conv{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:12px;color:#ccc;padding:60px;}
+.empty-conv-icon{font-size:48px;opacity:.4;}
+.empty-conv-text{font-size:15px;}
+
+/* Responsive */
+@media(max-width:1024px){ .sidebar-col{display:none;} }
+@media(max-width:700px){
+  .inbox-top{padding:28px 20px 0;}
+  .inbox-tabs{margin:0 20px;}
+  .conv-row{padding:0 12px;}
+  .detail-back-bar{padding:12px 20px;}
+  .detail-job-bar{padding:14px 20px;}
+  .chat-bubbles{padding:20px;}
+  .chat-composer{padding:12px 20px 16px;}
+  .composer-hint{display:none;}
+}
+</style>
 </head>
 <body>
 
-<!-- NAV -->
 <!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
 <a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
   <div class="orb"></div>
@@ -465,123 +488,476 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   </div>
 </div>
 
-<div class="article-header">
-  <a class="article-back" href="blog.html">← Back to Blog</a>
-  <div class="article-tag">About OPUS.Z</div>
-  <h1 class="article-title">OPUS.Z：我們正在重新定義音樂家的工作方式</h1>
-  <div class="article-meta">
-    <span>May 28, 2026</span>
-    <span>·</span>
-    <span>5 min read</span>
-    <span>·</span>
-    <span>OPUS.Z Team</span>
-  </div>
-</div>
-
-<div class="article-hero-img"></div>
-
-<div class="article-body">
-
-  <p>
-    音樂產業正在改變。但大多數音樂家接案的方式，還停留在十年前——靠口耳相傳、靠人脈介紹、靠運氣。<strong>OPUS.Z 想改變這件事。</strong>
-  </p>
-
-  <blockquote>
-    「No generic gigs. No empty promises. Only real musicians and smart connections that drive careers and build lasting brands.」
-  </blockquote>
-
-  <p>
-    這是我們從一開始就堅持的理念。OPUS.Z 不是一個什麼人都可以登記的接案網站——我們是一個專為古典與當代音樂家打造的專業平台，讓真正有實力的音樂家，遇到真正適合他們的機會。
-  </p>
-
-  <h2>我們在做什麼？</h2>
-
-  <p>
-    OPUS.Z 提供幾個核心服務，讓音樂家和客戶都能在這個平台上找到他們需要的東西：
-  </p>
-
-  <ul>
-    <li><strong>現場演出媒合</strong>——企業活動、婚禮、音樂會、開幕典禮，我們幫你找到最適合的音樂家陣容</li>
-    <li><strong>錄音工作</strong>——需要弦樂、鋼琴或管樂錄音？我們有專業的 session musician 資源</li>
-    <li><strong>音樂課程與大師班</strong>——私人課程到企業工作坊，連結優秀教師與學員</li>
-    <li><strong>藝人品牌建立</strong>——幫助音樂家建立個人品牌，讓更多人認識你</li>
-  </ul>
-
-  <h2>為什麼是 OPUS.Z？</h2>
-
-  <p>
-    台灣有很多優秀的古典音樂家。他們在頂尖音樂院受過嚴格訓練，技術一流，卻往往不知道如何把自己的才華轉化為穩定的事業。演出機會分散、收入不穩定、沒有品牌曝光——這是很多音樂家共同的困境。
-  </p>
-
-  <p>
-    同時，企業和活動主辦方也有他們的問題：他們需要高品質的音樂演出，但找人費時費力，品質也難以保證。
-  </p>
-
-  <p>
-    <strong>OPUS.Z 就是那個橋樑。</strong> 我們精心篩選每一位加入平台的音樂家，建立他們的專業檔案，讓客戶可以一目了然地了解每位音樂家的背景、風格和演出影片。然後，我們讓媒合變得簡單、快速、可靠。
-  </p>
-
-  <h2>接下來的方向</h2>
-
-  <p>
-    我們剛剛起步。目前 OPUS.Z 以台灣市場為主，主要服務古典音樂領域的音樂家和客戶。但我們的目標不止於此——我們相信，這套系統可以幫助整個亞洲的音樂家建立更好的職涯。
-  </p>
-
-  <p>
-    如果你是音樂家，歡迎申請加入 OPUS.Z。如果你是需要音樂演出的客戶，歡迎聯絡我們，讓我們幫你找到最合適的人選。
-  </p>
-
-  <p>
-    音樂值得被認真對待。音樂家值得被好好支持。這就是 OPUS.Z 存在的原因。
-  </p>
-
-</div>
-
-<!-- CTA BOX -->
-<div class="article-cta">
-  <div class="cta-box">
-    <div>
-      <div class="cta-box-title">加入 OPUS.Z</div>
-      <div class="cta-box-sub">音樂家申請加入或聯絡我們了解更多</div>
+<!-- Login Modal -->
+<div class="login-modal-overlay" id="loginModalOverlay">
+  <div class="login-modal">
+    <button class="login-modal-close" id="loginModalClose">✕</button>
+    <div class="login-modal-title" id="loginModalTitle">Customer Login</div>
+    <input class="login-modal-input" type="email" placeholder="Email" autocomplete="email"/>
+    <input class="login-modal-input" type="password" placeholder="Password" autocomplete="current-password"/>
+    <button class="login-modal-btn">Log in</button>
+    <div class="login-modal-footer">
+      <span>No account?</span>
+      <a href="musician-platform.html#contact">Sign up →</a>
     </div>
-    <a class="cta-box-btn" href="musician-platform.html#contact">立即聯絡 →</a>
   </div>
 </div>
 
-<!-- MORE ARTICLES -->
-<div class="more-articles">
-  <div class="more-title">More from OPUS.Z Blog</div>
-  <div class="more-grid">
-    <a class="more-card" href="#">
-      <div class="more-img more-img-1"></div>
-      <div class="more-card-date">November 11, 2025</div>
-      <div class="more-card-title">The power of authenticity in modern music branding</div>
-    </a>
-    <a class="more-card" href="#">
-      <div class="more-img more-img-2"></div>
-      <div class="more-card-date">July 10, 2025</div>
-      <div class="more-card-title">From bedroom producer to booked artist: building momentum</div>
-    </a>
-    <a class="more-card" href="#">
-      <div class="more-img more-img-3"></div>
-      <div class="more-card-date">May 10, 2025</div>
-      <div class="more-card-title">Why great artists are discovered through clarity, not volume</div>
-    </a>
+<!-- ── PAGE ── -->
+<div class="msg-page">
+
+<!-- ════════ INBOX VIEW ════════ -->
+<div id="inboxView">
+  <div class="inbox-inner">
+    <div class="inbox-top">
+      <div class="inbox-header-row">
+        <h1 class="inbox-title">Messages</h1>
+        <div class="inbox-search">
+          <input type="text" id="searchInput" placeholder="Search messages">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="inbox-tabs">
+      <button class="inbox-tab active" data-filter="all">Inbox</button>
+      <button class="inbox-tab" data-filter="unread">Unread <span class="inbox-tab-badge" id="unreadTabBadge">0</span></button>
+      <button class="inbox-tab" data-filter="archived">Archived</button>
+    </div>
+
+    <div class="conv-list" id="convList"></div>
   </div>
 </div>
 
-<footer>
-  <div class="footer-logo">OPUS.Z</div>
-  <div class="footer-copy">© 2026 OPUS.Z. All rights reserved.</div>
-</footer>
+<!-- ════════ DETAIL VIEW ════════ -->
+<div id="detailView">
+  <!-- Back -->
+  <div class="detail-back-bar">
+    <button class="detail-back-btn" id="backBtn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="15 18 9 12 15 6"/></svg>
+      All Messages
+    </button>
+  </div>
 
+  <!-- Job info bar -->
+  <div class="detail-job-bar" id="detailJobBar">
+    <div class="detail-job-avatar" id="detailJobAvatar"></div>
+    <div class="detail-job-info">
+      <div class="detail-job-title" id="detailJobTitle">—</div>
+      <div class="detail-job-by" id="detailJobBy">—</div>
+    </div>
+  </div>
+
+  <!-- Body: chat + sidebar -->
+  <div class="detail-body">
+
+    <!-- Chat column -->
+    <div class="chat-col">
+      <div class="chat-bubbles" id="chatBubbles"></div>
+      <div class="composer-files" id="composerFiles" style="display:none"></div>
+      <div class="chat-composer">
+        <div class="composer-box">
+          <textarea id="composerText" placeholder="Send a message…" rows="3"></textarea>
+          <div class="composer-toolbar">
+            <label class="attach-label" for="fileInput">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              Attach files
+            </label>
+            <input type="file" id="fileInput" multiple hidden>
+            <span class="composer-sep">|</span>
+            <span class="composer-hint">Simple, Fast &amp; Secure File Upload (Up to 2GB)</span>
+            <button class="send-btn" id="sendBtn">Send message</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile sidebar -->
+    <div class="sidebar-col" id="sidebarCol">
+      <div class="sidebar-contact-card">
+        <div class="sidebar-avatar" id="sidebarAvatar"></div>
+        <div class="sidebar-name" id="sidebarName">—</div>
+        <div class="sidebar-role" id="sidebarRole">—</div>
+        <div class="sidebar-stars" id="sidebarStars"></div>
+      </div>
+
+      <div class="sidebar-section">
+        <div class="sidebar-label">Proposal Details</div>
+        <div class="sidebar-value" id="sidebarProposal">—</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Job Status</div>
+        <div id="sidebarStatus">—</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Payment Terms</div>
+        <div class="sidebar-value" id="sidebarPayment">—</div>
+      </div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Proposal Price</div>
+        <div class="sidebar-value" id="sidebarPrice">—</div>
+      </div>
+
+      <div class="sidebar-actions-section">
+        <div class="sidebar-actions-title">Actions</div>
+        <a class="sidebar-action-link">Request a signature</a>
+        <a class="sidebar-action-link">View booking details</a>
+      </div>
+
+      <div class="sidebar-section sidebar-translate">
+        <div class="sidebar-label">Translation</div>
+        <div class="sidebar-value" style="color:#aaa;font-size:12px;margin-bottom:8px;">Select the language you want messages translated into</div>
+        <select id="translateSelect">
+          <option value="en">English</option>
+          <option value="zh">繁體中文</option>
+          <option value="jp">日本語</option>
+        </select>
+      </div>
+    </div>
+
+  </div><!-- /detail-body -->
+</div><!-- /detailView -->
+
+</div><!-- /msg-page -->
+
+<script>
+(function(){
+
+/* ── Mock conversation data ── */
+var CONVS = [
+  {
+    id: 1,
+    contact: '陳威霖 Chen Wei-Lin',
+    initials: 'CW',
+    role: '小提琴手 · OPUS.Z Ensemble',
+    subject: 'String Quartet — Wedding Ceremony',
+    status: 'active',
+    amount: 'NT$8,500',
+    paymentTerms: '50% 訂金，演出當天結清 50%',
+    proposal: '婚禮弦樂四重奏演出，含三首指定曲目排練及現場演出兩小時。',
+    stars: 4.8,
+    reviews: 126,
+    unread: 2,
+    archived: false,
+    date: 'Jun 10',
+    messages: [
+      { from:'them', time:'Jun 8, 10:23', text:'Hello！感謝您預訂我們的婚禮四重奏。請問可以確認一下場地地址和儀式的確切開始時間嗎？' },
+      { from:'me',   time:'Jun 8, 11:45', text:'嗨！場地是台北凱悅大酒店，儀式下午 3:00 開始。請您們 2:30 抵達以便布置。' },
+      { from:'them', time:'Jun 9, 09:10', text:'收到，謝謝！請確認一下——您想要帕海貝爾卡農作為進場曲，對嗎？退場有特別想要的曲目嗎？' },
+      { from:'me',   time:'Jun 9, 14:22', text:'是的，帕海貝爾卡農進場！退場請用歡樂頌。簽名環節請演奏一些輕柔的曲目，您們自選就好。' },
+      { from:'them', time:'Jun 10, 08:55', text:'太棒了！我們會準備好這三首曲子。期待讓您們的大日子更加美好。🎻 6月15日見！' },
+    ]
+  },
+  {
+    id: 2,
+    contact: '李美珊 Li Mei-Shan',
+    initials: 'LM',
+    role: '豎琴師',
+    subject: 'Harpist — Cocktail Hour',
+    status: 'open',
+    amount: 'TBC',
+    paymentTerms: 'TBC',
+    proposal: '雞尾酒時段豎琴獨奏，兩小時，曲目以流行與古典改編為主。',
+    stars: 4.6,
+    reviews: 58,
+    unread: 0,
+    archived: false,
+    date: 'May 28',
+    messages: [
+      { from:'them', time:'May 28, 15:00', text:'您好！我看到您需要雞尾酒時段的豎琴師。我很樂意討論這個需求，請問是哪個日期和地點呢？' },
+      { from:'me',   time:'May 28, 16:30', text:'您好！我們計劃在 8 月 10 日，台北的一個私人場地，雞尾酒時段從下午 6 點到 8 點。' },
+    ]
+  },
+  {
+    id: 3,
+    contact: 'OPUS.Z Ensemble',
+    initials: 'OZ',
+    role: '室內樂團',
+    subject: 'Piano Trio — Birthday Celebration',
+    status: 'completed',
+    amount: 'NT$6,000',
+    paymentTerms: '全額預付',
+    proposal: '生日慶典鋼琴三重奏演出，兩小時，含爵士及流行古典改編曲目。',
+    stars: 5.0,
+    reviews: 312,
+    unread: 0,
+    archived: false,
+    date: 'Apr 20',
+    messages: [
+      { from:'them', time:'Apr 10, 10:00', text:'您好！很高興為您的生日慶典演奏。請問有任何特別的曲目要求嗎？' },
+      { from:'me',   time:'Apr 10, 11:30', text:'有的，如果可以的話，想要一些爵士標準曲和流行改編版本的古典音樂。' },
+      { from:'them', time:'Apr 10, 14:00', text:'當然！我們有豐富的爵士和流行改編曲目庫，一定讓您和貴賓滿意。期待見面！' },
+      { from:'me',   time:'Apr 21, 09:00', text:'昨晚演出非常精彩！所有的客人都讚不絕口。非常感謝你們！' },
+      { from:'them', time:'Apr 21, 10:15', text:'非常謝謝您的好評！很榮幸能參與這個特別的夜晚。期待下次合作！🎵' },
+    ]
+  },
+  {
+    id: 4,
+    contact: '林靜宜 Lin Jing-Yi',
+    initials: 'LJ',
+    role: '鋼琴師',
+    subject: 'Solo Violinist — Corporate Event',
+    status: 'pending',
+    amount: 'NT$3,200',
+    paymentTerms: '演出後三個工作天內付款',
+    proposal: '企業活動鋼琴獨奏，一小時，背景音樂為主，可客製選曲。',
+    stars: 4.9,
+    reviews: 87,
+    unread: 0,
+    archived: false,
+    date: 'May 15',
+    messages: [
+      { from:'me',   time:'May 15, 09:00', text:'您好！我在 OPUS.Z 上看到您的資料，想詢問 7 月 2 日的企業活動是否有空？' },
+      { from:'them', time:'May 15, 10:30', text:'您好！7月2日我有空，很樂意參與。請問活動的規模和場地大概是怎樣的呢？' },
+    ]
+  },
+];
+
+/* ── State ── */
+var currentConvId = null;
+var currentFilter = 'all';
+var pendingFiles  = [];
+var myName = localStorage.getItem('opusz_user') || 'You';
+
+/* ── Helpers ── */
+function saveConvs(){ localStorage.setItem('opusz_convs', JSON.stringify(CONVS)); }
+function totalUnread(){ return CONVS.filter(function(c){ return !c.archived && c.unread > 0; }).reduce(function(s,c){ return s + c.unread; }, 0); }
+function statusClass(s){ return { active:'active', open:'open', completed:'completed', pending:'pending', awaiting_payment:'awaiting' }[s] || 'open'; }
+function statusLabel(s){ return { active:'Active', open:'Open', completed:'Completed', pending:'Pending', awaiting_payment:'Awaiting Payment' }[s] || s; }
+function stars(n, reviews){
+  var full = Math.floor(n), half = n - full >= 0.5;
+  var html = '<div class="sidebar-stars">';
+  for(var i=0;i<5;i++){
+    if(i < full) html += '<span class="sidebar-star">★</span>';
+    else if(i === full && half) html += '<span class="sidebar-star" style="opacity:.5">★</span>';
+    else html += '<span class="sidebar-star" style="opacity:.2">★</span>';
+  }
+  html += '<span class="sidebar-reviews" style="margin-left:4px;">(' + reviews + ')</span></div>';
+  return html;
+}
+
+/* ── Render inbox list ── */
+function renderInbox(){
+  var list = document.getElementById('convList');
+  var q    = (document.getElementById('searchInput').value || '').toLowerCase();
+  var rows = CONVS.filter(function(c){
+    if(currentFilter === 'unread')   return c.unread > 0 && !c.archived;
+    if(currentFilter === 'archived') return c.archived;
+    return !c.archived;
+  }).filter(function(c){
+    if(!q) return true;
+    return c.contact.toLowerCase().includes(q) || c.subject.toLowerCase().includes(q);
+  });
+
+  if(!rows.length){
+    list.innerHTML = '<div style="padding:60px;text-align:center;color:#ccc;font-size:15px;">No messages found</div>';
+    return;
+  }
+
+  list.innerHTML = rows.map(function(c){
+    var lastMsg = c.messages[c.messages.length - 1];
+    var preview = lastMsg ? lastMsg.text.slice(0, 80) : '';
+    var cls = c.unread > 0 ? 'conv-row unread' : 'conv-row';
+    return '<div class="' + cls + '" data-id="' + c.id + '">'
+      + '<div class="conv-checkbox"><input type="checkbox" onclick="event.stopPropagation()"></div>'
+      + '<div class="conv-dot-col">' + (c.unread ? '<div class="conv-unread-dot"></div>' : '') + '</div>'
+      + '<div class="conv-avatar">' + c.initials + '</div>'
+      + '<div class="conv-body">'
+        + '<div class="conv-name">' + c.contact + '</div>'
+        + '<div class="conv-subject">' + c.subject + ' &nbsp;<span class="conv-preview-inline">— ' + preview + '</span></div>'
+      + '</div>'
+      + '<div class="conv-date">' + c.date + '</div>'
+      + '</div>';
+  }).join('');
+
+  /* Update unread tab badge */
+  var u = totalUnread();
+  var badge = document.getElementById('unreadTabBadge');
+  badge.textContent = u;
+  badge.style.display = u ? 'inline-flex' : 'none';
+
+  /* Update nav dropdown badge */
+  var dropBadge = document.getElementById('dropMsgBadge');
+  if(dropBadge){ dropBadge.textContent = u; dropBadge.style.display = u ? 'inline-flex' : 'none'; }
+
+  /* Click handler */
+  list.querySelectorAll('.conv-row').forEach(function(row){
+    row.addEventListener('click', function(){
+      openConv(parseInt(row.dataset.id, 10));
+    });
+  });
+}
+
+/* ── Open conversation ── */
+function openConv(id){
+  var conv = CONVS.find(function(c){ return c.id === id; });
+  if(!conv) return;
+  currentConvId = id;
+
+  /* Mark as read */
+  conv.unread = 0;
+  saveConvs();
+
+  /* Switch view */
+  document.getElementById('inboxView').style.display  = 'none';
+  document.getElementById('detailView').style.display = 'block';
+
+  /* Populate job bar */
+  var av = document.getElementById('detailJobAvatar');
+  av.textContent = conv.initials;
+  document.getElementById('detailJobTitle').innerHTML = conv.subject
+    + ' <span class="detail-status-badge ' + statusClass(conv.status) + '">' + statusLabel(conv.status) + '</span>';
+  document.getElementById('detailJobBy').textContent = 'by ' + conv.contact;
+
+  /* Populate sidebar */
+  document.getElementById('sidebarAvatar').textContent  = conv.initials;
+  document.getElementById('sidebarName').textContent    = conv.contact;
+  document.getElementById('sidebarRole').textContent    = conv.role;
+  document.getElementById('sidebarStars').innerHTML     = stars(conv.stars, conv.reviews);
+  document.getElementById('sidebarProposal').textContent = conv.proposal;
+  document.getElementById('sidebarStatus').innerHTML    = '<span class="sidebar-status-badge ' + statusClass(conv.status) + '">' + statusLabel(conv.status) + '</span>';
+  document.getElementById('sidebarPayment').textContent = conv.paymentTerms;
+  document.getElementById('sidebarPrice').textContent   = conv.amount;
+
+  /* Update placeholder */
+  var firstName = conv.contact.split(' ')[0];
+  document.getElementById('composerText').placeholder = 'Send ' + firstName + ' a message';
+
+  /* Render bubbles */
+  renderBubbles(conv);
+
+  /* Clear pending files */
+  pendingFiles = [];
+  renderFileChips();
+}
+
+/* ── Render message bubbles ── */
+function renderBubbles(conv){
+  var area = document.getElementById('chatBubbles');
+  area.innerHTML = conv.messages.map(function(m){
+    var isMe = m.from === 'me';
+    var initials = isMe ? (myName.slice(0,2).toUpperCase()) : conv.initials;
+    var nameLabel = isMe ? myName : conv.contact.split(' ')[0];
+    var attachHtml = m.file
+      ? '<div class="bubble-attachment"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>' + m.file + '</div>'
+      : '';
+    return '<div class="bubble-row' + (isMe ? ' me' : '') + '">'
+      + '<div class="bubble-avatar">' + initials + '</div>'
+      + '<div class="bubble-wrap">'
+        + '<div class="bubble-meta">'
+          + '<span class="bubble-meta-name">' + nameLabel + '</span>'
+          + '<span>' + m.time + '</span>'
+          + (!isMe ? '<span class="bubble-translate-link">Translate</span>' : '')
+        + '</div>'
+        + '<div class="bubble">' + m.text + attachHtml + '</div>'
+      + '</div>'
+      + '</div>';
+  }).join('');
+  /* Scroll to bottom */
+  area.scrollTop = area.scrollHeight;
+}
+
+/* ── File chips ── */
+function renderFileChips(){
+  var area = document.getElementById('composerFiles');
+  if(!pendingFiles.length){ area.style.display = 'none'; area.innerHTML = ''; return; }
+  area.style.display = 'flex';
+  area.innerHTML = pendingFiles.map(function(f, i){
+    return '<div class="composer-file-chip">'
+      + '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>'
+      + f.name
+      + '<button onclick="removeFile(' + i + ')">×</button>'
+      + '</div>';
+  }).join('');
+}
+
+window.removeFile = function(i){
+  pendingFiles.splice(i, 1);
+  renderFileChips();
+};
+
+/* ── Send message ── */
+document.getElementById('sendBtn').addEventListener('click', function(){
+  var text = document.getElementById('composerText').value.trim();
+  if(!text && !pendingFiles.length) return;
+  var conv = CONVS.find(function(c){ return c.id === currentConvId; });
+  if(!conv) return;
+
+  var now = new Date();
+  var timeStr = now.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ', ' + now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+
+  if(text){
+    conv.messages.push({ from:'me', time:timeStr, text:text });
+  }
+  pendingFiles.forEach(function(f){
+    conv.messages.push({ from:'me', time:timeStr, text:'', file:f.name });
+  });
+
+  document.getElementById('composerText').value = '';
+  pendingFiles = [];
+  renderFileChips();
+  saveConvs();
+  renderBubbles(conv);
+});
+
+/* Ctrl+Enter or Enter to send */
+document.getElementById('composerText').addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && (e.ctrlKey || e.metaKey)){
+    e.preventDefault();
+    document.getElementById('sendBtn').click();
+  }
+});
+
+/* File input */
+document.getElementById('fileInput').addEventListener('change', function(e){
+  var files = Array.from(e.target.files);
+  pendingFiles = pendingFiles.concat(files);
+  renderFileChips();
+  e.target.value = '';
+});
+
+/* ── Back button ── */
+document.getElementById('backBtn').addEventListener('click', function(){
+  document.getElementById('detailView').style.display = 'none';
+  document.getElementById('inboxView').style.display  = 'block';
+  currentConvId = null;
+  renderInbox();
+});
+
+/* ── Tab filter ── */
+document.querySelectorAll('.inbox-tab').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    document.querySelectorAll('.inbox-tab').forEach(function(b){ b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentFilter = btn.dataset.filter;
+    renderInbox();
+  });
+});
+
+/* ── Search ── */
+document.getElementById('searchInput').addEventListener('input', renderInbox);
+
+/* ── Initial render ── */
+renderInbox();
+
+/* ── URL hash: open conv by id ── */
+var hash = window.location.hash;
+if(hash && hash.startsWith('#conv-')){
+  var hid = parseInt(hash.replace('#conv-', ''), 10);
+  if(!isNaN(hid)) openConv(hid);
+}
+
+})();
+</script>
+
+<!-- ════════ CANONICAL NAV JS (identical to recent-jobs.html) ════════ -->
 <script>
 // ── i18n ──
 var _currentLang = 'en';
 var I18N = {
   en: {
     'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
-    'nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
+    'nav.news':'Shows','nav.lessons':'Lessons',
     'menu.strings':'Strings','menu.violin':'Violin','menu.viola':'Viola',
     'menu.cello':'Cello','menu.doublebass':'Double Bass','menu.harp':'Harp',
     'menu.woodwinds':'Woodwinds','menu.flute':'Flute','menu.piccolo':'Piccolo',
@@ -602,7 +978,7 @@ var I18N = {
   },
   zh: {
     'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
-    'nav.news':'演出','nav.contact':'聯絡','nav.lessons':'音樂老師',
+    'nav.news':'演出','nav.lessons':'音樂老師',
     'menu.strings':'弦樂','menu.violin':'小提琴','menu.viola':'中提琴',
     'menu.cello':'大提琴','menu.doublebass':'低音提琴','menu.harp':'豎琴',
     'menu.woodwinds':'木管','menu.flute':'長笛','menu.piccolo':'短笛',

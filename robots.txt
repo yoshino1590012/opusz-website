@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Disallow: /admin-login.html
+Disallow: /admin-panel.html
+Disallow: /macbook-editor.html
+Disallow: /mobile-editor.html
+Disallow: /musician-dashboard.html
+Disallow: /musician-login.html
+
+Sitemap: https://opuszmusic.com/sitemap.xml

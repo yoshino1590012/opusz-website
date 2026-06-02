@@ -2,11 +2,14 @@
 """
 OPUS.Z dev server
 — Serves static files with HTTP/1.1 + byte-range support (required for video seeking)
-— POST /save-videos   → writes video URLs into musician-platform.html permanently
-— POST /upload-file   → saves uploaded photo/video as real file in assets/images/
-— POST /save-config   → saves photo layout config to config.json
+— POST /save-videos          → writes video URLs into musician-platform.html permanently
+— POST /upload-file          → saves uploaded photo/video as real file in assets/images/
+— POST /save-config          → saves photo layout config to config.json
+— POST /submit-application   → saves musician application JSON + uploads to applications/
+— GET  /get-applications     → returns all applications sorted by submitted_at desc
+— POST /update-application   → updates status/note on an existing application
 """
-import http.server, socketserver, json, re, os, sys, base64, mimetypes, threading, subprocess
+import http.server, socketserver, json, re, os, sys, base64, mimetypes, threading, subprocess, time
 
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8766
 BASE = os.path.dirname(os.path.abspath(__file__))
@@ -21,6 +24,31 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         """Serve files with byte-range support so Chrome can seek video."""
+        # ── /get-applications ──────────────────────────────────────────────────
+        if self.path == '/get-applications':
+            try:
+                apps_dir = os.path.join(BASE, 'applications')
+                os.makedirs(apps_dir, exist_ok=True)
+                apps = []
+                for fname in os.listdir(apps_dir):
+                    if fname.endswith('.json'):
+                        fpath = os.path.join(apps_dir, fname)
+                        with open(fpath, 'r', encoding='utf-8') as f:
+                            app = json.load(f)
+                        apps.append(app)
+                # Sort by submitted_at descending
+                apps.sort(key=lambda a: a.get('submitted_at', ''), reverse=True)
+                self.send_response(200)
+                self._cors()
+                self.send_header('Content-Type', 'application/json')
+                body = json.dumps(apps, ensure_ascii=False).encode('utf-8')
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+            except Exception as e:
+                self._err(e)
+            return
+
         path = self.translate_path(self.path)
         if os.path.isdir(path):
             super().do_GET()
@@ -165,6 +193,109 @@ class Handler(http.server.SimpleHTTPRequestHandler):
                     json.dump(cfg, f, ensure_ascii=False, indent=2)
                 self._ok(b'{"ok":true}')
                 print(f'[save-shows] shows-data.json updated')
+            except Exception as e:
+                self._err(e)
+
+        # ── /submit-application ───────────────────────────────────────────────
+        # Body: application JSON with optional base64 image fields
+        # Saves JSON to applications/app_{timestamp}.json
+        # Saves any image files to assets/images/applications/
+        elif self.path == '/submit-application':
+            try:
+                data = json.loads(raw)
+                timestamp = str(int(time.time() * 1000))
+                app_id = f'app_{timestamp}'
+
+                # Ensure directories exist
+                apps_dir = os.path.join(BASE, 'applications')
+                img_dir  = os.path.join(BASE, 'assets', 'images', 'applications')
+                os.makedirs(apps_dir, exist_ok=True)
+                os.makedirs(img_dir,  exist_ok=True)
+
+                def save_dataurl(dataurl, name_hint):
+                    """Save a base64 data URL to disk, return relative path."""
+                    m = re.match(r'data:([^;]+);base64,(.*)', dataurl, re.DOTALL)
+                    if not m:
+                        return dataurl  # already a path or empty
+                    mime  = m.group(1)
+                    imgb  = base64.b64decode(m.group(2))
+                    ext_map = {'image/jpeg':'jpg','image/jpg':'jpg','image/png':'png',
+                               'image/webp':'webp','image/gif':'gif',
+                               'video/mp4':'mp4','video/quicktime':'mov',
+                               'video/webm':'webm'}
+                    ext  = ext_map.get(mime, 'bin')
+                    fname = f'{app_id}_{re.sub(r"[^a-zA-Z0-9_]","_",name_hint)}.{ext}'
+                    fpath = os.path.join(img_dir, fname)
+                    with open(fpath, 'wb') as fh:
+                        fh.write(imgb)
+                    return f'assets/images/applications/{fname}'
+
+                # Process banner photo
+                if data.get('banner_photo') and data['banner_photo'].startswith('data:'):
+                    data['banner_photo'] = save_dataurl(data['banner_photo'], 'banner')
+
+                # Process additional media array
+                if isinstance(data.get('additional_media'), list):
+                    for i, item in enumerate(data['additional_media']):
+                        if isinstance(item, dict) and item.get('dataUrl','').startswith('data:'):
+                            item['path'] = save_dataurl(item['dataUrl'], f'media_{i}')
+                            del item['dataUrl']
+                        elif isinstance(item, str) and item.startswith('data:'):
+                            data['additional_media'][i] = save_dataurl(item, f'media_{i}')
+
+                # Process performance experience photos
+                if isinstance(data.get('experiences'), list):
+                    for i, exp in enumerate(data['experiences']):
+                        if isinstance(exp, dict) and exp.get('photo','').startswith('data:'):
+                            exp['photo'] = save_dataurl(exp['photo'], f'exp_{i}')
+
+                # Add metadata
+                data['id']           = app_id
+                data['status']       = data.get('status', 'pending')
+                data['submitted_at'] = data.get('submitted_at',
+                    __import__('datetime').datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ'))
+
+                app_path = os.path.join(apps_dir, f'{app_id}.json')
+                with open(app_path, 'w', encoding='utf-8') as f:
+                    json.dump(data, f, ensure_ascii=False, indent=2)
+
+                self._ok(json.dumps({'ok': True, 'id': app_id}).encode())
+                print(f'[submit-application] saved {app_id}')
+
+            except Exception as e:
+                self._err(e)
+
+        # ── /update-application ────────────────────────────────────────────────
+        # Body: { "id": "app_xxx", "status": "approved"/"rejected", "note": "..." }
+        # Updates the status/note fields in the corresponding JSON file
+        elif self.path == '/update-application':
+            try:
+                data     = json.loads(raw)
+                app_id   = re.sub(r'[^a-zA-Z0-9_\-]', '', data.get('id', ''))
+                status   = data.get('status', '')
+                note     = data.get('note', '')
+
+                if not app_id:
+                    raise ValueError('Missing id')
+
+                apps_dir = os.path.join(BASE, 'applications')
+                app_path = os.path.join(apps_dir, f'{app_id}.json')
+                if not os.path.exists(app_path):
+                    raise FileNotFoundError(f'Application {app_id} not found')
+
+                with open(app_path, 'r', encoding='utf-8') as f:
+                    app = json.load(f)
+
+                app['status'] = status
+                app['admin_note'] = note
+                app['reviewed_at'] = __import__('datetime').datetime.utcnow().strftime('%Y-%m-%dT%H:%M:%SZ')
+
+                with open(app_path, 'w', encoding='utf-8') as f:
+                    json.dump(app, f, ensure_ascii=False, indent=2)
+
+                self._ok(b'{"ok":true}')
+                print(f'[update-application] {app_id} → {status}')
+
             except Exception as e:
                 self._err(e)
 
