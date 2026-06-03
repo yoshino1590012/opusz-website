@@ -403,9 +403,8 @@
 </script>
 
 <script>
-  // Admin credentials
-  const ADMIN_EMAIL    = 'tzutung.liao@gmail.com';
-  const ADMIN_PASSWORD = 'qwertyuiop357';
+  // Admin login is authenticated entirely by Firebase Auth (window.adminAuthSignIn).
+  // No email or password is stored in this file — credentials never touch the page source.
 
   // Toggle password visibility
   document.getElementById('togglePw').addEventListener('click', function() {
@@ -450,27 +449,28 @@
     btn.classList.add('loading');
     btn.textContent = 'Signing in…';
 
-    setTimeout(function() {
-      if (email === ADMIN_EMAIL && pw === ADMIN_PASSWORD) {
-        // Save admin session (UI gate)
-        localStorage.setItem('opusz_admin_loggedIn', 'true');
-        localStorage.setItem('opusz_admin_email', email);
-        // Also establish a Firebase Auth session so admin writes are authenticated.
-        // If it fails (network/account), the UI still works — writes just won't persist.
-        (window.adminAuthSignIn ? window.adminAuthSignIn(email, pw) : Promise.resolve())
-          .catch(function(e){ console.warn('[admin] Firebase sign-in failed (UI still ok):', e && (e.code||e.message)); })
-          .finally(function(){ showSuccess(); });
-      } else {
-        btn.classList.remove('loading');
-        btn.textContent = 'Sign in';
-        err.textContent = 'Incorrect email or password. Please try again.';
-        err.classList.add('show');
-        // Shake the card
-        document.querySelector('.login-card').classList.remove('shake');
-        void document.querySelector('.login-card').offsetWidth;
-        document.querySelector('.login-card').classList.add('shake');
-      }
-    }, 900);
+    // Authenticate against Firebase. Correctness of the password is decided by
+    // Firebase's backend — nothing is compared in this page, so no password lives here.
+    var signIn = window.adminAuthSignIn
+      ? window.adminAuthSignIn(email, pw)
+      : Promise.reject(new Error('auth-unavailable'));
+
+    signIn.then(function() {
+      // Authenticated. Set the UI gate flag and continue.
+      localStorage.setItem('opusz_admin_loggedIn', 'true');
+      localStorage.setItem('opusz_admin_email', email);
+      showSuccess();
+    }).catch(function(e) {
+      console.warn('[admin] sign-in failed:', e && (e.code || e.message));
+      btn.classList.remove('loading');
+      btn.textContent = 'Sign in';
+      err.textContent = 'Incorrect email or password. Please try again.';
+      err.classList.add('show');
+      // Shake the card
+      document.querySelector('.login-card').classList.remove('shake');
+      void document.querySelector('.login-card').offsetWidth;
+      document.querySelector('.login-card').classList.add('shake');
+    });
   }
 
   function showSuccess() {

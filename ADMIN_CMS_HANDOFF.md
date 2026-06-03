@@ -28,7 +28,7 @@ Date of handoff: 2026-06-03
 - **Persistence is REAL (local=live):** `seSave` writes `siteContent/home` to Firestore.
   Verified: edit in admin → clear local mirror → reload homepage → it renders from Firestore.
 - **Security DONE:** admin now authenticates with Firebase Auth.
-  - Admin Firebase account: **tzutung.liao@gmail.com** / password `qwertyuiop357` (uid
+  - Admin Firebase account: **tzutung.liao@gmail.com** / password **[REDACTED — not stored in repo; ask owner]** (uid
     qR8q45IUgpSg8lcMeHtHqmngy9e2). `admin-login.html` signs in (window.adminAuthSignIn);
     `admin-panel.html` loads `getAuth(app)` so writes carry the admin identity.
   - Firestore rule (PUBLISHED): `match /siteContent/{page} { allow read: if true; allow write:
@@ -53,7 +53,7 @@ We've done the homepage-hero + several homepage text sections. NOT yet done:
 
 **HOW TO TEST (preview):** the Claude Preview server serves the site on localhost:8080.
 Admin is login-gated — set `localStorage.opusz_admin_loggedIn='true'` to enter the UI, and to
-test authed writes call `window.adminAuthSignIn('tzutung.liao@gmail.com','qwertyuiop357')`
+test authed writes call `window.adminAuthSignIn('tzutung.liao@gmail.com', '<admin password — ask owner>')`
 once (session persists). Dashboard pages need real Firebase Auth → verify their logic by
 replicating functions against a built DOM (pattern used throughout). The owner can also let
 you drive their real Chrome (Claude-in-Chrome) for Firebase Console tasks.
@@ -330,8 +330,8 @@ All verified in-browser unless noted. Files in `/Users/martinliao/opusz-website`
 - 2026-06-03: Handoff doc created. All of §5 completed prior.
 - 2026-06-03 (latest): **Admin auth secured + write rule tightened.**
   - Created a Firebase Auth admin account in Console: **tzutung.liao@gmail.com** (uid
-    qR8q45IUgpSg8lcMeHtHqmngy9e2), password = the existing hardcoded admin password
-    `qwertyuiop357` (so login is seamless). Email/Password provider already enabled.
+    qR8q45IUgpSg8lcMeHtHqmngy9e2), password **[REDACTED — not stored in repo; ask owner]**.
+    Email/Password provider already enabled.
   - `admin-login.html`: added a Firebase module that exposes `window.adminAuthSignIn`;
     on successful (hardcoded) login it now ALSO `signInWithEmailAndPassword` with
     `browserLocalPersistence`, establishing a real Firebase session. UI gate unchanged
