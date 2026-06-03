@@ -4,3 +4,8 @@
 node_modules/
 .env
 assets/videos/fp60.mp4
+
+# Large unused media (kept locally, streamed from Cloudinary instead) — exceed Cloudflare Pages 25MiB limit
+assets/images/Video Exhibition/
+assets/videos/hero-scrub.mp4
+assets/videos/hero-scrub-ionly.mp4
