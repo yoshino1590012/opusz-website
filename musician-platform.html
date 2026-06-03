@@ -2090,6 +2090,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 </script>
   <link rel="icon" href="/favicon.ico?v=3" />
   <link rel="icon" type="image/png" href="/favicon.png?v=3" />
+  <script src="assets/js/analytics.js"></script>
 </head>
 <body>
 
@@ -2164,8 +2165,6 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   <!-- My Account Dropdown (outside nav to escape mix-blend-mode) -->
   <div class="nav-login-dropdown acc-menu" id="accountDropdown">
     <a href="messages.html" style="font-weight:700;">Messages <span class="nav-msg-badge" id="dropMsgBadge" style="display:none;background:#e05;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto;">0</span></a>
-    <div class="nav-login-vsep"></div>
-    <a href="musician-community.html" style="font-weight:700;">🎵 樂手社群</a>
     <div class="nav-login-vsep"></div>
     <a href="customer-profile.html#bookings">My Bookings</a>
     <div class="nav-login-vsep"></div>
@@ -2593,19 +2592,19 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     <div class="work-photos" id="work-photos">
 
       <div class="work-card" id="wcard-0">
-        <div class="work-card-img wc1">
+        <div class="work-card-img wc1" data-cms="home.work.1" data-cms-attr="bg">
           <div class="work-card-caption" data-tid="poster-1">Strings Night · National Concert Hall, Taipei</div>
         </div>
       </div>
 
       <div class="work-card" id="wcard-1">
-        <div class="work-card-img wc2">
+        <div class="work-card-img wc2" data-cms="home.work.2" data-cms-attr="bg">
           <div class="work-card-caption" data-tid="poster-2">Piano Recital · National Chiang Kai-shek Cultural Center</div>
         </div>
       </div>
 
       <div class="work-card" id="wcard-2">
-        <div class="work-card-img wc3">
+        <div class="work-card-img wc3" data-cms="home.work.3" data-cms-attr="bg">
           <div class="work-card-caption" data-tid="poster-3">Chamber Music · Weiwuying National Performing Arts Center</div>
         </div>
       </div>
@@ -2620,33 +2619,33 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     <div class="sv-grid">
       <div class="sv-cell sv-c1" data-sv-idx="1">
         <div class="sv-bg sv-bg-1"></div>
-        <video class="sv-vid" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.1" data-cms-attr="src" autoplay muted loop playsinline></video>
       </div>
       <div class="sv-cell sv-c2" data-sv-idx="2">
         <div class="sv-bg sv-bg-2"></div>
-        <video class="sv-vid" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.2" data-cms-attr="src" autoplay muted loop playsinline></video>
       </div>
       <div class="sv-cell sv-c3" data-sv-idx="3">
         <div class="sv-bg sv-bg-3"></div>
-        <video class="sv-vid" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.3" data-cms-attr="src" autoplay muted loop playsinline></video>
       </div>
       <div class="sv-cell sv-c4" data-sv-idx="4">
         <div class="sv-bg sv-bg-4"></div>
-        <video class="sv-vid" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.4" data-cms-attr="src" autoplay muted loop playsinline></video>
         <div class="sv-overlay"></div>
         <div class="sv-label" data-tid="showreel-label">The Finest</div>
       </div>
       <div class="sv-cell sv-c5" data-sv-idx="5">
         <div class="sv-bg sv-bg-5"></div>
-        <video class="sv-vid" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.5" data-cms-attr="src" autoplay muted loop playsinline></video>
       </div>
       <div class="sv-cell sv-c6" data-sv-idx="6">
         <div class="sv-bg sv-bg-6"></div>
-        <video class="sv-vid" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.6" data-cms-attr="src" autoplay muted loop playsinline></video>
       </div>
       <div class="sv-cell sv-c7" data-sv-idx="7">
         <div class="sv-bg sv-bg-7"></div>
-        <video class="sv-vid" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.7" data-cms-attr="src" autoplay muted loop playsinline></video>
       </div>
     </div>
   </div>
@@ -3158,6 +3157,9 @@ const I18N = {
   }
 };
 
+// Expose i18n to the CMS renderer (site-content.js) — same object refs so overrides persist
+window.I18N = I18N;
+try { Object.defineProperty(window, "_currentLang", { configurable:true, get:function(){ return _currentLang; }, set:function(v){ _currentLang = v; } }); } catch(e){}
 function switchLang(lang) {
   _currentLang = lang;
   const dict = I18N[lang] || I18N.en;
@@ -3207,8 +3209,9 @@ function switchLang(lang) {
   function positionBadge() {
     if (!badge || !btn) return;
     var r = btn.getBoundingClientRect();
-    badge.style.top  = (r.top - 2) + 'px';
-    badge.style.left = (r.right - 10) + 'px';
+    // hug the heart's top-right corner (button has 6px padding around the icon)
+    badge.style.top  = (r.top + 1) + 'px';
+    badge.style.left = (r.right - 16) + 'px';
   }
 
   if (badge) {
@@ -3231,6 +3234,7 @@ function switchLang(lang) {
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
+  window.switchLang = switchLang;
   document.getElementById('langToggle').addEventListener('click', e => {
     const opt = e.target.closest('[data-l]');
     switchLang(opt ? opt.dataset.l : (_currentLang === 'en' ? 'zh' : 'en'));
@@ -7050,110 +7054,9 @@ window.addEventListener('keydown', function(e){
 })();
 </script>
 
-<!-- ── Background colour palette for "Explore Classical Music Experts" section ── -->
-<style>
-#catBgPalette{
-  position:fixed; right:20px; bottom:20px; z-index:9999;
-  width:230px; background:#fff; border-radius:14px;
-  box-shadow:0 8px 40px rgba(0,0,0,.22), 0 0 0 1px rgba(0,0,0,.06);
-  font-family:'Inter',sans-serif; overflow:hidden;
-  transition:transform .25s ease, opacity .25s ease;
-}
-#catBgPalette.collapsed{ transform:translateY(calc(100% - 44px)); }
-#catBgPalette .cbp-head{
-  display:flex; align-items:center; justify-content:space-between;
-  padding:12px 14px; cursor:pointer; user-select:none;
-  background:#111; color:#fff;
-}
-#catBgPalette .cbp-head h4{ font-size:12px; font-weight:600; margin:0; letter-spacing:.02em; }
-#catBgPalette .cbp-toggle{ font-size:14px; line-height:1; transition:transform .25s; }
-#catBgPalette.collapsed .cbp-toggle{ transform:rotate(180deg); }
-#catBgPalette .cbp-body{ padding:14px; }
-#catBgPalette .cbp-swatches{ display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin-bottom:14px; }
-#catBgPalette .cbp-sw{
-  aspect-ratio:1; border-radius:7px; cursor:pointer;
-  border:2px solid transparent; transition:transform .12s, border-color .12s;
-}
-#catBgPalette .cbp-sw:hover{ transform:scale(1.12); }
-#catBgPalette .cbp-sw.active{ border-color:#0a84ff; }
-#catBgPalette .cbp-custom{ display:flex; align-items:center; gap:10px; }
-#catBgPalette input[type=color]{
-  width:38px; height:30px; border:1px solid #ddd; border-radius:7px;
-  padding:0; background:none; cursor:pointer; flex-shrink:0;
-}
-#catBgPalette .cbp-hex{
-  flex:1; font-size:12px; font-family:ui-monospace,monospace; color:#222;
-  border:1px solid #e3e3e3; border-radius:7px; padding:6px 8px; width:100%;
-  text-transform:uppercase; outline:none;
-}
-#catBgPalette .cbp-reset{
-  margin-top:12px; width:100%; padding:7px; font-size:11px; font-weight:600;
-  background:#f1f1f1; color:#444; border:none; border-radius:7px; cursor:pointer;
-}
-#catBgPalette .cbp-reset:hover{ background:#e7e7e7; }
-</style>
-<div id="catBgPalette">
-  <div class="cbp-head" id="cbpHead">
-    <h4>🎨 區塊背景色</h4>
-    <span class="cbp-toggle">▾</span>
-  </div>
-  <div class="cbp-body">
-    <div class="cbp-swatches" id="cbpSwatches"></div>
-    <div class="cbp-custom">
-      <input type="color" id="cbpColor" value="#000000">
-      <input type="text" class="cbp-hex" id="cbpHex" value="#000000" maxlength="7">
-    </div>
-    <button class="cbp-reset" id="cbpReset">重設為黑色</button>
-  </div>
-</div>
-<script>
-(function(){
-  var KEY = 'catBgColor';
-  var DEFAULT = '#000000';
-  var PRESETS = ['#000000','#141414','#1c1c2e','#0f1f1c','#241218','#0d1b2a',
-                 '#2b2118','#3a0d0d','#1a1a1a','#101820','#f5f5f5','#ffffff'];
+<!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
-  var section = document.querySelector('.categories');
-  var swatches = document.getElementById('cbpSwatches');
-  var colorInput = document.getElementById('cbpColor');
-  var hexInput = document.getElementById('cbpHex');
-
-  function apply(c){
-    if(section) section.style.background = c;
-    colorInput.value = c;
-    hexInput.value = c.toUpperCase();
-    try{ localStorage.setItem(KEY, c); }catch(e){}
-    document.querySelectorAll('#cbpSwatches .cbp-sw').forEach(function(s){
-      s.classList.toggle('active', s.dataset.c.toLowerCase() === c.toLowerCase());
-    });
-  }
-
-  PRESETS.forEach(function(c){
-    var sw = document.createElement('div');
-    sw.className = 'cbp-sw';
-    sw.style.background = c;
-    sw.dataset.c = c;
-    sw.title = c;
-    sw.addEventListener('click', function(){ apply(c); });
-    swatches.appendChild(sw);
-  });
-
-  colorInput.addEventListener('input', function(){ apply(colorInput.value); });
-  hexInput.addEventListener('change', function(){
-    var v = hexInput.value.trim();
-    if(/^#?[0-9a-fA-F]{6}$/.test(v)){ apply(v[0]==='#'?v:'#'+v); }
-  });
-  document.getElementById('cbpReset').addEventListener('click', function(){ apply(DEFAULT); });
-
-  document.getElementById('cbpHead').addEventListener('click', function(){
-    document.getElementById('catBgPalette').classList.toggle('collapsed');
-  });
-
-  var saved = DEFAULT;
-  try{ saved = localStorage.getItem(KEY) || DEFAULT; }catch(e){}
-  apply(saved);
-})();
-</script>
-
+<!-- CMS: render admin-editable content (Firestore siteContent/home) -->
+<script type="module" src="site-content.js"></script>
 </body>
 </html>

@@ -315,6 +315,7 @@
 </style>
   <link rel="icon" href="/favicon.ico?v=3" />
   <link rel="icon" type="image/png" href="/favicon.png?v=3" />
+  <script src="assets/js/analytics.js"></script>
 </head>
 <body>
 
@@ -381,6 +382,26 @@
   <p class="footer-note">OPUS.Z Platform © 2025</p>
 </div>
 
+<!-- Firebase Auth: establish a real session so admin writes are authenticated -->
+<script type="module">
+  import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  const firebaseConfig = {
+    apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
+    authDomain: "opusz-45280.firebaseapp.com",
+    projectId: "opusz-45280",
+    storageBucket: "opusz-45280.firebasestorage.app",
+    messagingSenderId: "304745430147",
+    appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
+  };
+  const app  = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  window.adminAuthSignIn = async function(email, pw){
+    try { await setPersistence(auth, browserLocalPersistence); } catch(e){}
+    return signInWithEmailAndPassword(auth, email, pw);
+  };
+</script>
+
 <script>
   // Admin credentials
   const ADMIN_EMAIL    = 'tzutung.liao@gmail.com';
@@ -431,10 +452,14 @@
 
     setTimeout(function() {
       if (email === ADMIN_EMAIL && pw === ADMIN_PASSWORD) {
-        // Save admin session
+        // Save admin session (UI gate)
         localStorage.setItem('opusz_admin_loggedIn', 'true');
         localStorage.setItem('opusz_admin_email', email);
-        showSuccess();
+        // Also establish a Firebase Auth session so admin writes are authenticated.
+        // If it fails (network/account), the UI still works — writes just won't persist.
+        (window.adminAuthSignIn ? window.adminAuthSignIn(email, pw) : Promise.resolve())
+          .catch(function(e){ console.warn('[admin] Firebase sign-in failed (UI still ok):', e && (e.code||e.message)); })
+          .finally(function(){ showSuccess(); });
       } else {
         btn.classList.remove('loading');
         btn.textContent = 'Sign in';

@@ -415,6 +415,56 @@
     .page-header h1 { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
     .page-header p { font-size: 13.5px; color: var(--mid); margin-top: 4px; }
 
+    /* ── Page Builder (Edit my page) ── */
+    #page-pagebuilder.page.active { display: flex; flex-direction: column; height: 100%; }
+    .pb-shell { display: flex; flex: 1; min-height: 0; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--white); }
+    .pb-left { width: 180px; flex-shrink: 0; border-right: 1px solid var(--border); padding: 12px 0; background: #fafafa; overflow-y: auto; }
+    .pb-sec-item { display: block; width: 100%; text-align: left; padding: 11px 18px; font-size: 13px; font-weight: 600; color: var(--mid); background: none; border: none; cursor: pointer; font-family: inherit; border-left: 3px solid transparent; }
+    .pb-sec-item:hover { background: #f0f0f0; color: var(--black); }
+    .pb-sec-item.active { color: var(--black); background: #fff; border-left-color: var(--black); }
+    .pb-center { flex: 1; min-width: 0; display: flex; flex-direction: column; background: #f0f0f0; }
+    .pb-devbar { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-bottom: 1px solid var(--border); background: var(--white); }
+    .pb-dev-btn { padding: 5px 12px; font-size: 12px; font-weight: 600; border: 1.5px solid #ddd; background: var(--white); color: var(--mid); border-radius: 7px; cursor: pointer; font-family: inherit; }
+    .pb-dev-btn.active { border-color: var(--black); color: var(--black); }
+    .pb-frame-wrap { flex: 1; min-height: 0; display: flex; justify-content: center; padding: 16px; overflow: auto; }
+    .pb-frame-inner { width: 100%; max-width: 100%; height: 100%; background: var(--white); box-shadow: 0 2px 18px rgba(0,0,0,.08); border-radius: 8px; overflow: hidden; transition: width .25s ease; }
+    .pb-right { width: 320px; flex-shrink: 0; border-left: 1px solid var(--border); padding: 20px; overflow-y: auto; }
+    .pb-field { margin-bottom: 16px; }
+    .pb-field-group { display: none; }
+    .pb-field-group.active { display: block; }
+    .pb-field label { display: block; font-size: 12px; font-weight: 600; color: var(--mid); margin-bottom: 6px; }
+    .pb-field input[type=text], .pb-field input[type=number], .pb-field textarea { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 9px 12px; font-family: inherit; font-size: 13.5px; outline: none; transition: border-color .15s; box-sizing: border-box; }
+    .pb-field input:focus, .pb-field textarea:focus { border-color: var(--black); }
+    .pb-field textarea { resize: vertical; min-height: 120px; line-height: 1.5; }
+    .pb-check { display: flex; align-items: center; gap: 10px; padding: 9px 0; font-size: 13.5px; cursor: pointer; }
+    .pb-check input { width: 16px; height: 16px; cursor: pointer; }
+    .pb-group-title { font-size: 13px; font-weight: 700; color: var(--black); margin-bottom: 14px; }
+    /* Scoped mirror of musicians.html directory card, for live card preview */
+    .pbcard { border-radius: 12px; overflow: hidden; background: #fff; border: 1.5px solid #efefef; }
+    .pbcard-photo { position: relative; aspect-ratio: 4/3; overflow: hidden; background: #f0f0f0; }
+    .pbcard-photo-pan { position: absolute; inset: 0; transform-origin: center center; }
+    .pbcard-photo-pan img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+    .pbcard-photo-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 48px; background: linear-gradient(135deg,#222,#1a1a1a); color: rgba(255,255,255,.15); }
+    .pbcard-body { padding: 14px; }
+    .pbcard-location { font-size: 12px; color: #888; display: flex; align-items: center; gap: 3px; margin-bottom: 8px; }
+    .pbcard-location svg { flex-shrink: 0; }
+    .pbcard-name { font-size: 20px; font-weight: 800; margin-bottom: 4px; line-height: 1.2; letter-spacing: -.01em; color: var(--black); }
+    .pbcard-instrument { font-size: 13px; font-weight: 700; color: #000; text-transform: uppercase; letter-spacing: .10em; margin-bottom: 8px; }
+    .pbcard-bio { font-size: 12px; color: #888; line-height: 1.55; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .pb-subgroup { border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 16px; }
+    .pb-subgroup-title { font-size: 12px; font-weight: 700; color: var(--black); margin-bottom: 12px; text-transform: uppercase; letter-spacing: .04em; }
+    .pb-dyn-row { display: flex; gap: 8px; align-items: flex-start; margin-bottom: 8px; }
+    .pb-dyn-row .pb-dyn-fields { flex: 1; display: flex; gap: 8px; flex-wrap: wrap; }
+    .pb-dyn-row .pb-dyn-fields > div { flex: 1; min-width: 90px; }
+    .pb-dyn-row .pb-dyn-fields label { display: block; font-size: 11px; font-weight: 600; color: var(--mid); margin-bottom: 4px; }
+    .pb-dyn-row .pb-dyn-fields input { width: 100%; border: 1.5px solid var(--border); border-radius: 8px; padding: 8px 10px; font-family: inherit; font-size: 13px; outline: none; box-sizing: border-box; transition: border-color .15s; }
+    .pb-dyn-row .pb-dyn-fields input:focus { border-color: var(--black); }
+    .pb-row-del { flex-shrink: 0; width: 30px; height: 30px; margin-top: 18px; border: 1.5px solid var(--border); border-radius: 8px; background: #fff; color: var(--mid); font-size: 14px; cursor: pointer; line-height: 1; transition: all .15s; }
+    .pb-row-del:hover { border-color: #e00; color: #e00; }
+    .pb-row-add { border: 1.5px dashed var(--border); border-radius: 8px; background: #fff; color: var(--black); font-family: inherit; font-size: 12.5px; font-weight: 600; padding: 8px 14px; cursor: pointer; transition: all .15s; }
+    .pb-row-add:hover { border-color: var(--black); background: #fafafa; }
+    .pb-help-note { font-size: 12px; color: var(--mid); line-height: 1.6; margin: 4px 0 0; }
+
     /* ── Profile tab page ── */
     .profile-tabs-wrap { max-width: 680px; }
     .profile-photo-area {
@@ -448,9 +498,70 @@
     .field-readonly {
       background: #fafafa !important; color: var(--mid) !important; cursor: default !important;
     }
+
+    /* ── Membership / 方案 page ── */
+    .mem-current{ display:flex; align-items:center; justify-content:space-between; gap:16px;
+      background:linear-gradient(120deg,#111,#2a2a2a); color:#fff; border-radius:16px; padding:22px 26px; margin-bottom:24px; }
+    .mem-current-label{ font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,.5); margin-bottom:6px; }
+    .mem-current-name{ display:flex; align-items:center; gap:12px; font-size:22px; font-weight:800; }
+    .mem-current-status{ font-size:13px; color:rgba(255,255,255,.7); margin-top:6px; }
+    .mem-badge{ font-size:11px; font-weight:700; letter-spacing:.06em; padding:4px 10px; border-radius:20px; background:rgba(255,255,255,.16); color:#fff; }
+    .mem-badge.pro{ background:#1ab864; color:#04210f; }
+    .mem-grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:24px; }
+    @media(max-width:820px){ .mem-grid{ grid-template-columns:1fr; } }
+    .mem-card{ border:1.5px solid #ececec; border-radius:16px; padding:26px; background:#fff; display:flex; flex-direction:column; }
+    .mem-card--pro{ border-color:#111; box-shadow:0 6px 30px rgba(0,0,0,.08); position:relative; }
+    .mem-card-tier{ font-size:16px; font-weight:800; color:#111; display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+    .mem-pro-pill{ font-size:10px; font-weight:800; letter-spacing:.06em; background:#1ab864; color:#04210f; padding:2px 8px; border-radius:20px; }
+    .mem-card-price{ font-size:15px; color:#888; margin-bottom:10px; }
+    .mem-card-price b{ font-size:30px; color:#111; letter-spacing:-.02em; }
+    .mem-card-desc{ font-size:13.5px; color:#777; line-height:1.55; margin:0 0 18px; }
+    .mem-feat{ list-style:none; padding:0; margin:0 0 22px; display:flex; flex-direction:column; gap:10px; flex:1; }
+    .mem-feat li{ font-size:13.5px; color:#333; padding-left:26px; position:relative; line-height:1.4; }
+    .mem-feat li.ok::before{ content:'✓'; position:absolute; left:0; top:0; color:#1ab864; font-weight:800; }
+    .mem-feat li.no{ color:#bbb; }
+    .mem-feat li.no::before{ content:'✕'; position:absolute; left:0; top:0; color:#d8d8d8; font-weight:800; }
+    .mem-card-foot{ margin-top:auto; }
+    .mem-tag{ display:inline-block; font-size:12px; font-weight:700; color:#555; background:#f1f1f1; border-radius:20px; padding:7px 16px; }
+    .mem-tag.active{ background:#111; color:#fff; }
+    .mem-coupon{ border:1.5px dashed #d8d8d8; border-radius:16px; padding:22px 24px; background:#fcfcfc; }
+    .mem-coupon-title{ font-size:15px; font-weight:800; color:#111; margin-bottom:6px; }
+    .mem-coupon-desc{ font-size:13px; color:#777; line-height:1.55; margin-bottom:14px; }
+    .mem-coupon-row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .mem-coupon-row input{ flex:1; min-width:200px; border:1.5px solid var(--border,#e0e0e0); border-radius:8px; padding:11px 14px; font-family:inherit; font-size:14px; text-transform:uppercase; letter-spacing:.04em; outline:none; }
+    .mem-coupon-row input:focus{ border-color:#111; }
+    .mem-coupon-msg{ font-size:13px; font-weight:600; margin-top:12px; min-height:18px; }
+    .mem-coupon-msg.ok{ color:#16a34a; }
+    .mem-coupon-msg.err{ color:#dc2626; }
+
+    /* ── Partners logo picker ── */
+    .pb-logo-picker{ display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
+    .pb-logo-chip{ display:flex; align-items:center; justify-content:center; height:46px; padding:6px 10px;
+      border:1.5px solid #e6e6e6; border-radius:9px; background:#fff; cursor:pointer; color:#999;
+      transition:border-color .15s, color .15s, background .15s; }
+    .pb-logo-chip:hover{ border-color:#aaa; color:#444; }
+    .pb-logo-chip.sel{ border-color:#111; color:#111; background:#f7f7f7; }
+    .pb-logo-chip svg{ height:22px; width:auto; max-width:100%; display:block; }
+    .pb-logo-chip .pb-logo-check{ display:none; }
+    .pb-logo-chip.sel .pb-logo-check{ display:inline; }
+
+
+    /* ── Lesson-plans editor lock (when not Premium) ── */
+    [data-pbgroup="lessons"]{ position:relative; }
+    [data-pbgroup="lessons"].pb-locked > *:not(.pb-lock){ opacity:.45; pointer-events:none; filter:grayscale(.3); }
+    .pb-lock{ display:none; position:absolute; inset:0; z-index:5; border-radius:12px;
+      background:rgba(250,250,250,.72); backdrop-filter:blur(1px);
+      flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:20px; gap:10px; }
+    [data-pbgroup="lessons"].pb-locked .pb-lock{ display:flex; }
+    .pb-lock-title{ font-size:14px; font-weight:800; color:#111; }
+    .pb-lock-desc{ font-size:12.5px; color:#666; max-width:260px; line-height:1.5; }
+    .pb-lock-btn{ margin-top:4px; background:#111; color:#fff; border:none; border-radius:20px; padding:8px 18px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .pb-lock-btn:hover{ opacity:.85; }
   </style>
   <link rel="icon" href="/favicon.ico?v=3" />
   <link rel="icon" type="image/png" href="/favicon.png?v=3" />
+  <script src="partners-library.js"></script>
+  <script src="assets/js/analytics.js"></script>
 </head>
 <body>
 
@@ -477,12 +588,12 @@
       <button class="sb-item" data-page="jobs" onclick="navigate('jobs',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
         <span>Jobs & Inquiries</span>
-        <span class="sb-badge">5</span>
+        <span class="sb-badge" id="sbJobsBadge" style="display:none;">0</span>
       </button>
       <button class="sb-item" data-page="messages" onclick="navigate('messages',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         <span>Messages</span>
-        <span class="sb-badge">2</span>
+        <span class="sb-badge" id="sbMsgBadge" style="display:none;">0</span>
       </button>
       <button class="sb-item" data-page="earnings" onclick="navigate('earnings',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -500,6 +611,15 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
         <span>My Profile</span>
         <span class="sb-badge green">!</span>
+      </button>
+      <button class="sb-item" data-page="pagebuilder" onclick="navigate('pagebuilder',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        <span>編輯主頁 / Edit Page</span>
+      </button>
+      <button class="sb-item" data-page="membership" onclick="navigate('membership',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.6 5.7 21l2.3-7.1-6-4.5h7.6z"/></svg>
+        <span>方案 / Membership</span>
+        <span class="sb-badge" id="sbMembershipBadge" style="display:none;"></span>
       </button>
       <button class="sb-item" data-page="settings" onclick="navigate('settings',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
@@ -531,7 +651,7 @@
     <header class="topbar">
       <div class="topbar-title" id="topbarTitle">Overview</div>
       <div class="topbar-right">
-        <button class="topbar-btn" onclick="showNotif('You have 2 new messages')">
+        <button class="topbar-btn" onclick="showInboxNotif()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <div class="notif-dot"></div>
         </button>
@@ -717,39 +837,10 @@
           <div class="card">
             <div class="chart-wrap">
               <div class="sec-title" style="margin-bottom:16px;">Monthly Income</div>
-              <div class="chart-bars">
-                <div class="chart-bar-col">
-                  <div class="chart-bar-val">28K</div>
-                  <div class="chart-bar" style="height:47%;"></div>
-                </div>
-                <div class="chart-bar-col">
-                  <div class="chart-bar-val">35K</div>
-                  <div class="chart-bar" style="height:59%;"></div>
-                </div>
-                <div class="chart-bar-col">
-                  <div class="chart-bar-val">42K</div>
-                  <div class="chart-bar" style="height:71%;"></div>
-                </div>
-                <div class="chart-bar-col">
-                  <div class="chart-bar-val">18K</div>
-                  <div class="chart-bar this-month" style="height:30%;"></div>
-                </div>
-                <div class="chart-bar-col">
-                  <div class="chart-bar-val">—</div>
-                  <div class="chart-bar" style="height:4%;background:#f0f0f0;"></div>
-                </div>
-                <div class="chart-bar-col">
-                  <div class="chart-bar-val">—</div>
-                  <div class="chart-bar" style="height:4%;background:#f0f0f0;"></div>
-                </div>
-              </div>
-              <div class="chart-labels">
-                <div class="chart-label">Mar</div>
-                <div class="chart-label">Apr</div>
-                <div class="chart-label">May</div>
-                <div class="chart-label" style="font-weight:700;color:#111;">Jun</div>
-                <div class="chart-label">Jul</div>
-                <div class="chart-label">Aug</div>
+              <div style="height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#aaa;text-align:center;">
+                <div style="font-size:30px;margin-bottom:8px;">📊</div>
+                <div style="font-size:13px;font-weight:600;color:#777;">尚無收入紀錄</div>
+                <div style="font-size:12px;">完成演出後，每月收入會顯示在這裡</div>
               </div>
             </div>
           </div>
@@ -757,16 +848,16 @@
             <div class="sec-title" style="margin-bottom:16px;">Commission Breakdown</div>
             <div style="display:flex;flex-direction:column;gap:12px;">
               <div style="display:flex;justify-content:space-between;font-size:13.5px;">
-                <span style="color:var(--mid);">Gross earnings (May)</span>
-                <span style="font-weight:600;">NT$46,667</span>
+                <span style="color:var(--mid);">Gross earnings</span>
+                <span style="font-weight:600;">NT$0</span>
               </div>
               <div style="display:flex;justify-content:space-between;font-size:13.5px;">
                 <span style="color:var(--mid);">OPUS.Z commission (10%)</span>
-                <span style="font-weight:600;color:var(--red);">— NT$4,667</span>
+                <span style="font-weight:600;color:var(--red);">— NT$0</span>
               </div>
               <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;justify-content:space-between;font-size:14.5px;">
                 <span style="font-weight:700;">Net payout</span>
-                <span style="font-weight:800;color:var(--green);">NT$42,000</span>
+                <span style="font-weight:800;color:var(--green);">NT$0</span>
               </div>
             </div>
           </div>
@@ -788,32 +879,11 @@
             </thead>
             <tbody>
               <tr>
-                <td style="color:var(--mid);">Jun 20</td>
-                <td>Wedding Ceremony · Solo Violin</td>
-                <td>Chen Jia-Yu</td>
-                <td class="tx-amount">NT$14,400</td>
-                <td><span class="tx-status tx-paid">✓ Paid</span></td>
-              </tr>
-              <tr>
-                <td style="color:var(--mid);">May 28</td>
-                <td>Corporate Dinner · Duo</td>
-                <td>TSMC Ltd.</td>
-                <td class="tx-amount">NT$27,000</td>
-                <td><span class="tx-status tx-paid">✓ Paid</span></td>
-              </tr>
-              <tr>
-                <td style="color:var(--mid);">May 10</td>
-                <td>Birthday Gala · Solo Violin</td>
-                <td>Wang Family</td>
-                <td class="tx-amount">NT$15,000</td>
-                <td><span class="tx-status tx-paid">✓ Paid</span></td>
-              </tr>
-              <tr>
-                <td style="color:var(--mid);">Jul 08</td>
-                <td>Birthday Gala · String Duo</td>
-                <td>Li Xiao-Ming</td>
-                <td class="tx-amount">NT$18,000</td>
-                <td><span class="tx-status tx-pending">⏳ Pending</span></td>
+                <td colspan="5" style="text-align:center;color:#aaa;padding:40px 0;">
+                  <div style="font-size:28px;margin-bottom:8px;">🧾</div>
+                  <div style="font-size:13px;font-weight:600;color:#777;margin-bottom:4px;">尚無交易紀錄</div>
+                  <div style="font-size:12px;">完成演出並收款後，紀錄會顯示在這裡</div>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -861,22 +931,6 @@
                 <div class="form-group">
                   <label class="form-label">聯絡電話</label>
                   <input class="form-input" type="tel" id="pfPhone" placeholder="+886 912 345 678">
-                </div>
-              </div>
-              <div class="form-row full">
-                <div class="form-group">
-                  <label class="form-label">個人簡介</label>
-                  <textarea class="form-textarea" id="pfBio" placeholder="介紹你自己、演奏風格、代表作品…" style="min-height:110px;"></textarea>
-                </div>
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label">最低報價（NTD）</label>
-                  <input class="form-input" type="text" id="pfRateMin" placeholder="例如 8,000">
-                </div>
-                <div class="form-group">
-                  <label class="form-label">最高報價（NTD）</label>
-                  <input class="form-input" type="text" id="pfRateMax" placeholder="例如 30,000">
                 </div>
               </div>
               <div class="form-row full">
@@ -1118,6 +1172,467 @@
         </div>
       </div>
 
+      <!-- ── MEMBERSHIP / 方案 ── -->
+      <div class="page" id="page-membership">
+        <div class="page-header">
+          <h1>方案 / Membership</h1>
+          <p class="page-sub">選擇適合你的方案，解鎖教學招生功能。</p>
+        </div>
+
+        <!-- Current plan banner -->
+        <div class="mem-current" id="memCurrent">
+          <div>
+            <div class="mem-current-label">目前方案 / Current plan</div>
+            <div class="mem-current-name">
+              <span id="memCurrentName">Basic 基本版</span>
+              <span class="mem-badge" id="memCurrentBadge">FREE</span>
+            </div>
+            <div class="mem-current-status" id="memCurrentStatus">免費方案 · 只開放表演報價</div>
+          </div>
+        </div>
+
+        <!-- Plan comparison -->
+        <div class="mem-grid">
+          <!-- Basic -->
+          <div class="mem-card" id="memCardBasic">
+            <div class="mem-card-tier">Basic 基本版</div>
+            <div class="mem-card-price"><b>免費</b></div>
+            <p class="mem-card-desc">建立並編輯你的公開主頁，接表演邀約。</p>
+            <ul class="mem-feat">
+              <li class="ok">編輯個人主頁（全部排版功能）</li>
+              <li class="ok">表演報價與預約</li>
+              <li class="ok">1 次免費宣傳海報機會</li>
+              <li class="no">教學課程方案欄位</li>
+              <li class="no">出現在「Lessons」老師列表</li>
+              <li class="no">公開招收學生</li>
+            </ul>
+            <div class="mem-card-foot"><span class="mem-tag" id="memBasicTag">目前方案</span></div>
+          </div>
+
+          <!-- Premium -->
+          <div class="mem-card mem-card--pro" id="memCardPro">
+            <div class="mem-card-tier">Premium 加強版 <span class="mem-pro-pill">PRO</span></div>
+            <div class="mem-card-price"><b id="memProPrice">NT$XXX</b> <span>/ 月</span></div>
+            <p class="mem-card-desc">解鎖教學功能，公開招收學生，獲得推薦曝光。</p>
+            <ul class="mem-feat">
+              <li class="ok">包含 Basic 全部功能</li>
+              <li class="ok"><b>教學課程方案</b>欄位（主頁顯示）</li>
+              <li class="ok">出現在「Lessons」<b>老師列表</b></li>
+              <li class="ok"><b>公開招收學生</b></li>
+              <li class="ok">每年 <b>3 次</b>海報張貼（平台設計，放 Shows + 主頁）</li>
+              <li class="ok">推薦出現在<b>「別人也看了」</b>推薦區</li>
+            </ul>
+            <div class="mem-card-foot">
+              <button class="btn btn-primary" id="memSubscribeBtn" style="width:100%;justify-content:center;" onclick="pbStartSubscribe()">升級 Premium</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Coupon -->
+        <div class="mem-coupon">
+          <div class="mem-coupon-title">🎟️ 有邀請碼嗎？</div>
+          <div class="mem-coupon-desc">輸入邀請碼可開啟 <b>6 個月免費 Premium</b>，立即開放教學招生。到期後可選擇是否訂閱。</div>
+          <div class="mem-coupon-row">
+            <input type="text" id="memCouponInput" placeholder="輸入邀請碼 / Enter code" autocomplete="off" spellcheck="false">
+            <button class="btn btn-primary" id="memCouponBtn" onclick="pbRedeemCoupon()">啟用 / Redeem</button>
+          </div>
+          <div class="mem-coupon-msg" id="memCouponMsg"></div>
+        </div>
+      </div>
+
+      <!-- ── PAGE BUILDER: 編輯主頁 / Edit Page ── -->
+      <div class="page" id="page-pagebuilder">
+        <div class="page-header">
+          <h1>編輯主頁</h1>
+          <p>即時編輯你的公開檔案頁面，右側修改、中間預覽，按「儲存」發佈。</p>
+        </div>
+        <div class="pb-shell">
+
+          <!-- LEFT: section list -->
+          <div class="pb-left" id="pbSecList">
+            <button class="pb-sec-item active" data-pbsec="hero"       onclick="pbSelectSection('hero',this)">Hero</button>
+            <button class="pb-sec-item"        data-pbsec="card"       onclick="pbSelectSection('card',this)">列表卡片 / Card</button>
+            <button class="pb-sec-item"        data-pbsec="booking"    onclick="pbSelectSection('booking',this)">Booking</button>
+            <button class="pb-sec-item"        data-pbsec="about"      onclick="pbSelectSection('about',this)">About</button>
+            <button class="pb-sec-item"        data-pbsec="audio"      onclick="pbSelectSection('audio',this)">Audio 音檔</button>
+            <button class="pb-sec-item"        data-pbsec="services"   onclick="pbSelectSection('services',this)">Specialties / 專長</button>
+            <button class="pb-sec-item"        data-pbsec="highlights" onclick="pbSelectSection('highlights',this)">Highlights</button>
+            <button class="pb-sec-item"        data-pbsec="partners"   onclick="pbSelectSection('partners',this)">Partners</button>
+            <button class="pb-sec-item"        data-pbsec="videos"     onclick="pbSelectSection('videos',this)">Showreel 影片</button>
+            <button class="pb-sec-item"        data-pbsec="lessons"    onclick="pbSelectSection('lessons',this)">Lesson Plans</button>
+            <button class="pb-sec-item"        data-pbsec="stats"      onclick="pbSelectSection('stats',this)">Stats</button>
+            <button class="pb-sec-item"        data-pbsec="reviews"    onclick="pbSelectSection('reviews',this)">Reviews</button>
+            <button class="pb-sec-item"        data-pbsec="theme"      onclick="pbSelectSection('theme',this)">Theme 顏色</button>
+            <button class="pb-sec-item"        data-pbsec="visibility" onclick="pbSelectSection('visibility',this)">Visibility</button>
+          </div>
+
+          <!-- CENTER: live iframe preview -->
+          <div class="pb-center">
+            <div class="pb-devbar">
+              <button class="pb-dev-btn active" id="pbDevDesktop" onclick="pbSetDevice('desktop',this)">Desktop</button>
+              <button class="pb-dev-btn"        id="pbDevMobile"  onclick="pbSetDevice('mobile',this)">Mobile</button>
+            </div>
+            <div class="pb-frame-wrap">
+              <div class="pb-frame-inner" id="pbFrameInner">
+                <iframe id="pbPreview" src="musician-profile.html?edit=1" style="width:100%;height:100%;border:0;"></iframe>
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT: settings form -->
+          <div class="pb-right">
+
+            <!-- Hero -->
+            <div class="pb-field-group active" data-pbgroup="hero">
+              <div class="pb-group-title">Hero</div>
+              <div class="pb-field"><label>名稱 / Name</label><input type="text" id="pbHeroName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name"></div>
+              <div class="pb-field"><label>頭銜 / Title</label><input type="text" id="pbHeroTitle" oninput="pbOnInput()" placeholder="你的頭銜（如：小提琴家）/ Your title (e.g. Violinist)"></div>
+              <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbHeroLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
+              <div class="pb-subgroup-title" style="margin-top:18px;">Banner 照片（最多 4 張）/ Banner photos (up to 4)</div>
+              <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">第 1 張是主照片；最多 4 張會自動輪播，留空的不顯示。每張可單獨調整位置與縮放。</p>
+              <div id="pbBannerList"></div>
+              <button type="button" class="pb-row-add" id="pbBannerAddBtn" onclick="pbAddBannerRow()">➕ 新增照片 / Add photo</button>
+            </div>
+
+            <!-- Card (Musicians directory list card) -->
+            <div class="pb-field-group" data-pbgroup="card">
+              <div class="pb-group-title">列表卡片 / Card</div>
+              <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">這是你在 Musicians 列表那張卡片顯示的照片與文字（留空會自動沿用主頁設定）。照片請貼網址。</p>
+              <div class="pb-field"><label>卡片照片網址 / Card photo URL</label><input type="text" id="pbCardPhotoUrl" placeholder="https://… 圖片網址" oninput="pbOnInput()"></div>
+              <div class="pb-field"><label>顯示名稱 / Display name</label><input type="text" id="pbCardName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name"></div>
+              <div class="pb-field"><label>樂器 / Instrument</label><input type="text" id="pbCardInstrument" oninput="pbOnInput()" placeholder="你的樂器（如：小提琴）/ Your instrument"></div>
+              <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbCardLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
+              <div class="pb-field"><label>簡短介紹 / Short bio</label><textarea id="pbCardBio" oninput="pbOnInput()" placeholder="一句話介紹你自己 / A one-line intro"></textarea></div>
+
+              <div class="pb-subgroup-title" style="margin-top:18px;">預覽 / Card preview</div>
+              <div class="pbcard">
+                <div class="pbcard-photo">
+                  <div class="pbcard-photo-pan" id="pbCardPreviewPan">
+                    <img id="pbCardPreviewImg" alt="" style="display:none;">
+                    <div class="pbcard-photo-placeholder" id="pbCardPreviewPlaceholder">🎵</div>
+                  </div>
+                </div>
+                <div class="pbcard-body">
+                  <div class="pbcard-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span id="pbCardPreviewLocation"></span></div>
+                  <div class="pbcard-name" id="pbCardPreviewName"></div>
+                  <div class="pbcard-instrument" id="pbCardPreviewInstrument"></div>
+                  <div class="pbcard-bio" id="pbCardPreviewBio"></div>
+                </div>
+              </div>
+
+              <div class="pb-subgroup-title" style="margin-top:16px;">照片位置 / Photo position</div>
+              <div class="pb-field"><label>水平 / X (px)</label><input type="range" id="pbCardPhotoX" min="-150" max="150" step="1" value="0" oninput="pbOnInput()" style="width:100%;"></div>
+              <div class="pb-field"><label>垂直 / Y (px)</label><input type="range" id="pbCardPhotoY" min="-150" max="150" step="1" value="0" oninput="pbOnInput()" style="width:100%;"></div>
+              <div class="pb-field"><label>縮放 / Scale</label><input type="range" id="pbCardPhotoScale" min="0.5" max="3" step="0.05" value="1" oninput="pbOnInput()" style="width:100%;"></div>
+            </div>
+
+            <!-- About -->
+            <div class="pb-field-group" data-pbgroup="about">
+              <div class="pb-group-title">About</div>
+              <div class="pb-field"><label>簡介 / Bio</label><textarea id="pbAboutBio" oninput="pbOnInput()" placeholder="介紹你自己 — 你的背景、訓練與演出特色 / Introduce yourself — your background, training and what makes you special"></textarea></div>
+              <div class="pb-subgroup-title" style="margin-top:18px;">學經歷 / Credentials</div>
+              <div class="pb-field"><label>學經歷 / Credentials (one per line)</label><textarea id="pbAboutCreds" oninput="pbOnInput()" style="min-height:160px;" placeholder="每行一項：樂團、獎項、學歷 / One per line: orchestras, awards, education"></textarea></div>
+              <div class="pb-subgroup-title" style="margin-top:18px;">大頭照 / Avatar</div>
+              <div class="pb-field"><label>頭像網址 / Avatar image URL</label><input type="text" id="pbAvatarUrl" oninput="pbOnInput()" placeholder="https://..."></div>
+            </div>
+
+            <!-- Booking -->
+            <div class="pb-field-group" data-pbgroup="booking">
+              <div class="pb-group-title">Booking</div>
+
+              <div class="pb-subgroup">
+                <div class="pb-subgroup-title">預約列文案 / Booking bar text</div>
+                <div class="pb-field"><label>標題 / Title</label><input type="text" id="pbBookBarTitle" oninput="pbOnInput()" placeholder="預約區標題 / Booking bar title"></div>
+                <div class="pb-field" style="margin-bottom:0;"><label>副標 / Subtitle</label><input type="text" id="pbBookBarSub" oninput="pbOnInput()" placeholder="預約區副標 / Booking bar subtitle"></div>
+              </div>
+
+              <div class="pb-subgroup">
+                <div class="pb-subgroup-title">按小時方案 / Per-hour options</div>
+                <div id="pbHourlyList"></div>
+                <button type="button" class="pb-row-add" onclick="pbAddHourlyRow()">➕ 新增時段 / Add option</button>
+              </div>
+
+              <div class="pb-subgroup">
+                <div class="pb-subgroup-title">組合包 / Packages</div>
+                <label class="pb-check"><input type="checkbox" id="pbPackagesEnabled" onchange="pbOnInput(event)"> 提供組合包 / Offer packages</label>
+                <div id="pbPackagesList" style="margin-top:8px;"></div>
+                <button type="button" class="pb-row-add" onclick="pbAddPackageRow()">➕ 新增組合包 / Add package</button>
+              </div>
+
+              <div class="pb-subgroup">
+                <div class="pb-subgroup-title">加購 / Add-ons</div>
+                <div id="pbAddonsList"></div>
+                <button type="button" class="pb-row-add" onclick="pbAddAddonRow()">➕ 新增加購 / Add add-on</button>
+              </div>
+
+              <p class="pb-help-note">按小時方案會自動帶到預約列下拉與「From 起價」（取最低價）；組合包勾選後才會在 Check availability 顯示 Packages 分頁。</p>
+            </div>
+
+            <!-- Lesson Plans -->
+            <div class="pb-field-group" data-pbgroup="lessons">
+              <div class="pb-lock">
+                <div style="font-size:22px;">🔒</div>
+                <div class="pb-lock-title">教學功能為 Premium 專屬</div>
+                <div class="pb-lock-desc">升級或輸入邀請碼後，即可開放課程方案、公開招收學生，並出現在 Lessons 老師列表。</div>
+                <button type="button" class="pb-lock-btn" onclick="navigate('membership',document.querySelector('[data-page=membership]'))">查看方案 / View plans</button>
+              </div>
+              <div class="pb-group-title">Lesson Plans</div>
+              <label class="pb-check"><input type="checkbox" id="pbLessonVisible" onchange="pbOnInput(event)"> 顯示課程方案 / Show lesson plans</label>
+              <div class="pb-field"><label>模式 / Mode</label>
+                <select id="pbLessonMode" onchange="pbOnInput()" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:13.5px;box-sizing:border-box;">
+                  <option value="inperson">In-Person</option>
+                  <option value="online">Online</option>
+                </select>
+              </div>
+
+              <!-- Matching filters — mirror the front-end Lessons page filters -->
+              <div class="pb-field" style="margin-top:8px;">
+                <label>招生條件 / Matching</label>
+                <div style="font-size:11px;color:#999;margin:-2px 0 8px;line-height:1.5;">對應 Lessons 頁的篩選器。學生用程度／形式／時段篩選時,只會看到與你勾選相符的老師。</div>
+                <div style="font-size:11.5px;font-weight:700;color:#666;margin:8px 0 4px;">教學程度 / Levels</div>
+                <label class="pb-check"><input type="checkbox" id="pbLevelBeginner" onchange="pbOnInput()"> Beginner 初學</label>
+                <label class="pb-check"><input type="checkbox" id="pbLevelIntermediate" onchange="pbOnInput()"> Intermediate 中階</label>
+                <label class="pb-check"><input type="checkbox" id="pbLevelAdvanced" onchange="pbOnInput()"> Advanced 進階</label>
+                <div style="font-size:11.5px;font-weight:700;color:#666;margin:12px 0 4px;">上課形式 / Format</div>
+                <label class="pb-check"><input type="checkbox" id="pbFmtInperson" onchange="pbOnInput()"> In-person 實體</label>
+                <label class="pb-check"><input type="checkbox" id="pbFmtOnline" onchange="pbOnInput()"> Online 線上</label>
+                <div style="font-size:11.5px;font-weight:700;color:#666;margin:12px 0 4px;">可上課時段 / Time</div>
+                <label class="pb-check"><input type="checkbox" id="pbDayWeekday" onchange="pbOnInput()"> Weekday 平日</label>
+                <label class="pb-check"><input type="checkbox" id="pbDayWeekend" onchange="pbOnInput()"> Weekend 週末</label>
+              </div>
+
+              <div class="pb-subgroup" data-pbplan="0">
+                <div class="pb-subgroup-title">Plan 1</div>
+                <div class="pb-field"><label>Name</label><input type="text" id="pbPlan0Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Sub (one line per row)</label><textarea id="pbPlan0Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
+                <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan0Price" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Unit</label><input type="text" id="pbPlan0Unit" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Save note</label><input type="text" id="pbPlan0Save" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Features (one per line)</label><textarea id="pbPlan0Features" oninput="pbOnInput()"></textarea></div>
+                <div class="pb-field"><label>Timeline</label><input type="text" id="pbPlan0Timeline" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>CTA</label><input type="text" id="pbPlan0Cta" oninput="pbOnInput()"></div>
+              </div>
+              <div class="pb-subgroup" data-pbplan="1">
+                <div class="pb-subgroup-title">Plan 2</div>
+                <div class="pb-field"><label>Name</label><input type="text" id="pbPlan1Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Sub (one line per row)</label><textarea id="pbPlan1Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
+                <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan1Price" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Unit</label><input type="text" id="pbPlan1Unit" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Save note</label><input type="text" id="pbPlan1Save" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Features (one per line)</label><textarea id="pbPlan1Features" oninput="pbOnInput()"></textarea></div>
+                <div class="pb-field"><label>Timeline</label><input type="text" id="pbPlan1Timeline" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>CTA</label><input type="text" id="pbPlan1Cta" oninput="pbOnInput()"></div>
+              </div>
+              <div class="pb-subgroup" data-pbplan="2">
+                <div class="pb-subgroup-title">Plan 3</div>
+                <div class="pb-field"><label>Name</label><input type="text" id="pbPlan2Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Sub (one line per row)</label><textarea id="pbPlan2Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
+                <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan2Price" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Unit</label><input type="text" id="pbPlan2Unit" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Save note</label><input type="text" id="pbPlan2Save" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Features (one per line)</label><textarea id="pbPlan2Features" oninput="pbOnInput()"></textarea></div>
+                <div class="pb-field"><label>Timeline</label><input type="text" id="pbPlan2Timeline" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>CTA</label><input type="text" id="pbPlan2Cta" oninput="pbOnInput()"></div>
+              </div>
+            </div>
+
+            <!-- Stats -->
+            <div class="pb-field-group" data-pbgroup="stats">
+              <div class="pb-group-title">Stats</div>
+              <div class="pb-subgroup" data-pbstat="0">
+                <div class="pb-subgroup-title">Stat 1</div>
+                <div class="pb-field"><label>Value</label><input type="number" id="pbStat0Value" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Suffix</label><input type="text" id="pbStat0Suffix" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Label</label><input type="text" id="pbStat0Label" oninput="pbOnInput()"></div>
+              </div>
+              <div class="pb-subgroup" data-pbstat="1">
+                <div class="pb-subgroup-title">Stat 2</div>
+                <div class="pb-field"><label>Value</label><input type="number" id="pbStat1Value" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Suffix</label><input type="text" id="pbStat1Suffix" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Label</label><input type="text" id="pbStat1Label" oninput="pbOnInput()"></div>
+              </div>
+              <div class="pb-subgroup" data-pbstat="2">
+                <div class="pb-subgroup-title">Stat 3</div>
+                <div class="pb-field"><label>Value（自動）</label><input type="number" id="pbStat2Value" readonly title="依實際客戶評論數自動計算,無法手動修改" style="background:#f3f3f3;color:#999;cursor:not-allowed;"></div>
+                <div class="pb-field" style="font-size:11px;color:#999;margin:-4px 0 6px;line-height:1.5;">🔒 此數字會依你實際收到的客戶評論自動跳動,無法手動修改。</div>
+                <div class="pb-field"><label>Suffix</label><input type="text" id="pbStat2Suffix" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Label</label><input type="text" id="pbStat2Label" oninput="pbOnInput()"></div>
+              </div>
+            </div>
+
+            <!-- Partners -->
+            <div class="pb-field-group" data-pbgroup="partners">
+              <div class="pb-group-title">Partners / 合作品牌</div>
+              <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">輸入你合作過的單位／品牌（每行一個）。公開頁會自動把每個名稱排成統一風格的文字標誌（wordmark）。</p>
+              <div class="pb-field"><label>品牌名稱 / Brand names (one per line)</label><textarea id="pbPartners" oninput="pbOnInput()" style="min-height:200px;" placeholder="每行一個品牌 / One brand per line"></textarea></div>
+            </div>
+
+            <!-- Specialties / Services -->
+            <div class="pb-field-group" data-pbgroup="services">
+              <div class="pb-group-title">Specialties / 專長</div>
+              <div class="pb-subgroup" data-pbsvc="0">
+                <div class="pb-subgroup-title">Card 1 — Performance</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbSvc0Title" oninput="pbOnInput()" placeholder="服務名稱 / Service name"></div>
+                <div class="pb-field"><label>Description</label><textarea id="pbSvc0Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務 / Describe this service"></textarea></div>
+                <div class="pb-field"><label>Tags (one per line)</label><textarea id="pbSvc0Tags" oninput="pbOnInput()" placeholder="每行一個標籤 / One tag per line"></textarea></div>
+              </div>
+              <div class="pb-subgroup" data-pbsvc="1">
+                <div class="pb-subgroup-title">Card 2 — Lessons</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbSvc1Title" oninput="pbOnInput()" placeholder="服務名稱 / Service name"></div>
+                <div class="pb-field"><label>Description</label><textarea id="pbSvc1Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務 / Describe this service"></textarea></div>
+                <div class="pb-field"><label>Tags (one per line)</label><textarea id="pbSvc1Tags" oninput="pbOnInput()" placeholder="每行一個標籤 / One tag per line"></textarea></div>
+              </div>
+            </div>
+
+            <!-- Reviews -->
+            <div class="pb-field-group" data-pbgroup="reviews">
+              <div class="pb-group-title">Reviews / 評論</div>
+              <div class="pb-subgroup" data-pbreview="0">
+                <div class="pb-subgroup-title">Review 1</div>
+                <div class="pb-field"><label>Initials</label><input type="text" id="pbReview0Initials" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Avatar color</label><input type="color" id="pbReview0Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+                <div class="pb-field"><label>Name</label><input type="text" id="pbReview0Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Date</label><input type="text" id="pbReview0Date" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Body</label><textarea id="pbReview0Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
+              </div>
+              <div class="pb-subgroup" data-pbreview="1">
+                <div class="pb-subgroup-title">Review 2</div>
+                <div class="pb-field"><label>Initials</label><input type="text" id="pbReview1Initials" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Avatar color</label><input type="color" id="pbReview1Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+                <div class="pb-field"><label>Name</label><input type="text" id="pbReview1Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Date</label><input type="text" id="pbReview1Date" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Body</label><textarea id="pbReview1Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
+              </div>
+              <div class="pb-subgroup" data-pbreview="2">
+                <div class="pb-subgroup-title">Review 3</div>
+                <div class="pb-field"><label>Initials</label><input type="text" id="pbReview2Initials" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Avatar color</label><input type="color" id="pbReview2Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+                <div class="pb-field"><label>Name</label><input type="text" id="pbReview2Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Date</label><input type="text" id="pbReview2Date" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Body</label><textarea id="pbReview2Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
+              </div>
+              <div class="pb-subgroup" data-pbreview="3">
+                <div class="pb-subgroup-title">Review 4</div>
+                <div class="pb-field"><label>Initials</label><input type="text" id="pbReview3Initials" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Avatar color</label><input type="color" id="pbReview3Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+                <div class="pb-field"><label>Name</label><input type="text" id="pbReview3Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Date</label><input type="text" id="pbReview3Date" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Body</label><textarea id="pbReview3Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
+              </div>
+              <div class="pb-subgroup" data-pbreview="4">
+                <div class="pb-subgroup-title">Review 5</div>
+                <div class="pb-field"><label>Initials</label><input type="text" id="pbReview4Initials" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Avatar color</label><input type="color" id="pbReview4Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+                <div class="pb-field"><label>Name</label><input type="text" id="pbReview4Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Date</label><input type="text" id="pbReview4Date" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Body</label><textarea id="pbReview4Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
+              </div>
+            </div>
+
+            <!-- Highlights -->
+            <div class="pb-field-group" data-pbgroup="highlights">
+              <div class="pb-group-title">Career Highlights / 亮點</div>
+              <div id="pbHighlightsList"></div>
+              <button type="button" class="pb-row-add" onclick="pbAddHighlightRow()">➕ 新增亮點 / Add highlight</button>
+            </div>
+
+            <!-- Audio tracks (Phase 2-C) -->
+            <div class="pb-field-group" data-pbgroup="audio">
+              <div class="pb-group-title">音檔 / Audio tracks（拖曳 MP3 上傳，或貼網址）</div>
+              <div class="pb-subgroup" data-pbaudio="0">
+                <div class="pb-subgroup-title">Track 1</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio0Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio0Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
+              </div>
+              <div class="pb-subgroup" data-pbaudio="1">
+                <div class="pb-subgroup-title">Track 2</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio1Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio1Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
+              </div>
+              <div class="pb-subgroup" data-pbaudio="2">
+                <div class="pb-subgroup-title">Track 3</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio2Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio2Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
+              </div>
+              <div class="pb-subgroup" data-pbaudio="3">
+                <div class="pb-subgroup-title">Track 4</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio3Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio3Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
+              </div>
+              <div class="pb-subgroup" data-pbaudio="4">
+                <div class="pb-subgroup-title">Track 5</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio4Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio4Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
+              </div>
+              <div class="pb-subgroup" data-pbaudio="5">
+                <div class="pb-subgroup-title">Track 6</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio5Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio5Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
+              </div>
+            </div>
+
+            <!-- Showreel videos (Phase 2-C) -->
+            <div class="pb-field-group" data-pbgroup="videos">
+              <div class="pb-group-title">Showreel 影片 (YouTube / Vimeo / .mp4)</div>
+              <div class="pb-subgroup" data-pbvideo="0">
+                <div class="pb-subgroup-title">Video 1</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbVideo0Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Video URL</label><input type="text" id="pbVideo0Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
+                <div class="pb-field"><label>Poster URL (optional)</label><input type="text" id="pbVideo0Poster" oninput="pbOnInput()" placeholder="https://..."></div>
+              </div>
+              <div class="pb-subgroup" data-pbvideo="1">
+                <div class="pb-subgroup-title">Video 2</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbVideo1Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Video URL</label><input type="text" id="pbVideo1Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
+                <div class="pb-field"><label>Poster URL (optional)</label><input type="text" id="pbVideo1Poster" oninput="pbOnInput()" placeholder="https://..."></div>
+              </div>
+              <div class="pb-subgroup" data-pbvideo="2">
+                <div class="pb-subgroup-title">Video 3</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbVideo2Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Video URL</label><input type="text" id="pbVideo2Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
+                <div class="pb-field"><label>Poster URL (optional)</label><input type="text" id="pbVideo2Poster" oninput="pbOnInput()" placeholder="https://..."></div>
+              </div>
+              <div class="pb-subgroup" data-pbvideo="3">
+                <div class="pb-subgroup-title">Video 4</div>
+                <div class="pb-field"><label>Title</label><input type="text" id="pbVideo3Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Video URL</label><input type="text" id="pbVideo3Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
+                <div class="pb-field"><label>Poster URL (optional)</label><input type="text" id="pbVideo3Poster" oninput="pbOnInput()" placeholder="https://..."></div>
+              </div>
+            </div>
+
+            <!-- Theme colors (Phase 2-C) -->
+            <div class="pb-field-group" data-pbgroup="theme">
+              <div class="pb-group-title">主題顏色 / Theme colors</div>
+              <div class="pb-field"><label>主色 / Accent (CTA buttons)</label><input type="color" id="pbThemeAccent" value="#1ab864" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+              <div class="pb-field"><label>頁面背景 / Page background</label><input type="color" id="pbThemePageBg" value="#ffffff" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+              <div class="pb-field"><label>文字顏色 / Text color</label><input type="color" id="pbThemeText" value="#000000" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+              <button class="btn" style="margin-top:8px;" onclick="pbResetTheme()">重置顏色 / Reset to default</button>
+            </div>
+
+            <!-- Visibility -->
+            <div class="pb-field-group" data-pbgroup="visibility">
+              <div class="pb-group-title">Section visibility</div>
+              <label class="pb-check"><input type="checkbox" id="pbSecLessonPlans" onchange="pbOnInput(event)"> 課程方案 / Lesson plans</label>
+              <label class="pb-check"><input type="checkbox" id="pbSecReviews"     onchange="pbOnInput()"> 評論 / Reviews</label>
+              <label class="pb-check"><input type="checkbox" id="pbSecStats"       onchange="pbOnInput()"> 數據 / Stats</label>
+              <label class="pb-check"><input type="checkbox" id="pbSecHighlights"  onchange="pbOnInput()"> 亮點 / Highlights</label>
+              <label class="pb-check"><input type="checkbox" id="pbSecAudio"       onchange="pbOnInput()"> 音檔 / Audio</label>
+            </div>
+
+            <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border);">
+              <button class="btn btn-outline" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="pbSave()">儲存草稿 / Save draft</button>
+              <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="pbPublish()">發布我的頁面 / Publish</button>
+              <button id="pbUnpublishBtn" onclick="pbUnpublish()" style="width:100%;justify-content:center;margin-top:8px;background:none;border:none;color:#c0392b;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:6px;">下架我的頁面 / Unpublish</button>
+              <div id="pbPublicUrlLine" style="margin-top:12px;font-size:12px;color:var(--text-muted);word-break:break-all;">
+                公開頁面網址 / Public URL：<span id="pbPublicUrl">登入後顯示 / shown after login</span>
+              </div>
+              <a id="pbViewPublicLink" href="#" target="_blank" rel="noopener" style="display:none;margin-top:8px;font-size:13px;font-weight:600;color:var(--accent,#7c5cff);">查看我的公開頁面 / View my public page →</a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div><!-- /page-wrap -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -1128,7 +1643,8 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
@@ -1142,6 +1658,7 @@
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db   = getFirestore(app);
+  const storage = getStorage(app);
 
   // ── Auth guard + load user profile ──
   let _currentUser  = null;
@@ -1174,6 +1691,9 @@
 
       // Populate profile tab fields
       loadProfileFields();
+
+      // Membership tier: render banner + lock/unlock lesson editor
+      try{ pbRenderMembership(); }catch(e){ console.warn('[membership] render failed:', e); }
     } catch(e) {
       console.log('Profile load error:', e);
     }
@@ -1199,9 +1719,6 @@
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
     set('pfName',    p.name    || name);
     set('pfPhone',   p.phone   || '');
-    set('pfBio',     p.bio     || '');
-    set('pfRateMin', p.rateMin || '');
-    set('pfRateMax', p.rateMax || '');
     set('pfWebsite', p.website || '');
     set('pfRegion1', p.primaryRegion   || '');
     set('pfRegion2', p.secondaryRegion || '');
@@ -1236,17 +1753,14 @@
     if (!_currentUser) return;
     const name    = document.getElementById('pfName').value.trim();
     const phone   = document.getElementById('pfPhone').value.trim();
-    const bio     = document.getElementById('pfBio').value.trim();
-    const rateMin = document.getElementById('pfRateMin').value.trim();
-    const rateMax = document.getElementById('pfRateMax').value.trim();
     const website = document.getElementById('pfWebsite').value.trim();
 
     if (!name) { showNotif('請輸入顯示名稱'); return; }
 
     try {
       const ref = doc(db, 'musicians', _currentUser.uid);
-      await updateDoc(ref, { name, phone, bio, rateMin, rateMax, website });
-      _currentProfile = { ..._currentProfile, name, phone, bio, rateMin, rateMax, website };
+      await updateDoc(ref, { name, phone, website });
+      _currentProfile = { ..._currentProfile, name, phone, website };
 
       // Refresh sidebar & avatar
       const sbName = document.getElementById('sbUserName');
@@ -1294,7 +1808,8 @@
   const PAGE_TITLES = {
     overview: 'Overview', jobs: 'Jobs & Inquiries',
     messages: 'Messages', earnings: 'Earnings',
-    profile: '我的資料', settings: 'Settings'
+    profile: '我的資料', settings: 'Settings', pagebuilder: '編輯主頁',
+    membership: '方案 / Membership'
   };
   window.navigate = function(id, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1306,6 +1821,1322 @@
       if (target) target.classList.add('active');
     }
     document.getElementById('topbarTitle').textContent = PAGE_TITLES[id] || id;
+    if (id === 'pagebuilder') pbInit();
+    if (id === 'membership') pbRenderMembership();
+  };
+
+  /* ════════════════════════════════════════════════════════════════
+     MEMBERSHIP / TIER (Phase 1) — Basic (free) vs Premium.
+     Premium unlocks lesson plans on the public page + teachers list.
+     Activated by subscription (future) or an invite coupon (6 months).
+     State lives on the Firestore musician doc: _currentProfile.membership
+     ════════════════════════════════════════════════════════════════ */
+  const PB_PREMIUM_PRICE = 'NT$499';   // ← placeholder, change to your real price
+  // Invite codes → free Premium months. Add/rename as you like.
+  const PB_COUPONS = { 'OPUSZ-FOUNDER': 6, 'OPUSZ-INVITE6': 6 };
+
+  function pbMembershipLSKey(){ return 'opusz-membership-' + (_currentUser ? _currentUser.uid : 'anon'); }
+  function pbGetMembership(){
+    // Firestore is source of truth; fall back to localStorage so the editor
+    // remembers across reloads even if the Firestore write is blocked by rules.
+    if(_currentProfile && _currentProfile.membership) return _currentProfile.membership;
+    try{ const ls = localStorage.getItem(pbMembershipLSKey()); if(ls) return JSON.parse(ls); }catch(e){}
+    return { source:'none' };
+  }
+  function pbIsPremiumActive(m){
+    m = m || pbGetMembership();
+    if(!m) return false;
+    if(m.source === 'subscription') return true;
+    if(m.source === 'coupon' && m.expiresAt){ return new Date() < new Date(m.expiresAt); }
+    return false;
+  }
+  function pbDaysLeft(m){
+    m = m || pbGetMembership();
+    if(!m || !m.expiresAt) return null;
+    const ms = new Date(m.expiresAt) - new Date();
+    return ms > 0 ? Math.ceil(ms / 86400000) : 0;
+  }
+  function pbFmtDate(iso){ try{ return new Date(iso).toLocaleDateString(); }catch(e){ return iso; } }
+
+  // Non-blocking: update memory + localStorage instantly, persist to Firestore in background.
+  function pbSaveMembership(m){
+    if(_currentProfile) _currentProfile.membership = m;
+    try{ localStorage.setItem(pbMembershipLSKey(), JSON.stringify(m)); }catch(e){}
+    if(_currentUser){
+      setDoc(doc(db, 'musicians', _currentUser.uid), { membership: m }, { merge:true })
+        .catch(function(e){ console.warn('[membership] Firestore save failed:', e); });
+    }
+  }
+
+  // Reusable confirmation modal (built on demand, no extra HTML needed)
+  window.pbConfirm = function(opts){
+    opts = opts || {};
+    var old = document.getElementById('pbConfirmOverlay'); if(old) old.remove();
+    var ov = document.createElement('div');
+    ov.id = 'pbConfirmOverlay';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:20px;animation:pbFade .15s ease;';
+    var box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:16px;max-width:390px;width:100%;padding:28px 26px;box-shadow:0 24px 70px rgba(0,0,0,.28);text-align:center;font-family:inherit;';
+    box.innerHTML =
+      (opts.icon ? '<div style="font-size:34px;margin-bottom:10px;line-height:1;">'+opts.icon+'</div>' : '') +
+      '<div style="font-size:18px;font-weight:800;color:#111;margin-bottom:8px;">'+(opts.title||'確認')+'</div>' +
+      '<div style="font-size:13.5px;color:#666;line-height:1.65;margin-bottom:22px;">'+(opts.message||'')+'</div>' +
+      '<div style="display:flex;gap:10px;">' +
+        '<button id="pbConfirmCancel" style="flex:1;padding:11px;border-radius:10px;border:1px solid #ddd;background:#fff;color:#333;font-weight:600;font-family:inherit;cursor:pointer;font-size:13.5px;">'+(opts.cancelText||'取消')+'</button>' +
+        '<button id="pbConfirmOk" style="flex:1;padding:11px;border-radius:10px;border:none;background:'+(opts.danger?'#dc2626':'#111')+';color:#fff;font-weight:700;font-family:inherit;cursor:pointer;font-size:13.5px;">'+(opts.confirmText||'確認')+'</button>' +
+      '</div>';
+    ov.appendChild(box);
+    document.body.appendChild(ov);
+    function close(){ ov.remove(); }
+    box.querySelector('#pbConfirmCancel').onclick = close;
+    ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+    box.querySelector('#pbConfirmOk').onclick = function(){ close(); if(typeof opts.onConfirm==='function') opts.onConfirm(); };
+  };
+
+  // Downgrade Premium → Basic (with confirmation)
+  window.pbDowngrade = function(){
+    if(!pbIsPremiumActive()) return;   // only meaningful while on Premium
+    var m = pbGetMembership();
+    var extra = '';
+    if(m && m.source === 'coupon'){
+      var left = pbDaysLeft(m);
+      extra = '<br><br><b style="color:#dc2626;">你的邀請碼 Premium 還剩 ' + left + ' 天，降回後會立即失效、無法復原。</b>';
+    }
+    pbConfirm({
+      icon: '⚠️',
+      title: '確認要降回 Basic 基本版？',
+      message: '降回後會關閉教學招生功能：教學課程方案欄位、「Lessons」老師列表、公開招收學生都會隱藏。' + extra,
+      confirmText: '確認降回',
+      cancelText: '取消',
+      danger: true,
+      onConfirm: function(){
+        pbSaveMembership({ source:'none' });
+        pbRenderMembership();
+        if(typeof showNotif === 'function') showNotif('已降回 Basic 基本版');
+      }
+    });
+  };
+
+  // Render the Membership page UI from current state
+  window.pbRenderMembership = function(){
+    const m = pbGetMembership();
+    const pro = pbIsPremiumActive(m);
+    const left = pbDaysLeft(m);
+    const nameEl = document.getElementById('memCurrentName');
+    const badgeEl = document.getElementById('memCurrentBadge');
+    const statusEl = document.getElementById('memCurrentStatus');
+    const priceEl = document.getElementById('memProPrice');
+    const basicTag = document.getElementById('memBasicTag');
+    const subBtn = document.getElementById('memSubscribeBtn');
+    const sbBadge = document.getElementById('sbMembershipBadge');
+    if(priceEl) priceEl.textContent = PB_PREMIUM_PRICE;
+
+    if(pro){
+      if(nameEl) nameEl.textContent = 'Premium 加強版';
+      if(badgeEl){ badgeEl.textContent = 'PRO'; badgeEl.classList.add('pro'); }
+      if(statusEl){
+        statusEl.textContent = (m.source === 'coupon' && left !== null)
+          ? ('邀請碼 Premium · 剩 ' + left + ' 天（至 ' + pbFmtDate(m.expiresAt) + '）')
+          : '訂閱中 · 教學功能已開放';
+      }
+      if(basicTag){
+        basicTag.textContent = '可降回';
+        basicTag.classList.remove('active');
+        basicTag.style.cssText = 'cursor:pointer;border:1px solid #111;border-radius:20px;padding:6px 16px;font-weight:600;color:#111;transition:background .15s,color .15s;';
+        basicTag.onmouseenter = function(){ this.style.background='#111'; this.style.color='#fff'; };
+        basicTag.onmouseleave = function(){ this.style.background='transparent'; this.style.color='#111'; };
+        basicTag.onclick = pbDowngrade;
+      }
+      if(subBtn){
+        if(m.source === 'coupon'){ subBtn.textContent = '到期後訂閱 Premium'; subBtn.disabled = false; }
+        else { subBtn.textContent = '✓ 訂閱中'; subBtn.disabled = true; }
+      }
+      if(sbBadge){ sbBadge.textContent = 'PRO'; sbBadge.className = 'sb-badge green'; sbBadge.style.display = ''; }
+    } else {
+      if(nameEl) nameEl.textContent = 'Basic 基本版';
+      if(badgeEl){ badgeEl.textContent = 'FREE'; badgeEl.classList.remove('pro'); }
+      if(statusEl) statusEl.textContent = '免費方案 · 只開放表演報價';
+      if(basicTag){
+        basicTag.textContent = '目前方案';
+        basicTag.classList.add('active');
+        basicTag.style.cssText = '';
+        basicTag.onmouseenter = null; basicTag.onmouseleave = null; basicTag.onclick = null;
+      }
+      if(subBtn){ subBtn.textContent = '升級 Premium'; subBtn.disabled = false; }
+      if(sbBadge){ sbBadge.style.display = 'none'; }
+    }
+    pbApplyTierGating();
+  };
+
+  // Lock / unlock the lesson-plans editor group based on tier
+  window.pbApplyTierGating = function(){
+    const pro = pbIsPremiumActive();
+    const grp = document.querySelector('[data-pbgroup="lessons"]');
+    if(grp) grp.classList.toggle('pb-locked', !pro);
+    // Sidebar "Lesson Plans" item: keep visible but dim + unpressable when not Premium
+    const navItem = document.querySelector('.pb-sec-item[data-pbsec="lessons"]');
+    if(navItem){
+      navItem.style.opacity       = pro ? '' : '.4';
+      navItem.style.pointerEvents  = pro ? '' : 'none';
+      navItem.style.cursor         = pro ? '' : 'not-allowed';
+      navItem.title                = pro ? '' : '🔒 教學功能為 Premium 專屬';
+      if(!pro && navItem.textContent.indexOf('🔒') === -1){ navItem.textContent = '🔒 ' + navItem.textContent; }
+      if(pro){ navItem.textContent = navItem.textContent.replace(/^🔒\s*/, ''); }
+    }
+  };
+
+  // Redeem an invite coupon → 6 months free Premium
+  window.pbRedeemCoupon = async function(){
+    const input = document.getElementById('memCouponInput');
+    const msg = document.getElementById('memCouponMsg');
+    const code = (input ? input.value : '').trim().toUpperCase();
+    msg.className = 'mem-coupon-msg';
+    if(!code){ msg.textContent = '請輸入邀請碼'; msg.classList.add('err'); return; }
+    if(!_currentUser){ msg.textContent = '請先登入'; msg.classList.add('err'); return; }
+    const months = PB_COUPONS[code];
+    if(!months){ msg.textContent = '邀請碼無效 / Invalid code'; msg.classList.add('err'); return; }
+    const now = new Date();
+    const exp = new Date(now); exp.setMonth(exp.getMonth() + months);
+    const m = { source:'coupon', couponCode:code, activatedAt: now.toISOString(), expiresAt: exp.toISOString() };
+    pbSaveMembership(m);          // instant local update + background Firestore write
+    pbRenderMembership();         // flip UI immediately
+    msg.textContent = '✓ 已開啟 ' + months + ' 個月免費 Premium，至 ' + pbFmtDate(m.expiresAt);
+    msg.classList.add('ok');
+    if(input) input.value = '';
+    showNotif('已啟用 Premium ✓ 教學功能已開放');
+  };
+
+  // Subscribe (no payment backend yet) — placeholder
+  window.pbStartSubscribe = function(){
+    showNotif('訂閱金流即將推出，請聯絡平台開通 / Subscription coming soon');
+  };
+
+  /* ════════════════════════════════════════════════════════════════
+     PAGE BUILDER (Phase 1) — schema-driven text + section visibility.
+     Edits an in-memory pbConfig, live-pushes to the iframe via
+     postMessage({type:'opusz-config', config}), persists to
+     localStorage['opusz-profile-config'] + best-effort Firestore.
+     ════════════════════════════════════════════════════════════════ */
+  // Draft is PER-ACCOUNT (keyed by uid) so a different musician logging in on the
+  // same browser never sees the previous account's draft.
+  function pbLSKey(){ return 'opusz-profile-config:' + (_currentUser && _currentUser.uid ? _currentUser.uid : 'anon'); }
+  // Schema defaults — mirror the current hardcoded profile values.
+  const PB_DEFAULTS = {
+    hero:    { name:'', title:'', location:'',
+               media:{ type:'photo', url:'', x:50, y:50, zoom:0 },
+               extraSlides:[{url:'',x:50,y:50,zoom:0},{url:'',x:50,y:50,zoom:0},{url:'',x:50,y:50,zoom:0}] },
+    card:    { photoUrl:'', name:'', instrument:'', location:'',
+               bio:'',
+               photoX:0, photoY:0, photoScale:1 },
+    about:   { avatarUrl:'', bio:'', credentials:[] },
+    booking: {
+      barTitle: 'Check availability & get a free quote',
+      barSub:   'No commitment — see dates & pricing instantly',
+      priceFrom: 0,
+      hourly: [
+        { hours:1, price:0, note:'' }
+      ],
+      packagesEnabled: false,
+      packages: [],
+      addons: []
+    },
+    lessons: {
+      visible: true,
+      mode: 'inperson',
+      levels:  ['Beginner','Intermediate','Advanced'],
+      formats: ['In-person','Online'],
+      days:    ['Weekday','Weekend'],
+      plans: [
+        { name:'Trial', sub:'Single lesson.\nNo commitment required.', price:2000, unit:'/ session', save:'',
+          features:['60-min one-on-one lesson','Level assessment & learning plan','Post-lesson practice notes','Easy upgrade to monthly plan'],
+          timeline:'Flexible scheduling', cta:'Book a lesson' },
+        { name:'Monthly', sub:'4 sessions per month.\nOne lesson a week.', price:8000, unit:'/ month', save:'',
+          features:['60-min × 4 sessions','Weekly structured progress','Curated repertoire recommendations','Session notes & audio review','Flexible rescheduling'],
+          timeline:'Monthly, renews anytime', cta:'Book a lesson' },
+        { name:'Quarterly', sub:'12 sessions over 3 months.\nBest value.', price:19200, unit:'/ quarter', save:'Save NT$4,800 vs. monthly rate',
+          features:['60-min × 12 sessions','Full 3-month learning roadmap','Monthly progress reports','Custom performance repertoire','End-of-term recording session'],
+          timeline:'3-month commitment', cta:'Book a lesson' }
+      ]
+    },
+    stats: [
+      { value:0, suffix:'', label:'Years of experience' },
+      { value:0, suffix:'', label:'Performances' },
+      { value:0, suffix:'', label:'Reviews' }
+    ],
+    sections:{ lessonPlans:true, reviews:true, stats:true, highlights:true, audio:true },
+    partners: [],
+    services: [
+      { title:'', description:'', tags:[] },
+      { title:'', description:'', tags:[] }
+    ],
+    reviews: [],
+    highlights: [],
+    // Phase 2-C media (URL-based) + theme
+    audio: [
+      { title:'', url:'' },
+      { title:'', url:'' }
+    ],
+    videos: [
+      { title:'', url:'', poster:'' }
+    ],
+    theme: { accent:'#1ab864', pageBg:'#ffffff', text:'#000000' }
+  };
+  let pbConfig = null;
+  let pbInited = false;
+
+  function pbClone(o){ return JSON.parse(JSON.stringify(o)); }
+
+  function pbDeepDefaults(cfg){
+    cfg = cfg || {};
+    const about = Object.assign({}, PB_DEFAULTS.about, cfg.about || {});
+    // hero.media: merge onto defaults
+    const heroMedia = Object.assign({}, PB_DEFAULTS.hero.media, ((cfg.hero||{}).media) || {});
+    // hero.extraSlides: merge per-index onto defaults (3 slides = banner photos 2-4)
+    const heroExtraSlides = PB_DEFAULTS.hero.extraSlides.map(function(des, i){
+      const ces = (Array.isArray((cfg.hero||{}).extraSlides) && cfg.hero.extraSlides[i] && typeof cfg.hero.extraSlides[i]==='object') ? cfg.hero.extraSlides[i] : {};
+      return Object.assign({}, des, ces);
+    });
+    // credentials: array → keep loaded if array, else default
+    about.credentials = Array.isArray((cfg.about||{}).credentials)
+      ? (cfg.about.credentials.slice())
+      : pbClone(PB_DEFAULTS.about.credentials);
+    // lessons: merge top-level, plans merged per-index onto defaults
+    const dl = PB_DEFAULTS.lessons;
+    const cl = cfg.lessons || {};
+    const plans = dl.plans.map(function(dp, i){
+      const cp = (Array.isArray(cl.plans) && cl.plans[i] && typeof cl.plans[i]==='object') ? cl.plans[i] : {};
+      const merged = Object.assign({}, dp, cp);
+      merged.features = Array.isArray(cp.features) ? cp.features.slice() : dp.features.slice();
+      return merged;
+    });
+    const lessons = {
+      visible: (cl.visible !== undefined) ? !!cl.visible : dl.visible,
+      mode:    (cl.mode === 'online' || cl.mode === 'inperson') ? cl.mode : dl.mode,
+      levels:  Array.isArray(cl.levels)  ? cl.levels  : dl.levels,
+      formats: Array.isArray(cl.formats) ? cl.formats : dl.formats,
+      days:    Array.isArray(cl.days)    ? cl.days    : dl.days,
+      plans:   plans
+    };
+    // stats: merge per-index onto defaults
+    const stats = PB_DEFAULTS.stats.map(function(ds, i){
+      const cs = (Array.isArray(cfg.stats) && cfg.stats[i] && typeof cfg.stats[i]==='object') ? cfg.stats[i] : {};
+      return Object.assign({}, ds, cs);
+    });
+    // partners: array of strings → keep loaded if array, else default
+    const partners = Array.isArray(cfg.partners)
+      ? cfg.partners.slice()
+      : pbClone(PB_DEFAULTS.partners);
+    // services: merge per-index onto defaults (title/description/tags)
+    const services = PB_DEFAULTS.services.map(function(dsv, i){
+      const csv = (Array.isArray(cfg.services) && cfg.services[i] && typeof cfg.services[i]==='object') ? cfg.services[i] : {};
+      const merged = Object.assign({}, dsv, csv);
+      merged.tags = Array.isArray(csv.tags) ? csv.tags.slice() : dsv.tags.slice();
+      return merged;
+    });
+    // reviews: merge per-index onto defaults
+    const reviews = PB_DEFAULTS.reviews.map(function(drv, i){
+      const crv = (Array.isArray(cfg.reviews) && cfg.reviews[i] && typeof cfg.reviews[i]==='object') ? cfg.reviews[i] : {};
+      return Object.assign({}, drv, crv);
+    });
+    // highlights: variable count. Use the saved array as-is (no per-index
+    // merge against defaults); fall back to the 8 defaults when none saved.
+    const highlights = Array.isArray(cfg.highlights)
+      ? pbClone(cfg.highlights)
+      : pbClone(PB_DEFAULTS.highlights);
+    // audio: up to 6 rows, merge loaded onto empty defaults
+    const audio = [0,1,2,3,4,5].map(function(i){
+      const ca = (Array.isArray(cfg.audio) && cfg.audio[i] && typeof cfg.audio[i]==='object') ? cfg.audio[i] : {};
+      return { title: ca.title || '', url: ca.url || '', desc: ca.desc || '' };
+    });
+    // videos: up to 4 rows, merge loaded onto empty defaults
+    const videos = [0,1,2,3].map(function(i){
+      const cv = (Array.isArray(cfg.videos) && cfg.videos[i] && typeof cfg.videos[i]==='object') ? cfg.videos[i] : {};
+      return { title: cv.title || '', url: cv.url || '', poster: cv.poster || '' };
+    });
+    // theme: merge onto defaults
+    const theme = Object.assign({}, PB_DEFAULTS.theme, cfg.theme || {});
+    const hero = Object.assign({}, PB_DEFAULTS.hero, cfg.hero || {});
+    hero.media = heroMedia;
+    hero.extraSlides = heroExtraSlides;
+    const card = Object.assign({}, PB_DEFAULTS.card, cfg.card || {});
+    // booking: merge scalar fields onto defaults; arrays default to defaults when absent
+    const cb = cfg.booking || {};
+    const booking = Object.assign({}, PB_DEFAULTS.booking, cb);
+    booking.hourly   = Array.isArray(cb.hourly)   ? pbClone(cb.hourly)   : pbClone(PB_DEFAULTS.booking.hourly);
+    booking.packages = Array.isArray(cb.packages) ? pbClone(cb.packages) : pbClone(PB_DEFAULTS.booking.packages);
+    booking.addons   = Array.isArray(cb.addons)   ? pbClone(cb.addons)   : pbClone(PB_DEFAULTS.booking.addons);
+    booking.packagesEnabled = (cb.packagesEnabled !== undefined) ? !!cb.packagesEnabled : PB_DEFAULTS.booking.packagesEnabled;
+    return {
+      hero:    hero,
+      card:    card,
+      about:   about,
+      booking: booking,
+      lessons: lessons,
+      stats:   stats,
+      sections:Object.assign({}, PB_DEFAULTS.sections,cfg.sections|| {}),
+      partners:   partners,
+      services:   services,
+      reviews:    reviews,
+      highlights: highlights,
+      audio:      audio,
+      videos:     videos,
+      theme:      theme
+    };
+  }
+
+  // ── Image upload to Firebase Storage ──────────────────────────────
+  // Compress an image File to a JPEG Blob via canvas (scaled to maxDim).
+  function pbCompressImage(file, maxDim, quality, cb){
+    const reader = new FileReader();
+    reader.onload = function(e){
+      const img = new Image();
+      img.onload = function(){
+        let w = img.width, h = img.height;
+        if(w > h){ if(w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; } }
+        else     { if(h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; } }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        canvas.toBlob(function(blob){ cb(blob); }, 'image/jpeg', quality || 0.82);
+      };
+      img.onerror = function(){ cb(null); };
+      img.src = e.target.result;
+    };
+    reader.onerror = function(){ cb(null); };
+    reader.readAsDataURL(file);
+  }
+
+  // Compress + upload one image; resolves to a Storage download URL.
+  function pbUploadImage(file, fieldKey, maxDim){
+    return new Promise(function(resolve, reject){
+      if(!_currentUser){ showNotif('請先登入 / Please log in'); reject(new Error('not-logged-in')); return; }
+      pbCompressImage(file, maxDim || 800, 0.82, async function(blob){
+        if(!blob){ reject(new Error('compress-failed')); return; }
+        try{
+          const path = 'musicians/' + _currentUser.uid + '/' + fieldKey + '_' + Date.now() + '.jpg';
+          const r = storageRef(storage, path);
+          await uploadBytes(r, blob);
+          const url = await getDownloadURL(r);
+          resolve(url);
+        }catch(e){ reject(e); }
+      });
+    });
+  }
+
+  // Attach a click/drag uploader UI to a URL <input>.
+  function pbAttachUploader(inputId, fieldKey, maxDim){
+    const input = document.getElementById(inputId);
+    if(!input || input.dataset.pbUploader) return; // guard: attach once
+    input.dataset.pbUploader = '1';
+
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'margin-top:6px;';
+
+    const drop = document.createElement('div');
+    drop.style.cssText = 'border:1.5px dashed var(--border);border-radius:8px;padding:8px 10px;'
+      + 'display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted,#888);'
+      + 'cursor:pointer;transition:border-color .15s,background .15s;';
+
+    const btnLabel = document.createElement('span');
+    btnLabel.textContent = '⬆ 上傳圖片 / Upload';
+    btnLabel.style.cssText = 'font-weight:600;color:var(--text,#333);';
+
+    const hint = document.createElement('span');
+    hint.textContent = '或拖曳檔案到此 / or drop a file';
+
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'image/*';
+    fileInput.style.display = 'none';
+
+    const thumb = document.createElement('img');
+    thumb.style.cssText = 'display:none;width:40px;height:40px;object-fit:cover;border-radius:6px;margin-left:auto;';
+    function showThumb(u){ if(u){ thumb.src = u; thumb.style.display = 'block'; } else { thumb.style.display = 'none'; } }
+    if(input.value) showThumb(input.value);
+
+    drop.appendChild(btnLabel);
+    drop.appendChild(hint);
+    drop.appendChild(thumb);
+    wrap.appendChild(drop);
+    wrap.appendChild(fileInput);
+    // place uploader right after the input
+    input.parentNode.insertBefore(wrap, input.nextSibling);
+
+    let busy = false;
+    async function handleFile(file){
+      if(busy || !file) return;
+      if(!/^image\//.test(file.type)){ showNotif('請選擇圖片檔 / Please choose an image file'); return; }
+      busy = true;
+      const prev = btnLabel.textContent;
+      btnLabel.textContent = '上傳中… / Uploading…';
+      hint.textContent = '';
+      drop.style.opacity = '0.6';
+      drop.style.pointerEvents = 'none';
+      try{
+        const url = await pbUploadImage(file, fieldKey, maxDim);
+        input.value = url;
+        input.dispatchEvent(new Event('input', { bubbles:true }));
+        showThumb(url);
+        showNotif('圖片已上傳 ✓');
+      }catch(e){
+        console.error('[pagebuilder] upload failed:', e);
+        showNotif('上傳失敗：' + (e.code || e.message) + '（可能需設定 Storage 規則或啟用 Storage）');
+      }finally{
+        busy = false;
+        btnLabel.textContent = prev;
+        hint.textContent = '或拖曳檔案到此 / or drop a file';
+        drop.style.opacity = '';
+        drop.style.pointerEvents = '';
+      }
+    }
+
+    drop.addEventListener('click', function(){ if(!busy) fileInput.click(); });
+    fileInput.addEventListener('change', function(){ const f = fileInput.files && fileInput.files[0]; fileInput.value=''; handleFile(f); });
+    drop.addEventListener('dragover', function(e){ e.preventDefault(); e.stopPropagation(); drop.style.borderColor = 'var(--accent,#1ab864)'; drop.style.background = 'rgba(26,184,100,.06)'; });
+    drop.addEventListener('dragleave', function(e){ e.preventDefault(); e.stopPropagation(); drop.style.borderColor = ''; drop.style.background = ''; });
+    drop.addEventListener('drop', function(e){
+      e.preventDefault(); e.stopPropagation();
+      drop.style.borderColor = ''; drop.style.background = '';
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      handleFile(f);
+    });
+    // keep thumbnail in sync with manual URL edits
+    input.addEventListener('input', function(){ showThumb(input.value); });
+  }
+
+  // Upload an audio file as-is to Firebase Storage; resolves to a download URL.
+  function pbUploadAudio(file, fieldKey){
+    return new Promise(function(resolve, reject){
+      if(!_currentUser){ showNotif('請先登入 / Please log in'); reject(new Error('not-logged-in')); return; }
+      (async function(){
+        try{
+          const ext = (file.name.split('.').pop() || 'mp3').toLowerCase().replace(/[^a-z0-9]/g,'') || 'mp3';
+          const path = 'musicians/' + _currentUser.uid + '/audio_' + fieldKey + '_' + Date.now() + '.' + ext;
+          const r = storageRef(storage, path);
+          await uploadBytes(r, file, { contentType: file.type || 'audio/mpeg' });
+          const url = await getDownloadURL(r);
+          resolve(url);
+        }catch(e){ reject(e); }
+      })();
+    });
+  }
+
+  // Attach a click/drag audio uploader to a track's URL <input>.
+  function pbAttachAudioUploader(inputId, fieldKey){
+    const input = document.getElementById(inputId);
+    if(!input || input.dataset.pbAudioUploader) return; // attach once
+    input.dataset.pbAudioUploader = '1';
+
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'margin-top:6px;';
+    const drop = document.createElement('div');
+    drop.style.cssText = 'border:1.5px dashed var(--border);border-radius:8px;padding:10px 12px;'
+      + 'display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-muted,#888);'
+      + 'cursor:pointer;transition:border-color .15s,background .15s;flex-wrap:wrap;';
+    const btnLabel = document.createElement('span');
+    btnLabel.textContent = '⬆ 上傳 MP3 / Upload';
+    btnLabel.style.cssText = 'font-weight:600;color:var(--text,#333);';
+    const hint = document.createElement('span');
+    hint.textContent = '或拖曳音檔到此 / or drop a file';
+    const fileInput = document.createElement('input');
+    fileInput.type = 'file';
+    fileInput.accept = 'audio/mpeg,audio/mp4,audio/x-m4a,audio/wav,.mp3,.m4a,.wav';
+    fileInput.style.display = 'none';
+    const audioEl = document.createElement('audio');
+    audioEl.controls = true;
+    audioEl.style.cssText = 'display:none;width:100%;height:34px;margin-top:6px;';
+    function showAudio(u){ if(u){ audioEl.src = u; audioEl.style.display = 'block'; } else { audioEl.removeAttribute('src'); audioEl.style.display = 'none'; } }
+    if(input.value) showAudio(input.value);
+
+    drop.appendChild(btnLabel);
+    drop.appendChild(hint);
+    wrap.appendChild(drop);
+    wrap.appendChild(fileInput);
+    wrap.appendChild(audioEl);
+    input.parentNode.insertBefore(wrap, input.nextSibling);
+
+    let busy = false;
+    async function handleFile(file){
+      if(busy || !file) return;
+      if(!/^audio\//.test(file.type) && !/\.(mp3|m4a|wav)$/i.test(file.name)){ showNotif('請選擇音檔（MP3 / M4A / WAV）'); return; }
+      if(file.size > 20 * 1024 * 1024){ showNotif('檔案過大（>20MB），請用較短片段或先壓縮'); return; }
+      busy = true;
+      const prev = btnLabel.textContent;
+      btnLabel.textContent = '上傳中… / Uploading…';
+      hint.textContent = '';
+      drop.style.opacity = '0.6';
+      drop.style.pointerEvents = 'none';
+      try{ showAudio(URL.createObjectURL(file)); }catch(e){}  // instant local preview while uploading
+      try{
+        const url = await pbUploadAudio(file, fieldKey);
+        input.value = url;
+        input.dispatchEvent(new Event('input', { bubbles:true }));
+        showAudio(url);
+        showNotif('音檔已上傳 ✓');
+      }catch(e){
+        console.error('[pagebuilder] audio upload failed:', e);
+        showNotif('上傳失敗：' + (e.code || e.message) + '（可能需設定 Storage 規則或啟用 Storage）');
+      }finally{
+        busy = false;
+        btnLabel.textContent = prev;
+        hint.textContent = '或拖曳音檔到此 / or drop a file';
+        drop.style.opacity = '';
+        drop.style.pointerEvents = '';
+      }
+    }
+
+    drop.addEventListener('click', function(){ if(!busy) fileInput.click(); });
+    fileInput.addEventListener('change', function(){ const f = fileInput.files && fileInput.files[0]; fileInput.value=''; handleFile(f); });
+    drop.addEventListener('dragover', function(e){ e.preventDefault(); e.stopPropagation(); drop.style.borderColor = 'var(--accent,#1ab864)'; drop.style.background = 'rgba(26,184,100,.06)'; });
+    drop.addEventListener('dragleave', function(e){ e.preventDefault(); e.stopPropagation(); drop.style.borderColor = ''; drop.style.background = ''; });
+    drop.addEventListener('drop', function(e){
+      e.preventDefault(); e.stopPropagation();
+      drop.style.borderColor = ''; drop.style.background = '';
+      const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      handleFile(f);
+    });
+    input.addEventListener('input', function(){ showAudio(input.value); });
+  }
+
+  let pbUploadersAttached = false;
+  function pbAttachAllUploaders(){
+    if(pbUploadersAttached) return;
+    pbUploadersAttached = true;
+    pbAttachUploader('pbCardPhotoUrl', 'card',   800);
+    pbAttachUploader('pbAvatarUrl',    'avatar', 600);
+    // Hero banner photos: uploaders are attached per-row in pbAddBannerRow (dynamic count).
+    // Highlights: uploaders are attached per-row in pbAddHighlightRow (dynamic count).
+    // Audio tracks: drag-and-drop MP3 upload → Firebase Storage → URL
+    for(let i = 0; i <= 5; i++){
+      pbAttachAudioUploader('pbAudio' + i + 'Url', 'audio' + i);
+    }
+  }
+
+  function pbInit(){
+    // (re)load config from localStorage each time the editor opens
+    let loaded = {};
+    try{
+      const raw = localStorage.getItem(pbLSKey());
+      if(raw){
+        loaded = JSON.parse(raw) || {};
+      } else if(_currentProfile && _currentProfile.config){
+        // No local draft for THIS account → fall back to this musician's own
+        // saved Firestore config (empty for a brand-new account → blank template).
+        loaded = _currentProfile.config;
+      }
+    }catch(e){ console.warn('[pagebuilder] load failed:', e); }
+    pbConfig = pbDeepDefaults(loaded);
+    pbPopulateForm();
+    pbInited = true;
+    // Rebuild pbConfig from the (reconciled) form so stale flags — e.g.
+    // sections.lessonPlans left off from a Basic→Premium upgrade — are corrected
+    // and the tier gate is re-applied before the first preview push.
+    pbReadForm();
+    // Push current config to the iframe once it's ready (it may still be loading)
+    pbPushPreview();
+    const frame = document.getElementById('pbPreview');
+    if(frame){ frame.addEventListener('load', function(){ pbPushPreview(); }); }
+    pbUpdatePublicUrl();
+    pbAttachAllUploaders();
+  }
+
+  // Populate the public-URL line / view link from the logged-in uid.
+  function pbUpdatePublicUrl(){
+    const span = document.getElementById('pbPublicUrl');
+    const link = document.getElementById('pbViewPublicLink');
+    if(_currentUser && _currentUser.uid){
+      const url = new URL('musician-profile.html', location.href);
+      url.searchParams.set('uid', _currentUser.uid);
+      const href = url.href;
+      if(span) span.textContent = href;
+      if(link){ link.href = href; link.style.display = 'inline-block'; }
+    } else {
+      if(span) span.textContent = '登入後顯示 / shown after login';
+      if(link) link.style.display = 'none';
+    }
+  }
+
+  // ── Booking dynamic row builders ──────────────────────────────────────────
+  function pbEsc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function pbMakeRow(listId, fieldsHtml){
+    const list=document.getElementById(listId);
+    if(!list) return;
+    const row=document.createElement('div');
+    row.className='pb-dyn-row';
+    row.innerHTML='<div class="pb-dyn-fields">'+fieldsHtml+'</div>'
+      +'<button type="button" class="pb-row-del" title="Remove">✕</button>';
+    row.querySelector('.pb-row-del').onclick=function(){
+      const minOne = (listId==='pbHourlyList');
+      if(minOne && list.querySelectorAll('.pb-dyn-row').length<=1) return; // keep >=1 hourly row
+      row.remove();
+      pbOnInput();
+    };
+    row.querySelectorAll('input').forEach(function(inp){ inp.addEventListener('input', function(){ pbOnInput(); }); });
+    list.appendChild(row);
+  }
+  function pbAddHourlyRow(data){
+    data=data||{};
+    pbMakeRow('pbHourlyList',
+      '<div style="max-width:90px;flex:0 0 90px;"><label>小時 / Hours</label><input type="number" class="pbHourlyHours" value="'+pbEsc(data.hours)+'"></div>'
+      +'<div><label>價格 / Price (NT$)</label><input type="number" class="pbHourlyPrice" placeholder="價格 / Price" value="'+pbEsc(data.price)+'"></div>'
+      +'<div><label>備註 / Note</label><input type="text" class="pbHourlyNote" value="'+pbEsc(data.note)+'"></div>');
+  }
+  function pbAddPackageRow(data){
+    data=data||{};
+    pbMakeRow('pbPackagesList',
+      '<div><label>名稱 / Name</label><input type="text" class="pbPkgName" value="'+pbEsc(data.name)+'"></div>'
+      +'<div><label>時長 / Duration</label><input type="text" class="pbPkgDuration" value="'+pbEsc(data.duration)+'"></div>'
+      +'<div style="max-width:110px;flex:0 0 110px;"><label>價格 / Price</label><input type="number" class="pbPkgPrice" value="'+pbEsc(data.price)+'"></div>');
+  }
+  function pbAddAddonRow(data){
+    data=data||{};
+    pbMakeRow('pbAddonsList',
+      '<div><label>名稱 / Name</label><input type="text" class="pbAddonName" value="'+pbEsc(data.name)+'"></div>'
+      +'<div style="flex:2 1 160px;"><label>說明 / Description</label><input type="text" class="pbAddonDesc" value="'+pbEsc(data.desc)+'"></div>'
+      +'<div style="max-width:110px;flex:0 0 110px;"><label>起價 / From (NT$)</label><input type="number" class="pbAddonFrom" value="'+pbEsc(data.priceFrom)+'"></div>');
+  }
+  window.pbAddHourlyRow=function(){ pbAddHourlyRow(); pbOnInput(); };
+  window.pbAddPackageRow=function(){ pbAddPackageRow(); pbOnInput(); };
+  window.pbAddAddonRow=function(){ pbAddAddonRow(); pbOnInput(); };
+
+  // ── Career Highlights — dynamic rows (variable count) ──
+  // Monotonic counter so each row's image input gets a unique id, letting
+  // pbAttachUploader attach drag/click upload per-row.
+  let pbHlRowSeq = 0;
+  function pbAddHighlightRow(data){
+    data = data || {};
+    const list = document.getElementById('pbHighlightsList');
+    if(!list) return;
+    const n = pbHlRowSeq++;
+    const imgId = 'pbHlImg_' + n;
+    const row = document.createElement('div');
+    row.className = 'pb-dyn-row';
+    row.innerHTML =
+      '<div class="pb-dyn-fields">'
+        + '<div><label>Title</label><input type="text" class="pbHlTitle" value="'+pbEsc(data.title)+'"></div>'
+        + '<div style="max-width:90px;flex:0 0 90px;"><label>Year</label><input type="text" class="pbHlYear" value="'+pbEsc(data.year)+'"></div>'
+        + '<div style="flex:1 1 100%;"><label>圖片網址 / Image URL</label><input type="text" class="pbHlImage" id="'+imgId+'" value="'+pbEsc(data.imageUrl)+'" placeholder="https://..."></div>'
+      + '</div>'
+      + '<button type="button" class="pb-row-del" title="Remove">✕</button>';
+    row.querySelector('.pb-row-del').onclick = function(){ row.remove(); pbOnInput(); };
+    row.querySelectorAll('input').forEach(function(inp){ inp.addEventListener('input', function(){ pbOnInput(); }); });
+    list.appendChild(row);
+    // Attach drag/click uploader to this row's image input.
+    pbAttachUploader(imgId, 'hl' + n, 800);
+  }
+  window.pbAddHighlightRow=function(){ pbAddHighlightRow(); pbOnInput(); };
+
+  // ── Hero banner photos — dynamic rows (up to 4) ──
+  // Row 1 = main (cfg.hero.media, supports photo|video). Rows 2-4 = cfg.hero.extraSlides (photos).
+  // Each row carries its own image input + X/Y/Zoom sliders + ✕ delete.
+  let pbBannerRowSeq = 0;
+  const PB_BANNER_MAX = 4;
+  function pbBannerRows(){
+    const list = document.getElementById('pbBannerList');
+    return list ? Array.prototype.slice.call(list.querySelectorAll('.pb-banner-row')) : [];
+  }
+  function pbRelabelBannerRows(){
+    pbBannerRows().forEach(function(row, idx){
+      const lbl = row.querySelector('.pb-banner-label');
+      if(lbl) lbl.textContent = (idx === 0) ? '主圖 / Main' : ('#' + (idx + 1));
+      // Type toggle only on the main (first) row.
+      const typeWrap = row.querySelector('.pb-banner-type');
+      if(typeWrap) typeWrap.style.display = (idx === 0) ? '' : 'none';
+    });
+  }
+  function pbUpdateBannerAddBtn(){
+    const btn = document.getElementById('pbBannerAddBtn');
+    if(btn) btn.disabled = pbBannerRows().length >= PB_BANNER_MAX;
+  }
+  function pbAddBannerRow(data){
+    data = data || {};
+    const list = document.getElementById('pbBannerList');
+    if(!list) return;
+    if(pbBannerRows().length >= PB_BANNER_MAX) return;
+    const n = pbBannerRowSeq++;
+    const imgId = 'pbBannerImg_' + n;
+    const x = (data.x !== undefined && data.x !== null) ? data.x : 50;
+    const y = (data.y !== undefined && data.y !== null) ? data.y : 50;
+    const zoom = (data.zoom !== undefined && data.zoom !== null) ? data.zoom : 0;
+    const type = (data.type === 'video') ? 'video' : 'photo';
+    const row = document.createElement('div');
+    row.className = 'pb-banner-row';
+    row.style.cssText = 'border:1.5px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;';
+    row.innerHTML =
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
+        + '<span class="pb-banner-label" style="font-size:12px;font-weight:700;color:var(--black);letter-spacing:.03em;">主圖 / Main</span>'
+        + '<span class="pb-banner-type" style="margin-left:auto;display:flex;align-items:center;gap:6px;">'
+          + '<label style="font-size:11px;font-weight:600;color:var(--mid);margin:0;">類型 / Type</label>'
+          + '<select class="pbBannerType" style="border:1.5px solid var(--border);border-radius:8px;padding:5px 8px;font-family:inherit;font-size:12.5px;">'
+            + '<option value="photo"' + (type==='photo'?' selected':'') + '>Photo 照片</option>'
+            + '<option value="video"' + (type==='video'?' selected':'') + '>Video 影片</option>'
+          + '</select>'
+        + '</span>'
+        + '<button type="button" class="pb-row-del pb-banner-del" title="Remove" style="margin-top:0;">✕</button>'
+      + '</div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>媒體網址 / Media URL</label><input type="text" class="pbBannerUrl" id="'+imgId+'" value="'+pbEsc(data.url)+'" placeholder="https://..."></div>'
+      + '<div class="pb-field" style="margin-bottom:6px;"><label>水平位置 / X (%)</label><input type="range" class="pbBannerX" min="0" max="100" step="1" value="'+x+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:6px;"><label>垂直位置 / Y (%)</label><input type="range" class="pbBannerY" min="0" max="100" step="1" value="'+y+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:0;"><label>縮放 / Zoom (%)</label><input type="range" class="pbBannerZoom" min="-30" max="150" step="1" value="'+zoom+'" style="width:100%;"></div>';
+    row.querySelector('.pb-banner-del').onclick = function(){
+      row.remove();
+      pbRelabelBannerRows();
+      pbUpdateBannerAddBtn();
+      pbOnInput();
+    };
+    row.querySelectorAll('input,select').forEach(function(el){
+      el.addEventListener('input', function(){ pbOnInput(); });
+      el.addEventListener('change', function(){ pbOnInput(); });
+    });
+    list.appendChild(row);
+    pbAttachUploader(imgId, 'herobanner' + n, 1400);
+    pbRelabelBannerRows();
+    pbUpdateBannerAddBtn();
+  }
+  window.pbAddBannerRow = function(){ pbAddBannerRow(); pbOnInput(); };
+
+  function pbPopulateForm(){
+    const v = (id,val)=>{ const el=document.getElementById(id); if(el) el.value = (val===undefined||val===null)?'':val; };
+    const c = (id,val)=>{ const el=document.getElementById(id); if(el) el.checked = !!val; };
+    v('pbHeroName',     pbConfig.hero.name);
+    v('pbHeroTitle',    pbConfig.hero.title);
+    v('pbHeroLocation', pbConfig.hero.location);
+    // Card (Musicians directory list card)
+    const cd = pbConfig.card || {};
+    v('pbCardPhotoUrl',   cd.photoUrl);
+    v('pbCardName',       cd.name);
+    v('pbCardInstrument', cd.instrument);
+    v('pbCardLocation',   cd.location);
+    v('pbCardBio',        cd.bio);
+    v('pbCardPhotoX',     (cd.photoX !== undefined && cd.photoX !== null) ? cd.photoX : 0);
+    v('pbCardPhotoY',     (cd.photoY !== undefined && cd.photoY !== null) ? cd.photoY : 0);
+    v('pbCardPhotoScale', (cd.photoScale !== undefined && cd.photoScale !== null) ? cd.photoScale : 1);
+    v('pbAboutBio',     pbConfig.about.bio);
+    // Booking
+    const bk = pbConfig.booking || {};
+    v('pbBookBarTitle', bk.barTitle);
+    v('pbBookBarSub',   bk.barSub);
+    c('pbPackagesEnabled', bk.packagesEnabled);
+    const hourlyList=document.getElementById('pbHourlyList'); if(hourlyList) hourlyList.innerHTML='';
+    const pkgList=document.getElementById('pbPackagesList'); if(pkgList) pkgList.innerHTML='';
+    const addonList=document.getElementById('pbAddonsList'); if(addonList) addonList.innerHTML='';
+    const hrs = Array.isArray(bk.hourly) && bk.hourly.length ? bk.hourly : [{}];
+    hrs.forEach(function(o){ pbAddHourlyRow(o); });
+    (Array.isArray(bk.packages)?bk.packages:[]).forEach(function(p){ pbAddPackageRow(p); });
+    (Array.isArray(bk.addons)?bk.addons:[]).forEach(function(a){ pbAddAddonRow(a); });
+    // lessons.visible is the source of truth for lesson-plan visibility; keep the
+    // Visibility checkbox in sync with it (sections.lessonPlans can go stale, e.g.
+    // it was forced off while the account was Basic, then the account upgraded).
+    c('pbSecLessonPlans', !!(pbConfig.lessons && pbConfig.lessons.visible));
+    c('pbSecReviews',     pbConfig.sections.reviews);
+    c('pbSecStats',       pbConfig.sections.stats);
+    c('pbSecHighlights',  pbConfig.sections.highlights);
+    c('pbSecAudio',       pbConfig.sections.audio);
+
+    // Lesson plans
+    c('pbLessonVisible', pbConfig.lessons.visible);
+    v('pbLessonMode',    pbConfig.lessons.mode);
+    // Matching filters (levels / formats / days)
+    var _lv = Array.isArray(pbConfig.lessons.levels)  ? pbConfig.lessons.levels  : [];
+    var _fm = Array.isArray(pbConfig.lessons.formats) ? pbConfig.lessons.formats : [];
+    var _dy = Array.isArray(pbConfig.lessons.days)    ? pbConfig.lessons.days     : [];
+    c('pbLevelBeginner',     _lv.indexOf('Beginner') > -1);
+    c('pbLevelIntermediate', _lv.indexOf('Intermediate') > -1);
+    c('pbLevelAdvanced',     _lv.indexOf('Advanced') > -1);
+    c('pbFmtInperson',       _fm.indexOf('In-person') > -1);
+    c('pbFmtOnline',         _fm.indexOf('Online') > -1);
+    c('pbDayWeekday',        _dy.indexOf('Weekday') > -1);
+    c('pbDayWeekend',        _dy.indexOf('Weekend') > -1);
+    pbConfig.lessons.plans.forEach(function(p, i){
+      v('pbPlan'+i+'Name',     p.name);
+      v('pbPlan'+i+'Sub',      p.sub);
+      v('pbPlan'+i+'Price',    p.price);
+      v('pbPlan'+i+'Unit',     p.unit);
+      v('pbPlan'+i+'Save',     p.save);
+      v('pbPlan'+i+'Features', Array.isArray(p.features) ? p.features.join('\n') : '');
+      v('pbPlan'+i+'Timeline', p.timeline);
+      v('pbPlan'+i+'Cta',      p.cta);
+    });
+
+    // Stats — Stat 3 (i===2) is the live client-review count, NOT manually editable
+    var reviewCount = Array.isArray(pbConfig.reviews) ? pbConfig.reviews.length : 0;
+    pbConfig.stats.forEach(function(s, i){
+      v('pbStat'+i+'Value',  i === 2 ? reviewCount : s.value);
+      v('pbStat'+i+'Suffix', s.suffix);
+      v('pbStat'+i+'Label',  s.label);
+    });
+
+    // About credentials
+    v('pbAboutCreds', Array.isArray(pbConfig.about.credentials) ? pbConfig.about.credentials.join('\n') : '');
+
+    // Partners (one brand per line)
+    v('pbPartners', Array.isArray(pbConfig.partners) ? pbConfig.partners.join('\n') : '');
+
+    // Services / specialties
+    (pbConfig.services||[]).forEach(function(svc, i){
+      v('pbSvc'+i+'Title', svc.title);
+      v('pbSvc'+i+'Desc',  svc.description);
+      v('pbSvc'+i+'Tags',  Array.isArray(svc.tags) ? svc.tags.join('\n') : '');
+    });
+
+    // Reviews
+    (pbConfig.reviews||[]).forEach(function(rv, i){
+      v('pbReview'+i+'Initials', rv.initials);
+      const colEl = document.getElementById('pbReview'+i+'Color');
+      if(colEl) colEl.value = (rv.color && /^#[0-9a-fA-F]{6}$/.test(rv.color)) ? rv.color : '#1a1a1a';
+      v('pbReview'+i+'Name', rv.name);
+      v('pbReview'+i+'Date', rv.date);
+      v('pbReview'+i+'Body', rv.body);
+    });
+
+    // Highlights (variable count): clear + rebuild one row per entry.
+    const hlList = document.getElementById('pbHighlightsList');
+    if(hlList){
+      hlList.innerHTML = '';
+      (pbConfig.highlights||[]).forEach(function(hl){ pbAddHighlightRow(hl||{}); });
+    }
+
+    // Hero banner photos — rebuild the dynamic list from config.
+    // Row 1 ← hero.media (photo|video); rows 2-4 ← hero.extraSlides (skip empty trailing).
+    const bList = document.getElementById('pbBannerList');
+    if(bList){
+      bList.innerHTML = '';
+      pbBannerRowSeq = 0;
+      const hm = (pbConfig.hero && pbConfig.hero.media) || {};
+      pbAddBannerRow({ type: hm.type || 'photo', url: hm.url, x: hm.x, y: hm.y, zoom: hm.zoom });
+      const hes = (pbConfig.hero && Array.isArray(pbConfig.hero.extraSlides)) ? pbConfig.hero.extraSlides : [];
+      hes.forEach(function(s){
+        s = s || {};
+        if(s.url && String(s.url).trim() !== ''){
+          pbAddBannerRow({ url: s.url, x: s.x, y: s.y, zoom: s.zoom });
+        }
+      });
+      pbRelabelBannerRows();
+      pbUpdateBannerAddBtn();
+    }
+
+    // Avatar
+    v('pbAvatarUrl', pbConfig.about.avatarUrl);
+
+    // Audio tracks
+    (pbConfig.audio||[]).forEach(function(a, i){
+      v('pbAudio'+i+'Title', a.title);
+      v('pbAudio'+i+'Url',   a.url);
+    });
+
+    // Showreel videos
+    (pbConfig.videos||[]).forEach(function(vd, i){
+      v('pbVideo'+i+'Title',  vd.title);
+      v('pbVideo'+i+'Url',    vd.url);
+      v('pbVideo'+i+'Poster', vd.poster);
+    });
+
+    // Theme colors
+    const colv = (id,val,def)=>{ const el=document.getElementById(id); if(el) el.value = (/^#[0-9a-fA-F]{6}$/.test(val||'')) ? val : def; };
+    const th = pbConfig.theme || {};
+    colv('pbThemeAccent', th.accent, '#1ab864');
+    colv('pbThemePageBg', th.pageBg, '#ffffff');
+    colv('pbThemeText',   th.text,   '#000000');
+
+    pbRenderCardPreview();
+  }
+
+  /* ── Partners: curated logo picker ───────────────────────────────────────── */
+  function pbPartnerLines(){
+    var ta = document.getElementById('pbPartners');
+    if(!ta) return [];
+    return ta.value.split('\n').map(function(s){ return s.trim(); }).filter(function(s){ return s !== ''; });
+  }
+  function pbSetPartnerLines(arr){
+    var ta = document.getElementById('pbPartners');
+    if(ta) ta.value = arr.join('\n');
+  }
+  function pbPartnerSelected(entry){
+    var lines = pbPartnerLines().map(function(s){ return s.toLowerCase(); });
+    return lines.indexOf(String(entry.id).toLowerCase()) !== -1
+        || lines.indexOf(String(entry.name).toLowerCase()) !== -1;
+  }
+  window.pbTogglePartner = function(entry){
+    var lines = pbPartnerLines();
+    if(pbPartnerSelected(entry)){
+      lines = lines.filter(function(s){
+        var t = s.toLowerCase();
+        return t !== String(entry.id).toLowerCase() && t !== String(entry.name).toLowerCase();
+      });
+    } else {
+      lines.push(entry.name);
+    }
+    pbSetPartnerLines(lines);
+    pbRenderPartnerPicker();
+    pbOnInput();   // push to live preview + config
+  };
+  window.pbRenderPartnerPicker = function(){
+    var box = document.getElementById('pbPartnerPicker');
+    if(!box || !window.PARTNER_LIBRARY) return;
+    box.innerHTML = '';
+    window.PARTNER_LIBRARY.forEach(function(entry){
+      var chip = document.createElement('div');
+      chip.className = 'pb-logo-chip' + (pbPartnerSelected(entry) ? ' sel' : '');
+      chip.title = entry.name;
+      chip.innerHTML = entry.svg;
+      chip.addEventListener('click', function(){ pbTogglePartner(entry); });
+      box.appendChild(chip);
+    });
+  };
+  // Textarea edits: keep picker highlight in sync, then push preview
+  window.pbOnPartnersInput = function(){
+    pbRenderPartnerPicker();
+    pbOnInput();
+  };
+
+  // Live preview of the Musicians directory card (mirrors musicians.html renderGrid)
+  function pbRenderCardPreview(){
+    const cd = (pbConfig && pbConfig.card) || {};
+    const img    = document.getElementById('pbCardPreviewImg');
+    const place  = document.getElementById('pbCardPreviewPlaceholder');
+    const pan     = document.getElementById('pbCardPreviewPan');
+    if(!img || !place || !pan) return;
+    const x = (cd.photoX !== undefined && cd.photoX !== null) ? cd.photoX : 0;
+    const y = (cd.photoY !== undefined && cd.photoY !== null) ? cd.photoY : 0;
+    const s = (cd.photoScale !== undefined && cd.photoScale !== null) ? cd.photoScale : 1;
+    pan.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
+    if(cd.photoUrl){
+      img.src = cd.photoUrl; img.style.display = 'block'; place.style.display = 'none';
+    } else {
+      img.removeAttribute('src'); img.style.display = 'none'; place.style.display = 'flex';
+    }
+    const setText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val || ''; };
+    setText('pbCardPreviewName',       cd.name);
+    setText('pbCardPreviewInstrument', cd.instrument);
+    setText('pbCardPreviewLocation',   cd.location);
+    setText('pbCardPreviewBio',        cd.bio);
+  }
+
+  function pbReadBooking(){
+    const txt0 = (el)=> el ? el.value.trim() : '';
+    const numv = (el)=>{ const t=txt0(el); return t===''?undefined:Number(t); };
+    const chk = (id)=>{ const e=document.getElementById(id); return e?e.checked:false; };
+    function rows(listId){ const l=document.getElementById(listId); return l?Array.prototype.slice.call(l.querySelectorAll('.pb-dyn-row')):[]; }
+    // Hourly: drop rows with no hours or no price; sort by hours
+    const hourly = rows('pbHourlyList').map(function(r){
+      return {
+        hours: numv(r.querySelector('.pbHourlyHours')),
+        price: numv(r.querySelector('.pbHourlyPrice')),
+        note:  txt0(r.querySelector('.pbHourlyNote'))
+      };
+    }).filter(function(o){ return o.hours!==undefined && o.price!==undefined; })
+      .sort(function(a,b){ return a.hours-b.hours; });
+    const packages = rows('pbPackagesList').map(function(r){
+      return {
+        name:     txt0(r.querySelector('.pbPkgName')),
+        duration: txt0(r.querySelector('.pbPkgDuration')),
+        price:    numv(r.querySelector('.pbPkgPrice'))
+      };
+    }).filter(function(p){ return p.name!=='' || p.price!==undefined; });
+    const addons = rows('pbAddonsList').map(function(r){
+      return {
+        name:      txt0(r.querySelector('.pbAddonName')),
+        desc:      txt0(r.querySelector('.pbAddonDesc')),
+        priceFrom: numv(r.querySelector('.pbAddonFrom'))
+      };
+    }).filter(function(a){ return a.name!==''; });
+    const tEl=document.getElementById('pbBookBarTitle');
+    const sEl=document.getElementById('pbBookBarSub');
+    const out = {
+      barTitle: tEl?tEl.value.trim():'',
+      barSub:   sEl?sEl.value.trim():'',
+      hourly:   hourly,
+      packagesEnabled: chk('pbPackagesEnabled'),
+      packages: packages,
+      addons:   addons
+    };
+    // derived priceFrom = min hourly price (fallback kept for legacy readers)
+    if(hourly.length){ out.priceFrom = hourly.reduce(function(m,o){ return o.price<m?o.price:m; }, hourly[0].price); }
+    return out;
+  }
+
+  function pbReadForm(){
+    const num = (id)=>{ const el=document.getElementById(id); const t=el?el.value.trim():''; return t===''?undefined:Number(t); };
+    const txt = (id)=>{ const el=document.getElementById(id); return el?el.value:''; };
+    const chk = (id)=>{ const el=document.getElementById(id); return el?el.checked:false; };
+    // textarea → array of non-empty trimmed lines
+    const lines = (id)=>{ const el=document.getElementById(id); if(!el) return [];
+      return el.value.split('\n').map(s=>s.trim()).filter(s=>s!==''); };
+
+    const plans = [0,1,2].map(function(i){
+      return {
+        name:     txt('pbPlan'+i+'Name').trim(),
+        sub:      txt('pbPlan'+i+'Sub'),
+        price:    num('pbPlan'+i+'Price'),
+        unit:     txt('pbPlan'+i+'Unit'),
+        save:     txt('pbPlan'+i+'Save'),
+        features: lines('pbPlan'+i+'Features'),
+        timeline: txt('pbPlan'+i+'Timeline').trim(),
+        cta:      txt('pbPlan'+i+'Cta').trim()
+      };
+    });
+    const _reviewCount = Array.isArray(pbConfig && pbConfig.reviews) ? pbConfig.reviews.length : 0;
+    const stats = [0,1,2].map(function(i){
+      return {
+        // Stat 3 = live client-review count, always derived (never the manual field)
+        value:  i === 2 ? _reviewCount : num('pbStat'+i+'Value'),
+        suffix: txt('pbStat'+i+'Suffix'),
+        label:  txt('pbStat'+i+'Label').trim()
+      };
+    });
+
+    const services = [0,1].map(function(i){
+      return {
+        title:       txt('pbSvc'+i+'Title').trim(),
+        description: txt('pbSvc'+i+'Desc').trim(),
+        tags:        lines('pbSvc'+i+'Tags')
+      };
+    });
+    const reviews = [0,1,2,3,4].map(function(i){
+      const colEl = document.getElementById('pbReview'+i+'Color');
+      return {
+        initials: txt('pbReview'+i+'Initials').trim(),
+        color:    colEl ? colEl.value : '#1a1a1a',
+        name:     txt('pbReview'+i+'Name').trim(),
+        date:     txt('pbReview'+i+'Date').trim(),
+        body:     txt('pbReview'+i+'Body').trim()
+      };
+    });
+    // Highlights (variable count): serialize each dynamic row in order,
+    // dropping rows that are entirely empty.
+    const hlListEl = document.getElementById('pbHighlightsList');
+    const hlRows = hlListEl ? Array.prototype.slice.call(hlListEl.querySelectorAll('.pb-dyn-row')) : [];
+    const highlights = hlRows.map(function(r){
+      const get = (cls)=>{ const el=r.querySelector('.'+cls); return el?el.value.trim():''; };
+      return { title: get('pbHlTitle'), year: get('pbHlYear'), imageUrl: get('pbHlImage') };
+    }).filter(function(h){ return h.title !== '' || h.year !== '' || h.imageUrl !== ''; });
+    // Audio: up to 6 rows, drop rows with empty url
+    const audio = [0,1,2,3,4,5].map(function(i){
+      return { title: txt('pbAudio'+i+'Title').trim(), url: txt('pbAudio'+i+'Url').trim() };
+    }).filter(function(a){ return a.url !== ''; });
+    // Videos: up to 4 rows, drop rows with empty url
+    const videos = [0,1,2,3].map(function(i){
+      return { title: txt('pbVideo'+i+'Title').trim(), url: txt('pbVideo'+i+'Url').trim(), poster: txt('pbVideo'+i+'Poster').trim() };
+    }).filter(function(v2){ return v2.url !== ''; });
+    const themeVal = (id,def)=>{ const el=document.getElementById(id); const x=el?el.value:''; return /^#[0-9a-fA-F]{6}$/.test(x)?x:def; };
+
+    // Hero banner photos — read the dynamic rows in order.
+    // Row 1 → hero.media (photo|video); rows 2-4 (with a url) → hero.extraSlides.
+    const bannerRowEls = (function(){
+      const l = document.getElementById('pbBannerList');
+      return l ? Array.prototype.slice.call(l.querySelectorAll('.pb-banner-row')) : [];
+    })();
+    const readBannerRow = function(row){
+      const g = (cls)=>{ const el=row.querySelector('.'+cls); return el?el.value:''; };
+      const gn = (cls,def)=>{ const t=g(cls).trim(); return t===''?def:Number(t); };
+      return {
+        type: (g('pbBannerType') === 'video') ? 'video' : 'photo',
+        url:  g('pbBannerUrl').trim(),
+        x:    gn('pbBannerX', 50),
+        y:    gn('pbBannerY', 50),
+        zoom: gn('pbBannerZoom', 0)
+      };
+    };
+    let heroMedia, heroExtraSlides;
+    if(bannerRowEls.length){
+      const first = readBannerRow(bannerRowEls[0]);
+      heroMedia = { type: first.type, url: first.url, x: first.x, y: first.y, zoom: first.zoom };
+      heroExtraSlides = bannerRowEls.slice(1).map(function(r){
+        const d = readBannerRow(r);
+        return { url: d.url, x: d.x, y: d.y, zoom: d.zoom };
+      }).filter(function(s){ return s.url !== ''; });
+    } else {
+      // No rows rendered (e.g. read before populate): fall back to current config.
+      heroMedia = (pbConfig.hero && pbConfig.hero.media) || { type:'photo', url:'', x:50, y:50, zoom:0 };
+      heroExtraSlides = (pbConfig.hero && Array.isArray(pbConfig.hero.extraSlides)) ? pbConfig.hero.extraSlides : [];
+    }
+
+    pbConfig = {
+      hero: {
+        name:         txt('pbHeroName').trim(),
+        title:        txt('pbHeroTitle').trim(),
+        location:     txt('pbHeroLocation').trim(),
+        media:        heroMedia,
+        extraSlides:  heroExtraSlides
+      },
+      card: {
+        photoUrl:   txt('pbCardPhotoUrl').trim(),
+        name:       txt('pbCardName').trim(),
+        instrument: txt('pbCardInstrument').trim(),
+        location:   txt('pbCardLocation').trim(),
+        bio:        txt('pbCardBio').trim(),
+        photoX:     num('pbCardPhotoX')     !== undefined ? num('pbCardPhotoX')     : 0,
+        photoY:     num('pbCardPhotoY')     !== undefined ? num('pbCardPhotoY')     : 0,
+        photoScale: num('pbCardPhotoScale') !== undefined ? num('pbCardPhotoScale') : 1
+      },
+      about:   { avatarUrl: txt('pbAvatarUrl').trim(), bio: txt('pbAboutBio'), credentials: lines('pbAboutCreds') },
+      booking: pbReadBooking(),
+      lessons: {
+        visible: chk('pbLessonVisible'),
+        mode:    txt('pbLessonMode') || 'inperson',
+        levels:  [['Beginner','pbLevelBeginner'],['Intermediate','pbLevelIntermediate'],['Advanced','pbLevelAdvanced']].filter(function(x){return chk(x[1]);}).map(function(x){return x[0];}),
+        formats: [['In-person','pbFmtInperson'],['Online','pbFmtOnline']].filter(function(x){return chk(x[1]);}).map(function(x){return x[0];}),
+        days:    [['Weekday','pbDayWeekday'],['Weekend','pbDayWeekend']].filter(function(x){return chk(x[1]);}).map(function(x){return x[0];}),
+        plans:   plans
+      },
+      stats:   stats,
+      sections:{
+        lessonPlans: chk('pbSecLessonPlans'),
+        reviews:     chk('pbSecReviews'),
+        stats:       chk('pbSecStats'),
+        highlights:  chk('pbSecHighlights'),
+        audio:       chk('pbSecAudio')
+      },
+      partners:   lines('pbPartners'),
+      services:   services,
+      reviews:    reviews,
+      highlights: highlights,
+      audio:      audio,
+      videos:     videos,
+      theme: {
+        accent: themeVal('pbThemeAccent', '#1ab864'),
+        pageBg: themeVal('pbThemePageBg', '#ffffff'),
+        text:   themeVal('pbThemeText',   '#000000')
+      }
+    };
+    // ── Tier gate: teaching / lesson plans are Premium-only ──
+    const _pro = pbIsPremiumActive();
+    pbConfig.lessonsEnabled = _pro;
+    if(!_pro && pbConfig.sections) pbConfig.sections.lessonPlans = false;
+  }
+
+  function pbPushPreview(){
+    if(!pbConfig) return;
+    const frame = document.getElementById('pbPreview');
+    if(frame && frame.contentWindow){
+      // teaching/lessons is Premium-only → let the preview reflect the current tier
+      var _pro = (typeof pbIsPremiumActive === 'function') ? pbIsPremiumActive() : true;
+      var _cfg = Object.assign({}, pbConfig, { isPremium: _pro });
+      frame.contentWindow.postMessage({ type:'opusz-config', config: _cfg }, '*');
+    }
+  }
+
+  window.pbOnInput = function(ev){
+    // Keep lesson visibility consistent between the Lesson Plans toggle
+    // and the Visibility checkbox (lessons.visible is the source of truth).
+    const tgt = ev && ev.target ? ev.target : null;
+    if(tgt && tgt.id === 'pbLessonVisible'){
+      const sec = document.getElementById('pbSecLessonPlans');
+      if(sec) sec.checked = tgt.checked;
+    } else if(tgt && tgt.id === 'pbSecLessonPlans'){
+      const lv = document.getElementById('pbLessonVisible');
+      if(lv) lv.checked = tgt.checked;
+    }
+    pbReadForm();
+    pbPushPreview();
+    const cardGrp = document.querySelector('.pb-field-group[data-pbgroup="card"]');
+    if(cardGrp && cardGrp.classList.contains('active')) pbRenderCardPreview();
+  };
+
+  window.pbSelectSection = function(sec, btn){
+    document.querySelectorAll('.pb-sec-item').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    document.querySelectorAll('.pb-field-group').forEach(g=>{
+      g.classList.toggle('active', g.getAttribute('data-pbgroup')===sec);
+    });
+    if(sec === 'card') pbRenderCardPreview();
+    // sync the center preview: highlight + scroll the matching on-page section
+    var f = document.getElementById('pbPreview');
+    if(f && f.contentWindow) f.contentWindow.postMessage({ type:'pb-highlight', section: sec }, '*');
+  };
+
+  // sync FROM the iframe: a click in the preview selects the section here
+  if(!window.__pbSelectListenerAdded){
+    window.__pbSelectListenerAdded = true;
+    window.addEventListener('message', function(e){
+      if(!e || !e.data || e.data.type !== 'pb-select') return;
+      var sec = e.data.section;
+      var btn = document.querySelector('.pb-sec-item[data-pbsec="' + sec + '"]');
+      if(btn) window.pbSelectSection(sec, btn);
+    });
+  }
+
+  window.pbResetTheme = function(){
+    const set = (id,val)=>{ const el=document.getElementById(id); if(el) el.value = val; };
+    set('pbThemeAccent', PB_DEFAULTS.theme.accent);
+    set('pbThemePageBg', PB_DEFAULTS.theme.pageBg);
+    set('pbThemeText',   PB_DEFAULTS.theme.text);
+    pbReadForm();
+    pbPushPreview();
+  };
+
+  window.pbSetDevice = function(mode, btn){
+    document.querySelectorAll('.pb-dev-btn').forEach(b=>b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+    const inner = document.getElementById('pbFrameInner');
+    if(inner) inner.style.width = (mode==='mobile') ? '390px' : '100%';
+  };
+
+  window.pbSave = async function(){
+    pbReadForm();
+    // 1) localStorage (always succeeds — source of truth for the public page)
+    try{
+      localStorage.setItem(pbLSKey(), JSON.stringify(pbConfig));
+    }catch(e){ console.warn('[pagebuilder] localStorage save failed:', e); }
+    showNotif('已儲存 ✓');
+    // 2) best-effort Firestore (must not break the save)
+    try{
+      if(_currentUser && db){
+        await setDoc(doc(db, 'musicians', _currentUser.uid), { config: pbConfig }, { merge:true });
+      }
+    }catch(e){ console.warn('[pagebuilder] Firestore save failed (localStorage still saved):', e); }
+  };
+
+  // ── Publish: push the page live to Firestore so it appears in the directory ──
+  window.pbPublish = async function(){
+    if(!_currentUser){ showNotif('請先登入 / Please log in'); return; }
+    pbReadForm();
+    // keep localStorage in sync so local preview matches what's published
+    try{
+      localStorage.setItem(pbLSKey(), JSON.stringify(pbConfig));
+    }catch(e){ console.warn('[pagebuilder] localStorage save failed:', e); }
+    try{
+      var pubFields = {
+        config: pbConfig,
+        published: true,
+        profileComplete: 100,
+        updatedAt: new Date().toISOString(),
+        // Premium gate: drives teaching visibility + inclusion in the Lessons teachers list
+        lessonsEnabled: pbIsPremiumActive(),
+        tier: pbIsPremiumActive() ? 'premium' : 'basic'
+      };
+      // Sync key identity fields to top-level so the Musicians directory card
+      // (which reads name / bio / primaryRegion) reflects the edited page.
+      if (pbConfig.hero && pbConfig.hero.name)      pubFields.name = pbConfig.hero.name;
+      if (pbConfig.hero && pbConfig.hero.location)  pubFields.primaryRegion = pbConfig.hero.location;
+      if (pbConfig.about && pbConfig.about.bio)     pubFields.bio = pbConfig.about.bio;
+      await setDoc(doc(db, 'musicians', _currentUser.uid), pubFields, { merge:true });
+      showNotif('已發布 ✓ 你的公開頁面已上線');
+      pbUpdatePublicUrl();
+    }catch(e){
+      console.error('[pagebuilder] publish failed:', e);
+      showNotif('發布失敗：' + (e.code || e.message) + '（可能需要設定 Firestore 規則）');
+    }
+  };
+
+  // ── Unpublish: take the public page offline (remove from the Musicians directory) ──
+  window.pbUnpublish = async function(){
+    if(!_currentUser){ showNotif('請先登入 / Please log in'); return; }
+    var doUnpub = async function(){
+      try{
+        await setDoc(doc(db, 'musicians', _currentUser.uid), { published:false, updatedAt:new Date().toISOString() }, { merge:true });
+        if(_currentProfile) _currentProfile.published = false;
+        showNotif('已下架 ✓ 你的頁面已從公開目錄移除');
+      }catch(e){
+        console.error('[pagebuilder] unpublish failed:', e);
+        showNotif('下架失敗：' + (e.code || e.message));
+      }
+    };
+    if(typeof pbConfirm === 'function'){
+      pbConfirm({ icon:'⚠️', title:'下架你的公開頁面？', message:'下架後，訪客將無法在 Musicians 列表看到你，你的公開頁也會下線。你的編輯內容會保留，隨時可以重新發布。', confirmText:'下架', cancelText:'取消', danger:true, onConfirm:doUnpub });
+    } else {
+      if(confirm('下架你的公開頁面？')) doUnpub();
+    }
   };
 
   // ── Tab switching (jobs page) ──
@@ -1318,63 +3149,114 @@
     }
   };
 
-  // ── Messages ──
-  const THREADS = [
-    { avatar:'陳', name:'Chen Wei', sub:'Graduation · Sep 14', bubbles:[
-      {mine:false, text:"Hi, I came across your profile on OPUS.Z and I'm very impressed by your background.", time:'2:14 PM'},
-      {mine:false, text:"We are looking for a solo violinist for my daughter's graduation ceremony on Sep 14. Budget NT$8,000–10,000. Are you available?", time:'2:15 PM'}
-    ]},
-    { avatar:'林', name:'Lin Mei-Hua', sub:'Charity Concert · Oct 5', bubbles:[
-      {mine:false, text:"Hello! We are organizing a charity concert to benefit children's education and would love to invite you as a guest soloist.", time:'Yesterday 4:30 PM'}
-    ]},
-    { avatar:'OZ', name:'OPUS.Z Platform', sub:'Platform Announcement', bubbles:[
-      {mine:false, text:"📣 Summer Music Festival 2025 — Applications are now open! This is a great opportunity to perform at National Concert Hall in August.", time:'2 days ago'}
-    ]},
-    { avatar:'王', name:'Wang Jing', sub:'Thank you · May 28', bubbles:[
-      {mine:false, text:"Thank you so much for the wonderful performance at our event last week. Everyone loved it!", time:'1 week ago'},
-      {mine:true,  text:"Thank you so much! It was a pleasure performing for your event. Hope to work with you again!", time:'1 week ago'}
-    ]}
-  ];
+  // ── Messages: real customer enquiries (from musician-profile "Send Enquiry") ──
+  function loadEnquiries(){ try { return JSON.parse(localStorage.getItem('opusz_enquiries')||'[]'); } catch(e){ return []; } }
+  function saveEnquiries(l){ try { localStorage.setItem('opusz_enquiries', JSON.stringify(l)); } catch(e){} }
+  var currentEnquiryId = null;
+  function enqInitial(n){ n=(n||'?').trim(); return n ? n.charAt(0).toUpperCase() : '?'; }
 
-  window.openThread = function(idx) {
-    const t = THREADS[idx];
-    document.querySelectorAll('.msg-item').forEach((el,i) => el.classList.toggle('active', i===idx));
-    document.getElementById('threadAvatar').textContent = t.avatar;
-    document.getElementById('threadName').textContent = t.name;
-    document.getElementById('threadSub').textContent = t.sub;
-    const bubbles = document.getElementById('msgBubbles');
-    bubbles.innerHTML = t.bubbles.map(b => `
-      <div class="bubble-wrap ${b.mine?'mine':''}">
-        ${!b.mine ? `<div class="bubble-avatar">${t.avatar}</div>` : ''}
-        <div>
-          <div class="bubble ${b.mine?'mine':'theirs'}">${b.text}</div>
-          <div class="bubble-time">${b.time}</div>
-        </div>
-        ${b.mine ? `<div class="bubble-avatar" style="background:#1a1a2e;color:#fff;">M</div>` : ''}
-      </div>
-    `).join('');
-    bubbles.scrollTop = bubbles.scrollHeight;
+  function renderMsgList(){
+    var list = loadEnquiries();
+    var listEl = document.querySelector('#page-messages .msg-list');
+    var empty = document.getElementById('msgListEmpty');
+    if(listEl){ listEl.querySelectorAll('.msg-item').forEach(function(el){ el.remove(); }); }
+    if(!list.length){ if(empty) empty.style.display=''; return; }
+    if(empty) empty.style.display='none';
+    list.forEach(function(enq){
+      var item = document.createElement('div');
+      item.className = 'msg-item' + (enq.read?'':' unread') + (enq.id===currentEnquiryId?' active':'');
+      item.innerHTML =
+        '<div style="width:38px;height:38px;border-radius:50%;background:#1a1a2e;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">'+enqInitial(enq.name)+'</div>'+
+        '<div style="min-width:0;flex:1;">'+
+          '<div class="mi-name" style="font-size:13.5px;">'+esc(enq.name||'Anonymous')+'</div>'+
+          '<div style="font-size:12px;color:#999;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(enq.subject||enq.message||'')+'</div>'+
+        '</div>'+
+        (enq.read?'':'<span style="width:9px;height:9px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></span>');
+      item.onclick = function(){ openEnquiryThread(enq.id); };
+      listEl.appendChild(item);
+    });
+  }
+
+  window.openEnquiryThread = function(id){
+    var list = loadEnquiries(), enq=null;
+    for(var i=0;i<list.length;i++){ if(list[i].id===id){ enq=list[i]; break; } }
+    if(!enq) return;
+    currentEnquiryId = id;
+    if(!enq.read){ enq.read = true; saveEnquiries(list); }
+    var es=document.getElementById('msgEmptyState'); if(es) es.style.display='none';
+    var bubbles=document.getElementById('msgBubbles'); var wrap=document.getElementById('msgInputWrap');
+    if(bubbles){
+      bubbles.style.display='';
+      var html =
+        '<div style="padding:4px 4px 14px;border-bottom:1px solid #eee;margin-bottom:14px;">'+
+          '<div style="font-weight:800;font-size:15px;">'+esc(enq.name||'Anonymous')+'</div>'+
+          '<div style="font-size:12px;color:#888;margin-top:2px;">'+esc(enq.email||'')+(enq.subject?' · '+esc(enq.subject):'')+'</div>'+
+        '</div>'+
+        '<div class="bubble-wrap"><div class="bubble-avatar">'+enqInitial(enq.name)+'</div><div>'+
+          '<div class="bubble theirs">'+esc(enq.message||'').replace(/\n/g,'<br>')+'</div>'+
+          '<div class="bubble-time">'+esc(timeAgo(enq.ts))+'</div></div></div>';
+      (enq.replies||[]).forEach(function(r){
+        html += '<div class="bubble-wrap mine"><div><div class="bubble mine">'+esc(r.text)+'</div><div class="bubble-time">'+esc(r.time)+'</div></div><div class="bubble-avatar" style="background:#1a1a2e;color:#fff;">M</div></div>';
+      });
+      bubbles.innerHTML = html; bubbles.scrollTop = bubbles.scrollHeight;
+    }
+    if(wrap) wrap.style.display='';
+    renderMsgList(); updateInbox();
+  };
+  window.openThread = function(){};  // back-compat no-op (old mock entry point)
+
+  window.sendMsg = function(){
+    var input=document.getElementById('msgInputBox'); var text=input.value.trim();
+    if(!text || !currentEnquiryId) return;
+    var list=loadEnquiries(), enq=null;
+    for(var i=0;i<list.length;i++){ if(list[i].id===currentEnquiryId){ enq=list[i]; break; } }
+    if(!enq) return;
+    var now=new Date(); var time=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0')+' '+(now.getHours()>=12?'PM':'AM');
+    enq.replies=enq.replies||[]; enq.replies.push({ text:text, time:time }); saveEnquiries(list);
+    input.value=''; input.style.height='auto';
+    openEnquiryThread(currentEnquiryId);
   };
 
-  window.sendMsg = function() {
-    const input = document.getElementById('msgInputBox');
-    const text = input.value.trim();
-    if (!text) return;
-    const bubbles = document.getElementById('msgBubbles');
-    const now = new Date();
-    const time = now.getHours() + ':' + String(now.getMinutes()).padStart(2,'0') + ' ' + (now.getHours()>=12?'PM':'AM');
-    bubbles.innerHTML += `
-      <div class="bubble-wrap mine">
-        <div>
-          <div class="bubble mine">${text}</div>
-          <div class="bubble-time">${time}</div>
-        </div>
-        <div class="bubble-avatar" style="background:#1a1a2e;color:#fff;">M</div>
-      </div>`;
-    input.value = '';
-    input.style.height = 'auto';
-    bubbles.scrollTop = bubbles.scrollHeight;
+  function renderDirectInquiries(){
+    var list=loadEnquiries(); var box=document.getElementById('jobs-direct');
+    if(!box || !list.length) return;  // keep default empty-state markup when none
+    box.innerHTML='';
+    list.forEach(function(enq){
+      var card=document.createElement('div');
+      card.className='inq-card'+(enq.read?'':' unread');
+      card.style.cssText='cursor:pointer;padding:16px 18px;border:1px solid #eee;border-radius:12px;margin-bottom:12px;';
+      card.innerHTML='<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">'+
+        (enq.read?'':'<span style="width:8px;height:8px;border-radius:50%;background:#3b82f6;"></span>')+
+        '<span style="font-weight:700;">'+esc(enq.subject||'New enquiry')+'</span>'+
+        '<span style="font-size:12px;color:#999;margin-left:auto;">'+esc(timeAgo(enq.ts))+'</span></div>'+
+        '<div style="font-size:12.5px;color:#888;margin-bottom:6px;">'+esc(enq.name||'')+' · '+esc(enq.email||'')+'</div>'+
+        '<div style="font-size:13px;color:#555;">'+esc((enq.message||'').slice(0,140))+'</div>';
+      card.onclick=function(){ navigate('messages',document.querySelector('[data-page=messages]')); openEnquiryThread(enq.id); };
+      box.appendChild(card);
+    });
+  }
+
+  function updateInbox(){
+    var list=loadEnquiries();
+    var unread=list.filter(function(e){ return !e.read; }).length;
+    var lessons=[]; try { lessons=JSON.parse(localStorage.getItem('opusz_lesson_requests')||'[]'); } catch(e){}
+    var lessonUnread=lessons.filter(function(r){ return !r.read; }).length;
+    var mb=document.getElementById('sbMsgBadge'); if(mb){ mb.textContent=unread; mb.style.display=unread?'':'none'; }
+    var jb=document.getElementById('sbJobsBadge'); if(jb){ jb.textContent=list.length; jb.style.display=list.length?'':'none'; }
+    var dot=document.querySelector('.topbar-btn .notif-dot'); if(dot) dot.style.display=(unread+lessonUnread)?'':'none';
+    renderDirectInquiries();
+  }
+
+  window.showInboxNotif = function(){
+    var list=loadEnquiries();
+    var unread=list.filter(function(e){ return !e.read; }).length;
+    var lessons=[]; try { lessons=JSON.parse(localStorage.getItem('opusz_lesson_requests')||'[]'); } catch(e){}
+    var lu=lessons.filter(function(r){ return !r.read; }).length;
+    var parts=[]; if(unread) parts.push(unread+' 則新訊息'); if(lu) parts.push(lu+' 筆新課程預約');
+    showNotif(parts.length ? ('你有 '+parts.join('、')) : '目前沒有新通知');
   };
+
+  function renderInbox(){ renderMsgList(); updateInbox(); }
 
   window.handleMsgKey = function(e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.sendMsg(); }
@@ -1417,11 +3299,7 @@
     if(stat) stat.textContent = list.length;
     if(statSub) statSub.textContent = unread ? (unread + ' 筆課程預約待回覆') : (list.length ? '皆已查看' : '本週尚無新詢問');
 
-    // Bell: dot only when there are unread, and clicking summarises
-    var dot = document.querySelector('.topbar-btn .notif-dot');
-    if(dot) dot.style.display = unread ? '' : 'none';
-    var bell = document.querySelector('.topbar-btn');
-    if(bell) bell.setAttribute('onclick', "showNotif('" + (unread ? '你有 ' + unread + ' 筆新課程預約' : '目前沒有新通知') + "')");
+    // (notification dot + bell handled by updateInbox / showInboxNotif)
 
     // Render request cards into 最近動態
     var box = document.getElementById('recentActivityList');
@@ -1458,7 +3336,8 @@
   window.addEventListener('focus', loadLessonRequests);
 
   // Init
-  window.openThread(0);
+  renderInbox();
+  window.addEventListener('focus', renderInbox);
 </script>
 </body>
 </html>

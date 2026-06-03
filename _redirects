@@ -1,0 +1,3 @@
+# Cloudflare Pages redirects (mirrors netlify.toml)
+# Serve the homepage at the root URL.
+/    /musician-platform.html    200

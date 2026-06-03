@@ -1,0 +1,583 @@
+/* ==== OPUS.Z shared navigation styles — extracted from musician-platform.html ==== */
+
+/* ---- Block A: nav bar, colour modes, logo, responsive, drawer, sub-drawer ---- */
+/* ── NAV ── */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 40px;
+  min-height: 76px; /* keep same height as when orb was inside (18+40+18) */
+  background: transparent;
+  mix-blend-mode: difference;
+  /* No CSS transition — JS lerp handles the damping */
+}
+nav.mega-open {
+  mix-blend-mode: normal;
+}
+
+/* ── Nav colour modes — still used for hover-bubble style switching ── */
+nav,
+nav.nav-on-dark { --nav-fg: #fff; }
+nav.nav-on-light { --nav-fg: #000; }
+
+/* When mega-menu is open: always white bg + black text */
+nav.mega-open {
+  background: #fff;
+  transition: background 0.22s ease;
+  --nav-fg: #000;
+}
+
+/* Apply the colour var */
+.nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; padding-left: 50px; }
+.orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png') center/cover no-repeat; flex-shrink: 0; }
+#navOrbFixed {
+  position: fixed; top: 18px; left: 40px;
+  z-index: 201; /* above nav (200) — orb only, no blend mode so red stays red */
+  text-decoration: none;
+  pointer-events: all;
+  display: flex; align-items: center;
+}
+/* Logo TEXT: separate fixed element so mix-blend-mode blends at the stacking-context level */
+#navLogoFixed {
+  position: fixed; top: 30px; left: 90px; /* default: centres 17px text on 40px orb */
+  z-index: 201;
+  mix-blend-mode: difference;
+  color: #fff;
+  font-size: 17px; font-weight: 700;
+  text-decoration: none;
+  pointer-events: all;
+  display: flex; align-items: flex-start;
+  line-height: 1;
+  transition: top 0.38s cubic-bezier(0.34,1.15,0.64,1);
+}
+/* On hover: two 17px lines + 3px gap = 37px; centre at orb Y=38 → top ≈ 19px */
+#navLogoFixed:hover { top: 19px; }
+.nav-logo-spacer { width: 180px; flex-shrink: 0; }
+
+/* ── Logo hover expand (OPUS.Z → + MUSIC) ── */
+.nav-logo-text {
+  display: flex; flex-direction: column; line-height: 1;
+}
+.nav-logo-name { display: block; }
+.nav-logo-sub {
+  display: block;
+  font-size: 17px; font-weight: 700; letter-spacing: 0;
+  max-height: 0; overflow: hidden; opacity: 0;
+  margin-top: 3px;
+  transition:
+    max-height 0.38s cubic-bezier(0.34, 1.15, 0.64, 1),
+    opacity    0.22s ease 0.08s;
+}
+.nav-logo:hover .nav-logo-sub,
+#navLogoFixed:hover .nav-logo-sub {
+  max-height: 20px; opacity: 1;
+}
+.nav-links { display: flex; gap: 10px; list-style: none; position: absolute; left: 0; right: 0; justify-content: center; pointer-events: none; }
+.nav-links li { pointer-events: all; }
+.nav-links a {
+  text-decoration: none; font-size: 15px; font-weight: 300; letter-spacing: 0.04em;
+  position: relative; padding: 11px 22px; border-radius: 50px;
+  display: inline-flex; align-items: center; justify-content: center;
+  line-height: 1; vertical-align: middle; white-space: nowrap;
+  z-index: 0;
+  color: transparent; /* individual .nc-char spans carry the color */
+}
+nav.mega-open .nav-links {
+  mix-blend-mode: normal;
+}
+nav.mega-open .nav-links a {
+  color: #000;
+}
+nav.mega-open .nav-links .nc-char {
+  color: #000 !important;
+}
+/* Per-character color spans — JS sets color on each one individually */
+.nc-char {
+  display: inline-block;
+  color: #fff;
+}
+.nc-sp {
+  display: inline-block;
+  min-width: 0.3em; /* preserve space width inside flex container */
+}
+nav.mega-open .nc-char {
+  color: #000 !important;
+  transition: none;
+}
+
+/* Logo text inside nav: JS-controlled per-character */
+nav .nav-logo-name,
+nav .nav-logo-sub {
+  color: transparent; /* .nc-char children carry the color */
+}
+/* Logo text chars: always #fff — mix-blend-mode:difference on #navLogoFixed handles inversion */
+#navLogoFixed .nav-logo-name,
+#navLogoFixed .nav-logo-sub {
+  color: #fff;
+}
+#navLogoFixed .nc-char { color: #fff; }
+nav.mega-open .nav-logo-name .nc-char,
+nav.mega-open .nav-logo-sub .nc-char {
+  color: #000 !important;
+  transition: none;
+}
+
+/* ── Responsive nav ── */
+@media (max-width: 1440px) {
+  nav { padding: 13px 28px; }
+  .nav-links { gap: 4px; }
+  .nav-links a { font-size: 13px; padding: 9px 14px; }
+}
+@media (max-width: 1200px) {
+  nav { padding: 11px 24px; }
+  .nav-links { gap: 2px; }
+  .nav-links a { font-size: 12px; padding: 8px 11px; }
+}
+
+/* Bubble hover effect removed */
+.nav-links a::before { display: none; }
+.nav-links a:hover { opacity: 1; }
+
+/* ── Underline hover: grows left→right on enter, shrinks right→left on leave ── */
+.nav-ul {
+  position: absolute;
+  bottom: 3px;
+  left: 10px; right: 10px;
+  height: 1px;
+  background: #fff;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  pointer-events: none;
+}
+.nav-links a:hover .nav-ul {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+nav.mega-open .nav-links a:hover .nav-ul {
+  background: #000; /* mega-open turns nav white so underline must be dark */
+}
+
+/* Bubble on DARK background — frosted dark glass with white specular rim */
+nav.nav-on-dark .nav-links a::before {
+  background:
+    radial-gradient(ellipse at 38% 22%, rgba(255,255,255,0.26) 0%, transparent 55%),
+    radial-gradient(ellipse at 65% 80%, rgba(255,255,255,0.07) 0%, transparent 40%),
+    rgba(255,255,255,0.07);
+  backdrop-filter: blur(10px) saturate(1.3);
+  -webkit-backdrop-filter: blur(10px) saturate(1.3);
+  border: 1px solid rgba(255,255,255,0.20);
+  box-shadow:
+    inset 0 1.5px 2px rgba(255,255,255,0.32),
+    inset 0 -1px 2px rgba(0,0,0,0.55),
+    inset 1px 0 3px -1px rgba(255,255,255,0.12),
+    0 6px 24px rgba(0,0,0,0.55),
+    0 2px 6px rgba(0,0,0,0.35);
+}
+
+/* Bubble on LIGHT background — clear glass / crystal bubble */
+nav.nav-on-light .nav-links a::before,
+nav.mega-open .nav-links a::before {
+  background:
+    radial-gradient(ellipse at 38% 22%, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.50) 45%, transparent 72%),
+    radial-gradient(ellipse at 68% 82%, rgba(255,255,255,0.55) 0%, transparent 42%),
+    rgba(255,255,255,0.38);
+  backdrop-filter: blur(12px) saturate(1.6);
+  -webkit-backdrop-filter: blur(12px) saturate(1.6);
+  border: 1px solid rgba(255,255,255,0.92);
+  box-shadow:
+    inset 0 2px 3px rgba(255,255,255,1),
+    inset 0 -1px 2px rgba(0,0,0,0.07),
+    inset 1.5px 0 4px -2px rgba(255,255,255,0.7),
+    inset -1.5px 0 4px -2px rgba(255,255,255,0.5),
+    0 4px 18px rgba(0,0,0,0.09),
+    0 1px 3px rgba(0,0,0,0.06);
+}
+
+.hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
+.hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: opacity .2s; }
+.hamburger:hover span { opacity: .5; }
+
+/* ── Slide-in Nav Drawer ── */
+.nav-drawer {
+  position: fixed; top: 0; right: -260px; bottom: 0;
+  width: 260px;
+  background: #fff;
+  box-shadow: -12px 0 48px rgba(0,0,0,0.10);
+  padding: 90px 40px 48px;
+  display: flex; flex-direction: column; gap: 4px;
+  transition: right 0.18s ease;
+  z-index: 300;
+  pointer-events: none;
+}
+.nav-drawer.nd-visible {
+  right: 0;
+  pointer-events: auto;
+  transition: right 0.42s cubic-bezier(0.22,1,0.36,1);
+}
+.nav-drawer a {
+  display: block; padding: 12px 0;
+  font-size: 17px; font-weight: 500; color: var(--black);
+  text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06);
+  opacity: 0; transform: translateX(18px);
+  transition: opacity .12s ease, transform .12s ease, color .15s ease;
+}
+.nav-drawer a:last-child { border-bottom: none; }
+.nav-drawer a:hover { color: rgba(0,0,0,0.4); }
+.nav-drawer.nd-visible a {
+  opacity: 1; transform: translateX(0);
+  transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1),
+              transform 0.38s cubic-bezier(0.22,1,0.36,1),
+              color .15s ease;
+}
+.nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
+.nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
+.nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
+.nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
+.nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+
+/* Musicians sub-drawer trigger button */
+.nd-musicians-btn {
+  display: flex; align-items: center; justify-content: space-between;
+  width: 100%; padding: 12px 0;
+  font-size: 17px; font-weight: 500; color: var(--black);
+  background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06);
+  cursor: pointer; font-family: inherit; text-align: left;
+  opacity: 0; transform: translateX(18px);
+  transition: opacity .12s ease, transform .12s ease, color .15s ease;
+}
+.nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
+.nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
+.nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+.nav-drawer.nd-visible .nd-musicians-btn {
+  opacity: 1; transform: translateX(0);
+  transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1),
+              transform 0.38s cubic-bezier(0.22,1,0.36,1),
+              color .15s ease;
+  transition-delay: 0.15s;
+}
+
+/* Musicians sub-panel */
+.nav-sub-drawer {
+  position: fixed; top: 0; right: -300px; bottom: 0;
+  width: 300px;
+  background: #fff;
+  box-shadow: -12px 0 48px rgba(0,0,0,0.12);
+  display: flex; flex-direction: column;
+  transition: right 0.18s ease;
+  z-index: 302;
+  pointer-events: none;
+  overflow: hidden;
+}
+.nav-sub-drawer.ns-visible {
+  right: 0;
+  pointer-events: auto;
+  transition: right 0.38s cubic-bezier(0.22,1,0.36,1);
+}
+.nsd-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 22px 24px 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  flex-shrink: 0;
+}
+.nsd-back {
+  background: none; border: none; cursor: pointer;
+  font-size: 20px; color: var(--black); padding: 4px;
+  display: flex; align-items: center;
+  opacity: .5; transition: opacity .15s;
+}
+.nsd-back:hover { opacity: 1; }
+.nsd-title { font-size: 16px; font-weight: 700; }
+.nsd-body {
+  overflow-y: auto; flex: 1;
+  padding: 12px 0 40px;
+  -webkit-overflow-scrolling: touch;
+}
+.nsd-group { margin-bottom: 4px; }
+.nsd-group-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: rgba(0,0,0,0.35);
+  padding: 14px 24px 6px;
+}
+.nsd-group a {
+  display: block; padding: 10px 24px;
+  font-size: 15px; font-weight: 500; color: var(--black);
+  text-decoration: none;
+  transition: background .12s, color .12s;
+}
+.nsd-group a:hover, .nsd-group a:active { background: #f5f5f5; }
+
+/* ---- Block B: mega menu, lang toggle, favourites, login/account ---- */
+/* ── MEGA MENU ── */
+.mega-menu {
+  position: fixed; top: 76px; left: 0; right: 0;
+  background: #fff;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
+  padding: 36px 40px 40px;
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 0;
+  opacity: 0; transform: translateY(-22px);
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+  z-index: 199;
+  clip-path: inset(0 0 0 0);
+}
+.mega-menu.mm-visible {
+  opacity: 1; transform: translateY(0);
+  pointer-events: auto;
+  transition: opacity 0.46s cubic-bezier(0.22,1,0.36,1),
+              transform 0.46s cubic-bezier(0.22,1,0.36,1);
+}
+/* 退場：優雅地向上淡出 */
+.mega-menu.mm-closing {
+  opacity: 0; transform: translateY(-16px);
+  pointer-events: none;
+  transition: opacity 0.38s cubic-bezier(0.4,0,0.2,1),
+              transform 0.38s cubic-bezier(0.4,0,0.2,1);
+}
+.mega-col {
+  padding: 0 28px 0 0;
+  border-right: 1px solid rgba(0,0,0,0.055);
+  margin-right: 28px;
+  opacity: 0; transform: translateY(-14px);
+  transition: opacity 0.14s ease, transform 0.14s ease;
+}
+.mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
+.mega-menu.mm-visible .mega-col {
+  opacity: 1; transform: translateY(0);
+  transition: opacity 0.4s cubic-bezier(0.22,1,0.36,1),
+              transform 0.4s cubic-bezier(0.22,1,0.36,1);
+}
+.mega-menu.mm-visible .mega-col:nth-child(1) { transition-delay: 0.05s; }
+.mega-menu.mm-visible .mega-col:nth-child(2) { transition-delay: 0.08s; }
+.mega-menu.mm-visible .mega-col:nth-child(3) { transition-delay: 0.11s; }
+.mega-menu.mm-visible .mega-col:nth-child(4) { transition-delay: 0.14s; }
+.mega-menu.mm-visible .mega-col:nth-child(5) { transition-delay: 0.17s; }
+.mega-menu.mm-visible .mega-col:nth-child(6) { transition-delay: 0.20s; }
+.mega-menu.mm-visible .mega-col:nth-child(7) { transition-delay: 0.23s; }
+.mega-menu.mm-visible .mega-col:nth-child(8) { transition-delay: 0.26s; }
+/* 退場時欄位依序往上消失（反向 delay）*/
+.mega-menu.mm-closing .mega-col {
+  opacity: 0; transform: translateY(-10px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+}
+.mega-menu.mm-closing .mega-col:nth-child(8) { transition-delay: 0.00s; }
+.mega-menu.mm-closing .mega-col:nth-child(7) { transition-delay: 0.03s; }
+.mega-menu.mm-closing .mega-col:nth-child(6) { transition-delay: 0.06s; }
+.mega-menu.mm-closing .mega-col:nth-child(5) { transition-delay: 0.09s; }
+.mega-menu.mm-closing .mega-col:nth-child(4) { transition-delay: 0.12s; }
+.mega-menu.mm-closing .mega-col:nth-child(3) { transition-delay: 0.15s; }
+.mega-menu.mm-closing .mega-col:nth-child(2) { transition-delay: 0.18s; }
+.mega-menu.mm-closing .mega-col:nth-child(1) { transition-delay: 0.21s; }
+.mega-col-title {
+  display: inline-block;
+  font-size: 10px; font-weight: 700; letter-spacing: .12em;
+  text-transform: uppercase; color: rgba(0,0,0,0.35);
+  text-decoration: none;
+  margin-bottom: 16px; padding-bottom: 10px;
+  width: 100%;
+  border-bottom: 1px solid rgba(0,0,0,0.07);
+  position: relative;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.mega-col-title::after {
+  content: '';
+  position: absolute;
+  bottom: -1px; left: 0;
+  width: 100%; height: 1.5px;
+  background: var(--black);
+  transform: scaleX(0);
+  transform-origin: left center;
+  /* instant on leave */
+  transition: none;
+}
+.mega-col-title:hover { color: rgba(0,0,0,0.75); }
+.mega-col-title:hover::after {
+  transform: scaleX(1);
+  transition: transform 0.38s cubic-bezier(0.22,1,0.36,1);
+}
+.mega-col ul { list-style: none; display: flex; flex-direction: column; gap: 1px; }
+.mega-col ul li a {
+  display: block; padding: 5px 0;
+  font-size: 13.5px; font-weight: 450; color: var(--black);
+  text-decoration: none; border-radius: 6px;
+  transition: opacity 0.18s ease;
+}
+.mega-col ul li a:hover { opacity: 0.45; }
+/* overlay underline for Artists trigger when menu open */
+#artists-nav-item > a.mm-active::before { transform: scaleX(1) !important; }
+
+/* ── LANG TOGGLE ── */
+.lang-toggle {
+  display: flex; align-items: center; gap: 2px;
+  background: none; border: none; cursor: pointer; padding: 0;
+  font-family: inherit; font-size: 15px; font-weight: 300; color: var(--nav-fg); letter-spacing: 0.04em;
+}
+.lang-toggle .lt-opt {
+  padding: 3px 8px; border-radius: 5px;
+  transition: background .2s, color .2s;
+}
+/* Active option: outlined pill in current nav colour — no fill needed */
+.lang-toggle .lt-opt.active { border: 1.5px solid currentColor; border-radius: 4px; }
+nav.mega-open .lang-toggle .lt-opt.active { border-color: #000; color: #000; }
+.lang-toggle .lt-sep { opacity: .25; font-weight: 400; }
+.nav-right { display: flex; align-items: center; gap: 14px; }
+
+/* ── Favourites Button ── */
+.nav-fav-btn { position:relative; background:none; border:none; cursor:pointer; padding:6px; display:flex; align-items:center; color:var(--nav-fg); }
+.nav-fav-btn:hover { opacity:.65; }
+nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
+.nav-fav-btn svg { display:block; }
+.nav-fav-count { display:none; } /* replaced by #navFavBadge outside nav */
+/* Fixed badge — always red, never inverted by mix-blend-mode */
+#navFavBadge {
+  position: fixed; z-index: 202;
+  background: #e05; color: #fff;
+  font-size: 9px; font-weight: 700;
+  border-radius: 50%; width: 14px; height: 14px;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1; pointer-events: none;
+}
+
+/* ── Login Button ── */
+.nav-login-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; color: var(--nav-fg);
+  border: 1.5px solid var(--nav-fg); border-radius: 0;
+  padding: 9px 18px; font-size: 15px; font-weight: 300; letter-spacing: 0.04em;
+  font-family: inherit; cursor: pointer; white-space: nowrap;
+  position: relative; z-index: 0;
+  line-height: 1;
+}
+.nav-login-btn::before { display: none; }
+.nav-login-btn:hover { opacity: 1; }
+.nav-login-btn svg { width: 12px; height: 12px; transition: transform .2s; flex-shrink: 0; position: relative; z-index: 1; }
+.nav-login-btn span.login-label { position: relative; z-index: 1; }
+.nav-login-btn.open svg { transform: rotate(180deg); }
+
+/* Dropdown — fixed outside nav to escape mix-blend-mode */
+.nav-login-dropdown {
+  position: fixed;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.13), 0 2px 8px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.06);
+  padding: 6px; min-width: 200px;
+  opacity: 0; pointer-events: none;
+  transform: translateY(-6px) scale(.97);
+  transform-origin: top right;
+  transition: opacity .18s cubic-bezier(.4,0,.2,1), transform .18s cubic-bezier(.4,0,.2,1);
+  z-index: 9999; white-space: nowrap;
+  display: flex; flex-direction: column; gap: 2px;
+  mix-blend-mode: normal;
+  isolation: isolate;
+  /* filter forces a brand-new GPU compositing layer — guaranteed escape from
+     Chrome's fixed-element mix-blend-mode bleed bug */
+  filter: drop-shadow(0 0 0 transparent);
+}
+/* Login dropdown is positioned OUTSIDE nav element (see HTML comment ~line 2161),
+   so nav's mix-blend-mode doesn't affect it. We do NOT touch nav-links — letting
+   them keep their blend-mode-driven auto-contrast (#fff blended with backdrop).
+   Forcing #000 here was a bug: difference-blend then inverted black to white,
+   making nav-links invisible on light backgrounds. */
+.nav-login-dropdown.open {
+  opacity: 1; pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+.nav-login-dropdown a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px;
+  font-size: 13px; font-weight: 600; color: #111 !important;
+  text-decoration: none;
+  border-radius: 9px;
+  transition: background .13s;
+  letter-spacing: .01em;
+  background: transparent !important;
+}
+.nav-login-dropdown a:hover { background: #f2f2f2 !important; }
+.nav-login-dropdown a::before {
+  content: '';
+  display: inline-block;
+  width: 30px; height: 30px;
+  border-radius: 8px;
+  background: #f0f0f0;
+  flex-shrink: 0;
+  background-size: 16px; background-position: center; background-repeat: no-repeat;
+}
+/* Customer icon */
+#openCustomerLogin::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E");
+}
+/* Musician icon */
+#openMusicianLogin::before {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 18V5l12-2v13'/%3E%3Ccircle cx='6' cy='18' r='3'/%3E%3Ccircle cx='18' cy='16' r='3'/%3E%3C/svg%3E");
+}
+.nav-login-vsep {
+  height: 1px; background: #ebebeb; margin: 2px 8px; flex-shrink: 0;
+}
+@media(max-width:760px){ .nav-login-btn span.login-label { display:none; } }
+
+/* My Account dropdown: no icon boxes, clean text-only rows */
+#accountDropdown a::before { display: none; }
+#accountDropdown a { padding: 11px 18px; justify-content: center; text-align: center; }
+
+/* ── My Account avatar button (fixed, outside nav to escape mix-blend-mode) ── */
+/* My Account button sits inside nav — hidden until logged in, no border box */
+#navAccountBtn {
+  display: none;
+  border: none;
+  padding: 6px 2px;
+}
+#navAccountBtn.open svg { transform: rotate(180deg); }
+
+/* Account dropdown (fixed, same style as login dropdown) */
+.nav-account-dropdown-fixed {
+  position: fixed;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.13), 0 2px 8px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.06);
+  padding: 8px; min-width: 220px;
+  opacity: 0; pointer-events: none;
+  transform: translateY(-6px) scale(.97);
+  transform-origin: top right;
+  transition: opacity .18s cubic-bezier(.4,0,.2,1), transform .18s cubic-bezier(.4,0,.2,1);
+  z-index: 9999; mix-blend-mode: normal;
+}
+.nav-account-dropdown-fixed.open {
+  opacity: 1; pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+/* User info header inside dropdown */
+.nav-acc-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid #f0f0f0; margin-bottom: 4px;
+}
+.nav-acc-header-avatar {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: #111; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 800; flex-shrink: 0;
+}
+.nav-acc-header-info { display: flex; flex-direction: column; gap: 1px; overflow: hidden; }
+.nav-acc-header-name { font-size: 13.5px; font-weight: 700; color: #111; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.nav-acc-header-email { font-size: 11.5px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Dropdown items */
+.nav-account-dropdown-fixed a {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; font-size: 13px; font-weight: 600;
+  color: #111 !important; text-decoration: none;
+  border-radius: 10px; transition: background .13s;
+}
+.nav-account-dropdown-fixed a:hover { background: #f4f4f4; }
+.nav-account-dropdown-fixed a .acc-icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: #f0f0f0; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0;
+}
+.nav-account-dropdown-fixed a .acc-icon svg { width: 14px; height: 14px; stroke: #555; fill: none; stroke-width: 2; }
+.nav-acc-sep { height: 1px; background: #f0f0f0; margin: 4px 8px; }
+.nav-account-dropdown-fixed .acc-logout { color: #c00 !important; }
+.nav-account-dropdown-fixed .acc-logout .acc-icon { background: #fff0f0; }
+.nav-account-dropdown-fixed .acc-logout .acc-icon svg { stroke: #c00; }

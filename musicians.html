@@ -378,164 +378,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 </style>
   <link rel="icon" href="/favicon.ico?v=3" />
   <link rel="icon" type="image/png" href="/favicon.png?v=3" />
+<link rel="stylesheet" href="nav.css">
+  <script src="assets/js/analytics.js"></script>
 </head>
 <body>
-
-<!-- NAV -->
-<!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
-<a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
-  <div class="orb"></div>
-</a>
-<a href="musician-platform.html" id="navLogoFixed">
-  <div class="nav-logo-text">
-    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
-    <span class="nav-logo-sub">MUSIC</span>
-  </div>
-</a>
-
-<nav>
-  <!-- Spacer to keep nav-links centered -->
-  <div class="nav-logo-spacer"></div>
-  <ul class="nav-links">
-    <li><a href="musician-platform.html" data-i18n="nav.home">Home</a></li>
-    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
-    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
-    <li><a href="recent-jobs.html">Recent Jobs</a></li>
-    <li><a href="shows.html" data-i18n="nav.news">Shows</a></li>
-    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
-  </ul>
-  <!-- MEGA MENU -->
-  <div class="mega-menu" id="artistsMegaMenu">
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a>
-      <ul>
-        <li><a href="musicians.html?cat=violin"     data-i18n="menu.violin">Violin</a></li>
-        <li><a href="musicians.html?cat=viola"      data-i18n="menu.viola">Viola</a></li>
-        <li><a href="musicians.html?cat=cello"      data-i18n="menu.cello">Cello</a></li>
-        <li><a href="musicians.html?cat=doublebass" data-i18n="menu.doublebass">Double Bass</a></li>
-        <li><a href="musicians.html?cat=harp"       data-i18n="menu.harp">Harp</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a>
-      <ul>
-        <li><a href="musicians.html?cat=flute"      data-i18n="menu.flute">Flute</a></li>
-        <li><a href="musicians.html?cat=piccolo"    data-i18n="menu.piccolo">Piccolo</a></li>
-        <li><a href="musicians.html?cat=oboe"       data-i18n="menu.oboe">Oboe</a></li>
-        <li><a href="musicians.html?cat=clarinet"   data-i18n="menu.clarinet">Clarinet</a></li>
-        <li><a href="musicians.html?cat=saxophone"  data-i18n="menu.saxophone">Saxophone</a></li>
-        <li><a href="musicians.html?cat=bassoon"    data-i18n="menu.bassoon">Bassoon</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a>
-      <ul>
-        <li><a href="musicians.html?cat=frenchhorn" data-i18n="menu.frenchhorn">French Horn</a></li>
-        <li><a href="musicians.html?cat=trumpet"    data-i18n="menu.trumpet">Trumpet</a></li>
-        <li><a href="musicians.html?cat=trombone"   data-i18n="menu.trombone">Trombone</a></li>
-        <li><a href="musicians.html?cat=euphonium"  data-i18n="menu.euphonium">Euphonium</a></li>
-        <li><a href="musicians.html?cat=tuba"       data-i18n="menu.tuba">Tuba</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=percussion" data-i18n="menu.percussion">Percussion</a>
-      <ul>
-        <li><a href="musicians.html?cat=timpani"    data-i18n="menu.timpani">Timpani</a></li>
-        <li><a href="musicians.html?cat=marimba"    data-i18n="menu.marimba">Marimba</a></li>
-        <li><a href="musicians.html?cat=vibraphone" data-i18n="menu.vibraphone">Vibraphone</a></li>
-        <li><a href="musicians.html?cat=xylophone"  data-i18n="menu.xylophone">Xylophone</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=keyboard" data-i18n="menu.keyboard">Keyboard</a>
-      <ul>
-        <li><a href="musicians.html?cat=piano"      data-i18n="menu.piano">Piano</a></li>
-        <li><a href="musicians.html?cat=pipeorgan"  data-i18n="menu.pipeorgan">Pipe Organ</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a>
-      <ul>
-        <li><a href="musicians.html?cat=soprano"      data-i18n="menu.soprano">Soprano</a></li>
-        <li><a href="musicians.html?cat=mezzosoprano" data-i18n="menu.mezzosoprano">Mezzo-soprano</a></li>
-        <li><a href="musicians.html?cat=tenor"        data-i18n="menu.tenor">Tenor</a></li>
-        <li><a href="musicians.html?cat=baritone"     data-i18n="menu.baritone">Baritone</a></li>
-        <li><a href="musicians.html?cat=choral"       data-i18n="menu.choral">Choral</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a>
-      <ul>
-        <li><a href="musicians.html?cat=stringquartet" data-i18n="menu.stringquartet">String Quartet</a></li>
-        <li><a href="musicians.html?cat=pianotrio"     data-i18n="menu.pianotrio">Piano Trio</a></li>
-        <li><a href="musicians.html?cat=stringtrio"    data-i18n="menu.stringtrio">String Trio</a></li>
-        <li><a href="musicians.html?cat=windquintet"   data-i18n="menu.windquintet">Wind Quintet</a></li>
-        <li><a href="musicians.html?cat=brassquintet"  data-i18n="menu.brassquintet">Brass Quintet</a></li>
-        <li><a href="musicians.html?cat=pianoquintet"  data-i18n="menu.pianoquintet">Piano Quintet</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html" data-i18n="menu.all">All</a>
-      <ul>
-        <li><a href="musicians.html"                    data-i18n="menu.allmusicians">All Musicians</a></li>
-        <li><a href="musicians.html?cat=strings"        data-i18n="menu.strings">Strings</a></li>
-        <li><a href="musicians.html?cat=woodwinds"      data-i18n="menu.woodwinds">Woodwinds</a></li>
-        <li><a href="musicians.html?cat=brass"          data-i18n="menu.brass">Brass</a></li>
-        <li><a href="musicians.html?cat=voice"          data-i18n="menu.voice">Voice</a></li>
-        <li><a href="musicians.html?cat=chamber"        data-i18n="menu.chamber">Chamber</a></li>
-        <li><a href="musicians.html?cat=conductor"      data-i18n="menu.conductor">Conductor</a></li><li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="nav-right">
-    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
-    </button>
-    <div id="navInlineAccount" style="display:none"></div>
-    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
-      <span class="login-label">Log in</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-      <div class="nav-login-dropdown">
-        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
-        <div class="nav-login-vsep"></div>
-        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
-      </div>
-    </button>
-    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
-      <span class="lt-opt active" data-l="en">EN</span>
-      <span class="lt-sep">/</span>
-      <span class="lt-opt" data-l="zh">中文</span>
-    </button>
-    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
-  </div>
-</nav>
-<div class="nav-drawer" id="navDrawer">
-  <a href="musician-platform.html" data-i18n="nav.home">Home</a>
-  <a href="blog.html" data-i18n="nav.discover">Blog</a>
-  <button class="nd-musicians-btn" id="ndMusiciansBtn">
-    <span data-i18n="nav.artists">Musicians</span>
-    <span class="nd-arrow">›</span>
-  </button>
-  <a href="recent-jobs.html">Recent Jobs</a>
-  <a href="shows.html" data-i18n="nav.news">Shows</a>
-  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
-</div>
-
-<!-- Musicians sub-drawer -->
-<div class="nav-sub-drawer" id="navSubDrawer">
-  <div class="nsd-head">
-    <button class="nsd-back" id="nsdBack">‹</button>
-    <div class="nsd-title" data-i18n="nav.artists">Musicians</div>
-  </div>
-  <div class="nsd-body">
-    <div class="nsd-group"><div class="nsd-group-title">Strings</div><a href="musicians.html?cat=violin">Violin</a><a href="musicians.html?cat=viola">Viola</a><a href="musicians.html?cat=cello">Cello</a><a href="musicians.html?cat=doublebass">Double Bass</a><a href="musicians.html?cat=harp">Harp</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Woodwinds</div><a href="musicians.html?cat=flute">Flute</a><a href="musicians.html?cat=oboe">Oboe</a><a href="musicians.html?cat=clarinet">Clarinet</a><a href="musicians.html?cat=saxophone">Saxophone</a><a href="musicians.html?cat=bassoon">Bassoon</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Brass</div><a href="musicians.html?cat=frenchhorn">French Horn</a><a href="musicians.html?cat=trumpet">Trumpet</a><a href="musicians.html?cat=trombone">Trombone</a><a href="musicians.html?cat=tuba">Tuba</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Keyboard</div><a href="musicians.html?cat=piano">Piano</a><a href="musicians.html?cat=pipeorgan">Pipe Organ</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Voice</div><a href="musicians.html?cat=soprano">Soprano</a><a href="musicians.html?cat=mezzosoprano">Mezzo-soprano</a><a href="musicians.html?cat=tenor">Tenor</a><a href="musicians.html?cat=baritone">Baritone</a></div>
-  </div>
-</div>
+<script src="nav.js"></script>
 
 <!-- Login Modal -->
 <div class="login-modal-overlay" id="loginModalOverlay">
@@ -597,6 +444,8 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   </select>
   <div class="filter-sort">
     <select class="filter-select" id="filterSort" onchange="applyFilters()">
+      <option value="popular">Most popular</option>
+      <option value="rating">Top rated</option>
       <option value="newest">Newest</option>
     </select>
     <span class="filter-count" id="filterCount"></span>
@@ -689,19 +538,12 @@ var CAT_MAP = {
 (function init(){
   var params = new URLSearchParams(window.location.search);
   currentCat = params.get('cat') || '';
+  if(window._currentLang){ currentLang = window._currentLang; }
   favourites = JSON.parse(localStorage.getItem('mono-favs') || '[]');
   updateFavBtn();
   setHero();
   renderGrid();
 
-  // Fav modal — require login
-  document.getElementById('navFavBtn').addEventListener('click', function(){
-    if (!localStorage.getItem('opusz_user')) {
-      document.getElementById('loginRequiredModal').style.display = 'flex';
-      return;
-    }
-    document.getElementById('favModal').classList.toggle('open'); renderFavModal();
-  });
   document.getElementById('favModalClose').addEventListener('click', function(){ document.getElementById('favModal').classList.remove('open'); });
   document.getElementById('favModal').addEventListener('click', function(e){ if(e.target===this) this.classList.remove('open'); });
   document.getElementById('loginRequiredModal').addEventListener('click', function(e){ if(e.target===this) this.style.display='none'; });
@@ -709,6 +551,9 @@ var CAT_MAP = {
   // Search on enter
   document.getElementById('searchInput').addEventListener('keydown', function(e){ if(e.key==='Enter') doSearch(); });
 })();
+
+// nav.js owns the language toggle; re-run page-content translation on change
+document.addEventListener('opusz:langchange', function(e){ if(typeof setLang==='function') setLang(e.detail.lang); });
 
 var MENU_I18N = {
   en: {
@@ -844,9 +689,10 @@ function getFiltered(){
   });
 
   list.sort(function(a,b){
-    if(sort==='rating')  return b.rating - a.rating;
-    if(sort==='reviews') return b.reviews - a.reviews;
-    return b.id - a.id;
+    if(sort==='newest') return b.id - a.id;
+    if(sort==='rating') return (b.rating - a.rating) || (b.reviews - a.reviews);
+    // default = 'popular' → by popularity (review count), rating as tie-breaker
+    return (b.reviews - a.reviews) || (b.rating - a.rating);
   });
   return list;
 }
@@ -876,7 +722,14 @@ function renderGrid(){
     var my = localStorage.getItem('mxys-y-'+m.id)||'0';
     var ms = localStorage.getItem('mxys-s-'+m.id)||'1';
     var xysStyle = 'transform:translate('+mx+'px,'+my+'px) scale('+ms+');transform-origin:center center;';
-    if(savedPhoto){
+    if(m.photoUrl){
+      var cpx = (m.photoX !== undefined && m.photoX !== null) ? m.photoX : 0;
+      var cpy = (m.photoY !== undefined && m.photoY !== null) ? m.photoY : 0;
+      var cps = (m.photoScale !== undefined && m.photoScale !== null) ? m.photoScale : 1;
+      mediaHtml = '<div class="photo-pan" style="position:absolute;inset:0;transform:translate('+cpx+'px,'+cpy+'px) scale('+cps+');transform-origin:center center;">' +
+        '<img src="'+m.photoUrl+'" alt="'+m.name+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">' +
+        '</div>';
+    } else if(savedPhoto){
       mediaHtml = '<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'">' +
         '<img src="'+savedPhoto+'" alt="'+m.name+'" style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;">' +
         '</div>';
@@ -1010,127 +863,6 @@ function stopAudio(){
   renderGrid();
 }
 
-// ── Nav JS (same as main page) ────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', function(){
-  // Lang toggle
-  var lt = document.getElementById('langToggle');
-  if(lt) lt.addEventListener('click', function(e){
-    var opt = e.target.closest('[data-l]');
-    var lang = opt ? opt.dataset.l : (currentLang==='en'?'zh':'en');
-    setLang(lang);
-    document.querySelectorAll('#langToggle .lt-opt').forEach(function(o){ o.classList.toggle('active', o.dataset.l===lang); });
-  });
-  // Login / Account dropdown
-  var loginBtn = document.getElementById('navLoginBtn');
-  var musUser  = localStorage.getItem('opusz_user');
-  var musEmail = localStorage.getItem('opusz_user_email') || '';
-
-  if (loginBtn && musUser) {
-    // ── LOGGED IN: transform navLoginBtn into My Account ──────────────
-    var label = loginBtn.querySelector('.login-label');
-    if (label) label.textContent = 'My Account';
-
-    var drop = loginBtn.querySelector('.nav-login-dropdown');
-    if (drop) {
-      drop.innerHTML =
-        '<div style="padding:10px 14px 8px;border-bottom:1px solid rgba(0,0,0,.08);pointer-events:none">' +
-          '<div style="font-size:13px;font-weight:700;color:#111">' + musUser + '</div>' +
-          '<div style="font-size:11px;color:#999">' + musEmail + '</div>' +
-        '</div>' +
-        '<a href="messages.html" style="display:flex;align-items:center;font-weight:700;">Messages' +
-          '<span id="dropMsgBadge" style="background:#e05;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto;display:none">0</span>' +
-        '</a>' +
-        '<div class="nav-login-vsep"></div>' +
-        '<a href="customer-profile.html#bookings">My Bookings</a>' +
-        '<a href="customer-profile.html">My Profile</a>' +
-        '<div class="nav-login-vsep"></div>' +
-        '<a href="#" id="musLogoutBtn" style="color:#c00;font-weight:600;">Log Out</a>';
-
-      // Unread badge
-      var musConvs = JSON.parse(localStorage.getItem('opusz_convs') || 'null');
-      var musUnread = musConvs
-        ? musConvs.filter(function(c){ return !c.archived && c.unread > 0; }).reduce(function(s,c){ return s + c.unread; }, 0)
-        : 2;
-      var musBadge = document.getElementById('dropMsgBadge');
-      if (musBadge && musUnread > 0) { musBadge.textContent = musUnread; musBadge.style.display = 'inline'; }
-
-      // Logout
-      var musLogout = document.getElementById('musLogoutBtn');
-      if (musLogout) musLogout.addEventListener('click', function(e) {
-        e.preventDefault();
-        localStorage.removeItem('opusz_user');
-        localStorage.removeItem('opusz_user_email');
-        window.location.reload();
-      });
-    }
-
-    // Hover open/close (same as login)
-    var accLeaveTimer;
-    loginBtn.addEventListener('mouseenter', function() { clearTimeout(accLeaveTimer); this.classList.add('open'); });
-    loginBtn.addEventListener('mouseleave', function() { accLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
-    if (drop) {
-      drop.addEventListener('mouseenter', function() { clearTimeout(accLeaveTimer); });
-      drop.addEventListener('mouseleave', function() { accLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
-    }
-
-  } else if (loginBtn) {
-    // ── NOT LOGGED IN: keep original login dropdown ───────────────────
-    var loginLeaveTimer;
-    loginBtn.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); this.classList.add('open'); });
-    loginBtn.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
-    var dropdown = loginBtn.querySelector('.nav-login-dropdown');
-    if (dropdown) {
-      dropdown.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); });
-      dropdown.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
-    }
-    // Login modal
-    var overlay = document.getElementById('loginModalOverlay');
-    var modalClose = document.getElementById('loginModalClose');
-    var modalTitle = document.getElementById('loginModalTitle');
-    function openModal(type){ if(overlay){ modalTitle.textContent = type==='customer'?'Customer Login':'Musician Login'; overlay.classList.add('open'); document.body.style.overflow='hidden'; } }
-    function closeModal(){ if(overlay){ overlay.classList.remove('open'); document.body.style.overflow=''; } }
-    var custBtn = document.getElementById('openCustomerLogin');
-    if(custBtn) custBtn.addEventListener('click', function(e){ e.preventDefault(); loginBtn.classList.remove('open'); openModal('customer'); });
-    if(modalClose) modalClose.addEventListener('click', closeModal);
-    if(overlay) overlay.addEventListener('click', function(e){ if(e.target===overlay) closeModal(); });
-    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeModal(); });
-  }
-  // Hamburger drawer
-  var hamburgerBtn = document.getElementById('hamburgerBtn');
-  var navDrawer    = document.getElementById('navDrawer');
-  var navSubDrawer = document.getElementById('navSubDrawer');
-  var drawerTimeout;
-  function openDrawer(){ clearTimeout(drawerTimeout); navDrawer.classList.add('nd-visible'); }
-  function closeDrawer(){ if(navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return; drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
-  function closeBoth(){ drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
-  if(hamburgerBtn && navDrawer){
-    hamburgerBtn.addEventListener('mouseenter', openDrawer);
-    hamburgerBtn.addEventListener('mouseleave', closeDrawer);
-    navDrawer.addEventListener('mouseenter', openDrawer);
-    navDrawer.addEventListener('mouseleave', closeDrawer);
-  }
-  if(navSubDrawer){ navSubDrawer.addEventListener('mouseenter', function(){ clearTimeout(drawerTimeout); }); navSubDrawer.addEventListener('mouseleave', closeBoth); }
-  var ndMusiciansBtn = document.getElementById('ndMusiciansBtn');
-  var nsdBack = document.getElementById('nsdBack');
-  if(ndMusiciansBtn && navSubDrawer){
-    ndMusiciansBtn.addEventListener('click', function(){ clearTimeout(drawerTimeout); navSubDrawer.classList.add('ns-visible'); });
-    nsdBack.addEventListener('click', function(){ navSubDrawer.classList.remove('ns-visible'); });
-  }
-  // Mega menu
-  var artistsTrigger = document.getElementById('artists-nav-item');
-  var megaMenu = document.getElementById('artistsMegaMenu');
-  var navEl = document.querySelector('nav');
-  if(artistsTrigger && megaMenu){
-    var artistsLink = artistsTrigger.querySelector('a');
-    var mmTimeout;
-    function openMega(){ clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); if(artistsLink) artistsLink.classList.add('mm-active'); if(navEl) navEl.classList.add('mega-open'); }
-    function closeMega(){ mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if(artistsLink) artistsLink.classList.remove('mm-active'); if(navEl) navEl.classList.remove('mega-open'); }, 80); }
-    artistsTrigger.addEventListener('mouseenter', openMega);
-    artistsTrigger.addEventListener('mouseleave', closeMega);
-    megaMenu.addEventListener('mouseenter', openMega);
-    megaMenu.addEventListener('mouseleave', closeMega);
-  }
-});
 
 // ── Image Compress Helper ─────────────────────────────────────────────────────
 function compressImage(file, maxPx, quality, callback){
@@ -1478,39 +1210,48 @@ window.addEventListener('load', applyAllSavedXYS);
 
   try {
     const snap = await getDocs(collection(db, 'musicians'));
-    if (snap.empty) return; // keep hardcoded fallback if no real data
-
+    // Public directory shows ONLY real, published musicians (no demo/template).
     const realMusicians = [];
     let colorIdx = 0;
     snap.forEach((d, i) => {
       const p = d.data();
       if (p.status === 'suspended') return; // skip suspended accounts
+      if (p.published !== true) return;     // only show musicians who clicked Publish
       const insts = Array.isArray(p.instruments) ? p.instruments : (p.instrument ? [p.instrument] : []);
       const primaryInst = insts[0] || '—';
+      const cfg  = p.config || {};
+      const card = cfg.card || {};
+      const heroMedia = (cfg.hero && cfg.hero.media) || {};
+      const cardPhoto = card.photoUrl
+        || ((heroMedia.type === 'photo' && heroMedia.url) ? heroMedia.url : '')
+        || (cfg.about && cfg.about.avatarUrl) || '';
       realMusicians.push({
         id:         d.id,            // use Firebase UID as id
         uid:        d.id,
-        name:       p.name || p.email.split('@')[0],
-        instrument: primaryInst,
+        name:       card.name || (cfg.hero && cfg.hero.name) || p.name || (p.email ? p.email.split('@')[0] : 'Musician'),
+        instrument: card.instrument || primaryInst,
         instruments: insts,
         country:    (p.primaryRegion || '').split(' · ')[0] || 'Taiwan',
-        region:     (p.primaryRegion || '').split(' · ').slice(1).join(' · ') || p.primaryRegion || '—',
+        region:     card.location || (p.primaryRegion || '').split(' · ').slice(1).join(' · ') || p.primaryRegion || '—',
         style:      'Classical',
         level:      'Professional',
         rating:     0,
         reviews:    0,
-        bio:        p.bio || '',
+        bio:        card.bio || (cfg.about && cfg.about.bio) || p.bio || '',
+        photoUrl:   cardPhoto,
+        photoX:     (typeof card.photoX === 'number') ? card.photoX : 0,
+        photoY:     (typeof card.photoY === 'number') ? card.photoY : 0,
+        photoScale: (typeof card.photoScale === 'number') ? card.photoScale : 1,
         emoji:      '🎵',
         color:      CARD_COLORS[colorIdx++ % CARD_COLORS.length],
         profileUrl: 'musician-profile.html?uid=' + d.id
       });
     });
 
-    if (realMusicians.length > 0) {
-      // Replace the hardcoded array with real data
-      window.MUSICIANS = realMusicians;
-      renderGrid(); // re-render with real data
-    }
+    // Keep the demo/sample musician(s) as a reference example, then append the
+    // real published musicians from Firestore.
+    window.MUSICIANS = (window.MUSICIANS || []).concat(realMusicians);
+    renderGrid();
   } catch(e) {
     console.log('Firestore load error:', e);
   }
@@ -1605,6 +1346,7 @@ function submitEnquiry(e) {
   fetch('/', { method: 'POST', body: data })
     .catch(function(){}) // still show success on static local preview
     .finally(function() {
+      if (window.opuszTrack) opuszTrack('enquiry_sent', { musician: (data.get('musician')||'').trim() });
       document.getElementById('enqFormView').style.display = 'none';
       document.getElementById('enqSuccess').style.display = 'block';
       setTimeout(closeEnquiryBtn, 3000);
@@ -1728,6 +1470,5 @@ window.addEventListener('pageshow', function(e) {
 </script>
 
 <script src="assets/js/smooth-scroll.js" defer></script>
-<script src="assets/js/nav-auth.js" defer></script>
 </body>
 </html>

@@ -243,6 +243,7 @@
   </style>
   <link rel="icon" href="/favicon.ico?v=3" />
   <link rel="icon" type="image/png" href="/favicon.png?v=3" />
+  <script src="assets/js/analytics.js"></script>
 </head>
 <body>
 
@@ -264,6 +265,10 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
         Dashboard
       </button>
+      <button class="sb-item" data-page="analytics" onclick="navigate('analytics',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics 數據
+      </button>
     </div>
 
     <div class="sb-section" style="margin-top:8px;">
@@ -271,7 +276,7 @@
       <button class="sb-item" data-page="musicians" onclick="navigate('musicians',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Musicians
-        <span class="sb-badge sb-badge-amber">24</span>
+        <span class="sb-badge sb-badge-amber" id="sbMusiciansBadge" style="display:none">0</span>
       </button>
       <button class="sb-item" data-page="customers" onclick="navigate('customers',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -281,7 +286,7 @@
       <button class="sb-item" data-page="review" onclick="navigate('review',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         Review Queue
-        <span class="sb-badge sb-badge-red">6</span>
+        <span class="sb-badge sb-badge-red" id="sbReviewBadge" style="display:none">0</span>
       </button>
       <button class="sb-item" data-page="jobs" onclick="navigate('jobs',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
@@ -302,7 +307,11 @@
       <button class="sb-item" data-page="support" onclick="navigate('support',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
         Support Inbox
-        <span class="sb-badge sb-badge-purple">3</span>
+        <span class="sb-badge sb-badge-purple" id="sbSupportBadge" style="display:none">0</span>
+      </button>
+      <button class="sb-item" data-page="siteeditor" onclick="navigate('siteeditor',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        ç¶²ç«ç·¨è¼¯ / Site Editor
       </button>
     </div>
 
@@ -336,35 +345,35 @@
           <p>Platform overview — <span id="todayDate"></span></p>
         </div>
 
-        <div class="alert-bar">
+        <div class="alert-bar" id="dashAlertBar" style="display:none">
           <span>⚠️</span>
-          <span><strong>6 items need your attention:</strong> 3 new photo submissions and 3 identity verifications pending. <a onclick="navigate('review',document.querySelector('[data-page=review]'))">Review now →</a></span>
+          <span id="dashAlertText"><strong>0 musician(s) awaiting review.</strong> <a onclick="navigate('review',document.querySelector('[data-page=review]'))">Review now →</a></span>
         </div>
 
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon si-blue"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
             <div class="stat-label">Total Musicians</div>
-            <div class="stat-value">24</div>
-            <div class="stat-sub">+3 this week</div>
+            <div class="stat-value" id="statTotalMusicians">0</div>
+            <div class="stat-sub" id="statTotalMusiciansSub">registered total</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon si-green"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg></div>
             <div class="stat-label">Active Jobs</div>
-            <div class="stat-value">8</div>
-            <div class="stat-sub">3 matched this month</div>
+            <div class="stat-value" id="statActiveJobs">0</div>
+            <div class="stat-sub" id="statActiveJobsSub">no active jobs</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon si-amber"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
             <div class="stat-label">Commission (Jun)</div>
-            <div class="stat-value">NT$8.4K</div>
-            <div class="stat-sub">From 7 completed gigs</div>
+            <div class="stat-value" id="statCommission">NT$0</div>
+            <div class="stat-sub" id="statCommissionSub">no completed gigs</div>
           </div>
           <div class="stat-card">
             <div class="stat-icon si-purple"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
             <div class="stat-label">Support Messages</div>
-            <div class="stat-value">3</div>
-            <div class="stat-sub">2 unread</div>
+            <div class="stat-value" id="statSupport">0</div>
+            <div class="stat-sub" id="statSupportSub">no messages</div>
           </div>
         </div>
 
@@ -372,29 +381,10 @@
           <div class="card">
             <div class="card-head">
               <div class="card-head-title">⏳ Pending Actions</div>
-              <span class="badge badge-pending">6 total</span>
+              <span class="badge badge-pending" id="pendingActionsBadge">0 total</span>
             </div>
-            <div class="card-pad">
-              <div class="action-item">
-                <div class="action-dot dot-red"></div>
-                <div class="action-text"><strong>3 photo submissions</strong> waiting for approval</div>
-                <button class="btn btn-sm btn-red" onclick="navigate('review',document.querySelector('[data-page=review]'))">Review</button>
-              </div>
-              <div class="action-item">
-                <div class="action-dot dot-amber"></div>
-                <div class="action-text"><strong>3 identity verifications</strong> submitted by musicians</div>
-                <button class="btn btn-sm btn-outline" onclick="navigate('review',document.querySelector('[data-page=review]'))">Review</button>
-              </div>
-              <div class="action-item">
-                <div class="action-dot dot-amber"></div>
-                <div class="action-text"><strong>NT$32,400</strong> in pending payouts awaiting approval</div>
-                <button class="btn btn-sm btn-outline" onclick="navigate('finance',document.querySelector('[data-page=finance]'))">Process</button>
-              </div>
-              <div class="action-item">
-                <div class="action-dot dot-purple"></div>
-                <div class="action-text"><strong>2 support messages</strong> from musicians unread</div>
-                <button class="btn btn-sm btn-purple" onclick="navigate('support',document.querySelector('[data-page=support]'))">Reply</button>
-              </div>
+            <div class="card-pad" id="pendingActionsBody">
+              <div class="empty" style="padding:24px 20px;">No pending actions 🎉</div>
             </div>
           </div>
 
@@ -403,15 +393,60 @@
             <div class="card-pad" style="padding:0;">
               <table class="data-table">
                 <thead><tr><th>Musician</th><th>Joined</th><th>Status</th></tr></thead>
-                <tbody>
-                  <tr><td><div class="td-name">Sarah Lin</div><div class="td-sub">Flute · 台北</div></td><td style="color:var(--mid);">Today</td><td><span class="badge badge-new">New</span></td></tr>
-                  <tr><td><div class="td-name">Kevin Wu</div><div class="td-sub">Cello · 台中</div></td><td style="color:var(--mid);">Yesterday</td><td><span class="badge badge-pending">Pending</span></td></tr>
-                  <tr><td><div class="td-name">Amy Chen</div><div class="td-sub">Piano · 高雄</div></td><td style="color:var(--mid);">Jun 20</div></td><td><span class="badge badge-active">Active</span></td></tr>
-                  <tr><td><div class="td-name">James Huang</div><div class="td-sub">Violin · 新北</div></td><td style="color:var(--mid);">Jun 18</td><td><span class="badge badge-verified">Verified</span></td></tr>
+                <tbody id="recentMusiciansBody">
+                  <tr><td colspan="3" style="text-align:center;color:var(--mid);padding:28px;">No musicians yet.</td></tr>
                 </tbody>
               </table>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- ══════════ ANALYTICS ══════════ -->
+      <div class="page" id="page-analytics">
+        <div class="page-header" style="margin-bottom:16px;">
+          <h1>Analytics 數據</h1>
+          <p>了解前端流量:瀏覽量、停留時間、轉換率,以及熱門 / 冷門分頁。</p>
+        </div>
+
+        <!-- Connection status banner -->
+        <div id="ga4Banner" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:14px;padding:18px 20px;margin-bottom:20px;display:flex;align-items:center;gap:14px;">
+          <span style="font-size:22px;">🔌</span>
+          <div style="flex:1;">
+            <div style="font-weight:800;color:#9a3412;font-size:14px;margin-bottom:3px;">尚未連接 Google Analytics 4</div>
+            <div style="font-size:13px;color:#9a3412;line-height:1.6;">到 Google Analytics 建立資源 → 取得 <b>G-XXXXXXXXXX</b> 評估 ID → 交給工程設定,即可開始收集全站數據(瀏覽量、停留時間、轉換率)。設定後此頁會顯示摘要。</div>
+          </div>
+          <a href="https://analytics.google.com" target="_blank" rel="noopener" style="flex-shrink:0;background:#111;color:#fff;text-decoration:none;border-radius:10px;padding:10px 18px;font-size:13px;font-weight:700;white-space:nowrap;">開啟 Google Analytics →</a>
+        </div>
+
+        <!-- Metric cards (placeholders until GA4 is connected / GA Data API wired) -->
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px;">
+          <div class="card" style="padding:18px 20px;"><div style="font-size:12px;color:#888;margin-bottom:8px;">7 日瀏覽量 / Page views</div><div style="font-size:26px;font-weight:800;color:#111;" id="anViews">—</div><div style="font-size:11px;color:#bbb;margin-top:4px;">連接 GA4 後顯示</div></div>
+          <div class="card" style="padding:18px 20px;"><div style="font-size:12px;color:#888;margin-bottom:8px;">平均停留時間 / Avg. time</div><div style="font-size:26px;font-weight:800;color:#111;" id="anTime">—</div><div style="font-size:11px;color:#bbb;margin-top:4px;">連接 GA4 後顯示</div></div>
+          <div class="card" style="padding:18px 20px;"><div style="font-size:12px;color:#888;margin-bottom:8px;">轉換率 / Conversion</div><div style="font-size:26px;font-weight:800;color:#111;" id="anConv">—</div><div style="font-size:11px;color:#bbb;margin-top:4px;">詢問 / 預約 / 訂課 ÷ 訪客</div></div>
+          <div class="card" style="padding:18px 20px;"><div style="font-size:12px;color:#888;margin-bottom:8px;">即時在線 / Active now</div><div style="font-size:26px;font-weight:800;color:#111;" id="anLive">—</div><div style="font-size:11px;color:#bbb;margin-top:4px;">連接 GA4 後顯示</div></div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+          <div class="card" style="padding:20px;">
+            <div style="font-weight:800;color:#111;margin-bottom:6px;">🔥 熱門分頁 / Top pages</div>
+            <div style="font-size:13px;color:#999;line-height:1.7;">連接 GA4 後,這裡會列出最多人看的分頁(首頁、音樂家、課程、部落格…),幫你看出哪些內容受歡迎。</div>
+          </div>
+          <div class="card" style="padding:20px;">
+            <div style="font-weight:800;color:#111;margin-bottom:6px;">📉 冷門分頁 / Low-traffic pages</div>
+            <div style="font-size:13px;color:#999;line-height:1.7;">沒什麼人點的分頁會列在這,讓你決定要改良內容、加導引,還是對會員做 Push 推播。</div>
+          </div>
+        </div>
+
+        <div class="card" style="padding:20px;margin-top:20px;">
+          <div style="font-weight:800;color:#111;margin-bottom:8px;">設定後你能看到什麼</div>
+          <ul style="font-size:13.5px;color:#555;line-height:1.9;margin:0;padding-left:20px;">
+            <li>每個分頁的<b>瀏覽量、平均停留時間、跳出率</b> → 找出熱門/冷門頁</li>
+            <li><b>轉換漏斗</b>:看訪客從「看音樂家 → 送詢問 → 完成預約」每一步流失多少</li>
+            <li><b>成交率</b>:把「送出詢問 / 完成預約 / 訂課」設成轉換事件,自動算比例</li>
+            <li><b>流量來源</b>:訪客從 Google、社群、直接輸入哪來</li>
+            <li><b>即時在線</b>人數,以及裝置(手機 vs 桌機)分佈</li>
+          </ul>
         </div>
       </div>
 
@@ -440,7 +475,7 @@
         <div class="card">
           <table class="data-table">
             <thead>
-              <tr><th>Musician</th><th>Instrument</th><th>Region</th><th>Joined</th><th>Status</th><th>Gigs</th><th>Actions</th></tr>
+              <tr><th>Musician</th><th>Instrument</th><th>Region</th><th>Joined</th><th>Status</th><th>Tier 等級</th><th>Gigs</th><th>Actions</th></tr>
             </thead>
             <tbody id="musicianTableBody">
               <!-- Populated by JS -->
@@ -482,54 +517,16 @@
         </div>
 
         <div class="tab-bar">
-          <button class="tab-btn active" onclick="switchTab('review','photos',this)">📷 Photo / Video <span style="background:#fee2e2;color:var(--red);font-size:10px;padding:2px 6px;border-radius:8px;margin-left:4px;font-weight:700;">3</span></button>
-          <button class="tab-btn" onclick="switchTab('review','identity',this)">🪪 Identity Verification <span style="background:#fef3c7;color:#b45309;font-size:10px;padding:2px 6px;border-radius:8px;margin-left:4px;font-weight:700;">3</span></button>
+          <button class="tab-btn active" onclick="switchTab('review','photos',this)">📷 Photo / Video <span style="background:#fee2e2;color:var(--red);font-size:10px;padding:2px 6px;border-radius:8px;margin-left:4px;font-weight:700;">0</span></button>
+          <button class="tab-btn" onclick="switchTab('review','identity',this)">🪪 Identity Verification <span style="background:#fef3c7;color:#b45309;font-size:10px;padding:2px 6px;border-radius:8px;margin-left:4px;font-weight:700;">0</span></button>
         </div>
 
         <!-- Photo review -->
         <div id="review-photos">
           <div class="card">
-            <div class="review-item">
-              <div class="review-thumb">🎻</div>
-              <div class="review-body">
-                <div class="review-name">Martin Chen</div>
-                <div class="review-meta">Violin · 台北 · Submitted Jun 23, 2025 at 14:32</div>
-                <div class="review-type">📷 Profile Photo</div>
-                <div style="font-size:12.5px;color:var(--mid);margin-bottom:10px;">New headshot photo replacing previous placeholder.</div>
-                <div class="review-actions">
-                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Photo approved and live ✓')">✓ Approve</button>
-                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
-                  <button class="btn btn-outline btn-sm">Preview</button>
-                </div>
-              </div>
-            </div>
-            <div class="review-item">
-              <div class="review-thumb">🎹</div>
-              <div class="review-body">
-                <div class="review-name">Amy Chen</div>
-                <div class="review-meta">Piano · 高雄 · Submitted Jun 22, 2025 at 09:15</div>
-                <div class="review-type">🎥 Demo Video</div>
-                <div style="font-size:12.5px;color:var(--mid);margin-bottom:10px;">30-second performance clip. Chopin Nocturne Op.9 No.2.</div>
-                <div class="review-actions">
-                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Video approved and live ✓')">✓ Approve</button>
-                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
-                  <button class="btn btn-outline btn-sm">▶ Preview</button>
-                </div>
-              </div>
-            </div>
-            <div class="review-item">
-              <div class="review-thumb">🪈</div>
-              <div class="review-body">
-                <div class="review-name">Sarah Lin</div>
-                <div class="review-meta">Flute · 台北 · Submitted Jun 23, 2025 at 10:44</div>
-                <div class="review-type">📷 Profile Photo</div>
-                <div style="font-size:12.5px;color:var(--mid);margin-bottom:10px;">First-time photo submission. New account registered today.</div>
-                <div class="review-actions">
-                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Photo approved and live ✓')">✓ Approve</button>
-                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
-                  <button class="btn btn-outline btn-sm">Preview</button>
-                </div>
-              </div>
+            <div class="empty">
+              <div class="empty-icon">📷</div>
+              <div>No photo / video submissions to review</div>
             </div>
           </div>
         </div>
@@ -537,50 +534,9 @@
         <!-- Identity review -->
         <div id="review-identity" style="display:none;">
           <div class="card">
-            <div class="review-item">
-              <div class="review-thumb" style="background:#e0e7ff;font-size:28px;">🪪</div>
-              <div class="review-body">
-                <div class="review-name">Kevin Wu</div>
-                <div class="review-meta">Cello · 台中 · Submitted Jun 23, 2025</div>
-                <div class="review-type">🪪 Identity Verification</div>
-                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">Full name:</span> <strong>吳建宏 (Kevin Wu)</strong></div>
-                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">ID Number:</span> <strong>A123456789</strong></div>
-                <div style="font-size:13px;margin-bottom:10px;"><span style="color:var(--mid);">Phone:</span> <strong>0912-345-678</strong></div>
-                <div class="review-actions">
-                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Identity verified ✓')">✓ Verify</button>
-                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
-                </div>
-              </div>
-            </div>
-            <div class="review-item">
-              <div class="review-thumb" style="background:#e0e7ff;font-size:28px;">🪪</div>
-              <div class="review-body">
-                <div class="review-name">Sarah Lin</div>
-                <div class="review-meta">Flute · 台北 · Submitted Jun 23, 2025</div>
-                <div class="review-type">🪪 Identity Verification</div>
-                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">Full name:</span> <strong>林筱萱 (Sarah Lin)</strong></div>
-                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">ID Number:</span> <strong>F234567890</strong></div>
-                <div style="font-size:13px;margin-bottom:10px;"><span style="color:var(--mid);">Phone:</span> <strong>0923-456-789</strong></div>
-                <div class="review-actions">
-                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Identity verified ✓')">✓ Verify</button>
-                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
-                </div>
-              </div>
-            </div>
-            <div class="review-item">
-              <div class="review-thumb" style="background:#e0e7ff;font-size:28px;">🪪</div>
-              <div class="review-body">
-                <div class="review-name">James Huang</div>
-                <div class="review-meta">Violin · 新北 · Submitted Jun 21, 2025</div>
-                <div class="review-type">🪪 Identity Verification</div>
-                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">Full name:</span> <strong>黃彥銘 (James Huang)</strong></div>
-                <div style="font-size:13px;margin-bottom:6px;"><span style="color:var(--mid);">ID Number:</span> <strong>H345678901</strong></div>
-                <div style="font-size:13px;margin-bottom:10px;"><span style="color:var(--mid);">Phone:</span> <strong>0934-567-890</strong></div>
-                <div class="review-actions">
-                  <button class="btn btn-green btn-sm" onclick="approveItem(this,'Identity verified ✓')">✓ Verify</button>
-                  <button class="btn btn-red btn-sm" onclick="rejectItem(this)">✕ Reject</button>
-                </div>
-              </div>
+            <div class="empty">
+              <div class="empty-icon">🪪</div>
+              <div>No identity verifications pending</div>
             </div>
           </div>
         </div>
@@ -593,11 +549,7 @@
           <table class="data-table">
             <thead><tr><th>Event</th><th>Client</th><th>Date</th><th>Budget</th><th>Status</th><th>Applicants</th></tr></thead>
             <tbody>
-              <tr><td><div class="td-name">Piano Trio — Corporate Gala</div><div class="td-sub">Cathay Life Insurance</div></td><td>企業客戶</td><td>Aug 3</td><td>NT$30,000</td><td><span class="badge badge-new">Open</span></td><td>2</td></tr>
-              <tr><td><div class="td-name">Solo Violin — Wedding Ceremony</div><div class="td-sub">Lin Family</div></td><td>個人客戶</td><td>Sep 14</td><td>NT$12,000</td><td><span class="badge badge-new">Open</span></td><td>3</td></tr>
-              <tr><td><div class="td-name">String Quartet — Hotel Lobby</div><div class="td-sub">W Taipei Hotel</div></td><td>企業客戶</td><td>Every Fri/Sat</td><td>NT$25,000</td><td><span class="badge badge-pending">Matching</span></td><td>8</td></tr>
-              <tr><td><div class="td-name">Solo Violin — Wedding</div><div class="td-sub">Chen Jia-Yu</div></td><td>個人客戶</td><td>Jun 20</td><td>NT$16,000</td><td><span class="badge badge-active">Confirmed</span></td><td>—</td></tr>
-              <tr><td><div class="td-name">Corporate Dinner — Duo</div><div class="td-sub">TSMC Ltd.</div></td><td>企業客戶</td><td>May 28</td><td>NT$30,000</td><td><span class="badge badge-verified">Completed</span></td><td>—</td></tr>
+              <tr><td colspan="6" style="text-align:center;color:var(--mid);padding:40px;">No jobs yet — gigs will appear here when customers post them.</td></tr>
             </tbody>
           </table>
         </div>
@@ -609,54 +561,28 @@
         <div class="finance-summary">
           <div class="fin-card fin-main">
             <div class="fin-label">Total Revenue (2025)</div>
-            <div class="fin-value">NT$17,600</div>
-            <div class="fin-sub">10% commission from NT$176,000 total gig value</div>
+            <div class="fin-value">NT$0</div>
+            <div class="fin-sub">No commission yet</div>
           </div>
           <div class="fin-card">
             <div class="fin-label">Pending Payouts</div>
-            <div class="fin-value" style="color:var(--amber);">NT$32,400</div>
-            <div class="fin-sub">3 musicians awaiting payout</div>
+            <div class="fin-value" style="color:var(--amber);">NT$0</div>
+            <div class="fin-sub">No musicians awaiting payout</div>
           </div>
           <div class="fin-card">
             <div class="fin-label">This Month Commission</div>
-            <div class="fin-value">NT$8,400</div>
-            <div class="fin-sub">From 7 completed gigs in June</div>
+            <div class="fin-value">NT$0</div>
+            <div class="fin-sub">No completed gigs</div>
           </div>
         </div>
 
         <div class="card" style="margin-bottom:20px;">
           <div class="card-head">
             <div class="card-head-title">💸 Pending Payouts — Action Required</div>
-            <span class="badge badge-pending">NT$32,400 total</span>
+            <span class="badge badge-pending">NT$0 total</span>
           </div>
           <div id="payoutList">
-            <div class="payout-row" id="payout-0">
-              <div class="payout-avatar">M</div>
-              <div class="payout-info">
-                <div class="payout-name">Martin</div>
-                <div class="payout-detail">Bank: 玉山銀行 · 帳號: ****5678 · Jun 20 Wedding</div>
-              </div>
-              <div class="payout-amount">NT$14,400</div>
-              <button class="btn btn-green btn-sm" onclick="processPayout(0)">Confirm Payout</button>
-            </div>
-            <div class="payout-row" id="payout-1">
-              <div class="payout-avatar">A</div>
-              <div class="payout-info">
-                <div class="payout-name">Amy Chen</div>
-                <div class="payout-detail">Bank: 國泰銀行 · 帳號: ****1234 · May 28 Corporate</div>
-              </div>
-              <div class="payout-amount">NT$13,500</div>
-              <button class="btn btn-green btn-sm" onclick="processPayout(1)">Confirm Payout</button>
-            </div>
-            <div class="payout-row" id="payout-2">
-              <div class="payout-avatar">J</div>
-              <div class="payout-info">
-                <div class="payout-name">James Huang</div>
-                <div class="payout-detail">Bank: 台新銀行 · 帳號: ****9012 · Jun 8 Birthday</div>
-              </div>
-              <div class="payout-amount">NT$4,500</div>
-              <button class="btn btn-green btn-sm" onclick="processPayout(2)">Confirm Payout</button>
-            </div>
+            <div class="empty" style="padding:32px 20px;">No pending payouts</div>
           </div>
         </div>
 
@@ -665,10 +591,7 @@
           <table class="data-table">
             <thead><tr><th>Date</th><th>Musician</th><th>Event</th><th>Gig Value</th><th>Commission (10%)</th></tr></thead>
             <tbody>
-              <tr><td style="color:var(--mid);">Jun 20</td><td>Martin</td><td>Wedding · Solo Violin</td><td>NT$16,000</td><td style="font-weight:700;color:var(--green);">NT$1,600</td></tr>
-              <tr><td style="color:var(--mid);">May 28</td><td>Amy Chen</td><td>Corporate Dinner</td><td>NT$30,000</td><td style="font-weight:700;color:var(--green);">NT$3,000</td></tr>
-              <tr><td style="color:var(--mid);">May 10</td><td>Martin</td><td>Birthday Gala</td><td>NT$15,000</td><td style="font-weight:700;color:var(--green);">NT$1,500</td></tr>
-              <tr><td style="color:var(--mid);">Apr 22</td><td>James Huang</td><td>Hotel Lobby · 4 sessions</td><td>NT$50,000</td><td style="font-weight:700;color:var(--green);">NT$5,000</td></tr>
+              <tr><td colspan="5" style="text-align:center;color:var(--mid);padding:40px;">No transactions yet.</td></tr>
             </tbody>
           </table>
         </div>
@@ -682,7 +605,7 @@
           <div class="announce-wrap" style="max-width:100%;">
             <div class="sent-count">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
-              Will be sent to <strong style="color:var(--black);">24 musicians</strong>
+              Will be sent to <strong style="color:var(--black);"><span id="announceRecipientCount">0</span> musicians</strong>
             </div>
 
             <div class="form-group">
@@ -722,18 +645,7 @@
             <div style="margin-top:24px;">
               <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);margin-bottom:12px;">Past Announcements</div>
               <div class="card">
-                <div style="padding:14px 16px;border-bottom:1px solid #f5f5f5;">
-                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">Summer Festival Applications Open</span><span style="font-size:11px;color:var(--mid);">Jun 21</span></div>
-                  <div style="font-size:12px;color:var(--mid);">Sent to 24 musicians · 18 opened</div>
-                </div>
-                <div style="padding:14px 16px;border-bottom:1px solid #f5f5f5;">
-                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">Platform Update: New Payout Schedule</span><span style="font-size:11px;color:var(--mid);">Jun 10</span></div>
-                  <div style="font-size:12px;color:var(--mid);">Sent to 21 musicians · 15 opened</div>
-                </div>
-                <div style="padding:14px 16px;">
-                  <div style="display:flex;justify-content:space-between;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">Welcome to OPUS.Z! Getting Started Guide</span><span style="font-size:11px;color:var(--mid);">May 1</span></div>
-                  <div style="font-size:12px;color:var(--mid);">Sent to 12 musicians · 12 opened</div>
-                </div>
+                <div class="empty" style="padding:32px 20px;">No announcements sent yet</div>
               </div>
             </div>
           </div>
@@ -743,74 +655,46 @@
       <!-- ══════════ SUPPORT INBOX ══════════ -->
       <div class="page" id="page-support">
         <div class="page-header" style="margin-bottom:16px;"><h1>Support Inbox</h1></div>
-        <div class="support-layout">
-          <!-- Left -->
-          <div class="support-list">
-            <div class="support-list-head">Messages <span style="font-size:11px;font-weight:400;color:var(--mid);">(5)</span></div>
-            <div class="support-item active unread" onclick="openSupportThread(0)">
-              <div class="si-avatar">M</div>
-              <div class="si-body">
-                <div class="si-name">Martin</div>
-                <div class="si-preview">When will my payout arrive?</div>
-              </div>
-              <div class="si-meta"><div class="si-time">1h ago</div><div class="si-dot"></div></div>
+        <div class="card">
+          <div class="empty">
+            <div class="empty-icon">💬</div>
+            <div>No support messages</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ââââââââ SITE EDITOR ââââââââ -->
+      <div class="page" id="page-siteeditor">
+        <style>
+          .se-dev-btn{ padding:6px 12px;border:1px solid #ddd;background:#fff;border-radius:8px;font-size:12px;cursor:pointer;color:#555; }
+          .se-dev-btn.active{ background:#111;color:#fff;border-color:#111; }
+        </style>
+        <div class="page-header" style="margin-bottom:12px;">
+          <h1>ç¶²ç«ç·¨è¼¯ / Site Editor</h1>
+          <p>ç·¨è¼¯å¬éç¶²ç«å§å®¹ï¼æå­/åç/é£çµï¼ãç®åï¼é¦é  Heroãå²å­å¾å³ç¼å¸ã</p>
+        </div>
+        <div style="display:flex;gap:18px;align-items:flex-start;">
+          <div style="width:140px;flex-shrink:0;">
+            <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:8px;">é é¢ / Pages</div>
+            <button style="display:block;width:100%;text-align:left;padding:8px 10px;border:1px solid #111;background:#111;color:#fff;border-radius:8px;font-size:13px;cursor:pointer;">é¦é  / Home</button>
+            <div style="font-size:11px;color:#bbb;margin-top:8px;line-height:1.5;">å¶ä»åé å°é¸çºå å¥</div>
+          </div>
+          <div style="flex:1;min-width:0;">
+            <div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px;flex-wrap:wrap;">
+              <button class="se-dev-btn active" data-dev="desktop" onclick="seSetDevice('desktop',this)">æ¨æºé¡¯ç¤ºè¢å¹</button>
+              <button class="se-dev-btn" data-dev="macbook" onclick="seSetDevice('macbook',this)">MacBook é¡¯ç¤ºå¨</button>
+              <button class="se-dev-btn" data-dev="ipad" onclick="seSetDevice('ipad',this)">iPad é¡¯ç¤ºå¨</button>
+              <button class="se-dev-btn" data-dev="phone" onclick="seSetDevice('phone',this)">ææ©</button>
             </div>
-            <div class="support-item unread" onclick="openSupportThread(1)">
-              <div class="si-avatar">S</div>
-              <div class="si-body">
-                <div class="si-name">Sarah Lin</div>
-                <div class="si-preview">How do I update my profile photo?</div>
-              </div>
-              <div class="si-meta"><div class="si-time">3h ago</div><div class="si-dot"></div></div>
-            </div>
-            <div class="support-item" onclick="openSupportThread(2)">
-              <div class="si-avatar">K</div>
-              <div class="si-body">
-                <div class="si-name">Kevin Wu</div>
-                <div class="si-preview">Thank you for verifying my account!</div>
-              </div>
-              <div class="si-meta"><div class="si-time">Yesterday</div></div>
-            </div>
-            <div class="support-item" onclick="openSupportThread(3)">
-              <div class="si-avatar">A</div>
-              <div class="si-body">
-                <div class="si-name">Amy Chen</div>
-                <div class="si-preview">Can I list multiple instruments?</div>
-              </div>
-              <div class="si-meta"><div class="si-time">Jun 21</div></div>
-            </div>
-            <div class="support-item" onclick="openSupportThread(4)">
-              <div class="si-avatar">J</div>
-              <div class="si-body">
-                <div class="si-name">James Huang</div>
-                <div class="si-preview">Great platform, thanks for building this!</div>
-              </div>
-              <div class="si-meta"><div class="si-time">Jun 19</div></div>
+            <div style="background:#f0f0f0;border-radius:12px;padding:12px;overflow:auto;display:flex;justify-content:center;">
+              <iframe id="seFrame" style="width:1536px;max-width:100%;height:68vh;border:none;border-radius:8px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.1);"></iframe>
             </div>
           </div>
-
-          <!-- Right: thread -->
-          <div class="support-thread">
-            <div class="support-thread-head">
-              <div class="sth-left">
-                <div class="sth-avatar" id="sthAvatar">M</div>
-                <div>
-                  <div class="sth-name" id="sthName">Martin</div>
-                  <div class="sth-sub" id="sthSub">Violin · 台北</div>
-                </div>
-              </div>
-              <div style="display:flex;gap:6px;">
-                <button class="btn btn-outline btn-sm">View Profile</button>
-                <button class="btn btn-sm btn-red" onclick="showNotif('Conversation flagged')">Flag</button>
-              </div>
-            </div>
-            <div class="support-bubbles" id="supportBubbles"></div>
-            <div class="support-input-wrap">
-              <textarea class="support-input" id="supportInputBox" placeholder="Reply as OPUS.Z support..." rows="1" onkeydown="handleSupportKey(event)"></textarea>
-              <button class="support-send" onclick="sendSupportMsg()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              </button>
-            </div>
+          <div style="width:300px;flex-shrink:0;">
+            <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:10px;">Hero â æå­ / Text</div>
+            <div id="seControls"></div>
+            <button onclick="seSave()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#111;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">å²å­ä¸¦ç¼å¸ / Save</button>
+            <div id="seSaveMsg" style="font-size:12px;margin-top:8px;text-align:center;"></div>
           </div>
         </div>
       </div>
@@ -823,7 +707,9 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, collection, getDocs, doc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, getDocs, doc, updateDoc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
@@ -836,6 +722,9 @@
 
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
+  const auth = getAuth(app);  // registers Auth so Firestore writes carry the admin's identity
+  const storage = getStorage(app);  // for media uploads (images/videos) used by the Site Editor
+  onAuthStateChanged(auth, function(u){ if(u) console.log("[admin] Firebase signed in as", u.email); });
 
   // ── Auth guard ──
   if (localStorage.getItem('opusz_admin_loggedIn') !== 'true') {
@@ -860,23 +749,286 @@
         MUSICIANS.push({
           uid:    d.id,
           name:   data.name || data.email || '(Unknown)',
+          email:  data.email || '',
           inst:   data.instrument || '—',
           region: data.region || '—',
           joined: data.joinedAt ? new Date(data.joinedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—',
+          joinedRaw: data.joinedAt || '',
           status: data.status || 'new',
-          gigs:   data.gigs || 0
+          gigs:   data.gigs || 0,
+          membership: data.membership || null
         });
       });
     } catch(e) {
       console.log('Firestore load error:', e);
     }
     renderMusicians();
-    // Update stat
-    var el = document.getElementById('statTotalMusicians');
-    if (el) el.textContent = MUSICIANS.length;
+    adminRefreshUI();
   }
 
+  // ── Drive all dashboard/sidebar UI from REAL musician data ──
+  function adminRefreshUI() {
+    var total = MUSICIANS.length;
+    var pendingCount = MUSICIANS.filter(function(m){ return m.status === 'new' || m.status === 'pending'; }).length;
+
+    function setText(id, val){ var e = document.getElementById(id); if(e) e.textContent = val; }
+    function showBadge(id, val){
+      var e = document.getElementById(id);
+      if(!e) return;
+      e.textContent = val;
+      e.style.display = (Number(val) > 0) ? '' : 'none';
+    }
+
+    // Sidebar badges
+    showBadge('sbMusiciansBadge', total);
+    showBadge('sbReviewBadge', pendingCount);
+    showBadge('sbSupportBadge', 0);
+
+    // Dashboard stat cards
+    setText('statTotalMusicians', total);
+    setText('statTotalMusiciansSub', 'registered total');
+    setText('statActiveJobs', 0);
+    setText('statActiveJobsSub', 'no active jobs');
+    setText('statCommission', 'NT$0');
+    setText('statCommissionSub', 'no completed gigs');
+    setText('statSupport', 0);
+    setText('statSupportSub', 'no messages');
+
+    // Announcements recipient count
+    setText('announceRecipientCount', total);
+
+    // Pending Actions badge + body
+    setText('pendingActionsBadge', pendingCount + ' total');
+    var paBody = document.getElementById('pendingActionsBody');
+    if (paBody) {
+      if (pendingCount > 0) {
+        paBody.innerHTML =
+          '<div class="action-item">' +
+            '<div class="action-dot dot-amber"></div>' +
+            '<div class="action-text"><strong>' + pendingCount + '</strong> musicians awaiting verification</div>' +
+            '<button class="btn btn-sm btn-red" onclick="navigate(\'musicians\',document.querySelector(\'[data-page=musicians]\'))">Review</button>' +
+          '</div>';
+      } else {
+        paBody.innerHTML = '<div class="empty" style="padding:24px 20px;">No pending actions 🎉</div>';
+      }
+    }
+
+    // Dashboard alert bar
+    var alertBar = document.getElementById('dashAlertBar');
+    var alertText = document.getElementById('dashAlertText');
+    if (alertBar && alertText) {
+      if (pendingCount > 0) {
+        alertBar.style.display = '';
+        alertText.innerHTML = '<strong>' + pendingCount + ' musician(s) awaiting review.</strong> ' +
+          '<a onclick="navigate(\'musicians\',document.querySelector(\'[data-page=musicians]\'))">Review now →</a>';
+      } else {
+        alertBar.style.display = 'none';
+      }
+    }
+
+    // Recently Registered table (newest first, up to 5)
+    var rmBody = document.getElementById('recentMusiciansBody');
+    if (rmBody) {
+      if (total === 0) {
+        rmBody.innerHTML = '<tr><td colspan="3" style="text-align:center;color:var(--mid);padding:28px;">No musicians yet.</td></tr>';
+      } else {
+        var sorted = MUSICIANS.slice();
+        if (sorted.some(function(m){ return m.joinedRaw; })) {
+          sorted.sort(function(a,b){ return String(b.joinedRaw||'').localeCompare(String(a.joinedRaw||'')); });
+        }
+        rmBody.innerHTML = sorted.slice(0,5).map(function(m){
+          return '<tr>' +
+            '<td><div class="td-name">' + m.name + '</div>' +
+              '<div class="td-sub">' + m.inst + ' · ' + m.region + '</div></td>' +
+            '<td style="color:var(--mid);">' + m.joined + '</td>' +
+            '<td>' + (STATUS_BADGES[m.status] || '') + '</td>' +
+          '</tr>';
+        }).join('');
+      }
+    }
+  }
+  window.adminRefreshUI = adminRefreshUI;
+
   loadMusicians();
+
+  // ── Site Editor (Phase 1: homepage hero text) ─────────────────────────────
+  var SE_FIELDS = [
+    {sec:'服務項目 / Services', k:'svc.name.0', label:'服務 1', en:'Live Performance', zh:'現場演出'},
+    {k:'svc.name.1', label:'服務 2', en:'Session Work', zh:'錄音工作'},
+    {k:'svc.name.2', label:'服務 3', en:'Music Lesson', zh:'音樂課程'},
+    {k:'svc.name.3', label:'服務 4', en:'Corporate Event', zh:'企業活動'},
+    {k:'svc.name.4', label:'服務 5', en:'Artist Branding', zh:'藝人品牌'},
+    {sec:'按鈕 / Buttons', k:'hero.findArtists', label:'尋找音樂家鈕', en:'Find Artists', zh:'尋找音樂家'},
+    {k:'hero.createProject', label:'建立專案鈕', en:'Create a Project', zh:'建立專案'},
+    {sec:'輪播標語 / Phrases（雙語同時顯示）', k:'hero.phrase0', zhk:'hero.phrase0.zh', both:true, label:'標語 1', en:'Find your perfect musician.', zh:'找到你完美的音樂家。'},
+    {k:'hero.phrase1', zhk:'hero.phrase1.zh', both:true, label:'標語 2', en:'You came to the right place.', zh:'你來對地方了。'},
+    {k:'hero.phrase2', zhk:'hero.phrase2.zh', both:true, label:'標語 3', en:"Taiwan's top musicians, on demand.", zh:'台灣頂尖音樂家，隨時為你。'},
+    {sec:'其他區段 / More sections', k:'svc.label', label:'服務區標籤', en:'(Services)', zh:'（服務項目）'},
+    {k:'svc.btn', label:'服務區按鈕', en:'Get Started', zh:'開始合作'},
+    {k:'blog.label', label:'部落格標籤', en:'(Blog)', zh:'（部落格）'},
+    {k:'blog.seeall', label:'部落格「查看全部」', en:'See all', zh:'查看全部'},
+    {k:'about.card1.label', label:'About 卡片 1 標籤', en:'(Our musicians)', zh:'（我們的音樂家）'},
+    {k:'about.card2.label', label:'About 卡片 2 標籤', en:'(Instant matching)', zh:'（即時配對）'},
+
+    // ── Media (direct data-cms channel; stored under cfg.cms[key], NOT i18n) ──
+    {sec:'作品圖片 / Work images（可上傳）', type:'image', k:'home.work.1', label:'作品卡 1'},
+    {type:'image', k:'home.work.2', label:'作品卡 2'},
+    {type:'image', k:'home.work.3', label:'作品卡 3'},
+    {sec:'Showreel 影片 / Videos（可上傳 .mp4）', type:'video', k:'home.showreel.1', label:'影片 1'},
+    {type:'video', k:'home.showreel.2', label:'影片 2'},
+    {type:'video', k:'home.showreel.3', label:'影片 3'},
+    {type:'video', k:'home.showreel.4', label:'影片 4（中央）'},
+    {type:'video', k:'home.showreel.5', label:'影片 5'},
+    {type:'video', k:'home.showreel.6', label:'影片 6'},
+    {type:'video', k:'home.showreel.7', label:'影片 7'}
+  ];
+  var SE_DEVICES = { desktop:{w:1536}, macbook:{w:1280}, ipad:{w:820}, phone:{w:390} };
+  var seCurrentConfig = { i18n:{en:{},zh:{}} };
+  function seSlug(k){ return k.replace(/\W/g,'_'); }
+
+  window.seSetDevice = function(name, btn){
+    var d = SE_DEVICES[name]; if(!d) return;
+    var ifr = document.getElementById('seFrame');
+    if(ifr){ ifr.style.width = d.w + 'px'; ifr.style.maxWidth = '100%'; }
+    document.querySelectorAll('.se-dev-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dev')===name); });
+  };
+  function seReadInputs(){
+    var cfg = { i18n:{ en:{}, zh:{} }, cms:{} };
+    SE_FIELDS.forEach(function(ff){
+      // Media fields → direct cms channel (single URL value, no language split)
+      if(ff.type==='image' || ff.type==='video'){
+        var mEl=document.getElementById('se_cms_'+seSlug(ff.k));
+        if(mEl && mEl.value!=null) cfg.cms[ff.k]=mEl.value.trim();
+        return;
+      }
+      var enEl=document.getElementById('se_en_'+seSlug(ff.k));
+      var zhEl=document.getElementById('se_zh_'+seSlug(ff.k));
+      var enVal=enEl?enEl.value:undefined, zhVal=zhEl?zhEl.value:undefined;
+      var zhKey=ff.zhk||ff.k;
+      if(ff.both){
+        if(enVal!=null){ cfg.i18n.en[ff.k]=enVal; cfg.i18n.zh[ff.k]=enVal; }
+        if(zhVal!=null){ cfg.i18n.en[zhKey]=zhVal; cfg.i18n.zh[zhKey]=zhVal; }
+      } else {
+        if(enVal!=null) cfg.i18n.en[ff.k]=enVal;
+        if(zhVal!=null) cfg.i18n.zh[zhKey]=zhVal;
+      }
+    });
+    return cfg;
+  }
+  function sePreview(){
+    var ifr=document.getElementById('seFrame');
+    if(ifr && ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszCmsPreview:true, config:seReadInputs()}, '*'); }catch(e){} }
+  }
+  var seTimer=null;
+  window.seOnInput = function(){ clearTimeout(seTimer); seTimer=setTimeout(sePreview, 250); };
+  window.seBuildControls = function(){
+    var box=document.getElementById('seControls'); if(!box) return;
+    var cur=seCurrentConfig.i18n||{en:{},zh:{}};
+    var curCms=seCurrentConfig.cms||{};
+    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+    box.innerHTML = SE_FIELDS.map(function(ff){
+      var id=seSlug(ff.k);
+      var head=ff.sec?'<div style="font-size:11px;font-weight:800;color:#111;margin:14px 0 8px;border-top:1px solid #eee;padding-top:12px;">'+esc(ff.sec)+'</div>':'';
+
+      // ── Media field: URL input + upload button + thumbnail preview ──
+      if(ff.type==='image' || ff.type==='video'){
+        var mv=(curCms[ff.k]!=null)?curCms[ff.k]:'';
+        var accept=ff.type==='image'?'image/*':'video/*';
+        var ph=ff.type==='image'?'https://…/image.jpg 或上傳':'https://…/video.mp4 或上傳';
+        var thumb='';
+        if(mv){
+          thumb=ff.type==='image'
+            ? '<div style="margin-top:6px;height:54px;border-radius:6px;background:#f3f3f3 center/cover no-repeat;background-image:url(\''+esc(mv)+'\');"></div>'
+            : '<video src="'+esc(mv)+'" muted style="margin-top:6px;width:100%;max-height:64px;border-radius:6px;background:#000;object-fit:cover;"></video>';
+        }
+        return head+'<div style="margin-bottom:14px;" id="se_wrap_'+id+'">'
+          +'<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:5px;">'+esc(ff.label)+'</div>'
+          +'<input id="se_cms_'+id+'" value="'+esc(mv)+'" placeholder="'+esc(ph)+'" oninput="seOnInput();seThumb(\''+id+'\',\''+ff.type+'\')" style="width:100%;margin-bottom:5px;padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:12px;box-sizing:border-box;">'
+          +'<label style="display:inline-block;font-size:12px;color:#fff;background:#111;border-radius:6px;padding:5px 10px;cursor:pointer;">⬆ 上傳'
+          +'<input type="file" accept="'+accept+'" style="display:none;" onchange="seUploadFile(\''+ff.k+'\',this.files[0],\''+ff.type+'\')"></label>'
+          +'<span id="se_up_'+id+'" style="font-size:11px;margin-left:8px;color:#888;"></span>'
+          +'<div id="se_thumb_'+id+'">'+thumb+'</div>'
+          +'</div>';
+      }
+
+      // ── Text field (i18n EN/中文) ──
+      var zhKey=ff.zhk||ff.k;
+      var enV=(cur.en && cur.en[ff.k]!=null)?cur.en[ff.k]:ff.en;
+      var zhSrc=ff.both?cur.en:cur.zh;
+      var zhV=(zhSrc && zhSrc[zhKey]!=null)?zhSrc[zhKey]:ff.zh;
+      return head+'<div style="margin-bottom:12px;">'
+        +'<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:5px;">'+esc(ff.label)+'</div>'
+        +'<input id="se_en_'+id+'" value="'+esc(enV)+'" placeholder="EN" oninput="seOnInput()" style="width:100%;margin-bottom:5px;padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;">'
+        +'<input id="se_zh_'+id+'" value="'+esc(zhV)+'" placeholder="中文" oninput="seOnInput()" style="width:100%;padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;">'
+        +'</div>';
+    }).join('');
+  };
+
+  // Refresh the small thumbnail under a media field as its URL changes.
+  window.seThumb = function(id, kind){
+    var box=document.getElementById('se_thumb_'+id); if(!box) return;
+    var inp=document.getElementById('se_cms_'+id); var v=inp?inp.value.trim():'';
+    if(!v){ box.innerHTML=''; return; }
+    box.innerHTML = kind==='image'
+      ? '<div style="margin-top:6px;height:54px;border-radius:6px;background:#f3f3f3 center/cover no-repeat;background-image:url(\''+v.replace(/'/g,"%27")+'\');"></div>'
+      : '<video src="'+v.replace(/"/g,'&quot;')+'" muted style="margin-top:6px;width:100%;max-height:64px;border-radius:6px;background:#000;object-fit:cover;"></video>';
+  };
+
+  // Upload a chosen file to Firebase Storage and write its public URL into the field.
+  window.seUploadFile = async function(fieldKey, file, kind){
+    if(!file) return;
+    var id=seSlug(fieldKey);
+    var note=document.getElementById('se_up_'+id);
+    var maxMb = kind==='video'?60:8;
+    if(file.size > maxMb*1024*1024){
+      if(note){ note.textContent='檔案過大（上限 '+maxMb+'MB）'; note.style.color='#c00'; }
+      return;
+    }
+    if(note){ note.textContent='上傳中… '; note.style.color='#888'; }
+    try{
+      var safe = file.name.replace(/[^\w.\-]/g,'_');
+      var path = 'siteContent/home/' + fieldKey.replace(/[^\w.\-]/g,'_') + '_' + Date.now() + '_' + safe;
+      var r = storageRef(storage, path);
+      await uploadBytes(r, file);
+      var url = await getDownloadURL(r);
+      var inp=document.getElementById('se_cms_'+id);
+      if(inp){ inp.value=url; }
+      window.seThumb(id, kind);
+      seOnInput();   // push to live preview immediately
+      if(note){ note.textContent='✓ 已上傳（記得按儲存）'; note.style.color='#16a34a'; }
+    }catch(e){
+      console.warn('[siteeditor] upload failed:', e);
+      if(note){ note.textContent='⚠ 上傳失敗：'+(e.code||e.message); note.style.color='#c00'; }
+    }
+  };
+  window.seSave = async function(){
+    var cfg=seReadInputs();
+    try{ localStorage.setItem('opusz_site_home', JSON.stringify(cfg)); }catch(e){}
+    var msg=document.getElementById('seSaveMsg');
+    try{
+      await setDoc(doc(db,'siteContent','home'), cfg, { merge:true });
+      if(msg){ msg.textContent='✓ 已儲存並發布（Firestore）'; msg.style.color='#16a34a'; }
+    }catch(e){
+      console.warn('[siteeditor] Firestore save failed:', e);
+      if(msg){ msg.textContent='⚠ 已存本機，但 Firestore 寫入被拒（請設定權限規則）：'+(e.code||e.message); msg.style.color='#b45309'; }
+    }
+    sePreview();
+  };
+  window.seInit = async function(){
+    try{
+      var snap=await getDoc(doc(db,'siteContent','home'));
+      seCurrentConfig = snap.exists()? snap.data() : { i18n:{en:{},zh:{}} };
+    }catch(e){
+      console.warn('[siteeditor] load failed:', e);
+      try{ seCurrentConfig=JSON.parse(localStorage.getItem('opusz_site_home')||'null')||{i18n:{en:{},zh:{}}}; }catch(_){ seCurrentConfig={i18n:{en:{},zh:{}}}; }
+    }
+    if(!seCurrentConfig.i18n) seCurrentConfig.i18n={en:{},zh:{}};
+    seBuildControls();
+    var ifr=document.getElementById('seFrame');
+    if(ifr){ ifr.onload=function(){ setTimeout(sePreview, 500); }; if(!ifr.getAttribute('src')) ifr.src='musician-platform.html'; }
+    seSetDevice('desktop');
+  };
+
 
   // ── Load customers from Firestore ──
   window.loadCustomers = async function loadCustomers() {
@@ -915,7 +1067,7 @@
   }
 
   // ── Page titles ──
-  const TITLES = { overview:'Dashboard', musicians:'Musician Management', customers:'Customer Management', review:'Review Queue', jobs:'Jobs Overview', finance:'Finance', announce:'Announcements', support:'Support Inbox' };
+  const TITLES = { overview:'Dashboard', musicians:'Musician Management', customers:'Customer Management', review:'Review Queue', jobs:'Jobs Overview', finance:'Finance', announce:'Announcements', support:'Support Inbox', siteeditor:'ç¶²ç«ç·¨è¼¯ / Site Editor' };
 
   window.navigate = function(id, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -925,6 +1077,7 @@
     else { var t = document.querySelector('[data-page="'+id+'"]'); if(t) t.classList.add('active'); }
     document.getElementById('topbarTitle').textContent = TITLES[id] || id;
     if (id === 'customers') loadCustomers();
+    if (id === 'siteeditor') seInit();
   }
 
   window.switchTab = function(page, tab, btn) {
@@ -937,17 +1090,6 @@
   }
 
   // ── Musicians table ──
-  var MUSICIANS = [
-    { name:'Martin',       inst:'Violin',  region:'台北', joined:'Jan 12', status:'active',   gigs:12 },
-    { name:'Amy Chen',     inst:'Piano',   region:'高雄', joined:'Mar 5',  status:'active',   gigs:6  },
-    { name:'James Huang',  inst:'Violin',  region:'新北', joined:'Mar 18', status:'verified', gigs:8  },
-    { name:'Kevin Wu',     inst:'Cello',   region:'台中', joined:'Jun 22', status:'pending',  gigs:0  },
-    { name:'Sarah Lin',    inst:'Flute',   region:'台北', joined:'Jun 23', status:'new',      gigs:0  },
-    { name:'Wang Fang',    inst:'Erhu',    region:'台南', joined:'Apr 2',  status:'active',   gigs:3  },
-    { name:'Linda Tsai',   inst:'Harp',    region:'台北', joined:'Apr 14', status:'active',   gigs:5  },
-    { name:'Su Ching-Yao', inst:'Piano',   region:'嘉義', joined:'Feb 28', status:'verified', gigs:9  },
-  ];
-
   var STATUS_BADGES = {
     active:   '<span class="badge badge-active">Active</span>',
     verified: '<span class="badge badge-verified">Verified</span>',
@@ -956,23 +1098,47 @@
     suspended:'<span class="badge badge-rejected">Suspended</span>'
   };
 
+  // ── Membership tier helpers (mirror musician-dashboard logic) ──
+  function adminIsPremium(m){
+    if(!m) return false;
+    if(m.source === 'subscription') return true;
+    if(m.source === 'coupon' && m.expiresAt) return new Date() < new Date(m.expiresAt);
+    return false;
+  }
+  function adminTierBadge(m){
+    if(!adminIsPremium(m)) return '<span class="badge badge-new">Basic</span>';
+    if(m.source === 'coupon' && m.expiresAt){
+      var d = Math.max(0, Math.ceil((new Date(m.expiresAt) - new Date()) / 86400000));
+      return '<span class="badge badge-verified" title="邀請碼，至 '+new Date(m.expiresAt).toLocaleDateString()+'">Premium · '+d+'d</span>';
+    }
+    return '<span class="badge badge-verified">Premium</span>';
+  }
+
   window.renderMusicians = function() {
     var tbody = document.getElementById('musicianTableBody');
     if (!tbody) return;
     if (MUSICIANS.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--mid);padding:32px;">No musicians registered yet.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--mid);padding:32px;">No musicians registered yet.</td></tr>';
       return;
     }
     tbody.innerHTML = MUSICIANS.map(function(m, i) {
+      var isPro = adminIsPremium(m.membership);
+      var tierBtn = m.uid
+        ? (isPro
+            ? '<button class="btn btn-outline btn-xs" onclick="setTier('+i+',\'basic\')">降為 Basic</button>'
+            : '<button class="btn btn-green btn-xs" onclick="setTier('+i+',\'premium\')">升級 Premium</button>')
+        : '';
       return '<tr>' +
         '<td><div class="td-name">'+m.name+'</div></td>' +
         '<td>'+m.inst+'</td>' +
         '<td>'+m.region+'</td>' +
         '<td style="color:var(--mid)">'+m.joined+'</td>' +
         '<td>'+(STATUS_BADGES[m.status]||'')+'</td>' +
+        '<td>'+adminTierBadge(m.membership)+'</td>' +
         '<td style="font-weight:600;">'+m.gigs+'</td>' +
-        '<td><div style="display:flex;gap:6px;">' +
+        '<td><div style="display:flex;gap:6px;flex-wrap:wrap;">' +
           '<button class="btn btn-outline btn-xs" onclick="showNotif(\'Viewing '+m.name+'\\\'s profile\')">View</button>' +
+          tierBtn +
           (m.status==='suspended'
             ? '<button class="btn btn-green btn-xs" onclick="toggleStatus('+i+',\'active\')">Reinstate</button>'
             : '<button class="btn btn-red btn-xs" onclick="toggleStatus('+i+',\'suspended\')">Suspend</button>') +
@@ -980,6 +1146,25 @@
       '</tr>';
     }).join('');
   }
+
+  // ── Admin manually grant / revoke Premium (real, same as production) ──
+  window.setTier = async function(idx, tier){
+    var m = MUSICIANS[idx];
+    if(!m || !m.uid){ showNotif('此筆無 uid（示範資料），無法更新'); return; }
+    var mem = (tier === 'premium')
+      ? { source:'subscription', activatedAt:new Date().toISOString(), expiresAt:null, grantedBy:'admin' }
+      : { source:'none', revokedBy:'admin', revokedAt:new Date().toISOString() };
+    MUSICIANS[idx].membership = mem;
+    renderMusicians();
+    showNotif(m.name + ' → ' + (tier === 'premium' ? 'Premium 加強版 ✓' : 'Basic 基本版'));
+    try{
+      await updateDoc(doc(db, 'musicians', m.uid), {
+        membership: mem,
+        tier: tier,
+        lessonsEnabled: (tier === 'premium')
+      });
+    }catch(e){ console.log('Tier update error:', e); showNotif('寫入失敗：'+(e.code||e.message)+'（可能需設定 Firestore 規則）'); }
+  };
 
   window.toggleStatus = async function(idx, newStatus) {
     var m = MUSICIANS[idx];
@@ -1037,7 +1222,7 @@
     var title = document.getElementById('announceTitle').value.trim();
     var body  = document.getElementById('announceBody').value.trim();
     if (!title || !body) { showNotif('Please fill in both title and message'); return; }
-    showNotif('📣 Announcement sent to 24 musicians!');
+    showNotif('📣 Announcement sent to ' + MUSICIANS.length + ' musicians!');
     document.getElementById('announceTitle').value = '';
     document.getElementById('announceBody').value = '';
     updatePreview();
@@ -1050,67 +1235,7 @@
     updatePreview(); updateCharCount();
   }
 
-  // ── Support ──
-  var SUPPORT_THREADS = [
-    { av:'M', name:'Martin', sub:'Violin · 台北', msgs:[
-      {mine:false, text:"Hi, I completed a gig on June 20 and I was wondering when my payout will arrive? It's been 3 days.", time:'1h ago'},
-    ]},
-    { av:'S', name:'Sarah Lin', sub:'Flute · 台北', msgs:[
-      {mine:false, text:"Hello! I just registered and I'm not sure how to upload my profile photo. Where do I do that?", time:'3h ago'},
-    ]},
-    { av:'K', name:'Kevin Wu', sub:'Cello · 台中', msgs:[
-      {mine:false, text:"Thank you for verifying my account! I can now apply for jobs. Really appreciate the quick response.", time:'Yesterday'},
-      {mine:true, text:"You're welcome Kevin! Good luck with your applications. Don't hesitate to reach out if you need anything.", time:'Yesterday'},
-    ]},
-    { av:'A', name:'Amy Chen', sub:'Piano · 高雄', msgs:[
-      {mine:false, text:"Can I list both Piano and Vocals as my instruments? I perform both professionally.", time:'Jun 21'},
-      {mine:true, text:"Hi Amy! Yes absolutely — you can add multiple instruments in your profile settings under Specialties.", time:'Jun 21'},
-      {mine:false, text:"Great, thank you!", time:'Jun 21'},
-    ]},
-    { av:'J', name:'James Huang', sub:'Violin · 新北', msgs:[
-      {mine:false, text:"Just wanted to say this platform is really well designed! The booking process is so smooth.", time:'Jun 19'},
-      {mine:true, text:"Thank you so much James, that really means a lot! We're always working to make it better.", time:'Jun 19'},
-    ]},
-  ];
-
-  window.openSupportThread = function(idx) {
-    var t = SUPPORT_THREADS[idx];
-    document.querySelectorAll('.support-item').forEach(function(el,i){ el.classList.toggle('active', i===idx); });
-    document.getElementById('sthAvatar').textContent = t.av;
-    document.getElementById('sthName').textContent = t.name;
-    document.getElementById('sthSub').textContent = t.sub;
-    var bubbles = document.getElementById('supportBubbles');
-    bubbles.innerHTML = t.msgs.map(function(b){
-      return '<div class="sbubble-wrap '+(b.mine?'mine':'')+'">' +
-        (!b.mine ? '<div class="sbubble-av">'+t.av+'</div>' : '') +
-        '<div><div class="sbubble '+(b.mine?'mine':'theirs')+'">'+b.text+'</div><div class="sbubble-time">'+b.time+'</div></div>' +
-        (b.mine ? '<div class="sbubble-av" style="background:var(--admin);color:#fff;">A</div>' : '') +
-        '</div>';
-    }).join('');
-    bubbles.scrollTop = bubbles.scrollHeight;
-  }
-
-  window.sendSupportMsg = function() {
-    var input = document.getElementById('supportInputBox');
-    var text = input.value.trim();
-    if (!text) return;
-    var bubbles = document.getElementById('supportBubbles');
-    var now = new Date();
-    var time = now.getHours()+':'+(now.getMinutes()<10?'0':'')+now.getMinutes();
-    bubbles.innerHTML += '<div class="sbubble-wrap mine"><div><div class="sbubble mine">'+text+'</div><div class="sbubble-time">'+time+'</div></div><div class="sbubble-av" style="background:var(--admin);color:#fff;">A</div></div>';
-    input.value = ''; input.style.height = 'auto';
-    bubbles.scrollTop = bubbles.scrollHeight;
-    showNotif('Reply sent ✓');
-  }
-
-  window.handleSupportKey = function(e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendSupportMsg(); }
-  }
-
-  document.getElementById('supportInputBox').addEventListener('input', function(){
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 100) + 'px';
-  });
+  // ── Support inbox: no data source — empty state rendered in markup ──
 
   // ── Notif ──
   var notifTimer;
@@ -1124,9 +1249,6 @@
 
   // ── Date ──
   document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
-
-  // Init
-  openSupportThread(0);
 </script>
 </body>
 </html>

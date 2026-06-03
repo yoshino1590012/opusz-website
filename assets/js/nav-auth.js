@@ -4,6 +4,25 @@
  * so it inherits each page's nav layout, animations, and colour changes automatically.
  */
 (function() {
+  // ── Unified favourites badge style (applies to EVERY page that loads this file) ──
+  // Always solid red, escape the nav's mix-blend-mode, and hug the heart's top-right corner.
+  (function injectFavBadgeStyle() {
+    if (document.getElementById('favBadgeUnifiedStyle')) return;
+    var css =
+      '.nav-fav-count, #navFavBadge{' +
+      '  background:#e05 !important; color:#fff !important;' +
+      '  mix-blend-mode:normal !important; isolation:isolate;' +
+      '}' +
+      '.nav-fav-count{' +
+      '  top:0 !important; right:0 !important;' +
+      '  transform:translate(40%,-35%) !important;' +
+      '}';
+    var st = document.createElement('style');
+    st.id = 'favBadgeUnifiedStyle';
+    st.textContent = css;
+    (document.head || document.documentElement).appendChild(st);
+  })();
+
   function init() {
     var user  = localStorage.getItem('opusz_user');
     var email = localStorage.getItem('opusz_user_email') || '';

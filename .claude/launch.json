@@ -6,6 +6,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["server.py", "8766"],
       "port": 8766
+    },
+    {
+      "name": "opusz8080",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["server.py", "8080"],
+      "port": 8080
     }
   ]
 }

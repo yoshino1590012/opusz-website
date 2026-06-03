@@ -9,7 +9,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
-:root{--black:#000;--white:#fff;--gray:#f0f0f0;}
+:root{--black:#000;--white:#fff;--gray:#f0f0f0;
+  /* Theme tokens (Phase 2-C) — overridable via cfg.theme; defaults match current design */
+  --pf-accent:#1ab864; --pf-accent-hover:#149954; --pf-page-bg:#ffffff; --pf-text:#000000;}
+/* Hero media video (URL-based, injected by applyProfileConfig) */
+.hero-media-el{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:1; pointer-events:none; }
 body{font-family:'Inter','Helvetica Neue',sans-serif;background:var(--gray);overflow-x:hidden;}
 
 /* ── NAV ── */
@@ -403,8 +407,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   display:grid;
   grid-template-columns:1fr 1.05fr;
   gap:clamp(40px,6vw,80px);
-  align-items:center;   /* center the shorter right column (audio) so whitespace splits evenly, not all bottom-right */
+  align-items:start;   /* avatar (left) & ABOUT (right) both top-aligned */
 }
+/* Audio player now sits full-width below the two columns */
+.audio-player--wide{ margin-top:clamp(30px,4vw,48px); }
+.about-bio-wide{ margin-top:clamp(30px,4vw,48px); }
 .about-new-left{
   display:flex;flex-direction:column;
 }
@@ -413,6 +420,8 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   font-size:17px;line-height:1.75;color:#333;
   margin:0 0 28px 0;
 }
+/* Faint guidance text for the empty/default template state (overridden by config). */
+.pf-placeholder{ color:#bbb !important; font-style:normal; font-weight:400; }
 .about-musician-card{
   display:flex;align-items:center;gap:14px;
   margin-bottom:12px;
@@ -606,7 +615,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .marquee-logo svg{
   display:block;
   height:28px;width:auto;
-  fill:#000;
+  fill:#000;color:#000;
 }
 .marquee-logo .logo-text{
   font-size:20px;font-weight:800;letter-spacing:-.03em;
@@ -653,9 +662,35 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .serv-link{ display:inline-flex; align-items:center; gap:6px; font-size:13.5px; font-weight:700; color:#111; text-decoration:none; transition:opacity .15s; }
 .serv-link:hover{ opacity:.6; }
 
+/* ── Solo service card (Basic plan: only Performance) — full-width, horizontal, flatter ── */
+.serv-grid.serv-solo{ grid-template-columns:1fr; }
+.serv-grid.serv-solo .serv-card{
+  display:grid;
+  grid-template-columns:minmax(0,36%) 1fr;
+  column-gap:clamp(32px,5vw,72px);
+  align-items:start;
+  padding:clamp(26px,2.4vw,34px) clamp(30px,3vw,44px);   /* 上下留白縮減 */
+  grid-template-areas:
+    "icon  taglabel"
+    "title tags"
+    "desc  tags";
+}
+.serv-grid.serv-solo .serv-card-icon { grid-area:icon;  margin-bottom:16px; }
+.serv-grid.serv-solo .serv-card-title{ grid-area:title; margin-bottom:8px; }
+.serv-grid.serv-solo .serv-card-desc { grid-area:desc;  margin-bottom:0; max-width:340px; }
+.serv-grid.serv-solo .serv-tag-label { grid-area:taglabel; }
+.serv-grid.serv-solo .serv-tags      { grid-area:tags; align-content:start; }
+@media(max-width:760px){
+  .serv-grid.serv-solo .serv-card{
+    grid-template-columns:1fr;
+    grid-template-areas:"icon" "title" "desc" "taglabel" "tags";
+  }
+  .serv-grid.serv-solo .serv-card-desc{ margin-bottom:22px; max-width:none; }
+}
+
 /* ── Lesson Plans ── */
 .lesson-section {  max-width:1100px;  margin:0 auto;  padding:80px 48px;  box-sizing:border-box;  transform:translateX(-12%);}@media(max-width:1132px){ .lesson-section{ width:100%; margin:0 auto; padding:60px 24px; transform:none; } }
-.lesson-section-divider { border:none; border-top:1px solid #f0f0f0; width:100%; margin:80px 0 0; }
+.lesson-section-divider { grid-column:1 / -1; border:none; border-top:1px solid #f0f0f0; width:100%; margin:80px 0 0; }
 @media(max-width:1132px){ .lesson-section-divider{ margin:60px 0 0; } }
 .lesson-top-label { font-size:13px; color:#888; margin-bottom:10px; }
 .lesson-title { font-size:clamp(36px,5vw,60px); font-weight:800; letter-spacing:-.03em; color:#000; margin-bottom:10px; line-height:1.05; }
@@ -1057,11 +1092,11 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
 .book-bar-msg:hover{ background:#f5f5f5; }
 .book-bar-msg svg{ width:16px; height:16px; }
 .book-bar-cta{
-  background:#1ab864; color:#fff;
+  background:var(--pf-accent); color:#fff;
   padding:12px 22px; border-radius:8px; font-size:15px; font-weight:700;
   border:none; cursor:pointer; font-family:inherit; transition:background .15s;
 }
-.book-bar-cta:hover{ background:#149954; }
+.book-bar-cta:hover{ background:var(--pf-accent-hover); }
 @media(max-width:820px){
   .book-bar{ padding:10px 14px; gap:10px; flex-wrap:wrap; }
   .book-bar-text{ font-size:12px; }
@@ -1249,6 +1284,34 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
   height: 1px; background: rgba(255,255,255,.22);
   z-index: 3;
 }
+/* Showreel scrub / progress bar — bottom edge of the video */
+.bigvid-progress{
+  position: absolute; left: 0; right: 0; bottom: 0;
+  height: 18px; display: flex; align-items: flex-end;
+  z-index: 5; cursor: pointer; pointer-events: auto; touch-action: none;
+}
+.bigvid-progress-track{
+  position: relative; width: 100%; height: 4px;
+  background: rgba(255,255,255,.22);
+  transition: height .15s ease;
+}
+.bigvid-progress:hover .bigvid-progress-track{ height: 7px; }
+.bigvid-progress-buf{
+  position: absolute; left: 0; top: 0; height: 100%; width: 0;
+  background: rgba(255,255,255,.32);
+}
+.bigvid-progress-fill{
+  position: absolute; left: 0; top: 0; height: 100%; width: 0;
+  background: #fff;
+}
+.bigvid-progress-handle{
+  position: absolute; top: 50%; left: 0; width: 13px; height: 13px;
+  border-radius: 50%; background: #fff;
+  transform: translate(-50%,-50%);
+  opacity: 0; transition: opacity .15s ease;
+  pointer-events: none; box-shadow: 0 1px 4px rgba(0,0,0,.45);
+}
+.bigvid-progress:hover .bigvid-progress-handle{ opacity: 1; }
 /* Center play button — grows on hover, shrinks on leave */
 /* Mute / unmute toggle — bottom-right corner of the video */
 .bigvid-play{
@@ -1535,7 +1598,7 @@ var PROFILE_I18N = {
     'nav.back':          'Musicians',
     'nav.lessons':       'Lessons',
     'bio.label':         'About',
-    'bio.text':          'Principal violinist with over 15 years of orchestral and chamber music experience. Specialising in Romantic and Contemporary repertoire, Martin brings a rare combination of technical precision and emotional depth to every performance. Graduate of the National Taiwan University of the Arts, with guest appearances at Carnegie Hall and the National Concert Hall Taipei.',
+    'bio.text':          'Introduce yourself — share your background, training, and what makes your performances special.',
     'book.title':        'Book Martin',
     'book.sub':          'For performances, recordings & private sessions',
     'book.enquiry':      'Send Enquiry',
@@ -1567,8 +1630,8 @@ var PROFILE_I18N = {
     'reviews.label':     'Client Reviews',
     'paw.title':         'People also viewed',
     'paw.viewmore':      'View More →',
-    'bar.title':         'Check availability and get a free',
-    'bar.sub':           'quote now – no commitment to book',
+    'bar.title':         'Check availability & get a free quote',
+    'bar.sub':           'No commitment — see dates & pricing instantly',
     'bar.from':          'From',
     'bar.msg':           'Message',
     'bar.check':         'Check availability',
@@ -1584,16 +1647,17 @@ var PROFILE_I18N = {
     'gal.title':         'Photos',
     'vid.title':         'Watch & Listen',
     'vid.sub':           '/ SHOWREEL',
-    'svc.perf.title':    'Performance',
-    'svc.perf.desc':     'Live violin performance for weddings, corporate events, private parties, and concert halls.',
-    'svc.teach.title':   'Lessons',
-    'svc.teach.desc':    'One-on-one violin lessons tailored to all levels — from first-time beginners to advanced repertoire.',
+    'svc.perf.title':    'Your service',
+    'svc.perf.desc':     'Describe a service you offer (e.g. live performance, lessons).',
+    'svc.teach.title':   'Your service',
+    'svc.teach.desc':    'Describe a service you offer (e.g. live performance, lessons).',
+    'serv.addtags':      'Add tags',
   },
   zh: {
     'nav.back':          '音樂家',
     'nav.lessons':       '音樂老師',
     'bio.label':         '個人簡介',
-    'bio.text':          '擁有超過 15 年管弦樂與室內樂演奏經驗的首席小提琴手，專精浪漫派與當代曲目。Martin 以精湛的技術與深刻的情感詮釋，為每一場演出注入獨特魅力。畢業於國立臺灣藝術大學，曾受邀於卡內基音樂廳及國家音樂廳登台演出。',
+    'bio.text':          '介紹你自己 — 分享你的背景、訓練，以及讓你的演出與眾不同之處。',
     'book.title':        '預約 Martin 演出',
     'book.sub':          '歡迎洽詢現場表演、錄音及私人課程',
     'book.enquiry':      '立即詢問',
@@ -1625,8 +1689,8 @@ var PROFILE_I18N = {
     'reviews.label':     '客戶評價',
     'paw.title':         '瀏覽此頁的人也看了',
     'paw.viewmore':      '查看更多 →',
-    'bar.title':         '查詢檔期並取得免費報價',
-    'bar.sub':           '完全無預約義務',
+    'bar.title':         '查看檔期、免費報價',
+    'bar.sub':           '無需預訂承諾，立即看時段與價格',
     'bar.from':          '起價',
     'bar.msg':           '訊息',
     'bar.check':         '查詢檔期',
@@ -1642,10 +1706,11 @@ var PROFILE_I18N = {
     'gal.title':         '照片集',
     'vid.title':         '影音作品',
     'vid.sub':           '/ 精選作品',
-    'svc.perf.title':    '演出服務',
-    'svc.perf.desc':     '婚禮、企業活動、私人派對及音樂廳的現場小提琴演出。',
-    'svc.teach.title':   '教學課程',
-    'svc.teach.desc':    '一對一小提琴課程，從零基礎到進階曲目，為各程度學員量身規劃。',
+    'svc.perf.title':    '你的服務',
+    'svc.perf.desc':     '描述你提供的服務（例如現場演出、教學）。',
+    'svc.teach.title':   '你的服務',
+    'svc.teach.desc':    '描述你提供的服務（例如現場演出、教學）。',
+    'serv.addtags':      '新增標籤',
   }
 };
 
@@ -1662,221 +1727,18 @@ function switchProfileLang(lang) {
   document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('langToggle').addEventListener('click', function(e) {
-    var opt = e.target.closest('[data-l]');
-    var next = opt ? opt.dataset.l : (_profileLang === 'en' ? 'zh' : 'en');
-    switchProfileLang(next);
-  });
-
-  // Login dropdown
-  var loginBtn = document.getElementById('navLoginBtn');
-  if (loginBtn) {
-    var loginLeaveTimer;
-    loginBtn.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); this.classList.add('open'); });
-    loginBtn.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
-    var dropdown = loginBtn.querySelector('.nav-login-dropdown');
-    if (dropdown) {
-      dropdown.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); });
-      dropdown.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
-    }
-  }
-
-  // Hamburger drawer
-  var hamburgerBtn = document.getElementById('hamburgerBtn');
-  var navDrawer    = document.getElementById('navDrawer');
-  var navSubDrawer = document.getElementById('navSubDrawer');
-  var drawerTimeout;
-  function openDrawer() { clearTimeout(drawerTimeout); navDrawer.classList.add('nd-visible'); }
-  function closeDrawer() { if (navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return; drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
-  function closeBoth() { drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if(navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
-  if (hamburgerBtn && navDrawer) {
-    hamburgerBtn.addEventListener('mouseenter', openDrawer); hamburgerBtn.addEventListener('mouseleave', closeDrawer);
-    navDrawer.addEventListener('mouseenter', openDrawer); navDrawer.addEventListener('mouseleave', closeDrawer);
-  }
-  if (navSubDrawer) { navSubDrawer.addEventListener('mouseenter', function(){ clearTimeout(drawerTimeout); }); navSubDrawer.addEventListener('mouseleave', closeBoth); }
-  var ndMusiciansBtn = document.getElementById('ndMusiciansBtn');
-  var nsdBack = document.getElementById('nsdBack');
-  if (ndMusiciansBtn && navSubDrawer) {
-    ndMusiciansBtn.addEventListener('click', function(){ clearTimeout(drawerTimeout); navSubDrawer.classList.add('ns-visible'); });
-    nsdBack.addEventListener('click', function(){ navSubDrawer.classList.remove('ns-visible'); });
-  }
-
-  // Mega menu
-  var artistsTrigger = document.getElementById('artists-nav-item');
-  var megaMenu = document.getElementById('artistsMegaMenu');
-  var navEl = document.querySelector('nav');
-  var mmTimeout;
-  if (artistsTrigger && megaMenu) {
-    var artistsLink = artistsTrigger.querySelector('a');
-    function openMega() { clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); artistsLink.classList.add('mm-active'); if(navEl) navEl.classList.add('mega-open'); }
-    function closeMega() { mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); artistsLink.classList.remove('mm-active'); if(navEl) navEl.classList.remove('mega-open'); }, 80); }
-    artistsTrigger.addEventListener('mouseenter', openMega); artistsTrigger.addEventListener('mouseleave', closeMega);
-    megaMenu.addEventListener('mouseenter', openMega); megaMenu.addEventListener('mouseleave', closeMega);
-  }
-});
+// nav.js owns the language toggle; re-run page-content translation on change
+document.addEventListener('opusz:langchange', function(e){ if (typeof switchProfileLang === 'function') switchProfileLang(e.detail.lang); });
 </script>
   <link rel="icon" href="/favicon.ico?v=3" />
   <link rel="icon" type="image/png" href="/favicon.png?v=3" />
+<link rel="stylesheet" href="nav.css">
+  <script src="assets/js/analytics.js"></script>
 </head>
 <body>
+<script src="nav.js"></script>
+<script src="partners-library.js"></script>
 
-<!-- NAV -->
-<!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
-<a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
-  <div class="orb"></div>
-</a>
-<a href="musician-platform.html" id="navLogoFixed">
-  <div class="nav-logo-text">
-    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
-    <span class="nav-logo-sub">MUSIC</span>
-  </div>
-</a>
-
-<nav>
-  <!-- Spacer to keep nav-links centered -->
-  <div class="nav-logo-spacer"></div>
-  <ul class="nav-links">
-    <li><a href="musician-platform.html" data-i18n="nav.home">Home</a></li>
-    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
-    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
-    <li><a href="recent-jobs.html">Recent Jobs</a></li>
-    <li><a href="shows.html" data-i18n="nav.news">Shows</a></li>
-    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
-  </ul>
-  <!-- MEGA MENU -->
-  <div class="mega-menu" id="artistsMegaMenu">
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a>
-      <ul>
-        <li><a href="musicians.html?cat=violin" data-i18n="menu.violin">Violin</a></li>
-        <li><a href="musicians.html?cat=viola" data-i18n="menu.viola">Viola</a></li>
-        <li><a href="musicians.html?cat=cello" data-i18n="menu.cello">Cello</a></li>
-        <li><a href="musicians.html?cat=doublebass" data-i18n="menu.doublebass">Double Bass</a></li>
-        <li><a href="musicians.html?cat=harp" data-i18n="menu.harp">Harp</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a>
-      <ul>
-        <li><a href="musicians.html?cat=flute" data-i18n="menu.flute">Flute</a></li>
-        <li><a href="musicians.html?cat=piccolo" data-i18n="menu.piccolo">Piccolo</a></li>
-        <li><a href="musicians.html?cat=oboe" data-i18n="menu.oboe">Oboe</a></li>
-        <li><a href="musicians.html?cat=clarinet" data-i18n="menu.clarinet">Clarinet</a></li>
-        <li><a href="musicians.html?cat=saxophone" data-i18n="menu.saxophone">Saxophone</a></li>
-        <li><a href="musicians.html?cat=bassoon" data-i18n="menu.bassoon">Bassoon</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a>
-      <ul>
-        <li><a href="musicians.html?cat=frenchhorn" data-i18n="menu.frenchhorn">French Horn</a></li>
-        <li><a href="musicians.html?cat=trumpet" data-i18n="menu.trumpet">Trumpet</a></li>
-        <li><a href="musicians.html?cat=trombone" data-i18n="menu.trombone">Trombone</a></li>
-        <li><a href="musicians.html?cat=euphonium" data-i18n="menu.euphonium">Euphonium</a></li>
-        <li><a href="musicians.html?cat=tuba" data-i18n="menu.tuba">Tuba</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=percussion" data-i18n="menu.percussion">Percussion</a>
-      <ul>
-        <li><a href="musicians.html?cat=timpani" data-i18n="menu.timpani">Timpani</a></li>
-        <li><a href="musicians.html?cat=marimba" data-i18n="menu.marimba">Marimba</a></li>
-        <li><a href="musicians.html?cat=vibraphone" data-i18n="menu.vibraphone">Vibraphone</a></li>
-        <li><a href="musicians.html?cat=xylophone" data-i18n="menu.xylophone">Xylophone</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=keyboard" data-i18n="menu.keyboard">Keyboard</a>
-      <ul>
-        <li><a href="musicians.html?cat=piano" data-i18n="menu.piano">Piano</a></li>
-        <li><a href="musicians.html?cat=pipeorgan" data-i18n="menu.pipeorgan">Pipe Organ</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a>
-      <ul>
-        <li><a href="musicians.html?cat=soprano" data-i18n="menu.soprano">Soprano</a></li>
-        <li><a href="musicians.html?cat=mezzosoprano" data-i18n="menu.mezzosoprano">Mezzo-soprano</a></li>
-        <li><a href="musicians.html?cat=tenor" data-i18n="menu.tenor">Tenor</a></li>
-        <li><a href="musicians.html?cat=baritone" data-i18n="menu.baritone">Baritone</a></li>
-        <li><a href="musicians.html?cat=choral" data-i18n="menu.choral">Choral</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a>
-      <ul>
-        <li><a href="musicians.html?cat=stringquartet" data-i18n="menu.stringquartet">String Quartet</a></li>
-        <li><a href="musicians.html?cat=pianotrio" data-i18n="menu.pianotrio">Piano Trio</a></li>
-        <li><a href="musicians.html?cat=stringtrio" data-i18n="menu.stringtrio">String Trio</a></li>
-        <li><a href="musicians.html?cat=windquintet" data-i18n="menu.windquintet">Wind Quintet</a></li>
-        <li><a href="musicians.html?cat=brassquintet" data-i18n="menu.brassquintet">Brass Quintet</a></li>
-        <li><a href="musicians.html?cat=pianoquintet" data-i18n="menu.pianoquintet">Piano Quintet</a></li>
-      </ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html" data-i18n="menu.all">All</a>
-      <ul>
-        <li><a href="musicians.html" data-i18n="menu.allmusicians">All Musicians</a></li>
-        <li><a href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a></li>
-        <li><a href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a></li>
-        <li><a href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a></li>
-        <li><a href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a></li>
-        <li><a href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a></li>
-        <li><a href="musicians.html?cat=conductor" data-i18n="menu.conductor">Conductor</a></li><li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="nav-right">
-    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
-    </button>
-    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
-      <span class="login-label">Log in</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-      <div class="nav-login-dropdown">
-        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
-        <div class="nav-login-vsep"></div>
-        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
-      </div>
-    </button>
-    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
-      <span class="lt-opt active" data-l="en">EN</span>
-      <span class="lt-sep">/</span>
-      <span class="lt-opt" data-l="zh">中文</span>
-    </button>
-    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
-  </div>
-</nav>
-
-<!-- Slide-in nav drawer -->
-<div class="nav-drawer" id="navDrawer">
-  <a href="musician-platform.html" data-i18n="nav.home">Home</a>
-  <a href="blog.html" data-i18n="nav.discover">Blog</a>
-  <button class="nd-musicians-btn" id="ndMusiciansBtn">
-    <span data-i18n="nav.artists">Musicians</span>
-    <span class="nd-arrow">›</span>
-  </button>
-  <a href="recent-jobs.html">Recent Jobs</a>
-  <a href="shows.html" data-i18n="nav.news">Shows</a>
-  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
-</div>
-
-<!-- Musicians sub-drawer -->
-<div class="nav-sub-drawer" id="navSubDrawer">
-  <div class="nsd-head">
-    <button class="nsd-back" id="nsdBack">‹</button>
-    <div class="nsd-title" data-i18n="nav.artists">Musicians</div>
-  </div>
-  <div class="nsd-body">
-    <div class="nsd-group"><div class="nsd-group-title">Strings</div><a href="musicians.html?cat=violin">Violin</a><a href="musicians.html?cat=viola">Viola</a><a href="musicians.html?cat=cello">Cello</a><a href="musicians.html?cat=doublebass">Double Bass</a><a href="musicians.html?cat=harp">Harp</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Woodwinds</div><a href="musicians.html?cat=flute">Flute</a><a href="musicians.html?cat=oboe">Oboe</a><a href="musicians.html?cat=clarinet">Clarinet</a><a href="musicians.html?cat=saxophone">Saxophone</a><a href="musicians.html?cat=bassoon">Bassoon</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Brass</div><a href="musicians.html?cat=frenchhorn">French Horn</a><a href="musicians.html?cat=trumpet">Trumpet</a><a href="musicians.html?cat=trombone">Trombone</a><a href="musicians.html?cat=tuba">Tuba</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Keyboard</div><a href="musicians.html?cat=piano">Piano</a><a href="musicians.html?cat=pipeorgan">Pipe Organ</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Voice</div><a href="musicians.html?cat=soprano">Soprano</a><a href="musicians.html?cat=mezzosoprano">Mezzo-soprano</a><a href="musicians.html?cat=tenor">Tenor</a><a href="musicians.html?cat=baritone">Baritone</a></div>
-  </div>
-</div>
 
 <!-- HERO -->
 <section class="hero hero-intro" id="heroSection">
@@ -1893,7 +1755,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     <div class="hero-photo-placeholder" id="photoPlaceholder">
       <div class="upload-drop-icon">📷</div>
-      <span>Press <strong>P</strong> to add photo</span>
+      <span>Add your banner photo in the editor →</span>
     </div>
     <div class="photo-edit-hint">Press P to edit</div>
 
@@ -1911,20 +1773,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
   <!-- Big decorative name — original (right→exit) + replacement (left←enter) -->
   <div class="hero-name" id="heroNameBig">
-    <span class="hn-orig" aria-hidden="true">Martin</span>
-    <span class="hn-new">Martin</span>
+    <span class="hn-orig" aria-hidden="true">NAME</span>
+    <span class="hn-new">NAME</span>
   </div>
 
   <!-- Info card — above the big name -->
   <div class="hero-info">
-    <div class="info-title">Violinist</div>
-    <div class="info-hero-name" id="heroNameLeft">Martin</div>
+    <div class="info-title">YOUR TITLE</div>
+    <div class="info-hero-name" id="heroNameLeft">NAME</div>
     <div class="info-rating">
-      <span class="reviews">148 Reviews</span>
+      <span class="reviews">0 Reviews</span>
       <span style="opacity:.4">·</span>
-      <span class="reviews">32 Saves</span>
+      <span class="reviews">0 Saves</span>
     </div>
-    <div class="info-location">Taipei, Taiwan</div>
+    <div class="info-location">Your City, Country</div>
   </div>
 
 </section>
@@ -1934,12 +1796,12 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="book-bar-left">
     <div class="book-bar-avatar" id="bookBarAvatar"></div>
     <div class="book-bar-text">
-      <b data-i18n="bar.title">Check availability and get a free</b>
-      <span data-i18n="bar.sub">quote now – no commitment to book</span>
+      <b data-i18n="bar.title">Check availability &amp; get a free quote</b>
+      <span data-i18n="bar.sub">No commitment — see dates &amp; pricing instantly</span>
     </div>
   </div>
   <div class="book-bar-right">
-    <div class="book-bar-price"><span data-i18n="bar.from">From</span> <b>NT$3,500</b></div>
+    <div class="book-bar-price"><span data-i18n="bar.from">From</span> <b id="bookBarPriceVal">NT$3,500</b></div>
     <select class="book-bar-select" id="bookBarDuration">
       <option value="1">1 hour</option>
       <option value="2">2 hours</option>
@@ -1961,35 +1823,23 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="section">
     <div class="about-new-row">
 
-      <!-- Left: bio text + musician card + CTA -->
+      <!-- Left: musician card + credentials + CTA (moved up) -->
       <div class="about-new-left">
-        <div class="section-label label-about" data-i18n="bio.label">About</div>
-        <p class="bio-text" data-i18n="bio.text">
-          Principal violinist with over 15 years of orchestral and chamber music experience. Specialising in Romantic and Contemporary repertoire, Martin brings a rare combination of technical precision and emotional depth to every performance. Graduate of the National Taiwan University of the Arts, with guest appearances at Carnegie Hall and the National Concert Hall Taipei.
-        </p>
         <div class="about-musician-card">
           <div class="about-avatar" id="aboutAvatar"></div>
           <div>
-            <p class="about-musician-name">Martin Liao</p>
-            <p class="about-musician-role">Principal Violinist · Taipei</p>
+            <p class="about-musician-name pf-placeholder">NAME</p>
+            <p class="about-musician-role pf-placeholder">Your title · Your city</p>
           </div>
         </div>
         <ul class="about-creds">
-          <li class="about-cred-item">NSO 國家交響樂團 · 團員</li>
-          <li class="about-cred-item">TPO 台北愛樂管弦樂團 · 首席小提琴</li>
-          <li class="about-cred-item">國立臺灣藝術大學 音樂系</li>
-          <li class="about-cred-item">首爾國際音樂大賽 · 小提琴組 銀獎</li>
-          <li class="about-cred-item">Steinway Artist</li>
+          <li class="about-cred-item pf-placeholder">Add your credentials — orchestras, awards, education</li>
         </ul>
         <button class="about-enq-btn" onclick="openEnquiry()">Send Enquiry</button>
       </div>
 
-      <!-- Right: service cards + audio player -->
+      <!-- Right: MP3 player (swapped into the right column) -->
       <div class="about-new-right">
-
-        <!-- (Service cards moved to the merged "Services & Specialties" section below) -->
-
-        <!-- Audio player: tracks editable via P-key editor -->
         <div class="audio-player" id="audioPlayer">
           <div class="audio-player-top">
             <button class="audio-btn" id="audioPrev" aria-label="Previous">
@@ -2062,15 +1912,22 @@ document.addEventListener('DOMContentLoaded', function() {
           </div>
           <div class="audio-meta">
             <p class="audio-track-title" id="audioTitle">No tracks yet</p>
-            <p class="audio-track-desc" id="audioDesc">Press P to add MP3 tracks for this musician.</p>
+            <p class="audio-track-desc" id="audioDesc">Add your music tracks in the editor.</p>
           </div>
           <div class="audio-divider"></div>
           <ul class="audio-list" id="audioList"></ul>
           <audio id="audioEl" preload="metadata"></audio>
-        </div>
-
+        </div><!-- /audio-player -->
       </div><!-- /about-new-right -->
     </div><!-- /about-new-row -->
+
+    <!-- Bio / self-introduction: full-width below the two columns (swapped) -->
+    <div class="about-bio-wide">
+      <div class="section-label label-about" data-i18n="bio.label">About</div>
+      <p class="bio-text pf-placeholder" data-i18n="bio.text">
+        Introduce yourself — share your background, training, and what makes your performances special.
+      </p>
+    </div>
 
     <!-- Services & Specialties (merged into the About section) -->
     <div class="serv-block">
@@ -2084,18 +1941,10 @@ document.addEventListener('DOMContentLoaded', function() {
               <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
             </svg>
           </div>
-          <p class="serv-card-title" data-i18n="svc.perf.title">Performance</p>
-          <p class="serv-card-desc" data-i18n="svc.perf.desc">Live violin performance for weddings, corporate events, private parties, and concert halls.</p>
-          <p class="serv-tag-label" data-i18n="serv.spec_label">Performance specialties</p>
+          <p class="serv-card-title" data-i18n="svc.perf.title">Your service</p>
+          <p class="serv-card-desc" data-i18n="svc.perf.desc">Describe a service you offer (e.g. live performance, lessons).</p>
           <div class="serv-tags">
-            <span class="serv-tag" data-i18n="spec.classical">Classical</span>
-            <span class="serv-tag" data-i18n="serv.romantic">Romantic Repertoire</span>
-            <span class="serv-tag" data-i18n="spec.contemporary">Contemporary</span>
-            <span class="serv-tag" data-i18n="spec.chamber">Chamber Music</span>
-            <span class="serv-tag" data-i18n="spec.solo">Solo Performance</span>
-            <span class="serv-tag" data-i18n="spec.studio">Studio Recording</span>
-            <span class="serv-tag" data-i18n="spec.wedding">Wedding Music</span>
-            <span class="serv-tag" data-i18n="spec.corporate">Corporate Events</span>
+            <span class="serv-tag pf-placeholder" data-i18n="serv.addtags">Add tags</span>
           </div>
         </div>
 
@@ -2106,13 +1955,10 @@ document.addEventListener('DOMContentLoaded', function() {
               <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
             </svg>
           </div>
-          <p class="serv-card-title" data-i18n="svc.teach.title">Lessons</p>
-          <p class="serv-card-desc" data-i18n="svc.teach.desc">One-on-one violin lessons tailored to all levels — from first-time beginners to advanced repertoire.</p>
-          <p class="serv-tag-label" data-i18n="serv.levels_label">Levels taught</p>
+          <p class="serv-card-title" data-i18n="svc.teach.title">Your service</p>
+          <p class="serv-card-desc" data-i18n="svc.teach.desc">Describe a service you offer (e.g. live performance, lessons).</p>
           <div class="serv-tags">
-            <span class="serv-tag is-on" data-i18n="serv.beginner">Beginner</span>
-            <span class="serv-tag is-on" data-i18n="serv.intermediate">Intermediate</span>
-            <span class="serv-tag is-on" data-i18n="serv.advanced">Advanced</span>
+            <span class="serv-tag pf-placeholder" data-i18n="serv.addtags">Add tags</span>
           </div>
           <div class="serv-card-foot">
             <a class="serv-link" href="lessons.html"><span data-i18n="serv.find">See this teacher in lessons</span> →</a>
@@ -2130,14 +1976,9 @@ document.addEventListener('DOMContentLoaded', function() {
       <div style="flex:1;min-width:0;">
         <div class="section-label" data-i18n="hl.title" style="margin-bottom:32px;">Career Highlights</div>
         <ul class="hl-list" id="hlList">
-          <li class="hl-item" data-hl="0"><span class="hl-item-title">Berlin Philharmonic</span><span class="hl-item-year">2023</span></li>
-          <li class="hl-item" data-hl="1"><span class="hl-item-title">Carnegie Hall Debut</span><span class="hl-item-year">2022</span></li>
-          <li class="hl-item" data-hl="2"><span class="hl-item-title">BBC Proms</span><span class="hl-item-year">2022</span></li>
-          <li class="hl-item" data-hl="3"><span class="hl-item-title">Verbier Festival</span><span class="hl-item-year">2021</span></li>
-          <li class="hl-item" data-hl="4"><span class="hl-item-title">Golden Melody Award</span><span class="hl-item-year">2020</span></li>
-          <li class="hl-item" data-hl="5"><span class="hl-item-title">NSO Taiwan Principal</span><span class="hl-item-year">2019</span></li>
-          <li class="hl-item" data-hl="6"><span class="hl-item-title">Menuhin Competition</span><span class="hl-item-year">2018</span></li>
-          <li class="hl-item" data-hl="7"><span class="hl-item-title">Marlboro Music Festival</span><span class="hl-item-year">2017</span></li>
+          <li class="hl-item" data-hl="0"><span class="hl-item-title pf-placeholder">Add a career highlight</span><span class="hl-item-year pf-placeholder">—</span></li>
+          <li class="hl-item" data-hl="1"><span class="hl-item-title pf-placeholder">Add a career highlight</span><span class="hl-item-year pf-placeholder">—</span></li>
+          <li class="hl-item" data-hl="2"><span class="hl-item-title pf-placeholder">Add a career highlight</span><span class="hl-item-year pf-placeholder">—</span></li>
         </ul>
       </div>
       <div class="highlights-frame">
@@ -2162,50 +2003,9 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="marquee-section">
     <div class="marquee-label" data-i18n="marquee.label">Trusted &amp; worked with</div>
     <div class="marquee-track-wrap">
-      <div class="marquee-track" id="marqueeTrack">
-        <!-- Set A -->
-        <div class="marquee-logo"><span class="logo-text">Carnegie Hall</span></div>
-        <div class="marquee-logo">
-          <!-- Sony Music wordmark-style -->
-          <svg viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="26" fill="#000">SONY</text></svg>
-        </div>
-        <div class="marquee-logo"><span class="logo-text">National Concert Hall</span></div>
-        <div class="marquee-logo">
-          <svg viewBox="0 0 140 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="22" fill="#000">Universal Music</text></svg>
-        </div>
-        <div class="marquee-logo"><span class="logo-text">NTUA</span></div>
-        <div class="marquee-logo">
-          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="24" fill="#000">Warner</text></svg>
-        </div>
-        <div class="marquee-logo"><span class="logo-text">Steinway &amp; Sons</span></div>
-        <div class="marquee-logo">
-          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="26" fill="#000">Yamaha</text></svg>
-        </div>
-        <div class="marquee-logo"><span class="logo-text">Cloud Gate</span></div>
-        <div class="marquee-logo">
-          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="24" fill="#000">Spotify</text></svg>
-        </div>
-        <!-- Set B — exact duplicate so the loop is seamless -->
-        <div class="marquee-logo"><span class="logo-text">Carnegie Hall</span></div>
-        <div class="marquee-logo">
-          <svg viewBox="0 0 120 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="26" fill="#000">SONY</text></svg>
-        </div>
-        <div class="marquee-logo"><span class="logo-text">National Concert Hall</span></div>
-        <div class="marquee-logo">
-          <svg viewBox="0 0 140 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="22" fill="#000">Universal Music</text></svg>
-        </div>
-        <div class="marquee-logo"><span class="logo-text">NTUA</span></div>
-        <div class="marquee-logo">
-          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="24" fill="#000">Warner</text></svg>
-        </div>
-        <div class="marquee-logo"><span class="logo-text">Steinway &amp; Sons</span></div>
-        <div class="marquee-logo">
-          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="26" fill="#000">Yamaha</text></svg>
-        </div>
-        <div class="marquee-logo"><span class="logo-text">Cloud Gate</span></div>
-        <div class="marquee-logo">
-          <svg viewBox="0 0 100 32" xmlns="http://www.w3.org/2000/svg"><text x="0" y="24" font-family="'Inter',sans-serif" font-weight="800" font-size="24" fill="#000">Spotify</text></svg>
-        </div>
+      <div class="marquee-track" id="marqueeTrack" style="animation:none;">
+        <!-- Empty/default state: faint guidance until the musician adds partner brands (config overrides). -->
+        <div class="marquee-logo"><span class="logo-text pf-placeholder">Add brands you've worked with</span></div>
       </div>
     </div>
     <div class="marquee-divider"></div>
@@ -2217,7 +2017,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="bigvid-poster" id="bigvidPoster"></div>
       <div class="bigvid-overlay"></div>
       <div class="bigvid-label">
-        <div class="bigvid-label-name" id="bigvidLabelName">MARTIN LIAO</div>
+        <div class="bigvid-label-name" id="bigvidLabelName">NAME</div>
         <div class="bigvid-label-sub">Showreel</div>
       </div>
       <div class="bigvid-nav">
@@ -2236,6 +2036,13 @@ document.addEventListener('DOMContentLoaded', function() {
       <button class="bigvid-play" id="bigvidPlay" aria-label="Play video">
         <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
       </button>
+      <div class="bigvid-progress" id="bigvidProgress" role="slider" aria-label="Seek video" tabindex="0">
+        <div class="bigvid-progress-track">
+          <div class="bigvid-progress-buf" id="bigvidProgressBuf"></div>
+          <div class="bigvid-progress-fill" id="bigvidProgressFill"></div>
+          <div class="bigvid-progress-handle" id="bigvidProgressHandle"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2323,8 +2130,8 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       </div>
 
+      <hr class="lesson-section-divider">
     </div>
-    <hr class="lesson-section-divider">
   </div><!-- /lesson-section -->
 
   <!-- Brand Marquee -->
@@ -2334,15 +2141,15 @@ document.addEventListener('DOMContentLoaded', function() {
     <div class="section-label" data-i18n="stats.label">By the numbers</div>
     <div class="stats-row">
       <div class="stat">
-        <div class="stat-num" data-count="15" data-suffix="+"><span class="count-val">15</span><span class="count-suffix">+</span></div>
+        <div class="stat-num" data-count="0" data-suffix=""><span class="count-val">0</span><span class="count-suffix"></span></div>
         <div class="stat-label" data-i18n="stats.years">Years of experience</div>
       </div>
       <div class="stat">
-        <div class="stat-num" data-count="400" data-suffix="+"><span class="count-val">400</span><span class="count-suffix">+</span></div>
+        <div class="stat-num" data-count="0" data-suffix=""><span class="count-val">0</span><span class="count-suffix"></span></div>
         <div class="stat-label" data-i18n="stats.perfs">Performances worldwide</div>
       </div>
       <div class="stat">
-        <div class="stat-num" data-count="148" data-suffix=""><span class="count-val">148</span><span class="count-suffix"></span></div>
+        <div class="stat-num" data-count="0" data-suffix=""><span class="count-val">0</span><span class="count-suffix"></span></div>
         <div class="stat-label" data-i18n="stats.reviews">Client reviews</div>
       </div>
     </div>
@@ -2354,7 +2161,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="reviews-section">
     <div class="reviews-header">
       <div class="reviews-count-label" data-i18n="reviews.label">Client Reviews</div>
-      <div class="reviews-big-count">148 Reviews &nbsp;·&nbsp; 32 Saves</div>
+      <div class="reviews-big-count">0 Reviews &nbsp;·&nbsp; 0 Saves</div>
     </div>
 
     <div class="review-list">
@@ -2552,16 +2359,12 @@ document.addEventListener('DOMContentLoaded', function() {
   // ── State ──
   var state = { x:50, y:50, zoom:0, url:'' };
 
-  // ── Load from localStorage ──
+  // ── Init ──
+  // Hero photo is CONFIG-DRIVEN now. We do NOT auto-load the legacy localStorage
+  // base64 photo, so a musician who hasn't set a banner sees the empty placeholder
+  // (the template starts blank — they upload their own photo in the editor).
   (function loadSaved(){
-    var img = localStorage.getItem(STORE_IMG);
-    var pos;
-    try { pos = JSON.parse(localStorage.getItem(STORE_POS)||'{}'); } catch(e){ pos={}; }
-    if(img) state.url = img;
-    if(pos.x != null) state.x = pos.x;
-    if(pos.y != null) state.y = pos.y;
-    if(pos.zoom != null) state.zoom = pos.zoom;
-    applyPhoto();
+    applyPhoto();   // state.url is '' → shows #photoPlaceholder (empty banner)
   })();
 
   // ── Apply photo + position to the bg div ──
@@ -2917,11 +2720,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ── Extra banner slides: upload + X/Y/zoom (photos 2-4) ──
   var SLIDES_STORE = 'martin-hero-photos';
-  var extraSlides = (function(){
-    try{ var r=localStorage.getItem(SLIDES_STORE); return r?JSON.parse(r):[{},{},{}]; }
-    catch(e){ return [{},{},{}]; }
-  })();
-  while(extraSlides.length < 3) extraSlides.push({});
+  // Config-driven: do NOT auto-load the legacy localStorage slides. Extra banner
+  // photos come only from the saved config (via __applyHeroExtraSlides).
+  var extraSlides = [{},{},{}];
 
   function applyExtraSlide(n){
     var el=document.getElementById('heroSlide'+n); if(!el)return;
@@ -3031,8 +2832,13 @@ document.addEventListener('DOMContentLoaded', function() {
     panelOpen ? closePanel() : openPanel();
   }
 
+  // In the dashboard edit preview (?edit=1), all editing is done from the
+  // right-hand panel, so the in-page photo editor must NOT open.
+  var __peEditPreview = new URLSearchParams(location.search).get('edit') === '1';
+
   // ── Press P ──
   document.addEventListener('keydown', function(e){
+    if(__peEditPreview) return;
     if((e.key === 'p' || e.key === 'P') && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA'){
       togglePanel();
     }
@@ -3041,6 +2847,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // ── Click photo area to open ──
   document.getElementById('photoWrap').addEventListener('click', function(){
+    if(__peEditPreview) return;
     openPanel();
   });
 
@@ -3069,6 +2876,22 @@ document.addEventListener('DOMContentLoaded', function() {
     dragHandle.style.cursor = 'grab';
   });
 
+  // ── Expose hero-photo + highlight-image render paths for the config layer ──
+  // applyProfileConfig (URL-based media) reuses these so it drives the SAME
+  // render code the local editor uses. Config NEVER writes to localStorage here.
+  window.__applyHeroPhotoFromConfig = function(media){
+    if(!media || !media.url) return;
+    state.url  = media.url;
+    if(media.x    != null) state.x    = Number(media.x);
+    if(media.y    != null) state.y    = Number(media.y);
+    if(media.zoom != null) state.zoom = Number(media.zoom);
+    applyPhoto();
+    if(typeof syncSliders === 'function'){ try{ syncSliders(); }catch(e){} }
+  };
+  window.__applyHlImgFromConfig = function(idx, url){
+    if(!url) return;
+    applyHlImg(idx, url);
+  };
 })();
 </script>
 <!-- CHECK AVAILABILITY MODAL -->
@@ -3118,18 +2941,12 @@ document.addEventListener('DOMContentLoaded', function() {
       <div class="avail-step-badge" id="s3badge"></div>
       <h3 class="avail-q">How long would you like the musician to play for?</h3>
       <div class="avail-tabs" id="durTabs">
-        <button class="avail-tab active" onclick="setDurTab('hour',this)">Per hour</button>
-        <button class="avail-tab" onclick="setDurTab('package',this)">Packages</button>
+        <button class="avail-tab active" id="durTabHour" onclick="setDurTab('hour',this)">Per hour</button>
+        <button class="avail-tab" id="durTabPackage" onclick="setDurTab('package',this)">Packages</button>
       </div>
       <div class="avail-dur-list" id="durOptions"></div>
-      <div class="avail-addons-label">Add-ons (optional)</div>
-      <div class="avail-addon-card">
-        <div>
-          <div class="avail-addon-title">Arrangement of a piece of music</div>
-          <div class="avail-addon-desc">Customised repertoire arranged specifically for your event. Prices from NT$1,500.</div>
-        </div>
-        <button class="avail-addon-btn" id="addonBtn" onclick="toggleAddon(this)">Add</button>
-      </div>
+      <div class="avail-addons-label" id="durAddonsLabel">Add-ons (optional)</div>
+      <div id="durAddons"></div>
     </div>
 
     <!-- Step 4: Event type -->
@@ -3224,7 +3041,7 @@ document.addEventListener('DOMContentLoaded', function() {
   var currentStep = 1;
   var state = {
     date: null, hour: null, min: null, ampm: 'PM',
-    durTab: 'hour', duration: null, addon: false,
+    durTab: 'hour', duration: null, addon: false, addons: [],
     eventType: null, location: '', venueBooked: null,
     sound: null, lighting: null, piano: null, attendees: null, notes: ''
   };
@@ -3233,16 +3050,27 @@ document.addEventListener('DOMContentLoaded', function() {
   var DAYS   = ['Su','Mo','Tu','We','Th','Fr','Sa'];
   var calYear, calMonth;
 
-  var DUR_HOUR = [
-    {label:'1 hour', note:'', price:'NT$6,000'},
-    {label:'2 hours', note:'(includes breaks)', price:'NT$10,800'},
-    {label:'3 hours', note:'(includes breaks)', price:'NT$15,000'}
-  ];
-  var DUR_PKG = [
-    {label:'Ceremony only', note:'~45 min', price:'NT$8,500'},
-    {label:'Reception package', note:'2–3 hrs', price:'NT$14,000'},
-    {label:'Full-day package', note:'up to 6 hrs', price:'NT$24,000'}
-  ];
+  // ── Booking config (customisable by musician). Initialised with the
+  //    ORIGINAL hardcoded defaults so out-of-the-box behaviour is unchanged.
+  //    applyProfileConfig() overwrites this from cfg.booking when present.
+  if(!window.__BOOKING){
+    window.__BOOKING = {
+      hourly: [
+        {hours:1, price:6000,  note:''},
+        {hours:2, price:10800, note:'includes breaks'},
+        {hours:3, price:15000, note:'includes breaks'}
+      ],
+      packagesEnabled: false,
+      packages: [
+        {name:'Ceremony only',     duration:'~45 min',    price:8500},
+        {name:'Reception package', duration:'2–3 hrs',    price:14000},
+        {name:'Full-day package',  duration:'up to 6 hrs', price:24000}
+      ],
+      addons: [
+        {name:'Arrangement of a piece of music', desc:'Customised repertoire arranged specifically for your event. Prices from NT$1,500.', priceFrom:1500}
+      ]
+    };
+  }
   var EVENT_TYPES = ['Wedding','Private event','Corporate event','Bar / Club / Venue event','Concert / Recital','Other'];
   var ATTENDEES   = ['Less than 50','50–100','100–250','250–500','More than 500'];
   var POP_TIMES   = ['11am','12pm','1pm','2pm','3pm','4pm','5pm','6pm','7pm','8pm','9pm','10pm'];
@@ -3405,10 +3233,43 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   // ── Step 3: Duration ─────────────────────────────────────────────────────
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function money(n){ var v=Number(n); return 'NT$'+(isNaN(v)?n:v.toLocaleString()); }
+
+  // Build the option list (label/note/price) from window.__BOOKING for a tab.
+  function bookingOptsFor(tab){
+    var b = window.__BOOKING || {};
+    if(tab==='package'){
+      return (b.packages||[]).map(function(p){
+        return { label:String(p.name||''), note:String(p.duration||''), price:money(p.price) };
+      });
+    }
+    return (b.hourly||[]).map(function(o){
+      var h=Number(o.hours);
+      var lbl=(h===1?'1 hour':(h+' hours'));
+      var nt=o.note ? ('('+o.note+')') : '';
+      return { label:lbl, note:nt, price:money(o.price) };
+    });
+  }
+
+  function refreshDurTabs(){
+    var pkgBtn=document.getElementById('durTabPackage');
+    var hourBtn=document.getElementById('durTabHour');
+    var enabled=!!(window.__BOOKING && window.__BOOKING.packagesEnabled);
+    if(pkgBtn) pkgBtn.style.display = enabled ? '' : 'none';
+    if(!enabled && state.durTab==='package'){
+      state.durTab='hour'; state.duration=null;
+      if(pkgBtn) pkgBtn.classList.remove('active');
+      if(hourBtn) hourBtn.classList.add('active');
+    }
+  }
+
   function renderDurStep(){
     var h=state.hour||'—'; var ap=state.ampm;
     document.getElementById('s3badge').textContent='Music starting at '+h+':'+('00'+(state.min||'00')).slice(-2)+ap.toLowerCase();
+    refreshDurTabs();
     renderDurOptions();
+    renderAddons();
     window.setDurTab=function(tab,btn){
       state.durTab=tab; state.duration=null;
       document.querySelectorAll('.avail-tab').forEach(function(b){b.classList.remove('active');});
@@ -3418,12 +3279,13 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   function renderDurOptions(){
     var list=document.getElementById('durOptions');
+    if(!list) return;
     list.innerHTML='';
-    var opts=state.durTab==='hour'?DUR_HOUR:DUR_PKG;
+    var opts=bookingOptsFor(state.durTab);
     opts.forEach(function(o){
       var btn=document.createElement('button');
       btn.className='avail-dur-opt'+(state.duration===o.label?' selected':'');
-      btn.innerHTML='<span class="avail-dur-name">'+o.label+'<span class="avail-dur-note">'+o.note+'</span></span><span class="avail-dur-price">'+o.price+'</span>';
+      btn.innerHTML='<span class="avail-dur-name">'+esc(o.label)+'<span class="avail-dur-note">'+esc(o.note)+'</span></span><span class="avail-dur-price">'+esc(o.price)+'</span>';
       btn.onclick=function(){
         state.duration=o.label;
         list.querySelectorAll('.avail-dur-opt').forEach(function(b){b.classList.remove('selected');});
@@ -3432,10 +3294,40 @@ document.addEventListener('DOMContentLoaded', function() {
       list.appendChild(btn);
     });
   }
-  window.toggleAddon=function(btn){
-    state.addon=!state.addon;
-    btn.textContent=state.addon?'Remove':'Add';
-    btn.classList.toggle('added',state.addon);
+  function renderAddons(){
+    var wrap=document.getElementById('durAddons');
+    var label=document.getElementById('durAddonsLabel');
+    if(!wrap) return;
+    var addons=(window.__BOOKING && window.__BOOKING.addons) || [];
+    if(label) label.style.display = addons.length ? '' : 'none';
+    wrap.innerHTML='';
+    addons.forEach(function(a){
+      var name=String(a.name||'');
+      var selected=state.addons.indexOf(name)!==-1;
+      var card=document.createElement('div');
+      card.className='avail-addon-card';
+      card.innerHTML='<div><div class="avail-addon-title">'+esc(name)+'</div><div class="avail-addon-desc">'+esc(a.desc||'')+'</div></div>'
+        +'<button class="avail-addon-btn'+(selected?' added':'')+'">'+(selected?'Remove':'Add')+'</button>';
+      var btn=card.querySelector('.avail-addon-btn');
+      btn.onclick=function(){
+        var idx=state.addons.indexOf(name);
+        if(idx===-1){ state.addons.push(name); btn.textContent='Remove'; btn.classList.add('added'); }
+        else { state.addons.splice(idx,1); btn.textContent='Add'; btn.classList.remove('added'); }
+        state.addon = state.addons.length>0;
+      };
+      wrap.appendChild(card);
+    });
+  }
+
+  // Allow applyProfileConfig (outside this IIFE) to push booking config and
+  // re-render the duration step / tab visibility if it is currently shown.
+  window.__applyBookingConfig=function(){
+    refreshDurTabs();
+    var step3=document.getElementById('avStep3');
+    if(step3 && step3.classList.contains('active')){
+      renderDurOptions();
+      renderAddons();
+    }
   };
 
   // ── Step 4: Event types ───────────────────────────────────────────────────
@@ -3719,6 +3611,7 @@ document.addEventListener('DOMContentLoaded', function() {
       var list = JSON.parse(localStorage.getItem('opusz_lesson_requests') || '[]');
       list.unshift(req);                       // newest first
       localStorage.setItem('opusz_lesson_requests', JSON.stringify(list));
+      if (window.opuszTrack) opuszTrack('lesson_booked', { musician: fullName, plan: state.plan });
     } catch(e){ /* storage unavailable — still show success */ }
 
     document.getElementById('lsDoneMsg').textContent =
@@ -3798,47 +3691,120 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // ── Career Highlights — hover photo frame ──────────────────────────────────
 (function(){
-  var items   = document.querySelectorAll('.hl-item');
-  var photos  = document.querySelectorAll('.hl-photo');
+  // Gradient palette used for highlight photos that have no image (cycled).
+  var HL_GRADIENTS = [
+    'linear-gradient(145deg,#0a1628,#1a3a6b,#0d2044)',
+    'linear-gradient(145deg,#2a1500,#7a3a00,#5c2800)',
+    'linear-gradient(145deg,#1a0000,#8b0000,#3d0000)',
+    'linear-gradient(145deg,#071a12,#0d5c32,#0a3d22)',
+    'linear-gradient(145deg,#1a1200,#7a5c00,#c49a00)',
+    'linear-gradient(145deg,#1a0820,#5c1a7a,#3d0f52)',
+    'linear-gradient(145deg,#0f0020,#3d0080,#1a0040)',
+    'linear-gradient(145deg,#071510,#1a4d2e,#0d3320)'
+  ];
+
   var idle    = document.getElementById('hlIdle');
   var current = -1;
+
+  function photos(){ return document.querySelectorAll('.hl-photo'); }
 
   function showPhoto(idx) {
     if (idx === current) return;
     current = idx;
-    // hide idle
     if (idle) idle.classList.add('hidden');
-    // swap photos
-    photos.forEach(function(p){
+    photos().forEach(function(p){
       p.classList.toggle('hl-ph-active', +p.dataset.ph === idx);
     });
   }
 
   function clearPhoto() {
     current = -1;
-    photos.forEach(function(p){ p.classList.remove('hl-ph-active'); });
+    photos().forEach(function(p){ p.classList.remove('hl-ph-active'); });
     if (idle) idle.classList.remove('hidden');
   }
 
-  items.forEach(function(item){
-    item.addEventListener('mouseenter', function(){
-      var idx = +this.dataset.hl;
-      showPhoto(idx);
-      items.forEach(function(i){ i.classList.remove('hl-active'); });
-      item.classList.add('hl-active');
-    });
-    item.addEventListener('mouseleave', function(){
-      item.classList.remove('hl-active');
-    });
-  });
+  // (Re)bind the hover-preview interaction. Uses event delegation on the list
+  // and frame box so it survives any rebuild of the item/photo set.
+  var _bound = false;
+  function bindHighlightHover() {
+    idle = document.getElementById('hlIdle');
+    current = -1;
+    if (_bound) return; // delegation handlers only need to attach once
+    _bound = true;
 
-  // When mouse leaves the whole list, clear
-  var list = document.getElementById('hlList');
-  if (list) {
-    list.addEventListener('mouseleave', function(){
-      clearPhoto();
-    });
+    var list = document.getElementById('hlList');
+    if (list) {
+      list.addEventListener('mouseover', function(e){
+        var item = e.target.closest('.hl-item');
+        if (!item || !list.contains(item)) return;
+        var idx = +item.dataset.hl;
+        showPhoto(idx);
+        list.querySelectorAll('.hl-item').forEach(function(i){ i.classList.remove('hl-active'); });
+        item.classList.add('hl-active');
+      });
+      list.addEventListener('mouseleave', function(){
+        list.querySelectorAll('.hl-item').forEach(function(i){ i.classList.remove('hl-active'); });
+        clearPhoto();
+      });
+    }
   }
+  window.__bindHighlightHover = bindHighlightHover;
+
+  // Rebuild the highlights list + frame from an array of {title, year, imageUrl}.
+  window.__applyHighlights = function(arr){
+    if (!Array.isArray(arr)) return;
+    var list = document.getElementById('hlList');
+    var frame = document.getElementById('hlFrameBox');
+    if (!list || !frame) return;
+
+    // Rebuild list items.
+    list.innerHTML = arr.map(function(hl, i){
+      hl = hl || {};
+      var title = (hl.title != null ? String(hl.title) : '');
+      var year  = (hl.year  != null ? String(hl.year)  : '');
+      return '<li class="hl-item" data-hl="' + i + '">' +
+               '<span class="hl-item-title"></span>' +
+               '<span class="hl-item-year"></span>' +
+             '</li>';
+    }).join('');
+    // Set text via textContent to avoid HTML injection.
+    var lis = list.querySelectorAll('.hl-item');
+    arr.forEach(function(hl, i){
+      hl = hl || {};
+      var li = lis[i];
+      if (!li) return;
+      li.querySelector('.hl-item-title').textContent = (hl.title != null ? hl.title : '');
+      li.querySelector('.hl-item-year').textContent  = (hl.year  != null ? hl.year  : '');
+    });
+
+    // Rebuild photos (preserve the idle element).
+    var idleEl = document.getElementById('hlIdle');
+    frame.querySelectorAll('.hl-photo').forEach(function(p){ p.remove(); });
+    arr.forEach(function(hl, i){
+      hl = hl || {};
+      var photo = document.createElement('div');
+      photo.className = 'hl-photo';
+      photo.setAttribute('data-ph', i);
+      var bg = document.createElement('div');
+      bg.className = 'hl-photo-bg';
+      if (hl.imageUrl) {
+        bg.style.backgroundImage = 'url(' + hl.imageUrl + ')';
+        bg.style.backgroundSize = 'cover';
+        bg.style.backgroundPosition = 'center';
+      } else {
+        bg.style.background = HL_GRADIENTS[i % HL_GRADIENTS.length];
+      }
+      photo.appendChild(bg);
+      // Insert before the idle element so idle stays on top in DOM order.
+      if (idleEl) frame.insertBefore(photo, idleEl);
+      else frame.appendChild(photo);
+    });
+
+    clearPhoto();
+    bindHighlightHover();
+  };
+
+  bindHighlightHover();
 })();
 </script>
 
@@ -3909,6 +3875,35 @@ document.addEventListener('DOMContentLoaded', function() {
     // ── Rating: hide stars if no reviews yet ──
     const ratingEl = document.querySelector('.info-rating');
     if (ratingEl) ratingEl.style.display = 'none';
+
+    // ── Apply this musician's saved page-builder config (published page) ──
+    if (p.config) {
+      // teaching/lessons is Premium-only → tell the renderer this musician's tier
+      (function(){
+        var m = p.membership || {};
+        var prem = false;
+        if (m.source === 'subscription') prem = true;
+        else if (m.source === 'coupon' && m.expiresAt) {
+          try { prem = new Date(m.expiresAt) > new Date(); } catch(e){}
+        }
+        p.config.isPremium = prem;
+      })();
+      const applyCfg = function(){
+        try { window.applyProfileConfig(p.config); }
+        catch(e){ console.warn('[profileConfig] apply failed:', e); }
+      };
+      if (window.applyProfileConfig) {
+        applyCfg();
+      } else {
+        // applyProfileConfig lives in a later regular <script>; poll briefly
+        let tries = 0;
+        const iv = setInterval(function(){
+          tries++;
+          if (window.applyProfileConfig) { clearInterval(iv); applyCfg(); }
+          else if (tries > 20) { clearInterval(iv); }
+        }, 100);
+      }
+    }
 
   } catch(e) {
     console.log('Profile load error:', e);
@@ -3988,6 +3983,119 @@ document.addEventListener('DOMContentLoaded', function() {
   var prev   = document.getElementById('bigvidPrev');
   var next   = document.getElementById('bigvidNext');
 
+  // ── Progress bar (scrub) — works for <video>, YouTube and Vimeo embeds ──
+  var progressEl = document.getElementById('bigvidProgress');
+  var fillEl     = document.getElementById('bigvidProgressFill');
+  var bufEl      = document.getElementById('bigvidProgressBuf');
+  var handleEl   = document.getElementById('bigvidProgressHandle');
+  var mediaCtl   = null;     // controller for the current embed
+  var seeking    = false;
+
+  function videoController(v){
+    return {
+      state: function(){
+        var buf = (v.buffered && v.buffered.length) ? v.buffered.end(v.buffered.length - 1) : 0;
+        return { cur: v.currentTime || 0, dur: isFinite(v.duration) ? v.duration : 0, buf: buf };
+      },
+      seek: function(r){ if(isFinite(v.duration) && v.duration > 0) v.currentTime = r * v.duration; },
+      destroy: function(){}
+    };
+  }
+  // YouTube + Vimeo both expose time over postMessage (different message shapes).
+  function iframeApiController(iframe, kind){
+    var cur = 0, dur = 0;
+    function onMsg(e){
+      if(e.source !== iframe.contentWindow) return;
+      var d = e.data;
+      if(typeof d === 'string'){ try { d = JSON.parse(d); } catch(_){ return; } }
+      if(!d) return;
+      if(kind === 'yt' && d.event === 'infoDelivery' && d.info){
+        if(typeof d.info.currentTime === 'number') cur = d.info.currentTime;
+        if(typeof d.info.duration === 'number' && d.info.duration > 0) dur = d.info.duration;
+      } else if(kind === 'vimeo' && d.event === 'timeupdate' && d.data){
+        if(typeof d.data.seconds === 'number')  cur = d.data.seconds;
+        if(typeof d.data.duration === 'number' && d.data.duration > 0) dur = d.data.duration;
+      }
+    }
+    window.addEventListener('message', onMsg);
+    function handshake(){
+      try {
+        if(kind === 'yt'){ iframe.contentWindow.postMessage('{"event":"listening"}', '*'); }
+        else { iframe.contentWindow.postMessage(JSON.stringify({ method: 'addEventListener', value: 'timeupdate' }), '*'); }
+      } catch(_){}
+    }
+    iframe.addEventListener('load', handshake);
+    handshake();
+    var hsTimer = setInterval(handshake, 500);
+    setTimeout(function(){ clearInterval(hsTimer); }, 4000);
+    return {
+      state: function(){ return { cur: cur, dur: dur, buf: 0 }; },
+      seek: function(r){
+        if(!dur) return;
+        try {
+          if(kind === 'yt'){ iframe.contentWindow.postMessage(JSON.stringify({ event: 'command', func: 'seekTo', args: [r * dur, true] }), '*'); }
+          else { iframe.contentWindow.postMessage(JSON.stringify({ method: 'setCurrentTime', value: r * dur }), '*'); }
+        } catch(_){}
+      },
+      destroy: function(){ window.removeEventListener('message', onMsg); clearInterval(hsTimer); }
+    };
+  }
+
+  // (Re)bind the scrub bar to the active embed. Called on every video swap.
+  function bindProgress(el){
+    if(mediaCtl){ mediaCtl.destroy(); mediaCtl = null; }
+    if(fillEl)   fillEl.style.width = '0%';
+    if(bufEl)    bufEl.style.width = '0%';
+    if(handleEl) handleEl.style.left = '0%';
+    if(!el){ if(progressEl) progressEl.style.display = 'none'; return; }
+    if(el.tagName === 'VIDEO'){ mediaCtl = videoController(el); }
+    else if(/youtube\.com\/embed/.test(el.src)){ mediaCtl = iframeApiController(el, 'yt'); }
+    else if(/vimeo\.com/.test(el.src)){ mediaCtl = iframeApiController(el, 'vimeo'); }
+    else { mediaCtl = null; }
+    if(progressEl) progressEl.style.display = mediaCtl ? '' : 'none';
+  }
+
+  function paintProgress(){
+    if(!mediaCtl || seeking) return;
+    var s = mediaCtl.state();
+    if(s.dur > 0){
+      var p = Math.max(0, Math.min(1, s.cur / s.dur));
+      if(fillEl)   fillEl.style.width = (p * 100) + '%';
+      if(handleEl) handleEl.style.left = (p * 100) + '%';
+      if(bufEl && s.buf) bufEl.style.width = (Math.min(1, s.buf / s.dur) * 100) + '%';
+    }
+  }
+  setInterval(paintProgress, 200);
+
+  function ratioFromEvent(e){
+    var r = progressEl.getBoundingClientRect();
+    var x = (e.clientX != null) ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    return Math.max(0, Math.min(1, (x - r.left) / r.width));
+  }
+  function applySeek(e){
+    if(!mediaCtl) return;
+    var ratio = ratioFromEvent(e);
+    mediaCtl.seek(ratio);
+    if(fillEl)   fillEl.style.width = (ratio * 100) + '%';
+    if(handleEl) handleEl.style.left = (ratio * 100) + '%';
+  }
+  if(progressEl){
+    progressEl.addEventListener('pointerdown', function(e){
+      if(!mediaCtl) return;
+      seeking = true;
+      try { progressEl.setPointerCapture(e.pointerId); } catch(_){}
+      applySeek(e); e.preventDefault();
+    });
+    progressEl.addEventListener('pointermove', function(e){ if(seeking) applySeek(e); });
+    var endSeek = function(e){ if(seeking){ applySeek(e); seeking = false; } };
+    progressEl.addEventListener('pointerup', endSeek);
+    progressEl.addEventListener('pointercancel', endSeek);
+    // Safety net: if a pointerup is ever missed (capture lost, released off-element),
+    // never let the scrub stay stuck in seeking mode — the paint loop must resume.
+    window.addEventListener('pointerup',     function(){ seeking = false; });
+    window.addEventListener('pointercancel', function(){ seeking = false; });
+  }
+
   // Initial fallback title — used if window.BIGVID_DATA is empty
   var initialTitle = titleEl ? titleEl.innerHTML : '';
   function readData(){
@@ -4045,6 +4153,7 @@ document.addEventListener('DOMContentLoaded', function() {
       v.autoplay = true;
       v.muted = true;          // required for autoplay to succeed
       v.loop = true;
+      v.preload = 'auto';      // fetch a frame early so it's painted before sliding in
       v.playsInline = true;
       v.setAttribute('playsinline', '');
       v.controls = false;
@@ -4074,14 +4183,31 @@ document.addEventListener('DOMContentLoaded', function() {
     if(el && el.tagName === 'VIDEO'){ el.play().catch(function(){}); el.muted = isMuted; }
   }
 
+  // Run cb once the embed has actually painted a frame (so it isn't black while
+  // sliding in). VIDEO → wait for first frame; IFRAME → wait for load + small
+  // buffer for YouTube/Vimeo to paint. Always has a fallback so it never hangs.
+  function whenPainted(el, cb){
+    var done = false;
+    function fire(){ if(done) return; done = true; cb(); }
+    if(el.tagName === 'VIDEO'){
+      if(el.readyState >= 2) return fire();   // HAVE_CURRENT_DATA — frame ready
+      el.addEventListener('loadeddata', fire, { once:true });
+      el.addEventListener('canplay',   fire, { once:true });
+    } else {
+      el.addEventListener('load', function(){ setTimeout(fire, 320); }, { once:true });
+    }
+    setTimeout(fire, 1500);   // safety net — slide anyway if readiness never fires
+  }
+
   // Instant swap — used on initial render and when the editor saves new data.
   function embedVideo(url){
     if(currentEmbed){ currentEmbed.remove(); currentEmbed = null; }
     var el = buildEmbed(url);
-    if(!el) return;
+    if(!el){ bindProgress(null); return; }
     pin.appendChild(el);
     currentEmbed = el;
     startEmbed(el);
+    bindProgress(el);
   }
 
   // Animated swap — incoming video slides in over the old one, matching the
@@ -4091,26 +4217,32 @@ document.addEventListener('DOMContentLoaded', function() {
     if(!incoming){ embedVideo(url); return; }   // empty URL → just clear
     var outgoing = currentEmbed;
 
-    // Park incoming off-screen on the entering side (no transition yet)
+    // Park incoming off-screen on the entering side and start loading/playing it.
+    // The old video stays fully visible (z-index 2) meanwhile — no black gap.
     incoming.style.zIndex = '2';
     incoming.style.transition = 'none';
     incoming.style.transform = 'translateX(' + (dir > 0 ? '100%' : '-100%') + ')';
     pin.appendChild(incoming);
     startEmbed(incoming);
-    if(outgoing) outgoing.style.zIndex = '1';   // sits beneath incoming, gets covered
 
     currentEmbed = incoming;
+    bindProgress(incoming);
     animating = true;
 
-    incoming.offsetWidth;                        // force reflow so the start position registers
-    incoming.style.transition = 'transform 0.72s cubic-bezier(0.4,0,0.2,1)';
-    incoming.style.transform = 'translateX(0)';
+    // Only begin the slide once the incoming media has actually painted a frame,
+    // so it shows real footage (not black) as it comes in.
+    whenPainted(incoming, function(){
+      if(outgoing) outgoing.style.zIndex = '1';   // demote: gets covered by incoming
+      incoming.offsetWidth;                        // force reflow so the start position registers
+      incoming.style.transition = 'transform 0.72s cubic-bezier(0.4,0,0.2,1)';
+      incoming.style.transform = 'translateX(0)';
 
-    setTimeout(function(){
-      if(outgoing) outgoing.remove();
-      incoming.style.transition = '';
-      animating = false;
-    }, 760);
+      setTimeout(function(){
+        if(outgoing) outgoing.remove();
+        incoming.style.transition = '';
+        animating = false;
+      }, 760);
+    });
   }
 
   function setMuted(val){
@@ -4357,16 +4489,34 @@ document.addEventListener('keydown', function(e){
   // Expose so photo editor can trigger a reload
   window.__heroSlideshowReload = function(){
     clearInterval(timer);
-    loadExtras();
     collectActive();
     buildDots();
     pos = 0;
     if(activeIdxs.length > 1){ resetBar(); startTimer(); }
   };
 
+  // Config-driven: apply extra banner slides 2-4 (slideEls[1..3]) from an array
+  // of up to 3 {url,x,y,zoom}. Empty/missing entries clear that slide. Reuses the
+  // same rotation/dots mechanism via __heroSlideshowReload.
+  window.__applyHeroExtraSlides = function(arr){
+    for(var i=0;i<3;i++){
+      var el = slideEls[i+1];
+      if(!el) continue;
+      var d = (arr && arr[i]) ? arr[i] : null;
+      if(!d || !d.url){ el.style.backgroundImage=''; continue; }
+      var x = d.x!=null ? d.x : 50;
+      var y = d.y!=null ? d.y : 50;
+      var z = d.zoom!=null ? d.zoom : 0;
+      var zf = 1 + (z/100);
+      el.style.backgroundImage    = "url('" + d.url + "')";
+      el.style.backgroundPosition = x + '% ' + y + '%';
+      el.style.backgroundSize     = zf <= 1 ? 'cover' : Math.round(zf*100) + '%';
+    }
+    if(window.__heroSlideshowReload) window.__heroSlideshowReload();
+  };
+
   // Boot after intro animation completes
   document.addEventListener('hero-intro-done', function(){
-    loadExtras();
     collectActive();
     buildDots();
 
@@ -4463,9 +4613,27 @@ window.submitEnquiryModal = function(e){
   e.preventDefault();
   var form = e.target;
   var data = new FormData(form);
+  // Deliver a real copy to the musician's dashboard inbox (localStorage bridge)
+  try {
+    var enq = {
+      id: 'enq_' + Date.now(),
+      ts: new Date().toISOString(),
+      name: (data.get('client-name')||'').trim(),
+      email: (data.get('client-email')||'').trim(),
+      subject: (data.get('subject')||'').trim(),
+      message: (data.get('message')||'').trim(),
+      musician: (data.get('musician')||'').trim() || 'Martin Liao',
+      read: false,
+      replies: []
+    };
+    var inbox = JSON.parse(localStorage.getItem('opusz_enquiries')||'[]');
+    inbox.unshift(enq);
+    localStorage.setItem('opusz_enquiries', JSON.stringify(inbox));
+  } catch(err){}
   fetch('/', { method:'POST', body:data })
     .catch(function(){})
     .finally(function(){
+      if (window.opuszTrack) opuszTrack('enquiry_sent', { musician: (data.get('musician')||'').trim() });
       document.getElementById('enqFormView').style.display = 'none';
       document.getElementById('enqSuccess').classList.add('show');
     });
@@ -4476,92 +4644,6 @@ document.addEventListener('keydown', function(e){
 </script>
 
 <script>
-/* ── Nav: scroll hide/show with lerp ── */
-(function() {
-  var navEl = document.querySelector('nav');
-  var navH = navEl ? navEl.offsetHeight : 64;
-  var navTarget = 0, navCurrent = 0, lastY = 0, raf = null;
-  function tick() {
-    navCurrent += (navTarget - navCurrent) * 0.1;
-    if (navEl) navEl.style.top = navCurrent + 'px';
-    if (Math.abs(navTarget - navCurrent) < 0.05) {
-      if (navEl) navEl.style.top = navTarget + 'px';
-      navCurrent = navTarget; raf = null;
-    } else { raf = requestAnimationFrame(tick); }
-  }
-  window.addEventListener('scroll', function() {
-    var y = window.scrollY;
-    navTarget = y < 80 ? 0 : (y > lastY ? -navH : 0);
-    lastY = y;
-    if (!raf) raf = requestAnimationFrame(tick);
-  }, { passive: true });
-})();
-
-/* ── Nav: mix-blend-mode difference + underline + char split ── */
-(function() {
-  var nav = document.querySelector('nav');
-  if (!nav) return;
-
-  function _splitToChars(el) {
-    var text = el.textContent;
-    el.innerHTML = [...text].map(function(ch) {
-      return ch === ' ' ? '<span class="nc-char nc-sp"> </span>' : '<span class="nc-char">' + ch + '</span>';
-    }).join('');
-  }
-  var navLogoFixed = document.getElementById('navLogoFixed');
-  function _resplitNav() {
-    nav.querySelectorAll('.nav-links a').forEach(function(a) { _splitToChars(a); });
-    var ln = nav.querySelector('.nav-logo-name');
-    var ls = nav.querySelector('.nav-logo-sub');
-    if (ln) _splitToChars(ln);
-    if (ls) _splitToChars(ls);
-    if (navLogoFixed) {
-      var fln = navLogoFixed.querySelector('.nav-logo-name');
-      var fls = navLogoFixed.querySelector('.nav-logo-sub');
-      if (fln) _splitToChars(fln);
-      if (fls) _splitToChars(fls);
-      navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
-    }
-  }
-  _resplitNav();
-  window.__navResplit = _resplitNav;
-
-  function updateColors() {
-    var megaOpen = nav.classList.contains('mega-open');
-    if (megaOpen) {
-      nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#000'; });
-      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
-        var el = nav.querySelector(sel); if (!el) return;
-        el.style.color = '#000'; el.style.borderColor = 'rgba(0,0,0,.35)';
-      });
-      nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#000'; });
-      nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
-      return;
-    }
-    nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#fff'; });
-    if (navLogoFixed) navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
-    ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
-      var el = nav.querySelector(sel); if (!el) return;
-      el.style.color = '#fff'; el.style.borderColor = 'rgba(255,255,255,.5)';
-    });
-    nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#fff'; });
-  }
-
-  /* Inject underline span into every nav link */
-  nav.querySelectorAll('.nav-links a').forEach(function(a) {
-    if (!a.querySelector('.nav-ul')) {
-      var ul = document.createElement('span');
-      ul.className = 'nav-ul';
-      a.appendChild(ul);
-    }
-  });
-
-  updateColors();
-  window.addEventListener('scroll', updateColors, { passive: true });
-  window.addEventListener('resize', updateColors);
-  setTimeout(updateColors, 300);
-})();
-
 /* ── Page transition + bfcache fix ── */
 document.addEventListener('click', function(e) {
   var a = e.target.closest('a[href]');
@@ -4589,7 +4671,6 @@ window.addEventListener('pageshow', function(e) {
 });
 </script>
 <script src="assets/js/smooth-scroll.js" defer></script>
-<script src="assets/js/nav-auth.js" defer></script>
 
 <script>
 // ── Lesson Plans: show only if musician has lesson subscription ──
@@ -4655,7 +4736,7 @@ window.addEventListener('pageshow', function(e) {
   function render(){
     if(!tracks.length){
       titleEl.textContent = 'No tracks yet';
-      descEl.textContent  = 'Press P to add MP3 tracks for this musician.';
+      descEl.textContent  = 'Add your music tracks in the editor.';
       listEl.innerHTML = '<li class="audio-empty">No tracks added</li>';
       return;
     }
@@ -4726,6 +4807,7 @@ window.addEventListener('pageshow', function(e) {
   // ── Editor (localhost only — press P) ──
   var isLocal = (location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:');
   if(!isLocal) return;
+  if(new URLSearchParams(location.search).get('edit')==='1') return; // hide in dashboard edit preview
 
   // Build the editor UI
   var fab = document.createElement('button');
@@ -4868,6 +4950,7 @@ window.addEventListener('pageshow', function(e) {
   }
 
   if(!isLocal) return; // public domain: no editor UI
+  if(new URLSearchParams(location.search).get('edit')==='1') return; // hide in dashboard edit preview
 
   var toggle = document.getElementById('bveToggle');
   var panel  = document.getElementById('bvePanel');
@@ -4950,6 +5033,659 @@ window.addEventListener('pageshow', function(e) {
     if(t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable)) return;
     e.preventDefault();
     togglePanel();
+  });
+})();
+</script>
+
+<!-- ════════════════════════════════════════════════════════════════
+     PROFILE CONFIG (Phase 1) — schema-driven text + section visibility
+     Runs LAST so it layers on top of Firestore/content init.
+     Config schema: { hero:{name,title,location,reviewsCount,savesCount},
+                       about:{bio, credentials:[string]}, booking:{priceFrom},
+                       lessons:{visible, mode, plans:[{name,sub,price,unit,save,features:[string],timeline,cta}]},
+                       stats:[{value,suffix,label}],
+                       sections:{lessonPlans,reviews,stats,highlights,audio} }
+     Empty/missing fields fall back to whatever is already in the DOM.
+     ════════════════════════════════════════════════════════════════ -->
+<script>
+(function(){
+  'use strict';
+
+  // Helper: only act when value is present (non-empty / not undefined/null)
+  function has(v){ return v !== undefined && v !== null && v !== ''; }
+  // Darken a #rgb/#rrggbb color by `amt` (0..1) for hover states
+  function darken(hex, amt){
+    var h = String(hex).replace('#','');
+    if(h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    if(h.length < 6) return hex;
+    var r = parseInt(h.slice(0,2),16), g = parseInt(h.slice(2,4),16), b = parseInt(h.slice(4,6),16);
+    var f = function(c){ return Math.max(0, Math.min(255, Math.round(c * (1 - amt)))); };
+    var t = function(c){ return ('0'+f(c).toString(16)).slice(-2); };
+    return '#'+t(r)+t(g)+t(b);
+  }
+
+  function applyProfileConfig(cfg){
+    if(!cfg || typeof cfg !== 'object') return;
+
+    // ── HERO ──────────────────────────────────────────────
+    var hero = cfg.hero || {};
+
+    // Big decorative name (both copies) + about-card / left name usages
+    if(has(hero.name)){
+      var heroNameBig = document.getElementById('heroNameBig');
+      if(heroNameBig){
+        var orig = heroNameBig.querySelector('.hn-orig');
+        var nw   = heroNameBig.querySelector('.hn-new');
+        if(orig) orig.textContent = hero.name;
+        if(nw)   nw.textContent   = hero.name;
+      }
+      var heroNameLeft = document.getElementById('heroNameLeft');
+      if(heroNameLeft) heroNameLeft.textContent = hero.name;
+      // Showreel big-video label (uppercased) — keep in sync if present
+      var bigvidLabel = document.getElementById('bigvidLabelName');
+      if(bigvidLabel) bigvidLabel.textContent = String(hero.name).toUpperCase();
+    }
+
+    // Title / instrument label
+    if(has(hero.title)){
+      var infoTitle = document.querySelector('.info-title');
+      if(infoTitle) infoTitle.textContent = hero.title;
+    }
+
+    // Location
+    if(has(hero.location)){
+      var infoLoc = document.querySelector('.info-location');
+      if(infoLoc) infoLoc.textContent = hero.location;
+    }
+
+    // Reviews / Saves — the .info-rating block has two .reviews spans.
+    // Re-show the rating block (Firestore init may have hidden it).
+    var ratingEl = document.querySelector('.info-rating');
+    if(ratingEl && (has(hero.reviewsCount) || has(hero.savesCount))){
+      ratingEl.style.display = '';
+      var revSpans = ratingEl.querySelectorAll('.reviews');
+      if(revSpans[0] && has(hero.reviewsCount)) revSpans[0].textContent = hero.reviewsCount + ' Reviews';
+      if(revSpans[1] && has(hero.savesCount))   revSpans[1].textContent = hero.savesCount + ' Saves';
+    }
+    // Reviews-section big count
+    var bigCount = document.querySelector('.reviews-big-count');
+    if(bigCount && (has(hero.reviewsCount) || has(hero.savesCount))){
+      // Read current values as fallback for whichever isn't supplied
+      var curR = (bigCount.textContent.match(/(\d[\d,]*)\s*Reviews/)||[])[1] || '';
+      var curS = (bigCount.textContent.match(/(\d[\d,]*)\s*Saves/)||[])[1] || '';
+      var rv = has(hero.reviewsCount) ? hero.reviewsCount : curR;
+      var sv = has(hero.savesCount)   ? hero.savesCount   : curS;
+      bigCount.innerHTML = rv + ' Reviews  ·  ' + sv + ' Saves';
+    }
+
+    // ── ABOUT (bio) ───────────────────────────────────────
+    var about = cfg.about || {};
+    if(has(about.bio)){
+      var bioText = document.querySelector('.bio-text');
+      if(bioText){
+        // Preserve line breaks: render newlines as <br>
+        if(/\n/.test(about.bio)){
+          bioText.innerHTML = String(about.bio)
+            .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+            .replace(/\n/g,'<br>');
+        } else {
+          bioText.textContent = about.bio;
+        }
+      }
+    }
+
+    // ── ABOUT (credentials) ───────────────────────────────
+    if(Array.isArray(about.credentials)){
+      var credsUl = document.querySelector('.about-creds');
+      if(credsUl){
+        var credItems = about.credentials
+          .map(function(s){ return String(s == null ? '' : s).trim(); })
+          .filter(function(s){ return s !== ''; });
+        if(credItems.length){
+          credsUl.innerHTML = credItems.map(function(s){
+            return '<li class="about-cred-item">' +
+              s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') +
+              '</li>';
+          }).join('');
+        }
+      }
+    }
+
+    // ── LESSON PLANS ──────────────────────────────────────
+    var lessons = cfg.lessons || {};
+    // Source of truth = lessons.visible (the user's toggle), gated by the
+    // Premium flag lessonsEnabled. We deliberately drive this here (and exclude
+    // lessonPlans from the generic SECTION-visibility loop below) so a stale
+    // sections.lessonPlans — e.g. forced off while Basic, then upgraded — can't
+    // override the real intent.
+    if(has(lessons.visible) || has(cfg.lessonsEnabled)){
+      var lessonSec = document.getElementById('lessonSection');
+      var lessonsOn = (lessons.visible !== false) && (cfg.lessonsEnabled !== false);
+      if(lessonSec) lessonSec.style.display = lessonsOn ? '' : 'none';
+    }
+    // mode toggle: reflect active state onto the toggle buttons
+    if(has(lessons.mode)){
+      var toggleBtns = document.querySelectorAll('.lesson-toggle-btn');
+      if(toggleBtns.length === 2){
+        var wantOnline = (lessons.mode === 'online');
+        toggleBtns[0].classList.toggle('active', !wantOnline);
+        toggleBtns[1].classList.toggle('active', wantOnline);
+        if(typeof window !== 'undefined') window.lessonFormat = lessons.mode;
+      }
+    }
+    if(Array.isArray(lessons.plans)){
+      var lessonCards = document.querySelectorAll('#lessonSection .lesson-card');
+      lessons.plans.forEach(function(plan, i){
+        if(!plan || typeof plan !== 'object') return;
+        var card = lessonCards[i];
+        if(!card) return;
+        if(has(plan.name)){
+          var nm = card.querySelector('.lesson-plan-name');
+          if(nm) nm.textContent = plan.name;
+        }
+        if(has(plan.sub)){
+          var sb = card.querySelector('.lesson-plan-sub');
+          if(sb){
+            sb.innerHTML = String(plan.sub)
+              .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+              .replace(/\n/g,'<br>');
+          }
+        }
+        if(has(plan.price)){
+          var pr = card.querySelector('.lesson-price');
+          if(pr){
+            var pn = Number(plan.price);
+            pr.textContent = 'NT$' + (isNaN(pn) ? plan.price : pn.toLocaleString());
+          }
+        }
+        if(has(plan.unit)){
+          var un = card.querySelector('.lesson-price-unit');
+          if(un) un.textContent = plan.unit;
+        }
+        if(has(plan.save)){
+          var sv2 = card.querySelector('.lesson-save');
+          if(sv2) sv2.textContent = plan.save;
+        }
+        if(Array.isArray(plan.features)){
+          var ft = card.querySelector('.lesson-features');
+          var feats = plan.features
+            .map(function(s){ return String(s == null ? '' : s).trim(); })
+            .filter(function(s){ return s !== ''; });
+          if(ft && feats.length){
+            ft.innerHTML = feats.map(function(s){
+              return '<li>' +
+                s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') +
+                '</li>';
+            }).join('');
+          }
+        }
+        if(has(plan.timeline)){
+          var tl = card.querySelector('.lesson-timeline');
+          if(tl){
+            // Preserve the <strong>Timeline:</strong> label prefix
+            var strong = tl.querySelector('strong');
+            var label = strong ? strong.outerHTML : '<strong>Timeline:</strong>';
+            tl.innerHTML = label + String(plan.timeline)
+              .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+          }
+        }
+        if(has(plan.cta)){
+          var ct = card.querySelector('.lesson-cta');
+          if(ct) ct.textContent = plan.cta;
+        }
+      });
+    }
+
+    // ── STATS ─────────────────────────────────────────────
+    if(Array.isArray(cfg.stats)){
+      var statNums   = document.querySelectorAll('#statsSection .stat-num');
+      var statLabels = document.querySelectorAll('#statsSection .stat-label');
+      var _reviewCount = Array.isArray(cfg.reviews) ? cfg.reviews.length : null;
+      cfg.stats.forEach(function(st, i){
+        if(!st || typeof st !== 'object') return;
+        var numEl = statNums[i];
+        // Stat 3 (index 2) = live client-review count, derived from actual reviews
+        var statVal = (i === 2 && _reviewCount !== null) ? _reviewCount : st.value;
+        if(numEl && has(statVal)){
+          numEl.setAttribute('data-count', statVal);
+          var valEl = numEl.querySelector('.count-val');
+          if(valEl) valEl.textContent = statVal;
+        }
+        if(numEl && has(st.suffix)){
+          numEl.setAttribute('data-suffix', st.suffix);
+          var sufEl = numEl.querySelector('.count-suffix');
+          if(sufEl) sufEl.textContent = st.suffix;
+        }
+        if(statLabels[i] && has(st.label)){
+          statLabels[i].textContent = st.label;
+        }
+      });
+    }
+
+    // ── BOOKING (fully customisable) ──────────────────────
+    var booking = cfg.booking || {};
+    if(cfg.booking && typeof cfg.booking === 'object'){
+      var def = window.__BOOKING || {};
+      var b = {
+        hourly:          Array.isArray(booking.hourly)   ? booking.hourly.slice()   : (def.hourly||[]).slice(),
+        packagesEnabled: (booking.packagesEnabled !== undefined) ? !!booking.packagesEnabled : !!def.packagesEnabled,
+        packages:        Array.isArray(booking.packages) ? booking.packages.slice() : (def.packages||[]).slice(),
+        addons:          Array.isArray(booking.addons)   ? booking.addons.slice()   : (def.addons||[]).slice()
+      };
+      window.__BOOKING = b;
+
+      // Derived "From" price = min hourly price (fallback to cfg.booking.priceFrom).
+      var minPrice = null;
+      b.hourly.forEach(function(o){
+        var p = Number(o.price);
+        if(!isNaN(p) && (minPrice===null || p<minPrice)) minPrice = p;
+      });
+      if(minPrice===null && has(booking.priceFrom)){
+        var pf = Number(booking.priceFrom);
+        minPrice = isNaN(pf) ? null : pf;
+      }
+      var priceEl = document.getElementById('bookBarPriceVal');
+      if(priceEl && minPrice!==null) priceEl.textContent = 'NT$' + minPrice.toLocaleString();
+
+      // Rebuild bar duration dropdown from hourly options.
+      var sel = document.getElementById('bookBarDuration');
+      if(sel && b.hourly.length){
+        sel.innerHTML='';
+        b.hourly.forEach(function(o){
+          var h=Number(o.hours);
+          var opt=document.createElement('option');
+          opt.value=h;
+          opt.textContent=(h===1?'1 hour':(h+' hours'));
+          sel.appendChild(opt);
+        });
+      }
+
+      // Bar title / sub (textContent overrides the i18n default — acceptable).
+      if(has(booking.barTitle)){
+        var tEl=document.querySelector('[data-i18n="bar.title"]');
+        if(tEl) tEl.textContent = booking.barTitle;
+      }
+      if(has(booking.barSub)){
+        var sEl=document.querySelector('[data-i18n="bar.sub"]');
+        if(sEl) sEl.textContent = booking.barSub;
+      }
+
+      // Re-render the modal duration step / tabs if the modal is open.
+      if(typeof window.__applyBookingConfig === 'function') window.__applyBookingConfig();
+    } else if(has(booking.priceFrom)){
+      // Legacy fallback: only priceFrom present.
+      var priceEl2 = document.getElementById('bookBarPriceVal');
+      if(priceEl2){
+        var n = Number(booking.priceFrom);
+        priceEl2.textContent = 'NT$' + (isNaN(n) ? booking.priceFrom : n.toLocaleString());
+      }
+    }
+
+    // ── PARTNERS / BRAND MARQUEE ──────────────────────────
+    if(Array.isArray(cfg.partners)){
+      var marqueeTrack = document.getElementById('marqueeTrack');
+      var brandNames = cfg.partners
+        .map(function(s){ return String(s == null ? '' : s).trim(); })
+        .filter(function(s){ return s !== ''; });
+      if(marqueeTrack && brandNames.length){
+        var esc = function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+        var oneSet = brandNames.map(function(name){
+          var svg = window.partnerWordmark ? window.partnerWordmark(name) : '';
+          if(svg){ return '<div class="marquee-logo marquee-logo--svg">' + svg + '</div>'; }
+          return '<div class="marquee-logo"><span class="logo-text">' + esc(name) + '</span></div>';
+        }).join('');
+        // Two identical sets so the CSS scroll loop stays seamless
+        marqueeTrack.innerHTML = oneSet + oneSet;
+        marqueeTrack.style.animation = ''; // re-enable scroll loop (template empty-state disables it)
+      }
+    }
+
+    // ── SERVICES / SPECIALTIES ────────────────────────────
+    if(Array.isArray(cfg.services)){
+      var servCards = document.querySelectorAll('.serv-card');
+      cfg.services.forEach(function(svc, i){
+        if(!svc || typeof svc !== 'object') return;
+        var card = servCards[i];
+        if(!card) return;
+        if(has(svc.title)){
+          var st = card.querySelector('.serv-card-title');
+          if(st) st.textContent = svc.title; // overrides data-i18n for this element
+        }
+        if(has(svc.description)){
+          var sd = card.querySelector('.serv-card-desc');
+          if(sd) sd.textContent = svc.description;
+        }
+        if(Array.isArray(svc.tags)){
+          var tagsWrap = card.querySelector('.serv-tags');
+          var tagItems = svc.tags
+            .map(function(s){ return String(s == null ? '' : s).trim(); })
+            .filter(function(s){ return s !== ''; });
+          if(tagsWrap && tagItems.length){
+            tagsWrap.innerHTML = tagItems.map(function(s){
+              return '<span class="serv-tag">' +
+                s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') +
+                '</span>';
+            }).join('');
+          }
+        }
+      });
+    }
+
+    // ── MEMBERSHIP GATING: teaching/lessons is Premium-only ──
+    // When this musician is NOT Premium, always hide the Lesson Plans section
+    // and the "Lessons" service card — regardless of saved toggles. Data kept.
+    var _servGrid = document.querySelector('.serv-grid');
+    if (cfg.isPremium === false) {
+      var _lsec = document.getElementById('lessonSection');
+      if (_lsec) _lsec.style.display = 'none';
+      var _servCards = document.querySelectorAll('.serv-card');
+      if (_servCards[1]) _servCards[1].style.display = 'none'; // index 1 = Lessons card
+      if (_servGrid) _servGrid.classList.add('serv-solo');     // single full-width horizontal card
+    } else if (cfg.isPremium === true) {
+      if (_servGrid) _servGrid.classList.remove('serv-solo');
+      var _lc = document.querySelectorAll('.serv-card')[1];
+      if (_lc) _lc.style.display = '';
+    }
+
+    // ── REVIEWS ───────────────────────────────────────────
+    if(Array.isArray(cfg.reviews)){
+      var reviewList = document.querySelector('.reviews-section .review-list');
+      var tpl = reviewList ? reviewList.querySelector('.review-item') : null;
+      if(reviewList && tpl){
+        var rEsc = function(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+        var starsHtml = (function(){
+          var s = tpl.querySelector('.review-stars');
+          return s ? s.textContent : '★★★★★';
+        })();
+        reviewList.innerHTML = cfg.reviews.map(function(rv){
+          rv = rv || {};
+          var initials = rEsc(rv.initials || '');
+          var color    = (rv.color && /^#?[0-9a-fA-F]{3,8}$/.test(String(rv.color).replace('#',''))) ? rv.color : '#1a1a1a';
+          var name     = rEsc(rv.name || '');
+          var date     = rEsc(rv.date || '');
+          var body     = rEsc(rv.body || '');
+          return '<div class="review-item">' +
+            '<div class="review-top">' +
+              '<div class="review-left">' +
+                '<div class="review-avatar" style="background:' + color + ';">' + initials + '</div>' +
+                '<div>' +
+                  '<div class="review-name">' + name + '</div>' +
+                  '<div class="review-stars">' + starsHtml + '</div>' +
+                '</div>' +
+              '</div>' +
+              '<div class="review-date">' + date + '</div>' +
+            '</div>' +
+            '<div class="review-body">' + body + '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
+    // ── CAREER HIGHLIGHTS (variable-length array of {title,year,imageUrl}) ─
+    // When the config carries a highlights array, rebuild the whole list/frame
+    // (any length). When absent, leave the default 8 untouched.
+    if(Array.isArray(cfg.highlights)){
+      if(typeof window.__applyHighlights === 'function'){
+        window.__applyHighlights(cfg.highlights);
+      }
+    }
+
+    // ── HERO MEDIA (URL-based photo or video) ─────────────
+    var heroMedia = (cfg.hero && cfg.hero.media) || null;
+    if(heroMedia && has(heroMedia.url)){
+      var hmType = heroMedia.type === 'video' ? 'video' : 'photo';
+      var photoWrap = document.getElementById('photoWrap');
+      // Always remove any previously injected hero video first (no duplicates)
+      var oldVid = document.querySelector('.hero-media-el');
+      if(oldVid && oldVid.parentNode) oldVid.parentNode.removeChild(oldVid);
+
+      if(hmType === 'photo'){
+        if(typeof window.__applyHeroPhotoFromConfig === 'function'){
+          window.__applyHeroPhotoFromConfig(heroMedia);
+        } else {
+          // Fallback: set #photoBg directly the same way applyPhoto does
+          var pBg = document.getElementById('photoBg');
+          if(pBg){
+            var hx = heroMedia.x != null ? Number(heroMedia.x) : 50;
+            var hy2 = heroMedia.y != null ? Number(heroMedia.y) : 50;
+            var hz = heroMedia.zoom != null ? Number(heroMedia.zoom) : 0;
+            pBg.style.backgroundImage = "url('" + heroMedia.url + "')";
+            pBg.style.backgroundPosition = hx + '% ' + hy2 + '%';
+            var zf = 1 + hz/100;
+            pBg.style.backgroundSize = zf <= 1 ? 'cover' : Math.round(zf*100) + '%';
+            var phEl = document.getElementById('photoPlaceholder');
+            if(phEl) phEl.classList.add('hidden');
+          }
+        }
+      } else if(hmType === 'video' && photoWrap){
+        var ph2 = document.getElementById('photoPlaceholder');
+        if(ph2) ph2.classList.add('hidden');
+        var v = document.createElement('video');
+        v.className = 'hero-media-el';
+        v.muted = true; v.loop = true; v.autoplay = true;
+        v.setAttribute('muted',''); v.setAttribute('playsinline','');
+        v.playsInline = true;
+        v.src = heroMedia.url;
+        var vx = heroMedia.x != null ? Number(heroMedia.x) : 50;
+        var vy = heroMedia.y != null ? Number(heroMedia.y) : 50;
+        var vz = heroMedia.zoom != null ? Number(heroMedia.zoom) : 0;
+        v.style.objectPosition = vx + '% ' + vy + '%';
+        if(vz){ v.style.transform = 'scale(' + (1 + vz/100) + ')'; }
+        // Insert just after #photoBg so it sits behind the gradient overlay
+        var anchor = document.getElementById('photoBg');
+        if(anchor && anchor.parentNode === photoWrap){
+          photoWrap.insertBefore(v, anchor.nextSibling);
+        } else {
+          photoWrap.appendChild(v);
+        }
+        try{ v.play().catch(function(){}); }catch(e){}
+      }
+    } else if(heroMedia){
+      // media object present but URL empty → clear banner to the empty state
+      var _ov = document.querySelector('.hero-media-el');
+      if(_ov && _ov.parentNode) _ov.parentNode.removeChild(_ov);
+      var _pbg = document.getElementById('photoBg');
+      if(_pbg) _pbg.style.backgroundImage = '';
+      var _hbg = document.querySelector('.hero-bg');
+      if(_hbg) _hbg.style.backgroundImage = '';
+      var _ph = document.getElementById('photoPlaceholder');
+      if(_ph) _ph.classList.remove('hidden');
+    }
+
+    // ── HERO EXTRA BANNER SLIDES (2-4, rotating slideshow) ─
+    if(cfg.hero && cfg.hero.extraSlides && window.__applyHeroExtraSlides){
+      try{ window.__applyHeroExtraSlides(cfg.hero.extraSlides); }
+      catch(e){ console.warn(e); }
+    }
+
+    // ── AVATAR (URL-based) ────────────────────────────────
+    if(cfg.about && has(cfg.about.avatarUrl)){
+      var avUrl = cfg.about.avatarUrl;
+      ['aboutAvatar','bookBarAvatar'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el){
+          el.style.backgroundImage = "url('" + avUrl + "')";
+          el.style.backgroundSize = 'cover';
+          el.style.backgroundPosition = 'center';
+        }
+      });
+    }
+
+    // ── AUDIO TRACKS (URL-based MP3) ──────────────────────
+    if(Array.isArray(cfg.audio)){
+      var tr = cfg.audio
+        .filter(function(t){ return t && has(t.url); })
+        .map(function(t){ return { title: t.title || 'Untitled', url: t.url, desc: t.desc || '' }; });
+      if(tr.length){
+        window.AUDIO_TRACKS = tr;
+        // Reuse the player's reload path. __reloadAudio prefers localStorage; to make
+        // the config authoritative for visitors, clear the local override key first.
+        try{ localStorage.removeItem('martin-audio-tracks'); }catch(e){}
+        if(typeof window.__reloadAudio === 'function') window.__reloadAudio();
+      }
+    }
+
+    // ── SHOWREEL VIDEOS (URL-based) ───────────────────────
+    if(Array.isArray(cfg.videos)){
+      var vids = cfg.videos
+        .filter(function(v2){ return v2 && has(v2.url); })
+        .map(function(v2){ return { url: v2.url, title: v2.title || '', poster: v2.poster || '' }; });
+      if(vids.length){
+        window.BIGVID_DATA = vids;
+        document.dispatchEvent(new CustomEvent('bigvid-data-changed'));
+      }
+    }
+
+    // ── THEME COLORS (CSS custom properties) ──────────────
+    if(cfg.theme && typeof cfg.theme === 'object'){
+      var root = document.documentElement;
+      var isColor = function(s){ return typeof s === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(s.trim()); };
+      if(isColor(cfg.theme.accent)){
+        root.style.setProperty('--pf-accent', cfg.theme.accent);
+        // Derive a slightly darker hover from the accent
+        root.style.setProperty('--pf-accent-hover', darken(cfg.theme.accent, 0.12));
+      }
+      if(isColor(cfg.theme.pageBg)) root.style.setProperty('--pf-page-bg', cfg.theme.pageBg);
+      if(isColor(cfg.theme.text))   root.style.setProperty('--pf-text', cfg.theme.text);
+    }
+
+    // ── SECTION VISIBILITY ────────────────────────────────
+    var sections = cfg.sections || {};
+    var SECTION_MAP = {
+      // lessonPlans intentionally excluded — handled above via lessons.visible + lessonsEnabled
+      reviews:     function(){ return document.querySelector('.reviews-section'); },
+      stats:       function(){ return document.getElementById('statsSection'); },
+      highlights:  function(){ return document.getElementById('highlightsSection') || document.querySelector('.highlights-section'); },
+      audio:       function(){ return document.getElementById('audioPlayer'); }
+    };
+    Object.keys(SECTION_MAP).forEach(function(key){
+      if(sections[key] === undefined) return; // not specified → leave as-is
+      var el = SECTION_MAP[key]();
+      if(!el) return;
+      el.style.display = sections[key] ? '' : 'none';
+    });
+  }
+
+  // Expose globally
+  window.applyProfileConfig = applyProfileConfig;
+
+  // ── No localStorage auto-load ──
+  // The dashboard edit preview (?edit=1) is driven SOLELY by postMessage from the
+  // dashboard (per-account config) — it must NOT read the shared localStorage draft,
+  // or a different musician would see the previous account's draft. The plain
+  // template page stays blank, and ?uid= pages load from Firestore.
+
+  // ── Live preview: receive config pushes from the dashboard editor ──
+  window.addEventListener('message', function(e){
+    if(e && e.data && e.data.type === 'opusz-config'){
+      try{ applyProfileConfig(e.data.config); }
+      catch(err){ console.warn('[profileConfig] live update failed:', err); }
+    }
+  });
+})();
+</script>
+
+<!-- ── Shopify-style two-way section selection (edit preview only) ── -->
+<script>
+(function(){
+  if(new URLSearchParams(location.search).get('edit') !== '1') return; // gated: public page unaffected
+
+  // section key → CSS selector for the on-page container
+  // (card / theme / visibility have no on-page block → omitted)
+  var SECTION_MAP = {
+    hero:       '#heroSection',
+    about:      '.about-new-row',
+    booking:    '.book-bar',
+    lessons:    '#lessonSection',
+    stats:      '#statsSection',
+    partners:   '.marquee-section',
+    services:   '.serv-block',
+    reviews:    '.reviews-section',
+    highlights: '.highlights-section',
+    audio:      '#audioPlayer',
+    videos:     '.bigvid-spacer'
+  };
+
+  // inject highlight + hover styles
+  var st = document.createElement('style');
+  st.textContent =
+    '.pb-edit-highlight{ outline:2px solid #2f6bff !important; outline-offset:-2px;' +
+    ' box-shadow:0 0 0 4px rgba(47,107,255,.15) !important; transition:outline-color .15s; }' +
+    '.pb-edit-hover{ outline:2px dashed rgba(47,107,255,.5) !important; outline-offset:-2px; }';
+  document.head.appendChild(st);
+
+  // resolve all mapped entries to actual elements (most-specific first for click matching)
+  function mappedEntries(){
+    var out = [];
+    for(var key in SECTION_MAP){
+      if(!SECTION_MAP.hasOwnProperty(key)) continue;
+      var el = document.querySelector(SECTION_MAP[key]);
+      if(el) out.push({ section:key, el:el });
+    }
+    return out;
+  }
+
+  var currentHL = null;
+
+  // HIGHLIGHT on command (from dashboard)
+  function clearHighlight(){
+    if(currentHL){ currentHL.classList.remove('pb-edit-highlight'); }
+    document.querySelectorAll('.pb-edit-highlight').forEach(function(n){ n.classList.remove('pb-edit-highlight'); });
+    currentHL = null;
+  }
+  function highlightSection(section){
+    clearHighlight();
+    var sel = SECTION_MAP[section];
+    if(!sel) return;                 // no on-page block → just clear
+    var el = document.querySelector(sel);
+    if(!el) return;
+    el.classList.add('pb-edit-highlight');
+    el.classList.remove('pb-edit-hover');
+    currentHL = el;
+    try{ el.scrollIntoView({ behavior:'smooth', block:'center' }); }catch(e){ el.scrollIntoView(); }
+  }
+  window.addEventListener('message', function(e){
+    if(e && e.data && e.data.type === 'pb-highlight'){
+      highlightSection(e.data.section);
+    }
+  });
+
+  // find the most-specific (innermost) mapped section for a click target
+  function sectionForTarget(target){
+    var best = null, bestDepth = -1;
+    mappedEntries().forEach(function(entry){
+      var matched = target.closest(SECTION_MAP[entry.section]);
+      if(matched){
+        var d = 0, n = matched;
+        while(n){ d++; n = n.parentElement; }
+        if(d > bestDepth){ bestDepth = d; best = entry.section; }
+      }
+    });
+    return best;
+  }
+
+  // EMIT on click (capture phase, single delegated listener)
+  document.addEventListener('click', function(e){
+    var sec = sectionForTarget(e.target);
+    if(!sec) return;
+    // prevent anchors inside a mapped section from navigating the iframe away
+    var a = e.target.closest('a');
+    if(a) e.preventDefault();
+    window.parent.postMessage({ type:'pb-select', section: sec }, '*');
+  }, true);
+
+  // HOVER affordance
+  document.addEventListener('mouseover', function(e){
+    var sec = sectionForTarget(e.target);
+    if(!sec) return;
+    var el = document.querySelector(SECTION_MAP[sec]);
+    if(el && el !== currentHL) el.classList.add('pb-edit-hover');
+  });
+  document.addEventListener('mouseout', function(e){
+    var sec = sectionForTarget(e.target);
+    if(!sec) return;
+    var el = document.querySelector(SECTION_MAP[sec]);
+    if(el) el.classList.remove('pb-edit-hover');
   });
 })();
 </script>

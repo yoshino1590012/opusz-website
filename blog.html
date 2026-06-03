@@ -563,119 +563,12 @@
   </style>
   <link rel="icon" href="/favicon.ico?v=3" />
   <link rel="icon" type="image/png" href="/favicon.png?v=3" />
+<link rel="stylesheet" href="nav.css">
+  <script src="assets/js/analytics.js"></script>
 </head>
 <body>
+<script src="nav.js"></script>
 
-<!-- ── NAV ── -->
-<!-- NAV ORB (outside nav so mix-blend-mode doesn't invert logo colors) -->
-<a href="musician-platform.html" id="navOrbFixed" aria-hidden="true" tabindex="-1">
-  <div class="orb"></div>
-</a>
-<a href="musician-platform.html" id="navLogoFixed">
-  <div class="nav-logo-text">
-    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>
-    <span class="nav-logo-sub">MUSIC</span>
-  </div>
-</a>
-
-<nav>
-  <!-- Spacer to keep nav-links centered -->
-  <div class="nav-logo-spacer"></div>
-
-  <ul class="nav-links">
-    <li><a href="musician-platform.html" data-i18n="nav.home">Home</a></li>
-    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
-    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
-    <li><a href="recent-jobs.html">Recent Jobs</a></li>
-    <li><a href="shows.html" data-i18n="nav.news">Shows</a></li>
-    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
-  </ul>
-  <!-- MEGA MENU -->
-  <div class="mega-menu" id="artistsMegaMenu">
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a>
-      <ul><li><a href="musicians.html?cat=violin" data-i18n="menu.violin">Violin</a></li><li><a href="musicians.html?cat=viola" data-i18n="menu.viola">Viola</a></li><li><a href="musicians.html?cat=cello" data-i18n="menu.cello">Cello</a></li><li><a href="musicians.html?cat=doublebass" data-i18n="menu.doublebass">Double Bass</a></li><li><a href="musicians.html?cat=harp" data-i18n="menu.harp">Harp</a></li></ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a>
-      <ul><li><a href="musicians.html?cat=flute" data-i18n="menu.flute">Flute</a></li><li><a href="musicians.html?cat=piccolo" data-i18n="menu.piccolo">Piccolo</a></li><li><a href="musicians.html?cat=oboe" data-i18n="menu.oboe">Oboe</a></li><li><a href="musicians.html?cat=clarinet" data-i18n="menu.clarinet">Clarinet</a></li><li><a href="musicians.html?cat=saxophone" data-i18n="menu.saxophone">Saxophone</a></li><li><a href="musicians.html?cat=bassoon" data-i18n="menu.bassoon">Bassoon</a></li></ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a>
-      <ul><li><a href="musicians.html?cat=frenchhorn" data-i18n="menu.frenchhorn">French Horn</a></li><li><a href="musicians.html?cat=trumpet" data-i18n="menu.trumpet">Trumpet</a></li><li><a href="musicians.html?cat=trombone" data-i18n="menu.trombone">Trombone</a></li><li><a href="musicians.html?cat=euphonium" data-i18n="menu.euphonium">Euphonium</a></li><li><a href="musicians.html?cat=tuba" data-i18n="menu.tuba">Tuba</a></li></ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=percussion" data-i18n="menu.percussion">Percussion</a>
-      <ul><li><a href="musicians.html?cat=timpani" data-i18n="menu.timpani">Timpani</a></li><li><a href="musicians.html?cat=marimba" data-i18n="menu.marimba">Marimba</a></li><li><a href="musicians.html?cat=vibraphone" data-i18n="menu.vibraphone">Vibraphone</a></li><li><a href="musicians.html?cat=xylophone" data-i18n="menu.xylophone">Xylophone</a></li></ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=keyboard" data-i18n="menu.keyboard">Keyboard</a>
-      <ul><li><a href="musicians.html?cat=piano" data-i18n="menu.piano">Piano</a></li><li><a href="musicians.html?cat=pipeorgan" data-i18n="menu.pipeorgan">Pipe Organ</a></li></ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a>
-      <ul><li><a href="musicians.html?cat=soprano" data-i18n="menu.soprano">Soprano</a></li><li><a href="musicians.html?cat=mezzosoprano" data-i18n="menu.mezzosoprano">Mezzo-soprano</a></li><li><a href="musicians.html?cat=tenor" data-i18n="menu.tenor">Tenor</a></li><li><a href="musicians.html?cat=baritone" data-i18n="menu.baritone">Baritone</a></li><li><a href="musicians.html?cat=choral" data-i18n="menu.choral">Choral</a></li></ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a>
-      <ul><li><a href="musicians.html?cat=stringquartet" data-i18n="menu.stringquartet">String Quartet</a></li><li><a href="musicians.html?cat=pianotrio" data-i18n="menu.pianotrio">Piano Trio</a></li><li><a href="musicians.html?cat=stringtrio" data-i18n="menu.stringtrio">String Trio</a></li><li><a href="musicians.html?cat=windquintet" data-i18n="menu.windquintet">Wind Quintet</a></li><li><a href="musicians.html?cat=brassquintet" data-i18n="menu.brassquintet">Brass Quintet</a></li><li><a href="musicians.html?cat=pianoquintet" data-i18n="menu.pianoquintet">Piano Quintet</a></li></ul>
-    </div>
-    <div class="mega-col">
-      <a class="mega-col-title" href="musicians.html" data-i18n="menu.all">All</a>
-      <ul><li><a href="musicians.html" data-i18n="menu.allmusicians">All Musicians</a></li><li><a href="musicians.html?cat=strings" data-i18n="menu.strings">Strings</a></li><li><a href="musicians.html?cat=woodwinds" data-i18n="menu.woodwinds">Woodwinds</a></li><li><a href="musicians.html?cat=brass" data-i18n="menu.brass">Brass</a></li><li><a href="musicians.html?cat=voice" data-i18n="menu.voice">Voice</a></li><li><a href="musicians.html?cat=chamber" data-i18n="menu.chamber">Chamber</a></li><li><a href="musicians.html?cat=conductor" data-i18n="menu.conductor">Conductor</a></li><li><a href="musicians.html?cat=tuner" data-i18n="menu.tuner">Tuner</a></li></ul>
-    </div>
-  </div>
-
-  <div class="nav-right">
-    <button class="nav-fav-btn" id="navFavBtn" aria-label="Favourites" title="My Favourites">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      <span class="nav-fav-count" id="navFavCount" style="display:none">0</span>
-    </button>
-    <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
-      <span class="login-label">Log in</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
-      <div class="nav-login-dropdown">
-        <a href="#" id="openCustomerLogin" data-i18n="login.customer">Customer login</a>
-        <div class="nav-login-vsep"></div>
-        <a href="musician-login.html" id="openMusicianLogin" data-i18n="login.musician">Musician login</a>
-      </div>
-    </button>
-    <button class="lang-toggle" id="langToggle" aria-label="Switch language">
-      <span class="lt-opt active" data-l="en">EN</span>
-      <span class="lt-sep">/</span>
-      <span class="lt-opt" data-l="zh">中文</span>
-    </button>
-    <div class="hamburger" id="hamburgerBtn"><span></span><span></span></div>
-  </div>
-</nav>
-
-<!-- Slide-in nav drawer -->
-<div class="nav-drawer" id="navDrawer">
-  <a href="musician-platform.html" data-i18n="nav.home">Home</a>
-  <a href="blog.html" data-i18n="nav.discover">Blog</a>
-  <button class="nd-musicians-btn" id="ndMusiciansBtn">
-    <span data-i18n="nav.artists">Musicians</span>
-    <span class="nd-arrow">›</span>
-  </button>
-  <a href="recent-jobs.html">Recent Jobs</a>
-  <a href="shows.html" data-i18n="nav.news">Shows</a>
-  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>
-</div>
-
-<!-- Musicians sub-drawer -->
-<div class="nav-sub-drawer" id="navSubDrawer">
-  <div class="nsd-head">
-    <button class="nsd-back" id="nsdBack">‹</button>
-    <div class="nsd-title">Musicians</div>
-  </div>
-  <div class="nsd-body">
-    <div class="nsd-group"><div class="nsd-group-title">Strings</div><a href="musicians.html?cat=violin">Violin</a><a href="musicians.html?cat=viola">Viola</a><a href="musicians.html?cat=cello">Cello</a><a href="musicians.html?cat=doublebass">Double Bass</a><a href="musicians.html?cat=harp">Harp</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Woodwinds</div><a href="musicians.html?cat=flute">Flute</a><a href="musicians.html?cat=oboe">Oboe</a><a href="musicians.html?cat=clarinet">Clarinet</a><a href="musicians.html?cat=saxophone">Saxophone</a><a href="musicians.html?cat=bassoon">Bassoon</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Brass</div><a href="musicians.html?cat=frenchhorn">French Horn</a><a href="musicians.html?cat=trumpet">Trumpet</a><a href="musicians.html?cat=trombone">Trombone</a><a href="musicians.html?cat=tuba">Tuba</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Keyboard</div><a href="musicians.html?cat=piano">Piano</a><a href="musicians.html?cat=pipeorgan">Pipe Organ</a></div>
-    <div class="nsd-group"><div class="nsd-group-title">Voice</div><a href="musicians.html?cat=soprano">Soprano</a><a href="musicians.html?cat=mezzosoprano">Mezzo-soprano</a><a href="musicians.html?cat=tenor">Tenor</a><a href="musicians.html?cat=baritone">Baritone</a></div>
-  </div>
-</div>
 
 <!-- ── HERO REEL ── -->
 <section class="hero-reel" id="heroReel">
@@ -919,17 +812,8 @@
 </footer>
 
 <script>
-/* ── Favourites badge + navigation ── */
-(function() {
-  var count = JSON.parse(localStorage.getItem('mono-favs') || '[]').length;
-  var el = document.getElementById('navFavCount');
-  if (el) { el.textContent = count; el.style.display = count ? 'flex' : 'none'; }
-  var btn = document.getElementById('navFavBtn');
-  if (btn) btn.addEventListener('click', function() { window.location.href = 'favourites.html'; });
-})();
-
-/* ── NAV: Lang toggle, login dropdown, hamburger drawer, mega-menu ── */
-var _currentLang = 'en';
+// ── I18N ──
+var _currentLang = window._currentLang || 'en';
 var I18N = {
   en: {
     'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
@@ -1021,71 +905,7 @@ function switchLang(lang) {
   document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
   if (typeof window.__navResplit === 'function') window.__navResplit();
 }
-
-document.addEventListener('DOMContentLoaded', function() {
-  /* Lang toggle */
-  var lt = document.getElementById('langToggle');
-  if (lt) lt.addEventListener('click', function(e) {
-    var opt = e.target.closest('[data-l]');
-    switchLang(opt ? opt.dataset.l : (_currentLang === 'en' ? 'zh' : 'en'));
-  });
-
-  /* Login dropdown */
-  var loginBtn = document.getElementById('navLoginBtn');
-  if (loginBtn) {
-    var loginLeaveTimer;
-    loginBtn.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); this.classList.add('open'); });
-    loginBtn.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 180); });
-    var dropdown = loginBtn.querySelector('.nav-login-dropdown');
-    if (dropdown) {
-      dropdown.addEventListener('mouseenter', function() { clearTimeout(loginLeaveTimer); });
-      dropdown.addEventListener('mouseleave', function() { loginLeaveTimer = setTimeout(function(){ loginBtn.classList.remove('open'); }, 120); });
-    }
-  }
-
-  /* Hamburger drawer */
-  var hamburgerBtn = document.getElementById('hamburgerBtn');
-  var navDrawer    = document.getElementById('navDrawer');
-  var navSubDrawer = document.getElementById('navSubDrawer');
-  var drawerTimeout;
-  function openDrawer()  { clearTimeout(drawerTimeout); navDrawer.classList.add('nd-visible'); }
-  function closeDrawer() {
-    if (navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return;
-    drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if (navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120);
-  }
-  function closeBoth() { drawerTimeout = setTimeout(function(){ navDrawer.classList.remove('nd-visible'); if (navSubDrawer) navSubDrawer.classList.remove('ns-visible'); }, 120); }
-  if (hamburgerBtn) {
-    hamburgerBtn.addEventListener('mouseenter', openDrawer);
-    hamburgerBtn.addEventListener('mouseleave', closeDrawer);
-    navDrawer.addEventListener('mouseenter', openDrawer);
-    navDrawer.addEventListener('mouseleave', closeDrawer);
-    if (navSubDrawer) {
-      navSubDrawer.addEventListener('mouseenter', function() { clearTimeout(drawerTimeout); });
-      navSubDrawer.addEventListener('mouseleave', closeBoth);
-    }
-    var ndBtn  = document.getElementById('ndMusiciansBtn');
-    var nsdBack = document.getElementById('nsdBack');
-    if (ndBtn && navSubDrawer) {
-      ndBtn.addEventListener('click', function() { clearTimeout(drawerTimeout); navSubDrawer.classList.add('ns-visible'); });
-      if (nsdBack) nsdBack.addEventListener('click', function() { navSubDrawer.classList.remove('ns-visible'); });
-    }
-  }
-
-  /* Mega menu */
-  var artistsTrigger = document.getElementById('artists-nav-item');
-  var megaMenu       = document.getElementById('artistsMegaMenu');
-  if (artistsTrigger && megaMenu) {
-    var artistsLink = artistsTrigger.querySelector('a');
-    var navEl2      = document.querySelector('nav');
-    var mmTimeout;
-    function openMega()  { clearTimeout(mmTimeout); megaMenu.classList.add('mm-visible'); if (artistsLink) artistsLink.classList.add('mm-active'); if (navEl2) navEl2.classList.add('mega-open'); }
-    function closeMega() { mmTimeout = setTimeout(function(){ megaMenu.classList.remove('mm-visible'); if (artistsLink) artistsLink.classList.remove('mm-active'); setTimeout(function(){ if (navEl2) navEl2.classList.remove('mega-open'); }, 320); }, 200); }
-    artistsTrigger.addEventListener('mouseenter', openMega);
-    artistsTrigger.addEventListener('mouseleave', closeMega);
-    megaMenu.addEventListener('mouseenter', function() { clearTimeout(mmTimeout); });
-    megaMenu.addEventListener('mouseleave', closeMega);
-  }
-});
+document.addEventListener('opusz:langchange', function(e){ if (typeof switchLang === 'function') switchLang(e.detail.lang); });
 
 /* ── Nav: scroll hide/show with lerp ── */
 (function() {
@@ -2147,6 +1967,5 @@ window.addEventListener('pageshow', function(e) {
   });
 })();
 </script>
-<script src="assets/js/nav-auth.js" defer></script>
 </body>
 </html>
