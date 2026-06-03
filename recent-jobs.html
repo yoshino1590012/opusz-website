@@ -303,6 +303,19 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   cursor: pointer; transition: opacity .2s; letter-spacing: .02em;
 }
 .pj-auth-btn:hover { opacity: .8; }
+.pj-google-btn {
+  margin-top: 22px; width: 100%; padding: 13px; border-radius: 50px;
+  background: #fff; color: #111; border: 1.5px solid #e2e2e2;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  font-size: 14.5px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: border-color .18s, background .18s;
+}
+.pj-google-btn:hover { border-color: #111; background: #fafafa; }
+.pj-google-btn[disabled] { opacity: .6; cursor: default; }
+.pj-or {
+  display: flex; align-items: center; gap: 12px; margin: 18px 0 4px; color: #bbb; font-size: 12px;
+}
+.pj-or::before, .pj-or::after { content: ''; flex: 1; height: 1px; background: rgba(0,0,0,.1); }
 .pj-auth-switch {
   text-align: center; margin-top: 16px; font-size: 13px; color: #aaa;
 }
@@ -616,6 +629,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
       <div class="pj-auth-eyebrow">OPUS.Z — Job Board</div>
       <div class="pj-auth-title">Create a free account</div>
       <div class="pj-auth-sub">Sign up to post projects and connect with musicians.</div>
+      <button class="pj-google-btn" type="button" data-google>
+        <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-2.1 14.1-5.5l-6.5-5.5C29.6 34.5 26.9 35.5 24 35.5c-5.2 0-9.6-3.3-11.2-7.9l-6.6 5.1C9.6 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.5l6.5 5.5C40.8 35.7 44 30.4 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>
+        <span>Continue with Google</span>
+      </button>
+      <div class="pj-or"><span>or</span></div>
       <div class="pj-auth-fields">
         <div class="pj-auth-field">
           <div class="pj-auth-label">Full Name</div>
@@ -639,6 +657,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
       <div class="pj-auth-eyebrow">OPUS.Z — Job Board</div>
       <div class="pj-auth-title">Welcome back</div>
       <div class="pj-auth-sub">Sign in to post your project.</div>
+      <button class="pj-google-btn" type="button" data-google>
+        <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-2.1 14.1-5.5l-6.5-5.5C29.6 34.5 26.9 35.5 24 35.5c-5.2 0-9.6-3.3-11.2-7.9l-6.6 5.1C9.6 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.5l6.5 5.5C40.8 35.7 44 30.4 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>
+        <span>Continue with Google</span>
+      </button>
+      <div class="pj-or"><span>or</span></div>
       <div class="pj-auth-fields">
         <div class="pj-auth-field">
           <div class="pj-auth-label">Email</div>
@@ -774,6 +797,12 @@ if (openBtn) openBtn.addEventListener('click', function() {
   }
 });
 
+// Deep-link: arriving from the homepage "Create a Project" button (?post=1)
+// auto-opens the same Post-a-Project flow.
+if (new URLSearchParams(location.search).get('post') === '1') {
+  if (isLoggedIn()) { openPjModal(); } else { openAuthGate(); }
+}
+
 // Auth gate close
 if (pjAuthClose) pjAuthClose.addEventListener('click', closeAuthGate);
 pjAuthOverlay && pjAuthOverlay.addEventListener('click', function(e) {
@@ -808,6 +837,16 @@ if (pjLoginBtn) pjLoginBtn.addEventListener('click', function() {
   closeAuthGate();
   openPjModal();
 });
+
+// Shared: called by the Google sign-in module after a successful login.
+window.pjOnAuthed = function(name, email) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify({ name: name || '', email: email || '' }));
+  // Also set the global nav session so the rest of the site sees the login.
+  if (name)  localStorage.setItem('opusz_user', name);
+  if (email) localStorage.setItem('opusz_user_email', email);
+  closeAuthGate();
+  openPjModal();
+};
 
 // Close Post-Job modal
 if (pjClose) pjClose.addEventListener('click', closePjModal);
@@ -978,5 +1017,42 @@ window.addEventListener('pageshow', function(e) {
 });
 </script>
 <script src="assets/js/smooth-scroll.js" defer></script>
+
+<!-- ── Google sign-in for the job-board auth gate ── -->
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getAuth, signInWithPopup, GoogleAuthProvider }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+
+const app  = initializeApp({
+  apiKey:    'AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s',
+  authDomain:'opusz-45280.firebaseapp.com',
+  projectId: 'opusz-45280'
+});
+const auth = getAuth(app);
+
+document.querySelectorAll('[data-google]').forEach(function(btn){
+  btn.addEventListener('click', async function(){
+    const label = btn.querySelector('span');
+    const prev  = label ? label.textContent : '';
+    btn.disabled = true;
+    if (label) label.textContent = 'Signing in…';
+    try {
+      const result = await signInWithPopup(auth, new GoogleAuthProvider());
+      const user   = result.user;
+      const name   = user.displayName || (user.email || '').split('@')[0];
+      if (typeof window.pjOnAuthed === 'function') window.pjOnAuthed(name, user.email);
+    } catch (e) {
+      if (e && e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') {
+        alert('Google 登入失敗，請再試一次 / Google sign-in failed.');
+      }
+    } finally {
+      btn.disabled = false;
+      if (label) label.textContent = prev || 'Continue with Google';
+    }
+  });
+});
+</script>
+  <script type="module" src="media-sync.js"></script>
 </body>
 </html>

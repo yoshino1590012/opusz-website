@@ -557,6 +557,39 @@
     .pb-lock-desc{ font-size:12.5px; color:#666; max-width:260px; line-height:1.5; }
     .pb-lock-btn{ margin-top:4px; background:#111; color:#fff; border:none; border-radius:20px; padding:8px 18px; font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; }
     .pb-lock-btn:hover{ opacity:.85; }
+
+    /* ── Onboarding tour ── */
+    .tour-overlay{ position:fixed; inset:0; z-index:4000; display:none; }
+    .tour-overlay.show{ display:block; }
+    /* Spotlight: a transparent box with a huge dark shadow dims everything else */
+    .tour-spot{ position:absolute; border-radius:12px; box-shadow:0 0 0 9999px rgba(10,10,14,.66); transition:all .3s cubic-bezier(.4,0,.2,1); pointer-events:none; }
+    .tour-pop{ position:absolute; width:320px; max-width:calc(100vw - 32px); background:#fff; border-radius:14px; box-shadow:0 18px 60px rgba(0,0,0,.3); padding:20px 20px 16px; z-index:4001; transition:top .3s, left .3s; }
+    .tour-step{ font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#1ab864; margin-bottom:8px; }
+    .tour-title{ font-size:16px; font-weight:800; color:#111; margin:0 0 7px; letter-spacing:-.01em; }
+    .tour-body{ font-size:13.5px; color:#555; line-height:1.6; margin:0 0 16px; }
+    .tour-foot{ display:flex; align-items:center; gap:10px; }
+    .tour-dots{ display:flex; gap:5px; margin-right:auto; }
+    .tour-dot{ width:6px; height:6px; border-radius:50%; background:#dcdcdc; transition:background .2s,width .2s; }
+    .tour-dot.on{ background:#111; width:16px; border-radius:6px; }
+    .tour-btn{ border:none; border-radius:20px; padding:8px 16px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .tour-next{ background:#111; color:#fff; }
+    .tour-next:hover{ background:#333; }
+    .tour-back{ background:none; color:#888; padding:8px 6px; }
+    .tour-back:hover{ color:#111; }
+    .tour-skip{ position:absolute; top:14px; right:16px; background:none; border:none; color:#aaa; font-size:12px; font-weight:600; cursor:pointer; font-family:inherit; }
+    .tour-skip:hover{ color:#555; }
+    /* Welcome modal (step 0) */
+    .tour-welcome{ position:fixed; inset:0; z-index:4100; display:none; align-items:center; justify-content:center; padding:24px; background:rgba(10,10,14,.6); backdrop-filter:blur(4px); }
+    .tour-welcome.show{ display:flex; }
+    .tw-card{ width:100%; max-width:440px; background:#fff; border-radius:20px; box-shadow:0 30px 90px rgba(0,0,0,.4); padding:40px 36px 30px; text-align:center; }
+    .tw-emoji{ font-size:44px; margin-bottom:14px; }
+    .tw-title{ font-size:22px; font-weight:800; color:#111; margin:0 0 10px; letter-spacing:-.02em; }
+    .tw-text{ font-size:14px; color:#666; line-height:1.7; margin:0 0 26px; }
+    .tw-actions{ display:flex; gap:10px; justify-content:center; }
+    .tw-start{ background:#111; color:#fff; border:none; border-radius:50px; padding:12px 30px; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; }
+    .tw-start:hover{ background:#333; }
+    .tw-skip{ background:#f2f2f2; color:#555; border:none; border-radius:50px; padding:12px 22px; font-size:14px; font-weight:600; cursor:pointer; font-family:inherit; }
+    .tw-skip:hover{ background:#e8e8e8; }
   </style>
   <link rel="icon" href="/favicon.ico?v=3" />
   <link rel="icon" type="image/png" href="/favicon.png?v=3" />
@@ -580,24 +613,24 @@
     </div>
 
     <div class="sb-section">
-      <div class="sb-section-label">Main</div>
+      <div class="sb-section-label">主要</div>
       <button class="sb-item active" data-page="overview" onclick="navigate('overview',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-        <span>Overview</span>
+        <span>總覽</span>
       </button>
       <button class="sb-item" data-page="jobs" onclick="navigate('jobs',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-        <span>Jobs & Inquiries</span>
+        <span>工作與詢問</span>
         <span class="sb-badge" id="sbJobsBadge" style="display:none;">0</span>
       </button>
       <button class="sb-item" data-page="messages" onclick="navigate('messages',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-        <span>Messages</span>
+        <span>訊息</span>
         <span class="sb-badge" id="sbMsgBadge" style="display:none;">0</span>
       </button>
       <button class="sb-item" data-page="earnings" onclick="navigate('earnings',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        <span>Earnings</span>
+        <span>收入</span>
       </button>
       <button class="sb-item" onclick="location.href='musician-community.html'">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
@@ -606,24 +639,24 @@
     </div>
 
     <div class="sb-section" style="margin-top:10px;">
-      <div class="sb-section-label">Profile</div>
+      <div class="sb-section-label">個人檔案</div>
       <button class="sb-item" data-page="profile" onclick="navigate('profile',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span>My Profile</span>
+        <span>我的資料</span>
         <span class="sb-badge green">!</span>
       </button>
       <button class="sb-item" data-page="pagebuilder" onclick="navigate('pagebuilder',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        <span>編輯主頁 / Edit Page</span>
+        <span>編輯主頁</span>
       </button>
       <button class="sb-item" data-page="membership" onclick="navigate('membership',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.6 5.7 21l2.3-7.1-6-4.5h7.6z"/></svg>
-        <span>方案 / Membership</span>
+        <span>方案</span>
         <span class="sb-badge" id="sbMembershipBadge" style="display:none;"></span>
       </button>
       <button class="sb-item" data-page="settings" onclick="navigate('settings',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        <span>Settings</span>
+        <span>設定</span>
       </button>
     </div>
 
@@ -639,7 +672,7 @@
     <div style="padding:10px 14px 16px;">
       <button onclick="doLogout()" style="width:100%;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171;border-radius:8px;padding:8px 12px;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .2s;" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-        Sign Out
+        登出
       </button>
     </div>
   </aside>
@@ -649,8 +682,11 @@
 
     <!-- Topbar -->
     <header class="topbar">
-      <div class="topbar-title" id="topbarTitle">Overview</div>
+      <div class="topbar-title" id="topbarTitle">總覽</div>
       <div class="topbar-right">
+        <button class="topbar-btn" id="tourHelpBtn" title="使用教學 / How to use" aria-label="使用教學" onclick="startTour()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </button>
         <button class="topbar-btn" onclick="showInboxNotif()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
           <div class="notif-dot"></div>
@@ -669,8 +705,8 @@
       <!-- ══════════════ OVERVIEW ══════════════ -->
       <div class="page active" id="page-overview">
         <div class="page-header">
-          <h1 id="welcomeMsg">Good morning, Martin 👋</h1>
-          <p>Here's what's happening with your profile today.</p>
+          <h1 id="welcomeMsg">早安，Martin 👋</h1>
+          <p>以下是你今天的最新動態。</p>
         </div>
 
         <div class="stats-grid">
@@ -747,8 +783,8 @@
       <!-- ══════════════ JOBS ══════════════ -->
       <div class="page" id="page-jobs">
         <div class="page-header">
-          <h1>Jobs & Inquiries</h1>
-          <p>Public gig board and direct client inquiries.</p>
+          <h1>工作與詢問</h1>
+          <p>公開接案看板與客戶直接詢問。</p>
         </div>
 
         <div class="tab-bar">
@@ -778,7 +814,7 @@
       <!-- ══════════════ MESSAGES ══════════════ -->
       <div class="page" id="page-messages">
         <div class="page-header" style="margin-bottom:20px;">
-          <h1>Messages</h1>
+          <h1>訊息</h1>
         </div>
         <div class="msg-layout">
           <!-- Left: list -->
@@ -811,8 +847,8 @@
       <!-- ══════════════ EARNINGS ══════════════ -->
       <div class="page" id="page-earnings">
         <div class="page-header">
-          <h1>Earnings</h1>
-          <p>Your income, payouts, and transaction history.</p>
+          <h1>收入</h1>
+          <p>你的收入、撥款與交易紀錄。</p>
         </div>
 
         <div class="earnings-summary">
@@ -836,7 +872,7 @@
         <div class="grid-2" style="margin-bottom:24px;">
           <div class="card">
             <div class="chart-wrap">
-              <div class="sec-title" style="margin-bottom:16px;">Monthly Income</div>
+              <div class="sec-title" style="margin-bottom:16px;">每月收入</div>
               <div style="height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#aaa;text-align:center;">
                 <div style="font-size:30px;margin-bottom:8px;">📊</div>
                 <div style="font-size:13px;font-weight:600;color:#777;">尚無收入紀錄</div>
@@ -845,10 +881,10 @@
             </div>
           </div>
           <div class="card card-pad">
-            <div class="sec-title" style="margin-bottom:16px;">Commission Breakdown</div>
+            <div class="sec-title" style="margin-bottom:16px;">抽成明細</div>
             <div style="display:flex;flex-direction:column;gap:12px;">
               <div style="display:flex;justify-content:space-between;font-size:13.5px;">
-                <span style="color:var(--mid);">Gross earnings</span>
+                <span style="color:var(--mid);">總收入</span>
                 <span style="font-weight:600;">NT$0</span>
               </div>
               <div style="display:flex;justify-content:space-between;font-size:13.5px;">
@@ -856,7 +892,7 @@
                 <span style="font-weight:600;color:var(--red);">— NT$0</span>
               </div>
               <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;justify-content:space-between;font-size:14.5px;">
-                <span style="font-weight:700;">Net payout</span>
+                <span style="font-weight:700;">實際撥款</span>
                 <span style="font-weight:800;color:var(--green);">NT$0</span>
               </div>
             </div>
@@ -865,16 +901,16 @@
 
         <div class="card">
           <div class="card-pad" style="padding-bottom:0;">
-            <div class="sec-title">Transaction History</div>
+            <div class="sec-title">交易紀錄</div>
           </div>
           <table class="tx-table">
             <thead>
               <tr>
-                <th>Date</th>
-                <th>Event</th>
-                <th>Client</th>
-                <th>Amount</th>
-                <th>Status</th>
+                <th>日期</th>
+                <th>項目</th>
+                <th>客戶</th>
+                <th>金額</th>
+                <th>狀態</th>
               </tr>
             </thead>
             <tbody>
@@ -1077,31 +1113,31 @@
       <!-- ══════════════ SETTINGS ══════════════ -->
       <div class="page" id="page-settings">
         <div class="page-header">
-          <h1>Settings</h1>
-          <p>Manage your account preferences and notifications.</p>
+          <h1>設定</h1>
+          <p>管理你的帳號偏好與通知設定。</p>
         </div>
 
         <div class="settings-wrap">
           <div class="setting-section">
-            <div class="setting-head">Account</div>
+            <div class="setting-head">帳號</div>
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title">Email</div>
+                <div class="sr-title">電子郵件</div>
                 <div class="sr-desc">martin.violin@gmail.com</div>
               </div>
-              <button class="btn btn-outline btn-sm" onclick="showNotif('Email change request sent')">Change</button>
+              <button class="btn btn-outline btn-sm" onclick="showNotif('Email change request sent')">變更</button>
             </div>
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title">Password</div>
+                <div class="sr-title">密碼</div>
                 <div class="sr-desc">Last changed 3 months ago</div>
               </div>
-              <button class="btn btn-outline btn-sm" onclick="showNotif('Password reset email sent')">Reset</button>
+              <button class="btn btn-outline btn-sm" onclick="showNotif('Password reset email sent')">重設</button>
             </div>
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title">Profile Visibility</div>
-                <div class="sr-desc">Your profile is currently visible to all clients</div>
+                <div class="sr-title">個人檔案可見度</div>
+                <div class="sr-desc">你的個人檔案目前對所有客戶可見</div>
               </div>
               <label class="toggle">
                 <input type="checkbox" checked onchange="showNotif(this.checked?'Profile is now visible':'Profile is now hidden')">
@@ -1112,11 +1148,11 @@
           </div>
 
           <div class="setting-section">
-            <div class="setting-head">Notifications</div>
+            <div class="setting-head">通知</div>
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title">New direct inquiry</div>
-                <div class="sr-desc">When a client sends you a personal message</div>
+                <div class="sr-title">新的直接詢問</div>
+                <div class="sr-desc">客戶傳送私人訊息給你時</div>
               </div>
               <label class="toggle">
                 <input type="checkbox" checked>
@@ -1126,8 +1162,8 @@
             </div>
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title">New public gig posted</div>
-                <div class="sr-desc">When a new job matching your instrument is listed</div>
+                <div class="sr-title">有新的公開接案</div>
+                <div class="sr-desc">有符合你樂器的新工作刊登時</div>
               </div>
               <label class="toggle">
                 <input type="checkbox" checked>
@@ -1137,8 +1173,8 @@
             </div>
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title">Payment received</div>
-                <div class="sr-desc">When a payout is processed to your account</div>
+                <div class="sr-title">收到款項</div>
+                <div class="sr-desc">款項撥入你帳戶時</div>
               </div>
               <label class="toggle">
                 <input type="checkbox" checked>
@@ -1148,7 +1184,7 @@
             </div>
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title">Platform announcements</div>
+                <div class="sr-title">平台公告</div>
                 <div class="sr-desc">News and updates from OPUS.Z</div>
               </div>
               <label class="toggle">
@@ -1160,13 +1196,13 @@
           </div>
 
           <div class="setting-section">
-            <div class="setting-head">Danger Zone</div>
+            <div class="setting-head">危險區域</div>
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title">Deactivate Account</div>
-                <div class="sr-desc">Temporarily hide your profile from clients</div>
+                <div class="sr-title">停用帳號</div>
+                <div class="sr-desc">暫時對客戶隱藏你的個人檔案</div>
               </div>
-              <button class="btn btn-danger btn-sm" onclick="showNotif('Please contact support to deactivate')">Deactivate</button>
+              <button class="btn btn-danger btn-sm" onclick="showNotif('Please contact support to deactivate')">停用</button>
             </div>
           </div>
         </div>
@@ -1175,7 +1211,7 @@
       <!-- ── MEMBERSHIP / 方案 ── -->
       <div class="page" id="page-membership">
         <div class="page-header">
-          <h1>方案 / Membership</h1>
+          <h1>方案</h1>
           <p class="page-sub">選擇適合你的方案，解鎖教學招生功能。</p>
         </div>
 
@@ -1250,27 +1286,27 @@
 
           <!-- LEFT: section list -->
           <div class="pb-left" id="pbSecList">
-            <button class="pb-sec-item active" data-pbsec="hero"       onclick="pbSelectSection('hero',this)">Hero</button>
+            <button class="pb-sec-item active" data-pbsec="hero"       onclick="pbSelectSection('hero',this)">主視覺</button>
             <button class="pb-sec-item"        data-pbsec="card"       onclick="pbSelectSection('card',this)">列表卡片 / Card</button>
-            <button class="pb-sec-item"        data-pbsec="booking"    onclick="pbSelectSection('booking',this)">Booking</button>
-            <button class="pb-sec-item"        data-pbsec="about"      onclick="pbSelectSection('about',this)">About</button>
+            <button class="pb-sec-item"        data-pbsec="booking"    onclick="pbSelectSection('booking',this)">預約</button>
+            <button class="pb-sec-item"        data-pbsec="about"      onclick="pbSelectSection('about',this)">關於</button>
             <button class="pb-sec-item"        data-pbsec="audio"      onclick="pbSelectSection('audio',this)">Audio 音檔</button>
             <button class="pb-sec-item"        data-pbsec="services"   onclick="pbSelectSection('services',this)">Specialties / 專長</button>
-            <button class="pb-sec-item"        data-pbsec="highlights" onclick="pbSelectSection('highlights',this)">Highlights</button>
-            <button class="pb-sec-item"        data-pbsec="partners"   onclick="pbSelectSection('partners',this)">Partners</button>
+            <button class="pb-sec-item"        data-pbsec="highlights" onclick="pbSelectSection('highlights',this)">亮點</button>
+            <button class="pb-sec-item"        data-pbsec="partners"   onclick="pbSelectSection('partners',this)">合作夥伴</button>
             <button class="pb-sec-item"        data-pbsec="videos"     onclick="pbSelectSection('videos',this)">Showreel 影片</button>
-            <button class="pb-sec-item"        data-pbsec="lessons"    onclick="pbSelectSection('lessons',this)">Lesson Plans</button>
-            <button class="pb-sec-item"        data-pbsec="stats"      onclick="pbSelectSection('stats',this)">Stats</button>
-            <button class="pb-sec-item"        data-pbsec="reviews"    onclick="pbSelectSection('reviews',this)">Reviews</button>
+            <button class="pb-sec-item"        data-pbsec="lessons"    onclick="pbSelectSection('lessons',this)">課程方案</button>
+            <button class="pb-sec-item"        data-pbsec="stats"      onclick="pbSelectSection('stats',this)">數據</button>
+            <button class="pb-sec-item"        data-pbsec="reviews"    onclick="pbSelectSection('reviews',this)">評論</button>
             <button class="pb-sec-item"        data-pbsec="theme"      onclick="pbSelectSection('theme',this)">Theme 顏色</button>
-            <button class="pb-sec-item"        data-pbsec="visibility" onclick="pbSelectSection('visibility',this)">Visibility</button>
+            <button class="pb-sec-item"        data-pbsec="visibility" onclick="pbSelectSection('visibility',this)">可見度</button>
           </div>
 
           <!-- CENTER: live iframe preview -->
           <div class="pb-center">
             <div class="pb-devbar">
-              <button class="pb-dev-btn active" id="pbDevDesktop" onclick="pbSetDevice('desktop',this)">Desktop</button>
-              <button class="pb-dev-btn"        id="pbDevMobile"  onclick="pbSetDevice('mobile',this)">Mobile</button>
+              <button class="pb-dev-btn active" id="pbDevDesktop" onclick="pbSetDevice('desktop',this)">桌機</button>
+              <button class="pb-dev-btn"        id="pbDevMobile"  onclick="pbSetDevice('mobile',this)">手機</button>
             </div>
             <div class="pb-frame-wrap">
               <div class="pb-frame-inner" id="pbFrameInner">
@@ -1284,7 +1320,7 @@
 
             <!-- Hero -->
             <div class="pb-field-group active" data-pbgroup="hero">
-              <div class="pb-group-title">Hero</div>
+              <div class="pb-group-title">主視覺</div>
               <div class="pb-field"><label>名稱 / Name</label><input type="text" id="pbHeroName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name"></div>
               <div class="pb-field"><label>頭銜 / Title</label><input type="text" id="pbHeroTitle" oninput="pbOnInput()" placeholder="你的頭銜（如：小提琴家）/ Your title (e.g. Violinist)"></div>
               <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbHeroLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
@@ -1328,7 +1364,7 @@
 
             <!-- About -->
             <div class="pb-field-group" data-pbgroup="about">
-              <div class="pb-group-title">About</div>
+              <div class="pb-group-title">關於</div>
               <div class="pb-field"><label>簡介 / Bio</label><textarea id="pbAboutBio" oninput="pbOnInput()" placeholder="介紹你自己 — 你的背景、訓練與演出特色 / Introduce yourself — your background, training and what makes you special"></textarea></div>
               <div class="pb-subgroup-title" style="margin-top:18px;">學經歷 / Credentials</div>
               <div class="pb-field"><label>學經歷 / Credentials (one per line)</label><textarea id="pbAboutCreds" oninput="pbOnInput()" style="min-height:160px;" placeholder="每行一項：樂團、獎項、學歷 / One per line: orchestras, awards, education"></textarea></div>
@@ -1338,7 +1374,7 @@
 
             <!-- Booking -->
             <div class="pb-field-group" data-pbgroup="booking">
-              <div class="pb-group-title">Booking</div>
+              <div class="pb-group-title">預約</div>
 
               <div class="pb-subgroup">
                 <div class="pb-subgroup-title">預約列文案 / Booking bar text</div>
@@ -1376,12 +1412,12 @@
                 <div class="pb-lock-desc">升級或輸入邀請碼後，即可開放課程方案、公開招收學生，並出現在 Lessons 老師列表。</div>
                 <button type="button" class="pb-lock-btn" onclick="navigate('membership',document.querySelector('[data-page=membership]'))">查看方案 / View plans</button>
               </div>
-              <div class="pb-group-title">Lesson Plans</div>
+              <div class="pb-group-title">課程方案</div>
               <label class="pb-check"><input type="checkbox" id="pbLessonVisible" onchange="pbOnInput(event)"> 顯示課程方案 / Show lesson plans</label>
               <div class="pb-field"><label>模式 / Mode</label>
                 <select id="pbLessonMode" onchange="pbOnInput()" style="width:100%;border:1.5px solid var(--border);border-radius:8px;padding:9px 12px;font-family:inherit;font-size:13.5px;box-sizing:border-box;">
-                  <option value="inperson">In-Person</option>
-                  <option value="online">Online</option>
+                  <option value="inperson">實體</option>
+                  <option value="online">線上</option>
                 </select>
               </div>
 
@@ -1402,61 +1438,61 @@
               </div>
 
               <div class="pb-subgroup" data-pbplan="0">
-                <div class="pb-subgroup-title">Plan 1</div>
-                <div class="pb-field"><label>Name</label><input type="text" id="pbPlan0Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Sub (one line per row)</label><textarea id="pbPlan0Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
+                <div class="pb-subgroup-title">方案 1</div>
+                <div class="pb-field"><label>名稱</label><input type="text" id="pbPlan0Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>副標(每行一句)</label><textarea id="pbPlan0Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
                 <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan0Price" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Unit</label><input type="text" id="pbPlan0Unit" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Save note</label><input type="text" id="pbPlan0Save" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Features (one per line)</label><textarea id="pbPlan0Features" oninput="pbOnInput()"></textarea></div>
-                <div class="pb-field"><label>Timeline</label><input type="text" id="pbPlan0Timeline" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>CTA</label><input type="text" id="pbPlan0Cta" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>單位</label><input type="text" id="pbPlan0Unit" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>優惠說明</label><input type="text" id="pbPlan0Save" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>特色(每行一項)</label><textarea id="pbPlan0Features" oninput="pbOnInput()"></textarea></div>
+                <div class="pb-field"><label>時程</label><input type="text" id="pbPlan0Timeline" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>按鈕文字</label><input type="text" id="pbPlan0Cta" oninput="pbOnInput()"></div>
               </div>
               <div class="pb-subgroup" data-pbplan="1">
-                <div class="pb-subgroup-title">Plan 2</div>
-                <div class="pb-field"><label>Name</label><input type="text" id="pbPlan1Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Sub (one line per row)</label><textarea id="pbPlan1Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
+                <div class="pb-subgroup-title">方案 2</div>
+                <div class="pb-field"><label>名稱</label><input type="text" id="pbPlan1Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>副標(每行一句)</label><textarea id="pbPlan1Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
                 <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan1Price" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Unit</label><input type="text" id="pbPlan1Unit" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Save note</label><input type="text" id="pbPlan1Save" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Features (one per line)</label><textarea id="pbPlan1Features" oninput="pbOnInput()"></textarea></div>
-                <div class="pb-field"><label>Timeline</label><input type="text" id="pbPlan1Timeline" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>CTA</label><input type="text" id="pbPlan1Cta" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>單位</label><input type="text" id="pbPlan1Unit" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>優惠說明</label><input type="text" id="pbPlan1Save" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>特色(每行一項)</label><textarea id="pbPlan1Features" oninput="pbOnInput()"></textarea></div>
+                <div class="pb-field"><label>時程</label><input type="text" id="pbPlan1Timeline" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>按鈕文字</label><input type="text" id="pbPlan1Cta" oninput="pbOnInput()"></div>
               </div>
               <div class="pb-subgroup" data-pbplan="2">
-                <div class="pb-subgroup-title">Plan 3</div>
-                <div class="pb-field"><label>Name</label><input type="text" id="pbPlan2Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Sub (one line per row)</label><textarea id="pbPlan2Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
+                <div class="pb-subgroup-title">方案 3</div>
+                <div class="pb-field"><label>名稱</label><input type="text" id="pbPlan2Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>副標(每行一句)</label><textarea id="pbPlan2Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
                 <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan2Price" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Unit</label><input type="text" id="pbPlan2Unit" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Save note</label><input type="text" id="pbPlan2Save" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Features (one per line)</label><textarea id="pbPlan2Features" oninput="pbOnInput()"></textarea></div>
-                <div class="pb-field"><label>Timeline</label><input type="text" id="pbPlan2Timeline" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>CTA</label><input type="text" id="pbPlan2Cta" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>單位</label><input type="text" id="pbPlan2Unit" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>優惠說明</label><input type="text" id="pbPlan2Save" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>特色(每行一項)</label><textarea id="pbPlan2Features" oninput="pbOnInput()"></textarea></div>
+                <div class="pb-field"><label>時程</label><input type="text" id="pbPlan2Timeline" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>按鈕文字</label><input type="text" id="pbPlan2Cta" oninput="pbOnInput()"></div>
               </div>
             </div>
 
             <!-- Stats -->
             <div class="pb-field-group" data-pbgroup="stats">
-              <div class="pb-group-title">Stats</div>
+              <div class="pb-group-title">數據</div>
               <div class="pb-subgroup" data-pbstat="0">
-                <div class="pb-subgroup-title">Stat 1</div>
-                <div class="pb-field"><label>Value</label><input type="number" id="pbStat0Value" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Suffix</label><input type="text" id="pbStat0Suffix" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Label</label><input type="text" id="pbStat0Label" oninput="pbOnInput()"></div>
+                <div class="pb-subgroup-title">數據 1</div>
+                <div class="pb-field"><label>數值</label><input type="number" id="pbStat0Value" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>後綴</label><input type="text" id="pbStat0Suffix" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>標籤</label><input type="text" id="pbStat0Label" oninput="pbOnInput()"></div>
               </div>
               <div class="pb-subgroup" data-pbstat="1">
-                <div class="pb-subgroup-title">Stat 2</div>
-                <div class="pb-field"><label>Value</label><input type="number" id="pbStat1Value" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Suffix</label><input type="text" id="pbStat1Suffix" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Label</label><input type="text" id="pbStat1Label" oninput="pbOnInput()"></div>
+                <div class="pb-subgroup-title">數據 2</div>
+                <div class="pb-field"><label>數值</label><input type="number" id="pbStat1Value" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>後綴</label><input type="text" id="pbStat1Suffix" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>標籤</label><input type="text" id="pbStat1Label" oninput="pbOnInput()"></div>
               </div>
               <div class="pb-subgroup" data-pbstat="2">
-                <div class="pb-subgroup-title">Stat 3</div>
+                <div class="pb-subgroup-title">數據 3</div>
                 <div class="pb-field"><label>Value（自動）</label><input type="number" id="pbStat2Value" readonly title="依實際客戶評論數自動計算,無法手動修改" style="background:#f3f3f3;color:#999;cursor:not-allowed;"></div>
                 <div class="pb-field" style="font-size:11px;color:#999;margin:-4px 0 6px;line-height:1.5;">🔒 此數字會依你實際收到的客戶評論自動跳動,無法手動修改。</div>
-                <div class="pb-field"><label>Suffix</label><input type="text" id="pbStat2Suffix" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Label</label><input type="text" id="pbStat2Label" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>後綴</label><input type="text" id="pbStat2Suffix" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>標籤</label><input type="text" id="pbStat2Label" oninput="pbOnInput()"></div>
               </div>
             </div>
 
@@ -1472,15 +1508,15 @@
               <div class="pb-group-title">Specialties / 專長</div>
               <div class="pb-subgroup" data-pbsvc="0">
                 <div class="pb-subgroup-title">Card 1 — Performance</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbSvc0Title" oninput="pbOnInput()" placeholder="服務名稱 / Service name"></div>
-                <div class="pb-field"><label>Description</label><textarea id="pbSvc0Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務 / Describe this service"></textarea></div>
-                <div class="pb-field"><label>Tags (one per line)</label><textarea id="pbSvc0Tags" oninput="pbOnInput()" placeholder="每行一個標籤 / One tag per line"></textarea></div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbSvc0Title" oninput="pbOnInput()" placeholder="服務名稱 / Service name"></div>
+                <div class="pb-field"><label>描述</label><textarea id="pbSvc0Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務 / Describe this service"></textarea></div>
+                <div class="pb-field"><label>標籤(每行一項)</label><textarea id="pbSvc0Tags" oninput="pbOnInput()" placeholder="每行一個標籤 / One tag per line"></textarea></div>
               </div>
               <div class="pb-subgroup" data-pbsvc="1">
                 <div class="pb-subgroup-title">Card 2 — Lessons</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbSvc1Title" oninput="pbOnInput()" placeholder="服務名稱 / Service name"></div>
-                <div class="pb-field"><label>Description</label><textarea id="pbSvc1Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務 / Describe this service"></textarea></div>
-                <div class="pb-field"><label>Tags (one per line)</label><textarea id="pbSvc1Tags" oninput="pbOnInput()" placeholder="每行一個標籤 / One tag per line"></textarea></div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbSvc1Title" oninput="pbOnInput()" placeholder="服務名稱 / Service name"></div>
+                <div class="pb-field"><label>描述</label><textarea id="pbSvc1Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務 / Describe this service"></textarea></div>
+                <div class="pb-field"><label>標籤(每行一項)</label><textarea id="pbSvc1Tags" oninput="pbOnInput()" placeholder="每行一個標籤 / One tag per line"></textarea></div>
               </div>
             </div>
 
@@ -1488,44 +1524,44 @@
             <div class="pb-field-group" data-pbgroup="reviews">
               <div class="pb-group-title">Reviews / 評論</div>
               <div class="pb-subgroup" data-pbreview="0">
-                <div class="pb-subgroup-title">Review 1</div>
-                <div class="pb-field"><label>Initials</label><input type="text" id="pbReview0Initials" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Avatar color</label><input type="color" id="pbReview0Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
-                <div class="pb-field"><label>Name</label><input type="text" id="pbReview0Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Date</label><input type="text" id="pbReview0Date" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Body</label><textarea id="pbReview0Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
+                <div class="pb-subgroup-title">評論 1</div>
+                <div class="pb-field"><label>縮寫</label><input type="text" id="pbReview0Initials" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>頭像顏色</label><input type="color" id="pbReview0Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+                <div class="pb-field"><label>名稱</label><input type="text" id="pbReview0Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>日期</label><input type="text" id="pbReview0Date" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>內容</label><textarea id="pbReview0Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
               </div>
               <div class="pb-subgroup" data-pbreview="1">
-                <div class="pb-subgroup-title">Review 2</div>
-                <div class="pb-field"><label>Initials</label><input type="text" id="pbReview1Initials" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Avatar color</label><input type="color" id="pbReview1Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
-                <div class="pb-field"><label>Name</label><input type="text" id="pbReview1Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Date</label><input type="text" id="pbReview1Date" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Body</label><textarea id="pbReview1Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
+                <div class="pb-subgroup-title">評論 2</div>
+                <div class="pb-field"><label>縮寫</label><input type="text" id="pbReview1Initials" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>頭像顏色</label><input type="color" id="pbReview1Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+                <div class="pb-field"><label>名稱</label><input type="text" id="pbReview1Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>日期</label><input type="text" id="pbReview1Date" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>內容</label><textarea id="pbReview1Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
               </div>
               <div class="pb-subgroup" data-pbreview="2">
-                <div class="pb-subgroup-title">Review 3</div>
-                <div class="pb-field"><label>Initials</label><input type="text" id="pbReview2Initials" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Avatar color</label><input type="color" id="pbReview2Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
-                <div class="pb-field"><label>Name</label><input type="text" id="pbReview2Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Date</label><input type="text" id="pbReview2Date" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Body</label><textarea id="pbReview2Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
+                <div class="pb-subgroup-title">評論 3</div>
+                <div class="pb-field"><label>縮寫</label><input type="text" id="pbReview2Initials" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>頭像顏色</label><input type="color" id="pbReview2Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+                <div class="pb-field"><label>名稱</label><input type="text" id="pbReview2Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>日期</label><input type="text" id="pbReview2Date" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>內容</label><textarea id="pbReview2Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
               </div>
               <div class="pb-subgroup" data-pbreview="3">
-                <div class="pb-subgroup-title">Review 4</div>
-                <div class="pb-field"><label>Initials</label><input type="text" id="pbReview3Initials" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Avatar color</label><input type="color" id="pbReview3Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
-                <div class="pb-field"><label>Name</label><input type="text" id="pbReview3Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Date</label><input type="text" id="pbReview3Date" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Body</label><textarea id="pbReview3Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
+                <div class="pb-subgroup-title">評論 4</div>
+                <div class="pb-field"><label>縮寫</label><input type="text" id="pbReview3Initials" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>頭像顏色</label><input type="color" id="pbReview3Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+                <div class="pb-field"><label>名稱</label><input type="text" id="pbReview3Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>日期</label><input type="text" id="pbReview3Date" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>內容</label><textarea id="pbReview3Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
               </div>
               <div class="pb-subgroup" data-pbreview="4">
-                <div class="pb-subgroup-title">Review 5</div>
-                <div class="pb-field"><label>Initials</label><input type="text" id="pbReview4Initials" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Avatar color</label><input type="color" id="pbReview4Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
-                <div class="pb-field"><label>Name</label><input type="text" id="pbReview4Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Date</label><input type="text" id="pbReview4Date" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Body</label><textarea id="pbReview4Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
+                <div class="pb-subgroup-title">評論 5</div>
+                <div class="pb-field"><label>縮寫</label><input type="text" id="pbReview4Initials" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>頭像顏色</label><input type="color" id="pbReview4Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
+                <div class="pb-field"><label>名稱</label><input type="text" id="pbReview4Name" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>日期</label><input type="text" id="pbReview4Date" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>內容</label><textarea id="pbReview4Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
               </div>
             </div>
 
@@ -1540,33 +1576,33 @@
             <div class="pb-field-group" data-pbgroup="audio">
               <div class="pb-group-title">音檔 / Audio tracks（拖曳 MP3 上傳，或貼網址）</div>
               <div class="pb-subgroup" data-pbaudio="0">
-                <div class="pb-subgroup-title">Track 1</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio0Title" oninput="pbOnInput()"></div>
+                <div class="pb-subgroup-title">曲目 1</div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbAudio0Title" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio0Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
               </div>
               <div class="pb-subgroup" data-pbaudio="1">
-                <div class="pb-subgroup-title">Track 2</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio1Title" oninput="pbOnInput()"></div>
+                <div class="pb-subgroup-title">曲目 2</div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbAudio1Title" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio1Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
               </div>
               <div class="pb-subgroup" data-pbaudio="2">
-                <div class="pb-subgroup-title">Track 3</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio2Title" oninput="pbOnInput()"></div>
+                <div class="pb-subgroup-title">曲目 3</div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbAudio2Title" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio2Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
               </div>
               <div class="pb-subgroup" data-pbaudio="3">
-                <div class="pb-subgroup-title">Track 4</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio3Title" oninput="pbOnInput()"></div>
+                <div class="pb-subgroup-title">曲目 4</div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbAudio3Title" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio3Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
               </div>
               <div class="pb-subgroup" data-pbaudio="4">
-                <div class="pb-subgroup-title">Track 5</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio4Title" oninput="pbOnInput()"></div>
+                <div class="pb-subgroup-title">曲目 5</div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbAudio4Title" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio4Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
               </div>
               <div class="pb-subgroup" data-pbaudio="5">
-                <div class="pb-subgroup-title">Track 6</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbAudio5Title" oninput="pbOnInput()"></div>
+                <div class="pb-subgroup-title">曲目 6</div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbAudio5Title" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>MP3 URL</label><input type="text" id="pbAudio5Url" oninput="pbOnInput()" placeholder="https://....mp3"></div>
               </div>
             </div>
@@ -1575,28 +1611,28 @@
             <div class="pb-field-group" data-pbgroup="videos">
               <div class="pb-group-title">Showreel 影片 (YouTube / Vimeo / .mp4)</div>
               <div class="pb-subgroup" data-pbvideo="0">
-                <div class="pb-subgroup-title">Video 1</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbVideo0Title" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Video URL</label><input type="text" id="pbVideo0Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
-                <div class="pb-field"><label>Poster URL (optional)</label><input type="text" id="pbVideo0Poster" oninput="pbOnInput()" placeholder="https://..."></div>
+                <div class="pb-subgroup-title">影片 1</div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbVideo0Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>影片網址</label><input type="text" id="pbVideo0Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
+                <div class="pb-field"><label>封面圖網址(選填)</label><input type="text" id="pbVideo0Poster" oninput="pbOnInput()" placeholder="https://..."></div>
               </div>
               <div class="pb-subgroup" data-pbvideo="1">
-                <div class="pb-subgroup-title">Video 2</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbVideo1Title" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Video URL</label><input type="text" id="pbVideo1Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
-                <div class="pb-field"><label>Poster URL (optional)</label><input type="text" id="pbVideo1Poster" oninput="pbOnInput()" placeholder="https://..."></div>
+                <div class="pb-subgroup-title">影片 2</div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbVideo1Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>影片網址</label><input type="text" id="pbVideo1Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
+                <div class="pb-field"><label>封面圖網址(選填)</label><input type="text" id="pbVideo1Poster" oninput="pbOnInput()" placeholder="https://..."></div>
               </div>
               <div class="pb-subgroup" data-pbvideo="2">
-                <div class="pb-subgroup-title">Video 3</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbVideo2Title" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Video URL</label><input type="text" id="pbVideo2Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
-                <div class="pb-field"><label>Poster URL (optional)</label><input type="text" id="pbVideo2Poster" oninput="pbOnInput()" placeholder="https://..."></div>
+                <div class="pb-subgroup-title">影片 3</div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbVideo2Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>影片網址</label><input type="text" id="pbVideo2Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
+                <div class="pb-field"><label>封面圖網址(選填)</label><input type="text" id="pbVideo2Poster" oninput="pbOnInput()" placeholder="https://..."></div>
               </div>
               <div class="pb-subgroup" data-pbvideo="3">
-                <div class="pb-subgroup-title">Video 4</div>
-                <div class="pb-field"><label>Title</label><input type="text" id="pbVideo3Title" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>Video URL</label><input type="text" id="pbVideo3Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
-                <div class="pb-field"><label>Poster URL (optional)</label><input type="text" id="pbVideo3Poster" oninput="pbOnInput()" placeholder="https://..."></div>
+                <div class="pb-subgroup-title">影片 4</div>
+                <div class="pb-field"><label>標題</label><input type="text" id="pbVideo3Title" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>影片網址</label><input type="text" id="pbVideo3Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
+                <div class="pb-field"><label>封面圖網址(選填)</label><input type="text" id="pbVideo3Poster" oninput="pbOnInput()" placeholder="https://..."></div>
               </div>
             </div>
 
@@ -1611,7 +1647,7 @@
 
             <!-- Visibility -->
             <div class="pb-field-group" data-pbgroup="visibility">
-              <div class="pb-group-title">Section visibility</div>
+              <div class="pb-group-title">區塊顯示</div>
               <label class="pb-check"><input type="checkbox" id="pbSecLessonPlans" onchange="pbOnInput(event)"> 課程方案 / Lesson plans</label>
               <label class="pb-check"><input type="checkbox" id="pbSecReviews"     onchange="pbOnInput()"> 評論 / Reviews</label>
               <label class="pb-check"><input type="checkbox" id="pbSecStats"       onchange="pbOnInput()"> 數據 / Stats</label>
@@ -1623,6 +1659,7 @@
               <button class="btn btn-outline" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="pbSave()">儲存草稿 / Save draft</button>
               <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="pbPublish()">發布我的頁面 / Publish</button>
               <button id="pbUnpublishBtn" onclick="pbUnpublish()" style="width:100%;justify-content:center;margin-top:8px;background:none;border:none;color:#c0392b;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:6px;">下架我的頁面 / Unpublish</button>
+              <button id="pbResetAllBtn" onclick="pbResetAll()" style="width:100%;justify-content:center;margin-top:4px;background:none;border:1px solid var(--border);border-radius:8px;color:#888;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:8px;">↺ 恢復空白模板 / Reset to template</button>
               <div id="pbPublicUrlLine" style="margin-top:12px;font-size:12px;color:var(--text-muted);word-break:break-all;">
                 公開頁面網址 / Public URL：<span id="pbPublicUrl">登入後顯示 / shown after login</span>
               </div>
@@ -1670,6 +1707,7 @@
       return;
     }
     _currentUser = user;
+    window._tourUid = user.uid;   // per-user key for the onboarding tour
 
     // Load profile from Firestore
     try {
@@ -1677,9 +1715,16 @@
       _currentProfile = snap.exists() ? snap.data() : {};
       const name = _currentProfile.name || user.email.split('@')[0];
 
+      // Bridge to the shared localStorage login flag so the community page
+      // (and front-end nav) recognise this logged-in musician.
+      try {
+        localStorage.setItem('opusz_user', name);
+        localStorage.setItem('opusz_user_email', user.email);
+      } catch(e){}
+
       // Greeting
       const hour = new Date().getHours();
-      const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+      const greeting = hour < 12 ? '早安' : hour < 18 ? '午安' : '晚安';
       const el = document.getElementById('welcomeMsg');
       if (el) el.textContent = greeting + ', ' + name + ' 👋';
 
@@ -1800,6 +1845,7 @@
 
   // ── Logout ──
   window.doLogout = async function() {
+    try { localStorage.removeItem('opusz_user'); localStorage.removeItem('opusz_user_email'); } catch(e){}
     await signOut(auth);
     window.location.href = 'musician-login.html';
   }
@@ -2435,9 +2481,39 @@
     // Push current config to the iframe once it's ready (it may still be loading)
     pbPushPreview();
     const frame = document.getElementById('pbPreview');
-    if(frame){ frame.addEventListener('load', function(){ pbPushPreview(); }); }
+    if(frame){
+      frame.addEventListener('load', function(){ pbLockPreviewNav(frame); pbPushPreview(); });
+      pbLockPreviewNav(frame);
+    }
     pbUpdatePublicUrl();
     pbAttachAllUploaders();
+  }
+
+  // Keep the page-builder preview locked to the musician's OWN profile.
+  // The preview is a live same-origin iframe, so clicking the shared nav (logo / Home /
+  // other pages) would otherwise navigate it away to musician-platform.html etc. A musician
+  // may only edit their own profile here, so we (1) snap back if it ever leaves
+  // musician-profile.html and (2) swallow clicks on links that would navigate elsewhere.
+  function pbLockPreviewNav(frame){
+    try{
+      var win = frame.contentWindow, doc = frame.contentDocument;
+      if(win && win.location && win.location.pathname &&
+         win.location.pathname.indexOf('musician-profile.html') === -1){
+        frame.src = 'musician-profile.html?edit=1';   // navigated away → restore own profile
+        return;
+      }
+      if(doc && !doc.__pbNavLocked){
+        doc.__pbNavLocked = true;
+        doc.addEventListener('click', function(e){
+          var a = e.target && e.target.closest ? e.target.closest('a') : null;
+          if(!a) return;
+          var href = a.getAttribute('href') || '';
+          if(href && href.charAt(0) !== '#'){   // block anything that loads another page
+            e.preventDefault(); e.stopPropagation();
+          }
+        }, true);
+      }
+    }catch(err){ /* iframe not ready / cross-origin — ignore */ }
   }
 
   // Populate the public-URL line / view link from the logged-in uid.
@@ -2513,8 +2589,8 @@
     row.className = 'pb-dyn-row';
     row.innerHTML =
       '<div class="pb-dyn-fields">'
-        + '<div><label>Title</label><input type="text" class="pbHlTitle" value="'+pbEsc(data.title)+'"></div>'
-        + '<div style="max-width:90px;flex:0 0 90px;"><label>Year</label><input type="text" class="pbHlYear" value="'+pbEsc(data.year)+'"></div>'
+        + '<div><label>標題</label><input type="text" class="pbHlTitle" value="'+pbEsc(data.title)+'"></div>'
+        + '<div style="max-width:90px;flex:0 0 90px;"><label>年份</label><input type="text" class="pbHlYear" value="'+pbEsc(data.year)+'"></div>'
         + '<div style="flex:1 1 100%;"><label>圖片網址 / Image URL</label><input type="text" class="pbHlImage" id="'+imgId+'" value="'+pbEsc(data.imageUrl)+'" placeholder="https://..."></div>'
       + '</div>'
       + '<button type="button" class="pb-row-del" title="Remove">✕</button>';
@@ -3065,6 +3141,28 @@
     pbPushPreview();
   };
 
+  // ── Reset the WHOLE page back to the blank template (factory defaults) ──
+  // Clears all photos, text and settings in the editor + preview. Nothing is
+  // persisted until the musician clicks 儲存草稿 / 發布 — so navigating away
+  // without saving leaves their published page untouched (reversible).
+  window.pbResetAll = function(){
+    if(!confirm('確定要把整個頁面恢復成空白模板嗎？\n所有照片、卡片照片、文字與設定都會清除。\n（按「儲存草稿」或「發布」後才會真正套用，可先離開取消）\n\nReset the whole page to the blank template? All photos, text and settings will be cleared.')) return;
+    pbConfig = pbDeepDefaults({});      // blank template = PB_DEFAULTS normalized
+    pbInited = true;
+    pbPopulateForm();                   // write the blanks into every form field
+    pbReadForm();                       // rebuild pbConfig + re-apply the tier gate
+    pbPushPreview();                    // refresh the center live preview
+    pbRenderCardPreview();              // refresh the card thumbnail preview
+    // Clear the little upload thumbnails next to each image field (they keep the
+    // last-uploaded image until manually refreshed).
+    document.querySelectorAll('input[data-pb-uploader]').forEach(function(inp){
+      var wrap = inp.nextSibling;
+      var thumb = wrap && wrap.querySelector ? wrap.querySelector('img') : null;
+      if(thumb){ thumb.removeAttribute('src'); thumb.style.display = 'none'; }
+    });
+    showNotif('已恢復空白模板 ✓ 記得按「儲存草稿」或「發布」套用');
+  };
+
   window.pbSetDevice = function(mode, btn){
     document.querySelectorAll('.pb-dev-btn').forEach(b=>b.classList.remove('active'));
     if(btn) btn.classList.add('active');
@@ -3338,6 +3436,147 @@
   // Init
   renderInbox();
   window.addEventListener('focus', renderInbox);
+</script>
+
+<!-- ── Onboarding tour ── -->
+<div class="tour-welcome" id="tourWelcome">
+  <div class="tw-card">
+    <div class="tw-emoji">👋</div>
+    <h2 class="tw-title">歡迎來到 OPUS.Z 樂手後台</h2>
+    <p class="tw-text">這裡是你經營音樂事業的基地 —— 編輯你的公開主頁、接演出與課程邀約、管理收入。<br>花 1 分鐘快速看一下各功能吧！</p>
+    <div class="tw-actions">
+      <button class="tw-start" onclick="startTour()">開始導覽 →</button>
+      <button class="tw-skip" onclick="endTour()">略過</button>
+    </div>
+  </div>
+</div>
+
+<div class="tour-overlay" id="tourOverlay">
+  <div class="tour-spot" id="tourSpot"></div>
+  <div class="tour-pop" id="tourPop">
+    <button class="tour-skip" onclick="endTour()">略過</button>
+    <div class="tour-step" id="tourStepLabel"></div>
+    <h3 class="tour-title" id="tourTitle"></h3>
+    <p class="tour-body" id="tourBody"></p>
+    <div class="tour-foot">
+      <div class="tour-dots" id="tourDots"></div>
+      <button class="tour-btn tour-back" id="tourBack" onclick="tourPrev()">上一步</button>
+      <button class="tour-btn tour-next" id="tourNext" onclick="tourNext()">下一步</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  // Each step highlights a sidebar item (by data-page) or the help button.
+  var STEPS = [
+    { sel:'[data-page="overview"]',    page:'overview',   title:'總覽 Overview',
+      body:'登入後的首頁。一眼看到最新的工作邀約、訊息、收入與待辦，掌握整體狀況。' },
+    { sel:'[data-page="pagebuilder"]', page:'pagebuilder', title:'編輯主頁 / Edit Page（最重要）',
+      body:'這是你的公開門面。左邊選區塊、中間即時預覽、右邊修改內容（Hero 照片、自我介紹、課程方案、合作品牌…），改完按「發佈」就上線給所有人看。' },
+    { sel:'[data-page="membership"]',  page:'membership',  title:'方案 / Membership',
+      body:'查看你的會員等級。升級 Premium（或輸入邀請碼）可開放「教學課程」、公開招收學生，並在老師列表中曝光更前面。' },
+    { sel:'[data-page="profile"]',     page:'profile',     title:'我的資料 / My Profile',
+      body:'設定顯示名稱、聯絡方式、樂器與地區。這些是帳號層級的基本資料，也會影響你在「社群」與平台上被找到的方式。' },
+    { sel:'[data-page="jobs"]',        page:'jobs',        title:'工作與詢問 / Jobs & Inquiries',
+      body:'客戶的演出邀約與課程詢問都會進到這裡，你可以查看、回覆與接案。' },
+    { sel:'[data-page="earnings"]',    page:'earnings',    title:'收入 / Earnings',
+      body:'追蹤你的接案收入與撥款紀錄。（這部分還在持續完善中。）' },
+    { sel:'#tourHelpBtn',              page:null,          title:'隨時再看一次',
+      body:'導覽結束！之後想重看，點右上角這顆「?」按鈕就會再跑一次。開始打造你的主頁吧 🎻' }
+  ];
+
+  var idx = 0, active = false;
+  var overlay = document.getElementById('tourOverlay');
+  var welcome = document.getElementById('tourWelcome');
+  var spot = document.getElementById('tourSpot');
+  var pop  = document.getElementById('tourPop');
+
+  function lsKey(){ try{ return 'opusz-tour-done-' + ((window._tourUid)||'anon'); }catch(e){ return 'opusz-tour-done'; } }
+
+  function place(){
+    var step = STEPS[idx];
+    var el = document.querySelector(step.sel);
+    if(!el){ // target missing → center the popover, no spotlight
+      spot.style.display = 'none';
+      pop.style.top = '50%'; pop.style.left = '50%'; pop.style.transform = 'translate(-50%,-50%)';
+      return;
+    }
+    spot.style.display = 'block';
+    var r = el.getBoundingClientRect();
+    var pad = 8;
+    spot.style.top    = (r.top - pad) + 'px';
+    spot.style.left   = (r.left - pad) + 'px';
+    spot.style.width  = (r.width + pad*2) + 'px';
+    spot.style.height = (r.height + pad*2) + 'px';
+    pop.style.transform = 'none';
+    // Sidebar targets → popover to the right; topbar (help) → below-left
+    var vw = window.innerWidth, vh = window.innerHeight, popW = 320, popH = pop.offsetHeight || 200;
+    var left, top;
+    if(step.sel === '#tourHelpBtn'){
+      left = Math.min(r.right - popW, vw - popW - 16);
+      top  = r.bottom + 12;
+    } else {
+      left = r.right + 16;
+      top  = Math.max(16, Math.min(r.top, vh - popH - 16));
+      if(left + popW > vw - 16) left = r.left - popW - 16; // flip if no room
+    }
+    pop.style.left = Math.max(16, left) + 'px';
+    pop.style.top  = top + 'px';
+  }
+
+  function render(){
+    var step = STEPS[idx];
+    if(step.page && typeof window.navigate === 'function'){
+      var btn = document.querySelector('[data-page="' + step.page + '"]');
+      try{ window.navigate(step.page, btn); }catch(e){}
+    }
+    document.getElementById('tourStepLabel').textContent = 'Step ' + (idx+1) + ' / ' + STEPS.length;
+    document.getElementById('tourTitle').textContent = step.title;
+    document.getElementById('tourBody').textContent = step.body;
+    document.getElementById('tourBack').style.visibility = idx === 0 ? 'hidden' : 'visible';
+    document.getElementById('tourNext').textContent = idx === STEPS.length-1 ? '完成 ✓' : '下一步';
+    var dots = document.getElementById('tourDots');
+    dots.innerHTML = '';
+    STEPS.forEach(function(_, i){
+      var d = document.createElement('div'); d.className = 'tour-dot' + (i===idx?' on':''); dots.appendChild(d);
+    });
+    // position now, then again after navigate()'s layout settles
+    place();
+    setTimeout(place, 70);
+  }
+
+  window.startTour = function(){
+    welcome.classList.remove('show');
+    idx = 0; active = true;
+    overlay.classList.add('show');
+    render();
+  };
+  window.tourNext = function(){
+    if(idx >= STEPS.length-1){ endTour(); return; }
+    idx++; render();
+  };
+  window.tourPrev = function(){ if(idx>0){ idx--; render(); } };
+  window.endTour = function(){
+    active = false;
+    overlay.classList.remove('show');
+    welcome.classList.remove('show');
+    try{ localStorage.setItem(lsKey(), '1'); }catch(e){}
+  };
+
+  // Reposition on resize/scroll while active
+  window.addEventListener('resize', function(){ if(active) place(); });
+  window.addEventListener('scroll', function(){ if(active) place(); }, true);
+
+  // Auto-show the welcome modal on first visit (once per user).
+  function maybeAutoStart(){
+    var done = '1';
+    try{ done = localStorage.getItem(lsKey()); }catch(e){}
+    if(!done){ welcome.classList.add('show'); }
+  }
+  // Give auth a moment to set the uid, then decide.
+  setTimeout(maybeAutoStart, 1200);
+})();
 </script>
 </body>
 </html>

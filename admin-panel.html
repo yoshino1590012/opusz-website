@@ -311,7 +311,7 @@
       </button>
       <button class="sb-item" data-page="siteeditor" onclick="navigate('siteeditor',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        ç¶²ç«ç·¨è¼¯ / Site Editor
+        網站編輯 / Site Editor
       </button>
     </div>
 
@@ -663,37 +663,46 @@
         </div>
       </div>
 
-      <!-- ââââââââ SITE EDITOR ââââââââ -->
+      <!-- ════════ SITE EDITOR ════════ -->
       <div class="page" id="page-siteeditor">
         <style>
           .se-dev-btn{ padding:6px 12px;border:1px solid #ddd;background:#fff;border-radius:8px;font-size:12px;cursor:pointer;color:#555; }
           .se-dev-btn.active{ background:#111;color:#fff;border-color:#111; }
         </style>
         <div class="page-header" style="margin-bottom:12px;">
-          <h1>ç¶²ç«ç·¨è¼¯ / Site Editor</h1>
-          <p>ç·¨è¼¯å¬éç¶²ç«å§å®¹ï¼æå­/åç/é£çµï¼ãç®åï¼é¦é  Heroãå²å­å¾å³ç¼å¸ã</p>
+          <h1>網站編輯 / Site Editor</h1>
+          <p>編輯公開網站內容（文字/圖片/連結）。目前：首頁 Hero。儲存後即發布。</p>
         </div>
         <div style="display:flex;gap:18px;align-items:flex-start;">
-          <div style="width:140px;flex-shrink:0;">
-            <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:8px;">é é¢ / Pages</div>
-            <button style="display:block;width:100%;text-align:left;padding:8px 10px;border:1px solid #111;background:#111;color:#fff;border-radius:8px;font-size:13px;cursor:pointer;">é¦é  / Home</button>
-            <div style="font-size:11px;color:#bbb;margin-top:8px;line-height:1.5;">å¶ä»åé å°é¸çºå å¥</div>
+          <div style="width:172px;flex-shrink:0;">
+            <style>
+              .se-sec-btn{ display:block;width:100%;text-align:left;padding:8px 10px;margin-bottom:4px;border:1px solid #e5e5e5;background:#fff;color:#333;border-radius:8px;font-size:12.5px;cursor:pointer;transition:all .12s; }
+              .se-sec-btn:hover{ border-color:#bbb;background:#fafafa; }
+              .se-sec-btn.active{ background:#111;color:#fff;border-color:#111; }
+            </style>
+            <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:8px;">頁面 / Pages</div>
+            <button class="se-sec-btn active" style="cursor:default;">首頁 / Home</button>
+            <div style="font-size:11px;color:#bbb;margin:6px 0 14px;line-height:1.5;">其他分頁將陸續加入</div>
+            <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:8px;">區段 / Sections</div>
+            <div id="seSectionList"></div>
           </div>
           <div style="flex:1;min-width:0;">
             <div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px;flex-wrap:wrap;">
-              <button class="se-dev-btn active" data-dev="desktop" onclick="seSetDevice('desktop',this)">æ¨æºé¡¯ç¤ºè¢å¹</button>
-              <button class="se-dev-btn" data-dev="macbook" onclick="seSetDevice('macbook',this)">MacBook é¡¯ç¤ºå¨</button>
-              <button class="se-dev-btn" data-dev="ipad" onclick="seSetDevice('ipad',this)">iPad é¡¯ç¤ºå¨</button>
-              <button class="se-dev-btn" data-dev="phone" onclick="seSetDevice('phone',this)">ææ©</button>
+              <button class="se-dev-btn active" data-dev="desktop" onclick="seSetDevice('desktop',this)">標準顯示螢幕</button>
+              <button class="se-dev-btn" data-dev="macbook" onclick="seSetDevice('macbook',this)">MacBook 顯示器</button>
+              <button class="se-dev-btn" data-dev="ipad" onclick="seSetDevice('ipad',this)">iPad 顯示器</button>
+              <button class="se-dev-btn" data-dev="phone" onclick="seSetDevice('phone',this)">手機</button>
             </div>
-            <div style="background:#f0f0f0;border-radius:12px;padding:12px;overflow:auto;display:flex;justify-content:center;">
-              <iframe id="seFrame" style="width:1536px;max-width:100%;height:68vh;border:none;border-radius:8px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.1);"></iframe>
+            <div id="seStage" style="background:#f0f0f0;border-radius:12px;padding:12px;height:72vh;overflow:auto;display:flex;justify-content:center;align-items:flex-start;">
+              <div id="seFrameWrap" style="flex:none;overflow:hidden;border-radius:8px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.1);">
+                <iframe id="seFrame" style="width:1536px;height:864px;border:none;background:#fff;transform-origin:top left;display:block;"></iframe>
+              </div>
             </div>
           </div>
           <div style="width:300px;flex-shrink:0;">
-            <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:10px;">Hero â æå­ / Text</div>
+            <div id="seSectionTitle" style="font-size:12px;font-weight:800;color:#111;margin-bottom:10px;">主視覺 / Hero</div>
             <div id="seControls"></div>
-            <button onclick="seSave()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#111;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">å²å­ä¸¦ç¼å¸ / Save</button>
+            <button onclick="seSave()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#111;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">儲存並發布 / Save</button>
             <div id="seSaveMsg" style="font-size:12px;margin-top:8px;text-align:center;"></div>
           </div>
         </div>
@@ -852,46 +861,95 @@
   loadMusicians();
 
   // ── Site Editor (Phase 1: homepage hero text) ─────────────────────────────
+  // Every field carries a `section` = which homepage block it belongs to (matches
+  // the data-cms-section="..." tags on musician-platform.html). `sec` is an optional
+  // sub-group header shown inside that section's panel.
   var SE_FIELDS = [
-    {sec:'服務項目 / Services', k:'svc.name.0', label:'服務 1', en:'Live Performance', zh:'現場演出'},
-    {k:'svc.name.1', label:'服務 2', en:'Session Work', zh:'錄音工作'},
-    {k:'svc.name.2', label:'服務 3', en:'Music Lesson', zh:'音樂課程'},
-    {k:'svc.name.3', label:'服務 4', en:'Corporate Event', zh:'企業活動'},
-    {k:'svc.name.4', label:'服務 5', en:'Artist Branding', zh:'藝人品牌'},
-    {sec:'按鈕 / Buttons', k:'hero.findArtists', label:'尋找音樂家鈕', en:'Find Artists', zh:'尋找音樂家'},
-    {k:'hero.createProject', label:'建立專案鈕', en:'Create a Project', zh:'建立專案'},
-    {sec:'輪播標語 / Phrases（雙語同時顯示）', k:'hero.phrase0', zhk:'hero.phrase0.zh', both:true, label:'標語 1', en:'Find your perfect musician.', zh:'找到你完美的音樂家。'},
-    {k:'hero.phrase1', zhk:'hero.phrase1.zh', both:true, label:'標語 2', en:'You came to the right place.', zh:'你來對地方了。'},
-    {k:'hero.phrase2', zhk:'hero.phrase2.zh', both:true, label:'標語 3', en:"Taiwan's top musicians, on demand.", zh:'台灣頂尖音樂家，隨時為你。'},
-    {sec:'其他區段 / More sections', k:'svc.label', label:'服務區標籤', en:'(Services)', zh:'（服務項目）'},
-    {k:'svc.btn', label:'服務區按鈕', en:'Get Started', zh:'開始合作'},
-    {k:'blog.label', label:'部落格標籤', en:'(Blog)', zh:'（部落格）'},
-    {k:'blog.seeall', label:'部落格「查看全部」', en:'See all', zh:'查看全部'},
-    {k:'about.card1.label', label:'About 卡片 1 標籤', en:'(Our musicians)', zh:'（我們的音樂家）'},
-    {k:'about.card2.label', label:'About 卡片 2 標籤', en:'(Instant matching)', zh:'（即時配對）'},
+    // ── Hero 主視覺 (#home) ──
+    {section:'hero', sec:'輪播標語 / Phrases（雙語同時顯示）', k:'hero.phrase0', zhk:'hero.phrase0.zh', both:true, label:'標語 1', en:'Find your perfect musician.', zh:'找到你完美的音樂家。'},
+    {section:'hero', k:'hero.phrase1', zhk:'hero.phrase1.zh', both:true, label:'標語 2', en:'You came to the right place.', zh:'你來對地方了。'},
+    {section:'hero', k:'hero.phrase2', zhk:'hero.phrase2.zh', both:true, label:'標語 3', en:"Taiwan's top musicians, on demand.", zh:'台灣頂尖音樂家，隨時為你。'},
+    {section:'hero', sec:'按鈕 / Buttons', k:'hero.findArtists', label:'尋找音樂家鈕', en:'Find Artists', zh:'尋找音樂家'},
+    {section:'hero', k:'hero.createProject', label:'建立專案鈕', en:'Create a Project', zh:'建立專案'},
 
-    // ── Media (direct data-cms channel; stored under cfg.cms[key], NOT i18n) ──
-    {sec:'作品圖片 / Work images（可上傳）', type:'image', k:'home.work.1', label:'作品卡 1'},
-    {type:'image', k:'home.work.2', label:'作品卡 2'},
-    {type:'image', k:'home.work.3', label:'作品卡 3'},
-    {sec:'Showreel 影片 / Videos（可上傳 .mp4）', type:'video', k:'home.showreel.1', label:'影片 1'},
-    {type:'video', k:'home.showreel.2', label:'影片 2'},
-    {type:'video', k:'home.showreel.3', label:'影片 3'},
-    {type:'video', k:'home.showreel.4', label:'影片 4（中央）'},
-    {type:'video', k:'home.showreel.5', label:'影片 5'},
-    {type:'video', k:'home.showreel.6', label:'影片 6'},
-    {type:'video', k:'home.showreel.7', label:'影片 7'}
+    // ── 服務 Services (#services) ──
+    {section:'services', sec:'服務名稱 / Service names', k:'svc.name.0', label:'服務 1', en:'Live Performance', zh:'現場演出'},
+    {section:'services', k:'svc.name.1', label:'服務 2', en:'Session Work', zh:'錄音工作'},
+    {section:'services', k:'svc.name.2', label:'服務 3', en:'Music Lesson', zh:'音樂課程'},
+    {section:'services', k:'svc.name.3', label:'服務 4', en:'Corporate Event', zh:'企業活動'},
+    {section:'services', k:'svc.name.4', label:'服務 5', en:'Artist Branding', zh:'藝人品牌'},
+    {section:'services', sec:'其他 / Other', k:'svc.label', label:'服務區標籤', en:'(Services)', zh:'（服務項目）'},
+    {section:'services', k:'svc.btn', label:'服務區按鈕', en:'Get Started', zh:'開始合作'},
+
+    // ── 作品/海報 Work (#artists) ──
+    {section:'work', sec:'作品圖片 / Work images（可上傳）', type:'image', k:'home.work.1', label:'作品卡 1'},
+    {section:'work', type:'image', k:'home.work.2', label:'作品卡 2'},
+    {section:'work', type:'image', k:'home.work.3', label:'作品卡 3'},
+
+    // ── Showreel 影片 (#showreel-grid) ──
+    {section:'showreel', sec:'Showreel 影片 / Videos（可上傳 .mp4）', type:'video', k:'home.showreel.1', label:'影片 1'},
+    {section:'showreel', type:'video', k:'home.showreel.2', label:'影片 2'},
+    {section:'showreel', type:'video', k:'home.showreel.3', label:'影片 3'},
+    {section:'showreel', type:'video', k:'home.showreel.4', label:'影片 4（中央）'},
+    {section:'showreel', type:'video', k:'home.showreel.5', label:'影片 5'},
+    {section:'showreel', type:'video', k:'home.showreel.6', label:'影片 6'},
+    {section:'showreel', type:'video', k:'home.showreel.7', label:'影片 7'},
+
+    // ── 關於 About (#about) ──
+    {section:'about', k:'about.card1.label', label:'About 卡片 1 標籤', en:'(Our musicians)', zh:'（我們的音樂家）'},
+    {section:'about', k:'about.card2.label', label:'About 卡片 2 標籤', en:'(Instant matching)', zh:'（即時配對）'},
+
+    // ── 部落格 Blog (#blog) ──
+    {section:'blog', k:'blog.label', label:'部落格標籤', en:'(Blog)', zh:'（部落格）'},
+    {section:'blog', k:'blog.seeall', label:'部落格「查看全部」', en:'See all', zh:'查看全部'}
   ];
-  var SE_DEVICES = { desktop:{w:1536}, macbook:{w:1280}, ipad:{w:820}, phone:{w:390} };
+  // Left-column section list (order matches the page top→bottom). `sel` is informational.
+  var SE_SECTIONS = [
+    {key:'hero',     label:'主視覺 / Hero'},
+    {key:'discover', label:'分類 / Categories'},
+    {key:'work',     label:'作品・海報 / Work'},
+    {key:'showreel', label:'Showreel 影片'},
+    {key:'services', label:'服務 / Services'},
+    {key:'about',    label:'關於 / About'},
+    {key:'blog',     label:'部落格 / Blog'}
+  ];
+  var seCurrentSection = 'hero';
+  // Each device = a REAL viewport size. The iframe renders at that true size (so the
+  // page picks the correct responsive layout — exactly like opening it at that width),
+  // then we scale it DOWN with transform to fit the preview column (Shopify-style).
+  var SE_DEVICES = { desktop:{w:1536,h:864}, macbook:{w:1280,h:800}, ipad:{w:820,h:1180}, phone:{w:390,h:844} };
+  var seCurrentDevice = 'desktop';
   var seCurrentConfig = { i18n:{en:{},zh:{}} };
   function seSlug(k){ return k.replace(/\W/g,'_'); }
 
   window.seSetDevice = function(name, btn){
     var d = SE_DEVICES[name]; if(!d) return;
+    seCurrentDevice = name;
+    var devW = d.w, devH = d.h;
+    if(name==='desktop'){
+      // "標準顯示螢幕" = the user's ACTUAL monitor, so the preview equals exactly
+      // what they see when they open the site on this desktop.
+      devW = Math.max(1280, window.screen.availWidth || window.screen.width || 1536);
+      devH = Math.max(720, window.screen.availHeight || Math.round(devW * 0.5625));
+    }
     var ifr = document.getElementById('seFrame');
-    if(ifr){ ifr.style.width = d.w + 'px'; ifr.style.maxWidth = '100%'; }
+    var wrap = document.getElementById('seFrameWrap');
+    var stage = document.getElementById('seStage');
+    if(ifr && wrap && stage){
+      // available width inside the grey stage (minus its 12px padding each side)
+      var avail = Math.max(200, stage.clientWidth - 24);
+      var scale = Math.min(1, avail / devW);   // never enlarge past 100%
+      ifr.style.width  = devW + 'px';
+      ifr.style.height = devH + 'px';
+      ifr.style.transform = 'scale(' + scale + ')';
+      // wrapper takes the SCALED size so the layout reserves the right space
+      wrap.style.width  = Math.round(devW * scale) + 'px';
+      wrap.style.height = Math.round(devH * scale) + 'px';
+    }
     document.querySelectorAll('.se-dev-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dev')===name); });
   };
+  // Re-fit the current device when the admin window resizes.
+  window.addEventListener('resize', function(){ if(document.getElementById('page-siteeditor') && document.getElementById('page-siteeditor').classList.contains('active')) seSetDevice(seCurrentDevice); });
   function seReadInputs(){
     var cfg = { i18n:{ en:{}, zh:{} }, cms:{} };
     SE_FIELDS.forEach(function(ff){
@@ -921,12 +979,42 @@
   }
   var seTimer=null;
   window.seOnInput = function(){ clearTimeout(seTimer); seTimer=setTimeout(sePreview, 250); };
+  // Render the left section list.
+  window.seBuildSectionList = function(){
+    var box=document.getElementById('seSectionList'); if(!box) return;
+    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+    box.innerHTML = SE_SECTIONS.map(function(sc){
+      var active = sc.key===seCurrentSection ? ' active' : '';
+      return '<button class="se-sec-btn'+active+'" data-sec="'+sc.key+'" onclick="seSelectSection(\''+sc.key+'\')">'+esc(sc.label)+'</button>';
+    }).join('');
+  };
+
+  // Select a section: update list + right-panel fields + highlight it in the preview.
+  window.seSelectSection = function(key){
+    seCurrentSection = key;
+    document.querySelectorAll('#seSectionList .se-sec-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-sec')===key); });
+    var sc = SE_SECTIONS.filter(function(s){return s.key===key;})[0];
+    var title=document.getElementById('seSectionTitle'); if(title&&sc) title.textContent=sc.label;
+    seBuildControls();
+    seHighlight(key);
+  };
+
+  // Ask the preview iframe to draw a blue box around the section.
+  function seHighlight(key){
+    var ifr=document.getElementById('seFrame');
+    if(ifr&&ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszCmsHighlight:true, key:key}, '*'); }catch(e){} }
+  }
   window.seBuildControls = function(){
     var box=document.getElementById('seControls'); if(!box) return;
     var cur=seCurrentConfig.i18n||{en:{},zh:{}};
     var curCms=seCurrentConfig.cms||{};
     function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
-    box.innerHTML = SE_FIELDS.map(function(ff){
+    var fields = SE_FIELDS.filter(function(ff){ return ff.section===seCurrentSection; });
+    if(!fields.length){
+      box.innerHTML = '<div style="font-size:12px;color:#999;line-height:1.6;padding:8px 0;">此區段目前沒有可編輯欄位（之後會陸續加入）。<br>你仍可在左側點它、在中間預覽看到它被框選。</div>';
+      return;
+    }
+    box.innerHTML = fields.map(function(ff){
       var id=seSlug(ff.k);
       var head=ff.sec?'<div style="font-size:11px;font-weight:800;color:#111;margin:14px 0 8px;border-top:1px solid #eee;padding-top:12px;">'+esc(ff.sec)+'</div>':'';
 
@@ -1023,10 +1111,21 @@
       try{ seCurrentConfig=JSON.parse(localStorage.getItem('opusz_site_home')||'null')||{i18n:{en:{},zh:{}}}; }catch(_){ seCurrentConfig={i18n:{en:{},zh:{}}}; }
     }
     if(!seCurrentConfig.i18n) seCurrentConfig.i18n={en:{},zh:{}};
+    seBuildSectionList();
     seBuildControls();
     var ifr=document.getElementById('seFrame');
-    if(ifr){ ifr.onload=function(){ setTimeout(sePreview, 500); }; if(!ifr.getAttribute('src')) ifr.src='musician-platform.html'; }
+    if(ifr){
+      ifr.onload=function(){ setTimeout(function(){ sePreview(); seHighlight(seCurrentSection); }, 500); };
+      if(!ifr.getAttribute('src')) ifr.src='musician-platform.html?cmsedit=1';
+    }
     seSetDevice('desktop');
+    // Preview → editor: clicking a section in the iframe selects it here (once).
+    if(!window.__seMsgWired){
+      window.__seMsgWired = true;
+      window.addEventListener('message', function(e){
+        if(e && e.data && e.data.__opuszCmsSelect && e.data.key){ seSelectSection(e.data.key); }
+      });
+    }
   };
 
 
@@ -1067,7 +1166,7 @@
   }
 
   // ── Page titles ──
-  const TITLES = { overview:'Dashboard', musicians:'Musician Management', customers:'Customer Management', review:'Review Queue', jobs:'Jobs Overview', finance:'Finance', announce:'Announcements', support:'Support Inbox', siteeditor:'ç¶²ç«ç·¨è¼¯ / Site Editor' };
+  const TITLES = { overview:'Dashboard', musicians:'Musician Management', customers:'Customer Management', review:'Review Queue', jobs:'Jobs Overview', finance:'Finance', announce:'Announcements', support:'Support Inbox', siteeditor:'網站編輯 / Site Editor' };
 
   window.navigate = function(id, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));

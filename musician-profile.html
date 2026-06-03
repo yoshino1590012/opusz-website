@@ -1835,7 +1835,6 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
         <ul class="about-creds">
           <li class="about-cred-item pf-placeholder">Add your credentials — orchestras, awards, education</li>
         </ul>
-        <button class="about-enq-btn" onclick="openEnquiry()">Send Enquiry</button>
       </div>
 
       <!-- Right: MP3 player (swapped into the right column) -->
@@ -3938,15 +3937,9 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
 
 </textarea>
         </div>
-        <div class="enq-row">
-          <div class="enq-field">
-            <label class="enq-label" data-i18n="enq.name">Your name</label>
-            <input class="enq-input" type="text" name="client-name" placeholder="Your name" required />
-          </div>
-          <div class="enq-field">
-            <label class="enq-label" data-i18n="enq.email">Email</label>
-            <input class="enq-input" type="email" name="client-email" placeholder="you@example.com" required />
-          </div>
+        <div class="enq-field">
+          <label class="enq-label" data-i18n="enq.name">Your name</label>
+          <input class="enq-input" type="text" name="client-name" placeholder="Your name" required />
         </div>
         <button type="submit" class="enq-submit" data-i18n="enq.send">SEND ENQUIRY</button>
       </form>
@@ -5084,18 +5077,39 @@ window.addEventListener('pageshow', function(e) {
       // Showreel big-video label (uppercased) — keep in sync if present
       var bigvidLabel = document.getElementById('bigvidLabelName');
       if(bigvidLabel) bigvidLabel.textContent = String(hero.name).toUpperCase();
+    } else {
+      // empty → restore the blank-template placeholder ("NAME")
+      var heroNameBigR = document.getElementById('heroNameBig');
+      if(heroNameBigR){
+        var origR = heroNameBigR.querySelector('.hn-orig');
+        var nwR   = heroNameBigR.querySelector('.hn-new');
+        if(origR) origR.textContent = 'NAME';
+        if(nwR)   nwR.textContent   = 'NAME';
+      }
+      var heroNameLeftR = document.getElementById('heroNameLeft');
+      if(heroNameLeftR) heroNameLeftR.textContent = 'NAME';
+      var bigvidLabelR = document.getElementById('bigvidLabelName');
+      if(bigvidLabelR) bigvidLabelR.textContent = 'NAME';
     }
 
     // Title / instrument label
     if(has(hero.title)){
       var infoTitle = document.querySelector('.info-title');
       if(infoTitle) infoTitle.textContent = hero.title;
+    } else {
+      // empty → restore the blank-template placeholder
+      var infoTitleR = document.querySelector('.info-title');
+      if(infoTitleR) infoTitleR.textContent = 'YOUR TITLE';
     }
 
     // Location
     if(has(hero.location)){
       var infoLoc = document.querySelector('.info-location');
       if(infoLoc) infoLoc.textContent = hero.location;
+    } else {
+      // empty → restore the blank-template placeholder
+      var infoLocR = document.querySelector('.info-location');
+      if(infoLocR) infoLocR.textContent = 'Your City, Country';
     }
 
     // Reviews / Saves — the .info-rating block has two .reviews spans.
@@ -5123,6 +5137,7 @@ window.addEventListener('pageshow', function(e) {
     if(has(about.bio)){
       var bioText = document.querySelector('.bio-text');
       if(bioText){
+        bioText.classList.remove('pf-placeholder');
         // Preserve line breaks: render newlines as <br>
         if(/\n/.test(about.bio)){
           bioText.innerHTML = String(about.bio)
@@ -5131,6 +5146,13 @@ window.addEventListener('pageshow', function(e) {
         } else {
           bioText.textContent = about.bio;
         }
+      }
+    } else {
+      // empty → restore the blank-template placeholder (grey hint text)
+      var bioTextR = document.querySelector('.bio-text');
+      if(bioTextR){
+        bioTextR.textContent = 'Introduce yourself — share your background, training, and what makes your performances special.';
+        bioTextR.classList.add('pf-placeholder');
       }
     }
 
@@ -5147,6 +5169,9 @@ window.addEventListener('pageshow', function(e) {
               s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') +
               '</li>';
           }).join('');
+        } else {
+          // empty → restore the blank-template placeholder (grey hint text)
+          credsUl.innerHTML = '<li class="about-cred-item pf-placeholder">Add your credentials — orchestras, awards, education</li>';
         }
       }
     }
@@ -5509,6 +5534,12 @@ window.addEventListener('pageshow', function(e) {
           el.style.backgroundPosition = 'center';
         }
       });
+    } else if(cfg.about){
+      // empty → clear the avatar back to the blank-template empty state (no photo)
+      ['aboutAvatar','bookBarAvatar'].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.style.backgroundImage = '';
+      });
     }
 
     // ── AUDIO TRACKS (URL-based MP3) ──────────────────────
@@ -5690,5 +5721,6 @@ window.addEventListener('pageshow', function(e) {
 })();
 </script>
 
+  <script type="module" src="media-sync.js"></script>
 </body>
 </html>

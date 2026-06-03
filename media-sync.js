@@ -1,0 +1,117 @@
+/* ============================================================================
+ * media-sync.js — makes owner-uploaded media truly local = live.
+ * ----------------------------------------------------------------------------
+ * The older editors (blog, shows, musician profile, services, etc.) save images
+ * as data: URLs into localStorage, which is per-browser/per-origin — so they
+ * never appear on the live site. This bridges that:
+ *
+ *   1) RESTORE (everyone): on load, pull the published media map from Firestore
+ *      (siteContent/media) and write any missing entries back into localStorage,
+ *      so the page's existing render code shows the images (incl. on the live site).
+ *   2) AUTO-PUBLISH (admin only): when a data: URL is written to localStorage
+ *      (i.e. the owner uploads a photo in an editor), upload it to Firebase
+ *      Storage and record its public URL in Firestore — so it goes live everywhere.
+ *   3) MIGRATE (admin, one-time): window.opzMigrateMedia() publishes everything
+ *      already sitting in localStorage.
+ *
+ * Storage path siteContent/media/* and Firestore doc siteContent/media are both
+ * writable by the admin under the existing security rules — no rule changes needed.
+ *
+ * Include on every page:  <script type="module" src="media-sync.js"></script>
+ * ==========================================================================*/
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getStorage, ref as sRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
+  authDomain: "opusz-45280.firebaseapp.com",
+  projectId: "opusz-45280",
+  storageBucket: "opusz-45280.firebasestorage.app",
+  messagingSenderId: "304745430147",
+  appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
+};
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+const auth = getAuth(app);
+const MEDIA_DOC = doc(db, 'siteContent', 'media');
+// matches any base64 image/video data URL
+const DATAURL_RE = /data:(?:image|video)\/[A-Za-z0-9.+-]+;base64,[A-Za-z0-9+/=]+/g;
+
+// ── 1) RESTORE published media into localStorage so existing render code shows it ──
+(async function restore(){
+  try{
+    const snap = await getDoc(MEDIA_DOC);
+    if(!snap.exists()) return;
+    const map = snap.data() || {};
+    let changed = false;
+    Object.keys(map).forEach(function(k){
+      try{ if(localStorage.getItem(k) == null){ localStorage.setItem(k, map[k]); changed = true; } }catch(e){}
+    });
+    // The pages render from localStorage at parse time; if we just filled it, reload once.
+    if(changed && !sessionStorage.getItem('opusz_media_restored')){
+      sessionStorage.setItem('opusz_media_restored','1');
+      location.reload();
+    }
+  }catch(e){ console.warn('[media-sync] restore failed:', e); }
+})();
+
+// ── 2)+3) PUBLISH: upload any data: URLs in a value, swap them for public URLs ──
+let _mapCache = null;
+async function loadMap(){
+  if(_mapCache) return _mapCache;
+  try{ const s = await getDoc(MEDIA_DOC); _mapCache = s.exists() ? (s.data()||{}) : {}; }
+  catch(e){ _mapCache = {}; }
+  return _mapCache;
+}
+async function publishValue(key, value){
+  if(!auth.currentUser) return false;                 // only the signed-in admin can publish
+  if(typeof value !== 'string' || value.indexOf('data:') < 0) return false;
+  const matches = value.match(DATAURL_RE);
+  if(!matches) return false;
+  let out = value;
+  for(let i=0;i<matches.length;i++){
+    const dataUrl = matches[i];
+    const ext = (dataUrl.slice(5).split(';')[0].split('/')[1] || 'bin').replace(/[^a-z0-9]/gi,'');
+    const path = 'siteContent/media/' + key.replace(/[^\w.-]/g,'_') + '_' + i + '.' + ext;
+    const r = sRef(storage, path);
+    await uploadString(r, dataUrl, 'data_url');
+    const url = await getDownloadURL(r);
+    out = out.split(dataUrl).join(url);
+  }
+  try{ _origSet(key, out); }catch(e){}                 // local now holds the URL, not the blob
+  const map = await loadMap();
+  map[key] = out;
+  await setDoc(MEDIA_DOC, map, { merge:true });
+  return true;
+}
+
+// ── auto-publish future edits: intercept localStorage writes that contain media ──
+const _origSet = localStorage.setItem.bind(localStorage);
+const _timers = {};
+localStorage.setItem = function(k, v){
+  _origSet(k, v);
+  if(typeof v === 'string' && v.indexOf('data:') >= 0 && /image|video/.test(v.slice(0,40))){
+    clearTimeout(_timers[k]);
+    _timers[k] = setTimeout(function(){
+      publishValue(k, v).catch(function(e){ console.warn('[media-sync] publish failed:', k, e); });
+    }, 700);
+  }
+};
+
+// ── one-time migration of everything already in localStorage (run as admin) ──
+window.opzMigrateMedia = async function(){
+  if(!auth.currentUser) return { error: 'NOT signed in as admin — log in first' };
+  const keys = []; for(let i=0;i<localStorage.length;i++) keys.push(localStorage.key(i));
+  const uploaded = [], failed = [];
+  for(const k of keys){
+    const v = localStorage.getItem(k) || '';
+    if(v.indexOf('data:') >= 0 && /image|video/.test(v)){
+      try{ await publishValue(k, v); uploaded.push(k); }
+      catch(e){ failed.push(k + ': ' + (e.code||e.message)); }
+    }
+  }
+  return { admin: auth.currentUser.email, uploaded, failed };
+};

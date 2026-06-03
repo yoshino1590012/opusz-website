@@ -1139,7 +1139,7 @@ body {
 
     <div class="sidebar-footer">
       OPUS.Z Community<br>
-      <strong>47 位成員</strong>
+      <strong id="footerMemberCount">— 位成員</strong>
     </div>
   </aside>
 
@@ -1159,11 +1159,7 @@ body {
         <h1 class="topbar-title" id="topbarTitle">全部動態</h1>
       </div>
       <div class="topbar-right">
-        <div class="online-indicator">
-          <div class="online-dot"></div>
-          <span><strong>12 人在線</strong></span>
-        </div>
-        <div class="topbar-stats">總共 <strong>47</strong> 位成員</div>
+        <div class="topbar-stats">總共 <strong>—</strong> 位成員</div>
         <button class="btn-post" id="openComposerBtn"><span>＋ 發文</span></button>
       </div>
     </header>
@@ -1209,7 +1205,7 @@ body {
         <div class="right-card">
           <div class="right-card-title">👥 社群成員</div>
           <div id="membersList"></div>
-          <a href="#" class="view-all-members">查看所有 47 位成員 →</a>
+          <a href="#" class="view-all-members">查看所有 — 位成員 →</a>
         </div>
 
         <!-- Install Guide (compact) -->
@@ -1630,10 +1626,11 @@ function buildPostHTML(post) {
   html += '<button class="post-more-btn">···</button>';
 
   // Header
+  var _uid = post.authorUid || '';
   html += '<div class="post-header">';
-  html += '<div class="post-avatar" style="background:' + post.avatarColor + '">' + post.initials + '</div>';
+  html += '<div class="post-avatar comm-profile-link" data-uid="' + _uid + '" style="background:' + post.avatarColor + ';cursor:pointer">' + post.initials + '</div>';
   html += '<div class="post-meta">';
-  html += '<div class="post-name">' + escHtml(post.author);
+  html += '<div class="post-name comm-profile-link" data-uid="' + _uid + '" style="cursor:pointer">' + escHtml(post.author);
   if (post.isOfficial) html += '<span class="official-badge">✦ 官方</span>';
   html += '</div>';
   html += '<div class="post-sub">' + escHtml(post.role) + ' · ' + post.timestamp + '</div>';
@@ -1892,32 +1889,19 @@ document.getElementById('openComposerBtn').addEventListener('click', function() 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
-document.getElementById('publishBtn').addEventListener('click', function() {
+document.getElementById('publishBtn').addEventListener('click', async function() {
   var text = composerTextarea.value.trim();
   if (!text) return;
-  var u = getCurrentUserInfo();
-  var newPost = {
-    id: 'user-' + Date.now(),
-    channel: currentChannel === 'all' ? 'discuss' : currentChannel,
-    author: u.name,
-    isOfficial: false,
-    role: '樂手',
-    avatarColor: u.color,
-    initials: u.initials,
-    timestamp: '剛剛',
-    type: 'normal',
-    content: text,
-    likes: 0,
-    comments: 0,
-    commentList: [],
-    isNew: true,
-  };
-  userPosts.unshift(newPost);
+  var ch = currentChannel === 'all' ? 'discuss' : currentChannel;
+  var btn = this;
+  btn.disabled = true;
+  // Write the post to Firestore (real, shared). The realtime listener re-renders the feed.
+  var ok = window.opuszPublishPost ? await window.opuszPublishPost(text, ch) : false;
+  btn.disabled = false;
+  if (!ok) return;
   composerTextarea.value = '';
   composerActions.classList.remove('visible');
   composerTextarea.style.minHeight = '44px';
-  renderFeed(currentChannel);
-  // scroll to top of feed
   document.getElementById('postsContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 
@@ -1958,8 +1942,153 @@ function renderMembers() {
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
+// Clear the placeholder demo data — real members & posts load from Firestore below.
+MEMBERS = [];
+POSTS = [];
+userPosts = [];
 renderMembers();
 renderFeed('all');
+
+// Delegated click: open a member's profile when their avatar / name is clicked.
+document.addEventListener('click', function(e){
+  var link = e.target.closest('.comm-profile-link');
+  if (link && link.dataset.uid && window.opuszOpenProfile){
+    window.opuszOpenProfile(link.dataset.uid);
+  }
+});
 </script>
+<!-- ── Real community data (Firestore) — members, posts, publishing, profiles ── -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
+    authDomain: "opusz-45280.firebaseapp.com",
+    projectId: "opusz-45280",
+    storageBucket: "opusz-45280.firebasestorage.app",
+    messagingSenderId: "304745430147",
+    appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  const PALETTE = ['#7c3aed','#0891b2','#059669','#d97706','#db2777','#2563eb','#dc2626','#0d9488','#9333ea','#0284c7'];
+  function colorFor(s){ let h=0; s=s||''; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return PALETTE[h%PALETTE.length]; }
+  function initialsFor(name){ return (name||'?').trim().charAt(0) || '?'; }
+  function instrumentLabel(m){ if(Array.isArray(m.instruments)&&m.instruments.length) return m.instruments.join('、'); return m.instrument || '樂手'; }
+  function relTime(ts){ if(!ts) return '剛剛'; const d = ts.toDate ? ts.toDate() : new Date(ts); const s=(Date.now()-d.getTime())/1000; if(s<60) return '剛剛'; if(s<3600) return Math.floor(s/60)+' 分鐘前'; if(s<86400) return Math.floor(s/3600)+' 小時前'; return Math.floor(s/86400)+' 天前'; }
+  function esc(s){ return (s==null?'':String(s)).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  let me = null;
+  let membersByUid = {};
+
+  function updateMemberCount(n){
+    document.querySelectorAll('.topbar-stats').forEach(el => el.innerHTML = '總共 <strong>'+n+'</strong> 位成員');
+    document.querySelectorAll('.view-all-members').forEach(el => el.textContent = '查看所有 '+n+' 位成員 →');
+    var fc=document.getElementById('footerMemberCount'); if(fc) fc.textContent = n+' 位成員';
+  }
+
+  async function loadMembers(){
+    try{
+      const snap = await getDocs(collection(db,'musicians'));
+      const arr = []; membersByUid = {};
+      snap.forEach(d => {
+        const m = d.data();
+        const name = m.name || (m.email ? m.email.split('@')[0] : '樂手');
+        const entry = { uid:d.id, name, instrument:instrumentLabel(m), color:colorFor(name), initials:initialsFor(name), online:false, bio:m.bio||'', region:m.primaryRegion||'' };
+        arr.push(entry); membersByUid[d.id] = entry;
+      });
+      window.MEMBERS = arr;
+      if (window.renderMembers) window.renderMembers();
+      updateMemberCount(arr.length);
+    }catch(e){ console.warn('[community] members load failed:', e); }
+  }
+
+  function mapPost(id, p){
+    const nm = p.authorName || '樂手';
+    return { id, authorUid:p.authorUid||'', channel:p.channel||'discuss', author:nm,
+      isOfficial:!!p.isOfficial, isPinned:!!p.isPinned, role:p.authorTitle||'樂手',
+      avatarColor:p.authorColor||colorFor(nm), initials:p.authorInitials||initialsFor(nm),
+      timestamp:relTime(p.ts), type:(p.isPinned?'pinned':'normal'), content:p.content||'', likes:p.likes||0, comments:0, commentList:[] };
+  }
+
+  function subscribePosts(){
+    try{
+      const q = query(collection(db,'posts'), orderBy('ts','desc'));
+      onSnapshot(q, snap => {
+        const arr = []; snap.forEach(d => arr.push(mapPost(d.id, d.data())));
+        // pinned posts first, newest-first within each group (stable sort)
+        arr.sort(function(a,b){ return (b.isPinned?1:0) - (a.isPinned?1:0); });
+        window.POSTS = arr;
+        if (window.renderFeed) window.renderFeed(window.currentChannel || 'all');
+      }, err => console.warn('[community] posts subscribe failed:', err));
+    }catch(e){ console.warn('[community] subscribe error:', e); }
+  }
+
+  // Publish a real post (called by the composer's publish button)
+  window.opuszPublishPost = async function(text, channel){
+    if (!me){ alert('請先用樂手帳號登入後台,才能在社群發文。'); return false; }
+    try{
+      await addDoc(collection(db,'posts'), {
+        authorUid: me.uid, authorName: me.name, authorTitle: me.instrument,
+        authorInitials: initialsFor(me.name), authorColor: colorFor(me.name),
+        channel: channel || 'discuss', content: text, likes: 0, ts: serverTimestamp()
+      });
+      return true;
+    }catch(e){ console.warn('[community] publish failed:', e); alert('發文失敗:'+(e.code||e.message)+'(可能是 Firestore 權限規則尚未設定)'); return false; }
+  };
+
+  // ── Profile page (Threads-style): info + this member's posts ──
+  window.opuszOpenProfile = function(uid){
+    const m = membersByUid[uid];
+    if (!m) return;
+    const myPosts = (window.POSTS || []).filter(p => p.authorUid === uid);
+    let ov = document.getElementById('commProfileOverlay');
+    if (!ov){
+      ov = document.createElement('div');
+      ov.id = 'commProfileOverlay';
+      ov.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.5);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;';
+      ov.addEventListener('click', e => { if(e.target===ov) ov.remove(); });
+      document.body.appendChild(ov);
+    }
+    const postsHtml = myPosts.length
+      ? myPosts.map(p => '<div style="border-top:1px solid #f0f0f0;padding:16px 0;"><div style="font-size:12px;color:#999;margin-bottom:6px;">'+esc(p.timestamp)+'</div><div style="font-size:14.5px;color:#222;line-height:1.65;white-space:pre-wrap;">'+esc(p.content)+'</div></div>').join('')
+      : '<div style="padding:30px 0;text-align:center;color:#aaa;font-size:13.5px;">還沒有發過貼文</div>';
+    ov.innerHTML =
+      '<div style="background:#fff;border-radius:18px;max-width:560px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,.3);overflow:hidden;font-family:inherit;">' +
+        '<div style="height:96px;background:linear-gradient(135deg,'+m.color+',#111);"></div>' +
+        '<div style="padding:0 26px 24px;">' +
+          '<div style="display:flex;align-items:flex-end;gap:16px;margin-top:-36px;">' +
+            '<div style="width:80px;height:80px;border-radius:50%;background:'+m.color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;border:4px solid #fff;flex-shrink:0;">'+esc(m.initials)+'</div>' +
+            '<button onclick="document.getElementById(\'commProfileOverlay\').remove()" style="margin-left:auto;margin-bottom:8px;background:#f1f1f1;border:none;border-radius:50px;width:32px;height:32px;font-size:16px;cursor:pointer;color:#666;">✕</button>' +
+          '</div>' +
+          '<div style="font-size:22px;font-weight:800;color:#111;margin-top:12px;">'+esc(m.name)+'</div>' +
+          '<div style="font-size:14px;color:#666;margin-top:3px;">'+esc(m.instrument)+(m.region?' · '+esc(m.region):'')+'</div>' +
+          (m.bio ? '<div style="font-size:14px;color:#444;line-height:1.7;margin-top:12px;white-space:pre-wrap;">'+esc(m.bio)+'</div>' : '') +
+          '<a href="musician-profile.html?uid='+encodeURIComponent(uid)+'" style="display:inline-block;margin-top:14px;font-size:13px;font-weight:700;color:#111;text-decoration:underline;text-underline-offset:3px;">查看完整個人頁 →</a>' +
+          '<div style="font-size:12px;font-weight:700;letter-spacing:.08em;color:#999;text-transform:uppercase;margin-top:24px;">貼文 · '+myPosts.length+'</div>' +
+          postsHtml +
+        '</div>' +
+      '</div>';
+  };
+
+  // ── Auth: identify the logged-in musician for authoring ──
+  onAuthStateChanged(auth, async user => {
+    if (user){
+      try{
+        const snap = await getDoc(doc(db,'musicians',user.uid));
+        const m = snap.exists() ? snap.data() : {};
+        me = { uid:user.uid, name: m.name || user.email.split('@')[0], instrument: instrumentLabel(m) };
+      }catch(e){ me = { uid:user.uid, name:(user.email||'樂手').split('@')[0], instrument:'樂手' }; }
+    } else { me = null; }
+  });
+
+  loadMembers();
+  subscribePosts();
+</script>
+
 </body>
 </html>

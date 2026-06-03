@@ -2341,7 +2341,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 </div>
 
 <!-- HERO -->
-<section class="hero" id="home">
+<section class="hero" id="home" data-cms-section="hero">
   <div class="hero-sticky">
     <!-- Dark photo grid — 14 slots (7 per column). JS applies images + position. -->
     <div class="hero-grid">
@@ -2514,7 +2514,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 </section>
 
 <!-- PARTNERS -->
-<section class="categories" id="discover">
+<section class="categories" id="discover" data-cms-section="discover">
   <div class="cat-header">
     <h2 class="cat-title" data-i18n="cat.title" data-tid="cat-title">Explore Classical Music Experts</h2>
   </div>
@@ -2570,7 +2570,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 </section>
 
 <!-- WORK / LIVE SHOWS -->
-<section class="work" id="artists">
+<section class="work" id="artists" data-cms-section="work">
   <div class="work-inner">
 
     <!-- Left: sticky label panel -->
@@ -2614,7 +2614,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 </section>
 
 <!-- SHOWREEL VIDEO GRID -->
-<section class="sv-section" id="showreel-grid">
+<section class="sv-section" id="showreel-grid" data-cms-section="showreel">
   <div class="sv-sticky">
     <div class="sv-grid">
       <div class="sv-cell sv-c1" data-sv-idx="1">
@@ -2652,7 +2652,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 </section>
 
 <!-- SERVICES -->
-<section class="services" id="services">
+<section class="services" id="services" data-cms-section="services">
   <div class="svc-left">
     <div class="svc-header">
       <span class="svc-label" data-i18n="svc.label">(Services)</span>
@@ -2674,7 +2674,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 
 
 <!-- ABOUT -->
-<section class="about" id="about">
+<section class="about" id="about" data-cms-section="about">
   <div class="about-hd">
     <h2 class="about-hl reveal" data-i18n="about.hl">We connect musicians with focus, intention, and impact.</h2>
   </div>
@@ -2716,7 +2716,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 <!-- TESTIMONIALS -->
 
 <!-- BLOG -->
-<section class="blog" id="blog">
+<section class="blog" id="blog" data-cms-section="blog">
 
   <div class="blog-header">
     <div class="blog-left">
@@ -6924,8 +6924,11 @@ window.addEventListener('keydown', function(e){
     document.body.style.overflow = '';
   }
 
-  if(projOpen)  projOpen.addEventListener('click', openProj);
-  if(projOpen2) projOpen2.addEventListener('click', openProj);
+  // "Create a Project" → the SHARED Post-a-Project flow on the job board
+  // (same modal as recent-jobs.html, single source of truth).
+  function goPostProject(e){ if(e) e.preventDefault(); window.location.href = 'recent-jobs.html?post=1'; }
+  if(projOpen)  projOpen.addEventListener('click', goPostProject);
+  if(projOpen2) projOpen2.addEventListener('click', goPostProject);
   if(projClose) projClose.addEventListener('click', closeProj);
   projOverlay.addEventListener('click', function(e){ if(e.target===projOverlay) closeProj(); });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeProj(); });
@@ -7058,5 +7061,6 @@ window.addEventListener('keydown', function(e){
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
 <script type="module" src="site-content.js"></script>
+  <script type="module" src="media-sync.js"></script>
 </body>
 </html>

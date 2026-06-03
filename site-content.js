@@ -102,6 +102,65 @@ window.addEventListener('message', function(e){
   }
 });
 
+// ── EDITOR MODE (admin Site Editor preview only — gated by ?cmsedit=1) ───────
+// Adds Shopify-style: blue highlight of a section on request, click-a-section to
+// select it (reports back to the editor), and locks navigation so the preview
+// can't wander off the page. None of this runs for real public visitors.
+(function(){
+  var isEdit = false;
+  try { isEdit = new URLSearchParams(location.search).get('cmsedit') === '1'; } catch(e){}
+  if (!isEdit) return;
+
+  var hl = null, hlTarget = null;
+  function ensureHl(){
+    if (hl) return hl;
+    hl = document.createElement('div');
+    hl.style.cssText = 'position:fixed;z-index:2147483647;pointer-events:none;border:3px solid #2563eb;'
+      + 'border-radius:8px;box-shadow:0 0 0 3px rgba(37,99,235,.25);transition:all .12s ease;display:none;';
+    document.documentElement.appendChild(hl);
+    window.addEventListener('scroll', positionHl, true);
+    window.addEventListener('resize', positionHl);
+    return hl;
+  }
+  function positionHl(){
+    if (!hl || !hlTarget) return;
+    var r = hlTarget.getBoundingClientRect();
+    hl.style.display = 'block';
+    hl.style.left = r.left + 'px'; hl.style.top = r.top + 'px';
+    hl.style.width = r.width + 'px'; hl.style.height = r.height + 'px';
+  }
+  function highlight(key){
+    ensureHl();
+    var el = document.querySelector('[data-cms-section="' + key + '"]');
+    if (!el){ hl.style.display = 'none'; hlTarget = null; return; }
+    hlTarget = el;
+    // This page cancels smooth scrolls (scroll-animation handlers), so jump instantly.
+    var y = el.getBoundingClientRect().top + (window.scrollY || window.pageYOffset || 0) - 60;
+    window.scrollTo(0, Math.max(0, y));
+    positionHl();
+    setTimeout(positionHl, 120);   // re-measure after any layout settle
+  }
+
+  // Editor → preview: highlight a section
+  window.addEventListener('message', function(e){
+    if (e && e.data && e.data.__opuszCmsHighlight) highlight(e.data.key);
+  });
+
+  // Preview → editor: clicking a section selects it; also block real navigation
+  document.addEventListener('click', function(e){
+    var a = e.target && e.target.closest ? e.target.closest('a') : null;
+    if (a){ var href = a.getAttribute('href') || ''; if (href && href.charAt(0) !== '#'){ e.preventDefault(); e.stopPropagation(); } }
+    var sec = e.target && e.target.closest ? e.target.closest('[data-cms-section]') : null;
+    if (sec){ try { parent.postMessage({ __opuszCmsSelect:true, key: sec.getAttribute('data-cms-section') }, '*'); } catch(_){} }
+  }, true);
+
+  // pointer affordance over selectable sections
+  document.addEventListener('mouseover', function(e){
+    var sec = e.target && e.target.closest ? e.target.closest('[data-cms-section]') : null;
+    if (sec) sec.style.cursor = 'pointer';
+  }, true);
+})();
+
 // Re-apply i18n overrides after any later language switch (in case switchLang re-clobbers).
 document.addEventListener('opusz:langchange', function(){
   try {
