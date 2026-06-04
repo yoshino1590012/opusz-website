@@ -935,7 +935,8 @@
   // Each device = a REAL viewport size. The iframe renders at that true size (so the
   // page picks the correct responsive layout — exactly like opening it at that width),
   // then we scale it DOWN with transform to fit the preview column (Shopify-style).
-  var SE_DEVICES = { desktop:{w:1536,h:864}, macbook:{w:1280,h:800}, ipad:{w:820,h:1180}, phone:{w:390,h:844} };
+  // phone = iPhone 16 logical resolution (393 × 852)
+  var SE_DEVICES = { desktop:{w:1536,h:864}, macbook:{w:1280,h:800}, ipad:{w:820,h:1180}, phone:{w:393,h:852} };
   var seCurrentDevice = 'desktop';
   var seCurrentConfig = { i18n:{en:{},zh:{}} };
   function seSlug(k){ return k.replace(/\W/g,'_'); }
