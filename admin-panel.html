@@ -668,6 +668,11 @@
         <style>
           .se-dev-btn{ padding:6px 12px;border:1px solid #ddd;background:#fff;border-radius:8px;font-size:12px;cursor:pointer;color:#555; }
           .se-dev-btn.active{ background:#111;color:#fff;border-color:#111; }
+          /* iPhone-style frame, applied only in phone preview mode */
+          #seFrameWrap.se-phone{ background:#111 !important; border-radius:46px !important; padding:14px; box-shadow:0 12px 48px rgba(0,0,0,.45); position:relative; }
+          #seFrameWrap.se-phone #seFrame{ border-radius:34px; }
+          /* Dynamic Island */
+          #seFrameWrap.se-phone::after{ content:''; position:absolute; top:24px; left:50%; transform:translateX(-50%); width:92px; height:26px; background:#000; border-radius:16px; z-index:3; pointer-events:none; }
         </style>
         <div class="page-header" style="margin-bottom:12px;">
           <h1>網站編輯 / Site Editor</h1>
@@ -945,6 +950,8 @@
       // wrapper takes the SCALED size so the layout reserves the right space
       wrap.style.width  = Math.round(devW * scale) + 'px';
       wrap.style.height = Math.round(devH * scale) + 'px';
+      // Dress the phone preview up as a real iPhone (bezel + dynamic island).
+      wrap.classList.toggle('se-phone', name==='phone');
     }
     document.querySelectorAll('.se-dev-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dev')===name); });
   };
