@@ -1498,28 +1498,39 @@
     return ok;
   };
 
-  // One-button publish: save TEXT to Firebase + publish PHOTOS via the engine.
-  // (Text and photos use different storage, but the owner just wants "make it live".)
+  // One-button publish: save TEXT to Firebase (instant) + deploy PHOTOS via the
+  // engine (server.py git-push). Text is the primary, fast action — we reset the
+  // button right after it. The photo/deploy step runs in the background with a
+  // timeout so a slow/missing server.py can NEVER leave the button stuck.
   window.sePublishAll = async function(btn){
-    var old=btn.textContent; btn.disabled=true; btn.textContent='⏳ 發佈中…';
+    var old = btn.getAttribute('data-label') || btn.textContent;
+    btn.setAttribute('data-label', old);
     var pubMsg=document.getElementById('sePublishMsg');
+    btn.disabled=true; btn.textContent='⏳ 儲存中…';
     if(pubMsg){ pubMsg.textContent=''; }
-    // 1) text → Firestore (sets its own seSaveMsg)
-    var textOk=false; try{ textOk = await window.seSave(); }catch(e){ textOk=false; }
-    // 2) photos → site-data.json + images via server.py (only if preview engine ready)
-    var photoMsg='', photoErr=false;
-    try{
-      var win = (typeof _seWin==='function') ? _seWin() : null;
-      if(win && win.opzEdit){
-        var ok = await Promise.resolve(win.opzEdit.publish());
-        if(ok){ photoMsg='🚀 照片已發佈（約 30 秒後上線）'; }
-        else  { photoMsg='⚠ 照片未發佈：請確認本機 server.py 有在跑'; photoErr=true; }
-      } else {
-        photoMsg='（預覽尚未載入，這次只更新了文字）'; photoErr=true;
-      }
-    }catch(e){ photoMsg='⚠ 照片發佈出錯：'+(e&&(e.code||e.message)||''); photoErr=true; }
-    if(pubMsg){ pubMsg.textContent=photoMsg; pubMsg.style.color = photoErr ? '#b45309' : '#16a34a'; }
-    btn.textContent=old; btn.disabled=false;
+    // 1) text → Firestore (fast). seSave sets its own ✓/⚠ message.
+    try{ await window.seSave(); }catch(e){}
+    // text done → re-enable the button immediately (never wait on git-push)
+    btn.disabled=false; btn.textContent=old;
+    // 2) photos/deploy → server.py git-push, in the BACKGROUND with a 20s timeout.
+    if(pubMsg){ pubMsg.textContent='照片／部署發佈中…（最多約 30 秒）'; pubMsg.style.color='#888'; }
+    (async function(){
+      try{
+        var win = (typeof _seWin==='function') ? _seWin() : null;
+        if(!win || !win.opzEdit){
+          if(pubMsg){ pubMsg.textContent='✓ 文字已上線（照片發佈略過：預覽未載入）'; pubMsg.style.color='#b45309'; }
+          return;
+        }
+        var pub = Promise.resolve(win.opzEdit.publish());
+        var timed = new Promise(function(res){ setTimeout(function(){ res('__timeout'); }, 20000); });
+        var r = await Promise.race([pub, timed]);
+        if(pubMsg){
+          if(r==='__timeout'){ pubMsg.textContent='⚠ 照片／部署逾時（本機 server.py 可能沒在跑）。文字已上線。'; pubMsg.style.color='#b45309'; }
+          else if(r){ pubMsg.textContent='🚀 照片已發佈，約 30 秒後線上更新。'; pubMsg.style.color='#16a34a'; }
+          else { pubMsg.textContent='⚠ 照片未發佈：請確認本機 server.py 有在跑。文字已上線。'; pubMsg.style.color='#b45309'; }
+        }
+      }catch(e){ if(pubMsg){ pubMsg.textContent='⚠ 照片發佈出錯：'+(e&&(e.code||e.message)||'')+'（文字已上線）'; pubMsg.style.color='#b45309'; } }
+    })();
   };
   window.seInit = async function(){
     try{
