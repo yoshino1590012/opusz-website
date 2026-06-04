@@ -18,8 +18,10 @@
   --darkest: #141414;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
-html { overflow-x: clip; }
-body { font-family: 'Calibri','Inter','Helvetica Neue',sans-serif; background: var(--white); color: var(--black); overflow-x: clip; max-width: 100%; }
+html { overflow-x: clip; scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar { width: 0; height: 0; display: none; }
+body { font-family: 'Calibri','Inter','Helvetica Neue',sans-serif; background: var(--white); color: var(--black); overflow-x: clip; max-width: 100%; scrollbar-width: none; -ms-overflow-style: none; }
+body::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 /* ── NAV ── */
 nav {
@@ -2560,19 +2562,19 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     <div class="work-photos" id="work-photos">
 
       <div class="work-card" id="wcard-0">
-        <div class="work-card-img wc1" data-cms="home.work.1" data-cms-attr="bg">
+        <div class="work-card-img wc1">
           <div class="work-card-caption" data-tid="poster-1">Strings Night · National Concert Hall, Taipei</div>
         </div>
       </div>
 
       <div class="work-card" id="wcard-1">
-        <div class="work-card-img wc2" data-cms="home.work.2" data-cms-attr="bg">
+        <div class="work-card-img wc2">
           <div class="work-card-caption" data-tid="poster-2">Piano Recital · National Chiang Kai-shek Cultural Center</div>
         </div>
       </div>
 
       <div class="work-card" id="wcard-2">
-        <div class="work-card-img wc3" data-cms="home.work.3" data-cms-attr="bg">
+        <div class="work-card-img wc3">
           <div class="work-card-caption" data-tid="poster-3">Chamber Music · Weiwuying National Performing Arts Center</div>
         </div>
       </div>
@@ -4311,7 +4313,7 @@ try {
     _syncTimer = setTimeout(async function() {
       try {
         var imgs = {};
-        heroSlots.concat(catSlots).concat(posterSlots).forEach(function(d) {
+        heroSlots.concat(catSlots).concat(posterSlots).concat(blogSlots).concat(svcSlots).forEach(function(d) {
           var v = localStorage.getItem(IMG_PFX + d.cls);
           if (v && !v.startsWith('data:')) imgs[d.cls] = v; // only store paths, not base64
         });
@@ -4728,6 +4730,78 @@ try {
     el.style.backgroundSize = s.zoom > 0 ? ((100 + s.zoom) + '%') : 'cover';
   }
   blogSlots.forEach(function(s) { applyBlog(s.cls); });
+
+  // ── Bridge API: lets the back-office Site Editor drive THIS page's mature
+  //    photo engine. Same storage (site-data.json + assets/images via server.py)
+  //    and same git-push deploy — we only relocate the editing UI to the back office.
+  window.opzEdit = (function(){
+    var G = {
+      hero:   { slots: heroSlots,   S: hS,  apply: applyHero  },
+      cat:    { slots: catSlots,    S: cS,  apply: applyCat, dual:true },
+      poster: { slots: posterSlots, S: pS,  apply: applyPoster },
+      blog:   { slots: blogSlots,   S: blS, apply: applyBlog },
+      svc:    { slots: svcSlots,    S: svS, apply: function(cls){ try{ window.applySvcImg(parseInt(String(cls).replace('svc',''),10)); }catch(e){} } }
+    };
+    function fr(g, s){
+      if(g.dual) return { x:(s.xC!=null?s.xC:50), y:(s.yC!=null?s.yC:50), zoom:(s.zC!=null?s.zC:0) };
+      return { x:(s.x!=null?s.x:50), y:(s.y!=null?s.y:50), zoom:(s.zoom!=null?s.zoom:0) };
+    }
+    function list(group){
+      var g=G[group]; if(!g) return [];
+      return g.slots.map(function(d){
+        var s=g.S[d.cls]||{}; var f=fr(g,s);
+        return { cls:d.cls, label:(d.label||d.col||d.cls),
+                 url:(s.url||localStorage.getItem(IMG_PFX+d.cls)||''), x:f.x, y:f.y, zoom:f.zoom };
+      });
+    }
+    function setFrame(group, cls, f){
+      var g=G[group]; if(!g) return; var s=g.S[cls]; if(!s) return;
+      if(g.dual){
+        if(f.x!=null){ s.xC=f.x; s.xE=f.x; }
+        if(f.y!=null){ s.yC=f.y; s.yE=f.y; }
+        if(f.zoom!=null){ s.zC=f.zoom; s.zE=f.zoom; }
+      } else {
+        if(f.x!=null) s.x=f.x;
+        if(f.y!=null) s.y=f.y;
+        if(f.zoom!=null) s.zoom=f.zoom;
+      }
+      try{ g.apply(cls); }catch(e){}
+      savePhotoPos();
+    }
+    async function setImageUrl(group, cls, url){
+      var g=G[group]; if(!g) return false; var s=g.S[cls]; if(!s) return false;
+      s.url=url||'';
+      try{ await saveImgSlot(cls, url||''); }catch(e){}
+      try{ g.apply(cls); }catch(e){}
+      savePhotoPos(true);
+      return true;
+    }
+    function setImageFile(group, cls, file){
+      return new Promise(function(resolve){
+        var g=G[group]; if(!g||!file){ resolve(false); return; }
+        var reader=new FileReader();
+        reader.onload=function(){
+          compressImg(reader.result, async function(dataUrl){
+            try{
+              await saveImgSlot(cls, dataUrl);  // → /upload-file → assets/images/<cls>.jpg
+              var s=g.S[cls]; s.url = localStorage.getItem(IMG_PFX+cls) || dataUrl;
+              g.apply(cls); savePhotoPos(true);
+              resolve(s.url);
+            }catch(e){ resolve(false); }
+          });
+        };
+        reader.onerror=function(){ resolve(false); };
+        reader.readAsDataURL(file);
+      });
+    }
+    async function publish(){
+      try{ if(typeof _syncAllPhotosToServer==='function') await _syncAllPhotosToServer(); }catch(e){}
+      try{ if(typeof _syncConfigToServer==='function') await _syncConfigToServer(); }catch(e){}
+      try{ await fetch('/git-push',{method:'POST'}); return true; }catch(e){ return false; }
+    }
+    return { groups:Object.keys(G), list:list, setFrame:setFrame,
+             setImageUrl:setImageUrl, setImageFile:setImageFile, publish:publish };
+  })();
 
   // Expose for switchLang to re-render panel names on language change
   window._applyCatAll = () => {
@@ -5690,8 +5764,13 @@ try {
 /* ── Iframe detection: suppress all editor chrome inside preview iframes ── */
 var _inIframe = (window.self !== window.top);
 
-/* ── Photo Editor: P key + floating button ── */
+/* ── Photo Editor: P key + floating button ──
+   REMOVED: the front-end photo editor is retired. Photo editing now lives in the
+   back-office Site Editor (admin-panel.html), which drives the same engine via
+   window.opzEdit. The engine + opzEdit + live rendering all stay; only this
+   on-page editing UI (P key + 📷 button) is disabled. ── */
 (function(){
+  return; // front-end photo editor removed — edit from the back office instead
   if (_inIframe) return; // clean preview — no editor overlays
   function openPE(){
     var pe = document.getElementById('photo-editor');
