@@ -1185,7 +1185,33 @@
         +'</div>';
     }).join('');
     seEngWire(group);
+    seEngApplyAspect(group);
+    setTimeout(function(){ seEngApplyAspect(group); }, 400);   // re-measure once layout settles
   };
+
+  // Make each edit pad the SAME shape (aspect ratio) as where the photo really
+  // shows on the page, so dragging/zooming is WYSIWYG instead of guesswork.
+  // (Left hero column is taller, right is shorter, etc.) Falls back to a fixed
+  // height when the matching element can't be measured.
+  function seEngApplyAspect(group){
+    var win=_seWin(); if(!win || !win.document) return;
+    var d=win.document;
+    function elFor(cls){
+      if(group==='hero'){ var e=d.querySelector('.hero-photo-inner.'+cls); return e ? e.closest('.hero-photo') : null; }
+      if(group==='poster'){ return d.querySelector('.work-card-img.'+cls); }
+      return null; // cat panels change width on hover; svc/blog left at default
+    }
+    document.querySelectorAll('#seEngBox .see-pad').forEach(function(pad){
+      var cls=pad.getAttribute('data-cls'); if(!cls) return;
+      var el; try{ el=elFor(cls); }catch(e){ el=null; }
+      if(!el) return;
+      var r=el.getBoundingClientRect();
+      if(r.width>4 && r.height>4){
+        pad.style.height='auto';
+        pad.style.aspectRatio=(r.width/r.height).toFixed(4);  // scale-invariant → correct shape
+      }
+    });
+  }
 
   // Repaint one engine pad's preview image from its dataset.
   function seEngPaint(pad){
