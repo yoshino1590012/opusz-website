@@ -51,27 +51,59 @@ function applyConfig(cfg){
     }
   }
 
+  // 1b) partner marquee — a plain list of names rendered by the page
+  if (Array.isArray(cfg.partners) && typeof window.opzRenderPartners === 'function') {
+    try { window.opzRenderPartners(cfg.partners); } catch(e){}
+  }
+
   // 2) direct data-cms overrides (non-i18n text / images / links)
   if (cfg.cms) {
-    Object.keys(cfg.cms).forEach(function(key){
-      var v = cfg.cms[key];
+    var cms = cfg.cms;
+    Object.keys(cms).forEach(function(key){
+      // Companion keys (key + '.pos' / '.zoom') are framing data, applied alongside
+      // their base media key below — skip them as standalone keys.
+      if (/\.(pos|zoom)$/.test(key)) return;
+      var v = cms[key];
       if (v == null) return;
+      var pos  = cms[key + '.pos'];    // focal point, e.g. "50% 30%"
+      var zoom = cms[key + '.zoom'];   // scale multiplier, e.g. 1.4
       document.querySelectorAll('[data-cms="' + key + '"]').forEach(function(el){
         var attr = el.getAttribute('data-cms-attr');
         if (attr === 'src') {
-          if (el.getAttribute('src') === v) return;   // no-op if unchanged (avoids restart flicker)
-          el.src = v;
-          // <video> needs an explicit reload to pick up a new src and resume playback
-          if (el.tagName === 'VIDEO') {
-            try { el.load(); var p = el.play(); if (p && p.catch) p.catch(function(){}); } catch(e){}
+          if (el.getAttribute('src') !== v) {
+            el.src = v;
+            // <video> needs an explicit reload to pick up a new src and resume playback
+            if (el.tagName === 'VIDEO') {
+              try { el.load(); var p = el.play(); if (p && p.catch) p.catch(function(){}); } catch(e){}
+            }
           }
+          applyFraming(el, 'media', pos, zoom);
         }
         else if (attr === 'href') el.setAttribute('href', v);
         else if (attr === 'html') el.innerHTML = v;
-        else if (attr === 'bg')   el.style.backgroundImage = "url('" + v + "')";
+        else if (attr === 'bg')   { el.style.backgroundImage = "url('" + v + "')"; applyFraming(el, 'bg', pos, zoom); }
         else                      el.textContent = v;
       });
     });
+  }
+}
+
+// Apply owner-chosen framing (focal point + zoom) to a media element.
+// Only touches CSS when framing actually exists, so untouched images stay as-is.
+function applyFraming(el, mode, pos, zoom){
+  if (pos == null && zoom == null) return;
+  var p = pos || '50% 50%';
+  var z = parseFloat(zoom); if (!(z > 0)) z = 1;
+  if (mode === 'bg') {
+    el.style.backgroundRepeat = 'no-repeat';
+    el.style.backgroundPosition = p;
+    el.style.backgroundSize = z > 1 ? (z * 100) + '%' : 'cover';
+  } else {
+    // <img>/<video>: cover the box, shift focal point, zoom via scale (parent clips)
+    if (!el.style.objectFit) el.style.objectFit = 'cover';
+    el.style.objectPosition = p;
+    el.style.transformOrigin = p;
+    el.style.transform = z !== 1 ? ('scale(' + z + ')') : '';
   }
 }
 

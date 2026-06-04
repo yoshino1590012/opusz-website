@@ -877,6 +877,17 @@
     {section:'hero', sec:'按鈕 / Buttons', k:'hero.findArtists', label:'尋找音樂家鈕', en:'Find Artists', zh:'尋找音樂家'},
     {section:'hero', k:'hero.createProject', label:'建立專案鈕', en:'Create a Project', zh:'建立專案'},
 
+    // ── 分類 Categories (#discover) ──
+    {section:'discover', sec:'區段標題 / Heading', k:'cat.title', label:'分類區標題', en:'Explore Classical Music Experts', zh:'探索古典音樂專家'},
+    {section:'discover', sec:'分類名稱 / Category names', k:'cat.strings', label:'類別 1（弦樂）', en:'Strings', zh:'弦樂'},
+    {section:'discover', k:'cat.piano', label:'類別 2（鋼琴）', en:'Piano', zh:'鋼琴'},
+    {section:'discover', k:'cat.winds', label:'類別 3（管樂）', en:'Wind & Brass', zh:'管樂 & 銅管'},
+    {section:'discover', k:'cat.compose', label:'類別 4（作曲）', en:'Composition', zh:'作曲'},
+    {section:'discover', k:'cat.chamber', label:'類別 5（室內樂）', en:'Chamber', zh:'室內樂'},
+    {section:'discover', k:'cat.perc', label:'類別 6（打擊樂）', en:'Percussion', zh:'打擊樂'},
+    {section:'discover', sec:'其他 / Other', k:'cat.cta', label:'卡片按鈕字', en:'Explore →', zh:'探索 →'},
+    {section:'discover', k:'cat.more', label:'「更多分類」連結', en:'More categories', zh:'更多分類'},
+
     // ── 服務 Services (#services) ──
     {section:'services', sec:'服務名稱 / Service names', k:'svc.name.0', label:'服務 1', en:'Live Performance', zh:'現場演出'},
     {section:'services', k:'svc.name.1', label:'服務 2', en:'Session Work', zh:'錄音工作'},
@@ -911,6 +922,7 @@
   // Left-column section list (order matches the page top→bottom). `sel` is informational.
   var SE_SECTIONS = [
     {key:'hero',     label:'主視覺 / Hero'},
+    {key:'partners', label:'合作廠商 / Partners'},
     {key:'discover', label:'分類 / Categories'},
     {key:'work',     label:'作品・海報 / Work'},
     {key:'showreel', label:'Showreel 影片'},
@@ -960,10 +972,15 @@
   function seReadInputs(){
     var cfg = { i18n:{ en:{}, zh:{} }, cms:{} };
     SE_FIELDS.forEach(function(ff){
-      // Media fields → direct cms channel (single URL value, no language split)
+      // Media fields → direct cms channel: URL + framing (focal pos + zoom)
       if(ff.type==='image' || ff.type==='video'){
-        var mEl=document.getElementById('se_cms_'+seSlug(ff.k));
+        var mid=seSlug(ff.k);
+        var mEl=document.getElementById('se_cms_'+mid);
         if(mEl && mEl.value!=null) cfg.cms[ff.k]=mEl.value.trim();
+        var posEl=document.getElementById('se_pos_'+mid);
+        var zoomEl=document.getElementById('se_zoom_'+mid);
+        if(posEl && posEl.value)   cfg.cms[ff.k+'.pos']=posEl.value;
+        if(zoomEl && zoomEl.value)  cfg.cms[ff.k+'.zoom']=(parseInt(zoomEl.value,10)/100).toString();
         return;
       }
       var enEl=document.getElementById('se_en_'+seSlug(ff.k));
@@ -978,6 +995,10 @@
         if(zhVal!=null) cfg.i18n.zh[zhKey]=zhVal;
       }
     });
+    // Partner marquee — a plain array of names (kept across all sections).
+    if(Array.isArray(window.sePartners)){
+      cfg.partners = window.sePartners.map(function(n){ return String(n==null?'':n).trim(); }).filter(Boolean);
+    }
     return cfg;
   }
   function sePreview(){
@@ -1016,6 +1037,8 @@
     var cur=seCurrentConfig.i18n||{en:{},zh:{}};
     var curCms=seCurrentConfig.cms||{};
     function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+    // Partner marquee uses a custom list editor (not the fixed SE_FIELDS schema).
+    if(seCurrentSection==='partners'){ seBuildPartners(box); return; }
     var fields = SE_FIELDS.filter(function(ff){ return ff.section===seCurrentSection; });
     if(!fields.length){
       box.innerHTML = '<div style="font-size:12px;color:#999;line-height:1.6;padding:8px 0;">此區段目前沒有可編輯欄位（之後會陸續加入）。<br>你仍可在左側點它、在中間預覽看到它被框選。</div>';
@@ -1025,24 +1048,46 @@
       var id=seSlug(ff.k);
       var head=ff.sec?'<div style="font-size:11px;font-weight:800;color:#111;margin:14px 0 8px;border-top:1px solid #eee;padding-top:12px;">'+esc(ff.sec)+'</div>':'';
 
-      // ── Media field: URL input + upload button + thumbnail preview ──
+      // ── Media field: drag-to-reposition pad + zoom slider + drop-to-upload ──
       if(ff.type==='image' || ff.type==='video'){
         var mv=(curCms[ff.k]!=null)?curCms[ff.k]:'';
+        var pos=(curCms[ff.k+'.pos']!=null)?curCms[ff.k+'.pos']:'50% 50%';
+        var zoomNum=parseFloat(curCms[ff.k+'.zoom']); if(!(zoomNum>0)) zoomNum=1;
+        var zoomPct=Math.round(zoomNum*100);
         var accept=ff.type==='image'?'image/*':'video/*';
-        var ph=ff.type==='image'?'https://…/image.jpg 或上傳':'https://…/video.mp4 或上傳';
-        var thumb='';
-        if(mv){
-          thumb=ff.type==='image'
-            ? '<div style="margin-top:6px;height:54px;border-radius:6px;background:#f3f3f3 center/cover no-repeat;background-image:url(\''+esc(mv)+'\');"></div>'
-            : '<video src="'+esc(mv)+'" muted style="margin-top:6px;width:100%;max-height:64px;border-radius:6px;background:#000;object-fit:cover;"></video>';
-        }
-        return head+'<div style="margin-bottom:14px;" id="se_wrap_'+id+'">'
-          +'<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:5px;">'+esc(ff.label)+'</div>'
-          +'<input id="se_cms_'+id+'" value="'+esc(mv)+'" placeholder="'+esc(ph)+'" oninput="seOnInput();seThumb(\''+id+'\',\''+ff.type+'\')" style="width:100%;margin-bottom:5px;padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:12px;box-sizing:border-box;">'
-          +'<label style="display:inline-block;font-size:12px;color:#fff;background:#111;border-radius:6px;padding:5px 10px;cursor:pointer;">⬆ 上傳'
-          +'<input type="file" accept="'+accept+'" style="display:none;" onchange="seUploadFile(\''+ff.k+'\',this.files[0],\''+ff.type+'\')"></label>'
-          +'<span id="se_up_'+id+'" style="font-size:11px;margin-left:8px;color:#888;"></span>'
-          +'<div id="se_thumb_'+id+'">'+thumb+'</div>'
+        var ph=ff.type==='image'?'https://…/image.jpg':'https://…/video.mp4';
+        return head+'<div style="margin-bottom:18px;" id="se_wrap_'+id+'" data-mkind="'+ff.type+'">'
+          +'<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">'+esc(ff.label)+'</div>'
+          // hidden state inputs (read by seReadInputs)
+          +'<input type="hidden" id="se_pos_'+id+'" value="'+esc(pos)+'">'
+          +'<input type="hidden" id="se_zoom_'+id+'" value="'+zoomPct+'">'
+          // interactive framing pad (drag to move · drop file to upload)
+          +'<div id="se_pad_'+id+'" data-id="'+id+'" data-kind="'+ff.type+'" '
+            +'style="position:relative;height:120px;border-radius:9px;overflow:hidden;background:#f1f1f3;'
+            +'border:1px solid #e2e2e6;cursor:'+(mv?'grab':'default')+';user-select:none;touch-action:none;">'
+            +'<div id="se_padimg_'+id+'" style="position:absolute;inset:0;"></div>'
+            +'<div id="se_padhint_'+id+'" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;'
+              +'text-align:center;font-size:11px;color:#999;pointer-events:none;line-height:1.5;">'
+              +(mv?'<span style="background:rgba(0,0,0,.45);color:#fff;padding:2px 8px;border-radius:20px;backdrop-filter:blur(2px);">拖曳照片移位</span>'
+                  :'⬇ 把照片/影片檔拖到這裡<br>或按下方「上傳檔案」')+'</div>'
+          +'</div>'
+          // zoom slider
+          +'<div style="display:flex;align-items:center;gap:8px;margin-top:8px;">'
+            +'<span style="font-size:11px;color:#888;white-space:nowrap;">大小</span>'
+            +'<input type="range" min="100" max="300" step="5" value="'+zoomPct+'" id="se_zr_'+id+'" '
+              +'oninput="seSetZoom(\''+id+'\',this.value)" style="flex:1;">'
+            +'<span id="se_zl_'+id+'" style="font-size:11px;color:#888;width:38px;text-align:right;">'+zoomPct+'%</span>'
+            +'<button type="button" onclick="seResetFraming(\''+id+'\')" title="置中、回到原始大小" '
+              +'style="font-size:11px;border:1px solid #ddd;background:#fff;border-radius:6px;padding:3px 7px;cursor:pointer;">重置</button>'
+          +'</div>'
+          // upload + URL row
+          +'<div style="display:flex;align-items:center;gap:8px;margin-top:8px;">'
+            +'<label style="display:inline-flex;align-items:center;font-size:12px;color:#fff;background:#111;border-radius:6px;padding:6px 11px;cursor:pointer;white-space:nowrap;">⬆ 上傳檔案'
+            +'<input type="file" accept="'+accept+'" style="display:none;" onchange="seUploadFile(\''+ff.k+'\',this.files[0],\''+ff.type+'\')"></label>'
+            +'<span id="se_up_'+id+'" style="font-size:11px;color:#888;"></span>'
+          +'</div>'
+          +'<input id="se_cms_'+id+'" value="'+esc(mv)+'" placeholder="或貼網址 '+esc(ph)+'" oninput="seOnInput();sePadRender(\''+id+'\')" '
+            +'style="width:100%;margin-top:7px;padding:6px 9px;border:1px solid #e2e2e6;border-radius:7px;font-size:11px;color:#777;box-sizing:border-box;">'
           +'</div>';
       }
 
@@ -1057,17 +1102,132 @@
         +'<input id="se_zh_'+id+'" value="'+esc(zhV)+'" placeholder="中文" oninput="seOnInput()" style="width:100%;padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;">'
         +'</div>';
     }).join('');
+    seWireMedia();   // render pad previews + attach drag / drop listeners
   };
 
-  // Refresh the small thumbnail under a media field as its URL changes.
-  window.seThumb = function(id, kind){
-    var box=document.getElementById('se_thumb_'+id); if(!box) return;
-    var inp=document.getElementById('se_cms_'+id); var v=inp?inp.value.trim():'';
-    if(!v){ box.innerHTML=''; return; }
-    box.innerHTML = kind==='image'
-      ? '<div style="margin-top:6px;height:54px;border-radius:6px;background:#f3f3f3 center/cover no-repeat;background-image:url(\''+v.replace(/'/g,"%27")+'\');"></div>'
-      : '<video src="'+v.replace(/"/g,'&quot;')+'" muted style="margin-top:6px;width:100%;max-height:64px;border-radius:6px;background:#000;object-fit:cover;"></video>';
+  // ── Partner marquee editor (合作廠商) ──────────────────────────────────────
+  // Defaults mirror what the homepage shows before any edit is saved.
+  var SE_DEFAULT_PARTNERS = ['SonicWave','Harmonia','Crescendo','Aria Studio','NoteForge','Tempo Labs','Cadence Co.'];
+  function seBuildPartners(box){
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+    var list = Array.isArray(window.sePartners) ? window.sePartners : (window.sePartners = SE_DEFAULT_PARTNERS.slice());
+    var rows = list.map(function(name, i){
+      var btn='border:1px solid #ddd;background:#fff;border-radius:6px;width:30px;height:32px;cursor:pointer;font-size:13px;flex-shrink:0;';
+      return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:7px;">'
+        +'<input value="'+esc(name)+'" oninput="sePartnerSet('+i+',this.value)" placeholder="廠商名稱" '
+          +'style="flex:1;min-width:0;padding:8px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;">'
+        +'<button title="上移" onclick="sePartnerMove('+i+',-1)" style="'+btn+'">↑</button>'
+        +'<button title="下移" onclick="sePartnerMove('+i+',1)" style="'+btn+'">↓</button>'
+        +'<button title="刪除" onclick="sePartnerRemove('+i+')" style="'+btn+'color:#c00;">✕</button>'
+        +'</div>';
+    }).join('');
+    box.innerHTML = '<div style="font-size:12px;color:#666;line-height:1.6;margin-bottom:12px;">'
+        +'這些名稱會以跑馬燈顯示在首頁。可<b>新增 / 刪除 / 改名 / 調整順序</b>，按上方「儲存並發布」即上線。'
+        +'<br><span style="color:#999;">（為避免商標問題，統一顯示名稱文字，不放廠商 logo 圖檔。）</span></div>'
+      + rows
+      + '<button onclick="sePartnerAdd()" style="margin-top:6px;font-size:13px;color:#fff;background:#111;border:none;border-radius:7px;padding:9px 13px;cursor:pointer;">＋ 新增廠商</button>';
+  }
+  window.sePartnerSet = function(i, v){ if(window.sePartners){ window.sePartners[i]=v; seOnInput(); } };
+  window.sePartnerAdd = function(){
+    if(!Array.isArray(window.sePartners)) window.sePartners=[];
+    window.sePartners.push('新廠商'); seBuildControls(); sePreview();
   };
+  window.sePartnerRemove = function(i){
+    if(!Array.isArray(window.sePartners)) return;
+    window.sePartners.splice(i,1); seBuildControls(); sePreview();
+  };
+  window.sePartnerMove = function(i, dir){
+    var a=window.sePartners; if(!Array.isArray(a)) return;
+    var j=i+dir; if(j<0||j>=a.length) return;
+    var t=a[i]; a[i]=a[j]; a[j]=t; seBuildControls(); sePreview();
+  };
+
+  // ── Media framing helpers (drag-to-reposition · zoom · drop-to-upload) ──────
+  // Paint the pad preview to mirror what the live site will show for this media.
+  window.sePadRender = function(id){
+    var pad=document.getElementById('se_pad_'+id); if(!pad) return;
+    var kind=pad.getAttribute('data-kind');
+    var inp=document.getElementById('se_cms_'+id);
+    var v=inp?inp.value.trim():'';
+    var pos=(document.getElementById('se_pos_'+id)||{}).value || '50% 50%';
+    var zoom=parseInt((document.getElementById('se_zoom_'+id)||{}).value||'100',10)/100;
+    var img=document.getElementById('se_padimg_'+id);
+    var hint=document.getElementById('se_padhint_'+id);
+    if(!img) return;
+    if(!v){ img.innerHTML=''; img.style.cssText='position:absolute;inset:0;'; pad.style.cursor='default';
+            if(hint) hint.innerHTML='⬇ 把照片/影片檔拖到這裡<br>或按下方「上傳檔案」'; return; }
+    pad.style.cursor='grab';
+    if(hint) hint.innerHTML='<span style="background:rgba(0,0,0,.45);color:#fff;padding:2px 8px;border-radius:20px;">拖曳照片移位</span>';
+    if(kind==='image'){
+      img.innerHTML='';
+      img.style.cssText='position:absolute;inset:0;background-repeat:no-repeat;background-image:url("'
+        +v.replace(/"/g,'%22')+'");background-position:'+pos+';background-size:'+(zoom>1?(zoom*100)+'%':'cover')+';';
+    } else {
+      img.style.cssText='position:absolute;inset:0;overflow:hidden;';
+      img.innerHTML='<video src="'+v.replace(/"/g,'&quot;')+'" muted playsinline loop autoplay '
+        +'style="width:100%;height:100%;object-fit:cover;object-position:'+pos+';transform:scale('+zoom+');transform-origin:'+pos+';"></video>';
+    }
+  };
+  // back-compat alias (some callers still say seThumb)
+  window.seThumb = function(id){ window.sePadRender(id); };
+
+  window.seSetZoom = function(id, val){
+    var z=document.getElementById('se_zoom_'+id); if(z) z.value=val;
+    var lbl=document.getElementById('se_zl_'+id); if(lbl) lbl.textContent=val+'%';
+    sePadRender(id); seOnInput();
+  };
+  window.seResetFraming = function(id){
+    var p=document.getElementById('se_pos_'+id); if(p) p.value='50% 50%';
+    var z=document.getElementById('se_zoom_'+id); if(z) z.value='100';
+    var zr=document.getElementById('se_zr_'+id); if(zr) zr.value='100';
+    var lbl=document.getElementById('se_zl_'+id); if(lbl) lbl.textContent='100%';
+    sePadRender(id); seOnInput();
+  };
+
+  // Render every media pad in the current panel + wire pointer-drag & file-drop.
+  function seWireMedia(){
+    document.querySelectorAll('[id^="se_pad_"]').forEach(function(pad){
+      var id=pad.getAttribute('data-id'); if(!id) return;
+      sePadRender(id);
+      if(pad.__wired) return; pad.__wired=true;
+
+      // (1) drag the photo to reposition its focal point
+      var dragging=false, sx=0, sy=0, px=50, py=50;
+      function clamp(n){ return Math.max(0, Math.min(100, n)); }
+      function curPos(){ var v=((document.getElementById('se_pos_'+id)||{}).value||'50% 50%').split(' ');
+                         return [parseFloat(v[0])||50, parseFloat(v[1])||50]; }
+      pad.addEventListener('pointerdown', function(e){
+        var inp=document.getElementById('se_cms_'+id); if(!inp||!inp.value.trim()) return; // no image yet
+        dragging=true; var c=curPos(); px=c[0]; py=c[1]; sx=e.clientX; sy=e.clientY;
+        pad.style.cursor='grabbing'; pad.setPointerCapture&&pad.setPointerCapture(e.pointerId);
+        e.preventDefault();
+      });
+      pad.addEventListener('pointermove', function(e){
+        if(!dragging) return;
+        var w=pad.clientWidth||1, h=pad.clientHeight||1;
+        // drag right → reveal left side → focal % decreases (grab-and-move feel)
+        var nx=clamp(px - (e.clientX-sx)/w*100);
+        var ny=clamp(py - (e.clientY-sy)/h*100);
+        var pe=document.getElementById('se_pos_'+id); if(pe) pe.value=nx.toFixed(1)+'% '+ny.toFixed(1)+'%';
+        sePadRender(id); seOnInput();
+      });
+      function endDrag(){ if(dragging){ dragging=false; pad.style.cursor='grab'; } }
+      pad.addEventListener('pointerup', endDrag);
+      pad.addEventListener('pointercancel', endDrag);
+
+      // (2) drag a file from the desktop onto the pad to upload it
+      pad.addEventListener('dragover', function(e){ e.preventDefault(); pad.style.outline='2px dashed #2563eb'; });
+      pad.addEventListener('dragleave', function(){ pad.style.outline=''; });
+      pad.addEventListener('drop', function(e){
+        e.preventDefault(); pad.style.outline='';
+        var f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if(!f) return;
+        var kind=pad.getAttribute('data-kind');
+        // find the field key whose slug == id, so the upload path is correct
+        var ff=SE_FIELDS.filter(function(x){ return (x.type==='image'||x.type==='video') && seSlug(x.k)===id; })[0];
+        if(ff) window.seUploadFile(ff.k, f, kind);
+      });
+    });
+  }
 
   // Upload a chosen file to Firebase Storage and write its public URL into the field.
   window.seUploadFile = async function(fieldKey, file, kind){
@@ -1118,6 +1278,8 @@
       try{ seCurrentConfig=JSON.parse(localStorage.getItem('opusz_site_home')||'null')||{i18n:{en:{},zh:{}}}; }catch(_){ seCurrentConfig={i18n:{en:{},zh:{}}}; }
     }
     if(!seCurrentConfig.i18n) seCurrentConfig.i18n={en:{},zh:{}};
+    window.sePartners = (Array.isArray(seCurrentConfig.partners) && seCurrentConfig.partners.length)
+      ? seCurrentConfig.partners.slice() : SE_DEFAULT_PARTNERS.slice();
     seBuildSectionList();
     seBuildControls();
     var ifr=document.getElementById('seFrame');
