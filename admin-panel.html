@@ -1140,8 +1140,10 @@
     // Hero: Canva-style drag hint + reset (the actual dragging happens in the preview).
     var heroHint = (seCurrentSection==='hero')
       ? '<div style="font-size:12px;color:#155e75;background:#ecfeff;border:1px solid #a5f3fc;border-radius:8px;padding:9px 11px;margin-bottom:12px;line-height:1.6;">'
-        +'🖱️ <b>可直接在中間預覽用滑鼠拖曳</b>：標題、副標、兩個按鈕、OPUS.Z 品牌字，拖到任意位置（不影響動畫）。拖完按上方「🚀 儲存並發布到網站」。'
-        +'<br><button onclick="seHeroPosReset()" style="margin-top:7px;font-size:11px;border:1px solid #67e8f9;background:#fff;border-radius:6px;padding:4px 9px;cursor:pointer;">↺ 重置位置</button></div>'
+        +'🖱️ <b>可直接在中間預覽用滑鼠拖曳</b>：標題、副標、兩個按鈕、OPUS.Z 品牌字，拖到任意位置（不影響動畫）。'
+        +'<br>下方滑桿可調<b>每個元素的大小</b>。改完按上方「🚀 儲存並發布到網站」。'
+        +seHeroSizeRows()
+        +'<button onclick="seHeroPosReset()" style="margin-top:10px;font-size:11px;border:1px solid #67e8f9;background:#fff;border-radius:6px;padding:4px 9px;cursor:pointer;">↺ 重置位置與大小</button></div>'
       : '';
     box.innerHTML = heroHint + fieldsHtml + engHtml;
     seWireMedia();   // render pad previews + attach drag / drop listeners (Firebase media)
@@ -1527,12 +1529,33 @@
       if(note){ note.textContent='⚠ 上傳失敗：'+(e.code||e.message); note.style.color='#c00'; }
     }
   };
-  // Clear all hero drag offsets and push the reset to the live preview.
+  // Size sliders for each draggable hero element (50%–200%).
+  function seHeroSizeRows(){
+    var defs=[['headline','標題'],['sub','副標'],['btnFind','按鈕 · Find Artists'],['btnProject','按鈕 · Create a Project'],['brand','品牌 OPUS.Z']];
+    var hp=window.seHeroPos||{};
+    return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:10px 0 6px;">元素大小</div>'+defs.map(function(d){
+      var key=d[0], lbl=d[1]; var s=(hp[key]&&hp[key].s)?hp[key].s:1; var pct=Math.round(s*100);
+      return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
+        +'<span style="font-size:11px;color:#155e75;width:130px;flex-shrink:0;">'+lbl+'</span>'
+        +'<input type="range" min="50" max="200" step="5" value="'+pct+'" oninput="seHeroSetSize(\''+key+'\',this.value)" style="flex:1;">'
+        +'<span id="seHzl_'+key+'" style="font-size:11px;color:#0e7490;width:36px;text-align:right;">'+pct+'%</span>'
+        +'</div>';
+    }).join('');
+  }
+  window.seHeroSetSize = function(key, val){
+    window.seHeroPos = window.seHeroPos || {};
+    window.seHeroPos[key] = Object.assign({}, window.seHeroPos[key], { s:(parseInt(val,10)||100)/100 });
+    var lbl=document.getElementById('seHzl_'+key); if(lbl) lbl.textContent=val+'%';
+    sePreview();   // live-apply scale to the preview
+  };
+
+  // Clear all hero drag offsets + sizes and push the reset to the live preview.
   window.seHeroPosReset = function(){
     window.seHeroPos = {};
+    seBuildControls();   // refresh sliders back to 100%
     var ifr=document.getElementById('seFrame');
     if(ifr && ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszCmsPreview:true, config:seReadInputs()}, '*'); }catch(e){} }
-    var msg=document.getElementById('seSaveMsg'); if(msg){ msg.textContent='已重置位置（記得按發布）'; msg.style.color='#155e75'; }
+    var msg=document.getElementById('seSaveMsg'); if(msg){ msg.textContent='已重置位置與大小（記得按發布）'; msg.style.color='#155e75'; }
   };
 
   window.seSave = async function(){
@@ -1614,9 +1637,10 @@
         if(!e || !e.data) return;
         if(e.data.__opuszCmsSelect && e.data.key){ seSelectSection(e.data.key); }
         // Hero element was dragged in the preview → remember its offset for saving.
+        // Merge so an existing size (s) isn't wiped by a position update.
         if(e.data.__opuszHeroPos && e.data.key){
           window.seHeroPos = window.seHeroPos || {};
-          window.seHeroPos[e.data.key] = { x:e.data.x|0, y:e.data.y|0 };
+          window.seHeroPos[e.data.key] = Object.assign({}, window.seHeroPos[e.data.key], { x:e.data.x|0, y:e.data.y|0 });
         }
       });
     }

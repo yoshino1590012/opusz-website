@@ -38,8 +38,11 @@ function applyHeroPos(map){
   map = map || {};
   Object.keys(HERO_DRAG).forEach(function(k){
     var el = document.querySelector(HERO_DRAG[k]); if(!el) return;
-    var p = map[k];
-    el.style.translate = (p && (p.x || p.y)) ? ((p.x||0)+'px '+(p.y||0)+'px') : '';
+    var p = map[k] || {};
+    // position via independent `translate`, size via independent `scale` — both are
+    // separate from `transform`, so the reveal/scale animations stay intact.
+    el.style.translate = (p.x || p.y) ? ((p.x||0)+'px '+(p.y||0)+'px') : '';
+    el.style.scale     = (p.s && p.s !== 1) ? String(p.s) : '';
   });
 }
 
