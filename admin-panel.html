@@ -1244,13 +1244,24 @@
       // (3) upload via file picker
       function doUpload(file){
         if(!file) return; var w=win(); if(!w||!w.opzEdit) return;
+        // iPhone HEIC/HEIF can't be decoded by the browser → guide the owner instead of hanging.
+        var nm=(file.name||'').toLowerCase(), tp=(file.type||'').toLowerCase();
+        if(tp.indexOf('heic')>=0 || tp.indexOf('heif')>=0 || /\.(heic|heif)$/.test(nm)){
+          if(note){ note.innerHTML='⚠ 這是 iPhone 的 HEIC 檔，瀏覽器無法處理。<br>請改用 JPG／PNG（iPhone：設定→相機→格式→「最相容」，或先把照片截圖）'; note.style.color='#c00'; }
+          return;
+        }
         if(note){ note.textContent='上傳中…'; note.style.color='#888'; }
-        w.opzEdit.setImageFile(group, cls, file).then(function(url){
+        var settled=false;
+        var to=setTimeout(function(){ if(settled) return; settled=true;
+          if(note){ note.textContent='⚠ 上傳逾時，請重試或換一張較小的圖'; note.style.color='#c00'; } }, 30000);
+        function fail(m){ if(settled) return; settled=true; clearTimeout(to); if(note){ note.textContent=m; note.style.color='#c00'; } }
+        Promise.resolve(w.opzEdit.setImageFile(group, cls, file)).then(function(url){
+          if(settled) return; settled=true; clearTimeout(to);
           if(url){ pad.setAttribute('data-url', url); pad._url=url; pad.style.cursor='grab';
                    if(hint) hint.innerHTML='<span style="background:rgba(0,0,0,.45);color:#fff;padding:2px 8px;border-radius:20px;">拖曳照片移位</span>';
                    seEngPaint(pad); if(note){ note.textContent='✓ 已存（記得發佈上線）'; note.style.color='#16a34a'; } }
-          else if(note){ note.textContent='⚠ 上傳失敗（伺服器沒開？）'; note.style.color='#c00'; }
-        });
+          else if(note){ note.textContent='⚠ 上傳失敗（請重試）'; note.style.color='#c00'; }
+        }).catch(function(){ fail('⚠ 上傳出錯，請重試'); });
       }
       var fi=pad.parentNode.querySelector('.see-file');
       if(fi) fi.addEventListener('change', function(){ doUpload(fi.files[0]); });

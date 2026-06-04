@@ -570,7 +570,7 @@ nav.mega-open .nav-links a::before {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, -56%);   /* centred, biased slightly upward (中上) */
+  transform: translate(-50%, -50%);   /* centred in the card */
   width: min(88%, 680px);
   z-index: 5;
   pointer-events: none;
@@ -584,13 +584,13 @@ nav.mega-open .nav-links a::before {
 }
 /* ── centred headline + subtitle ── */
 .hco-headline {
-  font-size: calc(var(--k)*46px); line-height: 1.04; font-weight: 800;
-  letter-spacing: -0.02em; color: var(--black); margin: 0 0 calc(var(--k)*14px);
-  max-width: 16ch;
+  font-size: calc(var(--k)*38px); line-height: 1.06; font-weight: 800;
+  letter-spacing: -0.02em; color: var(--black); margin: 0 0 calc(var(--k)*12px);
+  max-width: 22ch;
 }
 .hco-sub {
-  font-size: calc(var(--k)*16.5px); line-height: 1.5; font-weight: 500;
-  color: rgba(0,0,0,.68); margin: 0 0 calc(var(--k)*26px); max-width: 40ch;
+  font-size: calc(var(--k)*15px); line-height: 1.5; font-weight: 500;
+  color: rgba(0,0,0,.68); margin: 0 0 calc(var(--k)*22px); max-width: 38ch;
 }
 /* ── initial hidden state ── */
 .hco-btns,
@@ -2093,7 +2093,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   /* Services items: 20% bigger than --k baseline */
   .hco-services li { font-size: calc(var(--k) * 30.6px); }
   /* Overlay stays centred (upper-centre) at this breakpoint too */
-  .hc-card-overlay { left: 50%; top: 50%; bottom: auto; transform: translate(-50%, -56%); }
+  .hc-card-overlay { left: 50%; top: 50%; bottom: auto; transform: translate(-50%, -50%); }
 }
 
 /* ── RESPONSIVE ── */
@@ -4319,17 +4319,23 @@ try {
 
   /* ── Compress image to ≤1400px JPEG before storing ── */
   function compressImg(dataUrl, cb) {
+    var done = false; function finish(v){ if(done) return; done = true; cb(v); }
     var img = new Image();
     img.onload = function() {
-      var MAX = 1400, w = img.naturalWidth, h = img.naturalHeight;
-      var scale = Math.min(1, MAX / Math.max(w, h));
-      var cv = document.createElement('canvas');
-      cv.width  = Math.round(w * scale);
-      cv.height = Math.round(h * scale);
-      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-      cb(cv.toDataURL('image/jpeg', 0.82));
+      try {
+        var MAX = 1400, w = img.naturalWidth, h = img.naturalHeight;
+        var scale = Math.min(1, MAX / Math.max(w, h));
+        var cv = document.createElement('canvas');
+        cv.width  = Math.round(w * scale);
+        cv.height = Math.round(h * scale);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        finish(cv.toDataURL('image/jpeg', 0.82));
+      } catch(e) { finish(dataUrl); }
     };
-    img.onerror = function() { cb(dataUrl); }; // fallback: store original if canvas fails
+    img.onerror = function() { finish(dataUrl); }; // fallback: store original if canvas fails
+    // Some formats (notably iPhone HEIC) fire NEITHER onload nor onerror in Chrome,
+    // which would hang the upload forever — bail out after 12s so it never sticks.
+    setTimeout(function(){ finish(dataUrl); }, 12000);
     img.src = dataUrl;
   }
 
