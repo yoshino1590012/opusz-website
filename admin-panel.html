@@ -979,6 +979,18 @@
       wrap.classList.toggle('se-phone', name==='phone');
       // Scale the bezel/radius/island proportionally with the screen.
       wrap.style.setProperty('--sps', name==='phone' ? scale : 1);
+      // CRITICAL: the homepage decides its layout (single mobile image vs. multi-
+      // column desktop, focal positions, etc.) from its width AT BOOT TIME — not
+      // purely via CSS. Merely resizing the iframe leaves it in its old layout
+      // (that caused the white band / image "hole" / wrong positions in the phone
+      // preview). So we RELOAD the iframe at the target width whenever the width
+      // changes → the page boots fresh exactly like opening the real site at that
+      // size, making the preview faithful to the real device. onload re-applies
+      // the current edits + section highlight.
+      if(ifr.__opzBootW !== devW){
+        ifr.__opzBootW = devW;
+        ifr.src = 'musician-platform.html?cmsedit=1';
+      }
     }
     document.querySelectorAll('.se-dev-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dev')===name); });
   };
@@ -1497,8 +1509,9 @@
     seBuildControls();
     var ifr=document.getElementById('seFrame');
     if(ifr){
+      // Re-apply current edits + highlight after every (re)load. seSetDevice owns
+      // setting/reloading the src (it boots the iframe at the right device width).
       ifr.onload=function(){ setTimeout(function(){ sePreview(); seHighlight(seCurrentSection); }, 500); };
-      if(!ifr.getAttribute('src')) ifr.src='musician-platform.html?cmsedit=1';
     }
     seSetDevice('desktop');
     // Preview → editor: clicking a section in the iframe selects it here (once).

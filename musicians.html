@@ -497,9 +497,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 
 <script>
 // ── Data ──────────────────────────────────────────────────────────────────────
-var MUSICIANS = [
-  {id:1, name:'Martin', instrument:'Violin', country:'Taiwan', region:'台北', style:'Classical', level:'Professional', rating:4.9, reviews:148, bio:'Principal violinist with 15 years of orchestral experience. Specialises in Romantic and Contemporary repertoire.', emoji:'🎻', color:'#1a1a2e', profileUrl:'musician-profile.html'},
-];
+// Public directory shows ONLY real published musicians (loaded from Firestore below).
+// No demo/sample seed — the page starts empty and fills with real accounts.
+var MUSICIANS = [];
 
 // ── State ─────────────────────────────────────────────────────────────────────
 var currentCat = '';

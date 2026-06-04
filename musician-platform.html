@@ -4,6 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <script>if('scrollRestoration'in history)history.scrollRestoration='manual';window.scrollTo(0,0);</script>
+<script>
+/* Front-end editors retired — editing now lives in the back-office Site Editor.
+   Swallow the legacy on-page editor hotkeys so none of them can open:
+     P = photo editor · Q = layout editor · R = device preview · O = site-manager jump.
+   Registered first (capture phase) so it pre-empts every editor's own key handler.
+   Apply-on-load rendering (image/video positions, layout restore) is left untouched. */
+(function(){
+  var KEYS = {p:1,P:1,q:1,Q:1,r:1,R:1,o:1,O:1};
+  window.addEventListener('keydown', function(e){
+    if(e.metaKey||e.ctrlKey||e.altKey) return;     // leave real shortcuts (Cmd+R etc.) alone
+    if(!KEYS[e.key]) return;
+    var t=e.target;
+    if(t&&(t.tagName==='INPUT'||t.tagName==='TEXTAREA'||t.isContentEditable)) return; // allow typing
+    e.stopImmediatePropagation(); e.preventDefault();   // block the editor from opening
+  }, true);
+})();
+</script>
 <title>OPUS.Z</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -332,7 +349,10 @@ nav.mega-open .nav-links a::before {
 /* ── HERO ── */
 .hero { position: relative; width: 100%; height: 450vh; }
 /* bg matches card so even if sub-pixel gaps appear at edges, no dark bleed-through */
-.hero-sticky { position: sticky; top: 0; height: 100vh; overflow: hidden; background: #f8f8f8; }
+/* height uses dvh (the *visible* viewport) so on iOS Safari the address bar can't
+   leave a dark strip of the photo grid above the centred hero card. vh fallback
+   for older browsers. */
+.hero-sticky { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #f8f8f8; }
 
 /* Hero card: renders at 100vw (viewport fill) at scale=1, shrinks to card via JS scale-down.
    Downscaling is always crisp. --k compensates px values for the card-mode end-scale. */
@@ -1846,7 +1866,13 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 .nav-login-vsep {
   height: 1px; background: #ebebeb; margin: 2px 8px; flex-shrink: 0;
 }
-@media(max-width:760px){ .nav-login-btn span.login-label { display:none; } }
+.nav-login-btn .login-icon { display:none; }   /* desktop: text + chevron only */
+@media(max-width:760px){
+  /* Mobile: hide the text + chevron, show a clear account icon (not an empty box) */
+  .nav-login-btn span.login-label { display:none; }
+  .nav-login-btn .login-chevron { display:none; }
+  .nav-login-btn .login-icon { display:block; width:19px; height:19px; }
+}
 
 /* My Account dropdown: no icon boxes, clean text-only rows */
 #accountDropdown a::before { display: none; }
@@ -2145,8 +2171,10 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     </button>
     <!-- Login Button (shown when logged out) -->
     <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
+      <!-- person icon: shown on mobile so the button isn't an empty box -->
+      <svg class="login-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.5-5.6 7-5.6s7 2 7 5.6"/></svg>
       <span class="login-label">Log in</span>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+      <svg class="login-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <!-- My Account Button (shown when logged in) -->
     <button class="nav-login-btn nav-account-btn" id="navAccountBtn" aria-label="My Account" style="display:none">
