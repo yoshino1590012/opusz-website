@@ -1017,7 +1017,8 @@ nav.mega-open .nav-links a::before {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding-left: 130px;
+  /* shifted toward the page centre (was 130px) so "What's On" sits closer to the posters */
+  padding-left: clamp(130px, 17vw, 300px);
   padding-right: 60px;
 }
 .work-h { display: flex; align-items: baseline; gap: 10px; }
