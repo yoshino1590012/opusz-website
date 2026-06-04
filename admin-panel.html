@@ -670,7 +670,7 @@
           .se-dev-btn.active{ background:#111;color:#fff;border-color:#111; }
           /* iPhone-style frame — bezel/radius/island all scale together via --sps,
              so the whole phone enlarges in proportion (not just the screen). */
-          #seFrameWrap.se-phone{ background:#111 !important; border-radius:calc(46px * var(--sps,1)) !important; padding:calc(13px * var(--sps,1)); box-shadow:0 12px 48px rgba(0,0,0,.45); position:relative; }
+          #seFrameWrap.se-phone{ box-sizing:content-box !important; background:#111 !important; border-radius:calc(46px * var(--sps,1)) !important; padding:calc(13px * var(--sps,1)); box-shadow:0 12px 48px rgba(0,0,0,.45); position:relative; }
           #seFrameWrap.se-phone #seFrame{ border-radius:calc(34px * var(--sps,1)); }
           /* Dynamic Island */
           #seFrameWrap.se-phone::after{ content:''; position:absolute; top:calc(22px * var(--sps,1)); left:50%; transform:translateX(-50%); width:calc(90px * var(--sps,1)); height:calc(26px * var(--sps,1)); background:#000; border-radius:calc(16px * var(--sps,1)); z-index:3; pointer-events:none; }
@@ -708,8 +708,10 @@
           <div style="width:300px;flex-shrink:0;">
             <div id="seSectionTitle" style="font-size:12px;font-weight:800;color:#111;margin-bottom:10px;">主視覺 / Hero</div>
             <div id="seControls"></div>
-            <button onclick="seSave()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#111;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">儲存並發布 / Save</button>
+            <button onclick="seSave()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#111;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">儲存文字 / Save text</button>
             <div id="seSaveMsg" style="font-size:12px;margin-top:8px;text-align:center;"></div>
+            <button onclick="seEnginePublish(this)" style="width:100%;margin-top:8px;padding:11px;border:none;border-radius:10px;background:#2ea44f;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">🚀 發佈照片到網站</button>
+            <div id="sePublishMsg" style="font-size:12px;margin-top:6px;text-align:center;color:#888;line-height:1.5;">改完照片/大小/位置後，按這顆才會更新到線上（約 30 秒）。</div>
           </div>
         </div>
       </div>
@@ -898,10 +900,7 @@
     {section:'services', sec:'其他 / Other', k:'svc.label', label:'服務區標籤', en:'(Services)', zh:'（服務項目）'},
     {section:'services', k:'svc.btn', label:'服務區按鈕', en:'Get Started', zh:'開始合作'},
 
-    // ── 作品/海報 Work (#artists) ──
-    {section:'work', sec:'作品圖片 / Work images（可上傳）', type:'image', k:'home.work.1', label:'作品卡 1'},
-    {section:'work', type:'image', k:'home.work.2', label:'作品卡 2'},
-    {section:'work', type:'image', k:'home.work.3', label:'作品卡 3'},
+    // ── 作品/海報 Work (#artists) — 圖片改由首頁引擎(opzEdit)管理，見 SE_ENGINE_GROUP ──
 
     // ── Showreel 影片 (#showreel-grid) ──
     {section:'showreel', sec:'Showreel 影片 / Videos（可上傳 .mp4）', type:'video', k:'home.showreel.1', label:'影片 1'},
@@ -932,6 +931,9 @@
     {key:'blog',     label:'部落格 / Blog'}
   ];
   var seCurrentSection = 'hero';
+  // Sections whose IMAGES are driven by the homepage's mature photo engine (opzEdit),
+  // stored to site-data.json + assets/images via server.py. Key = SE section, value = opzEdit group.
+  var SE_ENGINE_GROUP = { hero:'hero', discover:'cat', work:'poster', services:'svc', blog:'blog' };
   // Each device = a REAL viewport size. The iframe renders at that true size (so the
   // page picks the correct responsive layout — exactly like opening it at that width),
   // then we scale it DOWN with transform to fit the preview column (Shopify-style).
@@ -1055,11 +1057,12 @@
     // Partner marquee uses a custom list editor (not the fixed SE_FIELDS schema).
     if(seCurrentSection==='partners'){ seBuildPartners(box); return; }
     var fields = SE_FIELDS.filter(function(ff){ return ff.section===seCurrentSection; });
-    if(!fields.length){
+    var engGrp = SE_ENGINE_GROUP[seCurrentSection];
+    if(!fields.length && !engGrp){
       box.innerHTML = '<div style="font-size:12px;color:#999;line-height:1.6;padding:8px 0;">此區段目前沒有可編輯欄位（之後會陸續加入）。<br>你仍可在左側點它、在中間預覽看到它被框選。</div>';
       return;
     }
-    box.innerHTML = fields.map(function(ff){
+    var fieldsHtml = fields.map(function(ff){
       var id=seSlug(ff.k);
       var head=ff.sec?'<div style="font-size:11px;font-weight:800;color:#111;margin:14px 0 8px;border-top:1px solid #eee;padding-top:12px;">'+esc(ff.sec)+'</div>':'';
 
@@ -1117,7 +1120,153 @@
         +'<input id="se_zh_'+id+'" value="'+esc(zhV)+'" placeholder="中文" oninput="seOnInput()" style="width:100%;padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;">'
         +'</div>';
     }).join('');
-    seWireMedia();   // render pad previews + attach drag / drop listeners
+    // Append engine-driven image block (drives the homepage photo engine via opzEdit)
+    var engHtml = engGrp ? '<div id="seEngBox" data-grp="'+engGrp+'"></div>' : '';
+    box.innerHTML = fieldsHtml + engHtml;
+    seWireMedia();   // render pad previews + attach drag / drop listeners (Firebase media)
+    if(engGrp) seEngLoad(engGrp);   // load + wire engine image pads
+  };
+
+  // ── Engine-backed image editing (drives homepage opzEdit → site-data.json) ──
+  // The preview iframe runs musician-platform.html, which exposes window.opzEdit.
+  // We read its slot list and render a drag-pad + zoom + upload per image, then
+  // push every change straight into the page engine (live preview + save).
+  function _seWin(){ var ifr=document.getElementById('seFrame'); return ifr && ifr.contentWindow; }
+  window.seEngLoad = function(group){
+    var box=document.getElementById('seEngBox'); if(!box) return;
+    var win=_seWin();
+    if(!win || !win.opzEdit){
+      box.innerHTML='<div style="font-size:12px;color:#999;padding:8px 0;">預覽載入中…</div>';
+      seEngLoad._n=(seEngLoad._n||0)+1;
+      if(seEngLoad._n<25) setTimeout(function(){ if(SE_ENGINE_GROUP[seCurrentSection]===group) seEngLoad(group); }, 300);
+      return;
+    }
+    seEngLoad._n=0;
+    var slots=[]; try{ slots=win.opzEdit.list(group)||[]; }catch(e){ slots=[]; }
+    function escA(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+    function escU(s){ return String(s).replace(/'/g,'%27').replace(/"/g,'%22'); }
+    var head='<div style="font-size:11px;font-weight:800;color:#111;margin:14px 0 8px;border-top:1px solid #eee;padding-top:12px;">圖片（拖曳移位・滑桿縮放・拖檔上傳）</div>';
+    box.innerHTML = head + slots.map(function(s){
+      var id='see_'+String(s.cls).replace(/\W/g,'_');
+      var zoomPct=Math.round(100+(s.zoom||0));
+      var px=(s.x!=null?s.x:50), py=(s.y!=null?s.y:50);
+      var bg = s.url ? ('background-repeat:no-repeat;background-image:url(\''+escU(s.url)+'\');background-position:'+px+'% '+py+'%;background-size:'+((s.zoom||0)>0?(100+s.zoom)+'%':'cover')+';') : '';
+      var hint = s.url ? '<span style="background:rgba(0,0,0,.45);color:#fff;padding:2px 8px;border-radius:20px;">拖曳照片移位</span>' : '⬇ 拖照片到這裡或按下方「上傳檔案」';
+      return '<div style="margin-bottom:16px;">'
+        +'<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:6px;">'+escA(s.label)+'</div>'
+        +'<div id="'+id+'" class="see-pad" data-group="'+escA(group)+'" data-cls="'+escA(s.cls)+'" data-x="'+px+'" data-y="'+py+'" data-zoom="'+(s.zoom||0)+'" '
+          +'style="position:relative;height:120px;border-radius:9px;overflow:hidden;background:#f1f1f3;border:1px solid #e2e2e6;cursor:'+(s.url?'grab':'default')+';user-select:none;touch-action:none;">'
+          +'<div class="see-img" style="position:absolute;inset:0;'+bg+'"></div>'
+          +'<div class="see-hint" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;color:#999;pointer-events:none;line-height:1.5;">'+hint+'</div>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-top:8px;">'
+          +'<span style="font-size:11px;color:#888;white-space:nowrap;">大小</span>'
+          +'<input type="range" min="100" max="300" step="5" value="'+zoomPct+'" class="see-zoom" style="flex:1;">'
+          +'<span class="see-zlbl" style="font-size:11px;color:#888;width:38px;text-align:right;">'+zoomPct+'%</span>'
+          +'<button type="button" class="see-reset" title="置中、回到原始大小" style="font-size:11px;border:1px solid #ddd;background:#fff;border-radius:6px;padding:3px 7px;cursor:pointer;">重置</button>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-top:8px;">'
+          +'<label style="display:inline-flex;align-items:center;font-size:12px;color:#fff;background:#111;border-radius:6px;padding:6px 11px;cursor:pointer;white-space:nowrap;">⬆ 上傳檔案'
+          +'<input type="file" accept="image/*" class="see-file" style="display:none;"></label>'
+          +'<span class="see-note" style="font-size:11px;color:#888;"></span>'
+        +'</div>'
+        +'</div>';
+    }).join('');
+    seEngWire(group);
+  };
+
+  // Repaint one engine pad's preview image from its dataset.
+  function seEngPaint(pad){
+    var img=pad.querySelector('.see-img'); if(!img) return;
+    var url=pad.getAttribute('data-url')||pad._url||'';
+    var x=parseFloat(pad.getAttribute('data-x'))||0, y=parseFloat(pad.getAttribute('data-y'))||0;
+    var z=parseFloat(pad.getAttribute('data-zoom'))||0;
+    if(!url){ img.style.cssText='position:absolute;inset:0;'; return; }
+    img.style.cssText='position:absolute;inset:0;background-repeat:no-repeat;background-image:url("'
+      +url.replace(/"/g,'%22')+'");background-position:'+x+'% '+y+'%;background-size:'+(z>0?(100+z)+'%':'cover')+';';
+  }
+
+  function seEngWire(group){
+    document.querySelectorAll('#seEngBox .see-pad').forEach(function(pad){
+      if(pad.__wired) return; pad.__wired=true;
+      var cls=pad.getAttribute('data-cls');
+      var note=pad.parentNode.querySelector('.see-note');
+      var hint=pad.querySelector('.see-hint');
+      function win(){ return _seWin(); }
+      function getXYZ(){ return { x:parseFloat(pad.getAttribute('data-x'))||0, y:parseFloat(pad.getAttribute('data-y'))||0, zoom:parseFloat(pad.getAttribute('data-zoom'))||0 }; }
+      function commit(){ var w=win(); if(w&&w.opzEdit){ try{ w.opzEdit.setFrame(group, cls, getXYZ()); }catch(e){} } }
+      function hasImg(){ return !!(pad.getAttribute('data-url')||pad._url); }
+
+      // (1) drag to reposition focal point
+      var dragging=false, sx=0, sy=0, px=50, py=50;
+      function clamp(n){ return Math.max(0, Math.min(100, n)); }
+      pad.addEventListener('pointerdown', function(e){
+        if(!hasImg()) return;
+        dragging=true; px=parseFloat(pad.getAttribute('data-x'))||50; py=parseFloat(pad.getAttribute('data-y'))||50;
+        sx=e.clientX; sy=e.clientY; pad.style.cursor='grabbing';
+        pad.setPointerCapture&&pad.setPointerCapture(e.pointerId); e.preventDefault();
+      });
+      pad.addEventListener('pointermove', function(e){
+        if(!dragging) return;
+        var w=pad.clientWidth||1, h=pad.clientHeight||1;
+        var nx=clamp(px-(e.clientX-sx)/w*100), ny=clamp(py-(e.clientY-sy)/h*100);
+        pad.setAttribute('data-x', nx.toFixed(1)); pad.setAttribute('data-y', ny.toFixed(1));
+        seEngPaint(pad); commit();
+      });
+      function end(){ if(dragging){ dragging=false; pad.style.cursor='grab'; } }
+      pad.addEventListener('pointerup', end); pad.addEventListener('pointercancel', end);
+
+      // (2) zoom slider
+      var zr=pad.parentNode.querySelector('.see-zoom'), zl=pad.parentNode.querySelector('.see-zlbl');
+      if(zr) zr.addEventListener('input', function(){
+        var v=parseInt(zr.value,10); if(zl) zl.textContent=v+'%';
+        pad.setAttribute('data-zoom', (v-100)); seEngPaint(pad); commit();
+      });
+      // reset
+      var rb=pad.parentNode.querySelector('.see-reset');
+      if(rb) rb.addEventListener('click', function(){
+        pad.setAttribute('data-x','50'); pad.setAttribute('data-y','50'); pad.setAttribute('data-zoom','0');
+        if(zr) zr.value=100; if(zl) zl.textContent='100%'; seEngPaint(pad); commit();
+      });
+
+      // (3) upload via file picker
+      function doUpload(file){
+        if(!file) return; var w=win(); if(!w||!w.opzEdit) return;
+        if(note){ note.textContent='上傳中…'; note.style.color='#888'; }
+        w.opzEdit.setImageFile(group, cls, file).then(function(url){
+          if(url){ pad.setAttribute('data-url', url); pad._url=url; pad.style.cursor='grab';
+                   if(hint) hint.innerHTML='<span style="background:rgba(0,0,0,.45);color:#fff;padding:2px 8px;border-radius:20px;">拖曳照片移位</span>';
+                   seEngPaint(pad); if(note){ note.textContent='✓ 已存（記得發佈上線）'; note.style.color='#16a34a'; } }
+          else if(note){ note.textContent='⚠ 上傳失敗（伺服器沒開？）'; note.style.color='#c00'; }
+        });
+      }
+      var fi=pad.parentNode.querySelector('.see-file');
+      if(fi) fi.addEventListener('change', function(){ doUpload(fi.files[0]); });
+
+      // (4) drop a file onto the pad
+      pad.addEventListener('dragover', function(e){ e.preventDefault(); pad.style.outline='2px dashed #2563eb'; });
+      pad.addEventListener('dragleave', function(){ pad.style.outline=''; });
+      pad.addEventListener('drop', function(e){ e.preventDefault(); pad.style.outline='';
+        var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) doUpload(f); });
+
+      // seed _url from initial render (data-url not set initially; read from inline bg)
+      if(!pad.getAttribute('data-url')){
+        var img=pad.querySelector('.see-img'); var m=img&&img.style.backgroundImage&&img.style.backgroundImage.match(/url\(["']?(.*?)["']?\)/);
+        if(m){ pad.setAttribute('data-url', m[1]); pad._url=m[1]; }
+      }
+    });
+  }
+
+  // Publish engine images/positions to the live site (commit + git push via server.py).
+  window.seEnginePublish = function(btn){
+    var win=_seWin(); var msg=document.getElementById('sePublishMsg');
+    if(!win || !win.opzEdit){ if(msg){ msg.textContent='預覽尚未載入，請稍候再按一次。'; msg.style.color='#c00'; } return; }
+    var old=btn.textContent; btn.textContent='⏳ 發佈中…'; btn.disabled=true;
+    Promise.resolve(win.opzEdit.publish()).then(function(ok){
+      btn.textContent=old; btn.disabled=false;
+      if(msg){ if(ok){ msg.textContent='🚀 已發佈！約 30 秒後線上更新。'; msg.style.color='#16a34a'; }
+               else { msg.textContent='⚠ 發佈失敗：請確認本機 server.py 有在跑（localhost:8080）。'; msg.style.color='#c00'; } }
+    }).catch(function(){ btn.textContent=old; btn.disabled=false; if(msg){ msg.textContent='⚠ 發佈出錯，請重試。'; msg.style.color='#c00'; } });
   };
 
   // ── Partner marquee editor (合作廠商) ──────────────────────────────────────
