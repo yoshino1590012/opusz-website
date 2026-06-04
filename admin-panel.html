@@ -708,10 +708,10 @@
           <div style="width:300px;flex-shrink:0;">
             <div id="seSectionTitle" style="font-size:12px;font-weight:800;color:#111;margin-bottom:10px;">主視覺 / Hero</div>
             <div id="seControls"></div>
-            <button onclick="seSave()" style="width:100%;padding:11px;border:none;border-radius:10px;background:#111;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">儲存文字 / Save text</button>
+            <!-- One button does everything: saves text to Firebase AND publishes photos. -->
+            <button onclick="sePublishAll(this)" style="width:100%;padding:13px;border:none;border-radius:10px;background:#2ea44f;color:#fff;font-weight:800;cursor:pointer;font-size:15px;">🚀 儲存並發布到網站</button>
             <div id="seSaveMsg" style="font-size:12px;margin-top:8px;text-align:center;"></div>
-            <button onclick="seEnginePublish(this)" style="width:100%;margin-top:8px;padding:11px;border:none;border-radius:10px;background:#2ea44f;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">🚀 發佈照片到網站</button>
-            <div id="sePublishMsg" style="font-size:12px;margin-top:6px;text-align:center;color:#888;line-height:1.5;">改完照片/大小/位置後，按這顆才會更新到線上（約 30 秒）。</div>
+            <div id="sePublishMsg" style="font-size:12px;margin-top:4px;text-align:center;color:#888;line-height:1.5;">文字會即時更新；照片約 30 秒後上線。</div>
           </div>
         </div>
       </div>
@@ -1485,14 +1485,41 @@
     var cfg=seReadInputs();
     try{ localStorage.setItem('opusz_site_home', JSON.stringify(cfg)); }catch(e){}
     var msg=document.getElementById('seSaveMsg');
+    var ok=false;
     try{
       await setDoc(doc(db,'siteContent','home'), cfg, { merge:true });
-      if(msg){ msg.textContent='✓ 已儲存並發布（Firestore）'; msg.style.color='#16a34a'; }
+      ok=true;
+      if(msg){ msg.textContent='✓ 文字已儲存並發布'; msg.style.color='#16a34a'; }
     }catch(e){
       console.warn('[siteeditor] Firestore save failed:', e);
-      if(msg){ msg.textContent='⚠ 已存本機，但 Firestore 寫入被拒（請設定權限規則）：'+(e.code||e.message); msg.style.color='#b45309'; }
+      if(msg){ msg.textContent='⚠ 文字寫入被拒：請先用管理者帳號登入（'+(e.code||e.message)+'）'; msg.style.color='#c00'; }
     }
     sePreview();
+    return ok;
+  };
+
+  // One-button publish: save TEXT to Firebase + publish PHOTOS via the engine.
+  // (Text and photos use different storage, but the owner just wants "make it live".)
+  window.sePublishAll = async function(btn){
+    var old=btn.textContent; btn.disabled=true; btn.textContent='⏳ 發佈中…';
+    var pubMsg=document.getElementById('sePublishMsg');
+    if(pubMsg){ pubMsg.textContent=''; }
+    // 1) text → Firestore (sets its own seSaveMsg)
+    var textOk=false; try{ textOk = await window.seSave(); }catch(e){ textOk=false; }
+    // 2) photos → site-data.json + images via server.py (only if preview engine ready)
+    var photoMsg='', photoErr=false;
+    try{
+      var win = (typeof _seWin==='function') ? _seWin() : null;
+      if(win && win.opzEdit){
+        var ok = await Promise.resolve(win.opzEdit.publish());
+        if(ok){ photoMsg='🚀 照片已發佈（約 30 秒後上線）'; }
+        else  { photoMsg='⚠ 照片未發佈：請確認本機 server.py 有在跑'; photoErr=true; }
+      } else {
+        photoMsg='（預覽尚未載入，這次只更新了文字）'; photoErr=true;
+      }
+    }catch(e){ photoMsg='⚠ 照片發佈出錯：'+(e&&(e.code||e.message)||''); photoErr=true; }
+    if(pubMsg){ pubMsg.textContent=photoMsg; pubMsg.style.color = photoErr ? '#b45309' : '#16a34a'; }
+    btn.textContent=old; btn.disabled=false;
   };
   window.seInit = async function(){
     try{
