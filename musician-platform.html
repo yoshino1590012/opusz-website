@@ -2499,16 +2499,34 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     return '<div class="'+cls+'">'+inner+'</div><div class="marquee-divider"></div>';
   }
   function setHTML(list){ return '<div class="marquee-set">'+list.map(itemHTML).join('')+'</div>'; }
-  window.opzRenderPartners = function(list){
+  var _lastList = DEFAULT_PARTNERS;
+  function render(){
     var track = document.getElementById('marqueeTrack'); if(!track) return;
-    var items = (Array.isArray(list) ? list : DEFAULT_PARTNERS).map(norm)
+    var items = (Array.isArray(_lastList) ? _lastList : DEFAULT_PARTNERS).map(norm)
       .filter(function(p){ return p.name || p.logo; });
-    if(!items.length) items = DEFAULT_PARTNERS;
-    // Two identical sets → seamless -50% loop.
-    track.innerHTML = setHTML(items) + setHTML(items);
-  };
+    if(!items.length) items = DEFAULT_PARTNERS.map(norm);
+    // The loop is two identical halves translated by -50% (= one half width). For a
+    // SEAMLESS, never-ending scroll, ONE half must be at least as wide as the screen
+    // — otherwise a short list (e.g. 5 names) leaves a blank gap after it passes.
+    // So we repeat the list inside each half until it fills the viewport width.
+    track.style.animationDuration = '';
+    track.innerHTML = setHTML(items);                 // measure one copy
+    var sec = track.parentElement;
+    var contW = (sec && sec.clientWidth) || window.innerWidth || 1200;
+    var copyW = track.firstChild ? track.firstChild.scrollWidth : contW;
+    var reps  = copyW > 0 ? Math.max(1, Math.ceil(contW / copyW)) : 1;
+    var half = [];
+    for (var i = 0; i < reps; i++) half = half.concat(items);
+    track.innerHTML = setHTML(half) + setHTML(half);  // two identical halves
+    // Keep a steady scroll speed (~70px/s) no matter how many partners there are.
+    var halfW = track.firstChild ? track.firstChild.scrollWidth : 0;
+    if (halfW > 0) track.style.animationDuration = Math.max(16, Math.round(halfW / 70)) + 's';
+  }
+  window.opzRenderPartners = function(list){ if (Array.isArray(list)) _lastList = list; render(); };
   // Initial paint with defaults; site-content.js overrides once config loads.
-  window.opzRenderPartners(DEFAULT_PARTNERS);
+  render();
+  // Re-fill on resize so it always covers the viewport width.
+  var _rzT; window.addEventListener('resize', function(){ clearTimeout(_rzT); _rzT = setTimeout(render, 200); });
 })();
 </script>
 
