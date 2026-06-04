@@ -953,9 +953,16 @@
     var wrap = document.getElementById('seFrameWrap');
     var stage = document.getElementById('seStage');
     if(ifr && wrap && stage){
-      // available width inside the grey stage (minus its 12px padding each side)
-      var avail = Math.max(200, stage.clientWidth - 24);
-      var scale = Math.min(1, avail / devW);   // never enlarge past 100%
+      // available space inside the grey stage (minus padding/bezel room)
+      var availW = Math.max(200, stage.clientWidth - 32);
+      var availH = Math.max(200, stage.clientHeight - 32);
+      var scale;
+      if(name==='phone'){
+        // Phone: fill the stage height so the device looks big — like holding a real phone.
+        scale = Math.min(availH / devH, availW / devW, 1.6);
+      } else {
+        scale = Math.min(1, availW / devW);   // never enlarge past 100%
+      }
       ifr.style.width  = devW + 'px';
       ifr.style.height = devH + 'px';
       ifr.style.transform = 'scale(' + scale + ')';
