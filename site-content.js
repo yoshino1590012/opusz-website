@@ -29,6 +29,20 @@ const firebaseConfig = {
 
 const PAGE = (document.documentElement.getAttribute('data-cms-page') || 'home').trim();
 
+// Hero elements the owner can freely reposition (Canva-style) from the editor.
+// Offsets live in cfg.heroPos = { key:{x,y} } in CARD-pixels and are applied via
+// the INDEPENDENT CSS `translate` property — separate from `transform`, so the
+// reveal / card-scale ANIMATIONS (which use transform) are completely untouched.
+var HERO_DRAG = { headline:'.hco-headline', sub:'.hco-sub', btnFind:'.hco-btn-pri', btnProject:'.hco-btn-out', brand:'.hco-brand' };
+function applyHeroPos(map){
+  map = map || {};
+  Object.keys(HERO_DRAG).forEach(function(k){
+    var el = document.querySelector(HERO_DRAG[k]); if(!el) return;
+    var p = map[k];
+    el.style.translate = (p && (p.x || p.y)) ? ((p.x||0)+'px '+(p.y||0)+'px') : '';
+  });
+}
+
 function waitForI18N(cb){
   // Run cb once the page's i18n engine exists (or there are data-cms targets), with a cap.
   if (window.I18N || document.querySelector('[data-cms]')) { cb(); return; }
@@ -55,6 +69,10 @@ function applyConfig(cfg){
   if (Array.isArray(cfg.partners) && typeof window.opzRenderPartners === 'function') {
     try { window.opzRenderPartners(cfg.partners); } catch(e){}
   }
+
+  // 1c) hero element drag-offsets (Canva-style positioning). Always re-apply
+  // (even when absent → clears any stale offsets) so a "reset" takes effect too.
+  if ('heroPos' in cfg) { try { applyHeroPos(cfg.heroPos); } catch(e){} }
 
   // 2) direct data-cms overrides (non-i18n text / images / links)
   if (cfg.cms) {
@@ -191,6 +209,57 @@ window.addEventListener('message', function(e){
     var sec = e.target && e.target.closest ? e.target.closest('[data-cms-section]') : null;
     if (sec) sec.style.cursor = 'pointer';
   }, true);
+
+  // ── Canva-style drag for hero elements (editor preview only) ───────────────
+  // Drag headline / subtitle / buttons / OPUS.Z to any position. We change the
+  // independent `translate` property (not `transform`), so animations are intact.
+  // Drag delta is divided by the card's current scale so 1 screen-px = 1 card-px,
+  // and the offset is reported to the parent editor to be saved.
+  function cardScale(){
+    var c = document.getElementById('heroCard'); if(!c) return 1;
+    var t = getComputedStyle(c).transform;
+    var m = t && t.match(/matrix\(([^)]+)\)/);
+    return m ? (parseFloat(m[1].split(',')[0]) || 1) : 1;
+  }
+  function curOffset(el){
+    var tr = el.style.translate; if(!tr) return {x:0,y:0};
+    var p = tr.split(/\s+/); return {x:parseFloat(p[0])||0, y:parseFloat(p[1])||0};
+  }
+  function wireHeroDrag(){
+    Object.keys(HERO_DRAG).forEach(function(key){
+      var el = document.querySelector(HERO_DRAG[key]); if(!el || el.__opzDrag) return;
+      el.__opzDrag = true;
+      el.style.cursor = 'move';
+      el.style.pointerEvents = 'auto';   // brand is aria-hidden; ensure it's grabbable
+      el.title = '拖曳調整位置';
+      var on=false, sx=0, sy=0, ox=0, oy=0, moved=false;
+      el.addEventListener('pointerdown', function(e){
+        on=true; moved=false; var o=curOffset(el); ox=o.x; oy=o.y; sx=e.clientX; sy=e.clientY;
+        try{ el.setPointerCapture(e.pointerId); }catch(_){}
+        el.style.outline='2px solid #2563eb'; el.style.outlineOffset='2px';
+        e.preventDefault(); e.stopPropagation();
+      });
+      el.addEventListener('pointermove', function(e){
+        if(!on) return;
+        var s = cardScale() || 1;
+        var nx = ox + (e.clientX - sx)/s, ny = oy + (e.clientY - sy)/s;
+        el.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px';
+        if(Math.abs(e.clientX-sx)>2 || Math.abs(e.clientY-sy)>2) moved=true;
+        e.preventDefault(); e.stopPropagation();
+      });
+      function end(){
+        if(!on) return; on=false; el.style.outline='';
+        var o = curOffset(el);
+        try{ parent.postMessage({__opuszHeroPos:true, key:key, x:Math.round(o.x), y:Math.round(o.y)}, '*'); }catch(_){}
+      }
+      el.addEventListener('pointerup', end);
+      el.addEventListener('pointercancel', end);
+      // swallow the click that follows a real drag (so buttons/links don't fire)
+      el.addEventListener('click', function(e){ if(moved){ e.preventDefault(); e.stopPropagation(); } }, true);
+    });
+  }
+  // Elements exist in static HTML; wire now and retry a couple times in case of late layout.
+  wireHeroDrag(); setTimeout(wireHeroDrag, 600); setTimeout(wireHeroDrag, 1500);
 })();
 
 // Re-apply i18n overrides after any later language switch (in case switchLang re-clobbers).

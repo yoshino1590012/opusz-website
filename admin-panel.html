@@ -1028,6 +1028,9 @@
         .map(function(p){ return { name:String((p&&p.name)||'').trim(), logo:String((p&&p.logo)||'').trim() }; })
         .filter(function(p){ return p.name || p.logo; });
     }
+    // Hero drag-to-position offsets (Canva-style). Always include so saves persist
+    // them and a reset (empty object) is written through.
+    if(window.seHeroPos && typeof window.seHeroPos==='object') cfg.heroPos = window.seHeroPos;
     return cfg;
   }
   function sePreview(){
@@ -1134,7 +1137,13 @@
     }).join('');
     // Append engine-driven image block (drives the homepage photo engine via opzEdit)
     var engHtml = engGrp ? '<div id="seEngBox" data-grp="'+engGrp+'"></div>' : '';
-    box.innerHTML = fieldsHtml + engHtml;
+    // Hero: Canva-style drag hint + reset (the actual dragging happens in the preview).
+    var heroHint = (seCurrentSection==='hero')
+      ? '<div style="font-size:12px;color:#155e75;background:#ecfeff;border:1px solid #a5f3fc;border-radius:8px;padding:9px 11px;margin-bottom:12px;line-height:1.6;">'
+        +'🖱️ <b>可直接在中間預覽用滑鼠拖曳</b>：標題、副標、兩個按鈕、OPUS.Z 品牌字，拖到任意位置（不影響動畫）。拖完按上方「🚀 儲存並發布到網站」。'
+        +'<br><button onclick="seHeroPosReset()" style="margin-top:7px;font-size:11px;border:1px solid #67e8f9;background:#fff;border-radius:6px;padding:4px 9px;cursor:pointer;">↺ 重置位置</button></div>'
+      : '';
+    box.innerHTML = heroHint + fieldsHtml + engHtml;
     seWireMedia();   // render pad previews + attach drag / drop listeners (Firebase media)
     if(engGrp) seEngLoad(engGrp);   // load + wire engine image pads
   };
@@ -1518,6 +1527,14 @@
       if(note){ note.textContent='⚠ 上傳失敗：'+(e.code||e.message); note.style.color='#c00'; }
     }
   };
+  // Clear all hero drag offsets and push the reset to the live preview.
+  window.seHeroPosReset = function(){
+    window.seHeroPos = {};
+    var ifr=document.getElementById('seFrame');
+    if(ifr && ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszCmsPreview:true, config:seReadInputs()}, '*'); }catch(e){} }
+    var msg=document.getElementById('seSaveMsg'); if(msg){ msg.textContent='已重置位置（記得按發布）'; msg.style.color='#155e75'; }
+  };
+
   window.seSave = async function(){
     var cfg=seReadInputs();
     try{ localStorage.setItem('opusz_site_home', JSON.stringify(cfg)); }catch(e){}
@@ -1580,6 +1597,7 @@
     if(!seCurrentConfig.i18n) seCurrentConfig.i18n={en:{},zh:{}};
     window.sePartners = ((Array.isArray(seCurrentConfig.partners) && seCurrentConfig.partners.length)
       ? seCurrentConfig.partners : SE_DEFAULT_PARTNERS).map(sePartnerNorm);
+    window.seHeroPos = (seCurrentConfig.heroPos && typeof seCurrentConfig.heroPos==='object') ? seCurrentConfig.heroPos : {};
     seBuildSectionList();
     seBuildControls();
     var ifr=document.getElementById('seFrame');
@@ -1593,7 +1611,13 @@
     if(!window.__seMsgWired){
       window.__seMsgWired = true;
       window.addEventListener('message', function(e){
-        if(e && e.data && e.data.__opuszCmsSelect && e.data.key){ seSelectSection(e.data.key); }
+        if(!e || !e.data) return;
+        if(e.data.__opuszCmsSelect && e.data.key){ seSelectSection(e.data.key); }
+        // Hero element was dragged in the preview → remember its offset for saving.
+        if(e.data.__opuszHeroPos && e.data.key){
+          window.seHeroPos = window.seHeroPos || {};
+          window.seHeroPos[e.data.key] = { x:e.data.x|0, y:e.data.y|0 };
+        }
       });
     }
   };
