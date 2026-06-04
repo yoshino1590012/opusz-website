@@ -668,11 +668,12 @@
         <style>
           .se-dev-btn{ padding:6px 12px;border:1px solid #ddd;background:#fff;border-radius:8px;font-size:12px;cursor:pointer;color:#555; }
           .se-dev-btn.active{ background:#111;color:#fff;border-color:#111; }
-          /* iPhone-style frame, applied only in phone preview mode */
-          #seFrameWrap.se-phone{ background:#111 !important; border-radius:46px !important; padding:14px; box-shadow:0 12px 48px rgba(0,0,0,.45); position:relative; }
-          #seFrameWrap.se-phone #seFrame{ border-radius:34px; }
+          /* iPhone-style frame — bezel/radius/island all scale together via --sps,
+             so the whole phone enlarges in proportion (not just the screen). */
+          #seFrameWrap.se-phone{ background:#111 !important; border-radius:calc(46px * var(--sps,1)) !important; padding:calc(13px * var(--sps,1)); box-shadow:0 12px 48px rgba(0,0,0,.45); position:relative; }
+          #seFrameWrap.se-phone #seFrame{ border-radius:calc(34px * var(--sps,1)); }
           /* Dynamic Island */
-          #seFrameWrap.se-phone::after{ content:''; position:absolute; top:24px; left:50%; transform:translateX(-50%); width:92px; height:26px; background:#000; border-radius:16px; z-index:3; pointer-events:none; }
+          #seFrameWrap.se-phone::after{ content:''; position:absolute; top:calc(22px * var(--sps,1)); left:50%; transform:translateX(-50%); width:calc(90px * var(--sps,1)); height:calc(26px * var(--sps,1)); background:#000; border-radius:calc(16px * var(--sps,1)); z-index:3; pointer-events:none; }
         </style>
         <div class="page-header" style="margin-bottom:12px;">
           <h1>網站編輯 / Site Editor</h1>
@@ -959,7 +960,9 @@
       var scale;
       if(name==='phone'){
         // Phone: fill the stage height so the device looks big — like holding a real phone.
-        scale = Math.min(availH / devH, availW / devW, 1.6);
+        // Account for the iPhone bezel (13px each side) so the whole device fits in proportion.
+        var BEZEL = 26; // 13px padding × 2
+        scale = Math.min(availH / (devH + BEZEL), availW / (devW + BEZEL), 1.6);
       } else {
         scale = Math.min(1, availW / devW);   // never enlarge past 100%
       }
@@ -971,6 +974,8 @@
       wrap.style.height = Math.round(devH * scale) + 'px';
       // Dress the phone preview up as a real iPhone (bezel + dynamic island).
       wrap.classList.toggle('se-phone', name==='phone');
+      // Scale the bezel/radius/island proportionally with the screen.
+      wrap.style.setProperty('--sps', name==='phone' ? scale : 1);
     }
     document.querySelectorAll('.se-dev-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dev')===name); });
   };
@@ -1002,9 +1007,11 @@
         if(zhVal!=null) cfg.i18n.zh[zhKey]=zhVal;
       }
     });
-    // Partner marquee — a plain array of names (kept across all sections).
+    // Partner marquee — array of { name, logo } (kept across all sections).
     if(Array.isArray(window.sePartners)){
-      cfg.partners = window.sePartners.map(function(n){ return String(n==null?'':n).trim(); }).filter(Boolean);
+      cfg.partners = window.sePartners
+        .map(function(p){ return { name:String((p&&p.name)||'').trim(), logo:String((p&&p.logo)||'').trim() }; })
+        .filter(function(p){ return p.name || p.logo; });
     }
     return cfg;
   }
@@ -1113,31 +1120,56 @@
   };
 
   // ── Partner marquee editor (合作廠商) ──────────────────────────────────────
-  // Defaults mirror what the homepage shows before any edit is saved.
-  var SE_DEFAULT_PARTNERS = ['SonicWave','Harmonia','Crescendo','Aria Studio','NoteForge','Tempo Labs','Cadence Co.'];
+  // Each partner is { name, logo }. Logo is OPTIONAL — show logo if uploaded,
+  // otherwise show the name as text. Defaults mirror the homepage (names only).
+  var SE_DEFAULT_PARTNERS = ['SonicWave','Harmonia','Crescendo','Aria Studio','NoteForge','Tempo Labs','Cadence Co.']
+    .map(function(n){ return { name:n, logo:'' }; });
+  // Normalise any stored value (string or object) into { name, logo }.
+  function sePartnerNorm(p){
+    return (typeof p==='string') ? { name:p, logo:'' }
+                                 : { name:String((p&&p.name)||''), logo:String((p&&p.logo)||'') };
+  }
   function seBuildPartners(box){
     function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
-    var list = Array.isArray(window.sePartners) ? window.sePartners : (window.sePartners = SE_DEFAULT_PARTNERS.slice());
-    var rows = list.map(function(name, i){
-      var btn='border:1px solid #ddd;background:#fff;border-radius:6px;width:30px;height:32px;cursor:pointer;font-size:13px;flex-shrink:0;';
-      return '<div style="display:flex;gap:6px;align-items:center;margin-bottom:7px;">'
-        +'<input value="'+esc(name)+'" oninput="sePartnerSet('+i+',this.value)" placeholder="廠商名稱" '
-          +'style="flex:1;min-width:0;padding:8px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;">'
-        +'<button title="上移" onclick="sePartnerMove('+i+',-1)" style="'+btn+'">↑</button>'
-        +'<button title="下移" onclick="sePartnerMove('+i+',1)" style="'+btn+'">↓</button>'
-        +'<button title="刪除" onclick="sePartnerRemove('+i+')" style="'+btn+'color:#c00;">✕</button>'
-        +'</div>';
+    if(!Array.isArray(window.sePartners)) window.sePartners = SE_DEFAULT_PARTNERS.map(sePartnerNorm);
+    var list = window.sePartners;
+    var btn='border:1px solid #ddd;background:#fff;border-radius:6px;width:30px;height:32px;cursor:pointer;font-size:13px;flex-shrink:0;';
+    var rows = list.map(function(p, i){
+      p = sePartnerNorm(p); list[i]=p;
+      var thumb = p.logo
+        ? '<div style="width:46px;height:36px;border-radius:6px;background:#111 center/contain no-repeat;background-image:url(\''+String(p.logo).replace(/'/g,'%27')+'\');flex-shrink:0;border:1px solid #e2e2e6;"></div>'
+        : '<div style="width:46px;height:36px;border-radius:6px;background:#f1f1f3;border:1px dashed #cfcfd4;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:#aaa;">無 logo</div>';
+      return '<div style="border:1px solid #eee;border-radius:9px;padding:8px;margin-bottom:9px;">'
+        +'<div style="display:flex;gap:6px;align-items:center;margin-bottom:7px;">'
+          +'<input value="'+esc(p.name)+'" oninput="sePartnerSet('+i+',this.value)" placeholder="廠商名稱" '
+            +'style="flex:1;min-width:0;padding:8px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;">'
+          +'<button title="上移" onclick="sePartnerMove('+i+',-1)" style="'+btn+'">↑</button>'
+          +'<button title="下移" onclick="sePartnerMove('+i+',1)" style="'+btn+'">↓</button>'
+          +'<button title="刪除整列" onclick="sePartnerRemove('+i+')" style="'+btn+'color:#c00;">✕</button>'
+        +'</div>'
+        +'<div style="display:flex;gap:8px;align-items:center;">'
+          + thumb
+          +'<label style="font-size:12px;color:#fff;background:#111;border-radius:6px;padding:6px 10px;cursor:pointer;white-space:nowrap;">⬆ 上傳 logo'
+            +'<input type="file" accept="image/*" style="display:none;" onchange="sePartnerUploadLogo('+i+',this.files[0])"></label>'
+          + (p.logo ? '<button onclick="sePartnerClearLogo('+i+')" style="font-size:11px;border:1px solid #ddd;background:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;">改回文字</button>' : '')
+          +'<span id="se_pt_up_'+i+'" style="font-size:11px;color:#888;"></span>'
+        +'</div>'
+      +'</div>';
     }).join('');
     box.innerHTML = '<div style="font-size:12px;color:#666;line-height:1.6;margin-bottom:12px;">'
-        +'這些名稱會以跑馬燈顯示在首頁。可<b>新增 / 刪除 / 改名 / 調整順序</b>，按上方「儲存並發布」即上線。'
-        +'<br><span style="color:#999;">（為避免商標問題，統一顯示名稱文字，不放廠商 logo 圖檔。）</span></div>'
+        +'首頁跑馬燈的合作廠商。可<b>新增 / 刪除 / 改名 / 調整順序</b>，按上方「儲存並發布」即上線。'
+        +'<br>每家可選擇<b>上傳 logo</b>：有上傳就顯示 logo，沒上傳就顯示名稱文字。'
+        +'<br><span style="color:#c2410c;">⚠ 只在已取得對方授權時才放對方 logo（避免商標問題）。</span></div>'
       + rows
-      + '<button onclick="sePartnerAdd()" style="margin-top:6px;font-size:13px;color:#fff;background:#111;border:none;border-radius:7px;padding:9px 13px;cursor:pointer;">＋ 新增廠商</button>';
+      + '<button onclick="sePartnerAdd()" style="margin-top:4px;font-size:13px;color:#fff;background:#111;border:none;border-radius:7px;padding:9px 13px;cursor:pointer;">＋ 新增廠商</button>';
   }
-  window.sePartnerSet = function(i, v){ if(window.sePartners){ window.sePartners[i]=v; seOnInput(); } };
+  window.sePartnerSet = function(i, v){
+    if(!Array.isArray(window.sePartners)) return;
+    window.sePartners[i]=sePartnerNorm(window.sePartners[i]); window.sePartners[i].name=v; seOnInput();
+  };
   window.sePartnerAdd = function(){
     if(!Array.isArray(window.sePartners)) window.sePartners=[];
-    window.sePartners.push('新廠商'); seBuildControls(); sePreview();
+    window.sePartners.push({ name:'新廠商', logo:'' }); seBuildControls(); sePreview();
   };
   window.sePartnerRemove = function(i){
     if(!Array.isArray(window.sePartners)) return;
@@ -1147,6 +1179,30 @@
     var a=window.sePartners; if(!Array.isArray(a)) return;
     var j=i+dir; if(j<0||j>=a.length) return;
     var t=a[i]; a[i]=a[j]; a[j]=t; seBuildControls(); sePreview();
+  };
+  window.sePartnerClearLogo = function(i){
+    if(!Array.isArray(window.sePartners)) return;
+    window.sePartners[i]=sePartnerNorm(window.sePartners[i]); window.sePartners[i].logo='';
+    seBuildControls(); sePreview();
+  };
+  // Upload a logo image to Firebase Storage, store its URL on the partner.
+  window.sePartnerUploadLogo = async function(i, file){
+    if(!file || !Array.isArray(window.sePartners)) return;
+    var note=document.getElementById('se_pt_up_'+i);
+    if(file.size > 4*1024*1024){ if(note){ note.textContent='圖檔過大（上限 4MB）'; note.style.color='#c00'; } return; }
+    if(note){ note.textContent='上傳中…'; note.style.color='#888'; }
+    try{
+      var safe=file.name.replace(/[^\w.\-]/g,'_');
+      var path='siteContent/home/partner_logo_'+i+'_'+Date.now()+'_'+safe;
+      var r=storageRef(storage, path);
+      await uploadBytes(r, file);
+      var url=await getDownloadURL(r);
+      window.sePartners[i]=sePartnerNorm(window.sePartners[i]); window.sePartners[i].logo=url;
+      seBuildControls(); sePreview();
+    }catch(e){
+      console.warn('[siteeditor] partner logo upload failed:', e);
+      if(note){ note.textContent='⚠ 上傳失敗：'+(e.code||e.message); note.style.color='#c00'; }
+    }
   };
 
   // ── Media framing helpers (drag-to-reposition · zoom · drop-to-upload) ──────
@@ -1285,8 +1341,8 @@
       try{ seCurrentConfig=JSON.parse(localStorage.getItem('opusz_site_home')||'null')||{i18n:{en:{},zh:{}}}; }catch(_){ seCurrentConfig={i18n:{en:{},zh:{}}}; }
     }
     if(!seCurrentConfig.i18n) seCurrentConfig.i18n={en:{},zh:{}};
-    window.sePartners = (Array.isArray(seCurrentConfig.partners) && seCurrentConfig.partners.length)
-      ? seCurrentConfig.partners.slice() : SE_DEFAULT_PARTNERS.slice();
+    window.sePartners = ((Array.isArray(seCurrentConfig.partners) && seCurrentConfig.partners.length)
+      ? seCurrentConfig.partners : SE_DEFAULT_PARTNERS).map(sePartnerNorm);
     seBuildSectionList();
     seBuildControls();
     var ifr=document.getElementById('seFrame');
