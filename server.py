@@ -329,16 +329,25 @@ class Handler(http.server.SimpleHTTPRequestHandler):
 
     # ── helpers ───────────────────────────────────────────────────────────────
     def _ok(self, body):
+        if isinstance(body, str):
+            body = body.encode()
         self.send_response(200)
         self._cors()
         self.send_header('Content-Type', 'application/json')
+        # HTTP/1.1 keep-alive REQUIRES Content-Length, else the client waits for the
+        # connection to close and the upload appears to "hang" until it times out.
+        self.send_header('Content-Length', str(len(body)))
         self.end_headers()
         self.wfile.write(body)
 
     def _err(self, e):
+        body = json.dumps({'ok': False, 'error': str(e)}).encode()
         self.send_response(500)
-        self._cors(); self.end_headers()
-        self.wfile.write(json.dumps({'ok': False, 'error': str(e)}).encode())
+        self._cors()
+        self.send_header('Content-Type', 'application/json')
+        self.send_header('Content-Length', str(len(body)))
+        self.end_headers()
+        self.wfile.write(body)
         print(f'[ERROR] {e}')
 
     def _cors(self):
