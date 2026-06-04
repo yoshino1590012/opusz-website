@@ -3,9 +3,17 @@
     "p1": "assets/images/p1.jpg",
     "p4": "assets/images/p4.jpg",
     "p3": "assets/images/p3.jpg",
+    "p6": "assets/images/p6.jpg",
     "p7": "assets/images/p7.jpg",
     "p8": "assets/images/p8.jpg",
+    "p9": "assets/images/p9.jpg",
     "p2": "assets/images/p2.jpg",
+    "p5": "assets/images/p5.jpg",
+    "p10": "assets/images/p10.jpg",
+    "p11": "assets/images/p11.jpg",
+    "p12": "assets/images/p12.jpg",
+    "p13": "assets/images/p13.jpg",
+    "p14": "assets/images/p14.jpg",
     "cat-strings": "assets/images/cat-strings.jpg",
     "cat-piano": "assets/images/cat-piano.jpg",
     "cat-winds": "assets/images/cat-winds.jpg",
@@ -14,23 +22,25 @@
     "cat-perc": "assets/images/cat-perc.jpg",
     "wc1": "assets/images/wc1.jpg",
     "wc2": "assets/images/wc2.jpg",
-    "wc3": "assets/images/wc3.jpg"
+    "wc3": "assets/images/wc3.jpg",
+    "bi1": "assets/images/bi1.jpg",
+    "bi2": "assets/images/bi2.jpg"
   },
   "positions": {
     "hero": {
       "p1": {
-        "x": 50,
-        "y": 50,
+        "x": 49.4,
+        "y": 99.1,
         "zoom": 0
       },
       "p4": {
-        "x": 50,
-        "y": 50,
+        "x": 49.2,
+        "y": 44.5,
         "zoom": 0
       },
       "p3": {
-        "x": 50,
-        "y": 50,
+        "x": 48.5,
+        "y": 15.9,
         "zoom": 0
       },
       "p6": {
@@ -39,8 +49,8 @@
         "zoom": 0
       },
       "p7": {
-        "x": 50,
-        "y": 50,
+        "x": 48,
+        "y": 18.9,
         "zoom": 0
       },
       "p8": {
@@ -49,13 +59,13 @@
         "zoom": 0
       },
       "p9": {
-        "x": 50,
-        "y": 50,
+        "x": 50.4,
+        "y": 44.1,
         "zoom": 0
       },
       "p2": {
-        "x": 50,
-        "y": 50,
+        "x": 50.1,
+        "y": 28.1,
         "zoom": 0
       },
       "p5": {
@@ -64,8 +74,8 @@
         "zoom": 0
       },
       "p10": {
-        "x": 50,
-        "y": 50,
+        "x": 48.2,
+        "y": 14.9,
         "zoom": 0
       },
       "p11": {

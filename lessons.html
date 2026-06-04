@@ -517,9 +517,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 <script>
 // ── Data: musicians with lessons:true ────────────────────────────────────────
 // lessons:true = subscription enabled for teaching
-var TEACHERS = [
-  {id:1, name:'Martin', instrument:'Violin', country:'Taiwan', region:'台北', style:'Classical', rating:4.9, reviews:148, bio:'Principal violinist with 15 years of orchestral experience. Specialises in Romantic and Contemporary repertoire.', emoji:'🎻', color:'#1a1a2e', profileUrl:'musician-profile.html', lessonFrom:2000, saves:33, levels:['Beginner','Intermediate','Advanced'], formats:['In-person','Online'], days:['Weekday','Weekend']},
-];
+// Demo teacher removed. Real lesson teachers are not wired to Firestore yet,
+// so this list starts empty until that integration is built.
+var TEACHERS = [];
 
 // ── State ─────────────────────────────────────────────────────────────────────
 var currentCat = '';       // '' | strings | woodwind | brass | percussion | keyboard | guitar | voice

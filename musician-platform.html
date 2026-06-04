@@ -436,7 +436,7 @@ nav.mega-open .nav-links a::before {
 }
 /* All heroCard children above the canvas */
 #heroCard > *:not(#heroCanvas):not(#hcCardOverlay) { position: relative; z-index: 1; }
-#hcCardOverlay { position: absolute; z-index: 5; }
+#hcCardOverlay { position: absolute; }  /* no z-index: lets mix-blend-mode invert text against the canvas */
 
 /* WRK-style: upper content zone — title + meta info, floats up in Phase 1 */
 .hc-upper {
@@ -567,30 +567,38 @@ nav.mega-open .nav-links a::before {
 
 /* ── Phase-4 card overlay: services + buttons float in bottom-left as card shrinks ── */
 .hc-card-overlay {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);   /* centred in the card */
-  width: min(88%, 680px);
-  z-index: 5;
+  position: absolute; inset: 0;          /* cover the card */
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding-bottom: calc(var(--k)*120px);  /* nudge content upward (中上) */
+  box-sizing: border-box;
+  /* CRITICAL: NO transform / opacity / filter / z-index on this container, so the
+     mix-blend-mode text below can invert against the canvas photo behind it
+     (a transform here would isolate it into its own layer = the all-white bug). */
   pointer-events: none;
 }
-.hc-card-overlay.hco-visible { pointer-events: auto; }
+.hco-btns { pointer-events: auto; }      /* only the buttons are clickable */
 .hco-left {
   display: flex; flex-direction: column; align-items: center; text-align: center;
-  padding: calc(var(--k)*26px) calc(var(--k)*34px);
-  /* soft feathered white halo so the text stays readable over any photo */
-  background: radial-gradient(115% 120% at 50% 42%, rgba(255,255,255,.86) 0%, rgba(255,255,255,.62) 48%, rgba(255,255,255,0) 80%);
+  width: min(94%, 880px);
 }
-/* ── centred headline + subtitle ── */
+/* ── centred headline + subtitle ──
+   White text + mix-blend-mode:difference = auto black/white inversion against
+   whatever is behind (bright photo → black text, dark area → white text). */
 .hco-headline {
-  font-size: calc(var(--k)*38px); line-height: 1.06; font-weight: 800;
-  letter-spacing: -0.02em; color: var(--black); margin: 0 0 calc(var(--k)*12px);
-  max-width: 22ch;
+  font-size: calc(var(--k)*40px); line-height: 1.05; font-weight: 800;
+  letter-spacing: -0.02em; margin: 0 0 calc(var(--k)*12px);
+  white-space: nowrap;                 /* keep the headline on one line */
+  color: #fff; mix-blend-mode: difference;
 }
 .hco-sub {
-  font-size: calc(var(--k)*15px); line-height: 1.5; font-weight: 500;
-  color: rgba(0,0,0,.68); margin: 0 0 calc(var(--k)*22px); max-width: 38ch;
+  font-size: calc(var(--k)*15.5px); line-height: 1.5; font-weight: 500;
+  margin: 0 0 calc(var(--k)*22px); max-width: 44ch;
+  color: #fff; mix-blend-mode: difference;
+}
+/* On phones let the headline wrap (avoid horizontal overflow from nowrap) */
+@media (max-width: 640px){
+  .hco-headline { white-space: normal; }
 }
 /* ── initial hidden state ── */
 .hco-btns,
@@ -2093,7 +2101,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   /* Services items: 20% bigger than --k baseline */
   .hco-services li { font-size: calc(var(--k) * 30.6px); }
   /* Overlay stays centred (upper-centre) at this breakpoint too */
-  .hc-card-overlay { left: 50%; top: 50%; bottom: auto; transform: translate(-50%, -50%); }
+  .hc-card-overlay { padding-bottom: calc(var(--k)*90px); }  /* keep flex-centre; no transform */
 }
 
 /* ── RESPONSIVE ── */
@@ -3054,7 +3062,7 @@ const I18N = {
     'hero.phrase2':'Taiwan\'s top musicians, on demand.',
     'hero.phrase2.zh':'台灣頂尖音樂家，隨時為你。',
     'hero.headline':'Meet Taiwan\'s elite musicians.',
-    'hero.sub':'For performances and lessons — connecting you with the very best.',
+    'hero.sub':'For performances and lessons. Connecting you with the very best.',
     'about.hl':'We connect musicians with focus, intention, and impact.',
     'about.card1.label':'(Our musicians)',
     'about.card1.desc':'elite classical musicians<br>across Taiwan &amp; the USA',
