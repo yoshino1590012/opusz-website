@@ -568,19 +568,41 @@ nav.mega-open .nav-links a::before {
 /* ── Phase-4 card overlay: services + buttons float in bottom-left as card shrinks ── */
 .hc-card-overlay {
   position: absolute;
-  bottom: clamp(48px, 5.5vw, 96px);
-  left: clamp(48px, 5.5vw, 96px);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -56%);   /* centred, biased slightly upward (中上) */
+  width: min(88%, 680px);
   z-index: 5;
   pointer-events: none;
 }
 .hc-card-overlay.hco-visible { pointer-events: auto; }
-.hco-left { display: flex; flex-direction: column; align-items: flex-start; }
+.hco-left {
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  padding: calc(var(--k)*26px) calc(var(--k)*34px);
+  /* soft feathered white halo so the text stays readable over any photo */
+  background: radial-gradient(115% 120% at 50% 42%, rgba(255,255,255,.86) 0%, rgba(255,255,255,.62) 48%, rgba(255,255,255,0) 80%);
+}
+/* ── centred headline + subtitle ── */
+.hco-headline {
+  font-size: calc(var(--k)*46px); line-height: 1.04; font-weight: 800;
+  letter-spacing: -0.02em; color: var(--black); margin: 0 0 calc(var(--k)*14px);
+  max-width: 16ch;
+}
+.hco-sub {
+  font-size: calc(var(--k)*16.5px); line-height: 1.5; font-weight: 500;
+  color: rgba(0,0,0,.68); margin: 0 0 calc(var(--k)*26px); max-width: 40ch;
+}
 /* ── initial hidden state ── */
 .hco-btns,
+.hco-headline,
+.hco-sub,
 .hco-services li {
   opacity: 0;
   transform: translateY(calc(var(--k) * 16px));
 }
+/* headline & subtitle reveal (staggered, before the buttons) */
+.hco-headline { transition: opacity .5s ease 60ms,  transform .6s cubic-bezier(.16,1,.3,1) 60ms; }
+.hco-sub      { transition: opacity .5s ease 180ms, transform .6s cubic-bezier(.16,1,.3,1) 180ms; }
 /* ── transitions (show) — services stagger up first, then buttons ── */
 .hco-services {
   list-style: none; display: flex; flex-direction: column;
@@ -624,12 +646,14 @@ nav.mega-open .nav-links a::before {
   transition: transform .35s cubic-bezier(.16,1,.3,1);
 }
 .hco-btns {
-  display: flex; gap: calc(var(--k)*10px);
-  margin-top: calc(var(--k)*20px); flex-wrap: wrap;
+  display: flex; gap: calc(var(--k)*10px); justify-content: center;
+  margin-top: calc(var(--k)*4px); flex-wrap: wrap;
   transition: opacity .45s ease 320ms, transform .55s cubic-bezier(.16,1,.3,1) 320ms;
 }
 /* ── revealed state ── */
 .hco-visible .hco-btns,
+.hco-visible .hco-headline,
+.hco-visible .hco-sub,
 .hco-visible .hco-services li {
   opacity: 1;
   transform: translateY(0);
@@ -2068,8 +2092,8 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   #heroCard { --k: 0.86; }
   /* Services items: 20% bigger than --k baseline */
   .hco-services li { font-size: calc(var(--k) * 30.6px); }
-  /* Overlay: slightly right and up */
-  .hc-card-overlay { bottom: clamp(28px, 3.1vw, 54px); left: clamp(28px, 3.1vw, 54px); }
+  /* Overlay stays centred (upper-centre) at this breakpoint too */
+  .hc-card-overlay { left: 50%; top: 50%; bottom: auto; transform: translate(-50%, -56%); }
 }
 
 /* ── RESPONSIVE ── */
@@ -2442,16 +2466,11 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
         <!-- hero-meta-row removed -->
       </div>
 
-      <!-- Phase-4 overlay: services list above buttons, left-aligned -->
+      <!-- Phase-4 overlay: centred headline + subtitle + buttons (upper-centre) -->
       <div class="hc-card-overlay" id="hcCardOverlay">
         <div class="hco-left">
-          <ul class="hco-services">
-            <li data-i18n="svc.name.0">Live Performance</li>
-            <li data-i18n="svc.name.1">Session Work</li>
-            <li data-i18n="svc.name.2">Music Lesson</li>
-            <li data-i18n="svc.name.3">Corporate Event</li>
-            <li data-i18n="svc.name.4">Artist Branding</li>
-          </ul>
+          <h1 class="hco-headline" data-i18n="hero.headline">Meet Taiwan's elite musicians.</h1>
+          <p class="hco-sub" data-i18n="hero.sub">For performances and lessons — connecting you with the very best.</p>
           <div class="hco-btns">
             <a href="musicians.html" class="hco-btn-pri" data-i18n="hero.findArtists">Find Artists</a>
             <button class="hco-btn-out" id="hcoCreateProject" data-i18n="hero.createProject">Create a Project</button>
@@ -3034,6 +3053,8 @@ const I18N = {
     'hero.phrase1.zh':'你來對地方了。',
     'hero.phrase2':'Taiwan\'s top musicians, on demand.',
     'hero.phrase2.zh':'台灣頂尖音樂家，隨時為你。',
+    'hero.headline':'Meet Taiwan\'s elite musicians.',
+    'hero.sub':'For performances and lessons — connecting you with the very best.',
     'about.hl':'We connect musicians with focus, intention, and impact.',
     'about.card1.label':'(Our musicians)',
     'about.card1.desc':'elite classical musicians<br>across Taiwan &amp; the USA',
@@ -3136,6 +3157,8 @@ const I18N = {
     'hero.phrase1.zh':'你來對地方了。',
     'hero.phrase2':'Taiwan\'s top musicians, on demand.',
     'hero.phrase2.zh':'台灣頂尖音樂家，隨時為你。',
+    'hero.headline':'遇見台灣菁英音樂家',
+    'hero.sub':'演出與教學，媒合最頂尖的他們。',
     'about.hl':'我們以專注、用心與影響力，連結每一位音樂家。',
     'about.card1.label':'（我們的音樂家）',
     'about.card1.desc':'位頂尖古典音樂家<br>橫跨台灣與美國',
@@ -3429,7 +3452,11 @@ function applyColRatios() {
   const N = 7, GAP = 24, vhHalf = window.innerHeight * 0.5;
   const w1 = col1.offsetWidth || window.innerWidth / 2;
   const w2 = col2.offsetWidth || window.innerWidth / 2;
-  const h1 = _heroColRatios.c1 != null ? w1 / _heroColRatios.c1 : vhHalf;
+  // Default heights when no explicit ratio is set: the LEFT column (col1) is a bit
+  // taller than the right (col2), per the original design intent. An explicit
+  // c1/c2 ratio (set in the photo editor) still overrides these.
+  const LEFT_DEFAULT_H = vhHalf * 1.3;
+  const h1 = _heroColRatios.c1 != null ? w1 / _heroColRatios.c1 : LEFT_DEFAULT_H;
   const h2 = _heroColRatios.c2 != null ? w2 / _heroColRatios.c2 : vhHalf;
   const loop1abs = N * h1 + (N - 1) * GAP;
   const loop2abs = N * h2 + (N - 1) * GAP;
