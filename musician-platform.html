@@ -586,15 +586,18 @@ nav.mega-open .nav-links a::before {
    White text + mix-blend-mode:difference = auto black/white inversion against
    whatever is behind (bright photo → black text, dark area → white text). */
 .hco-headline {
-  font-size: calc(var(--k)*40px); line-height: 1.05; font-weight: 800;
-  letter-spacing: -0.02em; margin: 0 0 calc(var(--k)*12px);
+  font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
+  font-size: calc(var(--k)*42px); line-height: 1.04; font-weight: 800;
+  letter-spacing: -0.035em; margin: 0 0 calc(var(--k)*14px);
   white-space: nowrap;                 /* keep the headline on one line */
-  color: #fff; mix-blend-mode: difference;
+  color: #fff; mix-blend-mode: difference;   /* black on the light card, like the ref */
 }
 .hco-sub {
-  font-size: calc(var(--k)*15.5px); line-height: 1.5; font-weight: 500;
-  margin: 0 0 calc(var(--k)*22px); max-width: 44ch;
-  color: #fff; mix-blend-mode: difference;
+  font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
+  font-size: calc(var(--k)*15.5px); line-height: 1.55; font-weight: 450;
+  letter-spacing: -0.005em;
+  margin: 0 0 calc(var(--k)*24px); max-width: 46ch;
+  color: #9aa0a6; mix-blend-mode: difference;  /* reads as soft grey on the light card */
 }
 /* Brand name summoned back at the bottom of the white card.
    Fully black (no blend), large, and rises up + fades in with the headline. */
@@ -679,27 +682,35 @@ nav.mega-open .nav-links a::before {
   opacity: 1;
   transform: translateY(0);
 }
-/* ── overlay button styles ── */
+/* ── overlay button styles (SaaS reference: solid black + white outline, › icon) ── */
 .hco-btn-pri {
-  display: inline-flex; align-items: center;
-  background: var(--black); color: var(--white);
-  padding: calc(var(--k)*11px) calc(var(--k)*22px);
-  border-radius: calc(var(--k)*6px); font-size: calc(var(--k)*13px);
-  font-weight: 700; text-decoration: none; letter-spacing: .04em;
-  border: calc(var(--k)*2px) solid var(--black); font-family: inherit;
-  transition: background .2s, color .2s, border-color .2s; cursor: pointer;
+  display: inline-flex; align-items: center; gap: calc(var(--k)*6px);
+  background: #0a0a0a; color: #fff;
+  padding: calc(var(--k)*12px) calc(var(--k)*20px);
+  border-radius: calc(var(--k)*9px); font-size: calc(var(--k)*14px);
+  font-weight: 600; text-decoration: none; letter-spacing: -0.01em;
+  border: 1px solid #0a0a0a; font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
+  box-shadow: 0 1px 2px rgba(0,0,0,.18);
+  transition: background .2s, transform .15s, box-shadow .2s; cursor: pointer;
 }
-.hco-btn-pri:hover { background: #fff; color: #000; border-color: #000; }
+.hco-btn-pri:hover { background: #262626; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.22); }
 .hco-btn-out {
-  display: inline-flex; align-items: center;
-  background: transparent; color: var(--black);
-  padding: calc(var(--k)*11px) calc(var(--k)*22px);
-  border-radius: calc(var(--k)*6px); font-size: calc(var(--k)*13px);
-  font-weight: 700; letter-spacing: .04em;
-  border: calc(var(--k)*2px) solid var(--black); font-family: inherit;
-  transition: background .2s, color .2s; cursor: pointer;
+  display: inline-flex; align-items: center; gap: calc(var(--k)*6px);
+  background: #fff; color: #111;
+  padding: calc(var(--k)*12px) calc(var(--k)*20px);
+  border-radius: calc(var(--k)*9px); font-size: calc(var(--k)*14px);
+  font-weight: 600; letter-spacing: -0.01em; text-decoration: none;
+  border: 1px solid #e4e4e7; font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
+  box-shadow: 0 1px 2px rgba(0,0,0,.06);
+  transition: background .2s, transform .15s, box-shadow .2s, border-color .2s; cursor: pointer;
 }
-.hco-btn-out:hover { background: var(--black); color: var(--white); }
+.hco-btn-out:hover { background: #f7f7f8; border-color: #d4d4d8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+/* chevron › after each button label, nudges right on hover */
+.hco-btn-pri::after, .hco-btn-out::after {
+  content: '\203A'; font-size: calc(var(--k)*17px); line-height: 0; font-weight: 600;
+  margin-top: -2px; transition: transform .2s;
+}
+.hco-btn-pri:hover::after, .hco-btn-out:hover::after { transform: translateX(2px); }
 
 /* ── SHARED ── */
 .dot-m { width: 20px; height: 20px; background: var(--black); border-radius: 50%; }
