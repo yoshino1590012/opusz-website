@@ -79,6 +79,13 @@ function applyHeroBtnShape(s){
     el.style.borderStyle = (s.bw != null && s.bw !== '') ? 'solid' : '';
   });
 }
+// Liquid-glass look on both hero buttons (toggles the .lg-glass class).
+function applyHeroBtnGlass(on){
+  ['.hco-btn-pri','.hco-btn-out'].forEach(function(sel){
+    var el = document.querySelector(sel); if(!el) return;
+    el.classList.toggle('lg-glass', !!on);
+  });
+}
 function applyHeroBtns(map){
   map = map || {};
   var SEL = { find:'.hco-btn-pri', project:'.hco-btn-out' };
@@ -141,6 +148,9 @@ function applyConfig(cfg){
 
   // 1f) hero button shape (corner radius + border width, shared by both buttons)
   if ('heroBtnShape' in cfg) { try { applyHeroBtnShape(cfg.heroBtnShape); } catch(e){} }
+
+  // 1g) liquid-glass button look (on/off)
+  if ('heroBtnGlass' in cfg) { try { applyHeroBtnGlass(cfg.heroBtnGlass); } catch(e){} }
 
   // 2) direct data-cms overrides (non-i18n text / images / links)
   if (cfg.cms) {

@@ -1060,6 +1060,7 @@
     cfg.heroBrandColor = (typeof window.seHeroBrandColor==='string' && window.seHeroBrandColor) ? window.seHeroBrandColor : 'auto';
     if(window.seHeroBtn && typeof window.seHeroBtn==='object') cfg.heroBtn = window.seHeroBtn;
     if(window.seHeroBtnShape && typeof window.seHeroBtnShape==='object') cfg.heroBtnShape = window.seHeroBtnShape;
+    cfg.heroBtnGlass = !!window.seHeroBtnGlass;
     return cfg;
   }
   function seCfgForPreview(){ return (seCurrentPage==='home') ? seReadInputs() : (seCurrentConfig || {i18n:{en:{},zh:{}}}); }
@@ -1781,9 +1782,18 @@
           +'<span id="seBtnOp_'+key+'" style="font-size:11px;color:#0e7490;width:36px;text-align:right;">'+op+'%</span>'
         +'</div></div>';
     }
-    return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">按鈕樣式</div>'
-      + defs.map(function(d){ return row(d[0],d[1],d[2],d[3],d[4]); }).join('');
+    var glassOn=!!window.seHeroBtnGlass;
+    var glassRow='<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">按鈕樣式</div>'
+      +'<label style="display:flex;align-items:center;gap:7px;font-size:12px;color:#334155;margin-bottom:'+(glassOn?'6':'8')+'px;cursor:pointer;">'
+        +'<input type="checkbox" '+(glassOn?'checked':'')+' onchange="seHeroSetBtnGlass(this.checked)" style="width:15px;height:15px;cursor:pointer;"> 液態玻璃 Liquid Glass 效果</label>'
+      +(glassOn?'<div style="font-size:10px;color:#b45309;margin-bottom:8px;line-height:1.5;">玻璃模式會套用透明玻璃外觀，上面的背景／文字／邊框顏色暫不適用。</div>':'');
+    if(glassOn) return glassRow;   // colour controls hidden while glass is active
+    return glassRow + defs.map(function(d){ return row(d[0],d[1],d[2],d[3],d[4]); }).join('');
   }
+  window.seHeroSetBtnGlass = function(on){
+    window.seHeroBtnGlass = !!on;
+    seBuildControls(); sePreview();
+  };
   window.seHeroBtnSet = function(key, prop, val){
     window.seHeroBtn = window.seHeroBtn || {};
     var s = window.seHeroBtn[key] = window.seHeroBtn[key] || {};
@@ -1878,6 +1888,7 @@
     window.seHeroBrandColor = (typeof seCurrentConfig.heroBrandColor==='string' && seCurrentConfig.heroBrandColor) ? seCurrentConfig.heroBrandColor : 'auto';
     window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
     window.seHeroBtnShape = (seCurrentConfig.heroBtnShape && typeof seCurrentConfig.heroBtnShape==='object') ? seCurrentConfig.heroBtnShape : {};
+    window.seHeroBtnGlass = !!seCurrentConfig.heroBtnGlass;
     seBuildPageList();
     seBuildSectionList();
     seBuildControls();
