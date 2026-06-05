@@ -1031,6 +1031,7 @@
     // Hero drag-to-position offsets (Canva-style). Always include so saves persist
     // them and a reset (empty object) is written through.
     if(window.seHeroPos && typeof window.seHeroPos==='object') cfg.heroPos = window.seHeroPos;
+    cfg.heroBrandMode = (window.seHeroBrandMode==='white') ? 'white' : 'auto';
     return cfg;
   }
   function sePreview(){
@@ -1143,6 +1144,7 @@
         +'🖱️ <b>可直接在中間預覽用滑鼠拖曳</b>：標題、副標、兩個按鈕、OPUS.Z 品牌字，拖到任意位置（不影響動畫）。'
         +'<br>下方滑桿可調<b>每個元素的大小</b>。改完按上方「🚀 儲存並發布到網站」。'
         +seHeroSizeRows()
+        +seHeroBrandModeRow()
         +'<button onclick="seHeroPosReset()" style="margin-top:10px;font-size:11px;border:1px solid #67e8f9;background:#fff;border-radius:6px;padding:4px 9px;cursor:pointer;">↺ 重置位置與大小</button></div>'
       : '';
     box.innerHTML = heroHint + fieldsHtml + engHtml;
@@ -1529,19 +1531,33 @@
       if(note){ note.textContent='⚠ 上傳失敗：'+(e.code||e.message); note.style.color='#c00'; }
     }
   };
-  // Size sliders for each draggable hero element (50%–200%).
+  // Size sliders for each draggable hero element. Brand can grow bigger (up to 400%).
   function seHeroSizeRows(){
     var defs=[['headline','標題'],['sub','副標'],['btnFind','按鈕 · Find Artists'],['btnProject','按鈕 · Create a Project'],['brand','品牌 OPUS.Z']];
     var hp=window.seHeroPos||{};
     return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:10px 0 6px;">元素大小</div>'+defs.map(function(d){
       var key=d[0], lbl=d[1]; var s=(hp[key]&&hp[key].s)?hp[key].s:1; var pct=Math.round(s*100);
+      var max=(key==='brand')?400:200;   // brand gets a wider zoom range
       return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
         +'<span style="font-size:11px;color:#155e75;width:130px;flex-shrink:0;">'+lbl+'</span>'
-        +'<input type="range" min="50" max="200" step="5" value="'+pct+'" oninput="seHeroSetSize(\''+key+'\',this.value)" style="flex:1;">'
+        +'<input type="range" min="50" max="'+max+'" step="5" value="'+pct+'" oninput="seHeroSetSize(\''+key+'\',this.value)" style="flex:1;">'
         +'<span id="seHzl_'+key+'" style="font-size:11px;color:#0e7490;width:36px;text-align:right;">'+pct+'%</span>'
         +'</div>';
     }).join('');
   }
+  // Brand OPUS.Z colour mode toggle: auto black/white (default) vs solid white.
+  function seHeroBrandModeRow(){
+    var m=window.seHeroBrandMode||'auto';
+    function b(val,lbl){ var on=(m===val);
+      return '<button onclick="seHeroSetBrandMode(\''+val+'\')" style="font-size:11px;border:1px solid '+(on?'#0e7490':'#cbd5e1')+';background:'+(on?'#0e7490':'#fff')+';color:'+(on?'#fff':'#334155')+';border-radius:6px;padding:4px 11px;cursor:pointer;margin-right:6px;">'+lbl+'</button>'; }
+    return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">品牌字 OPUS.Z 顏色</div>'
+      +'<div style="margin-bottom:2px;">'+b('auto','自動黑白')+b('white','全白')+'</div>';
+  }
+  window.seHeroSetBrandMode = function(mode){
+    window.seHeroBrandMode = (mode==='white') ? 'white' : 'auto';
+    seBuildControls();   // refresh the active-button highlight
+    sePreview();         // live-apply to preview
+  };
   window.seHeroSetSize = function(key, val){
     window.seHeroPos = window.seHeroPos || {};
     window.seHeroPos[key] = Object.assign({}, window.seHeroPos[key], { s:(parseInt(val,10)||100)/100 });
@@ -1621,6 +1637,7 @@
     window.sePartners = ((Array.isArray(seCurrentConfig.partners) && seCurrentConfig.partners.length)
       ? seCurrentConfig.partners : SE_DEFAULT_PARTNERS).map(sePartnerNorm);
     window.seHeroPos = (seCurrentConfig.heroPos && typeof seCurrentConfig.heroPos==='object') ? seCurrentConfig.heroPos : {};
+    window.seHeroBrandMode = (seCurrentConfig.heroBrandMode==='white') ? 'white' : 'auto';
     seBuildSectionList();
     seBuildControls();
     var ifr=document.getElementById('seFrame');

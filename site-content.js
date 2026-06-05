@@ -46,6 +46,14 @@ function applyHeroPos(map){
   });
 }
 
+// Brand wordmark colour mode: 'auto' = the CSS default (white + mix-blend-mode
+// difference → auto black/white against the background); 'white' = solid white.
+function applyBrandMode(mode){
+  var el = document.querySelector('.hco-brand'); if(!el) return;
+  if (mode === 'white') { el.style.color = '#fff'; el.style.mixBlendMode = 'normal'; }
+  else { el.style.color = ''; el.style.mixBlendMode = ''; }   // fall back to CSS (auto)
+}
+
 function waitForI18N(cb){
   // Run cb once the page's i18n engine exists (or there are data-cms targets), with a cap.
   if (window.I18N || document.querySelector('[data-cms]')) { cb(); return; }
@@ -76,6 +84,9 @@ function applyConfig(cfg){
   // 1c) hero element drag-offsets (Canva-style positioning). Always re-apply
   // (even when absent → clears any stale offsets) so a "reset" takes effect too.
   if ('heroPos' in cfg) { try { applyHeroPos(cfg.heroPos); } catch(e){} }
+
+  // 1d) brand wordmark colour mode (auto black/white vs solid white)
+  if ('heroBrandMode' in cfg) { try { applyBrandMode(cfg.heroBrandMode); } catch(e){} }
 
   // 2) direct data-cms overrides (non-i18n text / images / links)
   if (cfg.cms) {
@@ -199,18 +210,30 @@ window.addEventListener('message', function(e){
     if (e && e.data && e.data.__opuszCmsHighlight) highlight(e.data.key);
   });
 
-  // Preview → editor: clicking a section selects it; also block real navigation
+  // Preview should behave EXACTLY like the live site: navigation, login, every
+  // control works. We no longer block link clicks. Internal page links keep
+  // ?cmsedit=1 so the page you navigate to also stays in editor mode. Clicking an
+  // EMPTY area of a section (not a link/button) still selects it in the editor.
   document.addEventListener('click', function(e){
-    var a = e.target && e.target.closest ? e.target.closest('a') : null;
-    if (a){ var href = a.getAttribute('href') || ''; if (href && href.charAt(0) !== '#'){ e.preventDefault(); e.stopPropagation(); } }
-    var sec = e.target && e.target.closest ? e.target.closest('[data-cms-section]') : null;
+    var t = e.target;
+    var interactive = t && t.closest
+      ? t.closest('a,button,input,select,textarea,label,[role="button"],[onclick]')
+      : null;
+    if (interactive){
+      var a = (interactive.tagName === 'A') ? interactive
+            : (interactive.closest ? interactive.closest('a') : null);
+      if (a){
+        var href = a.getAttribute('href') || '';
+        var internal = href && href.charAt(0) !== '#' &&
+          (a.hostname === location.hostname || !/^[a-z][a-z0-9+.\-]*:/i.test(href));
+        if (internal){
+          try { var u = new URL(a.href, location.href); u.searchParams.set('cmsedit','1'); a.href = u.href; } catch(_){}
+        }
+      }
+      return;   // let it work exactly like the front-end — no blocking, no select
+    }
+    var sec = t && t.closest ? t.closest('[data-cms-section]') : null;
     if (sec){ try { parent.postMessage({ __opuszCmsSelect:true, key: sec.getAttribute('data-cms-section') }, '*'); } catch(_){} }
-  }, true);
-
-  // pointer affordance over selectable sections
-  document.addEventListener('mouseover', function(e){
-    var sec = e.target && e.target.closest ? e.target.closest('[data-cms-section]') : null;
-    if (sec) sec.style.cursor = 'pointer';
   }, true);
 
   // ── Canva-style drag for hero elements (editor preview only) ───────────────
