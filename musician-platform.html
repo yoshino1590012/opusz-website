@@ -596,7 +596,8 @@ nav.mega-open .nav-links a::before {
   font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
   font-size: calc(var(--k)*15.5px); line-height: 1.55; font-weight: 450;
   letter-spacing: -0.005em;
-  margin: 0 0 calc(var(--k)*24px); max-width: 46ch;
+  margin: 0 0 calc(var(--k)*24px);
+  white-space: nowrap;                          /* keep the subtitle on one line */
   color: #9aa0a6; mix-blend-mode: difference;  /* reads as soft grey on the light card */
 }
 /* Brand name summoned back at the bottom of the white card.
@@ -616,6 +617,7 @@ nav.mega-open .nav-links a::before {
 /* On phones let the headline wrap (avoid horizontal overflow from nowrap) */
 @media (max-width: 640px){
   .hco-headline { white-space: normal; }
+  .hco-sub { white-space: normal; }   /* allow wrap on phones to avoid overflow */
 }
 /* ── initial hidden state ── */
 .hco-btns,
