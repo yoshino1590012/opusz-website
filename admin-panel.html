@@ -974,10 +974,12 @@
     seCurrentDevice = name;
     var devW = d.w, devH = d.h;
     if(name==='desktop'){
-      // "標準顯示螢幕" = the user's ACTUAL monitor, so the preview equals exactly
-      // what they see when they open the site on this desktop.
-      devW = Math.max(1280, window.screen.availWidth || window.screen.width || 1536);
-      devH = Math.max(720, window.screen.availHeight || Math.round(devW * 0.5625));
+      // "標準顯示螢幕" = the actual BROWSER VIEWPORT width (innerWidth), so the preview
+      // card width equals exactly what visitors get on the live site (same window) —
+      // making element positions match. (Was screen.availWidth = full monitor, which
+      // is wider than the viewport and made dragged positions drift vs. live.)
+      devW = Math.max(1280, window.innerWidth || window.screen.availWidth || 1536);
+      devH = Math.max(720, window.innerHeight || Math.round(devW * 0.5625));
     }
     var ifr = document.getElementById('seFrame');
     var wrap = document.getElementById('seFrameWrap');
@@ -1885,6 +1887,16 @@
     window.sePartners = ((Array.isArray(seCurrentConfig.partners) && seCurrentConfig.partners.length)
       ? seCurrentConfig.partners : SE_DEFAULT_PARTNERS).map(sePartnerNorm);
     window.seHeroPos = (seCurrentConfig.heroPos && typeof seCurrentConfig.heroPos==='object') ? seCurrentConfig.heroPos : {};
+    // Migrate legacy px offsets → viewport-fraction so positions become
+    // width-independent (using the desktop edit width as the reference).
+    (function(){
+      var avw=Math.max(1280, window.screen.availWidth||1536), avh=Math.max(720, window.screen.availHeight||864);
+      Object.keys(window.seHeroPos).forEach(function(k){
+        var p=window.seHeroPos[k]; if(!p||typeof p!=='object') return;
+        if(p.xPct==null && p.x!=null) p.xPct=+(p.x/avw).toFixed(5);
+        if(p.yPct==null && p.y!=null) p.yPct=+(p.y/avh).toFixed(5);
+      });
+    })();
     window.seHeroBrandColor = (typeof seCurrentConfig.heroBrandColor==='string' && seCurrentConfig.heroBrandColor) ? seCurrentConfig.heroBrandColor : 'auto';
     window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
     window.seHeroBtnShape = (seCurrentConfig.heroBtnShape && typeof seCurrentConfig.heroBtnShape==='object') ? seCurrentConfig.heroBtnShape : {};
@@ -1906,10 +1918,12 @@
         if(!e || !e.data) return;
         if(e.data.__opuszCmsSelect && e.data.key){ seSelectSection(e.data.key); }
         // Hero element was dragged in the preview → remember its offset for saving.
-        // Merge so an existing size (s) isn't wiped by a position update.
+        // Store viewport-fraction (xPct/yPct, width-independent) + px (legacy). Merge
+        // so an existing size (s) isn't wiped by a position update.
         if(e.data.__opuszHeroPos && e.data.key){
           window.seHeroPos = window.seHeroPos || {};
-          window.seHeroPos[e.data.key] = Object.assign({}, window.seHeroPos[e.data.key], { x:e.data.x|0, y:e.data.y|0 });
+          window.seHeroPos[e.data.key] = Object.assign({}, window.seHeroPos[e.data.key],
+            { x:e.data.x|0, y:e.data.y|0, xPct:e.data.xPct, yPct:e.data.yPct });
         }
       });
     }

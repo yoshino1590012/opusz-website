@@ -39,9 +39,13 @@ function applyHeroPos(map){
   Object.keys(HERO_DRAG).forEach(function(k){
     var el = document.querySelector(HERO_DRAG[k]); if(!el) return;
     var p = map[k] || {};
-    // position via independent `translate`, size via independent `scale` — both are
-    // separate from `transform`, so the reveal/scale animations stay intact.
-    el.style.translate = (p.x || p.y) ? ((p.x||0)+'px '+(p.y||0)+'px') : '';
+    // Position via independent `translate` (separate from `transform`, so animations
+    // stay intact). PREFER viewport-fraction (xPct/yPct → vw/vh) so the offset is the
+    // SAME relative position at any screen width; fall back to legacy px (x/y).
+    var has = (p.xPct != null || p.yPct != null || p.x || p.y);
+    var tx = (p.xPct != null) ? ('calc(' + p.xPct + ' * 100vw)') : ((p.x || 0) + 'px');
+    var ty = (p.yPct != null) ? ('calc(' + p.yPct + ' * 100vh)') : ((p.y || 0) + 'px');
+    el.style.translate = has ? (tx + ' ' + ty) : '';
     el.style.scale     = (p.s && p.s !== 1) ? String(p.s) : '';
   });
 }
@@ -362,7 +366,11 @@ window.addEventListener('message', function(e){
       function end(){
         if(!on) return; on=false; el.style.outline='';
         var o = curOffset(el);
-        try{ parent.postMessage({__opuszHeroPos:true, key:key, x:Math.round(o.x), y:Math.round(o.y)}, '*'); }catch(_){}
+        var vw = window.innerWidth || 1, vh = window.innerHeight || 1;
+        // report BOTH px (legacy) and viewport-fraction (width-independent, preferred)
+        try{ parent.postMessage({__opuszHeroPos:true, key:key,
+          x:Math.round(o.x), y:Math.round(o.y),
+          xPct:+(o.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
       }
       el.addEventListener('pointerup', end);
       el.addEventListener('pointercancel', end);
