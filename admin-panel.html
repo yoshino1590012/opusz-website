@@ -1059,6 +1059,7 @@
     if(window.seHeroPos && typeof window.seHeroPos==='object') cfg.heroPos = window.seHeroPos;
     cfg.heroBrandColor = (typeof window.seHeroBrandColor==='string' && window.seHeroBrandColor) ? window.seHeroBrandColor : 'auto';
     if(window.seHeroBtn && typeof window.seHeroBtn==='object') cfg.heroBtn = window.seHeroBtn;
+    if(window.seHeroBtnShape && typeof window.seHeroBtnShape==='object') cfg.heroBtnShape = window.seHeroBtnShape;
     return cfg;
   }
   function seCfgForPreview(){ return (seCurrentPage==='home') ? seReadInputs() : (seCurrentConfig || {i18n:{en:{},zh:{}}}); }
@@ -1304,6 +1305,7 @@
         +'<br>下方滑桿可調<b>每個元素的大小</b>。改完按上方「🚀 儲存並發布到網站」。'
         +seHeroSizeRows()
         +seHeroBrandColorRow()
+        +seHeroBtnShapeRow()
         +seHeroBtnRows()
         +'<button onclick="seHeroPosReset()" style="margin-top:10px;font-size:11px;border:1px solid #67e8f9;background:#fff;border-radius:6px;padding:4px 9px;cursor:pointer;">↺ 重置位置與大小</button></div>'
       : '';
@@ -1730,6 +1732,33 @@
     sePreview();   // live-apply to preview
   };
 
+  // Shared button shape: corner-radius presets + border width (fixes thin/aliased edges).
+  function seHeroBtnShapeRow(){
+    var sh=window.seHeroBtnShape||{};
+    var curR=(sh.radius!=null&&sh.radius!=='')?String(sh.radius):'9';
+    var curW=(sh.bw!=null&&sh.bw!=='')?String(sh.bw):'1';
+    var shapes=[['0','方角'],['5','微圓'],['9','圓角'],['16','大圓角'],['pill','膠囊']];
+    var chips=shapes.map(function(s){
+      var val=s[0], on=(curR===val);
+      var rad=(val==='pill')?'999px':(val+'px');
+      var arg=(val==='pill')?"'pill'":val;
+      return '<button onclick="seHeroSetBtnShape(\'radius\','+arg+')" title="'+s[1]+'" style="display:inline-flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;padding:0;">'
+        +'<span style="display:block;width:48px;height:24px;background:#0a0a0a;border-radius:'+rad+';'+(on?'box-shadow:0 0 0 2px #0e7490;':'')+'"></span>'
+        +'<span style="font-size:10px;color:'+(on?'#0e7490':'#64748b')+';font-weight:'+(on?'700':'400')+';">'+s[1]+'</span></button>';
+    }).join('');
+    var widths=[['1','細'],['2','中'],['3','粗']];
+    var wbtns=widths.map(function(w){ var on=(curW===w[0]);
+      return '<button onclick="seHeroSetBtnShape(\'bw\','+w[0]+')" style="font-size:11px;border:1px solid '+(on?'#0e7490':'#cbd5e1')+';background:'+(on?'#0e7490':'#fff')+';color:'+(on?'#fff':'#334155')+';border-radius:6px;padding:3px 11px;cursor:pointer;margin-right:6px;">'+w[1]+'</button>'; }).join('');
+    return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">按鈕形狀（兩顆共用）</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:11px;align-items:flex-end;margin-bottom:9px;">'+chips+'</div>'
+      +'<div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;color:#155e75;white-space:nowrap;">邊框粗細</span>'+wbtns+'</div>';
+  }
+  window.seHeroSetBtnShape = function(prop, val){
+    window.seHeroBtnShape = window.seHeroBtnShape || {};
+    window.seHeroBtnShape[prop] = val;
+    seBuildControls(); sePreview();
+  };
+
   // Per-button styling: background colour, text colour, opacity.
   function seHeroBtnRows(){
     var b=window.seHeroBtn||{};
@@ -1848,6 +1877,7 @@
     window.seHeroPos = (seCurrentConfig.heroPos && typeof seCurrentConfig.heroPos==='object') ? seCurrentConfig.heroPos : {};
     window.seHeroBrandColor = (typeof seCurrentConfig.heroBrandColor==='string' && seCurrentConfig.heroBrandColor) ? seCurrentConfig.heroBrandColor : 'auto';
     window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
+    window.seHeroBtnShape = (seCurrentConfig.heroBtnShape && typeof seCurrentConfig.heroBtnShape==='object') ? seCurrentConfig.heroBtnShape : {};
     seBuildPageList();
     seBuildSectionList();
     seBuildControls();

@@ -66,6 +66,19 @@ function _hexToRgba(hex, a){
   var n = parseInt(hex, 16);
   return 'rgba(' + ((n>>16)&255) + ',' + ((n>>8)&255) + ',' + (n&255) + ',' + a + ')';
 }
+// Button SHAPE (shared by both buttons): corner radius + border width. Sizes use
+// calc(var(--k)*Npx) to match the hero's scale system (so they stay crisp).
+function applyHeroBtnShape(s){
+  s = s || {};
+  ['.hco-btn-pri','.hco-btn-out'].forEach(function(sel){
+    var el = document.querySelector(sel); if(!el) return;
+    if (s.radius === 'pill') el.style.borderRadius = '999px';
+    else if (s.radius != null && s.radius !== '') el.style.borderRadius = 'calc(var(--k) * ' + Number(s.radius) + 'px)';
+    else el.style.borderRadius = '';
+    el.style.borderWidth = (s.bw != null && s.bw !== '') ? ('calc(var(--k) * ' + Number(s.bw) + 'px)') : '';
+    el.style.borderStyle = (s.bw != null && s.bw !== '') ? 'solid' : '';
+  });
+}
 function applyHeroBtns(map){
   map = map || {};
   var SEL = { find:'.hco-btn-pri', project:'.hco-btn-out' };
@@ -125,6 +138,9 @@ function applyConfig(cfg){
 
   // 1e) hero button styling (bg / text colour / opacity)
   if ('heroBtn' in cfg) { try { applyHeroBtns(cfg.heroBtn); } catch(e){} }
+
+  // 1f) hero button shape (corner radius + border width, shared by both buttons)
+  if ('heroBtnShape' in cfg) { try { applyHeroBtnShape(cfg.heroBtnShape); } catch(e){} }
 
   // 2) direct data-cms overrides (non-i18n text / images / links)
   if (cfg.cms) {
