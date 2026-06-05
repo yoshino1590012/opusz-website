@@ -1604,15 +1604,17 @@
       return '<button onclick="seHeroSetBrandColor(\''+c+'\')" title="'+c+'" style="width:22px;height:22px;border-radius:50%;border:1px solid #ccc;background:'+c+';cursor:pointer;'+(on?'box-shadow:0 0 0 2px #0e7490;':'')+'"></button>';
     }).join('');
     var customVal=(!isAuto && /^#/.test(v))?v:'#000000';
-    var custom='<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#155e75;cursor:pointer;">自訂<input type="color" value="'+customVal+'" oninput="seHeroSetBrandColor(this.value)" style="width:28px;height:24px;border:1px solid #ccc;border-radius:6px;padding:0;cursor:pointer;background:#fff;"></label>';
+    var custom='<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#155e75;cursor:pointer;">自訂<input type="color" value="'+customVal+'" oninput="seHeroSetBrandColor(this.value,false)" style="width:28px;height:24px;border:1px solid #ccc;border-radius:6px;padding:0;cursor:pointer;background:#fff;"></label>';
     return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">品牌字 OPUS.Z 顏色</div>'
       +'<div style="margin-bottom:8px;">'+autoBtn+'</div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;">'+swatches+custom+'</div>';
   }
-  window.seHeroSetBrandColor = function(c){
+  // rebuild=true for discrete picks (swatch/auto → refresh highlight); false for the
+  // continuous custom picker (rebuilding mid-drag would close the colour dialog).
+  window.seHeroSetBrandColor = function(c, rebuild){
     window.seHeroBrandColor = c || 'auto';
-    seBuildControls();   // refresh the active swatch highlight
-    sePreview();         // live-apply to preview
+    if(rebuild !== false) seBuildControls();
+    sePreview();   // live-apply to preview
   };
   window.seHeroSetSize = function(key, val){
     window.seHeroPos = window.seHeroPos || {};
