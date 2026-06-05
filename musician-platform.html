@@ -600,12 +600,13 @@ nav.mega-open .nav-links a::before {
   color: #9aa0a6; mix-blend-mode: difference;  /* reads as soft grey on the light card */
 }
 /* Brand name summoned back at the bottom of the white card.
-   Fully black (no blend), large, and rises up + fades in with the headline. */
+   Auto black/white against whatever is behind it (mix-blend-mode:difference) —
+   same setup as the headline, so it stays legible over light card AND dark photo. */
 .hco-brand {
   position: absolute; left: 50%; bottom: calc(var(--k)*16px);
   transform: translateX(-50%) translateY(calc(var(--k)*28px));
   font-size: calc(var(--k)*86px); font-weight: 800; letter-spacing: -0.03em;
-  line-height: 1; color: #000; white-space: nowrap; pointer-events: none;
+  line-height: 1; color: #fff; mix-blend-mode: difference; white-space: nowrap; pointer-events: none;
   opacity: 0;
   transition: opacity .6s ease 260ms, transform .75s cubic-bezier(.16,1,.3,1) 260ms;
 }
