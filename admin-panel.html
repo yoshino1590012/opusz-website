@@ -1058,11 +1058,13 @@
     // them and a reset (empty object) is written through.
     if(window.seHeroPos && typeof window.seHeroPos==='object') cfg.heroPos = window.seHeroPos;
     cfg.heroBrandColor = (typeof window.seHeroBrandColor==='string' && window.seHeroBrandColor) ? window.seHeroBrandColor : 'auto';
+    if(window.seHeroBtn && typeof window.seHeroBtn==='object') cfg.heroBtn = window.seHeroBtn;
     return cfg;
   }
+  function seCfgForPreview(){ return (seCurrentPage==='home') ? seReadInputs() : (seCurrentConfig || {i18n:{en:{},zh:{}}}); }
   function sePreview(){
     var ifr=document.getElementById('seFrame');
-    if(ifr && ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszCmsPreview:true, config:seReadInputs()}, '*'); }catch(e){} }
+    if(ifr && ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszCmsPreview:true, config:seCfgForPreview()}, '*'); }catch(e){} }
   }
   var seTimer=null;
   window.seOnInput = function(){ clearTimeout(seTimer); seTimer=setTimeout(sePreview, 250); };
@@ -1076,14 +1078,22 @@
     }).join('');
   };
   // Switch the editor to another page: load it in the preview + swap the section list.
-  window.seSelectPage = function(key){
+  window.seSelectPage = async function(key){
     var p = SE_PAGES.filter(function(x){return x.key===key;})[0]; if(!p) return;
     seCurrentPage = key;
     document.querySelectorAll('#sePageList .se-sec-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-page')===key); });
     var secs = seSections();
     seCurrentSection = secs.length ? secs[0].key : '';
+    // load this page's saved config (text/auto) from Firestore (fallback localStorage)
+    try{
+      var snap = await getDoc(doc(db,'siteContent',key));
+      seCurrentConfig = snap.exists()? snap.data() : { i18n:{en:{},zh:{}} };
+    }catch(e){
+      try{ seCurrentConfig=JSON.parse(localStorage.getItem('opusz_site_'+key)||'null')||{i18n:{en:{},zh:{}}}; }catch(_){ seCurrentConfig={i18n:{en:{},zh:{}}}; }
+    }
+    if(!seCurrentConfig.i18n) seCurrentConfig.i18n={en:{},zh:{}};
     var ifr=document.getElementById('seFrame');
-    if(ifr){ ifr.src = p.file + '?cmsedit=1'; }   // onload (set in seInit) re-highlights + previews
+    if(ifr){ ifr.src = p.file + '?cmsedit=1'; }   // onload (set in seInit) re-highlights + previews + rebuilds controls
     seBuildSectionList();
     seBuildControls();
   };
@@ -1112,6 +1122,106 @@
     var ifr=document.getElementById('seFrame');
     if(ifr&&ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszCmsHighlight:true, key:key}, '*'); }catch(e){} }
   }
+  // ── Generic editor for NON-home pages ───────────────────────────────────────
+  // Scans the selected section in the preview and auto-builds editable fields for
+  // its text (data-i18n), images, videos and links — no per-element hand-coding.
+  // Saves into seCurrentConfig (.i18n for text, .auto[] for media/links) → siteContent/<page>.
+  function _gesc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  window.seBuildAutoControls = function(box){
+    var ifr=document.getElementById('seFrame');
+    var win=ifr&&ifr.contentWindow, doc=ifr&&ifr.contentDocument;
+    if(!doc || !win){
+      box.innerHTML='<div style="font-size:12px;color:#999;padding:8px 0;">預覽載入中…</div>';
+      seBuildAutoControls._n=(seBuildAutoControls._n||0)+1;
+      if(seBuildAutoControls._n<25) setTimeout(function(){ if(seCurrentPage!=='home') seBuildAutoControls(box); },300);
+      return;
+    }
+    seBuildAutoControls._n=0;
+    var secEl=doc.querySelector('[data-cms-section="'+seCurrentSection+'"]');
+    if(!secEl){ box.innerHTML='<div style="font-size:12px;color:#999;padding:8px 0;">此區段在預覽中找不到（可能還在載入，稍候再點一次）。</div>'; return; }
+    var I18=win.I18N||{en:{},zh:{}};
+    seCurrentConfig=seCurrentConfig||{i18n:{en:{},zh:{}}};
+    seCurrentConfig.i18n=seCurrentConfig.i18n||{en:{},zh:{}};
+    seCurrentConfig.auto=Array.isArray(seCurrentConfig.auto)?seCurrentConfig.auto:[];
+    var grp='font-size:11px;font-weight:800;color:#111;margin:14px 0 8px;border-top:1px solid #eee;padding-top:12px;';
+    var lbl='font-size:12px;font-weight:600;color:#555;margin-bottom:5px;';
+    var inp='width:100%;margin-bottom:5px;padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;';
+    var html='';
+    // TEXT (data-i18n)
+    var i18nEls=[].slice.call(secEl.querySelectorAll('[data-i18n]')), seen={};
+    var tHtml='';
+    i18nEls.forEach(function(el){
+      var k=el.getAttribute('data-i18n'); if(!k||seen[k]) return; seen[k]=1;
+      var ci=seCurrentConfig.i18n;
+      var enV=(ci.en&&ci.en[k]!=null)?ci.en[k]:((I18.en&&I18.en[k]!=null)?I18.en[k]:(el.textContent||'').trim());
+      var zhV=(ci.zh&&ci.zh[k]!=null)?ci.zh[k]:((I18.zh&&I18.zh[k]!=null)?I18.zh[k]:'');
+      tHtml+='<div style="margin-bottom:12px;"><div style="'+lbl+'">'+_gesc(((el.textContent||'').trim().slice(0,30))||k)+'</div>'
+        +'<input data-i18nk="'+_gesc(k)+'" data-lang="en" value="'+_gesc(enV)+'" placeholder="EN" style="'+inp+'">'
+        +'<input data-i18nk="'+_gesc(k)+'" data-lang="zh" value="'+_gesc(zhV)+'" placeholder="中文" style="'+inp+'"></div>';
+    });
+    if(tHtml) html+='<div style="'+grp+'">文字 / Text</div>'+tHtml;
+    // MEDIA + LINKS by index
+    function block(sel,kind,label,ph,accept){
+      var els=[].slice.call(secEl.querySelectorAll(sel)); if(!els.length) return '';
+      var h='<div style="'+grp+'">'+label+'</div>';
+      els.forEach(function(el,i){
+        var o=seCurrentConfig.auto.filter(function(x){return x.sec===seCurrentSection&&x.kind===kind&&x.idx===i;})[0];
+        var src0=(kind==='href')?(el.getAttribute('href')||''):(el.getAttribute('src')||((el.querySelector&&el.querySelector('source'))?el.querySelector('source').getAttribute('src'):'')||'');
+        var val=o?o.v:src0;
+        h+='<div style="margin-bottom:12px;"><div style="'+lbl+'">'+label+' '+(i+1)+'</div>'
+          +'<input data-auto="'+kind+'" data-idx="'+i+'" value="'+_gesc(val)+'" placeholder="'+ph+'" style="'+inp+'">';
+        if(kind!=='href') h+='<label style="display:inline-block;font-size:12px;color:#fff;background:#111;border-radius:6px;padding:5px 10px;cursor:pointer;">⬆ 上傳<input type="file" accept="'+accept+'" style="display:none;" data-upauto="'+kind+'" data-idx="'+i+'"></label> <span data-upmsg="'+kind+i+'" style="font-size:11px;color:#888;"></span>';
+        h+='</div>';
+      });
+      return h;
+    }
+    html+=block('img','img','圖片','https://…/image.jpg 或上傳','image/*');
+    html+=block('video','video','影片','https://…/video.mp4 或上傳','video/*');
+    html+=block('a[href]','href','連結','https://… 連結網址','');
+    if(!html) html='<div style="font-size:12px;color:#999;line-height:1.6;padding:8px 0;">此區段沒有偵測到可編輯的文字／圖片／影片／連結。</div>';
+    box.innerHTML=html;
+    seWireAuto(box);
+  };
+  function seSetAuto(kind,idx,v){
+    seCurrentConfig.auto=seCurrentConfig.auto||[];
+    var o=seCurrentConfig.auto.filter(function(x){return x.sec===seCurrentSection&&x.kind===kind&&x.idx===idx;})[0];
+    if(o) o.v=v; else seCurrentConfig.auto.push({sec:seCurrentSection,kind:kind,idx:idx,v:v});
+  }
+  async function seUploadAuto(file,kind,idx,msgEl){
+    var maxMb=kind==='video'?60:8;
+    if(file.size>maxMb*1024*1024){ if(msgEl){msgEl.textContent='檔案過大（上限'+maxMb+'MB）';msgEl.style.color='#c00';} return ''; }
+    if(msgEl){ msgEl.textContent='上傳中…'; msgEl.style.color='#888'; }
+    try{
+      var safe=file.name.replace(/[^\w.\-]/g,'_');
+      var path='siteContent/'+seCurrentPage+'/auto_'+seCurrentSection+'_'+kind+'_'+idx+'_'+Date.now()+'_'+safe;
+      var r=storageRef(storage,path); await uploadBytes(r,file); var url=await getDownloadURL(r);
+      if(msgEl){ msgEl.textContent='✓ 已上傳（記得發佈）'; msgEl.style.color='#16a34a'; }
+      return url;
+    }catch(e){ if(msgEl){ msgEl.textContent='⚠ 上傳失敗：'+(e.code||e.message); msgEl.style.color='#c00'; } return ''; }
+  }
+  function seWireAuto(box){
+    box.querySelectorAll('input[data-i18nk]').forEach(function(el){
+      el.addEventListener('input', function(){
+        var k=el.getAttribute('data-i18nk'), lang=el.getAttribute('data-lang');
+        seCurrentConfig.i18n[lang]=seCurrentConfig.i18n[lang]||{};
+        seCurrentConfig.i18n[lang][k]=el.value; seOnInput();
+      });
+    });
+    box.querySelectorAll('input[data-auto]').forEach(function(el){
+      el.addEventListener('input', function(){ seSetAuto(el.getAttribute('data-auto'), parseInt(el.getAttribute('data-idx'),10), el.value); seOnInput(); });
+    });
+    box.querySelectorAll('input[data-upauto]').forEach(function(el){
+      el.addEventListener('change', function(){
+        var f=el.files[0]; if(!f) return;
+        var kind=el.getAttribute('data-upauto'), idx=parseInt(el.getAttribute('data-idx'),10);
+        var msgEl=box.querySelector('[data-upmsg="'+kind+idx+'"]');
+        seUploadAuto(f,kind,idx,msgEl).then(function(url){
+          if(url){ var t=box.querySelector('input[data-auto="'+kind+'"][data-idx="'+idx+'"]'); if(t) t.value=url; seSetAuto(kind,idx,url); seOnInput(); }
+        });
+      });
+    });
+  }
+
   window.seBuildControls = function(){
     var box=document.getElementById('seControls'); if(!box) return;
     var cur=seCurrentConfig.i18n||{en:{},zh:{}};
@@ -1119,6 +1229,8 @@
     function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
     // Partner marquee uses a custom list editor (not the fixed SE_FIELDS schema).
     if(seCurrentSection==='partners'){ seBuildPartners(box); return; }
+    // Non-home pages → generic auto editor (scans the preview section).
+    if(seCurrentPage!=='home'){ seBuildAutoControls(box); return; }
     var fields = (seCurrentPage==='home') ? SE_FIELDS.filter(function(ff){ return ff.section===seCurrentSection; }) : [];
     var engGrp = (seCurrentPage==='home') ? SE_ENGINE_GROUP[seCurrentSection] : null;
     if(!fields.length && !engGrp){
@@ -1192,6 +1304,7 @@
         +'<br>下方滑桿可調<b>每個元素的大小</b>。改完按上方「🚀 儲存並發布到網站」。'
         +seHeroSizeRows()
         +seHeroBrandColorRow()
+        +seHeroBtnRows()
         +'<button onclick="seHeroPosReset()" style="margin-top:10px;font-size:11px;border:1px solid #67e8f9;background:#fff;border-radius:6px;padding:4px 9px;cursor:pointer;">↺ 重置位置與大小</button></div>'
       : '';
     box.innerHTML = heroHint + fieldsHtml + engHtml;
@@ -1616,6 +1729,42 @@
     if(rebuild !== false) seBuildControls();
     sePreview();   // live-apply to preview
   };
+
+  // Per-button styling: background colour, text colour, opacity.
+  function seHeroBtnRows(){
+    var b=window.seHeroBtn||{};
+    var defs=[['find','按鈕 · Find Artists','#0a0a0a','#ffffff'],['project','按鈕 · Create a Project','#ffffff','#111111']];
+    function row(key,lbl,dbg,dfg){
+      var s=b[key]||{};
+      var bg=(s.bg&&/^#/.test(s.bg))?s.bg:dbg, fg=(s.fg&&/^#/.test(s.fg))?s.fg:dfg;
+      var op=(s.op!=null&&s.op!=='')?Math.round(s.op*100):100;
+      return '<div style="border:1px solid #e2e8f0;border-radius:8px;padding:8px 9px;margin-bottom:8px;">'
+        +'<div style="font-size:11px;font-weight:700;color:#334155;margin-bottom:6px;">'+lbl+'</div>'
+        +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
+          +'<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#155e75;">背景<input type="color" value="'+bg+'" oninput="seHeroBtnSet(\''+key+'\',\'bg\',this.value)" style="width:26px;height:22px;border:1px solid #ccc;border-radius:5px;padding:0;cursor:pointer;"></label>'
+          +'<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#155e75;">文字<input type="color" value="'+fg+'" oninput="seHeroBtnSet(\''+key+'\',\'fg\',this.value)" style="width:26px;height:22px;border:1px solid #ccc;border-radius:5px;padding:0;cursor:pointer;"></label>'
+          +'<button onclick="seHeroBtnReset(\''+key+'\')" style="font-size:10px;border:1px solid #ddd;background:#fff;border-radius:5px;padding:3px 7px;cursor:pointer;">重置</button>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:7px;margin-top:7px;">'
+          +'<span style="font-size:11px;color:#155e75;white-space:nowrap;">透明度</span>'
+          +'<input type="range" min="10" max="100" step="5" value="'+op+'" oninput="seHeroBtnSet(\''+key+'\',\'op\',this.value)" style="flex:1;">'
+          +'<span id="seBtnOp_'+key+'" style="font-size:11px;color:#0e7490;width:36px;text-align:right;">'+op+'%</span>'
+        +'</div></div>';
+    }
+    return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">按鈕樣式</div>'
+      + defs.map(function(d){ return row(d[0],d[1],d[2],d[3]); }).join('');
+  }
+  window.seHeroBtnSet = function(key, prop, val){
+    window.seHeroBtn = window.seHeroBtn || {};
+    var s = window.seHeroBtn[key] = window.seHeroBtn[key] || {};
+    if(prop==='op'){ s.op=(parseInt(val,10)||100)/100; var l=document.getElementById('seBtnOp_'+key); if(l) l.textContent=val+'%'; }
+    else s[prop]=val;
+    sePreview();   // no panel rebuild → colour dialog stays open while dragging
+  };
+  window.seHeroBtnReset = function(key){
+    if(window.seHeroBtn) delete window.seHeroBtn[key];
+    seBuildControls(); sePreview();
+  };
   window.seHeroSetSize = function(key, val){
     window.seHeroPos = window.seHeroPos || {};
     window.seHeroPos[key] = Object.assign({}, window.seHeroPos[key], { s:(parseInt(val,10)||100)/100 });
@@ -1633,12 +1782,13 @@
   };
 
   window.seSave = async function(){
-    var cfg=seReadInputs();
-    try{ localStorage.setItem('opusz_site_home', JSON.stringify(cfg)); }catch(e){}
+    var page = seCurrentPage || 'home';
+    var cfg = (page==='home') ? seReadInputs() : (seCurrentConfig || {i18n:{en:{},zh:{}}});
+    try{ localStorage.setItem('opusz_site_'+page, JSON.stringify(cfg)); }catch(e){}
     var msg=document.getElementById('seSaveMsg');
     var ok=false;
     try{
-      await setDoc(doc(db,'siteContent','home'), cfg, { merge:true });
+      await setDoc(doc(db,'siteContent',page), cfg, { merge:true });
       ok=true;
       if(msg){ msg.textContent='✓ 文字已儲存並發布'; msg.style.color='#16a34a'; }
     }catch(e){
@@ -1696,6 +1846,7 @@
       ? seCurrentConfig.partners : SE_DEFAULT_PARTNERS).map(sePartnerNorm);
     window.seHeroPos = (seCurrentConfig.heroPos && typeof seCurrentConfig.heroPos==='object') ? seCurrentConfig.heroPos : {};
     window.seHeroBrandColor = (typeof seCurrentConfig.heroBrandColor==='string' && seCurrentConfig.heroBrandColor) ? seCurrentConfig.heroBrandColor : 'auto';
+    window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
     seBuildPageList();
     seBuildSectionList();
     seBuildControls();
@@ -1703,7 +1854,7 @@
     if(ifr){
       // Re-apply current edits + highlight after every (re)load. seSetDevice owns
       // setting/reloading the src (it boots the iframe at the right device width).
-      ifr.onload=function(){ setTimeout(function(){ sePreview(); seHighlight(seCurrentSection); }, 500); };
+      ifr.onload=function(){ setTimeout(function(){ sePreview(); seHighlight(seCurrentSection); if(seCurrentPage!=='home') seBuildControls(); }, 500); };
     }
     seSetDevice('desktop');
     // Preview → editor: clicking a section in the iframe selects it here (once).

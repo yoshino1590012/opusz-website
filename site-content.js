@@ -55,6 +55,21 @@ function applyBrandColor(val){
   else { el.style.color = val; el.style.mixBlendMode = 'normal'; }
 }
 
+// Hero button styling: per-button background / text colour / opacity.
+// cfg.heroBtn = { find:{bg,fg,op}, project:{bg,fg,op} }. Empty values fall back to CSS.
+function applyHeroBtns(map){
+  map = map || {};
+  var SEL = { find:'.hco-btn-pri', project:'.hco-btn-out' };
+  Object.keys(SEL).forEach(function(k){
+    var el = document.querySelector(SEL[k]); if(!el) return;
+    var b = map[k] || {};
+    el.style.background  = b.bg || '';
+    el.style.borderColor = b.bg || '';                 // keep border in step with the chosen bg
+    el.style.color       = b.fg || '';
+    el.style.opacity     = (b.op != null && b.op !== '') ? String(b.op) : '';
+  });
+}
+
 function waitForI18N(cb){
   // Run cb once the page's i18n engine exists (or there are data-cms targets), with a cap.
   if (window.I18N || document.querySelector('[data-cms]')) { cb(); return; }
@@ -89,6 +104,9 @@ function applyConfig(cfg){
   // 1d) brand wordmark colour ('auto' = blend, or a custom colour)
   if ('heroBrandColor' in cfg) { try { applyBrandColor(cfg.heroBrandColor); } catch(e){} }
 
+  // 1e) hero button styling (bg / text colour / opacity)
+  if ('heroBtn' in cfg) { try { applyHeroBtns(cfg.heroBtn); } catch(e){} }
+
   // 2) direct data-cms overrides (non-i18n text / images / links)
   if (cfg.cms) {
     var cms = cfg.cms;
@@ -117,6 +135,28 @@ function applyConfig(cfg){
         else if (attr === 'bg')   { el.style.backgroundImage = "url('" + v + "')"; applyFraming(el, 'bg', pos, zoom); }
         else                      el.textContent = v;
       });
+    });
+  }
+
+  // 3) generic per-section overrides — lets the editor make ANY image / video /
+  // link on a page editable WITHOUT hand-tagging each element. Each entry targets
+  // the Nth <img>/<video>/<a> inside a [data-cms-section]. Keyed by DOM order.
+  if (Array.isArray(cfg.auto)) {
+    cfg.auto.forEach(function(o){
+      if (!o || !o.sec) return;
+      var secEl = document.querySelector('[data-cms-section="' + o.sec + '"]');
+      if (!secEl) return;
+      var tag = o.kind === 'href' ? 'a' : (o.kind === 'video' ? 'video' : (o.kind === 'img' ? 'img' : null));
+      if (!tag) return;
+      var el = secEl.querySelectorAll(tag)[o.idx | 0];
+      if (!el) return;
+      if (o.kind === 'href') { if (o.v != null) el.setAttribute('href', o.v); return; }
+      // img / video src
+      if (o.v != null && el.getAttribute('src') !== o.v) {
+        el.src = o.v;
+        if (el.tagName === 'VIDEO') { try { el.load(); var p = el.play(); if (p && p.catch) p.catch(function(){}); } catch(e){} }
+      }
+      applyFraming(el, 'media', o.pos, o.zoom);
     });
   }
 }
