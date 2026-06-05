@@ -46,12 +46,13 @@ function applyHeroPos(map){
   });
 }
 
-// Brand wordmark colour mode: 'auto' = the CSS default (white + mix-blend-mode
-// difference → auto black/white against the background); 'white' = solid white.
-function applyBrandMode(mode){
+// Brand wordmark colour: 'auto' (or empty) = CSS default (white + mix-blend-mode
+// difference → auto black/white against the background); any CSS colour string
+// (e.g. '#e11d48') = that solid colour.
+function applyBrandColor(val){
   var el = document.querySelector('.hco-brand'); if(!el) return;
-  if (mode === 'white') { el.style.color = '#fff'; el.style.mixBlendMode = 'normal'; }
-  else { el.style.color = ''; el.style.mixBlendMode = ''; }   // fall back to CSS (auto)
+  if (!val || val === 'auto') { el.style.color = ''; el.style.mixBlendMode = ''; }
+  else { el.style.color = val; el.style.mixBlendMode = 'normal'; }
 }
 
 function waitForI18N(cb){
@@ -85,8 +86,8 @@ function applyConfig(cfg){
   // (even when absent → clears any stale offsets) so a "reset" takes effect too.
   if ('heroPos' in cfg) { try { applyHeroPos(cfg.heroPos); } catch(e){} }
 
-  // 1d) brand wordmark colour mode (auto black/white vs solid white)
-  if ('heroBrandMode' in cfg) { try { applyBrandMode(cfg.heroBrandMode); } catch(e){} }
+  // 1d) brand wordmark colour ('auto' = blend, or a custom colour)
+  if ('heroBrandColor' in cfg) { try { applyBrandColor(cfg.heroBrandColor); } catch(e){} }
 
   // 2) direct data-cms overrides (non-i18n text / images / links)
   if (cfg.cms) {

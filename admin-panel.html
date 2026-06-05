@@ -687,8 +687,7 @@
               .se-sec-btn.active{ background:#111;color:#fff;border-color:#111; }
             </style>
             <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:8px;">頁面 / Pages</div>
-            <button class="se-sec-btn active" style="cursor:default;">首頁 / Home</button>
-            <div style="font-size:11px;color:#bbb;margin:6px 0 14px;line-height:1.5;">其他分頁將陸續加入</div>
+            <div id="sePageList" style="margin-bottom:14px;"></div>
             <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:8px;">區段 / Sections</div>
             <div id="seSectionList"></div>
           </div>
@@ -920,6 +919,7 @@
     {section:'blog', k:'blog.seeall', label:'部落格「查看全部」', en:'See all', zh:'查看全部'}
   ];
   // Left-column section list (order matches the page top→bottom). `sel` is informational.
+  // Home sections (the fully-wired page).
   var SE_SECTIONS = [
     {key:'hero',     label:'主視覺 / Hero'},
     {key:'partners', label:'合作廠商 / Partners'},
@@ -930,9 +930,35 @@
     {key:'about',    label:'關於 / About'},
     {key:'blog',     label:'部落格 / Blog'}
   ];
+  // The 6 real pages, and each page's section list. Switching a page swaps the
+  // preview + this section list. (Per-section field editing is added page by page.)
+  var SE_PAGES = [
+    {key:'home',        file:'musician-platform.html', label:'首頁 / Home'},
+    {key:'blog',        file:'blog.html',              label:'部落格 / Blog'},
+    {key:'musicians',   file:'musicians.html',         label:'音樂家 / Musicians'},
+    {key:'recent-jobs', file:'recent-jobs.html',       label:'工作 / Jobs'},
+    {key:'shows',       file:'shows.html',             label:'演出 / Shows'},
+    {key:'lessons',     file:'lessons.html',           label:'課程 / Lessons'}
+  ];
+  var SE_SECTIONS_BY_PAGE = {
+    home: SE_SECTIONS,
+    shows: [
+      {key:'sh-hero',   label:'主視覺 Banner'},
+      {key:'sh-poster', label:'海報'},
+      {key:'sh-info',   label:'海報資訊'}
+    ],
+    blog:          [{key:'blog-hero', label:'主視覺'}, {key:'blog-list', label:'文章列表'}],
+    musicians:     [{key:'mus-hero',  label:'主視覺'}, {key:'mus-list',  label:'音樂家列表'}],
+    'recent-jobs': [{key:'rj-hero',   label:'主視覺'}, {key:'rj-list',   label:'工作列表'}],
+    lessons:       [{key:'les-hero',  label:'主視覺'}, {key:'les-list',  label:'課程列表'}]
+  };
+  var seCurrentPage = 'home';
+  function seSections(){ return SE_SECTIONS_BY_PAGE[seCurrentPage] || []; }
+  function seCurrentFile(){ var p=SE_PAGES.filter(function(x){return x.key===seCurrentPage;})[0]; return p ? p.file : 'musician-platform.html'; }
   var seCurrentSection = 'hero';
   // Sections whose IMAGES are driven by the homepage's mature photo engine (opzEdit),
   // stored to site-data.json + assets/images via server.py. Key = SE section, value = opzEdit group.
+  // (Home page only — other pages have their own storage, wired per page.)
   var SE_ENGINE_GROUP = { hero:'hero', discover:'cat', work:'poster', services:'svc', blog:'blog' };
   // Each device = a REAL viewport size. The iframe renders at that true size (so the
   // page picks the correct responsive layout — exactly like opening it at that width),
@@ -989,7 +1015,7 @@
       // the current edits + section highlight.
       if(ifr.__opzBootW !== devW){
         ifr.__opzBootW = devW;
-        ifr.src = 'musician-platform.html?cmsedit=1';
+        ifr.src = seCurrentFile() + '?cmsedit=1';
       }
     }
     document.querySelectorAll('.se-dev-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dev')===name); });
@@ -1031,7 +1057,7 @@
     // Hero drag-to-position offsets (Canva-style). Always include so saves persist
     // them and a reset (empty object) is written through.
     if(window.seHeroPos && typeof window.seHeroPos==='object') cfg.heroPos = window.seHeroPos;
-    cfg.heroBrandMode = (window.seHeroBrandMode==='white') ? 'white' : 'auto';
+    cfg.heroBrandColor = (typeof window.seHeroBrandColor==='string' && window.seHeroBrandColor) ? window.seHeroBrandColor : 'auto';
     return cfg;
   }
   function sePreview(){
@@ -1040,13 +1066,34 @@
   }
   var seTimer=null;
   window.seOnInput = function(){ clearTimeout(seTimer); seTimer=setTimeout(sePreview, 250); };
-  // Render the left section list.
+  function _esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
+  // Render the left PAGES list (all 6 real pages).
+  window.seBuildPageList = function(){
+    var box=document.getElementById('sePageList'); if(!box) return;
+    box.innerHTML = SE_PAGES.map(function(p){
+      var active = p.key===seCurrentPage ? ' active' : '';
+      return '<button class="se-sec-btn'+active+'" data-page="'+p.key+'" onclick="seSelectPage(\''+p.key+'\')">'+_esc(p.label)+'</button>';
+    }).join('');
+  };
+  // Switch the editor to another page: load it in the preview + swap the section list.
+  window.seSelectPage = function(key){
+    var p = SE_PAGES.filter(function(x){return x.key===key;})[0]; if(!p) return;
+    seCurrentPage = key;
+    document.querySelectorAll('#sePageList .se-sec-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-page')===key); });
+    var secs = seSections();
+    seCurrentSection = secs.length ? secs[0].key : '';
+    var ifr=document.getElementById('seFrame');
+    if(ifr){ ifr.src = p.file + '?cmsedit=1'; }   // onload (set in seInit) re-highlights + previews
+    seBuildSectionList();
+    seBuildControls();
+  };
+
+  // Render the left section list (for the current page).
   window.seBuildSectionList = function(){
     var box=document.getElementById('seSectionList'); if(!box) return;
-    function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
-    box.innerHTML = SE_SECTIONS.map(function(sc){
+    box.innerHTML = seSections().map(function(sc){
       var active = sc.key===seCurrentSection ? ' active' : '';
-      return '<button class="se-sec-btn'+active+'" data-sec="'+sc.key+'" onclick="seSelectSection(\''+sc.key+'\')">'+esc(sc.label)+'</button>';
+      return '<button class="se-sec-btn'+active+'" data-sec="'+sc.key+'" onclick="seSelectSection(\''+sc.key+'\')">'+_esc(sc.label)+'</button>';
     }).join('');
   };
 
@@ -1054,7 +1101,7 @@
   window.seSelectSection = function(key){
     seCurrentSection = key;
     document.querySelectorAll('#seSectionList .se-sec-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-sec')===key); });
-    var sc = SE_SECTIONS.filter(function(s){return s.key===key;})[0];
+    var sc = seSections().filter(function(s){return s.key===key;})[0];
     var title=document.getElementById('seSectionTitle'); if(title&&sc) title.textContent=sc.label;
     seBuildControls();
     seHighlight(key);
@@ -1072,10 +1119,10 @@
     function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
     // Partner marquee uses a custom list editor (not the fixed SE_FIELDS schema).
     if(seCurrentSection==='partners'){ seBuildPartners(box); return; }
-    var fields = SE_FIELDS.filter(function(ff){ return ff.section===seCurrentSection; });
-    var engGrp = SE_ENGINE_GROUP[seCurrentSection];
+    var fields = (seCurrentPage==='home') ? SE_FIELDS.filter(function(ff){ return ff.section===seCurrentSection; }) : [];
+    var engGrp = (seCurrentPage==='home') ? SE_ENGINE_GROUP[seCurrentSection] : null;
     if(!fields.length && !engGrp){
-      box.innerHTML = '<div style="font-size:12px;color:#999;line-height:1.6;padding:8px 0;">此區段目前沒有可編輯欄位（之後會陸續加入）。<br>你仍可在左側點它、在中間預覽看到它被框選。</div>';
+      box.innerHTML = '<div style="font-size:12px;color:#999;line-height:1.6;padding:8px 0;">這一頁的這個區段，編輯欄位即將加入。<br>目前你可以在中間預覽看到它被框選、也能在預覽裡直接瀏覽/操作這一頁（跟前台一樣）。</div>';
       return;
     }
     var fieldsHtml = fields.map(function(ff){
@@ -1144,7 +1191,7 @@
         +'🖱️ <b>可直接在中間預覽用滑鼠拖曳</b>：標題、副標、兩個按鈕、OPUS.Z 品牌字，拖到任意位置（不影響動畫）。'
         +'<br>下方滑桿可調<b>每個元素的大小</b>。改完按上方「🚀 儲存並發布到網站」。'
         +seHeroSizeRows()
-        +seHeroBrandModeRow()
+        +seHeroBrandColorRow()
         +'<button onclick="seHeroPosReset()" style="margin-top:10px;font-size:11px;border:1px solid #67e8f9;background:#fff;border-radius:6px;padding:4px 9px;cursor:pointer;">↺ 重置位置與大小</button></div>'
       : '';
     box.innerHTML = heroHint + fieldsHtml + engHtml;
@@ -1546,16 +1593,25 @@
     }).join('');
   }
   // Brand OPUS.Z colour mode toggle: auto black/white (default) vs solid white.
-  function seHeroBrandModeRow(){
-    var m=window.seHeroBrandMode||'auto';
-    function b(val,lbl){ var on=(m===val);
-      return '<button onclick="seHeroSetBrandMode(\''+val+'\')" style="font-size:11px;border:1px solid '+(on?'#0e7490':'#cbd5e1')+';background:'+(on?'#0e7490':'#fff')+';color:'+(on?'#fff':'#334155')+';border-radius:6px;padding:4px 11px;cursor:pointer;margin-right:6px;">'+lbl+'</button>'; }
+  // Brand OPUS.Z colour: "自動黑白" (blend) OR pick any colour from the palette.
+  function seHeroBrandColorRow(){
+    var v=(window.seHeroBrandColor||'auto');
+    var isAuto=(v==='auto');
+    var presets=['#000000','#ffffff','#e11d48','#f59e0b','#16a34a','#2563eb','#7c3aed','#db2777'];
+    var autoBtn='<button onclick="seHeroSetBrandColor(\'auto\')" style="font-size:11px;border:1px solid '+(isAuto?'#0e7490':'#cbd5e1')+';background:'+(isAuto?'#0e7490':'#fff')+';color:'+(isAuto?'#fff':'#334155')+';border-radius:6px;padding:4px 11px;cursor:pointer;">自動黑白（隨背景）</button>';
+    var swatches=presets.map(function(c){
+      var on=(!isAuto && String(v).toLowerCase()===c);
+      return '<button onclick="seHeroSetBrandColor(\''+c+'\')" title="'+c+'" style="width:22px;height:22px;border-radius:50%;border:1px solid #ccc;background:'+c+';cursor:pointer;'+(on?'box-shadow:0 0 0 2px #0e7490;':'')+'"></button>';
+    }).join('');
+    var customVal=(!isAuto && /^#/.test(v))?v:'#000000';
+    var custom='<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#155e75;cursor:pointer;">自訂<input type="color" value="'+customVal+'" oninput="seHeroSetBrandColor(this.value)" style="width:28px;height:24px;border:1px solid #ccc;border-radius:6px;padding:0;cursor:pointer;background:#fff;"></label>';
     return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">品牌字 OPUS.Z 顏色</div>'
-      +'<div style="margin-bottom:2px;">'+b('auto','自動黑白')+b('white','全白')+'</div>';
+      +'<div style="margin-bottom:8px;">'+autoBtn+'</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;">'+swatches+custom+'</div>';
   }
-  window.seHeroSetBrandMode = function(mode){
-    window.seHeroBrandMode = (mode==='white') ? 'white' : 'auto';
-    seBuildControls();   // refresh the active-button highlight
+  window.seHeroSetBrandColor = function(c){
+    window.seHeroBrandColor = c || 'auto';
+    seBuildControls();   // refresh the active swatch highlight
     sePreview();         // live-apply to preview
   };
   window.seHeroSetSize = function(key, val){
@@ -1637,7 +1693,8 @@
     window.sePartners = ((Array.isArray(seCurrentConfig.partners) && seCurrentConfig.partners.length)
       ? seCurrentConfig.partners : SE_DEFAULT_PARTNERS).map(sePartnerNorm);
     window.seHeroPos = (seCurrentConfig.heroPos && typeof seCurrentConfig.heroPos==='object') ? seCurrentConfig.heroPos : {};
-    window.seHeroBrandMode = (seCurrentConfig.heroBrandMode==='white') ? 'white' : 'auto';
+    window.seHeroBrandColor = (typeof seCurrentConfig.heroBrandColor==='string' && seCurrentConfig.heroBrandColor) ? seCurrentConfig.heroBrandColor : 'auto';
+    seBuildPageList();
     seBuildSectionList();
     seBuildControls();
     var ifr=document.getElementById('seFrame');
