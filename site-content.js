@@ -77,7 +77,7 @@ function applyHeroBtns(map){
     el.style.background = '';            // clear any stale shorthand
     el.style.opacity = '';              // never fade the whole button (text/border)
     el.style.color = b.fg || '';        // text stays fully opaque
-    el.style.borderColor = '';          // keep the CSS default border → always solid/visible
+    el.style.borderColor = b.bd || '';  // independent border colour ('' = CSS default), always solid
     // Background fill: apply chosen colour + opacity (rgba). Opacity also fades the
     // DEFAULT colour when no custom colour is picked.
     if (op < 1) {

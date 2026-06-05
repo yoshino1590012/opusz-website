@@ -1733,16 +1733,17 @@
   // Per-button styling: background colour, text colour, opacity.
   function seHeroBtnRows(){
     var b=window.seHeroBtn||{};
-    var defs=[['find','按鈕 · Find Artists','#0a0a0a','#ffffff'],['project','按鈕 · Create a Project','#ffffff','#111111']];
-    function row(key,lbl,dbg,dfg){
+    var defs=[['find','按鈕 · Find Artists','#0a0a0a','#ffffff','#0a0a0a'],['project','按鈕 · Create a Project','#ffffff','#111111','#e4e4e7']];
+    function row(key,lbl,dbg,dfg,dbd){
       var s=b[key]||{};
-      var bg=(s.bg&&/^#/.test(s.bg))?s.bg:dbg, fg=(s.fg&&/^#/.test(s.fg))?s.fg:dfg;
+      var bg=(s.bg&&/^#/.test(s.bg))?s.bg:dbg, fg=(s.fg&&/^#/.test(s.fg))?s.fg:dfg, bd=(s.bd&&/^#/.test(s.bd))?s.bd:dbd;
       var op=(s.op!=null&&s.op!=='')?Math.round(s.op*100):100;
       return '<div style="border:1px solid #e2e8f0;border-radius:8px;padding:8px 9px;margin-bottom:8px;">'
         +'<div style="font-size:11px;font-weight:700;color:#334155;margin-bottom:6px;">'+lbl+'</div>'
-        +'<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">'
+        +'<div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap;">'
           +'<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#155e75;">背景<input type="color" value="'+bg+'" oninput="seHeroBtnSet(\''+key+'\',\'bg\',this.value)" style="width:26px;height:22px;border:1px solid #ccc;border-radius:5px;padding:0;cursor:pointer;"></label>'
           +'<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#155e75;">文字<input type="color" value="'+fg+'" oninput="seHeroBtnSet(\''+key+'\',\'fg\',this.value)" style="width:26px;height:22px;border:1px solid #ccc;border-radius:5px;padding:0;cursor:pointer;"></label>'
+          +'<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#155e75;">邊框<input type="color" value="'+bd+'" oninput="seHeroBtnSet(\''+key+'\',\'bd\',this.value)" style="width:26px;height:22px;border:1px solid #ccc;border-radius:5px;padding:0;cursor:pointer;"></label>'
           +'<button onclick="seHeroBtnReset(\''+key+'\')" style="font-size:10px;border:1px solid #ddd;background:#fff;border-radius:5px;padding:3px 7px;cursor:pointer;">重置</button>'
         +'</div>'
         +'<div style="display:flex;align-items:center;gap:7px;margin-top:7px;">'
@@ -1752,7 +1753,7 @@
         +'</div></div>';
     }
     return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">按鈕樣式</div>'
-      + defs.map(function(d){ return row(d[0],d[1],d[2],d[3]); }).join('');
+      + defs.map(function(d){ return row(d[0],d[1],d[2],d[3],d[4]); }).join('');
   }
   window.seHeroBtnSet = function(key, prop, val){
     window.seHeroBtn = window.seHeroBtn || {};
