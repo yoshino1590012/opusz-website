@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-cms-page="shows">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -425,7 +425,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 <script src="nav.js"></script>
 
 <!-- ══ HERO (fixed) ══ -->
-<section class="sh-hero">
+<section class="sh-hero" data-cms-section="sh-hero">
   <video class="sh-hero-video" id="heroVideo" autoplay muted loop playsinline>
     <source id="heroVideoSrc" src="https://res.cloudinary.com/drbhm0xlw/video/upload/v1779382491/13552010_1920_1080_100fps_mzk2hj.mp4" type="video/mp4">
   </video>
@@ -438,7 +438,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 </section>
 
 <!-- ══ FIXED POSTER FRAME — z-index 50, always viewport-center, revealed by clip-path ══ -->
-<div id="fixedPosterFrame">
+<div id="fixedPosterFrame" data-cms-section="sh-poster">
   <div class="fp-slide fp-active" id="fpSlide0">
     <div class="fp-slide-bg" id="fpBg0" style="background:linear-gradient(160deg,#1a0030,#3d0070,#28005a)"></div>
     <img class="fp-slide-img" id="fpImg0" alt="">
@@ -462,7 +462,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 </div>
 
 <!-- ══ FIXED TEXT PANEL — left side, same reveal as poster ══ -->
-<div id="fixedTextPanel">
+<div id="fixedTextPanel" data-cms-section="sh-info">
   <div class="ftp-slide ftp-active" id="ftpSlide0">
     <div class="show-seq">01 · 2025</div>
     <h2 class="show-artist">Chen Wei-Chen</h2>
@@ -1505,6 +1505,7 @@ window.addEventListener('pageshow', function(e) {
 });
 </script>
 <script src="assets/js/smooth-scroll.js" defer></script>
+  <script type="module" src="site-content.js"></script>
   <script type="module" src="media-sync.js"></script>
 </body>
 </html>
