@@ -55,18 +55,37 @@ function applyBrandColor(val){
   else { el.style.color = val; el.style.mixBlendMode = 'normal'; }
 }
 
-// Hero button styling: per-button background / text colour / opacity.
-// cfg.heroBtn = { find:{bg,fg,op}, project:{bg,fg,op} }. Empty values fall back to CSS.
+// Hero button styling: per-button background colour, text colour, and BACKGROUND
+// opacity. Opacity only fades the background fill (via rgba) — the text stays
+// fully opaque and the border stays solid/visible. cfg.heroBtn =
+// { find:{bg,fg,op}, project:{bg,fg,op} }. Empty values fall back to CSS.
+function _hexToRgba(hex, a){
+  hex = String(hex || '').trim().replace('#','');
+  if (hex.length === 3) hex = hex.split('').map(function(c){return c+c;}).join('');
+  if (!/^[0-9a-fA-F]{6}$/.test(hex)) return null;
+  var n = parseInt(hex, 16);
+  return 'rgba(' + ((n>>16)&255) + ',' + ((n>>8)&255) + ',' + (n&255) + ',' + a + ')';
+}
 function applyHeroBtns(map){
   map = map || {};
   var SEL = { find:'.hco-btn-pri', project:'.hco-btn-out' };
+  var DEF = { find:'#0a0a0a', project:'#ffffff' };   // each button's default bg colour
   Object.keys(SEL).forEach(function(k){
     var el = document.querySelector(SEL[k]); if(!el) return;
     var b = map[k] || {};
-    el.style.background  = b.bg || '';
-    el.style.borderColor = b.bg || '';                 // keep border in step with the chosen bg
-    el.style.color       = b.fg || '';
-    el.style.opacity     = (b.op != null && b.op !== '') ? String(b.op) : '';
+    var op = (b.op != null && b.op !== '') ? Number(b.op) : 1;
+    el.style.background = '';            // clear any stale shorthand
+    el.style.opacity = '';              // never fade the whole button (text/border)
+    el.style.color = b.fg || '';        // text stays fully opaque
+    el.style.borderColor = '';          // keep the CSS default border → always solid/visible
+    // Background fill: apply chosen colour + opacity (rgba). Opacity also fades the
+    // DEFAULT colour when no custom colour is picked.
+    if (op < 1) {
+      var rgba = _hexToRgba(b.bg || DEF[k], op);
+      el.style.backgroundColor = rgba || (b.bg || '');
+    } else {
+      el.style.backgroundColor = b.bg || '';
+    }
   });
 }
 
