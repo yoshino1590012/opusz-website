@@ -1064,7 +1064,14 @@
     cfg.heroBtnGlass = !!window.seHeroBtnGlass;
     return cfg;
   }
-  function seCfgForPreview(){ return (seCurrentPage==='home') ? seReadInputs() : (seCurrentConfig || {i18n:{en:{},zh:{}}}); }
+  function seCfgForPreview(){
+    if(seCurrentPage==='home') return seReadInputs();
+    var c = seCurrentConfig || {i18n:{en:{},zh:{}}};
+    // Don't push `posters` through the live-preview channel — the admin already
+    // drives opzShows directly; re-applying saved posters would fight live edits.
+    if(c && c.posters){ var c2={}; for(var k in c) if(k!=='posters') c2[k]=c[k]; return c2; }
+    return c;
+  }
   function sePreview(){
     var ifr=document.getElementById('seFrame');
     if(ifr && ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszCmsPreview:true, config:seCfgForPreview()}, '*'); }catch(e){} }
@@ -1945,6 +1952,12 @@
   window.seSave = async function(){
     var page = seCurrentPage || 'home';
     var cfg = (page==='home') ? seReadInputs() : (seCurrentConfig || {i18n:{en:{},zh:{}}});
+    // Shows: also persist the poster layout (count + per-poster frame + image URLs)
+    // to Firebase, so add/remove/position survive on the LIVE site (no server.py).
+    if(page==='shows'){
+      var w=(typeof _seWin==='function')?_seWin():null;
+      if(w && w.opzShows && w.opzShows.list){ try{ cfg.posters = w.opzShows.list(); }catch(e){} }
+    }
     try{ localStorage.setItem('opusz_site_'+page, JSON.stringify(cfg)); }catch(e){}
     var msg=document.getElementById('seSaveMsg');
     var ok=false;

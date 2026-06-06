@@ -1092,9 +1092,25 @@ window.opzShows = (function(){
     try{ saveState(); }catch(e){} try{ syncShowsToServer(); }catch(e){}
     return SHOW_N;
   }
+  // Apply a saved config (from Firebase via site-content.js): reconcile the NUMBER
+  // of posters, then each poster's image + frame. Lets add/remove/position done in
+  // the admin take effect on the LIVE site without server.py.
+  function applyConfig(posters){
+    if(!Array.isArray(posters)) return;
+    while(ST.shows.length < posters.length) addPoster();
+    while(ST.shows.length > posters.length && ST.shows.length > 1) removeLast();
+    posters.forEach(function(p,i){
+      var s=ST.shows[i]; if(!s||!p) return;
+      if(p.url!=null && p.url!=='') s.imgData=p.url;
+      if(p.x!=null) s.x=+p.x; if(p.y!=null) s.y=+p.y;
+      if(p.scale!=null) s.scale=+p.scale; if(p.blur!=null) s.blur=+p.blur;
+      if(p.bgX!=null) s.bgX=+p.bgX; if(p.bgY!=null) s.bgY=+p.bgY;
+    });
+    applyAll();
+  }
   return { count:function(){return SHOW_N;}, list:list, setFrame:setFrame,
            setImageUrl:setImageUrl, setImageFile:setImageFile, publish:publish,
-           add:addPoster, removeLast:removeLast };
+           add:addPoster, removeLast:removeLast, applyConfig:applyConfig };
 })();
 
 // ══════════════════════════════════════════
@@ -1392,6 +1408,9 @@ document.getElementById('epPublish').addEventListener('click', async function(){
   wireHero();
   for(let i=0;i<SHOW_N;i++) buildShowPane(i);
   applyAll();
+  // Engine has finished its own boot (from shows-data.json) — now site-content.js
+  // may override count/positions from Firebase via opzShows.applyConfig().
+  window.__opzShowsReady = true;
 })();
 </script>
 

@@ -156,6 +156,18 @@ function applyConfig(cfg){
   // 1g) liquid-glass button look (on/off)
   if ('heroBtnGlass' in cfg) { try { applyHeroBtnGlass(cfg.heroBtnGlass); } catch(e){} }
 
+  // 1h) shows-page posters — count + per-poster frame (x/y/scale/blur/bgX/bgY) +
+  //     image URLs. Drives the shows engine so add/remove/position done in the
+  //     admin shows up on the LIVE site (no server.py needed). Waits for the
+  //     engine to finish its own boot before applying.
+  if (Array.isArray(cfg.posters)) {
+    (function applyPosters(n){
+      if (window.opzShows && window.__opzShowsReady && typeof window.opzShows.applyConfig === 'function') {
+        try { window.opzShows.applyConfig(cfg.posters); } catch(e){}
+      } else if ((n || 0) < 50) { setTimeout(function(){ applyPosters((n || 0) + 1); }, 150); }
+    })(0);
+  }
+
   // 2) direct data-cms overrides (non-i18n text / images / links)
   if (cfg.cms) {
     var cms = cfg.cms;
