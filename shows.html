@@ -224,10 +224,10 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 
 /* ══ FIXED TEXT PANEL — same reveal + wipe logic as poster ══ */
 #fixedTextPanel{
-  position:fixed;top:50%;left:clamp(40px,7vw,100px);
+  position:fixed;top:50%;left:clamp(72px,12vw,190px);
   transform:translateY(-50%);
   z-index:50;
-  width:clamp(220px,26vw,340px);
+  width:clamp(280px,34vw,460px);
   clip-path:inset(100% 0 0 0);
   pointer-events:none;
   transition:opacity .5s ease;
@@ -260,11 +260,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 /* ══ SHOW TEXT CONTENT ══ */
 .show-content{position:absolute;inset:0;z-index:2;pointer-events:none;padding:0 clamp(40px,7vw,100px);}
 .show-left{position:absolute;top:50%;left:clamp(40px,7vw,100px);transform:translateY(-50%);max-width:clamp(220px,26vw,340px);pointer-events:auto;}
-.show-seq{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:32px;display:flex;align-items:center;gap:14px;}
+.show-seq{font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:34px;display:flex;align-items:center;gap:14px;}
 .show-seq::before{content:'';display:block;width:28px;height:1px;background:rgba(255,255,255,.2);}
-.show-artist{font-size:clamp(28px,4vw,56px);font-weight:700;letter-spacing:-.025em;line-height:1.0;color:#fff;margin-bottom:18px;}
-.show-title{font-size:clamp(13px,1.2vw,16px);font-weight:500;color:rgba(255,255,255,.75);line-height:1.45;margin-bottom:14px;}
-.show-details{font-size:12px;color:rgba(255,255,255,.35);line-height:1.9;margin-bottom:38px;}
+.show-artist{font-size:clamp(36px,5.2vw,72px);font-weight:700;letter-spacing:-.025em;line-height:1.0;color:#fff;margin-bottom:20px;}
+.show-title{font-size:clamp(15px,1.55vw,21px);font-weight:500;color:rgba(255,255,255,.78);line-height:1.45;margin-bottom:16px;}
+.show-details{font-size:14px;color:rgba(255,255,255,.38);line-height:1.95;margin-bottom:40px;}
 .show-details span{display:block;}
 .show-cta{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.7);font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:3px;transition:color .2s,border-color .2s,gap .2s;pointer-events:auto;}
 .show-cta:hover{color:#fff;border-color:rgba(255,255,255,.7);gap:12px;}
