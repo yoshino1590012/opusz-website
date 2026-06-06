@@ -68,20 +68,27 @@ async function loadMap(){
 }
 async function publishValue(key, value){
   if(!auth.currentUser) return false;                 // only the signed-in admin can publish
-  if(typeof value !== 'string' || value.indexOf('data:') < 0) return false;
+  if(typeof value !== 'string') return false;
   const matches = value.match(DATAURL_RE);
-  if(!matches) return false;
   let out = value;
-  for(let i=0;i<matches.length;i++){
-    const dataUrl = matches[i];
-    const ext = (dataUrl.slice(5).split(';')[0].split('/')[1] || 'bin').replace(/[^a-z0-9]/gi,'');
-    const path = 'siteContent/media/' + key.replace(/[^\w.-]/g,'_') + '_' + i + '.' + ext;
-    const r = sRef(storage, path);
-    await uploadString(r, dataUrl, 'data_url');
-    const url = await getDownloadURL(r);
-    out = out.split(dataUrl).join(url);
+  if(matches){
+    // Has embedded blob(s): upload each, swap data: URL → public Storage URL.
+    for(let i=0;i<matches.length;i++){
+      const dataUrl = matches[i];
+      const ext = (dataUrl.slice(5).split(';')[0].split('/')[1] || 'bin').replace(/[^a-z0-9]/gi,'');
+      const path = 'siteContent/media/' + key.replace(/[^\w.-]/g,'_') + '_' + i + '.' + ext;
+      const r = sRef(storage, path);
+      await uploadString(r, dataUrl, 'data_url');
+      const url = await getDownloadURL(r);
+      out = out.split(dataUrl).join(url);
+    }
+    try{ _origSet(key, out); }catch(e){}               // local now holds the URL, not the blob
+  } else if(value.indexOf('data:') >= 0){
+    return false;                                       // looks like a blob but no full match → skip (safety)
   }
-  try{ _origSet(key, out); }catch(e){}                 // local now holds the URL, not the blob
+  // Persist to the cloud map. This covers BOTH blob-swapped values AND
+  // settings-only values (e.g. blog photo position/zoom with a public URL),
+  // so framing changes reach live + other devices too.
   const map = await loadMap();
   map[key] = out;
   await setDoc(MEDIA_DOC, map, { merge:true });
@@ -93,7 +100,10 @@ const _origSet = localStorage.setItem.bind(localStorage);
 const _timers = {};
 localStorage.setItem = function(k, v){
   _origSet(k, v);
-  if(typeof v === 'string' && v.indexOf('data:') >= 0 && /image|video/.test(v.slice(0,40))){
+  // Sync when the value carries media (data: URL) OR when it's a blog photo entry —
+  // blog photos store {url,x,y,zoom}; position/zoom edits have no data: URL but still
+  // need to reach the cloud so the live site and other devices stay in sync.
+  if(typeof v === 'string' && ((v.indexOf('data:') >= 0 && /image|video/.test(v.slice(0,40))) || k.indexOf('blog-photo:')===0)){
     clearTimeout(_timers[k]);
     _timers[k] = setTimeout(function(){
       publishValue(k, v).catch(function(e){ console.warn('[media-sync] publish failed:', k, e); });
