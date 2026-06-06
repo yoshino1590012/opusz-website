@@ -6094,8 +6094,10 @@ var _inIframe = (window.self !== window.top);
   document.getElementById('re-refresh').addEventListener('click', refreshAll);
   document.getElementById('re-close'  ).addEventListener('click', hide);
 
-  // Keyboard: R toggle, Esc close
+  // Keyboard: R toggle, Esc close — LOCALHOST ONLY (no editor tools on the public site)
   document.addEventListener('keydown', function(e){
+    var isLocal=(location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:');
+    if(!isLocal) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (e.key === 'Escape') { if (visible) { e.preventDefault(); hide(); } return; }
     if (e.key === 'r' || e.key === 'R') {
@@ -6117,8 +6119,10 @@ var _inIframe = (window.self !== window.top);
   // Floating 📐 FAB button — hidden (not needed)
 })();
 
-/* ── O key → Site Manager ── */
+/* ── O key → Site Manager (admin) — LOCALHOST ONLY, never on the public site ── */
 window.addEventListener('keydown', function(e){
+  var isLocal=(location.hostname==='localhost'||location.hostname==='127.0.0.1'||location.protocol==='file:');
+  if(!isLocal) return;
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
   if((e.key==='o'||e.key==='O')&&!e.metaKey&&!e.ctrlKey&&!e.altKey){
     e.preventDefault();
@@ -6246,6 +6250,10 @@ window.addEventListener('keydown', function(e){
   }
   document.addEventListener('DOMContentLoaded', tagElements);
   setTimeout(tagElements, 500);
+
+  /* Front-end layout/element editing is RETIRED — edit in the back office only.
+     Saved layout is still applied above; the on-page EDIT MODE UI is disabled. */
+  return;
 
   /* ── UI ── */
   var badge = mk('div','position:fixed;top:66px;left:50%;transform:translateX(-50%) translateY(-4px);z-index:2147483630;background:#0057ff;color:#fff;font:700 11px/-apple-system,sans-serif;font-family:-apple-system,sans-serif;padding:5px 16px;border-radius:20px;letter-spacing:.06em;pointer-events:none;opacity:0;transition:opacity .2s,transform .2s;white-space:nowrap;box-shadow:0 4px 16px rgba(0,86,255,.4);');
@@ -6466,6 +6474,10 @@ window.addEventListener('keydown', function(e){
 
   /* Apply on main page load (delay so i18n system runs first) */
   setTimeout(applyAll, 200);
+
+  /* Front-end inline text editing is RETIRED — all editing happens in the
+     back office (admin-panel Site Editor). No edit affordances on the public site. */
+  return;
 
   /* Tooltip hint badge */
   var badge = document.createElement('div');
