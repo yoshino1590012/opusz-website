@@ -465,7 +465,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 <div id="fixedTextPanel" data-cms-section="sh-info">
   <div class="ftp-slide ftp-active" id="ftpSlide0">
     <div class="show-seq">01 · 2025</div>
-    <h2 class="show-artist">Chen Wei-Chen</h2>
+    <h2 class="show-artist" data-i18n="show.1.artist">Chen Wei-Chen</h2>
     <p class="show-title" data-i18n="show.1.title">Piano Recital — Reflections</p>
     <div class="show-details">
       <span data-i18n="show.1.venue">National Concert Hall, Taipei</span>
@@ -476,7 +476,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
   </div>
   <div class="ftp-slide" id="ftpSlide1">
     <div class="show-seq">02 · 2025</div>
-    <h2 class="show-artist">Taipei Piano Trio</h2>
+    <h2 class="show-artist" data-i18n="show.2.artist">Taipei Piano Trio</h2>
     <p class="show-title" data-i18n="show.2.title">Midsummer Gala Night</p>
     <div class="show-details">
       <span data-i18n="show.2.venue">Eslite Performance Hall, Taipei</span>
@@ -487,7 +487,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
   </div>
   <div class="ftp-slide" id="ftpSlide2">
     <div class="show-seq">03 · 2025</div>
-    <h2 class="show-artist">Lin Hui-Chun</h2>
+    <h2 class="show-artist" data-i18n="show.3.artist">Lin Hui-Chun</h2>
     <p class="show-title" data-i18n="show.3.title">Violin &amp; Orchestra — Homecoming</p>
     <div class="show-details">
       <span data-i18n="show.3.venue">Kaohsiung Music Center</span>
@@ -498,7 +498,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
   </div>
   <div class="ftp-slide" id="ftpSlide3">
     <div class="show-seq">04 · 2025</div>
-    <h2 class="show-artist">Wu Ching-Yu</h2>
+    <h2 class="show-artist" data-i18n="show.4.artist">Wu Ching-Yu</h2>
     <p class="show-title" data-i18n="show.4.title">Cello Suite — Solitude &amp; Light</p>
     <div class="show-details">
       <span data-i18n="show.4.venue">Chimei Museum, Tainan</span>
@@ -509,7 +509,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
   </div>
   <div class="ftp-slide" id="ftpSlide4">
     <div class="show-seq">05 · 2025</div>
-    <h2 class="show-artist">Chang Shu-Fen</h2>
+    <h2 class="show-artist" data-i18n="show.5.artist">Chang Shu-Fen</h2>
     <p class="show-title" data-i18n="show.5.title">Harp Recital — Luminescence</p>
     <div class="show-details">
       <span data-i18n="show.5.venue">Chiang Kai-shek Memorial Hall</span>
@@ -993,6 +993,56 @@ function applyAll(){
     }
   }
 }
+
+// ── Bridge: lets the back-office Site Editor drive this page's poster engine.
+//    Per poster: front image position (x,y) + size (scale) + back-blur. Same
+//    storage (shows-data.json + assets/images via server.py) + git-push deploy.
+window.opzShows = (function(){
+  function list(){
+    return ST.shows.map(function(s,i){
+      return { i:i, url:(s.imgData||''), x:(s.x||0), y:(s.y||0),
+               scale:(s.scale!=null?s.scale:1), blur:(s.blur!=null?s.blur:52) };
+    });
+  }
+  function setFrame(i, f){
+    var s=ST.shows[i]; if(!s||!f) return;
+    if(f.x!=null) s.x=+f.x; if(f.y!=null) s.y=+f.y;
+    if(f.scale!=null) s.scale=+f.scale; if(f.blur!=null) s.blur=+f.blur;
+    applyAll();
+    try{ saveState(); }catch(e){} try{ syncShowsToServer(); }catch(e){}
+  }
+  async function setImageUrl(i, url){
+    var s=ST.shows[i]; if(!s) return false; s.imgData=url||''; applyAll();
+    try{ await saveState(); }catch(e){} try{ await syncShowsToServer(); }catch(e){}
+    return true;
+  }
+  function setImageFile(i, file){
+    return new Promise(function(resolve){
+      if(!file){ resolve(false); return; }
+      var reader=new FileReader();
+      reader.onload=async function(){
+        var base64=reader.result;
+        ST.shows[i].imgData=base64; applyAll();   // instant local preview
+        try{
+          var r=await fetch('/upload-file',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({cls:'show-img-'+i,dataUrl:base64})});
+          var d=await r.json();
+          if(d.ok&&d.path){ ST.shows[i].imgData=d.path; applyAll(); }
+        }catch(e){}
+        try{ await saveState(); }catch(e){} try{ await syncShowsToServer(); }catch(e){}
+        resolve(ST.shows[i].imgData);
+      };
+      reader.onerror=function(){ resolve(false); };
+      reader.readAsDataURL(file);
+    });
+  }
+  async function publish(){
+    try{ await saveState(); }catch(e){}
+    try{ await syncShowsToServer(); }catch(e){}
+    try{ await fetch('/git-push',{method:'POST'}); return true; }catch(e){ return false; }
+  }
+  return { count:function(){return SHOW_N;}, list:list, setFrame:setFrame,
+           setImageUrl:setImageUrl, setImageFile:setImageFile, publish:publish };
+})();
 
 // ══════════════════════════════════════════
 //  BUILD SHOW PANES
