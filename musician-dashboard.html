@@ -649,6 +649,10 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         <span>編輯主頁</span>
       </button>
+      <button class="sb-item" data-page="posters" onclick="navigate('posters',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+        <span>海報投稿</span>
+      </button>
       <button class="sb-item" data-page="membership" onclick="navigate('membership',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.6 5.7 21l2.3-7.1-6-4.5h7.6z"/></svg>
         <span>方案</span>
@@ -1276,6 +1280,91 @@
         </div>
       </div>
 
+      <!-- ── 海報投稿 / Poster Submission ── -->
+      <div class="page" id="page-posters">
+        <div class="page-header">
+          <h1>海報投稿</h1>
+          <p>上傳演出海報、填寫資訊與連結，送出後管理員會收到並協助張貼。</p>
+        </div>
+
+        <div class="card" style="max-width:680px;padding:24px;">
+          <!-- 海報圖片 -->
+          <div class="form-section">
+            <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:10px;">海報圖片 *</div>
+            <div id="posterDrop" style="border:1.5px dashed #d4d4d8;border-radius:10px;padding:22px;text-align:center;cursor:pointer;transition:border-color .15s,background .15s;">
+              <div style="font-size:28px;margin-bottom:6px;">📸</div>
+              <div style="font-weight:600;color:#333;margin-bottom:4px;">點擊上傳或把圖拖進來</div>
+              <div style="font-size:12px;color:#999;">JPG / PNG / WebP，最大 10MB</div>
+              <input type="file" id="posterFile" accept="image/jpeg,image/png,image/webp" style="display:none;">
+            </div>
+            <div id="posterPreviewWrap" style="margin-top:12px;display:none;">
+              <img id="posterPreviewImg" alt="海報預覽" style="max-width:100%;max-height:240px;border-radius:10px;border:1px solid #eee;">
+            </div>
+            <input type="hidden" id="posterImageUrl">
+          </div>
+
+          <!-- 演出資訊 -->
+          <div class="form-section" style="margin-top:18px;">
+            <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:10px;">演出資訊</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">演出名稱 *</label>
+                <input class="form-input" type="text" id="posterTitle" placeholder="如：夏夜弦樂四重奏音樂會">
+              </div>
+              <div class="form-group">
+                <label class="form-label">日期與時間</label>
+                <input class="form-input" type="text" id="posterDate" placeholder="如：2026/07/15 19:30">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">地點</label>
+              <input class="form-input" type="text" id="posterVenue" placeholder="如：台北國家音樂廳">
+            </div>
+            <div class="form-group">
+              <label class="form-label">演出簡介</label>
+              <textarea class="form-input" id="posterDesc" rows="3" placeholder="簡述演出內容、曲目或亮點" style="resize:vertical;font-family:inherit;"></textarea>
+            </div>
+          </div>
+
+          <!-- 連結 -->
+          <div class="form-section" style="margin-top:18px;">
+            <div style="font-size:13px;font-weight:800;color:#111;margin-bottom:4px;">相關連結（選填，會變成按鈕）</div>
+            <div style="font-size:12px;color:#999;margin-bottom:10px;">例如售票系統、個人粉絲專頁。最多 2 個。</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">按鈕文字 1</label>
+                <input class="form-input" type="text" id="posterBtn1Label" placeholder="如：立即購票">
+              </div>
+              <div class="form-group">
+                <label class="form-label">連結網址 1</label>
+                <input class="form-input" type="url" id="posterBtn1Url" placeholder="https://…">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">按鈕文字 2</label>
+                <input class="form-input" type="text" id="posterBtn2Label" placeholder="如：粉絲專頁">
+              </div>
+              <div class="form-group">
+                <label class="form-label">連結網址 2</label>
+                <input class="form-input" type="url" id="posterBtn2Url" placeholder="https://…">
+              </div>
+            </div>
+          </div>
+
+          <div style="display:flex;gap:10px;margin-top:22px;padding-top:18px;border-top:1px solid #eee;">
+            <button class="btn btn-primary" onclick="posterSubmit()">投稿海報</button>
+            <button class="btn btn-outline" onclick="posterReset()">清除</button>
+          </div>
+        </div>
+
+        <!-- 我的投稿 -->
+        <div style="margin-top:28px;max-width:680px;">
+          <div style="font-size:15px;font-weight:800;margin-bottom:14px;">我的海報投稿</div>
+          <div id="postersList"></div>
+        </div>
+      </div>
+
       <!-- ── PAGE BUILDER: 編輯主頁 / Edit Page ── -->
       <div class="page" id="page-pagebuilder">
         <div class="page-header">
@@ -1855,7 +1944,7 @@
     overview: 'Overview', jobs: 'Jobs & Inquiries',
     messages: 'Messages', earnings: 'Earnings',
     profile: '我的資料', settings: 'Settings', pagebuilder: '編輯主頁',
-    membership: '方案 / Membership'
+    membership: '方案 / Membership', posters: '海報投稿'
   };
   window.navigate = function(id, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1869,7 +1958,119 @@
     document.getElementById('topbarTitle').textContent = PAGE_TITLES[id] || id;
     if (id === 'pagebuilder') pbInit();
     if (id === 'membership') pbRenderMembership();
+    if (id === 'posters') posterInit();
   };
+
+  /* ════════════════════════════════════════════════════════════════
+     海報投稿 / Poster Submission — musicians submit a concert poster
+     (image + details + up to 2 link-buttons). Stored on the musician's
+     own Firestore doc (musicians/{uid}.posterSubmissions[]) so it uses
+     the existing per-musician write permission; the admin reads it.
+     ════════════════════════════════════════════════════════════════ */
+  window.posterInit = function(){
+    renderPostersList((_currentProfile && _currentProfile.posterSubmissions) || []);
+    var fileInput = document.getElementById('posterFile');
+    var zone = document.getElementById('posterDrop');
+    if(zone && fileInput && !zone.__wired){
+      zone.__wired = true;
+      zone.addEventListener('click', function(){ fileInput.click(); });
+      fileInput.addEventListener('change', function(e){ var f=e.target.files && e.target.files[0]; if(f) posterHandleFile(f); });
+      zone.addEventListener('dragover', function(e){ e.preventDefault(); zone.style.borderColor='#111'; zone.style.background='#fafafa'; });
+      zone.addEventListener('dragleave', function(e){ e.preventDefault(); zone.style.borderColor=''; zone.style.background=''; });
+      zone.addEventListener('drop', function(e){ e.preventDefault(); zone.style.borderColor=''; zone.style.background=''; var f=e.dataTransfer.files && e.dataTransfer.files[0]; if(f) posterHandleFile(f); });
+    }
+  };
+  function posterUploadImage(file){
+    return new Promise(function(resolve, reject){
+      if(!_currentUser){ showNotif('請先登入'); reject(new Error('not-logged-in')); return; }
+      if(!/^image\/(jpeg|png|webp)$/.test(file.type)){ reject(new Error('invalid-format')); return; }
+      if(file.size > 10*1024*1024){ reject(new Error('file-too-large')); return; }
+      pbCompressImage(file, 1400, 0.82, async function(blob){
+        if(!blob){ reject(new Error('compress-failed')); return; }
+        try{
+          var path = 'musicians/' + _currentUser.uid + '/poster_' + Date.now() + '.jpg';
+          var r = storageRef(storage, path);
+          await uploadBytes(r, blob);
+          var url = await getDownloadURL(r);
+          resolve(url);
+        }catch(e){ reject(e); }
+      });
+    });
+  }
+  function posterHandleFile(file){
+    var zone = document.getElementById('posterDrop');
+    zone.style.pointerEvents='none'; zone.style.opacity='.5';
+    showNotif('圖片上傳中…');
+    posterUploadImage(file).then(function(url){
+      document.getElementById('posterImageUrl').value = url;
+      document.getElementById('posterPreviewImg').src = url;
+      document.getElementById('posterPreviewWrap').style.display = '';
+      zone.style.pointerEvents=''; zone.style.opacity='';
+      showNotif('圖片已上傳 ✓');
+    }).catch(function(err){
+      var msg='上傳失敗';
+      if(err.message==='invalid-format') msg='請上傳 JPG / PNG / WebP 圖片';
+      if(err.message==='file-too-large') msg='檔案不能超過 10MB';
+      zone.style.pointerEvents=''; zone.style.opacity='';
+      showNotif(msg);
+    });
+  }
+  window.posterSubmit = async function(){
+    if(!_currentUser){ showNotif('請先登入'); return; }
+    var imageUrl = document.getElementById('posterImageUrl').value.trim();
+    var title = document.getElementById('posterTitle').value.trim();
+    if(!imageUrl){ showNotif('請先上傳海報圖片'); return; }
+    if(!title){ showNotif('請輸入演出名稱'); return; }
+    var links = [];
+    var l1=document.getElementById('posterBtn1Label').value.trim(), u1=document.getElementById('posterBtn1Url').value.trim();
+    var l2=document.getElementById('posterBtn2Label').value.trim(), u2=document.getElementById('posterBtn2Url').value.trim();
+    if(u1) links.push({ label:l1||'連結', url:u1 });
+    if(u2) links.push({ label:l2||'連結', url:u2 });
+    var submission = {
+      id:'poster_'+Date.now(), imageUrl:imageUrl, title:title,
+      date: document.getElementById('posterDate').value.trim(),
+      venue: document.getElementById('posterVenue').value.trim(),
+      description: document.getElementById('posterDesc').value.trim(),
+      links: links, submittedAt: new Date().toISOString(), status:'pending'
+    };
+    try{
+      var current = (_currentProfile && _currentProfile.posterSubmissions) ? _currentProfile.posterSubmissions.slice() : [];
+      current.push(submission);
+      await setDoc(doc(db,'musicians',_currentUser.uid), { posterSubmissions: current }, { merge:true });
+      if(!_currentProfile) _currentProfile = {};
+      _currentProfile.posterSubmissions = current;
+      renderPostersList(current);
+      posterReset();
+      showNotif('海報投稿成功 ✓ 管理員會收到');
+    }catch(e){ console.error('[poster] submit failed:', e); showNotif('投稿失敗：' + (e.code||e.message)); }
+  };
+  window.posterReset = function(){
+    ['posterImageUrl','posterTitle','posterDate','posterVenue','posterDesc','posterBtn1Label','posterBtn1Url','posterBtn2Label','posterBtn2Url']
+      .forEach(function(id){ var e=document.getElementById(id); if(e) e.value=''; });
+    var pw=document.getElementById('posterPreviewWrap'); if(pw) pw.style.display='none';
+    var fi=document.getElementById('posterFile'); if(fi) fi.value='';
+  };
+  function renderPostersList(subs){
+    var el = document.getElementById('postersList'); if(!el) return;
+    if(!subs || !subs.length){
+      el.innerHTML = '<div style="text-align:center;padding:30px;color:#999;border:1px dashed #e5e5e5;border-radius:10px;"><div style="font-size:24px;">📭</div><div style="font-size:13px;font-weight:600;margin-top:6px;">尚無投稿</div><div style="font-size:12px;margin-top:2px;">上傳海報後會顯示在這裡</div></div>';
+      return;
+    }
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    var statusMap = { pending:['等待處理','#b45309','#fef3c7'], approved:['已張貼','#16a34a','#dcfce7'], rejected:['未採用','#dc2626','#fee2e2'] };
+    el.innerHTML = subs.slice().reverse().map(function(s){
+      var st = statusMap[s.status] || statusMap.pending;
+      var links = (s.links||[]).map(function(l){ return '<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="font-size:12px;color:#2563eb;text-decoration:none;margin-right:12px;">🔗 '+esc(l.label)+'</a>'; }).join('');
+      return '<div class="card" style="margin-bottom:12px;padding:14px;display:flex;gap:14px;">'
+        +'<img src="'+esc(s.imageUrl)+'" alt="" style="width:84px;height:84px;object-fit:cover;border-radius:8px;flex-shrink:0;">'
+        +'<div style="flex:1;min-width:0;">'
+          +'<div style="font-weight:700;margin-bottom:3px;">'+esc(s.title)+'</div>'
+          +'<div style="font-size:12.5px;color:#888;margin-bottom:6px;">'+esc(s.date)+(s.venue?' · '+esc(s.venue):'')+'</div>'
+          +(links?'<div style="margin-bottom:6px;">'+links+'</div>':'')
+          +'<span style="font-size:11px;font-weight:700;color:'+st[1]+';background:'+st[2]+';padding:2px 8px;border-radius:20px;">'+st[0]+'</span>'
+        +'</div></div>';
+    }).join('');
+  }
 
   /* ════════════════════════════════════════════════════════════════
      MEMBERSHIP / TIER (Phase 1) — Basic (free) vs Premium.
