@@ -650,8 +650,8 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 (function(){
   const frame      = document.getElementById('fixedPosterFrame');
   const textPanel  = document.getElementById('fixedTextPanel');
-  const slides     = Array.from(document.querySelectorAll('.fp-slide'));
-  const textSlides = Array.from(document.querySelectorAll('.ftp-slide'));
+  let slides     = Array.from(document.querySelectorAll('.fp-slide'));
+  let textSlides = Array.from(document.querySelectorAll('.ftp-slide'));
 
   // Hide all slides / show one fully
   function showOnly(idx){
@@ -665,6 +665,9 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 
   function onScroll(){
     const vh    = window.innerHeight;
+    // Re-query live so added/removed posters are always included.
+    slides     = Array.from(document.querySelectorAll('.fp-slide'));
+    textSlides = Array.from(document.querySelectorAll('.ftp-slide'));
     const items = document.querySelectorAll('.show-item');
     const shEnd = document.querySelector('.sh-end');
 
@@ -829,7 +832,7 @@ applyHeroOverlay(88);
 //  Settings (position/scale/blur/urls) → localStorage  (fast, small)
 //  Image binary data (base64)          → IndexedDB     (large capacity)
 // ══════════════════════════════════════════
-const SHOW_N = 5;
+let SHOW_N = 5;   // dynamic: add/remove posters updates this
 const LS_KEY = 'opusz-shows-editor-v2';   // v2: no imgData in LS
 
 // ── IndexedDB helper (robust) ──
@@ -916,6 +919,10 @@ async function loadState(){
     if (r.ok) {
       const cfg = await r.json();
       if (cfg.shows) {
+        // Recreate the saved NUMBER of posters (DOM + state) before applying values,
+        // so added/removed posters persist across reloads.
+        while (window.opzShows && window.opzShows.add && ST.shows.length < cfg.shows.length) window.opzShows.add();
+        while (window.opzShows && window.opzShows.removeLast && ST.shows.length > cfg.shows.length && ST.shows.length > 1) window.opzShows.removeLast();
         cfg.shows.forEach((s,i) => {
           if(!ST.shows[i]) return;
           if(s.imgData) ST.shows[i].imgData = s.imgData; // file path
@@ -1040,8 +1047,46 @@ window.opzShows = (function(){
     try{ await syncShowsToServer(); }catch(e){}
     try{ await fetch('/git-push',{method:'POST'}); return true; }catch(e){ return false; }
   }
+  // Append a fresh blank poster (index = current count) — DOM + state, in sync.
+  function _mkPosterDOM(i){
+    var grad='linear-gradient(160deg,#1a0030,#3d0070,#28005a)';
+    var seq=('0'+(i+1)).slice(-2)+' · 2025';
+    var pf=document.getElementById('fixedPosterFrame');
+    if(pf){ var fp=document.createElement('div'); fp.className='fp-slide'; fp.id='fpSlide'+i;
+      fp.innerHTML='<div class="fp-slide-bg" id="fpBg'+i+'" style="background:'+grad+'"></div><img class="fp-slide-img" id="fpImg'+i+'" alt="">';
+      pf.appendChild(fp); }
+    var tp=document.getElementById('fixedTextPanel');
+    if(tp){ var ftp=document.createElement('div'); ftp.className='ftp-slide'; ftp.id='ftpSlide'+i;
+      ftp.innerHTML='<div class="show-seq">'+seq+'</div>'
+        +'<h2 class="show-artist" data-i18n="show.'+(i+1)+'.artist">New Artist</h2>'
+        +'<p class="show-title" data-i18n="show.'+(i+1)+'.title">New Show</p>'
+        +'<div class="show-details"><span data-i18n="show.'+(i+1)+'.venue">Venue</span><span>Date · Time</span><span data-i18n="show.'+(i+1)+'.desc">Programme</span></div>'
+        +'<a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>';
+      tp.appendChild(ftp); }
+    var tr=document.querySelector('.shows-track');
+    if(tr){ var si=document.createElement('div'); si.className='show-item'; si.setAttribute('data-show-index',i);
+      si.innerHTML='<div class="show-sticky"><div class="show-blur-bg" id="sbg'+i+'" style="background:'+grad+'"></div><img class="show-blur-img" id="sbi'+i+'" alt=""></div>';
+      tr.appendChild(si); }
+  }
+  function addPoster(){
+    var i=SHOW_N; _mkPosterDOM(i);
+    ST.shows.push({ imgData:'', x:0, y:0, scale:1.0, blur:52 });
+    SHOW_N++; applyAll();
+    try{ saveState(); }catch(e){} try{ syncShowsToServer(); }catch(e){}
+    return SHOW_N;
+  }
+  function removeLast(){
+    if(SHOW_N<=1) return SHOW_N;   // keep at least one
+    var i=SHOW_N-1;
+    ['fpSlide'+i,'ftpSlide'+i].forEach(function(id){ var el=document.getElementById(id); if(el) el.remove(); });
+    var si=document.querySelector('.shows-track .show-item[data-show-index="'+i+'"]'); if(si) si.remove();
+    ST.shows.pop(); SHOW_N--; applyAll();
+    try{ saveState(); }catch(e){} try{ syncShowsToServer(); }catch(e){}
+    return SHOW_N;
+  }
   return { count:function(){return SHOW_N;}, list:list, setFrame:setFrame,
-           setImageUrl:setImageUrl, setImageFile:setImageFile, publish:publish };
+           setImageUrl:setImageUrl, setImageFile:setImageFile, publish:publish,
+           add:addPoster, removeLast:removeLast };
 })();
 
 // ══════════════════════════════════════════
@@ -1049,6 +1094,7 @@ window.opzShows = (function(){
 // ══════════════════════════════════════════
 function buildShowPane(i){
   const pane = document.getElementById('pane-show'+i);
+  if(!pane) return;   // dynamically-added posters have no on-page editor pane (edited from the back office)
   const s = ST.shows[i];
   pane.innerHTML = `
     <div class="ep-row">

@@ -1267,8 +1267,20 @@
           +'<span class="shp-msg" style="font-size:11px;color:#888;"></span></div>'
         + textFields(s.i)
         +'</div>';
-    }).join('');
+    }).join('')
+    + '<div style="margin-top:10px;display:flex;gap:8px;border-top:2px solid #e5e5e5;padding-top:12px;">'
+      + '<button onclick="seShowsAdd()" style="flex:1;padding:9px;border:none;border-radius:8px;background:#111;color:#fff;font-weight:700;cursor:pointer;font-size:13px;">➕ 新增海報</button>'
+      + '<button onclick="seShowsRemoveLast()" style="flex:1;padding:9px;border:1px solid #e0a0a0;background:#fff;color:#c00;font-weight:700;border-radius:8px;cursor:pointer;font-size:13px;">🗑 刪除最後一張</button>'
+    + '</div>';
     seWireShowsPoster(box);
+  };
+  window.seShowsAdd = function(){
+    var w=(typeof _seWin==='function')?_seWin():null;
+    if(w && w.opzShows && w.opzShows.add){ w.opzShows.add(); setTimeout(function(){ if(seCurrentSection==='sh-poster') seBuildShowsPoster(document.getElementById('seControls')); }, 220); }
+  };
+  window.seShowsRemoveLast = function(){
+    var w=(typeof _seWin==='function')?_seWin():null;
+    if(w && w.opzShows && w.opzShows.removeLast){ w.opzShows.removeLast(); setTimeout(function(){ if(seCurrentSection==='sh-poster') seBuildShowsPoster(document.getElementById('seControls')); }, 220); }
   };
   function seWireShowsPoster(box){
     function win(){ var ifr=document.getElementById('seFrame'); return ifr&&ifr.contentWindow; }
