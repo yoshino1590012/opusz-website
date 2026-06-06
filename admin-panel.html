@@ -309,6 +309,11 @@
         Support Inbox
         <span class="sb-badge sb-badge-purple" id="sbSupportBadge" style="display:none">0</span>
       </button>
+      <button class="sb-item" data-page="posters" onclick="navigate('posters',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+        海報投稿
+        <span class="sb-badge" id="sbPostersBadge" style="display:none;background:#f59e0b;color:#fff;">0</span>
+      </button>
       <button class="sb-item" data-page="siteeditor" onclick="navigate('siteeditor',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         網站編輯 / Site Editor
@@ -661,6 +666,21 @@
             <div>No support messages</div>
           </div>
         </div>
+      </div>
+
+      <!-- ════════ 海報投稿 / Poster Submissions ════════ -->
+      <div class="page" id="page-posters">
+        <div class="page-header" style="margin-bottom:18px;">
+          <h1>海報投稿</h1>
+          <p>樂手投稿的演出海報。你可以下載圖片、點開連結，標記「已張貼」或「未採用」。</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+          <button onclick="filterAdminPosters('all',this)" style="font-size:12.5px;font-weight:600;border:1px solid #ddd;background:#fff;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:1;">全部</button>
+          <button onclick="filterAdminPosters('pending',this)" style="font-size:12.5px;font-weight:600;border:1px solid #fde68a;background:#fef3c7;color:#b45309;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:.55;">等待處理</button>
+          <button onclick="filterAdminPosters('approved',this)" style="font-size:12.5px;font-weight:600;border:1px solid #bbf7d0;background:#dcfce7;color:#16a34a;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:.55;">已張貼</button>
+          <button onclick="filterAdminPosters('rejected',this)" style="font-size:12.5px;font-weight:600;border:1px solid #fecaca;background:#fee2e2;color:#dc2626;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:.55;">未採用</button>
+        </div>
+        <div id="adminPostersList"></div>
       </div>
 
       <!-- ════════ SITE EDITOR ════════ -->
@@ -1323,7 +1343,11 @@
       var rb=wrap.querySelector('.shp-reset');
       if(rb) rb.addEventListener('click', function(){ pad.__x=0; pad.__y=0; if(sr) sr.value=100; if(sl) sl.textContent='100%'; var w=win(); if(w&&w.opzShows) w.opzShows.setFrame(i,{x:0,y:0,scale:1}); });
       function doUp(file){ if(!file) return; var w=win(); if(!w||!w.opzShows) return; if(msg){msg.textContent='上傳中…';msg.style.color='#888';}
-        w.opzShows.setImageFile(i,file).then(function(url){ if(url){ img.style.backgroundImage='url("'+String(url).replace(/"/g,'%22')+'")'; pad.style.cursor='grab'; if(hint) hint.innerHTML='<span style="background:rgba(0,0,0,.5);padding:2px 8px;border-radius:20px;">拖曳移位</span>'; if(msg){msg.textContent='✓ 已存（記得發佈）';msg.style.color='#16a34a';} } else if(msg){msg.textContent='⚠ 上傳失敗（server.py 沒開？）';msg.style.color='#c00';} }); }
+        // Upload to Firebase Storage → a SMALL url (works on the live site; never base64 in Firestore).
+        seUploadAuto(file,'img',i,msg).then(function(url){
+          if(url){ try{ w.opzShows.setImageUrl(i,url); }catch(e){} img.style.backgroundImage='url("'+String(url).replace(/"/g,'%22')+'")'; pad.style.cursor='grab'; if(hint) hint.innerHTML='<span style="background:rgba(0,0,0,.5);padding:2px 8px;border-radius:20px;">拖曳移位</span>'; if(msg){msg.textContent='✓ 已上傳（記得發佈）';msg.style.color='#16a34a';} }
+          else if(msg){ msg.textContent='⚠ 上傳失敗'; msg.style.color='#c00'; }
+        }); }
       var fi=wrap.querySelector('.shp-file'); if(fi) fi.addEventListener('change', function(){ doUp(fi.files[0]); });
       pad.addEventListener('dragover', function(e){ e.preventDefault(); pad.style.outline='2px dashed #2563eb'; });
       pad.addEventListener('dragleave', function(){ pad.style.outline=''; });
@@ -1956,7 +1980,15 @@
     // to Firebase, so add/remove/position survive on the LIVE site (no server.py).
     if(page==='shows'){
       var w=(typeof _seWin==='function')?_seWin():null;
-      if(w && w.opzShows && w.opzShows.list){ try{ cfg.posters = w.opzShows.list(); }catch(e){} }
+      if(w && w.opzShows && w.opzShows.list){
+        try{
+          var ps = w.opzShows.list();
+          // NEVER store base64 in Firestore (causes invalid-argument / >1MB). Images
+          // live in Firebase Storage as small URLs; drop any stray data: URL.
+          ps.forEach(function(p){ if(typeof p.url==='string' && p.url.slice(0,5)==='data:') p.url=''; });
+          cfg.posters = ps;
+        }catch(e){}
+      }
     }
     try{ localStorage.setItem('opusz_site_'+page, JSON.stringify(cfg)); }catch(e){}
     var msg=document.getElementById('seSaveMsg');
@@ -2101,7 +2133,7 @@
   }
 
   // ── Page titles ──
-  const TITLES = { overview:'Dashboard', musicians:'Musician Management', customers:'Customer Management', review:'Review Queue', jobs:'Jobs Overview', finance:'Finance', announce:'Announcements', support:'Support Inbox', siteeditor:'網站編輯 / Site Editor' };
+  const TITLES = { overview:'Dashboard', musicians:'Musician Management', customers:'Customer Management', review:'Review Queue', jobs:'Jobs Overview', finance:'Finance', announce:'Announcements', support:'Support Inbox', siteeditor:'網站編輯 / Site Editor', posters:'海報投稿' };
 
   window.navigate = function(id, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2112,6 +2144,92 @@
     document.getElementById('topbarTitle').textContent = TITLES[id] || id;
     if (id === 'customers') loadCustomers();
     if (id === 'siteeditor') seInit();
+    if (id === 'posters') loadAdminPosters();
+  }
+
+  // ── 海報投稿 / Poster Submissions (admin inbox) ──────────────────────
+  // Reads every musician's posterSubmissions[] (musicians is public-read),
+  // aggregates them, and lets the admin mark each 已張貼/未採用. Status is
+  // written back onto that musician's own doc.
+  var ADMIN_POSTERS = [];
+  var ADMIN_POSTER_FILTER = 'all';
+  async function loadAdminPosters(){
+    var listEl = document.getElementById('adminPostersList');
+    if(listEl) listEl.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">載入中…</div>';
+    try{
+      var snap = await getDocs(collection(db,'musicians'));
+      ADMIN_POSTERS = [];
+      snap.forEach(function(d){
+        var data = d.data() || {};
+        if(Array.isArray(data.posterSubmissions)){
+          data.posterSubmissions.forEach(function(p){
+            ADMIN_POSTERS.push(Object.assign({}, p, {
+              musicianUid: d.id,
+              musicianName: (data.name || data.email || '(未命名樂手)'),
+              musicianEmail: (data.email || '')
+            }));
+          });
+        }
+      });
+      ADMIN_POSTERS.sort(function(a,b){ return String(b.submittedAt||'').localeCompare(String(a.submittedAt||'')); });
+      renderAdminPosters();
+      updateAdminPostersBadge();
+    }catch(e){
+      console.error('[admin-posters] load failed:', e);
+      if(listEl) listEl.innerHTML = '<div style="padding:30px;text-align:center;color:#c00;">載入失敗：'+(e.code||e.message)+'</div>';
+    }
+  }
+  window.filterAdminPosters = function(status, btn){
+    ADMIN_POSTER_FILTER = status;
+    if(btn){ btn.parentNode.querySelectorAll('button').forEach(function(b){ b.style.opacity='.55'; }); btn.style.opacity='1'; }
+    renderAdminPosters();
+  };
+  function renderAdminPosters(){
+    var el = document.getElementById('adminPostersList'); if(!el) return;
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    var list = (ADMIN_POSTER_FILTER==='all') ? ADMIN_POSTERS : ADMIN_POSTERS.filter(function(p){ return (p.status||'pending')===ADMIN_POSTER_FILTER; });
+    if(!list.length){ el.innerHTML = '<div style="padding:40px;text-align:center;color:#999;border:1px dashed #e5e5e5;border-radius:10px;"><div style="font-size:26px;">📭</div><div style="margin-top:6px;font-size:13px;">目前沒有投稿</div></div>'; return; }
+    var stMap = { pending:['⏳ 等待處理','#b45309','#fef3c7'], approved:['✓ 已張貼','#16a34a','#dcfce7'], rejected:['✗ 未採用','#dc2626','#fee2e2'] };
+    el.innerHTML = list.map(function(p){
+      var st = stMap[p.status||'pending'] || stMap.pending;
+      var links = (p.links||[]).map(function(l){ return '<a href="'+esc(l.url)+'" target="_blank" rel="noopener" style="font-size:12px;color:#2563eb;text-decoration:none;margin-right:12px;font-weight:600;">🔗 '+esc(l.label)+'</a>'; }).join('');
+      var pend = (p.status==='pending' || !p.status);
+      var actions = pend
+        ? '<button onclick="approveAdminPoster(\''+esc(p.id)+'\',\''+esc(p.musicianUid)+'\')" style="font-size:12px;font-weight:700;color:#fff;background:#16a34a;border:none;border-radius:7px;padding:6px 12px;cursor:pointer;margin-right:8px;">標記已張貼</button>'
+          + '<button onclick="rejectAdminPoster(\''+esc(p.id)+'\',\''+esc(p.musicianUid)+'\')" style="font-size:12px;font-weight:700;color:#dc2626;background:#fff;border:1px solid #fecaca;border-radius:7px;padding:6px 12px;cursor:pointer;">未採用</button>'
+        : '<button onclick="resetAdminPoster(\''+esc(p.id)+'\',\''+esc(p.musicianUid)+'\')" style="font-size:12px;color:#666;background:#fff;border:1px solid #ddd;border-radius:7px;padding:6px 12px;cursor:pointer;">改回等待</button>';
+      return '<div style="background:#fff;border:1px solid #eee;border-radius:12px;margin-bottom:12px;padding:16px;display:flex;gap:16px;">'
+        +'<img src="'+esc(p.imageUrl)+'" alt="" style="width:110px;height:110px;object-fit:cover;border-radius:8px;flex-shrink:0;">'
+        +'<div style="flex:1;min-width:0;">'
+          +'<div style="font-weight:800;font-size:15px;margin-bottom:3px;">'+esc(p.title)+'</div>'
+          +'<div style="font-size:12.5px;color:#888;margin-bottom:2px;">樂手：<b>'+esc(p.musicianName)+'</b>'+(p.musicianEmail?' · '+esc(p.musicianEmail):'')+'</div>'
+          +'<div style="font-size:12.5px;color:#888;margin-bottom:6px;">'+esc(p.date)+(p.venue?' · '+esc(p.venue):'')+'</div>'
+          +(p.description?'<div style="font-size:13px;color:#555;margin-bottom:6px;line-height:1.5;">'+esc(p.description)+'</div>':'')
+          +(links?'<div style="margin-bottom:8px;">'+links+'</div>':'')
+          +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:11px;font-weight:700;color:'+st[1]+';background:'+st[2]+';padding:2px 9px;border-radius:20px;">'+st[0]+'</span><span style="font-size:11px;color:#aaa;">投稿於 '+esc(String(p.submittedAt||'').slice(0,10))+'</span></div>'
+          +'<div>'+actions+'</div>'
+        +'</div></div>';
+    }).join('');
+  }
+  async function _adminSetPosterStatus(posterId, musicianUid, status){
+    try{
+      var ref = doc(db,'musicians',musicianUid);
+      var snap = await getDoc(ref); var data = snap.data() || {};
+      var arr = (data.posterSubmissions||[]).map(function(p){ return p.id===posterId ? Object.assign({}, p, { status:status }) : p; });
+      await setDoc(ref, { posterSubmissions: arr }, { merge:true });
+      var local = ADMIN_POSTERS.find(function(p){ return p.id===posterId && p.musicianUid===musicianUid; });
+      if(local) local.status = status;
+      renderAdminPosters(); updateAdminPostersBadge();
+      showNotif('已更新');
+    }catch(e){ console.error('[admin-posters] status update failed:', e); showNotif('操作失敗：'+(e.code||e.message)); }
+  }
+  window.approveAdminPoster = function(id, uid){ _adminSetPosterStatus(id, uid, 'approved'); };
+  window.rejectAdminPoster  = function(id, uid){ if(confirm('確定標記為未採用？')) _adminSetPosterStatus(id, uid, 'rejected'); };
+  window.resetAdminPoster   = function(id, uid){ _adminSetPosterStatus(id, uid, 'pending'); };
+  function updateAdminPostersBadge(){
+    var pending = ADMIN_POSTERS.filter(function(p){ return (p.status||'pending')==='pending'; }).length;
+    var b = document.getElementById('sbPostersBadge');
+    if(b){ b.textContent = pending; b.style.display = pending>0 ? '' : 'none'; }
   }
 
   window.switchTab = function(page, tab, btn) {
