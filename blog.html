@@ -571,7 +571,7 @@
 
 
 <!-- ── HERO REEL ── -->
-<section class="hero-reel" id="heroReel">
+<section class="hero-reel" id="heroReel" data-cms-section="blog-hero">
 
   <div class="reel-slide is-active" data-title="婚禮弦樂四重奏怎麼選？台灣婚禮音樂完整指南">
     <div class="rs-bg c8" data-photo-id="reel-1"></div>
@@ -623,7 +623,7 @@
   <div class="mag-label__rule"></div>
 </div>
 
-<div class="feat__grid">
+<div class="feat__grid" data-cms-section="blog-list">
   <a class="feat__card reveal" href="blog-opusz-intro.html">
     <div class="feat__img"><div class="feat__img-in c8" data-photo-id="feat-1"></div></div>
     <div class="feat__bd">
@@ -1507,7 +1507,88 @@ window.addEventListener('pageshow', function(e) {
   }
   applyAll();
 
-  if(!isLocal) return;  // public domain: stop here, no editor UI
+  // ── Bridge API for the admin Site Editor ──────────────────────────────
+  // Lets admin-panel.html (parent of the preview iframe) read & edit blog
+  // photos through the SAME localStorage system the on-page editor uses,
+  // so edits show live in the preview. Exposed on all domains (read-safe);
+  // writes only matter when the admin is driving it.
+  var OPZ_BLOG_GROUPS = {
+    'blog-hero': [
+      {id:'reel-1', label:'Banner 1'},
+      {id:'reel-2', label:'Banner 2'},
+      {id:'reel-3', label:'Banner 3'}
+    ],
+    'blog-list': [
+      {id:'feat-1', label:'精選封面 1'},
+      {id:'feat-2', label:'精選封面 2'},
+      {id:'feat-3', label:'精選封面 3'},
+      {id:'mini-1', label:'文章小圖 1'},
+      {id:'mini-2', label:'文章小圖 2'},
+      {id:'mini-3', label:'文章小圖 3'},
+      {id:'large-1', label:'文章大圖 1'},
+      {id:'large-2', label:'文章大圖 2'}
+    ]
+  };
+  function opzBlogRead(id){
+    var raw = localStorage.getItem(STORE(id));
+    var d = {}; try{ d = raw ? JSON.parse(raw) : {}; }catch(e){}
+    return { url:d.url||'', x:(d.x!=null?d.x:50), y:(d.y!=null?d.y:50), zoom:(d.zoom||0) };
+  }
+  function opzBlogWrite(id, d){
+    localStorage.setItem(STORE(id), JSON.stringify(d));
+    applyAll();
+  }
+  window.opzBlogEdit = {
+    groups: function(){ return Object.keys(OPZ_BLOG_GROUPS); },
+    list: function(group){
+      return (OPZ_BLOG_GROUPS[group] || []).map(function(def){
+        var d = opzBlogRead(def.id);
+        return { cls:def.id, id:def.id, label:def.label, url:d.url, x:d.x, y:d.y, zoom:d.zoom };
+      });
+    },
+    setFrame: function(group, id, fr){
+      var d = opzBlogRead(id);
+      if(fr.x!=null) d.x = fr.x;
+      if(fr.y!=null) d.y = fr.y;
+      if(fr.zoom!=null) d.zoom = fr.zoom;
+      opzBlogWrite(id, d);
+    },
+    setUrl: function(group, id, url){
+      var d = opzBlogRead(id); d.url = url; opzBlogWrite(id, d);
+    },
+    remove: function(group, id){
+      localStorage.removeItem(STORE(id));
+      var el = document.querySelector('[data-photo-id="'+id+'"]');
+      if(el){ el.style.backgroundImage=''; el.style.backgroundPosition=''; el.style.backgroundSize=''; }
+    },
+    // File → compressed data URL → stored. Returns a Promise<string url>.
+    setImageFile: function(group, id, file){
+      return new Promise(function(resolve, reject){
+        var reader = new FileReader();
+        reader.onload = function(){
+          var img = new Image();
+          img.onload = function(){
+            var maxW = 1600, scale = Math.min(1, maxW/img.width);
+            var w = Math.round(img.width*scale), h = Math.round(img.height*scale);
+            var c = document.createElement('canvas'); c.width=w; c.height=h;
+            c.getContext('2d').drawImage(img,0,0,w,h);
+            try{
+              var dataUrl = c.toDataURL('image/jpeg', 0.82);
+              var d = opzBlogRead(id); d.url = dataUrl; opzBlogWrite(id, d);
+              resolve(dataUrl);
+            }catch(err){ reject(err); }
+          };
+          img.onerror = reject;
+          img.src = reader.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+  };
+  try{ window.dispatchEvent(new Event('opzBlogEditReady')); }catch(e){}
+
+  if(!isLocal) return;  // public domain: stop here, no on-page editor UI
 
   var current = { id:null, url:'', x:50, y:50, zoom:0 };
   var overlay = document.getElementById('peOverlay');

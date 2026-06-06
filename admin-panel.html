@@ -944,8 +944,7 @@
     home: SE_SECTIONS,
     shows: [
       {key:'sh-hero',   label:'主視覺 Banner'},
-      {key:'sh-poster', label:'海報'},
-      {key:'sh-info',   label:'海報資訊'}
+      {key:'sh-poster', label:'海報（圖＋資訊）'}
     ],
     blog:          [{key:'blog-hero', label:'主視覺'}, {key:'blog-list', label:'文章列表'}],
     musicians:     [{key:'mus-hero',  label:'主視覺'}, {key:'mus-list',  label:'音樂家列表'}],
@@ -1226,6 +1225,92 @@
     });
   }
 
+  // ── Shows poster editor (drives shows.html opzShows: front X/Y/size + back blur + drag-drop) ──
+  window.seBuildShowsPoster = function(box){
+    var ifr=document.getElementById('seFrame'); var win=ifr&&ifr.contentWindow;
+    if(!win || !win.opzShows){
+      box.innerHTML='<div style="font-size:12px;color:#999;padding:8px 0;">預覽載入中…</div>';
+      seBuildShowsPoster._n=(seBuildShowsPoster._n||0)+1;
+      if(seBuildShowsPoster._n<25) setTimeout(function(){ if(seCurrentPage==='shows'&&seCurrentSection==='sh-poster') seBuildShowsPoster(box); },300);
+      return;
+    }
+    seBuildShowsPoster._n=0;
+    var items=[]; try{ items=win.opzShows.list()||[]; }catch(e){}
+    var I18=win.I18N||{en:{},zh:{}};
+    seCurrentConfig=seCurrentConfig||{i18n:{en:{},zh:{}}}; seCurrentConfig.i18n=seCurrentConfig.i18n||{en:{},zh:{}};
+    function escU(s){ return String(s||'').replace(/'/g,'%27').replace(/"/g,'%22'); }
+    function escA(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+    function tv(key,lang){ var ci=seCurrentConfig.i18n[lang]||{}; if(ci[key]!=null) return ci[key]; var d=I18[lang]||{}; return d[key]!=null?d[key]:''; }
+    function textFields(i){
+      var rows=[['show.'+(i+1)+'.artist','音樂家姓名'],['show.'+(i+1)+'.title','標題'],['show.'+(i+1)+'.venue','場地'],['show.'+(i+1)+'.desc','曲目／說明']];
+      var st='width:100%;margin-bottom:5px;padding:6px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;';
+      return '<div style="font-size:11px;font-weight:800;color:#111;margin:12px 0 8px;">資訊 / Info</div>'
+        + rows.map(function(r){ return '<div style="margin-bottom:9px;"><div style="font-size:11px;color:#666;margin-bottom:4px;">'+r[1]+'</div>'
+            +'<input data-i18nk="'+escA(r[0])+'" data-lang="en" value="'+escA(tv(r[0],'en'))+'" placeholder="EN" style="'+st+'">'
+            +'<input data-i18nk="'+escA(r[0])+'" data-lang="zh" value="'+escA(tv(r[0],'zh'))+'" placeholder="中文" style="'+st+'"></div>'; }).join('');
+    }
+    box.innerHTML='<div style="font-size:12px;color:#666;line-height:1.6;margin-bottom:10px;">每張海報＝<b>圖＋資訊</b>。把照片<b>拖進框</b>、框內<b>拖曳移位</b>、滑桿調<b>大小／模糊</b>，下面直接改該場的<b>姓名/標題/場地/曲目</b>。改動即時預覽。</div>'
+      + items.map(function(s){
+      var id='shp'+s.i; var sc=Math.round((s.scale||1)*100); var bl=Math.round(s.blur||0);
+      return '<div style="margin-bottom:18px;border-top:2px solid #e5e5e5;padding-top:12px;">'
+        +'<div style="font-size:13px;font-weight:800;color:#111;margin-bottom:6px;">海報 '+(s.i+1)+'</div>'
+        +'<div id="'+id+'" class="shp-pad" data-i="'+s.i+'" style="position:relative;height:150px;border-radius:9px;overflow:hidden;background:#111;border:1px solid #e2e2e6;cursor:'+(s.url?'grab':'default')+';user-select:none;touch-action:none;">'
+          +'<div class="shp-img" style="position:absolute;inset:0;background:#111 center/cover no-repeat;'+(s.url?('background-image:url(\''+escU(s.url)+'\');'):'')+'"></div>'
+          +'<div class="shp-hint" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;color:#bbb;pointer-events:none;">'+(s.url?'<span style="background:rgba(0,0,0,.5);padding:2px 8px;border-radius:20px;">拖曳移位</span>':'⬇ 拖照片到這裡或按下方上傳')+'</div>'
+        +'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-top:8px;"><span style="font-size:11px;color:#888;width:34px;">大小</span>'
+          +'<input type="range" min="50" max="220" value="'+sc+'" class="shp-scale" style="flex:1;"><span class="shp-scaleL" style="font-size:11px;color:#888;width:42px;text-align:right;">'+sc+'%</span></div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-top:6px;"><span style="font-size:11px;color:#888;width:34px;">模糊</span>'
+          +'<input type="range" min="0" max="100" value="'+bl+'" class="shp-blur" style="flex:1;"><span class="shp-blurL" style="font-size:11px;color:#888;width:42px;text-align:right;">'+bl+'px</span></div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap;"><label style="display:inline-flex;align-items:center;font-size:12px;color:#fff;background:#111;border-radius:6px;padding:6px 11px;cursor:pointer;">⬆ 上傳檔案<input type="file" accept="image/*" class="shp-file" style="display:none;"></label>'
+          +'<button type="button" class="shp-reset" style="font-size:11px;border:1px solid #ddd;background:#fff;border-radius:6px;padding:4px 8px;cursor:pointer;">重置位置/大小</button>'
+          +'<span class="shp-msg" style="font-size:11px;color:#888;"></span></div>'
+        + textFields(s.i)
+        +'</div>';
+    }).join('');
+    seWireShowsPoster(box);
+  };
+  function seWireShowsPoster(box){
+    function win(){ var ifr=document.getElementById('seFrame'); return ifr&&ifr.contentWindow; }
+    box.querySelectorAll('.shp-pad').forEach(function(pad){
+      var i=+pad.getAttribute('data-i');
+      var img=pad.querySelector('.shp-img'), hint=pad.querySelector('.shp-hint');
+      var wrap=pad.parentNode, msg=wrap.querySelector('.shp-msg');
+      function hasImg(){ return /url\(/.test(img.style.backgroundImage||''); }
+      var K=2, dragging=false, sx=0, sy=0, bx=0, by=0;
+      pad.addEventListener('pointerdown', function(e){
+        if(!hasImg()) return; dragging=true; sx=e.clientX; sy=e.clientY; bx=pad.__x||0; by=pad.__y||0;
+        pad.style.cursor='grabbing'; pad.setPointerCapture&&pad.setPointerCapture(e.pointerId); e.preventDefault();
+      });
+      pad.addEventListener('pointermove', function(e){
+        if(!dragging) return; var nx=bx+(e.clientX-sx)*K, ny=by+(e.clientY-sy)*K;
+        pad.__x=nx; pad.__y=ny; var w=win(); if(w&&w.opzShows) w.opzShows.setFrame(i,{x:nx,y:ny});
+      });
+      function end(){ if(dragging){ dragging=false; pad.style.cursor='grab'; } }
+      pad.addEventListener('pointerup',end); pad.addEventListener('pointercancel',end);
+      var sr=wrap.querySelector('.shp-scale'), sl=wrap.querySelector('.shp-scaleL');
+      if(sr) sr.addEventListener('input', function(){ var v=+sr.value; if(sl) sl.textContent=v+'%'; var w=win(); if(w&&w.opzShows) w.opzShows.setFrame(i,{scale:v/100}); });
+      var br=wrap.querySelector('.shp-blur'), bl=wrap.querySelector('.shp-blurL');
+      if(br) br.addEventListener('input', function(){ var v=+br.value; if(bl) bl.textContent=v+'px'; var w=win(); if(w&&w.opzShows) w.opzShows.setFrame(i,{blur:v}); });
+      var rb=wrap.querySelector('.shp-reset');
+      if(rb) rb.addEventListener('click', function(){ pad.__x=0; pad.__y=0; if(sr) sr.value=100; if(sl) sl.textContent='100%'; var w=win(); if(w&&w.opzShows) w.opzShows.setFrame(i,{x:0,y:0,scale:1}); });
+      function doUp(file){ if(!file) return; var w=win(); if(!w||!w.opzShows) return; if(msg){msg.textContent='上傳中…';msg.style.color='#888';}
+        w.opzShows.setImageFile(i,file).then(function(url){ if(url){ img.style.backgroundImage='url("'+String(url).replace(/"/g,'%22')+'")'; pad.style.cursor='grab'; if(hint) hint.innerHTML='<span style="background:rgba(0,0,0,.5);padding:2px 8px;border-radius:20px;">拖曳移位</span>'; if(msg){msg.textContent='✓ 已存（記得發佈）';msg.style.color='#16a34a';} } else if(msg){msg.textContent='⚠ 上傳失敗（server.py 沒開？）';msg.style.color='#c00';} }); }
+      var fi=wrap.querySelector('.shp-file'); if(fi) fi.addEventListener('change', function(){ doUp(fi.files[0]); });
+      pad.addEventListener('dragover', function(e){ e.preventDefault(); pad.style.outline='2px dashed #2563eb'; });
+      pad.addEventListener('dragleave', function(){ pad.style.outline=''; });
+      pad.addEventListener('drop', function(e){ e.preventDefault(); pad.style.outline=''; var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) doUp(f); });
+    });
+    // Text fields (姓名/標題/場地/曲目) → per-page i18n config + live preview.
+    box.querySelectorAll('input[data-i18nk]').forEach(function(el){
+      el.addEventListener('input', function(){
+        var k=el.getAttribute('data-i18nk'), lang=el.getAttribute('data-lang');
+        seCurrentConfig.i18n[lang]=seCurrentConfig.i18n[lang]||{};
+        seCurrentConfig.i18n[lang][k]=el.value; seOnInput();
+      });
+    });
+  }
+
   window.seBuildControls = function(){
     var box=document.getElementById('seControls'); if(!box) return;
     var cur=seCurrentConfig.i18n||{en:{},zh:{}};
@@ -1233,6 +1318,15 @@
     function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
     // Partner marquee uses a custom list editor (not the fixed SE_FIELDS schema).
     if(seCurrentSection==='partners'){ seBuildPartners(box); return; }
+    // Shows poster → specialised control (front X/Y/size + back blur + drag-drop).
+    if(seCurrentPage==='shows' && seCurrentSection==='sh-poster'){ seBuildShowsPoster(box); return; }
+    // Blog page → engine-backed image editing via opzBlogEdit (banner + article covers).
+    if(seCurrentPage==='blog'){
+      box.innerHTML = '<div style="font-size:12px;color:#155e75;background:#ecfeff;border:1px solid #a5f3fc;border-radius:8px;padding:9px 11px;margin-bottom:12px;line-height:1.6;">🖱️ <b>拖曳照片移位</b>、滑桿<b>縮放</b>、按<b>「上傳檔案」換圖</b>。改完按上方「🚀 儲存並發布到網站」。</div>'
+        + '<div id="seEngBox" data-grp="'+seCurrentSection+'"></div>';
+      seEngLoad(seCurrentSection);
+      return;
+    }
     // Non-home pages → generic auto editor (scans the preview section).
     if(seCurrentPage!=='home'){ seBuildAutoControls(box); return; }
     var fields = (seCurrentPage==='home') ? SE_FIELDS.filter(function(ff){ return ff.section===seCurrentSection; }) : [];
@@ -1322,17 +1416,21 @@
   // We read its slot list and render a drag-pad + zoom + upload per image, then
   // push every change straight into the page engine (live preview + save).
   function _seWin(){ var ifr=document.getElementById('seFrame'); return ifr && ifr.contentWindow; }
+  // The active image engine: the blog page exposes opzBlogEdit; everything else uses opzEdit.
+  // Both share the same shape (list / setFrame / setImageFile), so the UI below is reused as-is.
+  function _seEng(){ var win=_seWin(); if(!win) return null; return (seCurrentPage==='blog') ? win.opzBlogEdit : win.opzEdit; }
   window.seEngLoad = function(group){
     var box=document.getElementById('seEngBox'); if(!box) return;
     var win=_seWin();
-    if(!win || !win.opzEdit){
+    var ENG=_seEng();
+    if(!win || !ENG){
       box.innerHTML='<div style="font-size:12px;color:#999;padding:8px 0;">預覽載入中…</div>';
       seEngLoad._n=(seEngLoad._n||0)+1;
-      if(seEngLoad._n<25) setTimeout(function(){ if(SE_ENGINE_GROUP[seCurrentSection]===group) seEngLoad(group); }, 300);
+      if(seEngLoad._n<25) setTimeout(function(){ if(SE_ENGINE_GROUP[seCurrentSection]===group || seCurrentSection===group) seEngLoad(group); }, 300);
       return;
     }
     seEngLoad._n=0;
-    var slots=[]; try{ slots=win.opzEdit.list(group)||[]; }catch(e){ slots=[]; }
+    var slots=[]; try{ slots=ENG.list(group)||[]; }catch(e){ slots=[]; }
     function escA(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
     function escU(s){ return String(s).replace(/'/g,'%27').replace(/"/g,'%22'); }
     var head='<div style="font-size:11px;font-weight:800;color:#111;margin:14px 0 8px;border-top:1px solid #eee;padding-top:12px;">圖片（拖曳移位・滑桿縮放・拖檔上傳）</div>';
@@ -1410,7 +1508,7 @@
       var hint=pad.querySelector('.see-hint');
       function win(){ return _seWin(); }
       function getXYZ(){ return { x:parseFloat(pad.getAttribute('data-x'))||0, y:parseFloat(pad.getAttribute('data-y'))||0, zoom:parseFloat(pad.getAttribute('data-zoom'))||0 }; }
-      function commit(){ var w=win(); if(w&&w.opzEdit){ try{ w.opzEdit.setFrame(group, cls, getXYZ()); }catch(e){} } }
+      function commit(){ var e=_seEng(); if(e){ try{ e.setFrame(group, cls, getXYZ()); }catch(err){} } }
       function hasImg(){ return !!(pad.getAttribute('data-url')||pad._url); }
 
       // (1) drag to reposition focal point
@@ -1447,7 +1545,7 @@
 
       // (3) upload via file picker
       function doUpload(file){
-        if(!file) return; var w=win(); if(!w||!w.opzEdit) return;
+        if(!file) return; var eng=_seEng(); if(!eng) return;
         // iPhone HEIC/HEIF can't be decoded by the browser → guide the owner instead of hanging.
         var nm=(file.name||'').toLowerCase(), tp=(file.type||'').toLowerCase();
         if(tp.indexOf('heic')>=0 || tp.indexOf('heif')>=0 || /\.(heic|heif)$/.test(nm)){
@@ -1459,7 +1557,7 @@
         var to=setTimeout(function(){ if(settled) return; settled=true;
           if(note){ note.textContent='⚠ 上傳逾時，請重試或換一張較小的圖'; note.style.color='#c00'; } }, 30000);
         function fail(m){ if(settled) return; settled=true; clearTimeout(to); if(note){ note.textContent=m; note.style.color='#c00'; } }
-        Promise.resolve(w.opzEdit.setImageFile(group, cls, file)).then(function(url){
+        Promise.resolve(eng.setImageFile(group, cls, file)).then(function(url){
           if(settled) return; settled=true; clearTimeout(to);
           if(url){ pad.setAttribute('data-url', url); pad._url=url; pad.style.cursor='grab';
                    if(hint) hint.innerHTML='<span style="background:rgba(0,0,0,.45);color:#fff;padding:2px 8px;border-radius:20px;">拖曳照片移位</span>';
@@ -1860,11 +1958,13 @@
     (async function(){
       try{
         var win = (typeof _seWin==='function') ? _seWin() : null;
-        if(!win || !win.opzEdit){
-          if(pubMsg){ pubMsg.textContent='✓ 文字已上線（照片發佈略過：預覽未載入）'; pubMsg.style.color='#b45309'; }
+        // Each page's engine exposes its own publish() (home → opzEdit, shows → opzShows).
+        var engine = win && (win.opzShows || win.opzEdit);
+        if(!win || !engine){
+          if(pubMsg){ pubMsg.textContent='✓ 文字已上線（照片發佈略過：預覽未載入或此頁無照片引擎）'; pubMsg.style.color='#b45309'; }
           return;
         }
-        var pub = Promise.resolve(win.opzEdit.publish());
+        var pub = Promise.resolve(engine.publish());
         var timed = new Promise(function(res){ setTimeout(function(){ res('__timeout'); }, 20000); });
         var r = await Promise.race([pub, timed]);
         if(pubMsg){
