@@ -210,7 +210,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   left:50%;
   transform:translate(-50%,-50%);
   z-index:50;
-  width:clamp(300px,36vw,580px);
+  width:clamp(340px,41vw,650px);
   aspect-ratio:2/3;
   border-radius:10px;overflow:hidden;
   box-shadow:0 48px 120px rgba(0,0,0,.8),0 8px 32px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.1);
@@ -888,7 +888,8 @@ const DEF_STATE = {
   heroOverlay: 88,
   shows: Array.from({length:SHOW_N}, ()=>({
     imgData: '',   // loaded from IDB, never written to localStorage
-    x:0, y:0, scale:1.0, blur:52
+    x:0, y:0, scale:1.0, blur:52,
+    bgX:50, bgY:50   // blurred background poster focal position (%)
   }))
 };
 
@@ -909,6 +910,8 @@ async function loadState(){
           ST.shows[i].y     = s.y     ?? 0;
           ST.shows[i].scale = s.scale ?? 1.0;
           ST.shows[i].blur  = s.blur  ?? 52;
+          ST.shows[i].bgX   = s.bgX   ?? 50;
+          ST.shows[i].bgY   = s.bgY   ?? 50;
         });
       }
     }
@@ -930,6 +933,8 @@ async function loadState(){
           if(s.y !== undefined) ST.shows[i].y = s.y;
           if(s.scale !== undefined) ST.shows[i].scale = s.scale;
           if(s.blur !== undefined) ST.shows[i].blur = s.blur;
+          if(s.bgX !== undefined) ST.shows[i].bgX = s.bgX;
+          if(s.bgY !== undefined) ST.shows[i].bgY = s.bgY;
         });
       }
       return; // loaded from server, skip IDB
@@ -951,7 +956,7 @@ async function saveState(){
   const toLS = {
     heroVideoUrl: ST.heroVideoUrl,
     heroOverlay:  ST.heroOverlay,
-    shows: ST.shows.map(s=>({ x:s.x, y:s.y, scale:s.scale, blur:s.blur }))
+    shows: ST.shows.map(s=>({ x:s.x, y:s.y, scale:s.scale, blur:s.blur, bgX:s.bgX, bgY:s.bgY }))
   };
   try{ localStorage.setItem(LS_KEY, JSON.stringify(toLS)); }catch(e){}
   // Images go to IndexedDB (handles large base64 / URLs)
@@ -986,10 +991,11 @@ function applyAll(){
       fpImg.style.display = 'block';
       fpImg.style.transform = `translate(${s.x}px,${s.y}px) scale(${s.scale})`;
       fpBg.style.display = 'none';
-      // Blurred full-bleed section background
+      // Blurred full-bleed section background (with its own focal position)
       sbi.src = s.imgData;
       sbi.style.display = 'block';
       sbi.style.filter = `blur(${s.blur}px) brightness(.38) saturate(.65)`;
+      sbi.style.objectPosition = `${s.bgX ?? 50}% ${s.bgY ?? 50}%`;
       sbg.style.display = 'none';
     } else {
       fpImg.style.display = 'none';
@@ -1008,13 +1014,15 @@ window.opzShows = (function(){
   function list(){
     return ST.shows.map(function(s,i){
       return { i:i, url:(s.imgData||''), x:(s.x||0), y:(s.y||0),
-               scale:(s.scale!=null?s.scale:1), blur:(s.blur!=null?s.blur:52) };
+               scale:(s.scale!=null?s.scale:1), blur:(s.blur!=null?s.blur:52),
+               bgX:(s.bgX!=null?s.bgX:50), bgY:(s.bgY!=null?s.bgY:50) };
     });
   }
   function setFrame(i, f){
     var s=ST.shows[i]; if(!s||!f) return;
     if(f.x!=null) s.x=+f.x; if(f.y!=null) s.y=+f.y;
     if(f.scale!=null) s.scale=+f.scale; if(f.blur!=null) s.blur=+f.blur;
+    if(f.bgX!=null) s.bgX=+f.bgX; if(f.bgY!=null) s.bgY=+f.bgY;
     applyAll();
     try{ saveState(); }catch(e){} try{ syncShowsToServer(); }catch(e){}
   }
@@ -1070,7 +1078,7 @@ window.opzShows = (function(){
   }
   function addPoster(){
     var i=SHOW_N; _mkPosterDOM(i);
-    ST.shows.push({ imgData:'', x:0, y:0, scale:1.0, blur:52 });
+    ST.shows.push({ imgData:'', x:0, y:0, scale:1.0, blur:52, bgX:50, bgY:50 });
     SHOW_N++; applyAll();
     try{ saveState(); }catch(e){} try{ syncShowsToServer(); }catch(e){}
     return SHOW_N;
@@ -1346,7 +1354,7 @@ async function syncShowsToServer() {
     const data = {
       shows: ST.shows.map(s => ({
         imgData: (s.imgData && !s.imgData.startsWith('data:')) ? s.imgData : '',
-        x: s.x, y: s.y, scale: s.scale, blur: s.blur
+        x: s.x, y: s.y, scale: s.scale, blur: s.blur, bgX: s.bgX, bgY: s.bgY
       })),
       heroVideoUrl: ST.heroVideoUrl,
       heroOverlay:  ST.heroOverlay
