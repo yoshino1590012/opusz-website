@@ -653,11 +653,7 @@
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
         <span>海報投稿</span>
       </button>
-      <button class="sb-item" data-page="membership" onclick="navigate('membership',this)">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.4 7.4H22l-6 4.5 2.3 7.1L12 16.6 5.7 21l2.3-7.1-6-4.5h7.6z"/></svg>
-        <span>方案</span>
-        <span class="sb-badge" id="sbMembershipBadge" style="display:none;"></span>
-      </button>
+      <!-- 方案 / Membership removed — all musicians have every feature -->
       <button class="sb-item" data-page="settings" onclick="navigate('settings',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span>設定</span>
@@ -1212,73 +1208,7 @@
         </div>
       </div>
 
-      <!-- ── MEMBERSHIP / 方案 ── -->
-      <div class="page" id="page-membership">
-        <div class="page-header">
-          <h1>方案</h1>
-          <p class="page-sub">選擇適合你的方案，解鎖教學招生功能。</p>
-        </div>
-
-        <!-- Current plan banner -->
-        <div class="mem-current" id="memCurrent">
-          <div>
-            <div class="mem-current-label">目前方案 / Current plan</div>
-            <div class="mem-current-name">
-              <span id="memCurrentName">Basic 基本版</span>
-              <span class="mem-badge" id="memCurrentBadge">FREE</span>
-            </div>
-            <div class="mem-current-status" id="memCurrentStatus">免費方案 · 只開放表演報價</div>
-          </div>
-        </div>
-
-        <!-- Plan comparison -->
-        <div class="mem-grid">
-          <!-- Basic -->
-          <div class="mem-card" id="memCardBasic">
-            <div class="mem-card-tier">Basic 基本版</div>
-            <div class="mem-card-price"><b>免費</b></div>
-            <p class="mem-card-desc">建立並編輯你的公開主頁，接表演邀約。</p>
-            <ul class="mem-feat">
-              <li class="ok">編輯個人主頁（全部排版功能）</li>
-              <li class="ok">表演報價與預約</li>
-              <li class="ok">1 次免費宣傳海報機會</li>
-              <li class="no">教學課程方案欄位</li>
-              <li class="no">出現在「Lessons」老師列表</li>
-              <li class="no">公開招收學生</li>
-            </ul>
-            <div class="mem-card-foot"><span class="mem-tag" id="memBasicTag">目前方案</span></div>
-          </div>
-
-          <!-- Premium -->
-          <div class="mem-card mem-card--pro" id="memCardPro">
-            <div class="mem-card-tier">Premium 加強版 <span class="mem-pro-pill">PRO</span></div>
-            <div class="mem-card-price"><b id="memProPrice">NT$XXX</b> <span>/ 月</span></div>
-            <p class="mem-card-desc">解鎖教學功能，公開招收學生，獲得推薦曝光。</p>
-            <ul class="mem-feat">
-              <li class="ok">包含 Basic 全部功能</li>
-              <li class="ok"><b>教學課程方案</b>欄位（主頁顯示）</li>
-              <li class="ok">出現在「Lessons」<b>老師列表</b></li>
-              <li class="ok"><b>公開招收學生</b></li>
-              <li class="ok">每年 <b>3 次</b>海報張貼（平台設計，放 Shows + 主頁）</li>
-              <li class="ok">推薦出現在<b>「別人也看了」</b>推薦區</li>
-            </ul>
-            <div class="mem-card-foot">
-              <button class="btn btn-primary" id="memSubscribeBtn" style="width:100%;justify-content:center;" onclick="pbStartSubscribe()">升級 Premium</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Coupon -->
-        <div class="mem-coupon">
-          <div class="mem-coupon-title">🎟️ 有邀請碼嗎？</div>
-          <div class="mem-coupon-desc">輸入邀請碼可開啟 <b>6 個月免費 Premium</b>，立即開放教學招生。到期後可選擇是否訂閱。</div>
-          <div class="mem-coupon-row">
-            <input type="text" id="memCouponInput" placeholder="輸入邀請碼 / Enter code" autocomplete="off" spellcheck="false">
-            <button class="btn btn-primary" id="memCouponBtn" onclick="pbRedeemCoupon()">啟用 / Redeem</button>
-          </div>
-          <div class="mem-coupon-msg" id="memCouponMsg"></div>
-        </div>
-      </div>
+      <!-- 方案 / Membership page removed — all musicians have every feature -->
 
       <!-- ── 海報投稿 / Poster Submission ── -->
       <div class="page" id="page-posters">
@@ -2098,11 +2028,9 @@
     return { source:'none' };
   }
   function pbIsPremiumActive(m){
-    m = m || pbGetMembership();
-    if(!m) return false;
-    if(m.source === 'subscription') return true;
-    if(m.source === 'coupon' && m.expiresAt){ return new Date() < new Date(m.expiresAt); }
-    return false;
+    // Plans removed — every musician has all features (performance + teaching).
+    // Teaching is opt-in per musician via the "顯示課程方案" toggle, no plan gate.
+    return true;
   }
   function pbDaysLeft(m){
     m = m || pbGetMembership();
@@ -2173,6 +2101,9 @@
 
   // Render the Membership page UI from current state
   window.pbRenderMembership = function(){
+    return;   // Plans removed — membership page no longer exists; no-op.
+  };
+  window.__pbRenderMembershipOld = function(){
     const m = pbGetMembership();
     const pro = pbIsPremiumActive(m);
     const left = pbDaysLeft(m);

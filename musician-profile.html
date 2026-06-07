@@ -3877,16 +3877,9 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
 
     // ── Apply this musician's saved page-builder config (published page) ──
     if (p.config) {
-      // teaching/lessons is Premium-only → tell the renderer this musician's tier
-      (function(){
-        var m = p.membership || {};
-        var prem = false;
-        if (m.source === 'subscription') prem = true;
-        else if (m.source === 'coupon' && m.expiresAt) {
-          try { prem = new Date(m.expiresAt) > new Date(); } catch(e){}
-        }
-        p.config.isPremium = prem;
-      })();
+      // Plans removed — every musician can teach. Teaching shows purely from the
+      // musician's own toggle (lessons.visible / lessonsEnabled), no plan gate.
+      p.config.isPremium = true;
       const applyCfg = function(){
         try { window.applyProfileConfig(p.config); }
         catch(e){ console.warn('[profileConfig] apply failed:', e); }
