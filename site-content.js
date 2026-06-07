@@ -53,6 +53,22 @@ function applyHeroPos(map){
 // Brand wordmark colour: 'auto' (or empty) = CSS default (white + mix-blend-mode
 // difference → auto black/white against the background); any CSS colour string
 // (e.g. '#e11d48') = that solid colour.
+// Pick the per-device hero position map by viewport and apply it.
+function applyHeroPosResponsive(cfg){
+  cfg = cfg || window.__opzHeroCfg || {};
+  var phone = (window.innerWidth || 9999) <= 700;
+  var map = (phone && cfg.heroPosPhone) ? cfg.heroPosPhone : (cfg.heroPos || {});
+  applyHeroPos(map);
+}
+// Re-apply when crossing the phone breakpoint (debounced).
+(function(){
+  var t;
+  window.addEventListener('resize', function(){
+    if (!window.__opzHeroCfg) return;
+    clearTimeout(t); t = setTimeout(function(){ try { applyHeroPosResponsive(window.__opzHeroCfg); } catch(e){} }, 150);
+  });
+})();
+
 function applyBrandColor(val){
   var el = document.querySelector('.hco-brand'); if(!el) return;
   if (!val || val === 'auto') { el.style.color = ''; el.style.mixBlendMode = ''; }
@@ -140,9 +156,13 @@ function applyConfig(cfg){
     try { window.opzRenderPartners(cfg.partners); } catch(e){}
   }
 
-  // 1c) hero element drag-offsets (Canva-style positioning). Always re-apply
-  // (even when absent → clears any stale offsets) so a "reset" takes effect too.
-  if ('heroPos' in cfg) { try { applyHeroPos(cfg.heroPos); } catch(e){} }
+  // 1c) hero element drag-offsets (Canva-style positioning), PER DEVICE: phones
+  // (<=700px) use cfg.heroPosPhone when present; otherwise fall back to the desktop
+  // set cfg.heroPos. Re-applied on resize so it switches at the breakpoint.
+  if ('heroPos' in cfg || 'heroPosPhone' in cfg) {
+    window.__opzHeroCfg = cfg;
+    try { applyHeroPosResponsive(cfg); } catch(e){}
+  }
 
   // 1d) brand wordmark colour ('auto' = blend, or a custom colour)
   if ('heroBrandColor' in cfg) { try { applyBrandColor(cfg.heroBrandColor); } catch(e){} }

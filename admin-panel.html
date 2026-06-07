@@ -990,7 +990,13 @@
 
   window.seSetDevice = function(name, btn){
     var d = SE_DEVICES[name]; if(!d) return;
+    var _devChanged = (seCurrentDevice !== name);
     seCurrentDevice = name;
+    // Device changed → if editing the hero, rebuild the panel so the position/size
+    // controls reflect the active device's set (phone has its own).
+    if(_devChanged && seCurrentSection==='hero' && document.getElementById('seControls')){
+      try{ seBuildControls(); }catch(e){}
+    }
     var devW = d.w, devH = d.h;
     if(name==='desktop'){
       // "標準顯示螢幕" = the actual BROWSER VIEWPORT width (innerWidth), so the preview
@@ -1078,6 +1084,7 @@
     // Hero drag-to-position offsets (Canva-style). Always include so saves persist
     // them and a reset (empty object) is written through.
     if(window.seHeroPos && typeof window.seHeroPos==='object') cfg.heroPos = window.seHeroPos;
+    if(window.seHeroPosPhone && typeof window.seHeroPosPhone==='object') cfg.heroPosPhone = window.seHeroPosPhone;
     cfg.heroBrandColor = (typeof window.seHeroBrandColor==='string' && window.seHeroBrandColor) ? window.seHeroBrandColor : 'auto';
     if(window.seHeroBtn && typeof window.seHeroBtn==='object') cfg.heroBtn = window.seHeroBtn;
     if(window.seHeroBtnShape && typeof window.seHeroBtnShape==='object') cfg.heroBtnShape = window.seHeroBtnShape;
@@ -1848,9 +1855,11 @@
   };
   // Size sliders for each draggable hero element. Brand can grow bigger (up to 400%).
   function seHeroSizeRows(){
+    var _hpActive = (typeof window.seActiveHeroPos==='function') ? window.seActiveHeroPos() : (window.seHeroPos||{});
     var defs=[['headline','標題'],['sub','副標'],['btnFind','按鈕 · Find Artists'],['btnProject','按鈕 · Create a Project'],['brand','品牌 OPUS.Z']];
-    var hp=window.seHeroPos||{};
-    return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:10px 0 6px;">元素大小</div>'+defs.map(function(d){
+    var hp=_hpActive;
+    var devNote=(seCurrentDevice==='phone')?'<div style="font-size:10px;color:#b45309;margin:2px 0 6px;">📱 目前編輯「手機版」位置與大小（不影響桌機）</div>':'';
+    return devNote+'<div style="font-size:11px;font-weight:800;color:#0e7490;margin:10px 0 6px;">元素大小</div>'+defs.map(function(d){
       var key=d[0], lbl=d[1]; var s=(hp[key]&&hp[key].s)?hp[key].s:1; var pct=Math.round(s*100);
       var max=(key==='brand')?400:200;   // brand gets a wider zoom range
       return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
@@ -1957,20 +1966,26 @@
     if(window.seHeroBtn) delete window.seHeroBtn[key];
     seBuildControls(); sePreview();
   };
+  // The position/size set for the CURRENT preview device: phone has its own set,
+  // everything else shares the desktop set.
+  window.seActiveHeroPos = function(){
+    if(seCurrentDevice==='phone') return (window.seHeroPosPhone = window.seHeroPosPhone || {});
+    return (window.seHeroPos = window.seHeroPos || {});
+  };
   window.seHeroSetSize = function(key, val){
-    window.seHeroPos = window.seHeroPos || {};
-    window.seHeroPos[key] = Object.assign({}, window.seHeroPos[key], { s:(parseInt(val,10)||100)/100 });
+    var m = window.seActiveHeroPos();
+    m[key] = Object.assign({}, m[key], { s:(parseInt(val,10)||100)/100 });
     var lbl=document.getElementById('seHzl_'+key); if(lbl) lbl.textContent=val+'%';
     sePreview();   // live-apply scale to the preview
   };
 
-  // Clear all hero drag offsets + sizes and push the reset to the live preview.
+  // Clear the CURRENT device's hero offsets + sizes and push the reset to preview.
   window.seHeroPosReset = function(){
-    window.seHeroPos = {};
+    if(seCurrentDevice==='phone') window.seHeroPosPhone = {}; else window.seHeroPos = {};
     seBuildControls();   // refresh sliders back to 100%
     var ifr=document.getElementById('seFrame');
     if(ifr && ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszCmsPreview:true, config:seReadInputs()}, '*'); }catch(e){} }
-    var msg=document.getElementById('seSaveMsg'); if(msg){ msg.textContent='已重置位置與大小（記得按發布）'; msg.style.color='#155e75'; }
+    var msg=document.getElementById('seSaveMsg'); if(msg){ msg.textContent='已重置此裝置的位置與大小（記得按發布）'; msg.style.color='#155e75'; }
   };
 
   window.seSave = async function(){
@@ -2063,6 +2078,11 @@
         if(p.yPct==null && p.y!=null) p.yPct=+(p.y/avh).toFixed(5);
       });
     })();
+    // Phone has its OWN position/size set. Start it as a copy of desktop (so phone
+    // initially looks the same) unless a phone set was already saved.
+    window.seHeroPosPhone = (seCurrentConfig.heroPosPhone && typeof seCurrentConfig.heroPosPhone==='object')
+      ? seCurrentConfig.heroPosPhone
+      : JSON.parse(JSON.stringify(window.seHeroPos || {}));
     window.seHeroBrandColor = (typeof seCurrentConfig.heroBrandColor==='string' && seCurrentConfig.heroBrandColor) ? seCurrentConfig.heroBrandColor : 'auto';
     window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
     window.seHeroBtnShape = (seCurrentConfig.heroBtnShape && typeof seCurrentConfig.heroBtnShape==='object') ? seCurrentConfig.heroBtnShape : {};
@@ -2087,8 +2107,8 @@
         // Store viewport-fraction (xPct/yPct, width-independent) + px (legacy). Merge
         // so an existing size (s) isn't wiped by a position update.
         if(e.data.__opuszHeroPos && e.data.key){
-          window.seHeroPos = window.seHeroPos || {};
-          window.seHeroPos[e.data.key] = Object.assign({}, window.seHeroPos[e.data.key],
+          var m = (typeof window.seActiveHeroPos==='function') ? window.seActiveHeroPos() : (window.seHeroPos = window.seHeroPos || {});
+          m[e.data.key] = Object.assign({}, m[e.data.key],
             { x:e.data.x|0, y:e.data.y|0, xPct:e.data.xPct, yPct:e.data.yPct });
         }
       });
