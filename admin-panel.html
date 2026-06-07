@@ -691,17 +691,19 @@
           /* iPhone-style frame — bezel/radius/island all scale together via --sps,
              so the whole phone enlarges in proportion (not just the screen). */
           /* top padding is larger to RESERVE the iOS status-bar zone (time/signal/battery) */
-          #seFrameWrap.se-phone{ box-sizing:content-box !important; background:#111 !important; border-radius:calc(46px * var(--sps,1)) !important; padding:calc(46px * var(--sps,1)) calc(13px * var(--sps,1)) calc(13px * var(--sps,1)); box-shadow:0 12px 48px rgba(0,0,0,.45); position:relative; }
-          #seFrameWrap.se-phone #seFrame{ border-radius:calc(34px * var(--sps,1)); }
-          /* Dynamic Island — centred in the status-bar zone */
-          #seFrameWrap.se-phone::after{ content:''; position:absolute; top:calc(13px * var(--sps,1)); left:50%; transform:translateX(-50%); width:calc(90px * var(--sps,1)); height:calc(26px * var(--sps,1)); background:#000; border-radius:calc(16px * var(--sps,1)); z-index:5; pointer-events:none; }
-          /* Faux iOS status bar: time (left) · signal/wifi/battery (right) */
+          /* Uniform 13px black bezel; top reserves 13px bezel + a 46px status-bar strip
+             that lives INSIDE the screen (so the black frame wraps all four edges). */
+          #seFrameWrap.se-phone{ box-sizing:content-box !important; background:#111 !important; border-radius:calc(46px * var(--sps,1)) !important; padding:calc(59px * var(--sps,1)) calc(13px * var(--sps,1)) calc(13px * var(--sps,1)); box-shadow:0 12px 48px rgba(0,0,0,.45); position:relative; }
+          #seFrameWrap.se-phone #seFrame{ border-radius:0 0 calc(34px * var(--sps,1)) calc(34px * var(--sps,1)); }
+          /* Dynamic Island — centred in the status-bar strip */
+          #seFrameWrap.se-phone::after{ content:''; position:absolute; top:calc(23px * var(--sps,1)); left:50%; transform:translateX(-50%); width:calc(90px * var(--sps,1)); height:calc(26px * var(--sps,1)); background:#000; border-radius:calc(16px * var(--sps,1)); z-index:5; pointer-events:none; }
+          /* Faux iOS status bar: sits at the top of the SCREEN (inset by the bezel),
+             rounded top corners to match the screen. Light bg = homepage top colour. */
           #sePhoneStatus{ display:none; }
-          /* Status bar background matches the homepage top colour (light #f8f8f8), like a
-             real iPhone — so the time/signal/battery render dark on the light bar. */
           #seFrameWrap.se-phone #sePhoneStatus{ display:flex; align-items:center; justify-content:space-between;
-            position:absolute; top:0; left:0; right:0; height:calc(46px * var(--sps,1)); box-sizing:border-box;
-            padding:calc(6px * var(--sps,1)) calc(34px * var(--sps,1)) 0; background:var(--se-status-bg,#f8f8f8);
+            position:absolute; top:calc(13px * var(--sps,1)); left:calc(13px * var(--sps,1)); right:calc(13px * var(--sps,1));
+            height:calc(46px * var(--sps,1)); box-sizing:border-box; border-radius:calc(34px * var(--sps,1)) calc(34px * var(--sps,1)) 0 0;
+            padding:calc(6px * var(--sps,1)) calc(28px * var(--sps,1)) 0; background:var(--se-status-bg,#f8f8f8);
             color:var(--se-status-fg,#11131a); z-index:4; pointer-events:none;
             font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif; font-weight:600; font-size:calc(15px * var(--sps,1)); }
           #sePhoneStatus .sps-r{ display:flex; align-items:center; gap:calc(6px * var(--sps,1)); }
@@ -1040,7 +1042,7 @@
         // Phone: fill the stage height so the device looks big — like holding a real phone.
         // Bezel: 13px sides/bottom; top reserves a ~46px status-bar zone (time/signal/battery).
         var BEZ_W = 26;   // 13px × 2 (left+right)
-        var BEZ_H = 59;   // 46px top status bar + 13px bottom
+        var BEZ_H = 72;   // 13px top bezel + 46px status bar + 13px bottom
         scale = Math.min(availH / (devH + BEZ_H), availW / (devW + BEZ_W), 1.6);
       } else {
         scale = Math.min(1, availW / devW);   // never enlarge past 100%
