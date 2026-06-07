@@ -78,7 +78,7 @@ nav.mega-open {
 }
 /* Logo TEXT: separate fixed element so mix-blend-mode blends at the stacking-context level */
 #navLogoFixed {
-  position: fixed; top: 30px; left: 90px; /* default: centres 17px text on 40px orb */
+  position: fixed; top: 33px; left: 96px; /* centres 17px text on the 46px orb (orb cy ≈ 41) */
   z-index: 201;
   mix-blend-mode: difference;
   color: #fff;
@@ -89,8 +89,8 @@ nav.mega-open {
   line-height: 1;
   transition: top 0.38s cubic-bezier(0.34,1.15,0.64,1);
 }
-/* On hover: two 17px lines + 3px gap = 37px; centre at orb Y=38 → top ≈ 19px */
-#navLogoFixed:hover { top: 19px; }
+/* On hover: two 17px lines + 3px gap = 37px; centre on the 46px orb (cy≈41) → top ≈ 22px */
+#navLogoFixed:hover { top: 22px; }
 .nav-logo-spacer { width: 180px; flex-shrink: 0; }
 
 /* ── Logo hover expand (OPUS.Z → + MUSIC) ── */
