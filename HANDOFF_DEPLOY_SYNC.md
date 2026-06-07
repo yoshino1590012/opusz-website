@@ -1,183 +1,203 @@
-# OPUS.Z — 部署 / 線上化 / 資料同步 交接文件 (DEPLOY & SYNC HANDOFF)
+# OPUS.Z — 系統交接手冊 (HANDBOOK / DEPLOY & SYNC)
 
-> **給下一個 Claude 視窗：先讀這份，再讀 `ADMIN_CMS_HANDOFF.md`（CMS 細節）。**
-> 這份專講「本地 ↔ 線上 怎麼接」：GitHub、Cloudflare、Firebase、網域、以及今天做的
-> `media-sync.js`（把只存在瀏覽器的照片搬上線）。
-> 業主（Martin / yoshino1590012）不是工程背景，回答請用中文、白話。
+> **給下一個接手的 Claude 視窗：先讀這份（全貌＋部署＋前後台串接），再讀 `ADMIN_CMS_HANDOFF.md`（CMS 細節）、`SECURITY-CHECKLIST.md`。**
+> 業主（Martin / yoshino1590012）不是工程背景 → 回答一律**中文、白話、給可執行步驟**。
+> 目標：讓這個系統「**能一直被傳承下去**」。看完這份你應該知道：平台在幹嘛、東西存在哪、怎麼上線、改東西要在哪改、哪裡有雷。
 
-日期：2026-06-04
+最後更新：2026-06-07
 
 ---
 
-## ⏩ RESUME HERE — 現況快照
+## 0. 我們在做什麼（平台定位）
+
+**OPUS.Z** = 一個媒合「**台灣頂尖（古典）音樂家**」與「**工作機會**」的平台。
+- 兩種核心服務：**演出**（live performance / 錄音 / 活動）＋ **教學**（音樂課程）。
+- **客戶端**：來找音樂家辦演出、錄音、活動，或找老師上課（首頁兩顆鈕 Find Artists / Create a Project）。
+- **音樂家端**：在「音樂家後台」(`musician-dashboard`) 編輯自己的公開檔案、報價、課程、海報投稿。
+- 品牌調性：**菁英、嚴選、頂尖**（不是「便宜」，是「最強的都在這」）。首頁主標語：**遇見台灣菁英音樂家 / Meet Taiwan's elite musicians.**
+- **沒有付費方案**（2026-06 移除）：所有音樂家功能一律平等，演出＋教學都能做；教學由每位音樂家自己開關。
+
+---
+
+## 1. ⏩ RESUME HERE — 現況快照
 
 **整體架構（誰負責什麼）：**
 | 角色 | 服務 | 說明 |
 |---|---|---|
-| 程式碼倉庫 / 備份 | **GitHub** `github.com/yoshino1590012/opusz-website`（branch `main`） | 所有 HTML/JS/CSS + 圖片檔 |
-| 線上主機 | **Cloudflare Pages** 專案 `opusz-website` → `opusz-website.pages.dev` | **push 到 GitHub main 就自動重新部署** |
+| 程式碼倉庫 / 備份 | **GitHub** `github.com/yoshino1590012/opusz-website`（branch `main`） | 所有 HTML/JS/CSS + 部分圖片檔 + `site-data.json`/`shows-data.json` |
+| 線上主機 | **Cloudflare Pages** 專案 `opusz-website` → `opusz-website.pages.dev` | **push 到 GitHub main 就自動重新部署**（約 30 秒～2 分） |
+| 正式網域 | **opuszmusic.com**（Porkbun 註冊、Cloudflare 管 DNS）| ✅ 已綁定、SSL 已簽發，正常運作 |
 | 資料庫 / 帳號 / 檔案 | **Firebase** 專案 `opusz-45280` | Firestore（資料）+ Storage（圖片/影片檔）+ Auth（登入） |
-| 網域 | **Porkbun** 註冊 `opuszmusic.com` | nameserver 已改成 Cloudflare |
-| 舊主機 | ~~Netlify~~ | 已棄用（點數用光），網站已搬離 |
+| 本機編輯伺服器 | **`server.py`**（在業主電腦跑 `python server.py 8080`）| 提供「檔案型」編輯：存圖到 `assets/images/`、寫 `site-data.json`/`shows-data.json`、一鍵 git-push |
 
-**目前可用：** 網站完整跑在 **https://opusz-website.pages.dev**（內容、照片都在）。
+**目前線上正常運作：** `https://opuszmusic.com`（首頁＝`musician-platform.html`）。
 
-**✅ 今天完成的大事：**
-1. **從 Netlify 搬到 Cloudflare Pages**（GitHub 連動、push 自動部署）。
-2. **`media-sync.js`**：解決「照片只存在瀏覽器 localStorage、線上看不到」的根本問題。已把 10 張本地照片搬上 Firebase，線上頁面自動還原顯示（blog 已驗證 ✓）。
-3. 後台「網站編輯」做成 **Shopify 式區段編輯器**（左清單 ↔ 右欄位 ↔ 中間藍框預覽）。
-4. 修好：後台預覽寬度（=真實螢幕）、後台中文亂碼、樂手後台預覽會跳到別頁的問題。
+**這次 session（2026-06-07）完成的大事（見 §9 變更紀錄）：**
+1. 首頁 Hero 重做（置中大標語＋品牌字＋黑白反轉）。
+2. **移除所有「前端網頁上」的編輯器**（按 P/Q/R/O）→ 編輯全部集中到「後台 Site Editor」。
+3. 後台 Site Editor 變成**多分頁**（首頁/部落格/音樂家/工作/演出/課程），預覽可自由導覽＋登入（跟前台一樣）。
+4. **演出頁海報編輯器**：每張海報＝圖＋資訊合一，可拖曳移位/大小/模糊/背景X-Y、拖照片上傳、**增減張數**；存到 Firebase（線上後台也能改）。
+5. **移除付費方案制度**（Basic/Premium、邀請碼、教學鎖、後台徽章全砍）。
+6. 修好音樂家後台「編輯主頁」預覽**無限重整**的 bug。
 
-**🔴 還沒做完（IMMEDIATE NEXT）：**
-1. ~~**`opuszmusic.com` 網域綁定**~~ ✅ **2026-06-04 已完成**：Cloudflare Pages → `opusz-website` → Custom domains 已加入 `opuszmusic.com`（自動建 CNAME `@` → `opusz-website.pages.dev`）。DNS 已生效、SSL 已簽發，`https://opuszmusic.com` 正常跳轉到 `/musician-platform`。（綁定當下本機 DNS 緩存還是舊 NXDOMAIN，需 flush 或等緩存過期才會在原電腦看到；其他裝置已可開。）可選後續：加 `www.opuszmusic.com`、把 `pages.dev` 設跳轉到正式網域。
-2. **逐頁驗證照片**：blog 已確認；還沒一一確認首頁、樂手檔案、音樂家列表、課程頁。
-3. **影片連結還沒搬**：`media-sync` 的一次性搬家只處理了 `data:` 圖片。像 `martin-showreel-videos`、`lessons-hero-video`、`mono-hero-video` 這些是 **Cloudinary 網址**存在 localStorage，**還沒搬到雲端** → 那些頁的影片線上可能還看不到（見下方「待辦：影片」）。
+**🔴 still open（見 §10 待辦）：** 演出頁「刪指定某張海報／拖曳排序」、音樂家後台手機預覽要加手機外框、Lessons 老師列表自動列出、子頁更多區段的圖片編輯、影片連結搬雲端。
 
 ---
 
-## 1. 三個「本地 = 線上」的機制（核心觀念）
+## 2. 🧠 最重要的觀念：兩種「存檔模型」（搞懂這個，90% 的困惑都解開）
 
-業主的鐵則：**本地看到的 = 線上看到的**。網站原本很多編輯器把資料存在瀏覽器
-`localStorage`（只存在「那一台瀏覽器 + 那一個網址」），所以線上看不到。解法是把資料
-搬到「共用空間」(Firebase)。目前有三套：
+網站的內容編輯，背後其實有**兩套不同的儲存方式**。**搞混它們 = 「我明明改了/刪了，線上卻沒變」**（業主最常踩的雷）。
 
-### (A) 首頁文字/媒體 CMS — `site-content.js` + `siteContent/home`
-- 後台「網站編輯 / Site Editor」(`admin-panel.html` 的 `#page-siteeditor`) 編輯 → 存 Firestore `siteContent/home`。
-- 公開頁 `musician-platform.html` 載入 `site-content.js` → 讀 `siteContent/home` → 套用
-  （i18n 文字 + `data-cms="key"` 直接通道：text/src/href/bg）。
-- 區段編輯器：主頁每個區段有 `data-cms-section="hero|services|work|showreel|about|blog|..."`；
-  後台預覽用 `?cmsedit=1` 進入編輯模式 → 點區段畫藍框 + 回報選取。
+### 模型 A — Firebase（雲端資料庫，線上後台就能存）
+- 存到 **Firestore** `siteContent/<page>`（文字 i18n、Hero 樣式、演出頁海報設定…）或 **Storage**（上傳的圖片→小網址）。
+- **在哪都能存**：只要用**管理者帳號登入** Firebase，連線上 `opuszmusic.com/admin-panel` 都能存、即時生效（公開頁靠 `site-content.js` 讀回來套用）。
+- 用在：首頁文字、Hero 樣式、合作廠商、**演出頁海報的「張數/位置/大小/模糊/文字/圖片網址」**、子頁文字。
 
-### (B) 全站「舊編輯器的照片」— `media-sync.js` + `siteContent/media`  ★今天新增★
-**問題**：blog、樂手檔案、客戶照、各服務圖…這些舊編輯器把圖存成 `data:` base64 放進
-`localStorage`（每個網址各自獨立）→ 線上是空的。
-**解法**（`media-sync.js`，已加在所有公開頁）：
-1. **還原（所有人）**：載入時讀 Firestore `siteContent/media`（一個 `{localStorage key → 值}` 的對照表），把缺的 key 寫回 `localStorage` → 頁面原本的顯示程式就會顯示圖。若有寫入則自動 reload 一次（`sessionStorage` 旗標防無限重載）。
-2. **自動發布（限管理者）**：攔截 `localStorage.setItem`，若值含 `data:image/video` → 上傳 Firebase Storage（`siteContent/media/<key>_<i>.<ext>`）→ 取得網址 → 把 localStorage 與 Firestore 對照表都換成網址。**以後換圖自動 local=live**。
-3. **一次性搬家**：`window.opzMigrateMedia()`（要先以管理者登入）把現有 localStorage 裡所有 `data:` 圖片一次全搬。今天已跑過，10 張全上去。
+### 模型 B — 檔案型（`server.py` + git，**只能在本機 localhost:8080 編輯**）
+- 上傳的圖存成**真實檔案** `assets/images/*.jpg`；版面設定寫進 `site-data.json`（首頁）/`shows-data.json`（演出頁）。
+- 這些都靠 **`server.py` 的端點**（`/upload-file`、`/save-config`、`/save-shows`、`/git-push`）。**線上沒有 server.py** → 在線上後台改這類東西**存不進去**。
+- 用在：**首頁的照片引擎**（主視覺14張、分類、海報、服務）＝ `opzEdit`；以及演出頁海報**圖片本身**的本機上傳備援。
+- **工作流程**：業主電腦跑 `python server.py 8080` → 開 `localhost:8080/admin-panel.html` 編 → 按發佈（git-push）→ 線上更新。
 
-> 重點：上傳/發布**只有管理者帳號**（Firebase auth = `tzutung.liao@gmail.com`）做得到，
-> 因為 Storage/Firestore 規則限定。一般訪客只會「還原讀取」，不會上傳。
-
-### (C) 樂手個人檔案 — `musicians/{uid}.config`（既有，非今天做）
-- `musician-dashboard.html` 的「編輯主頁」存 `musicians/{uid}.config`（Firestore）；
-  `musician-profile.html` 讀它。詳見 `ADMIN_CMS_HANDOFF.md` §2。
+> ⚠️ **黃金守則**：要改「**圖片檔本身/首頁照片/檔案型設定**」→ **去 `localhost:8080` 編、按發佈**。要改「**文字/演出頁海報設定**」→ 線上後台也能改（記得用管理者帳號登入 Firebase）。
+> 這次已把**演出頁海報的設定**改成走 Firebase（模型 A），所以線上後台刪/加/移海報會生效；但**換海報圖片**最好還是本機（會上傳成 Storage 小網址才不會塞爆 Firestore）。
 
 ---
 
-## 2. 部署流程（push → 自動上線）
+## 3. 編輯系統地圖（哪個東西在哪改）
 
-- **改完程式 → 要上線 → `git push origin main`** → Cloudflare Pages 自動偵測、重新部署
-  （約 1–2 分鐘）→ `opusz-website.pages.dev`（及綁定後的 `opuszmusic.com`）更新。
-- **圖片/Firestore 資料不需要 push**：那些直接寫進 Firebase，是即時的、跨裝置的。
-- 業主希望「改到一段落再統一上傳」→ 可考慮專開一個「上傳視窗」，要上線時在那邊喊
-  「上傳」，它就 `git add -A && commit && push`（push 前先列出改了哪些檔讓他確認）。
-- Cloudflare Pages 設定：framework=None、build command 空、output dir=根目錄。
-- **`_redirects`**（Cloudflare Pages 用）：`/ → /musician-platform.html 200`（首頁）。
+### (1) 後台 Site Editor — `admin-panel.html` `#page-siteeditor`（主力）
+- 左欄「**頁面 PAGES**」：首頁/部落格/音樂家/工作/演出/課程（`SE_PAGES`）。點頁面 → 中間預覽切到該頁（iframe 載 `<page>?cmsedit=1`）＋ 左下「區段 SECTIONS」換成該頁的（`SE_SECTIONS_BY_PAGE`）。
+- 中間 = **真實預覽 iframe**（可像前台一樣導覽、登入）。`seSetDevice` 切螢幕尺寸（會用該頁網址重載 iframe 以取得正確 RWD 版型）。
+- 右欄 = 該區段的可編輯欄位。依頁面/區段不同：
+  - **首頁** → 用固定 schema `SE_FIELDS`（文字 i18n）＋ `SE_ENGINE_GROUP`（圖片走 `opzEdit` 引擎，見 (2)）＋ 合作廠商自訂清單。
+  - **演出頁「海報」** → 專屬控制 `seBuildShowsPoster`（驅動 `opzShows`，見 (3)）。
+  - **其他子頁** → **通用自動編輯器** `seBuildAutoControls`：掃描該區段 DOM，自動列出「文字(data-i18n)／圖片／影片／連結」變成欄位（見 (4)）。
+- **儲存/發佈**：「儲存文字」→ 寫 `siteContent/<page>`（Firebase）。「🚀 儲存並發布到網站」→ 文字存 Firebase ＋ 呼叫該頁引擎的 `publish()` 做 git-push（首頁=`opzEdit.publish`、演出=`opzShows.publish`，需本機 server.py）。
+
+### (2) 首頁照片引擎 `window.opzEdit`（在 `musician-platform.html`，模型 B）
+- 管首頁所有照片：主視覺 14、分類 6、作品/海報 3、服務 5、部落格 4。每格有 `{x,y,zoom,url}`，存 `site-data.json` + `assets/images/`，靠 server.py。
+- 後台透過 iframe 呼叫 `opzEdit.list/setFrame/setImageFile/publish` 來遙控它（這樣前端不用自己的浮動編輯器）。
+
+### (3) 演出頁海報引擎 `window.opzShows`（在 `shows.html`）
+- 每張海報 `{url,x,y,scale,blur,bgX,bgY}` ＋ 前景圖位置/大小、**背景模糊海報的模糊度＋X/Y**。
+- `add/removeLast/applyConfig/setFrame/setImageUrl/setImageFile/publish`。
+- **雙存**：圖片本身→server.py(`shows-data.json`)；但**整體設定（張數+位置+模糊+圖片網址）也存 Firebase** `siteContent/shows.posters`，由 `site-content.js` 在線上頁面 `opzShows.applyConfig()` 套用 → **線上後台改海報會生效**。
+- 海報文字（姓名/標題/場地/曲目）目前走 i18n（`show.N.*`，index 綁定）→ 這是「刪指定/排序」還沒做的原因（見 §10）。
+
+### (4) 通用自動編輯器（子頁文字/連結/媒體）
+- `seBuildAutoControls` 掃描區段內 `[data-i18n]`（文字 EN/中）＋ `img/video/a`（媒體/連結，依 DOM 順序 index）。
+- 存 `siteContent/<page>`：文字→`.i18n`，媒體/連結→`.auto[]`（`{sec,kind,idx,v,pos,zoom}`）。`site-content.js` 套用。
+- 要讓子頁某段可編輯：① 該頁 `<html data-cms-page="...">` ② 載入 `site-content.js` ③ 區段加 `data-cms-section="..."` ④ 後台 `SE_SECTIONS_BY_PAGE` 加該區段。**演出頁已示範**；其他子頁照這個模式接。
+
+### (5) 公開頁渲染器 `site-content.js`（所有公開頁都載）
+- 開機讀 `siteContent/<page>`（`data-cms-page` 決定 page，預設 home）→ 套用：i18n 文字、`data-cms` 媒體、`cfg.auto` 通用媒體、`cfg.posters`（演出頁海報）、Hero 樣式（位置/品牌色/按鈕/玻璃）等。
+- 也提供**編輯模式** `?cmsedit=1`：區段藍框 highlight、點區段回報後台、放行導覽（連結會自動帶 `cmsedit=1`）。
+
+### (6) `media-sync.js`（舊編輯器照片的雲端橋）
+- 把舊的 `localStorage` base64 照片還原/發布到 Firebase `siteContent/media`。所有公開頁都載。`window.opzMigrateMedia()` 一次性搬家（需管理者登入）。
+
+### (7) 音樂家後台 `musician-dashboard.html`（音樂家自己編）
+- 「編輯主頁」即時預覽 iframe = `musician-profile.html?edit=1&uid=<自己>`，存 `musicians/{uid}.config`（Firebase）。
+- 已移除付費方案；教學 = 每人自行開「顯示課程方案」。
 
 ---
 
-## 3. 帳號 / 存取（給接手者）
+## 4. 部署流程（push → 自動上線）
+
+- **改程式碼 → 上線**：`git push origin main` → Cloudflare Pages 自動重建（約 30 秒～2 分）。
+- **改 Firebase 資料（文字/海報設定/音樂家檔案）**：即時生效、跨裝置，**不需 push**。
+- **改檔案型內容（首頁照片/`*-data.json`）**：在 `localhost:8080` 編 → 按發佈（server.py 會寫檔 + git-push）。
+- Cloudflare Pages 設定：framework=None、build command 空、output dir=根目錄。`_redirects`：`/ → /musician-platform.html 200`。
+- **本機跑站**：`python server.py 8080` 後開 `http://localhost:8080/`（**一定要透過 server.py**，否則檔案型上傳/發佈端點不存在）。
+
+---
+
+## 5. 帳號 / 存取
 
 - **GitHub**：`github.com/yoshino1590012/opusz-website`，branch `main`。
-- **Cloudflare**：帳號 `Yoshino1590012@gmail.com`；account id `a9c9efa2ee4f1d201b360e21f5c32bfa`；
-  Pages 專案 `opusz-website`。
+- **Cloudflare**：帳號 `Yoshino1590012@gmail.com`；account id `a9c9efa2ee4f1d201b360e21f5c32bfa`；Pages 專案 `opusz-website`。
 - **Firebase** 專案 `opusz-45280`：
-  - 管理者帳號（有寫入權）：**`tzutung.liao@gmail.com`**，密碼 **[已移除 — 不寫在 repo 裡，請向業主索取]**（uid `qR8q45IUgpSg8lcMeHtHqmngy9e2`）。
-  - 業主個人帳號：`yoshino1590012@gmail.com`（**沒有** siteContent 寫入權）。
-  - 要上傳/發布前，務必在 `localhost:8080/admin-login.html` 用**管理者帳號**登入
-    （它會 `signInWithEmailAndPassword` 建立 Firebase 管理者 session）。
-- **Porkbun**：註冊商，管理 `opuszmusic.com`（nameserver 已指向 Cloudflare）。
+  - 管理者（有 `siteContent` 寫入權）：**`tzutung.liao@gmail.com`**，密碼**請向業主索取（不寫進 repo）**，uid `qR8q45IUgpSg8lcMeHtHqmngy9e2`。
+  - 編輯/發佈前在 `admin-login.html` 用**管理者帳號**登入（建立 Firebase session）。`opusz_admin_loggedIn` 只是 UI 門禁，**不等於** Firebase 登入。
+- **Porkbun**：管 `opuszmusic.com`（nameserver 指向 Cloudflare：`darl`/`jamie`.ns.cloudflare.com）。
 
-### Firebase 安全規則（目前狀態，已發布）
-- **Firestore**：`match /siteContent/{page} { allow read: if true; allow write: if request.auth != null && request.auth.token.email == 'tzutung.liao@gmail.com'; }`（`siteContent/home`、`siteContent/media` 都適用）。`musicians`/`customers` 既有規則未動。
-- **Storage**：
-  - `match /siteContent/{allPaths=**} { allow read: if true; allow write: if ...== 'tzutung.liao@gmail.com'; }` ← 上傳的媒體放這（`siteContent/media/*`）。
-  - `match /musicians/{uid}/{allPaths=**} { allow read: if true; allow write: if request.auth.uid == uid; }`（既有）。
-- 👉 因為媒體上傳走 `siteContent/media/*`、管理者是 tzutung，**不需要再改任何規則**。
+### Firebase 安全規則（現狀）
+- Firestore：`match /siteContent/{page}` → 任何人可讀；只有 `tzutung.liao@gmail.com` 可寫。`musicians`/`customers` 各有既有規則（音樂家寫自己的）。
+- Storage：`siteContent/{**}` 公開讀、管理者寫（上傳媒體放這）；`musicians/{uid}/{**}` 公開讀、本人寫。
+- 👉 媒體上傳走 `siteContent/*` 路徑、管理者是 tzutung，**通常不需改規則**。
 
 ---
 
-## 4. 網域 `opuszmusic.com` 收尾（最重要的待辦）
+## 6. 關鍵檔案
 
-現況：nameserver 已是 Cloudflare（`darl.ns.cloudflare.com` / `jamie.ns.cloudflare.com`），
-zone 已 active，但**還沒在 Pages 綁定**，所以沒有指向紀錄 → NXDOMAIN。
-
-**收尾步驟：**
-1. Cloudflare 後台 → Workers & Pages → `opusz-website` → **Custom domains** 分頁
-   → **Set up a custom domain** → 輸入 `opuszmusic.com` → Continue（zone 已在同帳號，會自動建 CNAME）。
-2. 等 SSL 憑證簽發（約 5–30 分鐘）→ `opuszmusic.com` 就會指向網站。
-3. （可選）也加 `www.opuszmusic.com`；或把 `pages.dev` 設跳轉到正式網域。
-
-**踩過的雷：**
-- nameserver 是 **`jamie`**（j-a-mie）不是 jemie——別打錯，Porkbun 會回「unable to assign（typo）」。
-- 之前在 Cloudflare 已把舊 Netlify 的 A 紀錄刪掉、改 nameserver、Porkbun 存檔成功。
+- `musician-platform.html`（首頁，~330KB）：Hero、各區段（`data-cms-section`）、首頁照片引擎 `opzEdit`、`server.py` 同步、i18n。**頁面最上方有一段攔截 P/Q/R/O 快捷鍵的程式（前端編輯器已退役）**。
+- `shows.html`（演出頁）：海報引擎 `opzShows`、`data-cms-page="shows"`、`site-content.js`、區段 `sh-hero`/`sh-poster`/`sh-info`。
+- `admin-panel.html`（管理者後台）：多分頁 Site Editor（`SE_PAGES`/`SE_SECTIONS_BY_PAGE`/`seBuildControls`/`seBuildAutoControls`/`seBuildShowsPoster`）、音樂家管理（已無方案徽章）。
+- `site-content.js`：公開頁渲染器（讀 Firebase 套用）＋ 編輯模式。
+- `media-sync.js`：舊照片雲端橋。
+- `musician-dashboard.html` / `musician-profile.html`：音樂家後台/公開檔案（已移除方案）。
+- `blog.html`：部落格（另一條線做了 banner/封面可編輯，`data-cms-section="blog-hero"/"blog-list"`）。
+- `server.py`：本機編輯伺服器（端點：`/upload-file /save-config /save-shows /save-videos /git-push /submit-application /update-application /get-applications`）。
+- `site-data.json` / `shows-data.json`：首頁/演出頁的檔案型設定（會被 git 追蹤＝部署）。
+- `_redirects`、`.gitignore`（排除 >25MB 大檔；那些影片走 Cloudinary）。
 
 ---
 
-## 5. 重要雷區 / 為什麼有些事卡住（省下大量時間）
+## 7. 🚧 雷區（省下大量時間）
 
-- **localStorage 是「每個網址各自獨立」**：`file://`、`localhost:8080`、`opusz-website.pages.dev`
-  三個是**不同的儲存空間**。業主的照片在 **`localhost:8080`** 的 localStorage（不是 file://）。
-  搬家/驗證都要在 `localhost:8080` 做。這也是 `media-sync.js` 存在的原因。
-- **發布媒體要先用管理者登入**（Firebase = tzutung），否則 Storage/Firestore 寫入被拒。
-  用 localStorage 旗標 `opusz_admin_loggedIn` 只是 UI 門禁，**不等於** Firebase 登入。
-- **Cloudflare Pages 單檔 ≤ 25 MiB**：之前 build 失敗就是 repo 有 >25MB 的大影片
-  （`assets/images/Video Exhibition/*`、`assets/videos/hero-scrub*.mp4`）。已 `git rm --cached`
-  + 加進 `.gitignore`（本機保留、不上 repo；那些檔沒被網站引用，影片走 Cloudinary）。
-- **大小寫敏感**：macOS 本機不分大小寫，Cloudflare(Linux) 分。路徑大小寫要對。
-- **Cloudflare 儀表板有時超慢/轉圈圈**：不是壞掉，重整幾次或等一下。
-- **用 Claude-in-Chrome 操作時的工具限制**（接手者注意）：
-  - `javascript_tool`/`eval` 單次回傳有上限（幾 KB）→ **不能**用它把大圖 base64 讀出來。
-  - 瀏覽器「自動下載多檔」會跳權限（在網址列，頁面層工具點不到）→ 不能靠連續下載搬圖。
-  - 所以搬大量媒體要走 **瀏覽器直接上傳 Firebase**（`media-sync` 的做法），不要走 eval/下載。
-  - 改 Firebase 安全規則 = 動「存取控制」，**業主不在時不要自己改**；今天靠「用管理者登入 +
-    走既有規則允許的 `siteContent/*` 路徑」避開了改規則。
+1. **「我改了線上卻沒變」** → 99% 是搞錯**存檔模型**（§2）。圖片/首頁照片/`*-data.json` 要在 `localhost:8080` 編＋發佈；文字/海報設定線上後台可改（要 Firebase 管理者登入）。
+2. **多個 Claude 視窗同時改同一個檔 = 會互相覆蓋！** 這次就發生過（admin-panel.html / site-content.js 被兩邊改）。規則：**同一個檔一次只給一個視窗改**；每次 Edit 前先重讀；commit 前 `git pull --rebase`。若分工，請按「檔案」分，不要兩人動同一檔。
+3. **base64 不能寫進 Firestore**：圖片要先上傳 Firebase Storage 變小網址再存設定，否則 `invalid-argument`（文件 >1MB）。演出頁上傳已走 Storage；存檔前也會過濾掉 `data:`。
+4. **localStorage 是「每個網址各自獨立」**：`localhost:8080` 和 `opuszmusic.com` 是不同儲存空間。
+5. **Cloudflare 單檔 ≤ 25 MiB**：大影片別進 repo（已 gitignore），走 Cloudinary。
+6. **大小寫敏感**：macOS 本機不分、Cloudflare(Linux) 分，路徑大小寫要對。
+7. **發佈端點在線上會 404**（沒 server.py）：所以「發佈照片」按鈕在線上對檔案型內容無效；文字仍會存 Firebase。
+8. **驗證程式**：本機沒有 node；可用 `jsc`（`/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc`）做 `new Function(src)` 純語法檢查（記得先剝掉 `import` 行）。預覽工具（Claude Preview）會用自己的 server，cwd 可能在家目錄，要導到 `/opusz-website/...`；且**無法穩定重現首頁/演出頁的捲動動畫**，動畫類改動請業主在真站確認。
 
 ---
 
-## 6. 今天改/加的關鍵檔案
+## 8. 業主白話名詞
 
-- `media-sync.js`（**新**）：上述 (B) 機制；含 `window.opzMigrateMedia()`。已 include 在
-  所有公開頁（`musician-platform / blog / blog-* / shows / musicians / lessons /
-  musician-profile / customer-profile / recent-jobs / contact / favourites`）。
-- `site-content.js`：加了 `data-cms` 的 `src` 對 `<video>` reload、編輯模式
-  (`?cmsedit=1`) 的藍框 highlight + 點區段回報。
-- `admin-panel.html`：Site Editor 區段選單（`SE_SECTIONS`/`seSelectSection`/`seHighlight`）、
-  媒體欄位 + 上傳到 Firebase Storage、預覽寬度=真實螢幕、中文亂碼修正。
-- `musician-platform.html`：區段加 `data-cms-section`、媒體加 `data-cms`（work bg / showreel src）。
-- `musician-dashboard.html`：`pbLockPreviewNav()` 鎖住「編輯主頁」預覽不被點去別頁。
-- `_redirects`（新，Cloudflare）、`.gitignore`（排除大檔）。
+- **GitHub**＝程式碼雲端倉庫＋備份。**push**＝把改好的檔上傳 GitHub（沒 push 線上不會更新）。
+- **Cloudflare Pages**＝把網站放上網的主機，收到 GitHub 更新就自動重做。
+- **Firebase**＝Google 後端：Firestore(資料庫文字/設定)、Storage(圖片影片檔)、Auth(登入)。
+- **server.py**＝你電腦上的小幫手程式，負責把「照片存成檔案、寫設定檔、一鍵上傳」；**要先打開它（localhost:8080）**才能改照片那類東西。
+- **兩種存檔**＝① 文字/海報設定 → 存雲端(Firebase)，線上後台就能改；② 照片檔/首頁照片 → 存成檔案，要在你電腦 localhost:8080 改完按發佈。
 
 ---
 
-## 7. 待辦清單（建議順序）
+## 9. 變更紀錄 (CHANGELOG)
 
-1. **綁定 `opuszmusic.com`**（§4）→ 讓正式網域通。
-2. **逐頁驗證照片**：開 `opusz-website.pages.dev` 的首頁/樂手檔案/音樂家/課程頁，確認 media-sync 還原的圖都在；缺的話檢查該頁 localStorage key 有沒有在 `siteContent/media`。
-3. **搬「影片連結」**：`opzMigrateMedia()` 只搬了 `data:` 圖。影片是 Cloudinary 網址存在
-   localStorage（`martin-showreel-videos`、`lessons-hero-video`、`mono-hero-video`、`mono-vid-*` 等）。
-   要嘛擴充 `media-sync` 把這些「URL 值的 media key」也納入 `siteContent/media`，要嘛手動把
-   它們的值寫進 `siteContent/media`。（值本身是可跨網域的網址，搬上去即可。）
-4. **未轉 Firestore 的功能**（見 `ADMIN_CMS_HANDOFF.md` §5.1）：詢問訊息、課程預約、收藏等仍 localStorage。
-5. 之後可考慮：把後台「網站編輯」擴到更多區段/子頁（schema-driven）。
-
----
-
-## 8. 白話名詞解釋（給業主 Martin）
-
-- **GitHub**：你網站程式碼的「雲端倉庫＋備份」，存每一版歷史。
-- **push（推上去）**：把你電腦改好的檔案上傳到 GitHub。**Cloudflare 只看 GitHub 來產生線上網站**，所以沒 push＝線上不會更新。
-- **Cloudflare Pages**：幫你把網站「放上網」的主機（取代 Netlify）。一收到 GitHub 更新就自動重做網站。
-- **Firebase**：Google 的後端服務。三塊：**Firestore**＝資料庫（文字/設定）、**Storage**＝放圖片影片檔、**Auth**＝登入。
-- **localStorage**：瀏覽器自己的小倉庫，**只存在「這台瀏覽器＋這個網址」**。所以本地設的圖，換到線上網址就看不到——這是今天問題的根源。
-- **media-sync**：今天做的橋樑，把 localStorage 的圖自動搬到 Firebase，讓線上也看得到，以後換圖也自動同步。
-- **nameserver / DNS**：網域的「總機」，決定 `opuszmusic.com` 指到哪台主機。已從 Netlify 改指到 Cloudflare。
-- **NXDOMAIN**：瀏覽器說「找不到這個網域」。因為最後一步（在 Cloudflare 綁定）還沒做。
+- **2026-06-07（這次 session）**
+  - 首頁 Hero 重做：置中大標語「遇見台灣菁英音樂家」＋副標＋品牌字 OPUS.Z（升起動畫、純黑/可調色）、文字 `mix-blend-mode` 黑白反轉。
+  - 移除前端所有編輯器（P 照片/Q 版面/R 預覽/O 跳轉）；編輯全集中後台。
+  - 後台 Site Editor → **多分頁**（6 頁）；預覽可自由導覽＋登入（`site-content.js` 編輯模式放行導覽、帶 `cmsedit=1`）。
+  - **演出頁海報編輯器**：圖＋資訊合一卡、拖曳移位/大小/模糊/背景XY、拖照片上傳(→Storage)、增減張數；設定存 Firebase `siteContent/shows.posters` → 線上後台可改。中間海報放大、左側資訊放大右移。
+  - 通用自動編輯器（子頁掃描 data-i18n/媒體/連結）。
+  - **移除付費方案**：方案頁/側欄/邀請碼/教學鎖/後台 Tier 徽章/公開頁 premium gate 全砍；人人可演出＋教學，教學每人自行開關。
+  - 修音樂家後台「編輯主頁」預覽無限重整（用 uid 載入＋一次性 snap-back 防迴圈）。
+  - 清除三頁假音樂家「Martin」（musicians/lessons/favourites）。
+  - （另一條線並行）部落格頁可編輯、海報投稿(musician dashboard/admin inbox)、Hero 按鈕玻璃質感。
+- **2026-06-04**：搬到 Cloudflare Pages；`media-sync.js`；Shopify 式區段編輯器；綁定 `opuszmusic.com`。
 
 ---
 
-## 9. PROGRESS LOG
-- 2026-06-04：搬到 Cloudflare Pages；建 `media-sync.js` 並把 10 張本地照片搬上 Firebase
-  （blog 線上驗證 ✓）；Shopify 式區段編輯器；多項後台修正。
-  待辦：opuszmusic.com 綁定、逐頁驗證、搬影片連結。
+## 10. 待辦 (TODO，建議順序)
+
+1. **演出頁海報「刪指定某張 / 拖曳排序」**（目前只能刪最後一張）：需把海報文字從 index 綁定的 i18n 改成「綁進每張海報的資料(`posters[].text`)」，這樣刪中間/換序文字才不會錯位（在 `shows.html` 的 `opzShows`：讓 `applyAll` 由 `ST.shows[i]` 直接渲染文字；`removeAt(i)`/`move(i,dir)` = 陣列操作 + 重畫）。
+2. **音樂家後台手機預覽加「手機外框」**：抄 `admin-panel.html` 的 `#seFrameWrap.se-phone`（邊框＋瀏海）到 `musician-dashboard` 的 `pbFrameInner`，在 `pbSetDevice('mobile')` 時加 class。
+3. **Lessons 老師列表自動列出**：從 Firestore 撈 `config.lessons.visible` 的音樂家列到 `lessons.html`（目前該頁是空的）。
+4. **子頁更多區段可編輯**：照 §3(4) 模式，給 blog/musicians/jobs/lessons 的各區段加 `data-cms-section` + `SE_SECTIONS_BY_PAGE`。
+5. **影片連結搬雲端**：`mono-hero-video`/`lessons-hero-video`/`martin-showreel-videos`/`mono-vid-*`（Cloudinary 網址存 localStorage）→ 納入 `siteContent/media` 或各頁 config。
+6. 未轉 Firestore 的功能（詢問訊息、課程預約、收藏）仍 localStorage（見 `ADMIN_CMS_HANDOFF.md`）。
+
+---
+
+## 11. 給接手 Claude 的開場 SOP
+1. 讀本檔 → `ADMIN_CMS_HANDOFF.md` → `SECURITY-CHECKLIST.md`。
+2. 確認 `git status` 乾淨、`git log` 看最近進度；本機 `python server.py 8080` 是否在跑。
+3. 動工前先判斷：這次要改的是**模型 A(Firebase)** 還是 **模型 B(檔案型)**？要不要 server.py？
+4. **確認沒有別的視窗在改同一個檔**（問業主）。改前重讀、改後 `pull --rebase` 再 push。
+5. 動畫/版面類改動，自己無法用工具完全驗證 → 請業主在真站確認，並用 `jsc` 做語法檢查避免推壞。
+6. 回業主一律中文白話＋可執行步驟。
