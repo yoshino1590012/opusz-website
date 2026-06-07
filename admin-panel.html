@@ -697,12 +697,17 @@
           #seFrameWrap.se-phone::after{ content:''; position:absolute; top:calc(13px * var(--sps,1)); left:50%; transform:translateX(-50%); width:calc(90px * var(--sps,1)); height:calc(26px * var(--sps,1)); background:#000; border-radius:calc(16px * var(--sps,1)); z-index:5; pointer-events:none; }
           /* Faux iOS status bar: time (left) · signal/wifi/battery (right) */
           #sePhoneStatus{ display:none; }
+          /* Status bar background matches the homepage top colour (light #f8f8f8), like a
+             real iPhone — so the time/signal/battery render dark on the light bar. */
           #seFrameWrap.se-phone #sePhoneStatus{ display:flex; align-items:center; justify-content:space-between;
             position:absolute; top:0; left:0; right:0; height:calc(46px * var(--sps,1)); box-sizing:border-box;
-            padding:calc(6px * var(--sps,1)) calc(34px * var(--sps,1)) 0; color:#fff; z-index:4; pointer-events:none;
+            padding:calc(6px * var(--sps,1)) calc(34px * var(--sps,1)) 0; background:var(--se-status-bg,#f8f8f8);
+            color:var(--se-status-fg,#11131a); z-index:4; pointer-events:none;
             font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif; font-weight:600; font-size:calc(15px * var(--sps,1)); }
           #sePhoneStatus .sps-r{ display:flex; align-items:center; gap:calc(6px * var(--sps,1)); }
           #sePhoneStatus svg{ height:calc(12px * var(--sps,1)); width:auto; display:block; }
+          #sePhoneStatus svg [fill="#fff"]{ fill:currentColor; }
+          #sePhoneStatus svg [stroke="#fff"]{ stroke:currentColor; }
         </style>
         <div class="page-header" style="margin-bottom:12px;">
           <h1>網站編輯 / Site Editor</h1>
