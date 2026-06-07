@@ -690,21 +690,19 @@
           .se-dev-btn.active{ background:#111;color:#fff;border-color:#111; }
           /* iPhone-style frame — bezel/radius/island all scale together via --sps,
              so the whole phone enlarges in proportion (not just the screen). */
-          /* top padding is larger to RESERVE the iOS status-bar zone (time/signal/battery) */
-          /* Uniform 13px black bezel; top reserves 13px bezel + a 46px status-bar strip
-             that lives INSIDE the screen (so the black frame wraps all four edges). */
-          #seFrameWrap.se-phone{ box-sizing:content-box !important; background:#111 !important; border-radius:calc(46px * var(--sps,1)) !important; padding:calc(59px * var(--sps,1)) calc(13px * var(--sps,1)) calc(13px * var(--sps,1)); box-shadow:0 12px 48px rgba(0,0,0,.45); position:relative; }
-          #seFrameWrap.se-phone #seFrame{ border-radius:0 0 calc(34px * var(--sps,1)) calc(34px * var(--sps,1)); }
-          /* Dynamic Island — centred in the status-bar strip */
-          #seFrameWrap.se-phone::after{ content:''; position:absolute; top:calc(23px * var(--sps,1)); left:50%; transform:translateX(-50%); width:calc(90px * var(--sps,1)); height:calc(26px * var(--sps,1)); background:#000; border-radius:calc(16px * var(--sps,1)); z-index:5; pointer-events:none; }
-          /* Faux iOS status bar: sits at the top of the SCREEN (inset by the bezel),
-             rounded top corners to match the screen. Light bg = homepage top colour. */
+          /* Uniform 13px black bezel on all sides. The screen (status bar + iframe)
+             together equal the device height, so the phone keeps the real iPhone aspect. */
+          #seFrameWrap.se-phone{ box-sizing:content-box !important; background:#111 !important; border-radius:calc(46px * var(--sps,1)) !important; padding:calc(13px * var(--sps,1)); box-shadow:0 12px 48px rgba(0,0,0,.45); position:relative; }
+          #seFrameWrap.se-phone #seFrame{ border-radius:0 0 calc(34px * var(--sps,1)) calc(34px * var(--sps,1)); display:block; }
+          /* Dynamic Island — centred in the status bar */
+          #seFrameWrap.se-phone::after{ content:''; position:absolute; top:calc(24px * var(--sps,1)); left:50%; transform:translateX(-50%); width:calc(90px * var(--sps,1)); height:calc(26px * var(--sps,1)); background:#000; border-radius:calc(16px * var(--sps,1)); z-index:5; pointer-events:none; }
+          /* Faux iOS status bar: the top strip OF the screen (in-flow above the iframe),
+             counted within the device height. Light bg = homepage top colour. */
           #sePhoneStatus{ display:none; }
-          #seFrameWrap.se-phone #sePhoneStatus{ display:flex; align-items:center; justify-content:space-between;
-            position:absolute; top:calc(13px * var(--sps,1)); left:calc(13px * var(--sps,1)); right:calc(13px * var(--sps,1));
-            height:calc(46px * var(--sps,1)); box-sizing:border-box; border-radius:calc(34px * var(--sps,1)) calc(34px * var(--sps,1)) 0 0;
-            padding:calc(6px * var(--sps,1)) calc(28px * var(--sps,1)) 0; background:var(--se-status-bg,#f8f8f8);
-            color:var(--se-status-fg,#11131a); z-index:4; pointer-events:none;
+          #seFrameWrap.se-phone #sePhoneStatus{ display:flex; align-items:center; justify-content:space-between; flex:none;
+            height:calc(44px * var(--sps,1)); width:100%; box-sizing:border-box; border-radius:calc(34px * var(--sps,1)) calc(34px * var(--sps,1)) 0 0;
+            padding:calc(4px * var(--sps,1)) calc(28px * var(--sps,1)) 0; background:var(--se-status-bg,#f8f8f8);
+            color:var(--se-status-fg,#11131a); position:relative; z-index:4; pointer-events:none;
             font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif; font-weight:600; font-size:calc(15px * var(--sps,1)); }
           #sePhoneStatus .sps-r{ display:flex; align-items:center; gap:calc(6px * var(--sps,1)); }
           #sePhoneStatus svg{ height:calc(12px * var(--sps,1)); width:auto; display:block; }
@@ -1040,15 +1038,16 @@
       var scale;
       if(name==='phone'){
         // Phone: fill the stage height so the device looks big — like holding a real phone.
-        // Bezel: 13px sides/bottom; top reserves a ~46px status-bar zone (time/signal/battery).
-        var BEZ_W = 26;   // 13px × 2 (left+right)
-        var BEZ_H = 72;   // 13px top bezel + 46px status bar + 13px bottom
-        scale = Math.min(availH / (devH + BEZ_H), availW / (devW + BEZ_W), 1.6);
+        // Uniform 13px bezel. The status bar is counted INSIDE the device height (the
+        // iframe is shortened by it), so the screen keeps the real iPhone aspect ratio.
+        var BEZEL = 26;   // 13px × 2 on each axis
+        scale = Math.min(availH / (devH + BEZEL), availW / (devW + BEZEL), 1.6);
       } else {
         scale = Math.min(1, availW / devW);   // never enlarge past 100%
       }
+      var SE_STATUSBAR = 44;  // status-bar height (device px), part of the screen
       ifr.style.width  = devW + 'px';
-      ifr.style.height = devH + 'px';
+      ifr.style.height = (name==='phone' ? (devH - SE_STATUSBAR) : devH) + 'px';
       ifr.style.transform = 'scale(' + scale + ')';
       // wrapper takes the SCALED size so the layout reserves the right space
       wrap.style.width  = Math.round(devW * scale) + 'px';
