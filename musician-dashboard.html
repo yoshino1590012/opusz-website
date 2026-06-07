@@ -1399,7 +1399,7 @@
             </div>
             <div class="pb-frame-wrap">
               <div class="pb-frame-inner" id="pbFrameInner">
-                <iframe id="pbPreview" src="musician-profile.html?edit=1" style="width:100%;height:100%;border:0;"></iframe>
+                <iframe id="pbPreview" src="about:blank" style="width:100%;height:100%;border:0;"></iframe>
               </div>
             </div>
           </div>
@@ -1797,6 +1797,13 @@
     }
     _currentUser = user;
     window._tourUid = user.uid;   // per-user key for the onboarding tour
+    window.__pbUid = user.uid;    // used by the live-preview iframe + snap-back
+    // Load the preview as THIS musician's own profile. Without the uid the profile
+    // page redirects on load, which fought the snap-back guard → infinite reload.
+    try{
+      var _pf = document.getElementById('pbPreview');
+      if(_pf){ _pf.__pbSnapped = false; _pf.src = 'musician-profile.html?edit=1&uid=' + encodeURIComponent(user.uid); }
+    }catch(e){}
 
     // Load profile from Firestore
     try {
@@ -2698,11 +2705,18 @@
   function pbLockPreviewNav(frame){
     try{
       var win = frame.contentWindow, doc = frame.contentDocument;
-      if(win && win.location && win.location.pathname &&
-         win.location.pathname.indexOf('musician-profile.html') === -1){
-        frame.src = 'musician-profile.html?edit=1';   // navigated away → restore own profile
+      var path = (win && win.location && win.location.pathname) || '';
+      // Ignore blank / initial / mid-load states — resetting then would reload forever.
+      if(!path || path === '/' || path === 'about:blank' || path.indexOf('blank') !== -1) return;
+      if(path.indexOf('musician-profile.html') === -1){
+        // Navigated away. Snap back to the owner's profile ONCE — a one-shot guard so
+        // that if the target itself redirects, we never loop (was the reload bug).
+        if(frame.__pbSnapped) return;
+        frame.__pbSnapped = true;
+        frame.src = 'musician-profile.html?edit=1' + (window.__pbUid ? ('&uid=' + encodeURIComponent(window.__pbUid)) : '');
         return;
       }
+      frame.__pbSnapped = false;   // safely back on the profile → re-arm the guard
       if(doc && !doc.__pbNavLocked){
         doc.__pbNavLocked = true;
         doc.addEventListener('click', function(e){
