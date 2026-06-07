@@ -375,6 +375,42 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   border-top: 0; border-bottom: 0;
 }
 
+/* ── MOBILE HERO (phone preview ≈390px) ──
+   Long names were being clipped at the right edge. On phones:
+   • shrink the big name and let it WRAP to two lines, left-aligned,
+     with a right-edge gutter so nothing runs off screen;
+   • nudge the name + info closer to the left edge (gap was too wide);
+   • flatten the banner a touch;
+   • lift the info block (title / reviews / city) so it always sits
+     ABOVE the (now possibly two-line) name. */
+@media(max-width:480px){
+  /* banner a little flatter, but still leaves room for the name overlay */
+  .hero{ height:40vh; min-height:320px; }
+
+  /* Hug one line; a longer name wraps to two and spills UP (hero clips the
+     sides, so the off-screen animation copy stays hidden). */
+  .hero-name{ height:64px; overflow:visible; }
+  .hero-name span{
+    font-size: clamp(44px, 15vw, 60px);
+    line-height: 0.9;
+    white-space: normal;       /* allow wrapping instead of nowrap */
+    letter-spacing: -0.02em;
+  }
+  /* move left + cap width so the right edge always has a gutter */
+  .hn-new{ left:18px;  max-width: calc(100% - 36px); }
+  .hn-orig{ right:18px; max-width: calc(100% - 36px); }
+
+  /* sit snug just above the name, flush to the same left edge */
+  .hero-info{
+    bottom:70px;
+    left:18px;
+    max-width: calc(100% - 36px);
+  }
+  .info-title{ font-size:15px; margin:0 0 8px 0; }
+  .info-rating{ margin-bottom:6px; }
+  .info-location{ font-size:15px; }
+}
+
 
 
 /* ── SECTIONS BELOW HERO ── */
