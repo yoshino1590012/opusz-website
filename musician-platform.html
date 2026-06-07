@@ -3680,13 +3680,24 @@ let _vidCurrentFrame = 0;
 let _vidTargetObjY   = _VID_INIT_OBJ_Y;
 let _vidCurrentObjY  = _VID_INIT_OBJ_Y;
 
+// True visible viewport height. On iOS Safari window.innerHeight is unreliable
+// (it lags the address-bar collapse), which left the centred heroCard SHORTER than
+// the real viewport → the photo grid leaked through at top & bottom. .hero-sticky is
+// CSS height:100dvh, so its measured box IS the real visible viewport and the card's
+// containing block → measuring it keeps card height === its parent exactly.
+function heroViewportH() {
+  const s = document.querySelector('.hero-sticky');
+  const h = s ? s.getBoundingClientRect().height : 0;
+  return Math.round(h || (window.visualViewport && window.visualViewport.height) || window.innerHeight);
+}
+
 // Resize canvas to fill viewport — pin CSS size to pixel size to prevent CSS stretching.
 // (heroCard CSS height can exceed window.innerHeight; canvas must stay 1:1 to avoid distortion.)
 function resizeHeroCanvas() {
   const c = document.getElementById('heroCanvas');
   if (!c) return;
   c.width  = window.innerWidth;
-  c.height = window.innerHeight;
+  c.height = heroViewportH();
   // Override the CSS "width:100%;height:100%" so canvas isn't scaled by the browser.
   c.style.width  = c.width  + 'px';
   c.style.height = c.height + 'px';
@@ -3735,7 +3746,7 @@ let _effectiveVH  = window.innerHeight; // viewport minus nav bar
 
 function updateHeroDims() {
   const vw  = window.innerWidth;
-  const vh  = window.innerHeight;
+  const vh  = heroViewportH();
   _effectiveVH = vh;
   heroCardEl.style.top = '50%';
 
@@ -3890,14 +3901,28 @@ updateHeroDims(); // compute card aspect-ratio height + scaleMax
 applyHero(0);    // init at full scale
 applyColRatios(); // set photo heights + start scroll animations
 
-// Recalculate on resize (viewport changed → new aspect ratio)
-window.addEventListener('resize', () => {
+// Recalculate when the visible viewport changes → keep card height === viewport
+function syncHero() {
   updateHeroDims();
   applyHero(heroCurrent);
   applyColRatios(); // re-compute px heights + seamless loop point
   resizeHeroCanvas();
   drawScrubFrame(_vidCurrentFrame, _vidCurrentObjY);
-});
+}
+window.addEventListener('resize', syncHero);
+// iOS Safari: the address-bar collapse fires visualViewport 'resize' (not window resize)
+// and reports the correct height only a beat after first paint. Re-sync for both.
+window.addEventListener('orientationchange', () => setTimeout(syncHero, 250));
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => {
+    // Only re-sync at the top of the page: while scrolling, the bar animates and the
+    // card is already shrinking, so re-measuring there would cause a visible pop.
+    if (window.scrollY < 4) syncHero();
+  });
+}
+// iOS often reports a stale innerHeight on the very first frame → re-measure shortly after.
+setTimeout(syncHero, 120);
+setTimeout(syncHero, 600);
 
 // ── Global smooth scroll + Nav hide/show (both lerp-damped, wheel-driven) ──
 (function () {
