@@ -1,62 +1,39 @@
-# OPUS.Z — Site-wide Admin CMS — HANDOFF / 交接文件
+# OPUS.Z — Site-wide Admin CMS — HANDOFF / 交接文件 (CMS 細節)
 
-> **Read this first if you are a fresh Claude session continuing this work.**
-> This file is the single source of truth for the big in-progress task: building a
-> **Shopify-theme-editor-style admin CMS** so the owner can edit *everything* on the
-> public site (homepage + all pages) from `admin-panel.html` — text, images, videos,
-> links, and add/remove fields/sections, with a live preview.
-> The owner explicitly asked that work be handed off so a new window can continue.
+> **先讀 `HANDOFF_DEPLOY_SYNC.md`（全貌＋部署＋兩種存檔模型），再讀這份（CMS 實作細節）。**
+> 這份原本是「打造 Shopify 式後台 CMS」的計畫書（2026-06-03）。**該 CMS 現在已大致建好且持續擴充中**——
+> 頂部已更新成現況；中段 §2–§4（參考系統、架構、雷區）仍是有用的背景；下方 PROGRESS LOG 是完整歷史。
+> 業主不是工程背景 → 回答用中文白話。
 
-Date of handoff: 2026-06-03
+最後更新：2026-06-07
 
 ---
 
-## ⏩ RESUME HERE — current state snapshot (read this, then §1 gotchas, then continue)
+## ⏩ RESUME HERE — 現況快照（CMS 已建好、多分頁、持續擴充）
 
-**What already works end-to-end (all verified in browser):**
-- A **Site Editor** lives in `admin-panel.html` (sidebar "網站編輯 / Site Editor" →
-  `#page-siteeditor`). 3 columns: left page list, middle **device-preview iframe**
-  (標準顯示螢幕 1536 / MacBook 1280 / iPad 820 / 手機 390 via `seSetDevice`), right field controls.
-- It edits **16 homepage fields** (each EN + 中文), grouped: 服務 ×5, 按鈕 ×2, 輪播標語 ×3
-  (`both:true` = bilingual lines), 其他區段 ×6 (svc.label/svc.btn/blog.label/blog.seeall/
-  about.card1.label/about.card2.label). Driven by `SE_FIELDS` array + `seBuildControls/
-  seReadInputs/sePreview(postMessage)/seSave/seInit` in `admin-panel.html`'s module script.
-- **Public render**: `site-content.js` (module, included on `musician-platform.html` before
-  `</body>`) reads Firestore `siteContent/home` (+ instant `localStorage opusz_site_home`
-  mirror) and applies via i18n-dict overrides (`window.I18N` + `switchLang`) and `data-cms`.
-  It also listens for `postMessage({__opuszCmsPreview,config})` for the editor's live preview.
-- **Persistence is REAL (local=live):** `seSave` writes `siteContent/home` to Firestore.
-  Verified: edit in admin → clear local mirror → reload homepage → it renders from Firestore.
-- **Security DONE:** admin now authenticates with Firebase Auth.
-  - Admin Firebase account: **tzutung.liao@gmail.com** / password **[REDACTED — not stored in repo; ask owner]** (uid
-    qR8q45IUgpSg8lcMeHtHqmngy9e2). `admin-login.html` signs in (window.adminAuthSignIn);
-    `admin-panel.html` loads `getAuth(app)` so writes carry the admin identity.
-  - Firestore rule (PUBLISHED): `match /siteContent/{page} { allow read: if true; allow write:
-    if request.auth != null && request.auth.token.email == 'tzutung.liao@gmail.com'; }`
-    Verified: admin write OK; unauthenticated write denied.
+**已經能用、且已實測 end-to-end：**
+- 後台 **Site Editor**（`admin-panel.html` → `#page-siteeditor`）：3 欄（左 PAGES/SECTIONS、中 真實預覽 iframe、右 欄位）。
+- **多分頁**：`SE_PAGES` = 首頁/部落格/音樂家/工作/演出/課程。`SE_SECTIONS_BY_PAGE` 定義各頁區段。點頁面 → iframe 載 `<page>?cmsedit=1` + 換區段清單。中間預覽**可自由導覽＋登入**（跟前台一樣）。裝置預設 `seSetDevice`（標準/MacBook/iPad/手機）。
+- **三種右欄控制**（依頁面/區段自動選）：
+  - 首頁固定 schema `SE_FIELDS`（文字 i18n）＋ `SE_ENGINE_GROUP`（圖片走首頁照片引擎 `opzEdit`）＋ 合作廠商清單。
+  - 演出頁「海報」→ 專屬 `seBuildShowsPoster`（驅動 `opzShows`：圖＋資訊合一、X/Y/大小/模糊/背景XY、拖照片上傳、增減張數）。
+  - 其他子頁 → **通用自動編輯器** `seBuildAutoControls`（掃描區段 DOM 自動列出 文字/圖片/影片/連結）。
+- **公開渲染** `site-content.js`：讀 `siteContent/<page>` 套用（i18n 文字、`data-cms`、`cfg.auto` 通用媒體、`cfg.posters` 演出海報、Hero 樣式…）＋ `?cmsedit=1` 編輯模式（藍框/點選/放行導覽）。
+- **存檔模型**（⚠️ 關鍵，詳見 `HANDOFF_DEPLOY_SYNC.md` §2）：
+  - **模型 A（Firebase，線上後台可存）**：文字、Hero 樣式、**演出海報設定** `siteContent/shows.posters`、子頁 i18n/auto。
+  - **模型 B（檔案型 server.py，只能本機 localhost:8080）**：首頁照片 `opzEdit`→`site-data.json`+`assets/images/`；演出海報圖片本機上傳。
+- **安全**：管理者 Firebase Auth = `tzutung.liao@gmail.com`（密碼向業主索取，uid `qR8q45IUgpSg8lcMeHtHqmngy9e2`）。`siteContent/*` 規則：公開讀、僅該 email 可寫（已發布）。Storage `siteContent/*` 同。
 
-**The owner wants EVERYTHING on the site editable this way (homepage + all subpages).**
-We've done the homepage-hero + several homepage text sections. NOT yet done:
+**已完成的大項（2026-06-07）：** 首頁 Hero 重做、移除所有前端編輯器、後台多分頁、演出頁海報編輯器（含增減/背景XY）、移除付費方案制度、修音樂家後台預覽無限重整。詳見 `HANDOFF_DEPLOY_SYNC.md` §9 與下方 PROGRESS LOG。
 
-**▶ IMMEDIATE NEXT (owner approved order 1 → 2 → 3):**
-1. **Images / video editing** via the `data-cms` direct channel: tag homepage media with
-   `data-cms="..."` + `data-cms-attr="src|bg"`, add image/URL controls to the Site Editor,
-   and wire **uploads to Firebase Storage** (NOT data-URLs — Firestore docs are ~1MB capped)
-   so uploaded images are also cross-device. (Add Storage rules: admin-only write, public read.)
-2. **More homepage sections**: big headings, Vision, Pricing, Footer, etc. — batch-add their
-   `data-i18n` keys to `SE_FIELDS` (same mechanism). Consider refactoring to a SCHEMA-DRIVEN
-   control factory (text/image/video/link/list types) before this gets large.
-3. **Subpages**: add `<script type="module" src="site-content.js"></script>` + optionally
-   `<html data-cms-page="musicians">` to each public page (musicians/recent-jobs/shows/blog/
-   lessons/contact), add them to the Site Editor's left "頁面" list (one `siteContent/<page>`
-   doc each), and define each page's editable schema.
+**▶ 還沒做（IMMEDIATE NEXT）：**
+1. 演出頁海報「**刪指定某張 / 拖曳排序**」（目前只能刪最後一張）→ 需把海報文字從 index 綁定的 i18n 改成綁進 `posters[].text`（見 `HANDOFF_DEPLOY_SYNC.md` §10）。
+2. **音樂家後台手機預覽加手機外框**（抄 admin 的 `#seFrameWrap.se-phone` 到 `pbFrameInner`）。
+3. **Lessons 老師列表**自動列出有開教學（`config.lessons.visible`）的音樂家（`lessons.html` 目前空）。
+4. **子頁更多區段**可編輯：照通用模式給 blog/musicians/jobs/lessons 各區段加 `data-cms-section` + `SE_SECTIONS_BY_PAGE`。
+5. 影片連結搬雲端；§5.1 的 localStorage 功能（詢問/預約/收藏）轉 Firestore。
 
-**HOW TO TEST (preview):** the Claude Preview server serves the site on localhost:8080.
-Admin is login-gated — set `localStorage.opusz_admin_loggedIn='true'` to enter the UI, and to
-test authed writes call `window.adminAuthSignIn('tzutung.liao@gmail.com', '<admin password — ask owner>')`
-once (session persists). Dashboard pages need real Firebase Auth → verify their logic by
-replicating functions against a built DOM (pattern used throughout). The owner can also let
-you drive their real Chrome (Claude-in-Chrome) for Firebase Console tasks.
+**測試提示：** 本機 `python server.py 8080`；預覽進後台先 `localStorage.opusz_admin_loggedIn='true'`；真寫入需 Firebase 管理者登入。無 node → 用 `jsc` 做語法檢查。預覽工具的捲動動畫無法穩定重現 → 動畫類請業主在真站確認。**切記：別讓兩個視窗同時改同一個檔（會互蓋）。**
 
 ---
 
@@ -456,3 +433,16 @@ All verified in-browser unless noted. Files in `/Users/martinliao/opusz-website`
 4. Phase 4: replicate `site-content.js` include + `data-cms-page` on each subpage, add them to
    the Site Editor's left "Pages" list, and define each page's editable schema.
    (The left "頁面/Pages" panel + per-page `siteContent/<page>` doc shape are already designed.)
+
+- 2026-06-07: **大幅推進，CMS 從「首頁 hero」進化到「多分頁 + 演出頁完整編輯」。**
+  - **多分頁框架**：`admin-panel.html` 加 `SE_PAGES`(6頁) / `SE_SECTIONS_BY_PAGE` / `seSelectPage` / `seCurrentFile`；`seSetDevice` 改用當前頁重載；`seSave`/`sePreview` 改 per-page（`siteContent/<page>`）。
+  - **預覽可自由導覽＋登入**：`site-content.js` 編輯模式不再硬擋連結，改成放行＋內部換頁自動帶 `cmsedit=1`，只在點區段空白處才回報選取。iframe 無 sandbox。
+  - **通用自動編輯器** `seBuildAutoControls`：掃描區段 `[data-i18n]`+`img/video/a` 自動生欄位 → 文字存 `cfg.i18n`、媒體/連結存 `cfg.auto[]`（site-content.js 用 `cfg.auto` 依 `[data-cms-section] > tag:nth` 套用）。
+  - **演出頁（shows.html）**：加 `data-cms-page="shows"` + `site-content.js` + 區段 `sh-hero`/`sh-poster`/`sh-info`；建 `window.opzShows` 橋接舊海報引擎（`ST.shows` + `applyAll` + `shows-data.json`）。後台 `seBuildShowsPoster`：每張海報＝圖(拖曳移位/大小/模糊/背景XY/拖檔上傳)＋文字(姓名/標題/場地/曲目)，可**增減張數**（append/pop）。海報設定（張數+frame+url）也存 Firebase `siteContent/shows.posters`，`site-content.js` 在線上 `opzShows.applyConfig()` 套用 → **線上後台改海報會生效**。海報圖片上傳走 **Firebase Storage**（小網址，存檔前過濾掉 base64 → 避免 Firestore `invalid-argument`）。
+  - **首頁照片**：用 `window.opzEdit` 橋接（後台遙控首頁 `site-data.json` 引擎）。
+  - **移除所有前端編輯器**（musician-platform 的 P 照片/Q 版面/R 預覽/O 跳轉；頁面最上方攔截這些快捷鍵）。新 Hero（置中標語/品牌字/`mix-blend-mode` 反轉/可調色與按鈕樣式，相關 apply* 在 site-content.js）。
+  - **移除付費方案制度**：`musician-dashboard` 的方案頁/側欄/邀請碼/教學鎖移除、`pbIsPremiumActive()`→恆 true、`pbRenderMembership` no-op；`admin-panel` 移除 Tier 徽章/升降級；`musician-profile` 移除 premium gate（教學顯示改由音樂家自己的 `lessons.visible` 決定）。
+  - **修 musician-dashboard 預覽無限重整**：iframe 初始 `about:blank`，登入後用 `?edit=1&uid=<自己>` 載入；`pbLockPreviewNav` 加一次性 snap-back 防迴圈＋忽略空白頁。
+  - 清掉 musicians/lessons/favourites 三頁寫死的假音樂家「Martin」。
+  - ⚠️ **過程中發現「兩個 Claude 視窗同時編輯同一檔會互相覆蓋」**（admin-panel.html / site-content.js 都中過）。規則寫進 `HANDOFF_DEPLOY_SYNC.md` §7：同一檔一次一個視窗、Edit 前重讀、commit 前 `pull --rebase`。
+  - 全部已 `git push` 上線（Cloudflare 自動部署）。
