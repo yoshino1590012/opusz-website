@@ -103,6 +103,14 @@
 
 ---
 
+### (8) 首頁 Hero 元素樣式/排版編輯器（模型 A，存 `siteContent/home`）
+- 後台「首頁 → 主視覺 / Hero」右欄上方那一整塊（藍色提示框）。**拖曳在預覽 iframe 裡做**（`site-content.js` 的 cmsedit 區塊裝了拖曳/縮放邏輯，postMessage 回後台儲存）。
+- 存的 key（都在 `siteContent/home`，`site-content.js` 套用）：
+  - `heroPos` = `{headline,sub,btnFind,btnProject,brand}` → `{xPct,yPct,s}`（位移用 vw/vh、大小用獨立 `scale`）。
+  - `heroBrandColor`（`'auto'` 或色碼）、`heroBtn{find,project}{bg,fg,bd,op}`、`heroBtnShape{radius,bw}`、`heroBtnGlass`(bool)。
+- 對應元素（`musician-platform.html` 的 hc-card-overlay）：`.hco-headline/.hco-sub/.hco-btn-pri/.hco-btn-out/.hco-brand`；頂部大字是另一個 `.hero-big-title`（純 CSS，**不被這套控制**，手機置中是直接改 CSS）。
+- ⚠️ 已知細節：`backdrop-filter` 在「祖先 opacity<1」時會抓錯背景 → 玻璃按鈕出場淡入會延遲，已用「玻璃模式時不淡入(只滑入)」解掉。
+
 ## 4. 部署流程（push → 自動上線）
 
 - **改程式碼 → 上線**：`git push origin main` → Cloudflare Pages 自動重建（約 30 秒～2 分）。
@@ -138,7 +146,8 @@
 - `media-sync.js`：舊照片雲端橋。
 - `musician-dashboard.html` / `musician-profile.html`：音樂家後台/公開檔案（已移除方案）。
 - `blog.html`：部落格（另一條線做了 banner/封面可編輯，`data-cms-section="blog-hero"/"blog-list"`）。
-- `server.py`：本機編輯伺服器（端點：`/upload-file /save-config /save-shows /save-videos /git-push /submit-application /update-application /get-applications`）。
+- `server.py`：本機編輯伺服器（端點：`/upload-file /save-config /save-shows /save-videos /git-push /submit-application /update-application /get-applications`）。**POST 回應 (`_ok`/`_err`) 一定要送 `Content-Length`**（HTTP/1.1 keep-alive，否則上傳卡住）；改 server.py 後**要重啟**才生效。
+- `nav.js` / `nav.css`：共用導覽（內頁注入）。**≤900px 會把愛心/登入/語言搬進漢堡抽屜**（`#navDrawerExtra`，首頁同邏輯內建在 `musician-platform.html`）。
 - `site-data.json` / `shows-data.json`：首頁/演出頁的檔案型設定（會被 git 追蹤＝部署）。
 - `_redirects`、`.gitignore`（排除 >25MB 大檔；那些影片走 Cloudinary）。
 
@@ -168,6 +177,26 @@
 ---
 
 ## 9. 變更紀錄 (CHANGELOG)
+
+- **2026-06-07（本視窗・接續，全部已 push 上線）**
+  - **首頁 Hero「Canva 式」排版編輯**（後台 Hero 區段，存 `siteContent/home`）：
+    - 標題/副標/兩顆按鈕/品牌字 OPUS.Z 可在預覽**直接拖曳移位**＋滑桿**調大小**（品牌字可到 400%）。
+    - 位移用獨立 CSS `translate`、大小用獨立 `scale`（跟動畫的 `transform` 分開，**不影響浮現/縮放動畫**）。
+    - 位移以**視窗寬度百分比**存（`heroPos[key]={xPct,yPct,s}`，舊的 px 自動換算）→ 不同螢幕寬度位置一致。
+    - 品牌字顏色：自動黑白(隨背景)／色票／自訂（`heroBrandColor`）。
+  - **按鈕樣式系統**（兩顆 Hero 按鈕，存 `siteContent/home`）：
+    - 各自獨立：背景色/文字色/邊框色＋**背景透明度**（只淡化背景 rgba，文字邊框不透明）= `heroBtn{find,project}{bg,fg,bd,op}`。
+    - 共用：**形狀**（方角/微圓/圓角/大圓角/膠囊）＋**邊框粗細**（細/中/粗）= `heroBtnShape{radius,bw}`，用 `calc(var(--k)*…)` 跟 Hero 縮放系統一致避免失真。
+    - **液態玻璃 Liquid Glass**（`heroBtnGlass`）：仿 21st.dev，`.lg-glass` class ＝透明玻璃底＋多層內陰影斜邊＋`backdrop-filter:url(#container-glass)`（SVG feTurbulence/feDisplacementMap 扭曲，藍模糊備援）。SVG 濾鏡定義在 `musician-platform.html`（`<svg>#container-glass`）。「View all shows」鈕也套了同款（玻璃在它的 `::before`）。
+  - Hero 文字改 **Inter 字型 + SaaS 風**（粗體緊湊大標、灰副標一行、按鈕帶 › 箭頭、彈性 hover）。左欄主視覺照片預設比右欄高（`applyColRatios` 的 LEFT_DEFAULT_H）。
+  - **手機版導覽收合**（首頁 + `nav.js`/`nav.css`，所有頁）：≤900px 時把**真實的**愛心/登入/帳號/語言鈕**搬進三條線抽屜**（保留所有功能），頂部列只剩 Logo+漢堡；桌機自動搬回。Logo 手機版往左。
+  - **手機版頂部大字 OPUS.Z**（`.hero-big-title`）：改置中（原本 flex-start 靠左、Z 貼邊）＋字級可調。
+  - **後台預覽框大升級**：① 桌機「標準螢幕」改用 `window.innerWidth`（= 真站視窗寬，位置才對得上）② 切裝置時**用該寬度重載 iframe**（取得正確 RWD + boot 寬度）③ 照片編輯框長寬比**自動對齊該格在頁面實際顯示的比例**（`seEngApplyAspect`，所見即所得）④ **iPhone 預覽框**做成真 iPhone：黑邊框包四邊、頂部**仿真狀態列**（9:41＋訊號/Wi-Fi/電量，底色=首頁 `#f8f8f8`、深色圖示、`--se-status-bg/-fg` 可調）、動態島、**狀態列算在螢幕高度內**所以比例=真 iPhone 16（2.168）。
+  - **後台合作廠商編輯器**：跑馬燈改資料驅動（`siteContent/home.partners`，`opzRenderPartners`），可增/刪/改名/排序＋每家可上傳 logo（沒上傳就顯示名稱、避免商標問題）；名單太短時自動重複填滿、無縫循環。
+  - **分類 Categories 區段**加入後台可編輯（`SE_FIELDS` 的 `discover`）；`applyCat()` 改成尊重 i18n 覆寫。
+  - 合併後台「儲存文字＋發佈照片」為**單一「🚀 儲存並發布到網站」鈕**；發佈照片改背景執行＋逾時，**按鈕不會再卡在「發佈中」**。
+  - 🐞 **`server.py` 重大修正**：POST 回應（`/upload-file` 等）原本**沒送 `Content-Length`**，HTTP/1.1 keep-alive 下瀏覽器會一直等連線關閉 → **照片上傳看起來卡住約 30 秒才逾時**（任何圖都中，不是 HEIC 問題）。已在 `_ok`/`_err` 補上 `Content-Length`。**改完要重啟 server.py 才生效。**
+  - 照片上傳：`compressImg` 加逾時（HEIC 在 Chrome 不觸發 onload/onerror 會卡死）＋後台上傳器偵測 HEIC 提示改用 JPG/PNG＋30 秒逾時保護。
 
 - **2026-06-07（這次 session）**
   - 首頁 Hero 重做：置中大標語「遇見台灣菁英音樂家」＋副標＋品牌字 OPUS.Z（升起動畫、純黑/可調色）、文字 `mix-blend-mode` 黑白反轉。
