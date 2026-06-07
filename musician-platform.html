@@ -557,8 +557,10 @@ nav.mega-open .nav-links a::before {
   white-space: nowrap;
 }
 @media (max-width: 700px) {
-  .hero-big-title { flex-direction: column; align-items: flex-start; gap: 0; }
-  .hero-big-title .ht-word { font-size: calc(100vw * 0.26); }
+  /* Centre the big OPUS.Z on phones (was flex-start = left-aligned, which made the
+     last letter hug the right edge) and trim the size a touch for even margins. */
+  .hero-big-title { flex-direction: column; align-items: center; gap: 0; }
+  .hero-big-title .ht-word { font-size: calc(100vw * 0.22); }
 }
 /* Dots: inside card at the bottom, padding matches card content padding */
 .hero-dots-bar { position: absolute; bottom: 22px; left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 clamp(20px,4vw,58px); z-index: 4; pointer-events: none; }
