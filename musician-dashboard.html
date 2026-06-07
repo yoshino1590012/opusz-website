@@ -426,8 +426,19 @@
     .pb-devbar { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 10px; border-bottom: 1px solid var(--border); background: var(--white); }
     .pb-dev-btn { padding: 5px 12px; font-size: 12px; font-weight: 600; border: 1.5px solid #ddd; background: var(--white); color: var(--mid); border-radius: 7px; cursor: pointer; font-family: inherit; }
     .pb-dev-btn.active { border-color: var(--black); color: var(--black); }
-    .pb-frame-wrap { flex: 1; min-height: 0; display: flex; justify-content: center; padding: 16px; overflow: auto; }
+    .pb-frame-wrap { flex: 1; min-height: 0; display: flex; justify-content: center; align-items: flex-start; padding: 16px; overflow: auto; }
     .pb-frame-inner { width: 100%; max-width: 100%; height: 100%; background: var(--white); box-shadow: 0 2px 18px rgba(0,0,0,.08); border-radius: 8px; overflow: hidden; transition: width .25s ease; }
+    /* 手機模式：包成一台真實手機（深色邊框 + 圓角 + 瀏海），像後台 Site Editor */
+    .pb-frame-inner.pb-phone {
+      width: 390px !important; max-width: 390px; height: 844px; flex: none;
+      box-sizing: content-box; background: #111; border-radius: 46px;
+      padding: 13px; box-shadow: 0 12px 48px rgba(0,0,0,.45); position: relative;
+    }
+    .pb-frame-inner.pb-phone #pbPreview { border-radius: 34px; }
+    .pb-frame-inner.pb-phone::after {
+      content: ''; position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
+      width: 90px; height: 26px; background: #000; border-radius: 16px; z-index: 3; pointer-events: none;
+    }
     .pb-right { width: 320px; flex-shrink: 0; border-left: 1px solid var(--border); padding: 20px; overflow-y: auto; }
     .pb-field { margin-bottom: 16px; }
     .pb-field-group { display: none; }
@@ -3313,7 +3324,11 @@
     document.querySelectorAll('.pb-dev-btn').forEach(b=>b.classList.remove('active'));
     if(btn) btn.classList.add('active');
     const inner = document.getElementById('pbFrameInner');
-    if(inner) inner.style.width = (mode==='mobile') ? '390px' : '100%';
+    if(inner){
+      var phone = (mode==='mobile');
+      inner.classList.toggle('pb-phone', phone);   // phone bezel + notch (sizing via CSS class)
+      inner.style.width = phone ? '' : '100%';
+    }
   };
 
   window.pbSave = async function(){
