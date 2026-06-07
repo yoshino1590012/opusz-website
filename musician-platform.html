@@ -68,7 +68,7 @@ nav.mega-open {
 
 /* Apply the colour var */
 .nav-logo { display: flex; align-items: center; gap: 10px; font-size: 17px; font-weight: 700; text-decoration: none; color: #fff; padding-left: 50px; }
-.orb { width: 40px; height: 40px; background: url('assets/images/LOGO/opusz-logo-cropped.png?v=4') center/cover no-repeat; flex-shrink: 0; }
+.orb { width: 46px; height: 46px; background: url('assets/images/LOGO/opusz-logo-cropped.png?v=5') center/cover no-repeat; flex-shrink: 0; }
 #navOrbFixed {
   position: fixed; top: 18px; left: 40px;
   z-index: 201; /* above nav (200) — orb only, no blend mode so red stays red */
@@ -274,6 +274,19 @@ nav.mega-open .nav-links a::before {
 .nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
 .nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
 .nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+
+/* Controls relocated into the drawer on mobile (favourites / account / language) */
+#navDrawerExtra { display: flex; align-items: center; flex-wrap: wrap; gap: 18px;
+  margin-top: 14px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.10); }
+#navDrawerExtra .nav-fav-btn,
+#navDrawerExtra .nav-login-btn,
+#navDrawerExtra .nav-account-btn,
+#navDrawerExtra .lang-toggle { display: inline-flex !important; opacity: 1 !important; color: var(--black) !important; position: static !important; }
+#navDrawerExtra .nav-login-btn { border: 1px solid rgba(0,0,0,0.18); border-radius: 8px; padding: 7px 14px; }
+#navDrawerExtra .nav-login-btn .login-label { display: inline !important; }
+#navDrawerExtra .nav-login-btn .login-icon,
+#navDrawerExtra .nav-login-btn .login-chevron { display: none !important; }
+#navDrawerExtra .lang-toggle { gap: 4px; }
 
 /* Musicians sub-drawer trigger button */
 .nd-musicians-btn {
@@ -2193,6 +2206,9 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 /* ── RESPONSIVE ── */
 @media (max-width: 900px) {
   .nav-links { display: none; }
+  /* Mobile nav: only logo + hamburger in the bar; the rest moves into the drawer */
+  .nav-logo { padding-left: 18px; }
+  #navFavBadge { display: none !important; }
   /* heroCard handled by #heroCard responsive rules above */
 
   /* Hero: keep two photo columns on mobile, reduce gap */
@@ -2245,8 +2261,8 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   "7": "https://res.cloudinary.com/drbhm0xlw/video/upload/v1779382486/8975307-uhd_3840_2160_24fps_wd6ijh.mp4"
 }
 </script>
-  <link rel="icon" href="/favicon.ico?v=4" />
-  <link rel="icon" type="image/png" href="/favicon.png?v=4" />
+  <link rel="icon" href="/favicon.ico?v=5" />
+  <link rel="icon" type="image/png" href="/favicon.png?v=5" />
   <script src="assets/js/analytics.js"></script>
 </head>
 <body>
@@ -3476,6 +3492,26 @@ document.addEventListener('DOMContentLoaded', () => {
   hamburgerBtn.addEventListener('mouseleave', closeDrawer);
   navDrawer.addEventListener('mouseenter', openDrawer);
   navDrawer.addEventListener('mouseleave', closeDrawer);
+
+  /* ── Mobile: move favourites / account / language INTO the drawer ──
+     Relocates the REAL controls (so all their wiring keeps working) on ≤900px,
+     leaving only logo + hamburger in the top bar; restores them on desktop. */
+  (function(){
+    var box = document.getElementById('navDrawerExtra');
+    if(!box){ box = document.createElement('div'); box.id='navDrawerExtra'; navDrawer.appendChild(box); }
+    var ids = ['navFavBtn','navLoginBtn','navAccountBtn','langToggle'];
+    ids.forEach(function(id){ var el=document.getElementById(id); if(el && !el.__navHome) el.__navHome={parent:el.parentNode, next:el.nextSibling}; });
+    var mq = window.matchMedia('(max-width: 900px)');
+    function apply(){
+      ids.forEach(function(id){
+        var el=document.getElementById(id); if(!el) return;
+        if(mq.matches){ if(el.parentNode!==box) box.appendChild(el); }
+        else if(el.__navHome && el.parentNode===box){ el.__navHome.parent.insertBefore(el, el.__navHome.next); }
+      });
+    }
+    apply();
+    if(mq.addEventListener) mq.addEventListener('change', apply); else if(mq.addListener) mq.addListener(apply);
+  })();
 
   // Sub-drawer: keep both panels alive while mouse is inside; close on leave
   if (navSubDrawer) {

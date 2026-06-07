@@ -504,6 +504,26 @@
     navDrawer.addEventListener('mouseenter', openDrawer);
     navDrawer.addEventListener('mouseleave', closeDrawer);
 
+    /* ── Mobile: relocate favourites / account / language INTO the drawer ──
+       Moves the REAL controls (keeps all wiring) on ≤900px so the top bar shows
+       only logo + hamburger; restores them on desktop. */
+    (function(){
+      var box = document.getElementById('navDrawerExtra');
+      if(!box){ box = document.createElement('div'); box.id='navDrawerExtra'; navDrawer.appendChild(box); }
+      var ids = ['navFavBtn','navLoginBtn','navAccountBtn','langToggle'];
+      ids.forEach(function(id){ var el=document.getElementById(id); if(el && !el.__navHome) el.__navHome={parent:el.parentNode, next:el.nextSibling}; });
+      var mq = window.matchMedia('(max-width: 900px)');
+      function apply(){
+        ids.forEach(function(id){
+          var el=document.getElementById(id); if(!el) return;
+          if(mq.matches){ if(el.parentNode!==box) box.appendChild(el); }
+          else if(el.__navHome && el.parentNode===box){ el.__navHome.parent.insertBefore(el, el.__navHome.next); }
+        });
+      }
+      apply();
+      if(mq.addEventListener) mq.addEventListener('change', apply); else if(mq.addListener) mq.addListener(apply);
+    })();
+
     if (navSubDrawer) {
       navSubDrawer.addEventListener('mouseenter', function () { clearTimeout(drawerTimeout); });
       navSubDrawer.addEventListener('mouseleave', closeBoth);
