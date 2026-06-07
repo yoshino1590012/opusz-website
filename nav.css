@@ -199,6 +199,25 @@ nav.mega-open .nav-links a::before {
 .hamburger:hover span { opacity: .5; }
 
 /* ── Slide-in Nav Drawer ── */
+/* Controls relocated into the drawer on mobile (favourites / account / language) */
+#navDrawerExtra { display: flex; align-items: center; flex-wrap: wrap; gap: 18px;
+  margin-top: 14px; padding-top: 16px; border-top: 1px solid rgba(0,0,0,0.10); }
+#navDrawerExtra .nav-fav-btn,
+#navDrawerExtra .nav-login-btn,
+#navDrawerExtra .nav-account-btn,
+#navDrawerExtra .lang-toggle { display: inline-flex !important; opacity: 1 !important; color: #111 !important; position: static !important; }
+#navDrawerExtra .nav-login-btn { border: 1px solid rgba(0,0,0,0.18); border-radius: 8px; padding: 7px 14px; }
+#navDrawerExtra .nav-login-btn .login-label { display: inline !important; }
+#navDrawerExtra .nav-login-btn .login-icon,
+#navDrawerExtra .nav-login-btn .login-chevron { display: none !important; }
+#navDrawerExtra .lang-toggle { gap: 4px; }
+@media (max-width: 900px){
+  /* Mobile nav: only logo + hamburger in the bar; rest moves into the drawer */
+  .nav-links { display: none; }
+  .nav-logo { padding-left: 18px; }
+  #navFavBadge { display: none !important; }
+}
+
 .nav-drawer {
   position: fixed; top: 0; right: -260px; bottom: 0;
   width: 260px;
