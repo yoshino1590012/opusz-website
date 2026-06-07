@@ -690,10 +690,19 @@
           .se-dev-btn.active{ background:#111;color:#fff;border-color:#111; }
           /* iPhone-style frame — bezel/radius/island all scale together via --sps,
              so the whole phone enlarges in proportion (not just the screen). */
-          #seFrameWrap.se-phone{ box-sizing:content-box !important; background:#111 !important; border-radius:calc(46px * var(--sps,1)) !important; padding:calc(13px * var(--sps,1)); box-shadow:0 12px 48px rgba(0,0,0,.45); position:relative; }
+          /* top padding is larger to RESERVE the iOS status-bar zone (time/signal/battery) */
+          #seFrameWrap.se-phone{ box-sizing:content-box !important; background:#111 !important; border-radius:calc(46px * var(--sps,1)) !important; padding:calc(46px * var(--sps,1)) calc(13px * var(--sps,1)) calc(13px * var(--sps,1)); box-shadow:0 12px 48px rgba(0,0,0,.45); position:relative; }
           #seFrameWrap.se-phone #seFrame{ border-radius:calc(34px * var(--sps,1)); }
-          /* Dynamic Island */
-          #seFrameWrap.se-phone::after{ content:''; position:absolute; top:calc(22px * var(--sps,1)); left:50%; transform:translateX(-50%); width:calc(90px * var(--sps,1)); height:calc(26px * var(--sps,1)); background:#000; border-radius:calc(16px * var(--sps,1)); z-index:3; pointer-events:none; }
+          /* Dynamic Island — centred in the status-bar zone */
+          #seFrameWrap.se-phone::after{ content:''; position:absolute; top:calc(13px * var(--sps,1)); left:50%; transform:translateX(-50%); width:calc(90px * var(--sps,1)); height:calc(26px * var(--sps,1)); background:#000; border-radius:calc(16px * var(--sps,1)); z-index:5; pointer-events:none; }
+          /* Faux iOS status bar: time (left) · signal/wifi/battery (right) */
+          #sePhoneStatus{ display:none; }
+          #seFrameWrap.se-phone #sePhoneStatus{ display:flex; align-items:center; justify-content:space-between;
+            position:absolute; top:0; left:0; right:0; height:calc(46px * var(--sps,1)); box-sizing:border-box;
+            padding:calc(6px * var(--sps,1)) calc(34px * var(--sps,1)) 0; color:#fff; z-index:4; pointer-events:none;
+            font-family:-apple-system,'SF Pro Text','Helvetica Neue',sans-serif; font-weight:600; font-size:calc(15px * var(--sps,1)); }
+          #sePhoneStatus .sps-r{ display:flex; align-items:center; gap:calc(6px * var(--sps,1)); }
+          #sePhoneStatus svg{ height:calc(12px * var(--sps,1)); width:auto; display:block; }
         </style>
         <div class="page-header" style="margin-bottom:12px;">
           <h1>網站編輯 / Site Editor</h1>
@@ -720,6 +729,14 @@
             </div>
             <div id="seStage" style="background:#f0f0f0;border-radius:12px;padding:12px;height:72vh;overflow:auto;display:flex;justify-content:center;align-items:flex-start;">
               <div id="seFrameWrap" style="flex:none;overflow:hidden;border-radius:8px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.1);">
+                <div id="sePhoneStatus" aria-hidden="true">
+                  <span class="sps-l">9:41</span>
+                  <span class="sps-r">
+                    <svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1" fill="#fff"/><rect x="5" y="4.5" width="3" height="7.5" rx="1" fill="#fff"/><rect x="10" y="2" width="3" height="10" rx="1" fill="#fff"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#fff" opacity="0.4"/></svg>
+                    <svg viewBox="0 0 16 12"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l-1.3 1.3A7 7 0 0 0 8 4.3 7 7 0 0 0 3.3 6.2L2 4.9A8.7 8.7 0 0 1 8 2.5zm0 3.2c1.4 0 2.7.5 3.7 1.4l-1.3 1.3A3.4 3.4 0 0 0 8 7.9c-.9 0-1.7.3-2.4.9L4.3 7.5A5.2 5.2 0 0 1 8 5.7zm0 3.1c.6 0 1.1.2 1.5.6L8 11l-1.5-1.6c.4-.4 1-.6 1.5-.6z" fill="#fff"/></svg>
+                    <svg viewBox="0 0 26 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="#fff" opacity="0.5"/><rect x="2" y="2" width="17" height="8" rx="1.5" fill="#fff"/><rect x="23" y="4" width="2" height="4" rx="1" fill="#fff" opacity="0.6"/></svg>
+                  </span>
+                </div>
                 <iframe id="seFrame" style="width:1536px;height:864px;border:none;background:#fff;transform-origin:top left;display:block;"></iframe>
               </div>
             </div>
@@ -1016,9 +1033,10 @@
       var scale;
       if(name==='phone'){
         // Phone: fill the stage height so the device looks big — like holding a real phone.
-        // Account for the iPhone bezel (13px each side) so the whole device fits in proportion.
-        var BEZEL = 26; // 13px padding × 2
-        scale = Math.min(availH / (devH + BEZEL), availW / (devW + BEZEL), 1.6);
+        // Bezel: 13px sides/bottom; top reserves a ~46px status-bar zone (time/signal/battery).
+        var BEZ_W = 26;   // 13px × 2 (left+right)
+        var BEZ_H = 59;   // 46px top status bar + 13px bottom
+        scale = Math.min(availH / (devH + BEZ_H), availW / (devW + BEZ_W), 1.6);
       } else {
         scale = Math.min(1, availW / devW);   // never enlarge past 100%
       }
