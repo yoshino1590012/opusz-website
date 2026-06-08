@@ -507,41 +507,10 @@ window.addEventListener('message', function(e){
     });
   }
   // Elements exist in static HTML; wire now and retry a couple times in case of late layout.
+  // The phrases keep their EXACT live animation/timing — no forced reveal. They're
+  // grabbable only when they naturally appear (the owner scrolls to that point and
+  // drags, or uses the X/Y sliders). Nothing pins or flashes them.
   wireHeroDrag(); setTimeout(wireHeroDrag, 600); setTimeout(wireHeroDrag, 1500);
-
-  // The rotating phrases are invisible until you scroll to their window (opacity is
-  // scroll-driven), so the editor preview plays the SAME 浮現/淡出 animation as the
-  // live site. To still give feedback while positioning, the editor sends a
-  // __opuszPhrasePeek message when a phrase control changes — we briefly reveal the
-  // first phrase (lifted above the card) at its current position, then let it fade
-  // back into the animation. Editor-only; never runs for real visitors.
-  (function(){
-    var st = document.createElement('style');
-    st.id = 'opzPhrasePeekStyle';
-    // z-index/blend/colour via a class; opacity/filter are forced INLINE with
-    // !important (a CSS transition here gets perpetually reset by the hero RAF, so
-    // we snap the phrase visible instead of fading — the real 浮現/淡出 animation
-    // still plays on the live site).
-    st.textContent = '#heroPhraseOverlay.opz-peek{z-index:300 !important;mix-blend-mode:normal !important;}'
-      + '#heroPhraseOverlay.opz-peek #hpPhrase0{color:#111 !important;outline:1px dashed rgba(37,99,235,.55);outline-offset:6px;}'
-      + '#heroPhraseOverlay.opz-peek #hpPhrase0 .hp-zh{color:#111 !important;}';
-    (document.head || document.documentElement).appendChild(st);
-    var peekT;
-    window.addEventListener('message', function(e){
-      if (!e || !e.data || !e.data.__opuszPhrasePeek) return;
-      var ov = document.getElementById('heroPhraseOverlay'); var el = document.getElementById('hpPhrase0');
-      if (!ov || !el) return;
-      ov.classList.add('opz-peek');
-      el.style.setProperty('opacity', '1', 'important');
-      el.style.setProperty('filter', 'none', 'important');
-      clearTimeout(peekT);
-      peekT = setTimeout(function(){
-        el.style.removeProperty('opacity');
-        el.style.removeProperty('filter');
-        ov.classList.remove('opz-peek');
-      }, 1600);
-    });
-  })();
 })();
 
 // Re-apply i18n overrides after any later language switch (in case switchLang re-clobbers).

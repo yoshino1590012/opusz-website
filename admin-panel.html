@@ -1985,26 +1985,18 @@
       +'<div style="font-size:11px;font-weight:800;color:#0e7490;margin:10px 0 6px;">標語 位置（三句一起移動）</div>'
       +posRow('x','水平 X',xp)
       +posRow('y','垂直 Y',yp)
-      +'<div style="font-size:10px;color:#999;line-height:1.5;">💡 拉滑桿即可移動三句標語（共用同一個位置）。也可在預覽直接拖曳。在標語文字框按 Enter 可手動斷行。</div>';
-  }
-  // Briefly reveal the phrase in the preview so the owner sees the effect of a
-  // phrase control change (the phrases are otherwise mid-animation / invisible).
-  function sePhrasePeek(){
-    var ifr=document.getElementById('seFrame');
-    if(ifr && ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszPhrasePeek:true}, '*'); }catch(e){} }
+      +'<div style="font-size:10px;color:#999;line-height:1.5;">💡 三句標語共用同一個位置。標語維持原本的浮現動畫；<b>捲到它出現時</b>拉滑桿或直接拖曳即可看到它移動。在標語文字框按 Enter 可手動斷行。</div>';
   }
   window.seHeroSetPhraseAlign = function(v){
     window.seHeroPhrase = window.seHeroPhrase || {};
     window.seHeroPhrase.align = v;
     seBuildControls();   // refresh button highlight
     sePreview();         // live-apply
-    sePhrasePeek();
   };
   window.seHeroSetPhraseWrap = function(on){
     window.seHeroPhrase = window.seHeroPhrase || {};
     window.seHeroPhrase.wrap = !!on;
     sePreview();
-    sePhrasePeek();
   };
   // X/Y position sliders for the shared phrase offset (per device). Stored as
   // viewport-fraction (xPct/yPct) in the active hero-pos map under the 'phrases'
@@ -2016,8 +2008,7 @@
     if(axis==='x'){ m.phrases.xPct = v; m.phrases.x = 0; }
     else          { m.phrases.yPct = v; m.phrases.y = 0; }
     var lab=document.getElementById('sePhrPos_'+axis); if(lab) lab.textContent=Math.round(v*100)+'%';
-    sePreview();      // live-apply to the preview
-    sePhrasePeek();   // flash the phrase so the new position is visible
+    sePreview();      // live-apply to the preview (visible when the phrase is in view)
   };
 
   // Brand OPUS.Z colour mode toggle: auto black/white (default) vs solid white.
