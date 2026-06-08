@@ -508,6 +508,23 @@ window.addEventListener('message', function(e){
   }
   // Elements exist in static HTML; wire now and retry a couple times in case of late layout.
   wireHeroDrag(); setTimeout(wireHeroDrag, 600); setTimeout(wireHeroDrag, 1500);
+
+  // The rotating phrases are normally invisible until you scroll to their window
+  // (opacity is scroll-driven), which made them impossible to find & drag in the
+  // editor. In edit mode ONLY, pin ONE phrase (the first) permanently visible and
+  // ABOVE the card so it's always there to grab. Dragging it moves all three (they
+  // share one position). The other two are hidden to avoid stacked, unreadable text.
+  (function pinPhraseForEdit(){
+    if (document.getElementById('opzPhraseEditStyle')) return;
+    var st = document.createElement('style');
+    st.id = 'opzPhraseEditStyle';
+    st.textContent =
+      '#heroPhraseOverlay{z-index:300 !important;mix-blend-mode:normal !important;}' +   /* above nav (z-index:200) so the phrase is fully grabbable */
+      '#hpPhrase0{opacity:1 !important;filter:none !important;color:#111 !important;pointer-events:auto !important;outline:1px dashed rgba(37,99,235,.5);outline-offset:6px;}' +
+      '#hpPhrase0 .hp-zh{color:#111 !important;}' +
+      '#hpPhrase1,#hpPhrase2{opacity:0 !important;pointer-events:none !important;}';
+    (document.head || document.documentElement).appendChild(st);
+  })();
 })();
 
 // Re-apply i18n overrides after any later language switch (in case switchLang re-clobbers).
