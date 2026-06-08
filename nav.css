@@ -219,8 +219,11 @@ nav.mega-open .nav-links a::before {
   /* Pull logo orb + OPUS.Z text toward the corner so the LEFT gap (18px) matches the
      TOP gap (18px). Text shifts by the same amount to keep its spacing from the orb.
      (Matches the homepage's own nav, which has identical fixed-logo overrides.) */
-  #navOrbFixed  { left: 18px; }
-  #navLogoFixed { left: 68px; }
+  /* Shrink the whole logo 25% on phones. Both pieces scale about the SAME point
+     (the orb's top-left at 18,18) so spacing + alignment stay perfect.
+     Text origin = (18 - left, 18 - top) = (18-68, 18-30) = (-50px, -12px). */
+  #navOrbFixed  { left: 18px; transform: scale(.75); transform-origin: top left; }
+  #navLogoFixed { left: 68px; transform: scale(.75); transform-origin: -50px -12px; }
 }
 
 .nav-drawer {

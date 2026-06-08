@@ -2216,8 +2216,11 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   .nav-logo { padding-left: 18px; }
   /* Pull logo orb + OPUS.Z text toward the corner so the LEFT gap (18px) matches the
      TOP gap (18px). Text shifts by the same amount to keep its spacing from the orb. */
-  #navOrbFixed  { left: 18px; }
-  #navLogoFixed { left: 74px; }
+  /* Shrink the whole logo 25% on phones. Both pieces scale about the SAME point
+     (the orb's top-left at 18,18) so spacing + alignment stay perfect.
+     Text origin = (18 - left, 18 - top) = (18-74, 18-33) = (-56px, -15px). */
+  #navOrbFixed  { left: 18px; transform: scale(.75); transform-origin: top left; }
+  #navLogoFixed { left: 74px; transform: scale(.75); transform-origin: -56px -15px; }
   #navFavBadge { display: none !important; }
   /* heroCard handled by #heroCard responsive rules above */
 
