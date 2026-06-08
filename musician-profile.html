@@ -5098,23 +5098,21 @@ window.addEventListener('pageshow', function(e) {
       if(heroNameBig){
         var orig = heroNameBig.querySelector('.hn-orig');
         var nw   = heroNameBig.querySelector('.hn-new');
-        // Support | as a line-break marker in the big hero name
-        function setNameHtml(el, rawName) {
-          if(!el) return;
-          if(rawName.indexOf('|') !== -1) {
-            el.innerHTML = rawName.split('|').map(function(p){ return '<span style="display:block">' + p + '</span>'; }).join('');
-          } else {
-            el.textContent = rawName;
-          }
+        if(orig) orig.textContent = hero.name;
+        if(nw)   nw.textContent   = hero.name;
+        // Apply custom name size (percentage of default clamp font-size)
+        var nameSize = hero.nameSize ? parseInt(hero.nameSize) : 100;
+        if(nameSize !== 100){
+          var fs = 'calc(clamp(96px, 14vw, 200px) * ' + (nameSize/100).toFixed(2) + ')';
+          if(orig) orig.style.fontSize = fs;
+          if(nw)   nw.style.fontSize   = fs;
         }
-        setNameHtml(orig, hero.name);
-        setNameHtml(nw,   hero.name);
       }
       var heroNameLeft = document.getElementById('heroNameLeft');
-      if(heroNameLeft) heroNameLeft.textContent = hero.name.replace(/\|/g, ' ');
+      if(heroNameLeft) heroNameLeft.textContent = hero.name;
       // Showreel big-video label (uppercased) — keep in sync if present
       var bigvidLabel = document.getElementById('bigvidLabelName');
-      if(bigvidLabel) bigvidLabel.textContent = String(hero.name).replace(/\|/g, ' ').toUpperCase();
+      if(bigvidLabel) bigvidLabel.textContent = String(hero.name).toUpperCase();
     } else {
       // empty → restore the blank-template placeholder ("NAME")
       var heroNameBigR = document.getElementById('heroNameBig');
