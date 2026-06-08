@@ -4,7 +4,7 @@
 > 業主（Martin / yoshino1590012）不是工程背景 → 回答一律**中文、白話、給可執行步驟**。
 > 目標：讓這個系統「**能一直被傳承下去**」。看完這份你應該知道：平台在幹嘛、東西存在哪、怎麼上線、改東西要在哪改、哪裡有雷。
 
-最後更新：2026-06-07
+最後更新：2026-06-08
 
 ---
 
@@ -40,7 +40,9 @@
 5. **移除付費方案制度**（Basic/Premium、邀請碼、教學鎖、後台徽章全砍）。
 6. 修好音樂家後台「編輯主頁」預覽**無限重整**的 bug。
 
-**🔴 still open（見 §10 待辦）：** 演出頁「刪指定某張海報／拖曳排序」、音樂家後台手機預覽要加手機外框、Lessons 老師列表自動列出、子頁更多區段的圖片編輯、影片連結搬雲端。
+**🔴 still open（見 §10 待辦）：** ① **放行管理者刪樂手的 Firestore 規則**（後台刪除功能已做、被 permission-denied 擋）② 部落格「**文字**」可編輯（圖片已可）③ 演出頁「刪指定某張海報／拖曳排序」、音樂家後台手機預覽手機外框、Lessons 老師列表、子頁更多區段圖片編輯、影片連結搬雲端。
+
+> **2026-06-08 本視窗摘要**：Logo 換新＋全站套用、管理者密碼安全強化、部落格圖片可編輯＋雲端同步、海報投稿系統（樂手↔管理者）、樂手後台收件匣合併、管理者刪樂手功能（差規則放行）、nav logo 對齊修正。詳見 §9。
 
 ---
 
@@ -131,7 +133,7 @@
 - **Porkbun**：管 `opuszmusic.com`（nameserver 指向 Cloudflare：`darl`/`jamie`.ns.cloudflare.com）。
 
 ### Firebase 安全規則（現狀）
-- Firestore：`match /siteContent/{page}` → 任何人可讀；只有 `tzutung.liao@gmail.com` 可寫。`musicians`/`customers` 各有既有規則（音樂家寫自己的）。
+- Firestore：`match /siteContent/{page}` → 任何人可讀；只有 `tzutung.liao@gmail.com` 可寫。`musicians`/`customers` 各有既有規則（音樂家寫**自己的**）。⚠️ **管理者改/刪「別人的」樂手會被擋**（後台刪除樂手 → permission-denied）→ 放行見 §10 第 0 點。
 - Storage：`siteContent/{**}` 公開讀、管理者寫（上傳媒體放這）；`musicians/{uid}/{**}` 公開讀、本人寫。
 - 👉 媒體上傳走 `siteContent/*` 路徑、管理者是 tzutung，**通常不需改規則**。
 
@@ -178,7 +180,22 @@
 
 ## 9. 變更紀錄 (CHANGELOG)
 
-- **2026-06-07（本視窗・接續，全部已 push 上線）**
+- **2026-06-08（本視窗・全部已 push 上線；過程中有 3~4 個 Claude 視窗並行，commit 偶有夾帶彼此改動）**
+  - **品牌 Logo 換新（全站）**：業主新 logo＝**去背圓形紅底＋白色螺旋**（檔在 `下載/Black and White Bold Kitchen Knife Logo (2).png`，2000px、含 alpha）。因幾乎所有頁的圓 logo 都吃同一個檔 `assets/images/LOGO/opusz-logo-cropped.png`，**換這一個檔＝前端 nav＋兩個後台側邊欄一次全換**。favicon 另外重生（`favicon.png` 512px、`favicon.ico` 含 16/32/48/64/128、`favicon-16/32.png`）。全站 favicon `?v=` 與 logo 圖引用都加版本號（目前 **?v=7**）強制更新快取。刪掉沒用到的舊 logo 檔。
+    - ⚠️ **教訓**：別擅自「美化」業主的 logo。我一度自作主張把四角去背→紅圈邊緣出現黑邊，業主不要。**已還原成原圖、只保留他要的「容器放大 ~15%」**（`.orb 40→46`、`.sb-logo-orb 32→37`）。
+  - **首頁 nav logo 文字對齊修正**：圓(`#navOrbFixed`)與文字(`#navLogoFixed`)是**兩個各自 fixed 定位**的元素。圓放大成 46px 後圓心移到 y≈41，但文字 `top` 還停在為 40px 圓算的值→文字偏上。已校正 `#navLogoFixed { top:30→33; left:90→96 }`、`:hover top:19→22`（同步 musician-platform / musician-apply / messages 三頁）。
+  - **管理者密碼安全性**（`admin-login.html` 之前把帳密寫死在前端、public repo 看得到）：移除寫死的 `ADMIN_EMAIL/ADMIN_PASSWORD`，登入改成**純 Firebase Auth 驗證**（對錯由後端判斷，頁面原始碼不再有密碼）；email placeholder 改中性 `you@example.com`；交接文件裡的明文密碼也清掉。**業主已自行把 Firebase 管理者密碼重設**（舊的寫死密碼已作廢）。
+  - **部落格圖片可編輯（接通到後台 Site Editor）**：`blog.html` 本來就有一套 `data-photo-id` + `localStorage('blog-photo:<id>')` 的自製圖片編輯器（但只在 localhost 出現、是頁面內彈窗）。新增 `window.opzBlogEdit` 橋接（`list/setFrame/setUrl/setImageFile`，操作同一套 localStorage + `applyAll`）；後台 `admin-panel.html` 加 `_seEng()` 引擎選擇器，讓既有的圖片編輯 UI（`seEngLoad/seEngWire`）在 blog 頁時改用 `opzBlogEdit`，blog-hero（reel-1~3）+ blog-list（feat/mini/large）都能拖曳/縮放/換圖。**`media-sync.js` 擴充**：原本只同步含 `data:` 的值，現在 `blog-photo:*` 即使只改位置/縮放（無 data:）也會同步上 Firestore `siteContent/media`，線上/跨裝置才一致。
+  - **海報投稿系統（樂手投稿→管理者收）**：
+    - 樂手端 `musician-dashboard.html` 新增「海報投稿」頁：上傳海報圖（JPG/PNG/WebP≤10MB，驗證+壓縮，傳 `musicians/{uid}/poster_*`）+ 演出資訊（名稱/日期/地點/簡介）+ 最多 2 個連結按鈕 → 存 **`musicians/{uid}.posterSubmissions[]`**。
+    - 管理者端 `admin-panel.html` 新增「海報投稿」分頁：`getDocs(musicians)` 聚合所有樂手的 `posterSubmissions`，可篩選/標記「已張貼/未採用」（寫回各自 doc 的 status）。
+    - **刻意用既有 `musicians/{uid}` 權限（樂手寫自己的）達成，不動安全規則。**
+  - **樂手後台收件匣合併**：發現「工作與詢問→直接詢問」和「訊息」**讀同一份 enquiries、是重複入口**。移除「直接詢問」tab，「工作與詢問」改名 **「公開接案」**（只剩公開職缺看板）；客戶的詢價＋訊息統一在 **「訊息」**（有完整對話 UI）。概念分清：公開接案＝我去找工作、訊息＝客戶來找我。
+  - **管理者後台「刪除樂手」功能**（`admin-panel.html` Musicians 列）：每列加低調紅色 🗑，點了要**親手打出該樂手完整名字**才會 `deleteDoc(musicians/{uid})`（type-to-confirm 防誤觸），有 `permission-denied` 友善提示。
+    - 🔴 **目前被 Firestore 規則擋住**（規則只允許「樂手寫自己的」，管理者刪別人→permission-denied）。**功能已寫好，差規則沒放行**（見 §10 第 1 點）。
+  - `musician-community.html` 左上「返回平台」按鈕原本連到前端首頁，改成連回**音樂家後台** `musician-dashboard.html`，文字改「返回後台」。
+  - 後台手機預覽外框（這條線版本）：用 iPhone 16 精確尺寸 **393×852**，並修掉 `box-sizing:border-box` 害黑邊框「吃掉螢幕」的問題（強制 `content-box`），bezel/圓角/動態島隨 `--sps` 等比縮放。
+
   - **首頁 Hero「Canva 式」排版編輯**（後台 Hero 區段，存 `siteContent/home`）：
     - 標題/副標/兩顆按鈕/品牌字 OPUS.Z 可在預覽**直接拖曳移位**＋滑桿**調大小**（品牌字可到 400%）。
     - 位移用獨立 CSS `translate`、大小用獨立 `scale`（跟動畫的 `transform` 分開，**不影響浮現/縮放動畫**）。
@@ -214,7 +231,20 @@
 
 ## 10. 待辦 (TODO，建議順序)
 
-1. **演出頁海報「刪指定某張 / 拖曳排序」**（目前只能刪最後一張）：需把海報文字從 index 綁定的 i18n 改成「綁進每張海報的資料(`posters[].text`)」，這樣刪中間/換序文字才不會錯位（在 `shows.html` 的 `opzShows`：讓 `applyAll` 由 `ST.shows[i]` 直接渲染文字；`removeAt(i)`/`move(i,dir)` = 陣列操作 + 重畫）。
+0. 🔴 **放行管理者管理樂手權（Firestore 規則）** — 後台「刪除樂手」(`deleteMusician`) 已寫好但被擋。現有 `musicians/{uid}` 寫入規則只允許 `request.auth.uid == uid`（樂手寫自己）。要讓管理者能刪/改任何樂手，把 write 改成：
+   ```
+   match /musicians/{uid} {
+     allow read: if true;
+     allow write: if request.auth != null
+       && (request.auth.uid == uid
+           || request.auth.token.email == 'tzutung.liao@gmail.com');
+   }
+   ```
+   ⚠️ 改安全規則＝動存取控制，**Claude 不可代業主發布**；帶業主到 Firebase Console → Firestore Database → 規則，貼上後**由業主親手按「發布」**。（「停用樂手」suspend 同樣是 admin 改別人 doc，改完一起生效。）順帶：業主想刪的測試帳號 **TEST**＝業主用自己 `yoshino1590012@gmail.com` 建的（uid `Yko3QTjFa2QHsn54iFFGUahwJWg2`，簡介亂打 123123…）。
+
+1. **部落格「文字可編輯」**（banner/文章的標題、標籤）：圖片已可編輯（§9 2026-06-08），但 `.rs-title`/`.feat__title` 文字還寫死在 `blog.html`、`.rs-tag`/`.feat__tag` 是 `data-i18n`。要接成後台可編輯（**業主有要求，是這條線唯一沒做完的**）。
+
+2. **演出頁海報「刪指定某張 / 拖曳排序」**（目前只能刪最後一張）：需把海報文字從 index 綁定的 i18n 改成「綁進每張海報的資料(`posters[].text`)」，這樣刪中間/換序文字才不會錯位（在 `shows.html` 的 `opzShows`：讓 `applyAll` 由 `ST.shows[i]` 直接渲染文字；`removeAt(i)`/`move(i,dir)` = 陣列操作 + 重畫）。
 2. **音樂家後台手機預覽加「手機外框」**：抄 `admin-panel.html` 的 `#seFrameWrap.se-phone`（邊框＋瀏海）到 `musician-dashboard` 的 `pbFrameInner`，在 `pbSetDevice('mobile')` 時加 class。
 3. **Lessons 老師列表自動列出**：從 Firestore 撈 `config.lessons.visible` 的音樂家列到 `lessons.html`（目前該頁是空的）。
 4. **子頁更多區段可編輯**：照 §3(4) 模式，給 blog/musicians/jobs/lessons 的各區段加 `data-cms-section` + `SE_SECTIONS_BY_PAGE`。
