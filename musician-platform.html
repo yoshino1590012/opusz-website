@@ -3486,15 +3486,25 @@ document.addEventListener('DOMContentLoaded', () => {
     clearTimeout(drawerTimeout);
     navDrawer.classList.add('nd-visible');
   }
+  // The login / account dropdowns live OUTSIDE the drawer, so moving the cursor
+  // onto them fires the drawer's mouseleave. Keep the drawer open while either
+  // menu is showing, so they appear together (not one replacing the other).
+  function _navMenuOpen() {
+    var ld = document.getElementById('loginDropdown');
+    var ad = document.getElementById('accountDropdown');
+    return (ld && ld.classList.contains('open')) || (ad && ad.classList.contains('open'));
+  }
   function closeDrawer() {
     // Don't close while sub-drawer is open — user may be moving mouse to it
     if (navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return;
+    if (_navMenuOpen()) return;
     drawerTimeout = setTimeout(() => {
       navDrawer.classList.remove('nd-visible');
       if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
     }, 120);
   }
   function closeBoth() {
+    if (_navMenuOpen()) return;
     drawerTimeout = setTimeout(() => {
       navDrawer.classList.remove('nd-visible');
       if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
@@ -7076,14 +7086,19 @@ window.addEventListener('keydown', function(e){
 
   /* ── Nav auth state: swap Login ↔ My Account ── */
   var accDrop = document.getElementById('accountDropdown');
+  // Show EXACTLY one of Log in / My Account. The drawer CSS forces these buttons
+  // display:inline-flex !important, so hide with setProperty('important') to win,
+  // and show by removing the inline override so the stylesheet takes over.
+  function _navShow(el){ if(el) el.style.removeProperty('display'); }
+  function _navHide(el){ if(el) el.style.setProperty('display', 'none', 'important'); }
   function updateNavAuth() {
     var user = localStorage.getItem('opusz_user');
     if (user) {
-      if(loginBtn)   loginBtn.style.display   = 'none';
-      if(accountBtn) accountBtn.style.display = 'inline-flex';
+      _navHide(loginBtn);
+      _navShow(accountBtn);
     } else {
-      if(loginBtn)   loginBtn.style.display   = '';
-      if(accountBtn){ accountBtn.style.display = 'none'; accountBtn.classList.remove('open'); }
+      _navShow(loginBtn);
+      if(accountBtn){ _navHide(accountBtn); accountBtn.classList.remove('open'); }
       if(accDrop)    accDrop.classList.remove('open');
     }
   }
