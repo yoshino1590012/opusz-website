@@ -193,6 +193,12 @@ function waitForI18N(cb){
 function applyConfig(cfg){
   if (!cfg || typeof cfg !== 'object') return;
 
+  // 0) Musicians page: hero (title/sub/video/photo/position) + filter labels are
+  // applied by a page-provided hook (the page owns its dynamic hero rendering).
+  if ((cfg.musHero || cfg.musFilters) && typeof window.opzMusApply === 'function') {
+    try { window.opzMusApply(cfg); } catch(e){}
+  }
+
   // 1) i18n dictionary overrides → re-render in the current language
   if (cfg.i18n && window.I18N) {
     ['en','zh'].forEach(function(l){

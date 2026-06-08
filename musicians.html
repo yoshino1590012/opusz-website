@@ -417,7 +417,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 </div>
 
 <!-- HERO -->
-<section class="hero" id="heroSection" data-cms-section="mus-hero">
+<section class="hero" id="heroSection" data-cms-section="mus-hero" data-cms="mus._">
   <div class="hero-bg" id="heroBg" style="overflow:hidden;position:absolute;inset:0;">
     <div id="heroBgMedia" style="position:absolute;inset:0;overflow:hidden;"></div>
   </div>
@@ -641,6 +641,7 @@ function setLang(l){
   document.getElementById('filterCountry').options[1].text = l==='zh' ? '台灣' : 'Taiwan';
   document.getElementById('filterCountry').options[2].text = l==='zh' ? '美國' : 'USA';
   document.getElementById('filterStyle').options[0].text  = l==='zh' ? '所有風格' : 'All Styles';
+  applyFilterLabels();   // re-apply owner overrides after the default resets above
 }
 
 function setHero(){
@@ -671,8 +672,15 @@ function setHero(){
     bg = cat.bg;
     document.getElementById('heroBreCat').textContent = currentLang==='zh' ? cat.zh : cat.en;
   } else {
-    title = currentLang==='zh' ? '尋找音樂家' : 'Musicians for Hire';
-    sub   = currentLang==='zh' ? '為您的活動、錄音或計劃尋找世界級音樂家。' : 'Find world-class musicians for your event, recording, or project.';
+    // Default ("All") hero — the admin Site Editor can override its title/subtitle
+    // (stored in Firestore siteContent/musicians → window.__musCms.hero).
+    var h = (window.__musCms && window.__musCms.hero) || {};
+    title = currentLang==='zh'
+      ? ((h.titleZh!=null && h.titleZh!=='') ? h.titleZh : '尋找音樂家')
+      : ((h.titleEn!=null && h.titleEn!=='') ? h.titleEn : 'Musicians for Hire');
+    sub   = currentLang==='zh'
+      ? ((h.subZh!=null && h.subZh!=='') ? h.subZh : '為您的活動、錄音或計劃尋找世界級音樂家。')
+      : ((h.subEn!=null && h.subEn!=='') ? h.subEn : 'Find world-class musicians for your event, recording, or project.');
     bg    = '#1a1a2e';
     document.getElementById('heroBreCat').textContent = currentLang==='zh' ? '所有' : 'All';
   }
@@ -1035,15 +1043,19 @@ function applyAllSavedXYS(){
 }
 
 function applyHeroMedia(){
-  var photo = localStorage.getItem('mono-hero-photo')||'';
-  var video = localStorage.getItem('mono-hero-video')||'';
+  // CMS overrides (Firestore siteContent/musicians) take priority over the legacy
+  // localStorage editor, so the hero media/position shows identically on the LIVE
+  // site (localStorage is per-domain and never synced; Firestore is shared).
+  var h = (window.__musCms && window.__musCms.hero) || {};
+  var photo = (h.photo!=null) ? h.photo : (localStorage.getItem('mono-hero-photo')||'');
+  var video = (h.video!=null) ? h.video : (localStorage.getItem('mono-hero-video')||'');
   var bgm = document.getElementById('heroBgMedia');
   if(!bgm) return;
   bgm.innerHTML = '';
   bgm.style.backgroundImage = '';
-  var hx = localStorage.getItem('hero-x-hero')||'0';
-  var hy = localStorage.getItem('hero-y-hero')||'0';
-  var hs = localStorage.getItem('hero-s-hero')||'1';
+  var hx = (h.x!=null) ? String(h.x) : (localStorage.getItem('hero-x-hero')||'0');
+  var hy = (h.y!=null) ? String(h.y) : (localStorage.getItem('hero-y-hero')||'0');
+  var hs = (h.s!=null) ? String(h.s) : (localStorage.getItem('hero-s-hero')||'1');
   var savedT = 'translate('+hx+'px,'+hy+'px) scale('+hs+')';
   // object-fit:contain = full media visible at S=1; scale up to fill hero
   var mediaStyle = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:center center;transform:'+savedT+';';
@@ -1062,6 +1074,44 @@ function applyHeroMedia(){
     vid.play().catch(function(){});
   }
 }
+
+// ── CMS overrides (admin Site Editor → Firestore siteContent/musicians) ───────
+// Holds owner-edited hero text/media/position + filter label overrides. Applied
+// on boot (from Firestore via site-content.js) and live during admin preview.
+window.__musCms = window.__musCms || { hero:{}, filters:{} };
+
+// Filter-bar label overrides. Values are { en, zh }; an empty/missing value keeps
+// the built-in default. Only the DISPLAYED text changes — option values + filter
+// logic are untouched. Re-applied after setLang() (which resets some defaults).
+function applyFilterLabels(){
+  var f = (window.__musCms && window.__musCms.filters) || {};
+  var l = currentLang;
+  function t(o){ if(!o) return null; var v = (l==='zh') ? o.zh : o.en; return (v!=null && v!=='') ? v : null; }
+  function setText(el, o){ if(!el) return; var v=t(o); if(v!=null) el.textContent=v; }
+  function setOpt(sel, idx, o){ var v=t(o); if(sel && sel.options[idx] && v!=null) sel.options[idx].text=v; }
+  setText(document.getElementById('filterLabel'), f['label']);
+  var fc=document.getElementById('filterCountry');
+  setOpt(fc,0,f['region.all']); setOpt(fc,1,f['region.taiwan']); setOpt(fc,2,f['region.usa']);
+  var fs=document.getElementById('filterStyle');
+  ['style.all','style.classical','style.jazz','style.pop','style.film','style.wedding','style.contemporary']
+    .forEach(function(k,i){ setOpt(fs,i,f[k]); });
+  var fso=document.getElementById('filterSort');
+  ['sort.popular','sort.rating','sort.newest'].forEach(function(k,i){ setOpt(fso,i,f[k]); });
+}
+
+// Public entry point called by site-content.js (boot from Firestore + live preview)
+// with the full page config. Merges in hero + filter overrides and re-renders.
+window.opzMusApply = function(cfg){
+  if(!cfg || typeof cfg!=='object') return;
+  window.__musCms = window.__musCms || { hero:{}, filters:{} };
+  if(cfg.musHero && typeof cfg.musHero==='object')
+    window.__musCms.hero = Object.assign({}, window.__musCms.hero, cfg.musHero);
+  if(cfg.musFilters && typeof cfg.musFilters==='object')
+    window.__musCms.filters = Object.assign({}, window.__musCms.filters, cfg.musFilters);
+  try{ setHero(); }catch(e){}
+  try{ applyHeroMedia(); }catch(e){}
+  try{ applyFilterLabels(); }catch(e){}
+};
 
 // ── Editor ────────────────────────────────────────────────────────────────────
 function openEditor(){
@@ -1546,5 +1596,8 @@ window.addEventListener('pageshow', function(e) {
 
 <script src="assets/js/smooth-scroll.js" defer></script>
   <script type="module" src="media-sync.js"></script>
+  <!-- Public-site CMS renderer: applies siteContent/musicians (hero text/video/
+       position + filter labels) from Firestore, and live-preview from the admin. -->
+  <script type="module" src="site-content.js"></script>
 </body>
 </html>

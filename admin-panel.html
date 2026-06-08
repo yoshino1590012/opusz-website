@@ -1461,6 +1461,9 @@
     if(seCurrentSection==='partners'){ seBuildPartners(box); return; }
     // Shows poster → specialised control (front X/Y/size + back blur + drag-drop).
     if(seCurrentPage==='shows' && seCurrentSection==='sh-poster'){ seBuildShowsPoster(box); return; }
+    // Musicians page → dedicated hero (text/video/position) + filter-label editors.
+    if(seCurrentPage==='musicians' && seCurrentSection==='mus-hero'){ seBuildMusiciansHero(box); return; }
+    if(seCurrentPage==='musicians' && seCurrentSection==='mus-list'){ seBuildMusiciansFilters(box); return; }
     // Blog page → engine-backed image editing via opzBlogEdit (banner + article covers).
     if(seCurrentPage==='blog'){
       box.innerHTML = '<div style="font-size:12px;color:#155e75;background:#ecfeff;border:1px solid #a5f3fc;border-radius:8px;padding:9px 11px;margin-bottom:12px;line-height:1.6;">🖱️ <b>拖曳照片移位</b>、滑桿<b>縮放</b>、按<b>「上傳檔案」換圖</b>。改完按上方「🚀 儲存並發布到網站」。</div>'
@@ -1832,6 +1835,140 @@
       console.warn('[siteeditor] partner logo upload failed:', e);
       if(note){ note.textContent='⚠ 上傳失敗：'+(e.code||e.message); note.style.color='#c00'; }
     }
+  };
+
+  // ── Musicians page editor (hero text/video/position + filter labels) ─────────
+  // All edits write into seCurrentConfig.musHero / .musFilters, which seSave()
+  // persists to Firestore siteContent/musicians and sePreview() postMessages to
+  // the live-preview iframe (→ site-content.js → window.opzMusApply). The live
+  // public page reads the same Firestore doc, so edits show everywhere.
+  function seMusHero(){ seCurrentConfig = seCurrentConfig || {}; return (seCurrentConfig.musHero = seCurrentConfig.musHero || {}); }
+  function seMusFilters(){ seCurrentConfig = seCurrentConfig || {}; return (seCurrentConfig.musFilters = seCurrentConfig.musFilters || {}); }
+  // Text field → store + live-preview (NO panel rebuild, so the cursor stays put).
+  window.seMusSet = function(key, val){ seMusHero()[key] = val; sePreview(); };
+  // Slider → store number + update its label + live-preview.
+  window.seMusNum = function(key, val, lblId, suffix){
+    seMusHero()[key] = parseFloat(val);
+    var l=document.getElementById(lblId); if(l) l.textContent = val + (suffix||'');
+    sePreview();
+  };
+  window.seMusReset = function(){ var h=seMusHero(); h.x=0; h.y=0; h.s=1; seBuildControls(); sePreview(); };
+  window.seMusClearMedia = function(kind){ seMusHero()[kind]=''; seBuildControls(); sePreview(); };
+  // Upload hero photo/video to Firebase Storage → store its URL in musHero.
+  window.seMusUpload = async function(kind, file){
+    if(!file) return;
+    var note=document.getElementById('seMus_up_'+kind);
+    var maxMb = kind==='video' ? 60 : 8;
+    if(file.size > maxMb*1024*1024){ if(note){ note.textContent='檔案過大（上限 '+maxMb+'MB）'; note.style.color='#c00'; } return; }
+    if(note){ note.textContent='上傳中…'; note.style.color='#888'; }
+    try{
+      var safe=file.name.replace(/[^\w.\-]/g,'_');
+      var path='siteContent/musicians/hero_'+kind+'_'+Date.now()+'_'+safe;
+      var r=storageRef(storage, path);
+      await uploadBytes(r, file);
+      var url=await getDownloadURL(r);
+      seMusHero()[kind]=url;
+      seBuildControls(); sePreview();
+      if(note){ note.textContent='✓ 已上傳（記得按發布）'; note.style.color='#16a34a'; }
+    }catch(e){
+      console.warn('[siteeditor] mus hero upload failed:', e);
+      if(note){ note.textContent='⚠ 上傳失敗：'+(e.code||e.message); note.style.color='#c00'; }
+    }
+  };
+  window.seBuildMusiciansHero = function(box){
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+    var h = seMusHero();
+    var x=(h.x!=null)?h.x:0, y=(h.y!=null)?h.y:0, s=(h.s!=null)?h.s:1;
+    var inp='width:100%;padding:8px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;';
+    var lbl='font-size:12px;font-weight:600;color:#555;margin:0 0 5px;';
+    var grp='font-size:11px;font-weight:800;color:#0e7490;margin:16px 0 8px;border-top:1px solid #eee;padding-top:12px;';
+    function media(kind, label, ph){
+      var v=h[kind]||'';
+      var thumb = v
+        ? (kind==='video'
+            ? '<video src="'+esc(v).replace(/"/g,'%22')+'" muted loop autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>'
+            : '<div style="position:absolute;inset:0;background:#111 center/cover no-repeat;background-image:url(\''+String(v).replace(/'/g,'%27')+'\');"></div>')
+        : '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999;">尚未設定</div>';
+      var accept = kind==='video' ? 'video/*' : 'image/*';
+      return '<div style="margin-bottom:6px;"><div style="'+lbl+'">'+label+'</div>'
+        +'<div style="position:relative;height:96px;border-radius:9px;overflow:hidden;background:#f1f1f3;border:1px solid #e2e2e6;margin-bottom:7px;">'+thumb+'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">'
+          +'<label style="display:inline-flex;align-items:center;font-size:12px;color:#fff;background:#111;border-radius:6px;padding:6px 11px;cursor:pointer;white-space:nowrap;">⬆ 上傳'
+            +'<input type="file" accept="'+accept+'" style="display:none;" onchange="seMusUpload(\''+kind+'\',this.files[0])"></label>'
+          + (v ? '<button onclick="seMusClearMedia(\''+kind+'\')" style="font-size:11px;border:1px solid #ddd;background:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;">清除</button>' : '')
+          +'<span id="seMus_up_'+kind+'" style="font-size:11px;color:#888;"></span>'
+        +'</div>'
+        +'<input value="'+esc(v)+'" placeholder="'+ph+'" oninput="seMusSet(\''+kind+'\',this.value)" '
+          +'onchange="seBuildControls()" style="'+inp+'font-size:11px;color:#777;">'
+        +'</div>';
+    }
+    function slider(key, label, min, max, step, val, suffix){
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">'
+        +'<span style="font-size:11px;color:#155e75;width:70px;flex-shrink:0;">'+label+'</span>'
+        +'<input type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'" '
+          +'oninput="seMusNum(\''+key+'\',this.value,\'seMus_'+key+'v\',\''+(suffix||'')+'\')" style="flex:1;">'
+        +'<span id="seMus_'+key+'v" style="font-size:11px;color:#0e7490;width:48px;text-align:right;">'+val+(suffix||'')+'</span>'
+        +'</div>';
+    }
+    box.innerHTML =
+      '<div style="font-size:12px;color:#155e75;background:#ecfeff;border:1px solid #a5f3fc;border-radius:8px;padding:9px 11px;margin-bottom:12px;line-height:1.6;">'
+        +'編輯<b>音樂家頁最上方的主視覺</b>：標題、副標、背景影片／圖片、位置。<br>改完按上方「🚀 儲存並發布到網站」即同步到線上（前後台一致）。</div>'
+      +'<div style="'+grp+'">標題 / Title（預設總覽頁）</div>'
+      +'<div style="margin-bottom:10px;"><div style="'+lbl+'">標題 EN</div>'
+        +'<input value="'+esc(h.titleEn||'')+'" placeholder="Musicians for Hire" oninput="seMusSet(\'titleEn\',this.value)" style="'+inp+'"></div>'
+      +'<div style="margin-bottom:10px;"><div style="'+lbl+'">標題 中文</div>'
+        +'<input value="'+esc(h.titleZh||'')+'" placeholder="尋找音樂家" oninput="seMusSet(\'titleZh\',this.value)" style="'+inp+'"></div>'
+      +'<div style="margin-bottom:10px;"><div style="'+lbl+'">副標 EN</div>'
+        +'<textarea rows="2" placeholder="Find world-class musicians for your event, recording, or project." oninput="seMusSet(\'subEn\',this.value)" style="'+inp+'resize:vertical;font-family:inherit;line-height:1.5;">'+esc(h.subEn||'')+'</textarea></div>'
+      +'<div style="margin-bottom:6px;"><div style="'+lbl+'">副標 中文</div>'
+        +'<textarea rows="2" placeholder="為您的活動、錄音或計劃尋找世界級音樂家。" oninput="seMusSet(\'subZh\',this.value)" style="'+inp+'resize:vertical;font-family:inherit;line-height:1.5;">'+esc(h.subZh||'')+'</textarea></div>'
+      +'<div style="'+grp+'">背景 影片 / 圖片</div>'
+      +media('video','背景影片（會自動播放、靜音、循環）','或貼影片網址 https://…/video.mp4')
+      +media('photo','背景圖片（若同時有影片，優先用影片）','或貼圖片網址 https://…/image.jpg')
+      +'<div style="'+grp+'">位置 / Position（背景媒體）</div>'
+      +slider('x','水平 X', -600, 600, 1, x, 'px')
+      +slider('y','垂直 Y', -600, 600, 1, y, 'px')
+      +slider('s','縮放 S', 0.1, 5, 0.05, s, '×')
+      +'<button onclick="seMusReset()" style="margin-top:8px;font-size:11px;border:1px solid #67e8f9;background:#fff;border-radius:6px;padding:5px 10px;cursor:pointer;">↺ 重置位置</button>';
+  };
+
+  // Filter-bar label editor (text only — never changes option values / filter logic).
+  var SE_MUS_FILTER_DEFS = [
+    {grp:'標籤 / Label', k:'label', en:'Filter', zh:'篩選'},
+    {grp:'地區 / Regions', k:'region.all', en:'All Regions', zh:'所有地區'},
+    {k:'region.taiwan', en:'Taiwan', zh:'台灣'},
+    {k:'region.usa', en:'USA', zh:'美國'},
+    {grp:'風格 / Styles', k:'style.all', en:'All Styles', zh:'所有風格'},
+    {k:'style.classical', en:'Classical', zh:'古典'},
+    {k:'style.jazz', en:'Jazz', zh:'爵士'},
+    {k:'style.pop', en:'Pop / Commercial', zh:'流行 / 商業'},
+    {k:'style.film', en:'Film / TV Scoring', zh:'電影 / 電視配樂'},
+    {k:'style.wedding', en:'Wedding', zh:'婚禮'},
+    {k:'style.contemporary', en:'Contemporary', zh:'當代'},
+    {grp:'排序 / Sort', k:'sort.popular', en:'Most popular', zh:'最熱門'},
+    {k:'sort.rating', en:'Top rated', zh:'評分最高'},
+    {k:'sort.newest', en:'Newest', zh:'最新'}
+  ];
+  window.seMusFilterSet = function(key, lang, val){
+    var f=seMusFilters(); f[key]=f[key]||{}; f[key][lang]=val; sePreview();
+  };
+  window.seBuildMusiciansFilters = function(box){
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+    var f=seMusFilters();
+    var inp='width:100%;padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;';
+    var grp='font-size:11px;font-weight:800;color:#0e7490;margin:16px 0 8px;border-top:1px solid #eee;padding-top:12px;';
+    var html='<div style="font-size:12px;color:#155e75;background:#ecfeff;border:1px solid #a5f3fc;border-radius:8px;padding:9px 11px;margin-bottom:12px;line-height:1.6;">'
+      +'編輯下方<b>過濾器的顯示文字</b>（中／英）。留空＝沿用預設。<br>只改顯示文字，<b>不影響篩選邏輯</b>。改完按上方「🚀 儲存並發布」。</div>';
+    SE_MUS_FILTER_DEFS.forEach(function(d){
+      if(d.grp) html+='<div style="'+grp+'">'+d.grp+'</div>';
+      var cur=f[d.k]||{};
+      html+='<div style="margin-bottom:11px;">'
+        +'<div style="font-size:11px;color:#888;margin-bottom:4px;">預設：'+esc(d.en)+' / '+esc(d.zh)+'</div>'
+        +'<input value="'+esc(cur.en||'')+'" placeholder="EN：'+esc(d.en)+'" oninput="seMusFilterSet(\''+d.k+'\',\'en\',this.value)" style="'+inp+'margin-bottom:5px;">'
+        +'<input value="'+esc(cur.zh||'')+'" placeholder="中文：'+esc(d.zh)+'" oninput="seMusFilterSet(\''+d.k+'\',\'zh\',this.value)" style="'+inp+'">'
+        +'</div>';
+    });
+    box.innerHTML=html;
   };
 
   // ── Media framing helpers (drag-to-reposition · zoom · drop-to-upload) ──────
