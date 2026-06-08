@@ -469,6 +469,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   width:52px;height:52px;border-radius:50%;
   background:#e0e0e0 center/cover no-repeat;
   flex-shrink:0;border:2px solid #f0f0f0;
+  position:relative;overflow:hidden;
 }
 .about-musician-name{
   font-size:15px;font-weight:700;color:#111;
@@ -1115,6 +1116,7 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
 .book-bar-avatar{
   width:48px; height:48px; border-radius:50%; flex-shrink:0;
   background:#eee center/cover no-repeat;
+  position:relative;overflow:hidden;
 }
 .book-bar-text{ font-size:13px; color:#333; line-height:1.35; }
 .book-bar-text b{ display:block; font-weight:700; color:#111; }
@@ -5824,21 +5826,24 @@ window.addEventListener('pageshow', function(e) {
     }
 
     // ── AVATAR (URL-based) ────────────────────────────────
-    if(cfg.about && has(cfg.about.avatarUrl)){
-      var avUrl = cfg.about.avatarUrl;
+    if(cfg.about){
+      var _ab  = cfg.about;
+      var avUrl = _ab.avatarUrl;
+      var avX = (typeof _ab.avatarX === 'number') ? _ab.avatarX : 50;
+      var avY = (typeof _ab.avatarY === 'number') ? _ab.avatarY : 50;
+      var avS = (typeof _ab.avatarScale === 'number') ? _ab.avatarScale : 1;
       ['aboutAvatar','bookBarAvatar'].forEach(function(id){
         var el = document.getElementById(id);
-        if(el){
-          el.style.backgroundImage = "url('" + avUrl + "')";
-          el.style.backgroundSize = 'cover';
-          el.style.backgroundPosition = 'center';
+        if(!el) return;
+        if(has(avUrl)){
+          // Fill the circle, pan via object-position %, zoom via scale (min 1).
+          el.innerHTML = '<img src="' + avUrl + '" alt="" style="position:absolute;inset:0;'
+            + 'width:100%;height:100%;object-fit:cover;object-position:' + avX + '% ' + avY + '%;'
+            + 'transform:scale(' + avS + ');transform-origin:' + avX + '% ' + avY + '%;">';
+        } else {
+          el.innerHTML = '';   // empty → blank-template grey circle
         }
-      });
-    } else if(cfg.about){
-      // empty → clear the avatar back to the blank-template empty state (no photo)
-      ['aboutAvatar','bookBarAvatar'].forEach(function(id){
-        var el = document.getElementById(id);
-        if(el) el.style.backgroundImage = '';
+        el.style.backgroundImage = '';
       });
     }
 
