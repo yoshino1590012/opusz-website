@@ -4033,6 +4033,8 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     if (heroNameBig) heroNameBig.querySelectorAll('span').forEach(s => s.textContent = name);
     const heroNameLeft = document.getElementById('heroNameLeft');
     if (heroNameLeft) heroNameLeft.textContent = name;
+    const aboutName = document.getElementById('aboutMusicianName');
+    if (aboutName) { aboutName.textContent = name; aboutName.classList.remove('pf-placeholder'); }
 
     const infoTitle = document.querySelector('.info-title');
     if (infoTitle) infoTitle.textContent = instLabel;
@@ -5411,6 +5413,8 @@ window.addEventListener('pageshow', function(e) {
       if(heroNameLeftR) heroNameLeftR.textContent = 'NAME';
       var bigvidLabelR = document.getElementById('bigvidLabelName');
       if(bigvidLabelR) bigvidLabelR.textContent = 'NAME';
+      var aboutNameR = document.getElementById('aboutMusicianName');
+      if(aboutNameR){ aboutNameR.textContent = 'NAME'; aboutNameR.classList.add('pf-placeholder'); }
     }
 
     // Title / instrument label
