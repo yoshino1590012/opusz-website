@@ -2467,6 +2467,7 @@
           (m.status==='suspended'
             ? '<button class="btn btn-green btn-xs" onclick="toggleStatus('+i+',\'active\')">Reinstate</button>'
             : '<button class="btn btn-red btn-xs" onclick="toggleStatus('+i+',\'suspended\')">Suspend</button>') +
+          '<button class="btn btn-xs" title="永久刪除這位樂手（需親手輸入名字確認）" onclick="deleteMusician(\''+m.uid+'\')" style="border:1px solid #f0caca;color:#c0392b;background:#fff;opacity:.7;padding:4px 7px;">🗑</button>' +
         '</div></td>' +
       '</tr>';
     }).join('');
@@ -2501,6 +2502,35 @@
       await updateDoc(doc(db, 'musicians', m.uid), { status: newStatus });
     } catch(e) { console.log('Update error:', e); }
   }
+
+  // ── Delete a musician (irreversible) — guarded by type-to-confirm ──
+  // Misclicking the 🗑 can't delete anything: the admin must type the
+  // musician's exact name into the prompt before it proceeds.
+  window.deleteMusician = async function(uid) {
+    var m = MUSICIANS.find(function(x){ return (x.uid||x.id) === uid; });
+    var name = m ? (m.name || '(未命名樂手)') : '(未知)';
+    var typed = prompt(
+      '⚠️ 永久刪除樂手「' + name + '」\n\n' +
+      '這個動作【無法復原】，會刪除這位樂手的所有公開資料。\n\n' +
+      '若你確定，請在下面【完整輸入樂手名字】來確認：\n' + name
+    );
+    if (typed === null) return;                       // 按了取消
+    if (typed.trim() !== name.trim()) {               // 名字打錯 → 不刪
+      showNotif('名字不符，已取消（沒有刪除任何資料）');
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, 'musicians', uid));
+      showNotif('已刪除樂手「' + name + '」');
+      loadMusicians();                                // 重新載入列表
+    } catch(e) {
+      console.error('[admin] delete musician failed:', e);
+      var msg = (e.code === 'permission-denied')
+        ? '刪除失敗：權限不足（Firestore 規則未允許管理者刪除樂手，需調整規則）'
+        : '刪除失敗：' + (e.code || e.message);
+      showNotif(msg);
+    }
+  };
 
   // ── Review ──
   window.approveItem = function(btn, msg) {
