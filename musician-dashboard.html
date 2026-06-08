@@ -1856,7 +1856,7 @@
     // page redirects on load, which fought the snap-back guard → infinite reload.
     try{
       var _pf = document.getElementById('pbPreview');
-      if(_pf){ _pf.__pbSnapped = false; _pf.src = 'musician-profile.html?edit=1&uid=' + encodeURIComponent(user.uid); }
+      if(_pf){ _pf.__pbSnapped = false; _pf.src = 'musician-profile.html?edit=1&uid=' + encodeURIComponent(user.uid) + '&_=' + Date.now(); }
     }catch(e){}
 
     // Load profile from Firestore
@@ -2945,7 +2945,7 @@
         // that if the target itself redirects, we never loop (was the reload bug).
         if(frame.__pbSnapped) return;
         frame.__pbSnapped = true;
-        frame.src = 'musician-profile.html?edit=1' + (window.__pbUid ? ('&uid=' + encodeURIComponent(window.__pbUid)) : '');
+        frame.src = 'musician-profile.html?edit=1' + (window.__pbUid ? ('&uid=' + encodeURIComponent(window.__pbUid)) : '') + '&_=' + Date.now();
         return;
       }
       frame.__pbSnapped = false;   // safely back on the profile → re-arm the guard
