@@ -427,6 +427,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .rj-card-meta { display: flex; flex-direction: column; gap: 4px; border-top: none; padding-top: 4px; }
 .rj-meta-row { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #bbb; }
 .rj-meta-row svg { width: 11px; height: 11px; flex-shrink: 0; opacity: .4; }
+/* Event date + time — the most important line, slightly emphasised */
+.rj-meta-row.rj-event { color: #555; font-weight: 500; }
+.rj-meta-row.rj-event svg { opacity: .6; }
+/* "Posted X ago" — subtle timestamp at the foot of each card */
+.rj-posted { font-size: 10px; color: #c4c4c4; margin-top: 9px; letter-spacing: .03em; }
 
 /* ── Responsive ── */
 @media(max-width:1100px) { .rj-grid { grid-template-columns: repeat(2,1fr); } .rj-card:nth-child(3n+1){ border-left: 1px solid rgba(0,0,0,.08); } .rj-card:nth-child(2n+1){ border-left: none; } .rj-card:nth-last-child(-n+2){ border-bottom: none; } }
@@ -998,6 +1003,61 @@ function switchLang(lang) {
 
 // nav.js owns the language toggle; re-run page-content translation on change
 document.addEventListener('opusz:langchange', function(e){ if (typeof switchLang === 'function') switchLang(e.detail.lang); });
+
+// ── Demo job timing — posted-time + event date/time on every card ────────────
+// This page's jobs are SAMPLE data (a reference for how the live board will look).
+// Offsets are measured from "now" at render time, so postings always read as
+// freshly posted and event dates always fall in the future. Real jobs will carry
+// their own postedAt + eventDate/eventTime; this mirrors that exact display.
+var RJ_TIMING = [
+  { postedH:2,  inDays:12, time:'14:30' },  // Solo Violin — Cinematic Album
+  { postedH:5,  inDays:6,  time:'17:00' },  // Jazz Sax — Wedding
+  { postedH:26, inDays:20, time:'10:00' },  // Piano Masterclass
+  { postedH:52, inDays:34, time:'19:30' },  // String Quartet — Gala
+  { postedH:8,  inDays:9,  time:'13:00' },  // Trumpet Overdubs
+  { postedH:73, inDays:25, time:'18:30' },  // Percussion — Theatre
+  { postedH:30, inDays:16, time:'11:00' },  // Wind Trio — Gallery
+  { postedH:1,  inDays:21, time:'20:00' }   // Acoustic Guitar — EP
+];
+var RJ_CAL_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">'
+  + '<rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>'
+  + '<line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+function rjAgo(h, zh){
+  if (h < 1){ var m = Math.max(1, Math.round(h*60)); return zh ? (m + ' 分鐘前') : (m + ' minute'  + (m>1?'s':'') + ' ago'); }
+  if (h < 24){ var hr = Math.round(h);              return zh ? (hr + ' 小時前') : (hr + ' hour'   + (hr>1?'s':'') + ' ago'); }
+  var d = Math.round(h/24);                         return zh ? (d + ' 天前')   : (d + ' day'    + (d>1?'s':'') + ' ago');
+}
+function rjEvent(inDays, time, zh){
+  var dt = new Date(); dt.setDate(dt.getDate() + inDays);
+  var p = time.split(':'), hh = parseInt(p[0],10), mm = p[1], h12 = (hh % 12) || 12;
+  if (zh){
+    var ap = hh < 12 ? '上午' : '下午';
+    var wd = ['日','一','二','三','四','五','六'][dt.getDay()];
+    return dt.getFullYear() + '年' + (dt.getMonth()+1) + '月' + dt.getDate() + '日（' + wd + '）· ' + ap + h12 + ':' + mm;
+  }
+  var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var WD  = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  return WD[dt.getDay()] + ', ' + dt.getDate() + ' ' + MON[dt.getMonth()] + ' ' + dt.getFullYear()
+    + ' · ' + h12 + ':' + mm + ' ' + (hh < 12 ? 'AM' : 'PM');
+}
+function rjRenderTiming(lang){
+  var zh = (lang || _currentLang) === 'zh';
+  document.querySelectorAll('.rj-grid .rj-card').forEach(function(card, i){
+    var t = RJ_TIMING[i % RJ_TIMING.length];
+    var meta = card.querySelector('.rj-card-meta'); if (!meta) return;
+    // Event date + time → first (most important) meta row
+    var ev = card.querySelector('.rj-event');
+    if (!ev){ ev = document.createElement('div'); ev.className = 'rj-meta-row rj-event'; meta.insertBefore(ev, meta.firstChild); }
+    ev.innerHTML = RJ_CAL_SVG + '<span></span>';
+    ev.querySelector('span').textContent = rjEvent(t.inDays, t.time, zh);
+    // "Posted X ago" → foot of card
+    var po = card.querySelector('.rj-posted');
+    if (!po){ po = document.createElement('div'); po.className = 'rj-posted'; card.appendChild(po); }
+    po.textContent = (zh ? '發布於 ' : 'Posted ') + rjAgo(t.postedH, zh);
+  });
+}
+rjRenderTiming(_currentLang);
+document.addEventListener('opusz:langchange', function(e){ rjRenderTiming(e.detail && e.detail.lang); });
 
 </script>
 
