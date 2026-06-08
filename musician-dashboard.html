@@ -4438,12 +4438,23 @@
   window.addEventListener('scroll', function(){ if(active) place(); }, true);
 
   // Auto-show the welcome modal on first visit (once per user).
+  // IMPORTANT: wait until Firebase auth has set window._tourUid before deciding,
+  // otherwise the check runs under the 'anon' key while endTour() saves under the
+  // real uid key — they never match, so the tour reappears on every login.
+  var _tourTries = 0;
   function maybeAutoStart(){
+    if(!window._tourUid){
+      if(_tourTries++ < 40){ setTimeout(maybeAutoStart, 250); }  // wait up to ~10s for auth
+      return;
+    }
     var done = '1';
-    try{ done = localStorage.getItem(lsKey()); }catch(e){}
+    try{
+      done = localStorage.getItem(lsKey());
+      // Migrate a prior completion saved under the racy 'anon' key to this uid.
+      if(!done && localStorage.getItem('opusz-tour-done-anon')){ localStorage.setItem(lsKey(), '1'); done = '1'; }
+    }catch(e){}
     if(!done){ welcome.classList.add('show'); }
   }
-  // Give auth a moment to set the uid, then decide.
   setTimeout(maybeAutoStart, 1200);
 })();
 </script>
