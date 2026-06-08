@@ -835,11 +835,11 @@ function renderGrid(){
       '<a href="'+photoLink+'" class="mcard-photo-link"'+photoLinkExtra+'>' +
         '<div class="mcard-photo" style="position:relative;">' +
           '<div class="mcard-photo-zoom">' + mediaHtml + '</div>' +
-          '<button class="mcard-heart'+(isFav?' active':'')+'" onclick="toggleFav(event,'+m.id+')" aria-label="Favourite" style="position:absolute;top:10px;right:10px;z-index:6;">' +
+          '<button class="mcard-heart'+(isFav?' active':'')+'" onclick="toggleFav(event,\''+m.id+'\')" aria-label="Favourite" style="position:absolute;top:10px;right:10px;z-index:6;">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
           '</button>' +
           '<span class="mcard-explore-photo">Explore →</span>' +
-          (m.audioUrl ? '<button class="mcard-play-photo" onclick="togglePlay(event,'+m.id+')" title="Preview">'+playIcon+'</button>' : '') +
+          (m.audioUrl ? '<button class="mcard-play-photo" onclick="togglePlay(event,\''+m.id+'\')" title="Preview">'+playIcon+'</button>' : '') +
         '</div>' +
       '</a>' +
       '<div class="mcard-body">' +
@@ -906,10 +906,10 @@ function renderFavModal(){
   body.innerHTML = favourites.map(function(id){
     var m = MUSICIANS.find(function(x){ return x.id===id; });
     if(!m) return '';
-    return '<div class="fav-item" onclick="scrollToCard('+m.id+')">' +
+    return '<div class="fav-item" onclick="scrollToCard(\''+m.id+'\')">' +
       '<div class="fav-avatar" style="background:linear-gradient(135deg,'+m.color+',#1a1a1a);color:rgba(255,255,255,.15);">'+m.emoji+'</div>' +
       '<div class="fav-info"><div class="fav-name">'+m.name+'</div><div class="fav-inst">'+m.instrument+' · '+m.region+'</div></div>' +
-      '<button class="fav-remove" onclick="removeFav(event,'+m.id+')" title="Remove">✕</button>' +
+      '<button class="fav-remove" onclick="removeFav(event,\''+m.id+'\')" title="Remove">✕</button>' +
     '</div>';
   }).join('');
 }
@@ -930,7 +930,9 @@ function scrollToCard(id){
 // musician in their dashboard → Firestore, so it works on the live site).
 var _cardAudio = null;
 function togglePlay(e, id){
-  e.stopPropagation();
+  // The play button sits inside the card's <a> link — preventDefault stops the
+  // click from navigating to the profile so it just plays the track.
+  if(e){ if(e.preventDefault) e.preventDefault(); if(e.stopPropagation) e.stopPropagation(); }
   if(currentPlayingId === id){
     stopAudio();
     return;
