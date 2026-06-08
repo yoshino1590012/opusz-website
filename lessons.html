@@ -816,7 +816,10 @@ function renderGrid(){
     var ms = localStorage.getItem('mxys-s-'+m.id)||'1';
     var xysStyle = 'transform:translate('+mx+'px,'+my+'px) scale('+ms+');transform-origin:center center;';
     var mediaHtml;
-    if(savedPhoto){
+    if(m.photoUrl){
+      var cpx=(typeof m.photoX==='number')?m.photoX:50, cpy=(typeof m.photoY==='number')?m.photoY:50, cps=(typeof m.photoScale==='number')?m.photoScale:1;
+      mediaHtml='<img src="'+m.photoUrl+'" alt="'+m.name+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+cpx+'% '+cpy+'%;transform:scale('+cps+');transform-origin:'+cpx+'% '+cpy+'%;">';
+    }else if(savedPhoto){
       mediaHtml='<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'"><img src="'+savedPhoto+'" alt="'+m.name+'" style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;"></div>';
     }else if(savedVideo){
       mediaHtml='<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'"><video src="'+savedVideo+'" muted loop autoplay playsinline style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;"></video></div>';
@@ -1442,6 +1445,74 @@ window.addEventListener('load', function(){
 });
 </script>
 
+<!-- ── Load real teachers from Firestore (musicians who turned on lesson plans) ── -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
+    authDomain: "opusz-45280.firebaseapp.com",
+    projectId: "opusz-45280",
+    storageBucket: "opusz-45280.firebasestorage.app",
+    messagingSenderId: "304745430147",
+    appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
+  };
+  const app = initializeApp(firebaseConfig);
+  const db  = getFirestore(app);
+  const CARD_COLORS = ['#1a1a2e','#16213e','#0f3460','#1a0c0c','#0a2a1a','#1a150a','#101a2e','#1e1a0a','#0a1a10','#1a0a1a'];
+
+  try {
+    const snap = await getDocs(collection(db, 'musicians'));
+    const teachers = [];
+    let colorIdx = 0;
+    snap.forEach((d) => {
+      const p = d.data();
+      if (p.status === 'suspended') return;
+      if (p.published !== true) return;
+      const cfg  = p.config || {};
+      const less = cfg.lessons || {};
+      if (less.visible !== true) return;   // ONLY musicians who enabled lesson plans
+
+      const card = cfg.card || {};
+      const insts = Array.isArray(p.instruments) ? p.instruments : (p.instrument ? [p.instrument] : []);
+      const heroMedia = (cfg.hero && cfg.hero.media) || {};
+      const cardPhoto = card.photoUrl
+        || ((heroMedia.type === 'photo' && heroMedia.url) ? heroMedia.url : '')
+        || (cfg.about && cfg.about.avatarUrl) || '';
+      let lessonFrom = 0;
+      if (Array.isArray(less.plans)) {
+        const prices = less.plans.map(pl => Number(pl && pl.price)).filter(n => n > 0);
+        if (prices.length) lessonFrom = Math.min.apply(null, prices);
+      }
+      teachers.push({
+        id:         d.id,
+        uid:        d.id,
+        name:       card.name || (cfg.hero && cfg.hero.name) || p.name || (p.email ? p.email.split('@')[0] : 'Teacher'),
+        instrument: card.instrument || (Array.isArray(card.instruments) && card.instruments[0]) || insts[0] || '—',
+        region:     card.location || (p.primaryRegion || '').split(' · ').slice(1).join(' · ') || p.primaryRegion || '—',
+        bio:        card.bio || (cfg.about && cfg.about.bio) || p.bio || '',
+        reviews:    0,
+        saves:      0,
+        levels:     Array.isArray(less.levels)  ? less.levels  : [],
+        formats:    Array.isArray(less.formats) ? less.formats : [],
+        days:       Array.isArray(less.days)    ? less.days    : [],
+        lessonFrom: lessonFrom,
+        photoUrl:   cardPhoto,
+        photoX:     (typeof card.photoX === 'number') ? card.photoX : 50,
+        photoY:     (typeof card.photoY === 'number') ? card.photoY : 50,
+        photoScale: (typeof card.photoScale === 'number') ? card.photoScale : 1,
+        color:      CARD_COLORS[colorIdx++ % CARD_COLORS.length],
+        emoji:      '🎵',
+        profileUrl: 'musician-profile.html?uid=' + d.id
+      });
+    });
+    window.TEACHERS = (window.TEACHERS || []).concat(teachers);
+    if (typeof window.renderGrid === 'function') window.renderGrid();
+  } catch (e) {
+    console.log('Lessons Firestore load error:', e);
+  }
+</script>
 <script src="assets/js/smooth-scroll.js" defer></script>
   <script type="module" src="media-sync.js"></script>
 </body>

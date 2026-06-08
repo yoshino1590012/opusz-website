@@ -1594,12 +1594,15 @@
               <div class="pb-group-title">Specialties / 專長</div>
               <div class="pb-subgroup" data-pbsvc="0">
                 <div class="pb-subgroup-title">Card 1 — Performance</div>
+                <label class="pb-check" style="margin-bottom:10px;"><input type="checkbox" id="pbSvc0Visible" onchange="pbOnInput()"> 顯示演出專長卡片 / Show this card</label>
                 <div class="pb-field"><label>標題</label><input type="text" id="pbSvc0Title" oninput="pbOnInput()" placeholder="服務名稱 / Service name"></div>
                 <div class="pb-field"><label>描述</label><textarea id="pbSvc0Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務 / Describe this service"></textarea></div>
                 <div class="pb-field"><label>標籤(每行一項)</label><textarea id="pbSvc0Tags" oninput="pbOnInput()" placeholder="每行一個標籤 / One tag per line"></textarea></div>
               </div>
               <div class="pb-subgroup" data-pbsvc="1">
-                <div class="pb-subgroup-title">Card 2 — Lessons</div>
+                <div class="pb-subgroup-title">Card 2 — Lessons（教學專長）</div>
+                <label class="pb-check" style="margin-bottom:6px;"><input type="checkbox" id="pbSvc1Visible" onchange="pbOnInput(event)"> 顯示教學專長卡片（＝開啟課程方案）</label>
+                <div style="font-size:11px;color:var(--mid);margin-bottom:10px;line-height:1.5;">勾選後會自動開啟「課程方案」，並讓你出現在 Lessons 老師頁。</div>
                 <div class="pb-field"><label>標題</label><input type="text" id="pbSvc1Title" oninput="pbOnInput()" placeholder="服務名稱 / Service name"></div>
                 <div class="pb-field"><label>描述</label><textarea id="pbSvc1Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務 / Describe this service"></textarea></div>
                 <div class="pb-field"><label>標籤(每行一項)</label><textarea id="pbSvc1Tags" oninput="pbOnInput()" placeholder="每行一個標籤 / One tag per line"></textarea></div>
@@ -2394,7 +2397,7 @@
       { value:0, suffix:'', label:'Performances' },
       { value:0, suffix:'', label:'Reviews' }
     ],
-    sections:{ lessonPlans:true, reviews:true, stats:true, highlights:true, audio:true },
+    sections:{ lessonPlans:true, reviews:true, stats:true, highlights:true, audio:true, specPerformance:true },
     partners: [],
     services: [
       { title:'', description:'', tags:[] },
@@ -3135,6 +3138,9 @@
     c('pbSecStats',       pbConfig.sections.stats);
     c('pbSecHighlights',  pbConfig.sections.highlights);
     c('pbSecAudio',       pbConfig.sections.audio);
+    // Specialty card toggles. Performance defaults ON; teaching mirrors lesson plans.
+    c('pbSvc0Visible',    pbConfig.sections.specPerformance !== false);
+    c('pbSvc1Visible',    !!(pbConfig.lessons && pbConfig.lessons.visible));
 
     // Lesson plans
     c('pbLessonVisible', pbConfig.lessons.visible);
@@ -3507,7 +3513,8 @@
         reviews:     chk('pbSecReviews'),
         stats:       chk('pbSecStats'),
         highlights:  chk('pbSecHighlights'),
-        audio:       chk('pbSecAudio')
+        audio:       chk('pbSecAudio'),
+        specPerformance: chk('pbSvc0Visible')   // show the Performance specialty card
       },
       partners:   lines('pbPartners'),
       services:   services,
@@ -3542,12 +3549,14 @@
     // Keep lesson visibility consistent between the Lesson Plans toggle
     // and the Visibility checkbox (lessons.visible is the source of truth).
     const tgt = ev && ev.target ? ev.target : null;
-    if(tgt && tgt.id === 'pbLessonVisible'){
-      const sec = document.getElementById('pbSecLessonPlans');
-      if(sec) sec.checked = tgt.checked;
-    } else if(tgt && tgt.id === 'pbSecLessonPlans'){
-      const lv = document.getElementById('pbLessonVisible');
-      if(lv) lv.checked = tgt.checked;
+    // Lesson plans, the Visibility "課程方案" checkbox, and the teaching-specialty
+    // card toggle are ONE switch — keep all three in lockstep.
+    const LESSON_TOGGLES = ['pbLessonVisible','pbSecLessonPlans','pbSvc1Visible'];
+    if(tgt && LESSON_TOGGLES.indexOf(tgt.id) !== -1){
+      LESSON_TOGGLES.forEach(function(id){
+        const el = document.getElementById(id);
+        if(el && el !== tgt) el.checked = tgt.checked;
+      });
     }
     pbReadForm();
     pbPushPreview();

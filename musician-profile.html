@@ -5584,6 +5584,20 @@ window.addEventListener('pageshow', function(e) {
       if (_lc) _lc.style.display = '';
     }
 
+    // ── SPECIALTY CARD VISIBILITY (musician's own toggles) ──
+    // Performance card shows unless explicitly turned off; the Lessons (teaching)
+    // card shows only when lesson plans are enabled (the linked switch). If neither
+    // is shown, hide the whole Services & Specialties block.
+    var _allServ = document.querySelectorAll('.serv-card');
+    var _perfOn  = !(cfg.sections && cfg.sections.specPerformance === false);
+    var _teachOn = (lessons.visible === true) && (cfg.lessonsEnabled !== false);
+    if(_allServ[0]) _allServ[0].style.display = _perfOn  ? '' : 'none';
+    if(_allServ[1]) _allServ[1].style.display = _teachOn ? '' : 'none';
+    var _visCount = (_perfOn ? 1 : 0) + (_teachOn ? 1 : 0);
+    if(_servGrid) _servGrid.classList.toggle('serv-solo', _visCount === 1);
+    var _servBlock = document.querySelector('.serv-block');
+    if(_servBlock) _servBlock.style.display = (_visCount === 0) ? 'none' : '';
+
     // ── REVIEWS ───────────────────────────────────────────
     if(Array.isArray(cfg.reviews)){
       var reviewList = document.querySelector('.reviews-section .review-list');
