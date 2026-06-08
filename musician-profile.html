@@ -844,7 +844,13 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   .highlights-body { flex-direction:column-reverse; }
   .highlights-frame { width:100%; max-width:340px; position:static; }
 }
-@media(max-width:640px){ .highlights-section { padding:60px 20px; } }
+@media(max-width:640px){
+  .highlights-section { padding:60px 20px; }
+  /* Mobile: show highlights as a text list only — hide the photo preview frame.
+     Desktop/tablet keep the photo + hover preview (full functionality). */
+  .highlights-frame { display:none; }
+  .highlights-list  { flex:1 1 100%; width:100%; }
+}
 
 /* ── Client Reviews ── */
 .reviews-section { max-width:1100px; margin:0 auto; padding:80px 48px; border-bottom:1px solid #f0f0f0; }
