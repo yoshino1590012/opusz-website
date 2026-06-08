@@ -3883,9 +3883,8 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
     if (heroNameBig) heroNameBig.querySelectorAll('span').forEach(s => s.textContent = name);
     const heroNameLeft = document.getElementById('heroNameLeft');
     if (heroNameLeft) heroNameLeft.textContent = name;
-    // Showreel label (top-left of the big video)
-    const bigvidLabel = document.getElementById('bigvidLabelName');
-    if (bigvidLabel) bigvidLabel.textContent = name.toUpperCase();
+    // Showreel big label is driven per-video by updateMeta() (title + subtitle),
+    // NOT the musician name — so nothing to set here.
 
     // ── Hero info card ──
     const infoTitle = document.querySelector('.info-title');
@@ -4002,6 +4001,8 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
   var poster = document.getElementById('bigvidPoster');
   var idxEl  = document.getElementById('bigvidIdx');
   var titleEl= document.getElementById('bigvidTitle');
+  var labelNameEl = document.getElementById('bigvidLabelName');     // big text on the video
+  var labelSubEl  = document.querySelector('.bigvid-label-sub');    // small text under it
   var playBtn= document.getElementById('bigvidPlay');
   var prev   = document.getElementById('bigvidPrev');
   var next   = document.getElementById('bigvidNext');
@@ -4123,7 +4124,7 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
   var initialTitle = titleEl ? titleEl.innerHTML : '';
   function readData(){
     var d = (window.BIGVID_DATA && window.BIGVID_DATA.length) ? window.BIGVID_DATA : [];
-    if(!d.length) d = [{ url:'', title: initialTitle, poster:'' }];
+    if(!d.length) d = [{ url:'', title:'', subtitle:'', poster:'' }];
     return d;
   }
   var data = readData();
@@ -4288,7 +4289,11 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
   function updateMeta(){
     var d = data[cur];
     if(idxEl)   idxEl.textContent = '(' + pad(cur + 1) + ' / ' + pad(data.length) + ')';
-    if(titleEl) titleEl.innerHTML = d.title || '';
+    // Big text on the video = this video's TITLE; small text under it = its SUBTITLE
+    // (defaults to "SHOWREEL"). The old bottom-caption title is no longer used.
+    if(labelNameEl) labelNameEl.textContent = d.title || '';
+    if(labelSubEl)  labelSubEl.textContent  = (d.subtitle && d.subtitle.trim()) ? d.subtitle : 'Showreel';
+    if(titleEl) titleEl.innerHTML = '';
     prev.disabled = (cur === 0);
     next.disabled = (cur === data.length - 1);
     var navEl = document.querySelector('.bigvid-nav');
@@ -5598,7 +5603,7 @@ window.addEventListener('pageshow', function(e) {
     if(Array.isArray(cfg.videos)){
       var vids = cfg.videos
         .filter(function(v2){ return v2 && has(v2.url); })
-        .map(function(v2){ return { url: v2.url, title: v2.title || '', poster: v2.poster || '' }; });
+        .map(function(v2){ return { url: v2.url, title: v2.title || '', subtitle: v2.subtitle || '', poster: v2.poster || '' }; });
       if(vids.length){
         window.BIGVID_DATA = vids;
         document.dispatchEvent(new CustomEvent('bigvid-data-changed'));

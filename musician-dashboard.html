@@ -2275,7 +2275,7 @@
       { title:'', url:'' }
     ],
     videos: [
-      { title:'', url:'', poster:'' }
+      { title:'', subtitle:'', url:'', poster:'' }
     ],
     theme: { accent:'#1ab864', pageBg:'#ffffff', text:'#000000' }
   };
@@ -2350,8 +2350,8 @@
     let videos = (Array.isArray(cfg.videos) ? cfg.videos : [])
       .filter(function(cv){ return cv && typeof cv === 'object'; })
       .slice(0, 3)
-      .map(function(cv){ return { title: cv.title || '', url: cv.url || '', poster: cv.poster || '' }; });
-    if(!videos.length) videos = [{ title:'', url:'', poster:'' }];
+      .map(function(cv){ return { title: cv.title || '', subtitle: cv.subtitle || '', url: cv.url || '', poster: cv.poster || '' }; });
+    if(!videos.length) videos = [{ title:'', subtitle:'', url:'', poster:'' }];
     // theme: merge onto defaults
     const theme = Object.assign({}, PB_DEFAULTS.theme, cfg.theme || {});
     const hero = Object.assign({}, PB_DEFAULTS.hero, cfg.hero || {});
@@ -2865,7 +2865,8 @@
         + '<span class="pb-video-label" style="font-size:12px;font-weight:700;color:var(--black);letter-spacing:.03em;">影片 1</span>'
         + '<button type="button" class="pb-row-del pb-video-del" title="刪除此影片 / Remove" style="margin-top:0;margin-left:auto;">✕</button>'
       + '</div>'
-      + '<div class="pb-field" style="margin-bottom:8px;"><label>標題</label><input type="text" class="pbVideoTitle" value="'+pbEsc(data.title)+'"></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>標題（顯示在影片上的大字）</label><input type="text" class="pbVideoTitle" value="'+pbEsc(data.title)+'" placeholder="例如 巴哈無伴奏"></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>副標題（大字下方小字）</label><input type="text" class="pbVideoSub" value="'+pbEsc(data.subtitle)+'" placeholder="例如 SHOWREEL"></div>'
       + '<div class="pb-field" style="margin-bottom:8px;"><label>影片網址</label><input type="text" class="pbVideoUrl" value="'+pbEsc(data.url)+'" placeholder="https://www.youtube.com/embed/..."></div>'
       + '<div class="pb-field" style="margin-bottom:0;"><label>封面圖網址(選填)</label><input type="text" class="pbVideoPoster" value="'+pbEsc(data.poster)+'" placeholder="https://..."></div>';
     row.querySelector('.pb-video-del').onclick = function(){
@@ -3218,7 +3219,7 @@
       const rows = list ? Array.prototype.slice.call(list.querySelectorAll('.pb-video-row')) : [];
       return rows.map(function(row){
         const g = function(cls){ const el=row.querySelector('.'+cls); return el ? el.value.trim() : ''; };
-        return { title: g('pbVideoTitle'), url: g('pbVideoUrl'), poster: g('pbVideoPoster') };
+        return { title: g('pbVideoTitle'), subtitle: g('pbVideoSub'), url: g('pbVideoUrl'), poster: g('pbVideoPoster') };
       }).filter(function(v2){ return v2.url !== ''; }).slice(0, PB_VIDEO_MAX);
     })();
     const themeVal = (id,def)=>{ const el=document.getElementById(id); const x=el?el.value:''; return /^#[0-9a-fA-F]{6}$/.test(x)?x:def; };
