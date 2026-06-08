@@ -4,7 +4,7 @@
 > 業主（Martin / yoshino1590012）不是工程背景 → 回答一律**中文、白話、給可執行步驟**。
 > 目標：讓這個系統「**能一直被傳承下去**」。看完這份你應該知道：平台在幹嘛、東西存在哪、怎麼上線、改東西要在哪改、哪裡有雷。
 
-最後更新：2026-06-08
+最後更新：2026-06-09
 
 ---
 
@@ -44,6 +44,13 @@
 
 > **2026-06-08 本視窗摘要**：Logo 換新＋全站套用、管理者密碼安全強化、部落格圖片可編輯＋雲端同步、海報投稿系統（樂手↔管理者）、樂手後台收件匣合併、管理者刪樂手功能（差規則放行）、nav logo 對齊修正。詳見 §9。
 > **2026-06-08 另一視窗摘要（樂手檔案／公告／海報／手機線）**：系統公告（管理者發→樂手看，看後 24h 自動消失）、Showreel 影片大改（動態1–3、標題=大字+副標、每片X/Y、手機橫向全螢幕疊層）、亮點可排序+預設第一張+每張X/Y/Zoom、海報存原檔+下載原圖+刪除、客戶刪除鈕、首頁輪播標語可拖曳/對齊（分裝置）、全站隱藏捲動軸、首頁手機白卡縮放、上傳格式錯誤訊息修正。**🔴 重要：首頁有自己的 inline nav（不吃 nav.js）；nav.js 已加 `?v=2` 快取版本號**。詳見 §9 + §7 第 9 點。
+> **2026-06-09 本視窗摘要（訊息後端打通 ＋ 自動 Email 通知系統｜全新基礎設施，務必先讀 §12）**：
+> ①**iOS 首頁修正**：開場大卡在 iPhone 滑動時漏底/閃白（網址列收合 viewport 變高、卡片高度追不上）→ 卡片改用 **`100lvh`(最大視窗)+只增不減快取** 永遠蓋滿；主標題在 iOS 變白（`mix-blend-mode` 疊 canvas 失效）→ 改**固定深色**；手機隱藏底部浮動導覽列；手機 logo（紅圈+OPUS.Z）**整體縮 75%** 並靠齊左上角（首頁 inline nav + `nav.css` 都改，**nav.css bump 到 `?v=3`**）。
+> ②**首頁主標題/副標可後台編輯**：Site Editor「首頁→主視覺」新增「主標題/副標」**多行文字框**（中英、按 Enter 換行）＋「行距」滑桿（`siteContent/home.heroType`）。主標題 CSS 改 `white-space:pre`（**預設一行、只在手動換行處斷**）、副標 `pre-line`。`site-content.js` 加 `applyHeroType`。
+> ③🟢**訊息後端打通（取代 localStorage）**：樂手公開檔的「聯絡(Message)/檔期(Check availability)/課程(Book a lesson)」三個動作 → 改寫進 Firestore **`inquiries`** 集合（`kind:message/booking/lesson` + `musicianUid`，匿名登入；`musician-profile.html` 的 `window.opzSendInquiry`）。樂手後台「**訊息**」改即時讀 `inquiries`（`onSnapshot where musicianUid==我`，已讀/回覆寫回 Firestore；`musician-dashboard.html` 的 `_fsInbox`/`renderInbox`/`__markInquiryRead`/`__saveInquiryReplies`）。已加 `inquiries` Firestore 規則（業主已發布）。Enquiry 表單補了 email 欄位。
+> ④🟢**自動 Email 通知（全新！見 §12）**：用 **ZeptoMail**（Zoho 自家交易型郵件）以 `info@opuszmusic.com` 寄信，網域已驗證（DKIM + bounce CNAME 已加到 Cloudflare）。寫了 **Firebase Cloud Functions**（`functions/` 資料夾，2nd gen）：`notifyMusicianOnInquiry`（新訊息→寄給該樂手註冊信箱）＋（另一視窗加的）`notifyMusicianOnReview`（樂手申請通過/退件→寄給申請人）。**已部署、實測收到信（進主收件匣）**。本機已用 Homebrew 裝 **Node.js + firebase CLI**，已 `firebase login`（yoshino1590012@gmail.com）。
+> ⑤**還沒做**：公開委托(jobs)發布→**自動 email 通知全體樂手**（目前只「私人訊息→單一樂手」有 email）；課程預約流程沒收集學生 email；`functions/` **還沒 commit 進 git**（見 §10）。
+>
 > **2026-06-08 本視窗摘要（公開委托串流／樂手主頁載入體驗／雙語內容）**：①**公開委托真資料流**：客戶在 `recent-jobs` 送委托→寫 Firestore **`jobs`**→樂手後台「公開接案」即時看到（onSnapshot＋紅點徽章＋通知；已過活動日期/已接的自動不顯示）。Post-a-Project 加**活動時間**選擇器。**🔴 還沒通：要業主在 Firebase 主控台①開 Anonymous 登入②發布 `jobs` 規則**（見 §10 第 0.5 點）。②**樂手公開主頁載入大修**：修「published 卻顯示空白模板」(module 頂層 `return` 語法錯→包 async IIFE)、改用 **Firestore REST 取代 SDK**（少約 0.8s 灰屏）、**等照片+字型都好才一次顯示**（名字/照片一起出現、不分批）、**開場動畫等資料就緒才播**、**Showreel 輪播改在動畫後+1.5s 才開始**（修白閃）。③**YouTube showreel 填滿**（過去有黑邊：cinematic 影片被 YT 自己加黑邊→把 iframe 放大 ~1.4× 裁掉）。④**列表卡片音樂(MP3)**：Card 編輯器可上傳 MP3、列表卡播放鍵真的播（並修卡片按鈕因字串 uid 沒加引號→點了跳主頁的 bug）。⑤**樂手內容雙語**：bio/學經歷/服務/亮點各加英文版輸入框；主頁切 EN/中文顯示對應版本（英文留空＝空白、不回退）。⑥**退役所有前台浮動編輯器**（全站 CSS 隱藏）。⑦**nav hover 底線**（從左滑出）改用 nav.js 注入的 `::after`，**全站都有**；**nav.js 版本號 bump 成 `?v=3`**。⑧後台預覽 iframe 加 `&_=Date.now()` 快取破壞（預覽永遠載最新）。⑨修 Site Editor「打字後移位置→文字回退」bug。詳見 §9。
 
 ---
@@ -133,6 +140,8 @@
   - 管理者（有 `siteContent` 寫入權）：**`tzutung.liao@gmail.com`**，密碼**請向業主索取（不寫進 repo）**，uid `qR8q45IUgpSg8lcMeHtHqmngy9e2`。
   - 編輯/發佈前在 `admin-login.html` 用**管理者帳號**登入（建立 Firebase session）。`opusz_admin_loggedIn` 只是 UI 門禁，**不等於** Firebase 登入。
 - **Porkbun**：管 `opuszmusic.com`（nameserver 指向 Cloudflare：`darl`/`jamie`.ns.cloudflare.com）。
+- **ZeptoMail**（交易型寄信，2026-06-09 新增）：用業主 **Zoho 帳號**登入 `zeptomail.zoho.com`；Mail Agent `agent_1`；網域 `opuszmusic.com` 已驗證；寄信金鑰已存成 Firebase secret `ZEPTOMAIL_TOKEN`。詳見 §12。
+- **Firebase CLI**（本機，2026-06-09 新增）：已用 Homebrew 裝 Node.js + firebase-tools（`/opt/homebrew/bin`）；已 `firebase login` 為 **yoshino1590012@gmail.com**（對 opusz-45280 有部署權限）。Cloud Functions 部署/log 見 §12.4。
 
 ### Firebase 安全規則（現狀）
 - Firestore：`match /siteContent/{page}` → 任何人可讀；只有 `tzutung.liao@gmail.com` 可寫。`musicians`/`customers` 各有既有規則（音樂家寫**自己的**）。⚠️ **管理者改/刪「別人的」樂手會被擋**（後台刪除樂手 → permission-denied）→ 放行見 §10 第 0 點。
@@ -154,6 +163,8 @@
 - `nav.js` / `nav.css`：共用導覽（內頁注入）。**≤900px 會把愛心/登入/語言搬進漢堡抽屜**（`#navDrawerExtra`，首頁同邏輯內建在 `musician-platform.html`）。
 - `site-data.json` / `shows-data.json`：首頁/演出頁的檔案型設定（會被 git 追蹤＝部署）。
 - `_redirects`、`.gitignore`（排除 >25MB 大檔；那些影片走 Cloudinary）。
+- 🆕 `functions/index.js` + `firebase.json` + `.firebaserc`（2026-06-09）：**Firebase Cloud Functions**（自動寄信通知）。`notifyMusicianOnInquiry`（訊息→樂手信箱）、`notifyMusicianOnReview`（審核→申請人）。詳見 §12。**⚠️ 還沒 commit 進 git。**
+- 🆕 `musician-profile.html` 新增 `window.opzSendInquiry`（聯絡/檔期/課程 → 寫 Firestore `inquiries`，匿名登入）；`musician-dashboard.html`「訊息」改讀 `inquiries`（`_fsInbox`/`renderInbox`）。見 §12.1。
 
 ---
 
@@ -183,6 +194,22 @@
 ---
 
 ## 9. 變更紀錄 (CHANGELOG)
+
+- **2026-06-09（本視窗：iOS 修正 / 主標題後台可編 / 訊息後端 / 自動 Email；前端已 push、Functions 已部署）**
+  - **iOS 首頁修正**（`musician-platform.html`）：
+    - 🐞 **開場大卡在 iPhone 漏底/閃白**：卡片高度原本鎖 `window.innerHeight`，但 iOS 滑動時網址列收合、可視高度變大 → 卡片變太矮露出後面照片格。改用 `heroViewportH()` 量 **`100lvh`（網址列隱藏時的最大高度）+ 只增不減快取**，卡片永遠 ≥ 視窗 → 不漏不閃；`resizeHeroCanvas`/`updateHeroDims` 都吃這個值，並監聽 `resize`/`orientationchange`/`visualViewport`。
+    - 🐞 **主標題在手機變白**：`.hco-headline`/`.hco-sub` 用 `mix-blend-mode:difference`，iOS Safari 疊在 `<canvas>` 上會失效 → 文字變白。改**固定深色**（標題 `#111`、副標 `#6b7177`），移除 blend-mode。
+    - 手機（≤900px）**隱藏底部浮動導覽列** `.bottom-nav`（`display:none!important` 蓋過 JS 的 inline display）。
+    - 手機 logo **整體縮 75% 並靠左上角**：紅圈 `#navOrbFixed` + 文字 `#navLogoFixed` 用 `transform:scale(.75)` 共同基準點縮放（首頁 inline nav + `nav.css` 都改）。**`nav.css` 全站 `?v=2`→`?v=3`**（cache-bust；下次改 nav.css 記得再 bump）。
+  - **首頁主標題/副標 → 後台可編輯（文字 + 行距 + 換行）**：
+    - `admin-panel.html` `SE_FIELDS` 加 `hero.headline`、`hero.sub`（`multiline:true`）→ 文字框改 **`<textarea>`**（中英、按 Enter 換行）；新增「行距/Line height」滑桿（`seHeroTypeRows`/`seHeroSetLineH`，存 `siteContent/home.heroType`）。
+    - `musician-platform.html`：`.hco-headline` 改 `white-space:pre`（**預設一行、只在手動 `\n` 處換行、不自動折**）；`.hco-sub` 改 `pre-line`。`site-content.js` 加 `applyHeroType()`（套 line-height）。
+  - 🟢 **訊息後端打通**（取代 localStorage，見 §12）：
+    - `musician-profile.html`：加 `window.opzSendInquiry()`（匿名登入 + `addDoc('inquiries')`）；「Send Enquiry」表單補 email 欄位、改寫 Firestore；`submitAvail`（檔期）、lesson `submit`（課程）也改走 `opzSendInquiry`（`kind:booking/lesson`，帶 summary + details）。
+    - `musician-dashboard.html`：「訊息」改即時讀 `inquiries`（auth 區塊加 `onSnapshot where musicianUid==我` → `window._fsInbox`）；`loadEnquiries` 回 `_fsInbox`、`renderInbox` 暴露給 module、已讀/回覆改 `__markInquiryRead`/`__saveInquiryReplies` 寫 Firestore；import 加 `where`。
+    - `inquiries` Firestore 規則已加、業主已發布（見 §12.5）。
+  - 🟢 **自動 Email 通知系統（全新基礎設施，見 §12）**：建 ZeptoMail + 驗證網域（DKIM/CNAME 加到 Cloudflare）+ 寫並部署 Firebase Cloud Functions（`functions/`）：`notifyMusicianOnInquiry`（新訊息→樂手信箱，信頭有紅 Logo）。本機 brew 裝 Node + firebase CLI、`firebase login`、secret `ZEPTOMAIL_TOKEN`。**實測：寄訊息→樂手 Gmail 主收件匣收到** ✅。
+  - **（另一視窗並行加的）** `functions/index.js` 多了 `notifyMusicianOnReview`（樂手申請 approved/rejected → 寄信給申請人，也套 `LOGO_HEADER`）。⚠️ 本次又是多視窗並行改同檔（functions/index.js、musician-dashboard.html、musician-login.html），務必 commit 前重讀。
 
 - **2026-06-08（本視窗：公開委托串流 / 樂手主頁載入 / 雙語內容；全部已 push 上線）**
   - **公開委托真資料流（recent-jobs ↔ 樂手後台）**：
@@ -290,7 +317,11 @@
    - 🔴 **客戶刪除同款問題**：admin「客戶管理」的 🗑 刪除（`deleteDoc(customers/<id>)`）若 `customers` 規則沒放行管理者刪除，一樣會 permission-denied。要的話比照上面，給 `customers/{id}` 加 `|| request.auth.token.email == 'tzutung.liao@gmail.com'` 的 write 規則。**海報刪除**是改 `musicians/{uid}.posterSubmissions[]`（樂手自己的 doc）——若由管理者操作別人的 doc，也吃同一條 musicians 規則。
    - **海報「下載原圖」CORS**：admin 下載鈕用 `fetch→blob`，若 Firebase Storage 沒開放跨來源讀取會被 CORS 擋（已 fallback 開新分頁；新上傳帶 `Content-Disposition:attachment` 開了也會下載）。要「一鍵直接下載」更順，可用 `gsutil cors set` 給 bucket 設 CORS 允許 `opuszmusic.com`/`localhost`。
 
-0.5. 🔴 **公開委托串流要通，業主在 Firebase 主控台做 2 件事**（程式都寫好了，只差這個；見 §9 本視窗）：
+0.6. 🟡 **公開委托(jobs) → 自動 email 通知「全體樂手」**（2026-06-09 待辦）：目前只有「私人訊息(inquiries)→單一樂手」會自動寄 email（§12）。委托是公開的，業主要求**發布委托時自動 email 給所有樂手**。做法：在 `functions/index.js` 加一個 `onDocumentCreated('jobs/{id}')`，用 `admin.auth().listUsers()` 或撈 `musicians` 集合所有 uid → 各自查 email → 用同一個 `sendZepto()` 寄（注意：量大時要分批、加退訂連結/合法性，見 §12 注意事項）。**課程預約流程目前沒收集學生 email**（樂手收到預約但無對方信箱可回）→ 可在 `musician-profile.html` 的 lesson modal 加 email 欄位。
+
+0.7. 🟡 **把 `functions/` 提交進 git**（2026-06-09）：Cloud Functions 程式（`functions/index.js`、`firebase.json`、`.firebaserc`）**已部署但還沒 commit 進 GitHub**（當時有另一視窗並行改同檔、git 工作區有別人未提交的改動，沒硬推）。請接手視窗確認工作區乾淨後，`git add functions firebase.json .firebaserc`（`functions/.gitignore` 已排除 node_modules）→ commit → push。**注意 `functions/index.js` 可能被多視窗改過，commit 前先重讀。**
+
+0.5. ✅ **（已完成）公開委托串流 + Anonymous 登入**：2026-06-09 確認 **Anonymous 登入已開、`jobs` 規則已發布**（`inquiries` 也用匿名登入寫入成功、`jobs` 集合已有真實資料）。委托流程已通。下面這段保留作參考：
    - ① **Authentication → Sign-in method → 開啟 Anonymous（匿名登入）**：讓沒登入的客人也能送委托（`pjSaveJob` 會匿名登入再寫入）。
    - ② **Firestore Database → Rules**，在 `match /databases/{database}/documents {` 內加：
      ```
@@ -325,3 +356,61 @@
 4. **確認沒有別的視窗在改同一個檔**（問業主）。改前重讀、改後 `pull --rebase` 再 push。
 5. 動畫/版面類改動，自己無法用工具完全驗證 → 請業主在真站確認，並用 `jsc` 做語法檢查避免推壞。
 6. 回業主一律中文白話＋可執行步驟。
+7. 🆕 **動到「訊息/通知/寄信」→ 先讀 §12**（這是 2026-06-09 新增的後端 + Cloud Functions 基礎設施，跟前面純前端的東西不一樣）。
+
+---
+
+## 12. 🆕 訊息後端 + 自動 Email 通知（2026-06-09 新增｜最重要的新基礎設施）
+
+> 這是全站第一個「真．後端」：客戶在前台的動作 → 寫 Firestore → **Firebase Cloud Function** 觸發 → 透過 **ZeptoMail** 以 `info@opuszmusic.com` 寄 email 給樂手。跟前面那些「純前端 + Firestore 直接讀寫」不同，這裡有伺服器端程式（functions/）。
+
+### 12.1 整條資料流
+```
+客戶在 musician-profile 按 Message/Check availability/Book a lesson
+   → window.opzSendInquiry() 匿名登入 + addDoc 寫進 Firestore `inquiries`
+       （欄位：kind:'message'|'booking'|'lesson', musicianUid, name, email,
+         subject, message, details, musicianName, createdAt, ts, read, replies）
+   → (A) 樂手後台「訊息」即時顯示（onSnapshot where musicianUid==我）
+   → (B) Cloud Function `notifyMusicianOnInquiry` 觸發
+         → 查該樂手 email（admin.auth().getUser(uid).email，退而求其次 musicians/{uid}.email）
+         → 用 ZeptoMail HTTP API 以 info@opuszmusic.com 寄通知信（信頭有紅 Logo）
+```
+另有 `notifyMusicianOnReview`（另一視窗加的）：`musicians/{uid}` 的 `status` 變 approved/rejected 時，寄審核結果信給申請人。
+
+### 12.2 ZeptoMail（寄信引擎）
+- **登入**：用業主的 **Zoho 帳號**（zeptomail.zoho.com）。Mail Agent = `agent_1`。
+- **網域 `opuszmusic.com` 已驗證**：在 Cloudflare 加了 2 筆 DNS（已生效）：
+  - `TXT  88174._domainkey` = DKIM 公鑰（`k=rsa; p=...`）
+  - `CNAME  bounce-zem` → `cluster89.zeptomail.com`（**必須 DNS only / 不要 Proxied**）
+- **寄信金鑰（Send Mail Token）**：在 ZeptoMail → agent_1 → 「SMTP / API」→ Password 1。**已存成 Firebase secret `ZEPTOMAIL_TOKEN`**（只存 token 本身；程式裡 Authorization 自動加 `Zoho-enczapikey ` 前綴）。
+- **免費額度**有限；量大要在 ZeptoMail「Subscription」買 credits（很便宜，~US$2.5/1萬封）。
+
+### 12.3 Firebase Cloud Functions（`functions/` 資料夾）
+- `functions/index.js`（2nd gen, Node 20）：`notifyMusicianOnInquiry`（onCreate `inquiries/{id}`）＋ `notifyMusicianOnReview`（onUpdate `musicians/{uid}`）。共用 `sendZepto()`、`musicianEmail()`、`LOGO_HEADER`、secret `ZEPTOMAIL_TOKEN`。
+- `firebase.json`（functions source/runtime）、`.firebaserc`（default = opusz-45280）。`functions/.gitignore` 排除 node_modules。
+- 函式在 **us-central1**；Firestore DB 在 **nam5**（含 us-central1，相容，沒問題）。
+- ⚠️ **`functions/` 目前還沒 commit 進 git**（已部署但未進版控）→ §10 第 0.7 點。
+
+### 12.4 部署 / 改 / 看 log（給接手視窗）
+本機已用 Homebrew 裝好 **Node.js + firebase-tools**，路徑在 `/opt/homebrew/bin`（指令前先 `export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"`）。已 `firebase login`（**yoshino1590012@gmail.com**，對 opusz-45280 有權限）。
+- **部署函式**：`cd /Users/martinliao/opusz-website && firebase deploy --only functions --force`
+- **看執行紀錄/除錯**：`firebase functions:log`（或 Firebase Console → Functions → Logs）
+- **改/換寄信金鑰**：在 ZeptoMail 複製 token → `pbpaste | tr -d '\r\n' | firebase functions:secrets:set ZEPTOMAIL_TOKEN --data-file -` → 重新部署。**全程不要把 token 印出來/寫進 repo。**
+- ⚠️ **第一次部署 2nd gen 函式的雷**：（1）會自動啟用一堆 Google Cloud API（Cloud Functions/Build/Run/Eventarc/Artifact Registry…），第一次較久；（2）常見錯誤「Eventarc Service Agent permission … retry in a few minutes」＝權限還在傳播，**等 2~3 分鐘重跑 deploy 就會過**；（3）若報「failed to modify IAM policy / re-run as project owner」＝登入帳號權限不夠，需用**專案 Owner** 身份（yoshino 這次夠用）。
+
+### 12.5 Firestore 規則（本次新增，業主已發布）
+`inquiries` 集合規則（任何登入者可建立、只有該樂手讀/改自己的）：
+```
+match /inquiries/{id} {
+  allow create: if request.auth != null;
+  allow read, update, delete: if request.auth != null
+                               && request.auth.uid == resource.data.musicianUid;
+}
+```
+
+### 12.6 寄件人頭像 Logo（BIMI）— 業主問過，現階段「不做」
+Gmail 寄件人旁邊的圓圈頭像要變成品牌 Logo，需 **BIMI + DMARC 強制 + VMC 付費憑證**（VMC 還要求 Logo 是**註冊商標**，憑證 ~US$1000/年）。CP 值太低，**已跟業主說明、現階段不做**；信件「內容裡」的紅 Logo 已加（`LOGO_HEADER`，每封官方信都有）。未來品牌做大有預算＋商標再回來做。
+
+### 12.7 相關雷區
+- **curl 測線上 HTML 要加 `-L`**：Cloudflare Pages 把 `xxx.html` **308 轉址**成無副檔名 `/xxx`，不跟轉址會抓到空字串（我一度誤判「沒部署」）。例：`curl -sL https://opuszmusic.com/musician-profile`。
+- **讀機密/長字串（DKIM、token）避開隱私過濾**：瀏覽器 JS 直接回傳 key 字串會被擋（"Cookie/query string data"）→ 改回傳**字元碼陣列**再 bash 解碼；或用網頁的「複製鈕」+ `pbpaste` 灌進去（token 走這條最安全）。
