@@ -1923,7 +1923,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       <option value="3">3 hours</option>
       <option value="4">4 hours</option>
     </select>
-    <button class="book-bar-msg" onclick="openEnquiry('message')">
+    <button class="book-bar-msg" onclick="opzStartMessage()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
       <span data-i18n="bar.msg">Message</span>
     </button>
@@ -6190,6 +6190,29 @@ window.addEventListener('pageshow', function(e) {
         replies:     []
       }, obj));
       return true;
+    };
+  </script>
+
+  <!-- Real messaging: "Message" starts a conversation with this musician -->
+  <script type="module" src="messaging.js"></script>
+  <script>
+    window.opzStartMessage = function(){
+      var musicianUid = new URLSearchParams(location.search).get('uid');
+      var customerUid = window.OPUSZ_MSG && OPUSZ_MSG.currentUid();
+      // Fall back to the old enquiry flow if not on a real profile or not logged in.
+      if(!musicianUid || !customerUid){ if(typeof openEnquiry === 'function') openEnquiry('message'); return; }
+      var musicianName = ((document.getElementById('heroNameBig')||{}).textContent || '樂手').trim();
+      var customerName = localStorage.getItem('opusz_user') || '';
+      OPUSZ_MSG.startConversation({
+        customerUid: customerUid, customerName: customerName,
+        musicianUid: musicianUid, musicianName: musicianName,
+        subject: '直接訊息 · ' + musicianName
+      }).then(function(convId){
+        location.href = 'customer-profile.html#msg=' + encodeURIComponent(convId);
+      }).catch(function(e){
+        console.error('[messaging] start failed:', e);
+        if(typeof openEnquiry === 'function') openEnquiry('message');
+      });
     };
   </script>
 </body>

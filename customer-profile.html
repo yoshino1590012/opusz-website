@@ -637,8 +637,8 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   if(window.location.hash === '#bookings'){
     document.querySelector('[data-tab="bookings"]').click();
   }
-  /* Auto-open messages tab if #messages in URL */
-  if(window.location.hash === '#messages'){
+  /* Auto-open messages tab if #messages or #msg=<id> in URL */
+  if(window.location.hash === '#messages' || window.location.hash.indexOf('#msg=') === 0){
     document.querySelector('[data-tab="messages"]').click();
   }
 
@@ -1062,8 +1062,8 @@ window.addEventListener('pageshow', function(e) {
   var COMMISSIONS = [
     { id:'demo', title:'範例 · 你的公開委托會長這樣', posted:'示範', eventDate:'（演出日）', location:'（地點）', budget:'（預算）', status:'open', responses:0, demo:true }
   ];
-  var THREADS = [
-    { id:'demo', subject:'範例 · 委托工作室怎麼用', musician:'OPUS.Z 教學', initials:'示', unread:false, time:'示範', ts:1,
+  // Guided example shown when the customer has no real conversations yet.
+  var DEMO_THREAD = { id:'demo', demo:true, subject:'範例 · 委托工作室怎麼用', musician:'OPUS.Z 教學', initials:'示', unread:false, time:'示範', ts:1,
       brief:{ type:'（這裡會顯示你選的委托類型）', date:'（演出 / 上課日期）', location:'（地點）', budget:'（預算）',
               notes:'這是示範：你對樂手送出委托後，雙方都會在這裡看到當初的需求重點。' },
       deal:{ status:'示範', price:'—', date:'—', terms:'交付後放款', funded:'—', released:'—' },
@@ -1072,9 +1072,8 @@ window.addEventListener('pageshow', function(e) {
         { type:'msg', who:'them', text:'你對樂手送出委托後，樂手的回覆會出現在這邊（白色泡泡）。', time:'' },
         { type:'msg', who:'me', text:'你傳給樂手的訊息會在這邊（黑色泡泡），也可以附檔案。', file:'example.pdf', time:'' },
         { type:'sys', text:'像「已選定樂手 / 已付款 / 已完成」這些進度，會用這種灰色提示插在對話裡。', time:'' },
-        { type:'sys', text:'不需要的話，按右上角「🗑 刪除對話」就能移除這個示範。', time:'' }
-      ] }
-  ];
+        { type:'sys', text:'有真實對話後，這個示範就會被取代。', time:'' }
+      ] };
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
   /* ===== Commissions ===== */
@@ -1113,18 +1112,43 @@ window.addEventListener('pageshow', function(e) {
   });
   renderCommissions();
 
-  /* ===== Messages workroom ===== */
+  /* ===== Messages workroom (real Firestore via OPUSZ_MSG; demo fallback) ===== */
+  var liveThreads = [];   // mapped from Firestore conversations (customer view)
   var activeThread = null;
+  var msgUnsub = null;
+  var myUid = null;
+  // Deep link from a musician page: customer-profile.html#msg=<convId>
+  var pendingOpen = (location.hash.indexOf('#msg=') === 0) ? decodeURIComponent(location.hash.slice(5)) : null;
+
+  function fmtMD(ts){ if(!ts) return ''; var d = ts.toDate ? ts.toDate() : new Date(ts); return ('0'+(d.getMonth()+1)).slice(-2)+'/'+('0'+d.getDate()).slice(-2); }
+  function fmtFull(ts){ if(!ts) return ''; var d = ts.toDate ? ts.toDate() : new Date(ts); return ('0'+(d.getMonth()+1)).slice(-2)+'/'+('0'+d.getDate()).slice(-2)+' '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
+  function firstChar(s){ return (s||'?').trim().charAt(0).toUpperCase(); }
+  function mapConv(c){
+    var b = c.brief || null;
+    return {
+      id: c.id, demo:false,
+      subject: c.subject || '直接訊息',
+      musician: c.musicianName || '樂手',
+      initials: firstChar(c.musicianName),
+      unread: (c.customerUnread||0) > 0,
+      time: fmtMD(c.updatedAt),
+      ts: (c.updatedAt && c.updatedAt.seconds) ? c.updatedAt.seconds : 0,
+      brief: b,
+      lastMessage: c.lastMessage || '',
+      deal: { status:'洽談中', price:(b&&b.budget)||'—', date:(b&&b.date)||'—', terms:'—', funded:'—', released:'—' }
+    };
+  }
+  function displayThreads(){ return liveThreads.length ? liveThreads : [DEMO_THREAD]; }
+  function findThread(id){ if(id==='demo') return DEMO_THREAD; return liveThreads.find(function(t){ return t.id===id; }); }
+
   function renderThreads(){
     var box = document.getElementById('wrThreads'); if(!box) return;
-    // Unread threads float to the top; then most-recent first.
-    var ordered = THREADS.slice().sort(function(a,b){
+    var ordered = displayThreads().slice().sort(function(a,b){
       if(!!b.unread !== !!a.unread) return (b.unread?1:0) - (a.unread?1:0);
       return (b.ts||0) - (a.ts||0);
     });
     box.innerHTML = ordered.map(function(t){
-      var last = t.events[t.events.length-1];
-      var prev = last ? esc(last.text) : '';
+      var prev = t.demo ? esc(t.events[t.events.length-1].text) : esc(t.lastMessage||'');
       return '<div class="wr-thread'+(activeThread===t.id?' active':'')+(t.unread?' unread':'')+'" data-tid="'+t.id+'">'
         + '<div class="wr-th-top"><div class="wr-th-av">'+esc(t.initials)+'</div>'
         + '<div style="min-width:0;"><div class="wr-th-subject">'+esc(t.subject)+'</div><div class="wr-th-musician">'+esc(t.musician)+'</div></div>'
@@ -1133,19 +1157,20 @@ window.addEventListener('pageshow', function(e) {
         + '<div class="wr-th-preview">'+prev+'</div></div>';
     }).join('');
   }
-  function openThread(id){
-    var t = THREADS.find(function(x){ return x.id===id; }); if(!t) return;
-    activeThread = id; t.unread = false; renderThreads();
-    var main = document.getElementById('wrMain'); if(!main) return;
-    var bubbles = t.events.map(function(ev){
+
+  function bubblesHtml(events){
+    return events.map(function(ev){
       if(ev.type==='sys') return '<div class="wr-sys">'+esc(ev.text)+'</div>';
       var fileHtml = ev.file ? '<div class="wr-file">📎 '+esc(ev.file)+'</div>' : '';
       return '<div style="display:flex;flex-direction:column;align-items:'+(ev.who==='me'?'flex-end':'flex-start')+'">'
         + '<div class="wr-bubble '+ev.who+'">'+esc(ev.text)+fileHtml+'</div>'
-        + '<div class="wr-time">'+esc(ev.time)+'</div></div>';
+        + '<div class="wr-time">'+esc(ev.time||'')+'</div></div>';
     }).join('');
+  }
+  function renderConversation(t, events){
+    var main = document.getElementById('wrMain'); if(!main) return;
     var b = t.brief || {};
-    var briefCard = '<div class="wr-brief">'
+    var briefCard = (b && (b.type||b.notes)) ? ('<div class="wr-brief">'
       + '<div class="wr-brief-title">📋 委托內容 / Brief</div>'
       + '<div class="wr-brief-grid">'
         + '<div class="wr-brief-item"><span class="k">類型 / Type</span><span class="v">'+esc(b.type||'—')+'</span></div>'
@@ -1153,45 +1178,78 @@ window.addEventListener('pageshow', function(e) {
         + '<div class="wr-brief-item"><span class="k">地點 / Location</span><span class="v">'+esc(b.location||'—')+'</span></div>'
         + '<div class="wr-brief-item"><span class="k">預算 / Budget</span><span class="v">'+esc(b.budget||'—')+'</span></div>'
         + (b.notes ? '<div class="wr-brief-item wr-brief-notes"><span class="k">備註 / Notes</span><span class="v" style="font-weight:500;">'+esc(b.notes)+'</span></div>' : '')
-      + '</div></div>';
+      + '</div></div>') : '';
+    var d = t.deal || {};
     main.innerHTML =
       '<div class="wr-conv">'
-        + '<div class="wr-conv-head"><span>'+esc(t.subject)+'　·　'+esc(t.musician)+'</span>'
-          + '<button class="wr-del-btn" data-delthread="'+t.id+'">🗑 刪除對話</button></div>'
-        + '<div class="wr-conv-body">'+briefCard+bubbles+'</div>'
-        + '<div class="wr-compose"><input placeholder="輸入訊息… / Type a message"><button>送出</button></div>'
+        + '<div class="wr-conv-head"><span>'+esc(t.subject)+'　·　'+esc(t.musician)+'</span></div>'
+        + '<div class="wr-conv-body" id="wrBody">'+briefCard+bubblesHtml(events)+'</div>'
+        + '<div class="wr-compose"><input id="wrInput" placeholder="輸入訊息… / Type a message"'+(t.demo?' disabled':'')+'><button id="wrSend"'+(t.demo?' disabled style="opacity:.4;cursor:default;"':'')+'>送出</button></div>'
       + '</div>'
       + '<div class="wr-deal">'
-        + '<h4>狀態 / Status</h4><span class="wr-deal-status">'+esc(t.deal.status)+'</span>'
-        + '<h4>價格 / Price</h4><div class="wr-deal-val">'+esc(t.deal.price)+'</div>'
-        + '<h4>日期 / Date</h4><div class="wr-deal-val">'+esc(t.deal.date)+'</div>'
-        + '<h4>付款條件 / Terms</h4><div class="wr-deal-val">'+esc(t.deal.terms)+'</div>'
-        + '<h4>款項 / Payment</h4><div class="wr-deal-val">已入金 '+esc(t.deal.funded)+'<br>已放款 '+esc(t.deal.released)+'</div>'
+        + '<h4>狀態 / Status</h4><span class="wr-deal-status">'+esc(d.status||'洽談中')+'</span>'
+        + '<h4>價格 / Price</h4><div class="wr-deal-val">'+esc(d.price||'—')+'</div>'
+        + '<h4>日期 / Date</h4><div class="wr-deal-val">'+esc(d.date||'—')+'</div>'
+        + '<h4>付款條件 / Terms</h4><div class="wr-deal-val">'+esc(d.terms||'—')+'</div>'
+        + '<h4>款項 / Payment</h4><div class="wr-deal-val">已入金 '+esc(d.funded||'—')+'<br>已放款 '+esc(d.released||'—')+'</div>'
         + '<h4>動作 / Actions</h4><div class="wr-deal-val" style="color:#999;font-weight:500;font-size:12px;">付款 / 放款（後端完成後啟用）</div>'
       + '</div>';
+    var body = document.getElementById('wrBody'); if(body) body.scrollTop = body.scrollHeight;
+    // compose
+    var send = document.getElementById('wrSend'), input = document.getElementById('wrInput');
+    if(send && input && !t.demo){
+      var doSend = function(){
+        var text = input.value.trim(); if(!text) return;
+        input.value = '';
+        if(window.OPUSZ_MSG) OPUSZ_MSG.sendMessage(t.id, { text:text, senderRole:'customer' });
+      };
+      send.addEventListener('click', doSend);
+      input.addEventListener('keydown', function(e){ if(e.key==='Enter') doSend(); });
+    }
   }
-  function deleteThread(id){
-    THREADS = THREADS.filter(function(x){ return x.id !== id; });
-    if(activeThread === id) activeThread = null;
-    renderThreads();
-    var main = document.getElementById('wrMain');
-    if(main) main.innerHTML = '<div class="wr-empty">選擇一個對話 / Select a conversation</div>';
+
+  function openThread(id){
+    var t = findThread(id); if(!t) return;
+    activeThread = id;
+    if(msgUnsub){ msgUnsub(); msgUnsub = null; }
+    if(t.demo){ renderThreads(); renderConversation(t, t.events); return; }
+    t.unread = false; renderThreads();
+    if(window.OPUSZ_MSG) OPUSZ_MSG.markRead(id, 'customer');
+    renderConversation(t, []);   // shell while messages load
+    if(window.OPUSZ_MSG) msgUnsub = OPUSZ_MSG.listenMessages(id, function(msgs){
+      var events = msgs.map(function(m){
+        if(m.type==='sys') return { type:'sys', text:m.text, time:fmtFull(m.createdAt) };
+        return { type:'msg', who: m.senderRole==='customer'?'me':'them', text:m.text, file:(m.file&&m.file.name)||'', time:fmtFull(m.createdAt) };
+      });
+      if(activeThread===id) renderConversation(t, events);
+    });
   }
+
   var wrThreads = document.getElementById('wrThreads');
   if(wrThreads) wrThreads.addEventListener('click', function(e){
     var th = e.target.closest('.wr-thread'); if(th) openThread(th.dataset.tid);
   });
-  var wrMainEl = document.getElementById('wrMain');
-  if(wrMainEl) wrMainEl.addEventListener('click', function(e){
-    var d = e.target.closest('.wr-del-btn'); if(!d) return;
-    if(!confirm('確定要刪除這個對話？')) return;
-    deleteThread(d.dataset.delthread);
-  });
   renderThreads();
-  // Open the first conversation the first time the Messages tab is viewed.
-  window.cpInitWorkroom = function(){ if(!activeThread && THREADS.length) openThread(THREADS[0].id); };
+  window.cpInitWorkroom = function(){ if(!activeThread){ var list = displayThreads(); if(list.length) openThread(list[0].id); } };
+
+  // ── Wire to real conversations once Firebase auth is known ──
+  function bootWorkroom(){
+    if(!window.OPUSZ_MSG){ window.addEventListener('opusz-msg-ready', bootWorkroom, { once:true }); return; }
+    OPUSZ_MSG.onAuth(function(uid){
+      myUid = uid;
+      if(!uid){ liveThreads = []; renderThreads(); return; } // not signed in → demo only
+      OPUSZ_MSG.listConversations(uid, function(convs){
+        liveThreads = convs.map(mapConv);
+        renderThreads();
+        if(pendingOpen && findThread(pendingOpen)){ openThread(pendingOpen); pendingOpen = null; }
+        else if(activeThread && activeThread!=='demo' && !findThread(activeThread)){ activeThread = null; }
+      });
+    });
+  }
+  bootWorkroom();
 })();
 </script>
+<script type="module" src="messaging.js"></script>
 <script src="assets/js/smooth-scroll.js" defer></script>
   <script type="module" src="media-sync.js"></script>
 </body>
