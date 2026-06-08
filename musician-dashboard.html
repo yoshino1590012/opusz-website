@@ -637,6 +637,7 @@
   <script src="partners-library.js"></script>
   <script src="instruments.js"></script>
   <script src="assets/js/analytics.js"></script>
+<style id="opz-no-scrollbar">*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}</style>
 </head>
 <body>
 
@@ -1428,9 +1429,9 @@
               </div>
 
               <div class="pb-subgroup-title" style="margin-top:16px;">照片位置 / Photo position</div>
-              <div class="pb-field"><label>水平 / X (px)</label><input type="range" id="pbCardPhotoX" min="-150" max="150" step="1" value="0" oninput="pbOnInput()" style="width:100%;"></div>
-              <div class="pb-field"><label>垂直 / Y (px)</label><input type="range" id="pbCardPhotoY" min="-150" max="150" step="1" value="0" oninput="pbOnInput()" style="width:100%;"></div>
-              <div class="pb-field"><label>縮放 / Scale</label><input type="range" id="pbCardPhotoScale" min="0.5" max="3" step="0.05" value="1" oninput="pbOnInput()" style="width:100%;"></div>
+              <div class="pb-field"><label>水平 / X (%)</label><input type="range" id="pbCardPhotoX" min="0" max="100" step="1" value="50" oninput="pbOnInput()" style="width:100%;"></div>
+              <div class="pb-field"><label>垂直 / Y (%)</label><input type="range" id="pbCardPhotoY" min="0" max="100" step="1" value="50" oninput="pbOnInput()" style="width:100%;"></div>
+              <div class="pb-field"><label>縮放 / Scale（最小＝填滿相框）</label><input type="range" id="pbCardPhotoScale" min="1" max="3" step="0.05" value="1" oninput="pbOnInput()" style="width:100%;"></div>
             </div>
 
             <!-- About -->
@@ -3186,10 +3187,16 @@
     const place  = document.getElementById('pbCardPreviewPlaceholder');
     const pan     = document.getElementById('pbCardPreviewPan');
     if(!img || !place || !pan) return;
-    const x = (cd.photoX !== undefined && cd.photoX !== null) ? cd.photoX : 0;
-    const y = (cd.photoY !== undefined && cd.photoY !== null) ? cd.photoY : 0;
-    const s = (cd.photoScale !== undefined && cd.photoScale !== null) ? cd.photoScale : 1;
-    pan.style.transform = 'translate(' + x + 'px,' + y + 'px) scale(' + s + ')';
+    const x = (typeof cd.photoX === 'number') ? cd.photoX : 50;
+    const y = (typeof cd.photoY === 'number') ? cd.photoY : 50;
+    const s = (typeof cd.photoScale === 'number') ? cd.photoScale : 1;
+    // Always fill the frame (object-fit:cover); pan via object-position % so the
+    // bottom/edges are reachable, zoom via scale (min 1 = exactly fills frame).
+    pan.style.transform = 'none';
+    img.style.objectFit = 'cover';
+    img.style.objectPosition = x + '% ' + y + '%';
+    img.style.transformOrigin = x + '% ' + y + '%';
+    img.style.transform = 'scale(' + s + ')';
     if(cd.photoUrl){
       img.src = cd.photoUrl; img.style.display = 'block'; place.style.display = 'none';
     } else {
