@@ -603,7 +603,7 @@ nav.mega-open .nav-links a::before {
   font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
   font-size: calc(var(--k)*42px); line-height: 1.04; font-weight: 800;
   letter-spacing: -0.035em; margin: 0 0 calc(var(--k)*14px);
-  white-space: pre-line;               /* honour manual line breaks (\n) from the editor; wrap if needed */
+  white-space: pre;                    /* default ONE line; break ONLY where the editor puts \n (no auto-wrap) */
   /* Fixed dark colour — NOT mix-blend-mode: iOS Safari fails to blend over the <canvas>
      so the headline rendered white & illegible on iPhone (black in desktop preview).
      The overlay only appears over the light card, so a dark colour always reads. */
@@ -633,8 +633,8 @@ nav.mega-open .nav-links a::before {
 }
 /* On phones let the headline wrap (avoid horizontal overflow from nowrap) */
 @media (max-width: 640px){
-  .hco-headline { white-space: pre-line; }
-  .hco-sub { white-space: pre-line; }   /* honour manual breaks + wrap on phones */
+  .hco-headline { white-space: pre; }        /* one line by default; break only on manual \n */
+  .hco-sub { white-space: pre-line; }        /* subtitle still wraps if long; honours manual breaks */
 }
 /* ── initial hidden state ── */
 .hco-btns,
