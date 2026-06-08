@@ -1759,7 +1759,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc, setDoc, collection, getDocs, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, setDoc, collection, getDocs, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -1827,6 +1827,22 @@
     loadAnnouncements();   // show platform announcements on the dashboard
     window._tourUid = user.uid;   // per-user key for the onboarding tour
     window.__pbUid = user.uid;    // used by the live-preview iframe + snap-back
+
+    // ── Private inbox: customer inquiries (message / booking / lesson) for THIS musician ──
+    // Live Firestore feed; populates window._fsInbox which the (non-module) inbox UI reads.
+    try {
+      const _qi = query(collection(db, 'inquiries'), where('musicianUid', '==', user.uid));
+      onSnapshot(_qi, function(snap){
+        var arr = [];
+        snap.forEach(function(d){ var x = d.data(); x.id = d.id; if(!x.ts) x.ts = x.createdAt; arr.push(x); });
+        arr.sort(function(a,b){ return String(b.createdAt||b.ts||'').localeCompare(String(a.createdAt||a.ts||'')); });
+        window._fsInbox = arr;
+        try { if (typeof window.renderInbox === 'function') window.renderInbox(); } catch(e){}
+      }, function(err){ console.warn('[inbox] subscribe failed:', err && err.code); });
+    } catch(e){ console.warn('[inbox] init failed', e); }
+    // Helpers the (non-module) inbox UI calls to persist read-state / replies to Firestore.
+    window.__markInquiryRead = function(id){ try { updateDoc(doc(db,'inquiries',id), { read:true }); } catch(e){} };
+    window.__saveInquiryReplies = function(id, replies){ try { updateDoc(doc(db,'inquiries',id), { replies: replies||[] }); } catch(e){} };
     // Load the preview as THIS musician's own profile. Without the uid the profile
     // page redirects on load, which fought the snap-back guard → infinite reload.
     try{
@@ -3946,9 +3962,12 @@
     btn.classList.add('active');
   };
 
-  // ── Messages: real customer enquiries (from musician-profile "Send Enquiry") ──
-  function loadEnquiries(){ try { return JSON.parse(localStorage.getItem('opusz_enquiries')||'[]'); } catch(e){ return []; } }
-  function saveEnquiries(l){ try { localStorage.setItem('opusz_enquiries', JSON.stringify(l)); } catch(e){} }
+  // ── Messages: real customer inquiries from Firestore (collection `inquiries`) ──
+  // window._fsInbox is kept live by the onSnapshot feed in the auth module above.
+  function loadEnquiries(){ return window._fsInbox || []; }
+  // Persistence now goes straight to Firestore (read-state / replies) via the module
+  // helpers; saveEnquiries is kept as a no-op so existing callers don't break.
+  function saveEnquiries(l){ /* persisted per-doc via window.__markInquiryRead / __saveInquiryReplies */ }
   var currentEnquiryId = null;
   function enqInitial(n){ n=(n||'?').trim(); return n ? n.charAt(0).toUpperCase() : '?'; }
 
@@ -3979,7 +3998,7 @@
     for(var i=0;i<list.length;i++){ if(list[i].id===id){ enq=list[i]; break; } }
     if(!enq) return;
     currentEnquiryId = id;
-    if(!enq.read){ enq.read = true; saveEnquiries(list); }
+    if(!enq.read){ enq.read = true; if(window.__markInquiryRead) window.__markInquiryRead(id); }
     var es=document.getElementById('msgEmptyState'); if(es) es.style.display='none';
     var bubbles=document.getElementById('msgBubbles'); var wrap=document.getElementById('msgInputWrap');
     if(bubbles){
@@ -4009,7 +4028,8 @@
     for(var i=0;i<list.length;i++){ if(list[i].id===currentEnquiryId){ enq=list[i]; break; } }
     if(!enq) return;
     var now=new Date(); var time=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0')+' '+(now.getHours()>=12?'PM':'AM');
-    enq.replies=enq.replies||[]; enq.replies.push({ text:text, time:time }); saveEnquiries(list);
+    enq.replies=enq.replies||[]; enq.replies.push({ text:text, time:time });
+    if(window.__saveInquiryReplies) window.__saveInquiryReplies(currentEnquiryId, enq.replies);
     input.value=''; input.style.height='auto';
     openEnquiryThread(currentEnquiryId);
   };
@@ -4054,6 +4074,7 @@
   };
 
   function renderInbox(){ renderMsgList(); updateInbox(); }
+  window.renderInbox = renderInbox;   // exposed so the Firestore inbox feed can refresh the UI
 
   window.handleMsgKey = function(e) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); window.sendMsg(); }

@@ -4124,6 +4124,10 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
           <label class="enq-label" data-i18n="enq.name">Your name</label>
           <input class="enq-input" type="text" name="client-name" placeholder="Your name" required />
         </div>
+        <div class="enq-field">
+          <label class="enq-label" data-i18n="enq.email">Your email</label>
+          <input class="enq-input" type="email" name="client-email" placeholder="you@example.com" required />
+        </div>
         <button type="submit" class="enq-submit" data-i18n="enq.send">SEND ENQUIRY</button>
       </form>
     </div>
@@ -4901,30 +4905,26 @@ window.submitEnquiryModal = function(e){
   e.preventDefault();
   var form = e.target;
   var data = new FormData(form);
-  // Deliver a real copy to the musician's dashboard inbox (localStorage bridge)
-  try {
-    var enq = {
-      id: 'enq_' + Date.now(),
-      ts: new Date().toISOString(),
-      name: (data.get('client-name')||'').trim(),
-      email: (data.get('client-email')||'').trim(),
-      subject: (data.get('subject')||'').trim(),
-      message: (data.get('message')||'').trim(),
-      musician: (data.get('musician')||'').trim() || 'Martin Liao',
-      read: false,
-      replies: []
-    };
-    var inbox = JSON.parse(localStorage.getItem('opusz_enquiries')||'[]');
-    inbox.unshift(enq);
-    localStorage.setItem('opusz_enquiries', JSON.stringify(inbox));
-  } catch(err){}
-  fetch('/', { method:'POST', body:data })
-    .catch(function(){})
-    .finally(function(){
-      if (window.opuszTrack) opuszTrack('enquiry_sent', { musician: (data.get('musician')||'').trim() });
-      document.getElementById('enqFormView').style.display = 'none';
-      document.getElementById('enqSuccess').classList.add('show');
-    });
+  var payload = {
+    kind:         'message',
+    name:         (data.get('client-name')||'').trim(),
+    email:        (data.get('client-email')||'').trim(),
+    subject:      (data.get('subject')||'').trim(),
+    message:      (data.get('message')||'').trim(),
+    musicianName: (data.get('musician')||'').trim() || (window.MUSICIAN_NAME||'')
+  };
+  function done(){
+    if (window.opuszTrack) opuszTrack('enquiry_sent', { musician: payload.musicianName });
+    document.getElementById('enqFormView').style.display = 'none';
+    document.getElementById('enqSuccess').classList.add('show');
+  }
+  // Deliver to the musician's dashboard inbox via Firestore (opzSendInquiry, defined
+  // in the module script below). Falls back to just showing success if unavailable.
+  if (typeof window.opzSendInquiry === 'function') {
+    window.opzSendInquiry(payload).then(done).catch(function(err){ console.warn('[enquiry] send failed:', err); done(); });
+  } else {
+    done();
+  }
 };
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closeEnquiry();
@@ -6046,5 +6046,31 @@ window.addEventListener('pageshow', function(e) {
 </script>
 
   <script type="module" src="media-sync.js"></script>
+
+  <!-- ── Firestore write bridge: deliver private inquiry (message/booking/lesson) to the
+       viewed musician's dashboard inbox (collection `inquiries`). Anonymous auth, like the
+       public job board. window.opzSendInquiry(obj) → Promise<bool>. ── -->
+  <script type="module">
+    import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    const cfg = { apiKey:'AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s', authDomain:'opusz-45280.firebaseapp.com', projectId:'opusz-45280' };
+    const app  = getApps().length ? getApps()[0] : initializeApp(cfg);
+    const auth = getAuth(app);
+    const db   = getFirestore(app);
+    window.opzSendInquiry = async function(obj){
+      const uid = new URLSearchParams(location.search).get('uid');
+      if (!uid) return false;   // hard-coded template/demo profile → nobody real to notify
+      try { if (!auth.currentUser) await signInAnonymously(auth); } catch(e){ /* anon sign-in may be disabled */ }
+      await addDoc(collection(db, 'inquiries'), Object.assign({
+        musicianUid: uid,
+        createdAt:   new Date().toISOString(),
+        ts:          new Date().toISOString(),
+        read:        false,
+        replies:     []
+      }, obj));
+      return true;
+    };
+  </script>
 </body>
 </html>
