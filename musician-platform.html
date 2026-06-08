@@ -542,7 +542,7 @@ nav.mega-open .nav-links a::before {
   line-height: 1.5;
   color: #fff;
   max-width: 700px;
-  white-space: nowrap;
+  white-space: pre;        /* honour manual \n line breaks (no auto-wrap by default); editor's 自動換行 switches to pre-line */
   opacity: 0;
 }
 .hp-zh {
@@ -551,7 +551,7 @@ nav.mega-open .nav-links a::before {
   letter-spacing: 0.04em;
   opacity: 1;
   margin-top: 4px;
-  white-space: normal;
+  white-space: pre-line;   /* honour manual \n AND wrap long Chinese lines */
 }
 .hp-char { display: inline; }
 /* Big title: at top of hc-upper, near-full-width like WRK */

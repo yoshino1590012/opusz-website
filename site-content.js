@@ -48,6 +48,46 @@ function applyHeroPos(map){
     el.style.translate = has ? (tx + ' ' + ty) : '';
     el.style.scale     = (p.s && p.s !== 1) ? String(p.s) : '';
   });
+  // Rotating phrases share ONE position (the `phrases` key), applied to ALL three
+  // .hp-phrase blocks so they never drift apart.
+  (function(){
+    var p = map.phrases || {};
+    var has = (p.xPct != null || p.yPct != null || p.x || p.y);
+    var tx = (p.xPct != null) ? ('calc(' + p.xPct + ' * 100vw)') : ((p.x || 0) + 'px');
+    var ty = (p.yPct != null) ? ('calc(' + p.yPct + ' * 100vh)') : ((p.y || 0) + 'px');
+    var els = document.querySelectorAll('.hp-phrase');
+    for (var i = 0; i < els.length; i++){
+      els[i].style.translate = has ? (tx + ' ' + ty) : '';
+      els[i].style.scale     = (p.s && p.s !== 1) ? String(p.s) : '';
+    }
+  })();
+}
+// Phrase alignment (left/center/right) + line-wrap. cfg.heroPhrase = {align, wrap}.
+// Shared by all three rotating phrases. align changes the anchor edge so center/
+// right actually shift the block; wrap toggles auto-wrapping of long lines.
+function applyHeroPhrase(s){
+  s = s || {};
+  var align = s.align;
+  var ws = s.wrap ? 'pre-line' : 'pre';
+  var els = document.querySelectorAll('.hp-phrase');
+  for (var i = 0; i < els.length; i++){
+    var el = els[i];
+    el.style.whiteSpace = ws;
+    if (align === 'center'){
+      el.style.left = '0'; el.style.right = '0'; el.style.width = 'auto';
+      el.style.maxWidth = 'none';
+      el.style.paddingLeft = 'clamp(16px,5vw,40px)'; el.style.paddingRight = 'clamp(16px,5vw,40px)';
+      el.style.textAlign = 'center';
+    } else if (align === 'right'){
+      el.style.left = 'auto'; el.style.right = 'clamp(20px,6vw,60px)'; el.style.width = 'auto';
+      el.style.maxWidth = ''; el.style.paddingLeft = ''; el.style.paddingRight = '';
+      el.style.textAlign = 'right';
+    } else { // left / default — clear inline overrides, fall back to CSS base anchor
+      el.style.left = ''; el.style.right = ''; el.style.width = '';
+      el.style.maxWidth = ''; el.style.paddingLeft = ''; el.style.paddingRight = '';
+      el.style.textAlign = (align === 'left') ? 'left' : '';
+    }
+  }
 }
 
 // Brand wordmark colour: 'auto' (or empty) = CSS default (white + mix-blend-mode
@@ -181,6 +221,9 @@ function applyConfig(cfg){
 
   // 1d2) headline / subtitle line-height (行距)
   if ('heroType' in cfg) { try { applyHeroType(cfg.heroType); } catch(e){} }
+
+  // 1d3) rotating phrases alignment (left/center/right) + auto-wrap
+  if ('heroPhrase' in cfg) { try { applyHeroPhrase(cfg.heroPhrase); } catch(e){} }
 
   // 1e) hero button styling (bg / text colour / opacity)
   if ('heroBtn' in cfg) { try { applyHeroBtns(cfg.heroBtn); } catch(e){} }
@@ -422,6 +465,44 @@ window.addEventListener('message', function(e){
       el.addEventListener('pointerup', end);
       el.addEventListener('pointercancel', end);
       // swallow the click that follows a real drag (so buttons/links don't fire)
+      el.addEventListener('click', function(e){ if(moved){ e.preventDefault(); e.stopPropagation(); } }, true);
+    });
+
+    // Phrases: grab ANY one phrase and all three move together (shared position),
+    // saved under the single key 'phrases'.
+    var phraseEls = document.querySelectorAll('.hp-phrase');
+    Array.prototype.forEach.call(phraseEls, function(el){
+      if(el.__opzDrag) return; el.__opzDrag = true;
+      el.style.cursor = 'move';
+      el.style.pointerEvents = 'auto';   // overlay is pointer-events:none; make the phrase grabbable
+      el.title = '拖曳調整位置（三句一起移動）';
+      var on=false, sx=0, sy=0, ox=0, oy=0, moved=false;
+      el.addEventListener('pointerdown', function(e){
+        on=true; moved=false; var o=curOffset(el); ox=o.x; oy=o.y; sx=e.clientX; sy=e.clientY;
+        try{ el.setPointerCapture(e.pointerId); }catch(_){}
+        Array.prototype.forEach.call(phraseEls, function(p){ p.style.outline='2px solid #2563eb'; p.style.outlineOffset='2px'; });
+        e.preventDefault(); e.stopPropagation();
+      });
+      el.addEventListener('pointermove', function(e){
+        if(!on) return;
+        var s = cardScale() || 1;
+        var nx = ox + (e.clientX - sx)/s, ny = oy + (e.clientY - sy)/s;
+        var tv = Math.round(nx)+'px '+Math.round(ny)+'px';
+        Array.prototype.forEach.call(phraseEls, function(p){ p.style.translate = tv; });
+        if(Math.abs(e.clientX-sx)>2 || Math.abs(e.clientY-sy)>2) moved=true;
+        e.preventDefault(); e.stopPropagation();
+      });
+      function endP(){
+        if(!on) return; on=false;
+        Array.prototype.forEach.call(phraseEls, function(p){ p.style.outline=''; });
+        var o = curOffset(el);
+        var vw = window.innerWidth || 1, vh = window.innerHeight || 1;
+        try{ parent.postMessage({__opuszHeroPos:true, key:'phrases',
+          x:Math.round(o.x), y:Math.round(o.y),
+          xPct:+(o.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
+      }
+      el.addEventListener('pointerup', endP);
+      el.addEventListener('pointercancel', endP);
       el.addEventListener('click', function(e){ if(moved){ e.preventDefault(); e.stopPropagation(); } }, true);
     });
   }
