@@ -4629,6 +4629,9 @@ document.addEventListener('keydown', function(e){
   var activeIdxs = []; // slide indices that have photos
   var pos = 0;         // position within activeIdxs
   var timer = null;
+  var _booted = false; // true once the intro is done + slides are inline-initialised
+                       // → guards against the rotation starting mid-intro / before
+                       //   the slides are set up (which caused the white-flash jank).
 
   // Load extra photos from localStorage into slides 1-3
   function loadExtras(){
@@ -4720,13 +4723,17 @@ document.addEventListener('keydown', function(e){
     }, DELAY);
   }
 
-  // Expose so photo editor can trigger a reload
+  // Expose so config-apply / photo editor can refresh the slide set.
+  // IMPORTANT: this only PREPARES the slides (collect + dots). It must NOT start
+  // the rotation timer until the intro has finished (_booted) — otherwise photos
+  // start cycling mid-intro, and goTo() runs before the slides are inline-set up,
+  // which produced the white-flash jank. Once booted, it (re)starts the timer.
   window.__heroSlideshowReload = function(){
     clearInterval(timer);
     collectActive();
     buildDots();
     pos = 0;
-    if(activeIdxs.length > 1){ resetBar(); startTimer(); }
+    if(_booted && activeIdxs.length > 1){ resetBar(); startTimer(); }
   };
 
   // Config-driven: apply extra banner slides 2-4 (slideEls[1..3]) from an array
@@ -4749,7 +4756,8 @@ document.addEventListener('keydown', function(e){
     if(window.__heroSlideshowReload) window.__heroSlideshowReload();
   };
 
-  // Boot after intro animation completes
+  // Boot only AFTER the intro animation fully completes — so the rotation never
+  // overlaps the full-screen → shrink animation.
   document.addEventListener('hero-intro-done', function(){
     collectActive();
     buildDots();
@@ -4767,7 +4775,12 @@ document.addEventListener('keydown', function(e){
       el.style.zIndex     = isActive ? '2' : '1';
     });
 
-    if(activeIdxs.length > 1){ resetBar(); startTimer(); }
+    _booted = true;
+    // Let the page settle after the intro before photos start cycling (~1.5s),
+    // so the experience is: intro plays → everything lands → THEN rotation begins.
+    if(activeIdxs.length > 1){
+      setTimeout(function(){ resetBar(); startTimer(); }, 1500);
+    }
   }, { once: true });
 })();
 
