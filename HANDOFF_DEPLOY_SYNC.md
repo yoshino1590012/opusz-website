@@ -43,6 +43,7 @@
 **🔴 still open（見 §10 待辦）：** ① **放行管理者刪樂手的 Firestore 規則**（後台刪除功能已做、被 permission-denied 擋）② 部落格「**文字**」可編輯（圖片已可）③ 演出頁「刪指定某張海報／拖曳排序」、音樂家後台手機預覽手機外框、Lessons 老師列表、子頁更多區段圖片編輯、影片連結搬雲端。
 
 > **2026-06-08 本視窗摘要**：Logo 換新＋全站套用、管理者密碼安全強化、部落格圖片可編輯＋雲端同步、海報投稿系統（樂手↔管理者）、樂手後台收件匣合併、管理者刪樂手功能（差規則放行）、nav logo 對齊修正。詳見 §9。
+> **2026-06-08 另一視窗摘要（樂手檔案／公告／海報／手機線）**：系統公告（管理者發→樂手看，看後 24h 自動消失）、Showreel 影片大改（動態1–3、標題=大字+副標、每片X/Y、手機橫向全螢幕疊層）、亮點可排序+預設第一張+每張X/Y/Zoom、海報存原檔+下載原圖+刪除、客戶刪除鈕、首頁輪播標語可拖曳/對齊（分裝置）、全站隱藏捲動軸、首頁手機白卡縮放、上傳格式錯誤訊息修正。**🔴 重要：首頁有自己的 inline nav（不吃 nav.js）；nav.js 已加 `?v=2` 快取版本號**。詳見 §9 + §7 第 9 點。
 
 ---
 
@@ -165,6 +166,8 @@
 6. **大小寫敏感**：macOS 本機不分、Cloudflare(Linux) 分，路徑大小寫要對。
 7. **發佈端點在線上會 404**（沒 server.py）：所以「發佈照片」按鈕在線上對檔案型內容無效；文字仍會存 Firebase。
 8. **驗證程式**：本機沒有 node；可用 `jsc`（`/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc`）做 `new Function(src)` 純語法檢查（記得先剝掉 `import` 行）。預覽工具（Claude Preview）會用自己的 server，cwd 可能在家目錄，要導到 `/opusz-website/...`；且**無法穩定重現首頁/演出頁的捲動動畫**，動畫類改動請業主在真站確認。
+9. 🔴 **首頁有自己的 inline nav，不吃 `nav.js`**：`musician-platform.html` 的導覽（登入/帳號/抽屜/登入下拉）是頁面內自帶的;其他內頁才用共用 `nav.js`。**改 nav 行為要兩邊都改**，否則「在其他頁好了、首頁沒好」。另：`nav.js` 全站引用帶 **`?v=N` 版本號**（目前 v2），**改 nav.js 後要 bump 版本號**才不會被瀏覽器/iframe 快取吃掉舊版（本視窗被這個快取坑很久）。**外部 `<script src>` 改了，硬重新整理常常刷不到，版本號才可靠。**
+10. **預覽工具測不到登入後的後台**：`admin-panel`/`musician-dashboard`/`musician-profile?uid=` 都要登入才完整跑（沒登入會跳轉 login）。後台類功能多半只能用 `jsc` 驗語法 + 模擬資料測邏輯，最後請業主登入實測。
 
 ---
 
@@ -215,6 +218,23 @@
   - 🐞 **`server.py` 重大修正**：POST 回應（`/upload-file` 等）原本**沒送 `Content-Length`**，HTTP/1.1 keep-alive 下瀏覽器會一直等連線關閉 → **照片上傳看起來卡住約 30 秒才逾時**（任何圖都中，不是 HEIC 問題）。已在 `_ok`/`_err` 補上 `Content-Length`。**改完要重啟 server.py 才生效。**
   - 照片上傳：`compressImg` 加逾時（HEIC 在 Chrome 不觸發 onload/onerror 會卡死）＋後台上傳器偵測 HEIC 提示改用 JPG/PNG＋30 秒逾時保護。
 
+- **2026-06-08（另一條線：樂手公開檔案 / 系統公告 / 海報 / 手機修正；皆已 push）**
+  - 🔴 **架構雷（最重要）**：**首頁 `musician-platform.html` 有自己一套 inline nav，不載入 `nav.js`**。所以 nav 行為類修正（登入/帳號互斥、抽屜…）**首頁與 nav.js 兩邊都要改**。已把 `nav.js` 全站 `<script src>` 加 **`?v=2`** 強制刷快取 → **以後再改 nav.js，記得 bump 成 `?v=3`**，否則瀏覽器吃舊版（本視窗測試一直被舊 nav.js 快取坑到）。
+  - **Nav 登入/帳號修正**：手機抽屜裡「Log in」與「My Account」**依登入狀態只顯示一個**（抽屜 CSS 用 `!important` 強制顯示，故 JS 改用 `setProperty('display',..,'important')` 壓過）；登入下拉選單（在抽屜外）開啟時**不關閉抽屜**（`closeDrawer` 加 `menuOpen()` guard）。**首頁 inline nav 與 nav.js 同步改**。
+  - **全站隱藏捲動軸**：每頁 `<head>` 注入 `<style id="opz-no-scrollbar">`（`*{scrollbar-width:none;-ms-overflow-style:none}` + `*::-webkit-scrollbar{display:none}`）。內容照捲、只是看不到那條線。
+  - **系統公告（管理者→全樂手）**：admin「Announcements」頁原本是**假的(stub)**，已接通 → 寫進 **`siteContent/announcements`** = `{items:[{id,title,body,urgency,ts}]}`（siteContent **admin 寫/公開讀，不用改規則**），含歷史清單＋逐則刪除。樂手後台「**總覽**」最上方顯示最新公告（依緊急度配色）；**每位樂手「第一次看到後 24 小時自動消失」**——純 localStorage(`opusz_ann_seen_<id>`) 比對時間，**零伺服器負擔/零額外讀寫**。
+  - **Showreel 影片大改**（`musician-dashboard` 編輯 + `musician-profile` 顯示，存 `musicians/{uid}.config.videos[]`）：
+    - **動態清單**：起始 1、**最多 3**、每片可**刪任一個**（不是只刪最後）。
+    - **影片標題 → 顯示成影片上的大字**；新增**副標題**（大字下方，預設「Showreel」）；移除底部那個舊 caption 標題。
+    - 每片**畫面位置 X/Y**，**桌機/手機各一套**（`x/y/xm/ym` → `object-position`，僅對 mp4 `<video>` 有效；iframe 無法 pan）。
+    - 手機「**放大**」鍵 = **頁面內橫向疊層**（`position:fixed` 填滿手機框/手機螢幕，旋轉 90°），含**靜音鍵＋進度條**（重用既有 `mediaCtl`）。⚠️ **不要用瀏覽器原生全螢幕**——原生會衝出 iframe、在後台預覽時佔滿整個電腦螢幕（業主明確不要）。
+  - **Career Highlights（亮點）**（`musician-dashboard` + `musician-profile`，存 `config.highlights[]`）：每條加 **▲▼ 排序**；右側大圖**預設顯示「第一個有圖的亮點」**、**滑到哪張就停在哪張（不跳回最前）**；每張可調 **X / Y / Zoom**（`imageX/imageY/imageZoom` → `background-position` + `transform:scale`，frame 已 `overflow:clip`）。
+  - **海報投稿**：樂手上傳改成**存原檔、完全不壓縮**（保留原始長寬）＋ `Content-Disposition:attachment`；admin 海報卡片加「**⬇ 下載原圖**」（`fetch→blob` 強制下載，CORS 擋則開新分頁＋新檔靠 attachment 也會下載）與「**🗑 刪除**」（從 `posterSubmissions[]` 移除）。
+  - **客戶管理**：每列加「🗑 刪除」鈕（confirm 後 `deleteDoc(customers/<id>)`）。⚠️ 可能同樣被 Firestore 規則擋（見 §10）。
+  - **首頁 Hero 輪播標語**（`siteContent/home`）：三句**共用同一位置**，可在預覽**拖曳**或用 **X/Y 滑桿**移動＋**對齊(左/中/右)**＋換行，**分桌機/手機**（`heroPos.phrases` / `heroPosPhone.phrases` + `heroPhrase{align,wrap}`，`site-content.js` 套用）。⚠️ **業主明確要求標語維持原本「浮現→淡出」捲動動畫、編輯器不要硬把它釘出來**——我曾加 pin/peek 被退回，**已移除，請勿再加**。
+  - **首頁手機白卡**：`_cardEndScale` 手機 **0.69**、桌機 0.60（`musician-platform.html`）。**音樂家列表頁** `musicians.html`：載入中顯示**骨架卡**（`window.musiciansLoaded` 旗標），不再先閃「No musicians found」。**樂手公開檔手機版** Hero 大名字**自動折行、不被右邊切掉**（mobile-only CSS）。
+  - **上傳失敗訊息**：壓縮失敗（HEIC 等無法解碼）改顯示「**圖片格式不支援，請改用 JPG/PNG/WebP**」，不再誤導去動 Storage 規則。
+
 - **2026-06-07（這次 session）**
   - 首頁 Hero 重做：置中大標語「遇見台灣菁英音樂家」＋副標＋品牌字 OPUS.Z（升起動畫、純黑/可調色）、文字 `mix-blend-mode` 黑白反轉。
   - 移除前端所有編輯器（P 照片/Q 版面/R 預覽/O 跳轉）；編輯全集中後台。
@@ -241,6 +261,8 @@
    }
    ```
    ⚠️ 改安全規則＝動存取控制，**Claude 不可代業主發布**；帶業主到 Firebase Console → Firestore Database → 規則，貼上後**由業主親手按「發布」**。（「停用樂手」suspend 同樣是 admin 改別人 doc，改完一起生效。）順帶：業主想刪的測試帳號 **TEST**＝業主用自己 `yoshino1590012@gmail.com` 建的（uid `Yko3QTjFa2QHsn54iFFGUahwJWg2`，簡介亂打 123123…）。
+   - 🔴 **客戶刪除同款問題**：admin「客戶管理」的 🗑 刪除（`deleteDoc(customers/<id>)`）若 `customers` 規則沒放行管理者刪除，一樣會 permission-denied。要的話比照上面，給 `customers/{id}` 加 `|| request.auth.token.email == 'tzutung.liao@gmail.com'` 的 write 規則。**海報刪除**是改 `musicians/{uid}.posterSubmissions[]`（樂手自己的 doc）——若由管理者操作別人的 doc，也吃同一條 musicians 規則。
+   - **海報「下載原圖」CORS**：admin 下載鈕用 `fetch→blob`，若 Firebase Storage 沒開放跨來源讀取會被 CORS 擋（已 fallback 開新分頁；新上傳帶 `Content-Disposition:attachment` 開了也會下載）。要「一鍵直接下載」更順，可用 `gsutil cors set` 給 bucket 設 CORS 允許 `opuszmusic.com`/`localhost`。
 
 1. **部落格「文字可編輯」**（banner/文章的標題、標籤）：圖片已可編輯（§9 2026-06-08），但 `.rs-title`/`.feat__title` 文字還寫死在 `blog.html`、`.rs-tag`/`.feat__tag` 是 `data-i18n`。要接成後台可編輯（**業主有要求，是這條線唯一沒做完的**）。
 
