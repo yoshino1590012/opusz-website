@@ -4136,6 +4136,8 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
     if(cur >= data.length) cur = 0;
     render();
   });
+  // Re-apply the per-device pan when crossing the phone breakpoint (debounced).
+  (function(){ var t; window.addEventListener('resize', function(){ clearTimeout(t); t = setTimeout(function(){ applyVidPos(currentEmbed); }, 150); }); })();
 
   function pad(n){ return n < 10 ? '0' + n : '' + n; }
 
@@ -4224,12 +4226,24 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
   }
 
   // Instant swap — used on initial render and when the editor saves new data.
+  // Pan an mp4 <video> within its (cover-cropped) frame. Per device: phones
+  // (≤700px) use the video's xm/ym, desktop uses x/y. Iframes (YouTube/Vimeo)
+  // can't be panned, so they're skipped.
+  function applyVidPos(el){
+    if(!el || el.tagName !== 'VIDEO') return;
+    var d = data[cur] || {};
+    var mobile = (window.innerWidth || 9999) <= 700;
+    var x = mobile ? (d.xm != null ? d.xm : 50) : (d.x != null ? d.x : 50);
+    var y = mobile ? (d.ym != null ? d.ym : 50) : (d.y != null ? d.y : 50);
+    el.style.objectPosition = x + '% ' + y + '%';
+  }
   function embedVideo(url){
     if(currentEmbed){ currentEmbed.remove(); currentEmbed = null; }
     var el = buildEmbed(url);
     if(!el){ bindProgress(null); return; }
     pin.appendChild(el);
     currentEmbed = el;
+    applyVidPos(el);
     startEmbed(el);
     bindProgress(el);
   }
@@ -4250,6 +4264,7 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
     startEmbed(incoming);
 
     currentEmbed = incoming;
+    applyVidPos(incoming);
     bindProgress(incoming);
     animating = true;
 
@@ -5603,7 +5618,11 @@ window.addEventListener('pageshow', function(e) {
     if(Array.isArray(cfg.videos)){
       var vids = cfg.videos
         .filter(function(v2){ return v2 && has(v2.url); })
-        .map(function(v2){ return { url: v2.url, title: v2.title || '', subtitle: v2.subtitle || '', poster: v2.poster || '' }; });
+        .map(function(v2){
+          var nn = function(n){ return (typeof n === 'number' && isFinite(n)) ? n : 50; };
+          return { url: v2.url, title: v2.title || '', subtitle: v2.subtitle || '', poster: v2.poster || '',
+                   x: nn(v2.x), y: nn(v2.y), xm: nn(v2.xm), ym: nn(v2.ym) };
+        });
       if(vids.length){
         window.BIGVID_DATA = vids;
         document.dispatchEvent(new CustomEvent('bigvid-data-changed'));

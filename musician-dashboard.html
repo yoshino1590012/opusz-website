@@ -2275,7 +2275,7 @@
       { title:'', url:'' }
     ],
     videos: [
-      { title:'', subtitle:'', url:'', poster:'' }
+      { title:'', subtitle:'', url:'', poster:'', x:50, y:50, xm:50, ym:50 }
     ],
     theme: { accent:'#1ab864', pageBg:'#ffffff', text:'#000000' }
   };
@@ -2350,8 +2350,12 @@
     let videos = (Array.isArray(cfg.videos) ? cfg.videos : [])
       .filter(function(cv){ return cv && typeof cv === 'object'; })
       .slice(0, 3)
-      .map(function(cv){ return { title: cv.title || '', subtitle: cv.subtitle || '', url: cv.url || '', poster: cv.poster || '' }; });
-    if(!videos.length) videos = [{ title:'', subtitle:'', url:'', poster:'' }];
+      .map(function(cv){
+        const nn = function(v2){ return (v2 !== undefined && v2 !== null && v2 !== '') ? Number(v2) : 50; };
+        return { title: cv.title || '', subtitle: cv.subtitle || '', url: cv.url || '', poster: cv.poster || '',
+                 x: nn(cv.x), y: nn(cv.y), xm: nn(cv.xm), ym: nn(cv.ym) };
+      });
+    if(!videos.length) videos = [{ title:'', subtitle:'', url:'', poster:'', x:50, y:50, xm:50, ym:50 }];
     // theme: merge onto defaults
     const theme = Object.assign({}, PB_DEFAULTS.theme, cfg.theme || {});
     const hero = Object.assign({}, PB_DEFAULTS.hero, cfg.hero || {});
@@ -2857,6 +2861,8 @@
     if(!list) return;
     if(pbVideoRows().length >= PB_VIDEO_MAX) return;
     const n = pbVideoRowSeq++;
+    const num = function(val){ return (val !== undefined && val !== null && val !== '') ? Number(val) : 50; };
+    const dx = num(data.x), dy = num(data.y), dxm = num(data.xm), dym = num(data.ym);
     const row = document.createElement('div');
     row.className = 'pb-video-row';
     row.style.cssText = 'border:1.5px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;';
@@ -2868,7 +2874,12 @@
       + '<div class="pb-field" style="margin-bottom:8px;"><label>標題（顯示在影片上的大字）</label><input type="text" class="pbVideoTitle" value="'+pbEsc(data.title)+'" placeholder="例如 巴哈無伴奏"></div>'
       + '<div class="pb-field" style="margin-bottom:8px;"><label>副標題（大字下方小字）</label><input type="text" class="pbVideoSub" value="'+pbEsc(data.subtitle)+'" placeholder="例如 SHOWREEL"></div>'
       + '<div class="pb-field" style="margin-bottom:8px;"><label>影片網址</label><input type="text" class="pbVideoUrl" value="'+pbEsc(data.url)+'" placeholder="https://www.youtube.com/embed/..."></div>'
-      + '<div class="pb-field" style="margin-bottom:0;"><label>封面圖網址(選填)</label><input type="text" class="pbVideoPoster" value="'+pbEsc(data.poster)+'" placeholder="https://..."></div>';
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>封面圖網址(選填)</label><input type="text" class="pbVideoPoster" value="'+pbEsc(data.poster)+'" placeholder="https://..."></div>'
+      + '<div style="font-size:11px;font-weight:700;color:var(--mid);margin:4px 0 4px;">畫面位置（橫式影片裁切時，決定顯示哪一塊）</div>'
+      + '<div class="pb-field" style="margin-bottom:4px;"><label>桌機 水平 X (%)</label><input type="range" class="pbVideoX"  min="0" max="100" step="1" value="'+dx+'"  style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>桌機 垂直 Y (%)</label><input type="range" class="pbVideoY"  min="0" max="100" step="1" value="'+dy+'"  style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:4px;"><label>📱 手機 水平 X (%)</label><input type="range" class="pbVideoXM" min="0" max="100" step="1" value="'+dxm+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:0;"><label>📱 手機 垂直 Y (%)</label><input type="range" class="pbVideoYM" min="0" max="100" step="1" value="'+dym+'" style="width:100%;"></div>';
     row.querySelector('.pb-video-del').onclick = function(){
       if(pbVideoRows().length <= 1) return;   // keep at least one
       row.remove();
@@ -3219,7 +3230,9 @@
       const rows = list ? Array.prototype.slice.call(list.querySelectorAll('.pb-video-row')) : [];
       return rows.map(function(row){
         const g = function(cls){ const el=row.querySelector('.'+cls); return el ? el.value.trim() : ''; };
-        return { title: g('pbVideoTitle'), subtitle: g('pbVideoSub'), url: g('pbVideoUrl'), poster: g('pbVideoPoster') };
+        const gn = function(cls){ const el=row.querySelector('.'+cls); const x=el?Number(el.value):50; return isFinite(x)?x:50; };
+        return { title: g('pbVideoTitle'), subtitle: g('pbVideoSub'), url: g('pbVideoUrl'), poster: g('pbVideoPoster'),
+                 x: gn('pbVideoX'), y: gn('pbVideoY'), xm: gn('pbVideoXM'), ym: gn('pbVideoYM') };
       }).filter(function(v2){ return v2.url !== ''; }).slice(0, PB_VIDEO_MAX);
     })();
     const themeVal = (id,def)=>{ const el=document.getElementById(id); const x=el?el.value:''; return /^#[0-9a-fA-F]{6}$/.test(x)?x:def; };
