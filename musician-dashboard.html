@@ -1673,7 +1673,6 @@
             </div>
 
             <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border);">
-              <button class="btn btn-outline" style="width:100%;justify-content:center;margin-bottom:10px;" onclick="pbSave()">儲存草稿 / Save draft</button>
               <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="pbPublish()">發布我的頁面 / Publish</button>
               <button id="pbUnpublishBtn" onclick="pbUnpublish()" style="width:100%;justify-content:center;margin-top:8px;background:none;border:none;color:#c0392b;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:6px;">下架我的頁面 / Unpublish</button>
               <button id="pbResetAllBtn" onclick="pbResetAll()" style="width:100%;justify-content:center;margin-top:4px;background:none;border:1px solid var(--border);border-radius:8px;color:#888;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:8px;">↺ 恢復空白模板 / Reset to template</button>
@@ -3290,7 +3289,7 @@
   // persisted until the musician clicks 儲存草稿 / 發布 — so navigating away
   // without saving leaves their published page untouched (reversible).
   window.pbResetAll = function(){
-    if(!confirm('確定要把整個頁面恢復成空白模板嗎？\n所有照片、卡片照片、文字與設定都會清除。\n（按「儲存草稿」或「發布」後才會真正套用，可先離開取消）\n\nReset the whole page to the blank template? All photos, text and settings will be cleared.')) return;
+    if(!confirm('確定要把整個頁面恢復成空白模板嗎？\n所有照片、卡片照片、文字與設定都會清除。\n（按「發布」後才會真正套用，可先離開取消）\n\nReset the whole page to the blank template? All photos, text and settings will be cleared.')) return;
     pbConfig = pbDeepDefaults({});      // blank template = PB_DEFAULTS normalized
     pbInited = true;
     pbPopulateForm();                   // write the blanks into every form field
@@ -3304,7 +3303,7 @@
       var thumb = wrap && wrap.querySelector ? wrap.querySelector('img') : null;
       if(thumb){ thumb.removeAttribute('src'); thumb.style.display = 'none'; }
     });
-    showNotif('已恢復空白模板 ✓ 記得按「儲存草稿」或「發布」套用');
+    showNotif('已恢復空白模板 ✓ 記得按「發布」套用');
   };
 
   window.pbSetDevice = function(mode, btn){
