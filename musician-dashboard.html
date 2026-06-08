@@ -2138,7 +2138,7 @@
           var ext = file.type==='image/png' ? 'png' : (file.type==='image/webp' ? 'webp' : 'jpg');
           var path = 'musicians/' + _currentUser.uid + '/poster_' + Date.now() + '.' + ext;
           var r = storageRef(storage, path);
-          await uploadBytes(r, file, { contentType: file.type });
+          await uploadBytes(r, file, { contentType: file.type, contentDisposition: 'attachment; filename="poster.' + ext + '"' });
           var url = await getDownloadURL(r);
           resolve(url);
         }catch(e){ reject(e); }

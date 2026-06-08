@@ -2555,10 +2555,30 @@
           +(p.description?'<div style="font-size:13px;color:#555;margin-bottom:6px;line-height:1.5;">'+esc(p.description)+'</div>':'')
           +(links?'<div style="margin-bottom:8px;">'+links+'</div>':'')
           +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:11px;font-weight:700;color:'+st[1]+';background:'+st[2]+';padding:2px 9px;border-radius:20px;">'+st[0]+'</span><span style="font-size:11px;color:#aaa;">投稿於 '+esc(String(p.submittedAt||'').slice(0,10))+'</span></div>'
-          +'<div>'+actions+'</div>'
+          +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">'
+          +'<button onclick="downloadPoster(\''+esc(p.imageUrl)+'\',\''+esc(p.title||'poster')+'\')" style="font-size:12px;font-weight:700;color:#fff;background:#111;border:none;border-radius:7px;padding:6px 12px;cursor:pointer;">⬇ 下載原圖</button>'
+          +actions+'</div>'
         +'</div></div>';
     }).join('');
   }
+  // Download the ORIGINAL poster image. Fetch→blob forces a real download (with the
+  // poster title as filename); if that's blocked (CORS), fall back to opening the URL
+  // (new uploads carry Content-Disposition:attachment so even that downloads).
+  window.downloadPoster = async function(url, name){
+    if(!url){ showNotif('沒有圖片網址'); return; }
+    try{
+      var res = await fetch(url);
+      var blob = await res.blob();
+      var ext = (blob.type && blob.type.split('/')[1]) || 'jpg';
+      var a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = (name || 'poster').replace(/[^\w\-]+/g,'_') + '.' + ext;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000);
+    }catch(e){
+      window.open(url, '_blank');   // CORS fallback
+    }
+  };
   async function _adminSetPosterStatus(posterId, musicianUid, status){
     try{
       var ref = doc(db,'musicians',musicianUid);
