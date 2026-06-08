@@ -824,6 +824,20 @@
       </div>
 
       <!-- ══════════════ JOBS ══════════════ -->
+      <style>
+        .jobs-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+        .job-card{ border:1px solid #ececec; border-radius:14px; padding:16px 16px 14px; background:#fff; display:flex; flex-direction:column; gap:8px; }
+        .job-badge{ align-self:flex-start; font-size:10px; font-weight:700; letter-spacing:.08em; color:#666; background:#f3f3f3; border-radius:20px; padding:3px 10px; }
+        .job-title{ font-size:15px; font-weight:700; color:#1a1a1a; line-height:1.3; }
+        .job-desc{ font-size:12.5px; color:#777; line-height:1.55; }
+        .job-meta{ display:flex; flex-direction:column; gap:4px; margin-top:2px; }
+        .job-meta-row{ font-size:12px; color:#888; }
+        .job-meta-row.job-event{ color:#333; font-weight:600; }
+        .job-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:6px; padding-top:10px; border-top:1px solid #f0f0f0; }
+        .job-posted{ font-size:10.5px; color:#bbb; }
+        .job-contact{ font-size:12px; font-weight:700; color:#fff; background:#111; border-radius:20px; padding:6px 13px; text-decoration:none; white-space:nowrap; }
+        .job-contact:hover{ opacity:.85; }
+      </style>
       <div class="page" id="page-jobs">
         <div class="page-header">
           <h1>公開接案</h1>
@@ -1730,7 +1744,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, setDoc, collection, getDocs, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -1799,6 +1813,9 @@
     } catch(e) {
       console.log('Profile load error:', e);
     }
+
+    // Live public-jobs feed (badge + board). Runs regardless of profile load.
+    try{ subscribeJobs(); }catch(e){ console.warn('[jobs] init failed:', e); }
   });
 
   // ── Populate My Profile tab fields from Firestore data ──
@@ -1927,7 +1944,105 @@
     if (id === 'pagebuilder') pbInit();
     if (id === 'membership') pbRenderMembership();
     if (id === 'posters') posterInit();
+    if (id === 'jobs') { jobsMarkSeen(); renderJobs(); }   // opening the board = "seen"
   };
+
+  /* ════════════════════════════════════════════════════════════════
+     公開接案 / Public jobs board — live feed of customer commissions
+     posted from recent-jobs.html (Firestore `jobs`). Shows OPEN jobs that
+     haven't passed their event date; a sidebar badge counts ones posted
+     since this musician last opened the board, with a toast on new arrivals.
+     ════════════════════════════════════════════════════════════════ */
+  var _jobsUnsub = null, _jobsInitialLoaded = false;
+  function jobsSeenKey(){ return 'opusz_jobs_seen_' + ((_currentUser && _currentUser.uid) || 'anon'); }
+  function jobsLastSeen(){ try { return localStorage.getItem(jobsSeenKey()) || ''; } catch(e){ return ''; } }
+  function jobsMarkSeen(){ try { localStorage.setItem(jobsSeenKey(), new Date().toISOString()); } catch(e){} }
+  function jobIsExpired(j){
+    if (!j.eventDate) return false;                  // no date → never auto-expires
+    var d = new Date(j.eventDate + 'T23:59:59');      // expire at end of the event day
+    return !isNaN(d.getTime()) && d.getTime() < Date.now();
+  }
+  function visibleJobs(){
+    return (window.__allJobs || []).filter(function(j){
+      return (j.status || 'open') === 'open' && !jobIsExpired(j);
+    });
+  }
+  function escj(s){ return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+  var JOB_TYPE_LABEL = { wedding:'婚禮', corporate:'企業活動', recording:'錄音', concert:'音樂會 / 演出', masterclass:'大師班', private:'私人活動', other:'其他' };
+  function jobAgo(iso){
+    if (!iso) return '';
+    var then = new Date(iso).getTime(); if (isNaN(then)) return '';
+    var mins = Math.round((Date.now() - then) / 60000);
+    if (mins < 1)  return '剛剛';
+    if (mins < 60) return mins + ' 分鐘前';
+    var hrs = Math.round(mins / 60); if (hrs < 24) return hrs + ' 小時前';
+    return Math.round(hrs / 24) + ' 天前';
+  }
+  function jobEventStr(j){
+    if (!j.eventDate) return '';
+    var dt = new Date(j.eventDate + 'T' + (j.eventTime || '00:00'));
+    if (isNaN(dt.getTime())) return j.eventDate + (j.eventTime ? (' ' + j.eventTime) : '');
+    var wd  = ['日','一','二','三','四','五','六'][dt.getDay()];
+    var base = dt.getFullYear() + '年' + (dt.getMonth()+1) + '月' + dt.getDate() + '日';
+    if (j.eventTime == null || j.eventTime === '') return base + '（' + wd + '）';
+    var hh = dt.getHours(), mm = ('0' + dt.getMinutes()).slice(-2);
+    return base + '（' + wd + '）· ' + (hh < 12 ? '上午' : '下午') + ((hh % 12) || 12) + ':' + mm;
+  }
+  function jobCardHtml(j){
+    var typeLabel = JOB_TYPE_LABEL[j.type] || '';
+    var title = j.ensemble || typeLabel || '演出需求';
+    var mail = j.customerEmail
+      ? ('mailto:' + j.customerEmail + '?subject=' + encodeURIComponent('OPUS.Z 公開委托回覆'))
+      : '';
+    return '<div class="job-card">'
+      + (typeLabel ? '<span class="job-badge">' + escj(typeLabel) + '</span>' : '')
+      + '<div class="job-title">' + escj(title) + '</div>'
+      + (j.desc ? '<div class="job-desc">' + escj(j.desc) + '</div>' : '')
+      + '<div class="job-meta">'
+        + '<div class="job-meta-row job-event">📅 ' + escj(jobEventStr(j)) + '</div>'
+        + (j.location ? '<div class="job-meta-row">📍 ' + escj(j.location) + '</div>' : '')
+        + (j.duration ? '<div class="job-meta-row">⏱ ' + escj(j.duration) + '</div>' : '')
+      + '</div>'
+      + '<div class="job-foot">'
+        + '<span class="job-posted">發布於 ' + jobAgo(j.createdAt) + (j.customerName ? ' · ' + escj(j.customerName) : '') + '</span>'
+        + (mail ? '<a class="job-contact" href="' + mail + '">我有興趣 →</a>' : '')
+      + '</div>'
+    + '</div>';
+  }
+  function renderJobs(){
+    var box = document.getElementById('jobs-public'); if (!box) return;
+    var list = visibleJobs();
+    var lastSeen = jobsLastSeen();
+    var newCount = list.filter(function(j){ return !lastSeen || (j.createdAt || '') > lastSeen; }).length;
+    var jb = document.getElementById('sbJobsBadge');
+    if (jb){ jb.textContent = newCount; jb.style.display = newCount ? '' : 'none'; }
+    // Toast only when fresh jobs arrive AFTER the first load (not on initial paint).
+    if (_jobsInitialLoaded && newCount > (window.__jobsPrevNew || 0) && typeof showNotif === 'function') {
+      showNotif('🔔 有新的公開委托！');
+    }
+    window.__jobsPrevNew = newCount;
+    _jobsInitialLoaded = true;
+    if (!list.length){
+      box.innerHTML = '<div style="text-align:center;padding:60px 0;color:#aaa;">'
+        + '<div style="font-size:36px;margin-bottom:12px;">📋</div>'
+        + '<div style="font-size:15px;font-weight:700;color:#555;margin-bottom:6px;">目前沒有公開工作</div>'
+        + '<div style="font-size:13px;">當平台上有新演出需求時，會顯示在這裡</div></div>';
+      return;
+    }
+    box.innerHTML = '<div class="jobs-grid">' + list.map(jobCardHtml).join('') + '</div>';
+  }
+  function subscribeJobs(){
+    if (_jobsUnsub) return;
+    try {
+      var q = query(collection(db, 'jobs'), orderBy('createdAt', 'desc'));
+      _jobsUnsub = onSnapshot(q, function(snap){
+        var jobs = [];
+        snap.forEach(function(d){ var j = d.data(); j.id = d.id; jobs.push(j); });
+        window.__allJobs = jobs;
+        renderJobs();
+      }, function(err){ console.warn('[jobs] subscribe failed:', err && err.code); });
+    } catch(e){ console.warn('[jobs] subscribe error:', e); }
+  }
 
   /* ════════════════════════════════════════════════════════════════
      海報投稿 / Poster Submission — musicians submit a concert poster

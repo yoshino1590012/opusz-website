@@ -878,12 +878,55 @@ document.querySelectorAll('.pj-pill').forEach(function(pill) {
   });
 });
 
-// Submit — simple confirmation
+// Submit — gather fields → save a public commission to Firestore (jobs).
+// Registered musicians see it in their dashboard's 公開接案 board.
 var pjSubmit = document.getElementById('pjSubmit');
-if (pjSubmit) pjSubmit.addEventListener('click', function() {
-  pjSubmit.textContent = 'Inquiry Sent ✓';
-  pjSubmit.style.background = '#2d6a4f';
-  setTimeout(function() { closePjModal(); pjSubmit.textContent = 'Find Musicians →'; pjSubmit.style.background = ''; }, 2200);
+if (pjSubmit) pjSubmit.addEventListener('click', async function() {
+  var date = (document.getElementById('pjDate')   || {}).value || '';
+  var time = (document.getElementById('pjTime')   || {}).value || '';
+  // Date + time are the whole point — require them.
+  if (!date || !time) {
+    var prevT = pjSubmit.textContent;
+    pjSubmit.textContent = (_currentLang === 'zh') ? '請選擇活動日期與時間' : 'Please choose event date & time';
+    setTimeout(function(){ pjSubmit.textContent = prevT; }, 2200);
+    return;
+  }
+  var sess = {}; try { sess = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}'); } catch(e){}
+  var pill = document.querySelector('.pj-pill.active');
+  var val  = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  var data = {
+    type:          pill ? pill.getAttribute('data-type') : '',
+    ensemble:      val('pjEnsemble'),
+    location:      val('pjLocation'),
+    duration:      val('pjDuration'),
+    desc:          val('pjDesc'),
+    eventDate:     date,                 // yyyy-mm-dd
+    eventTime:     time,                 // HH:MM (24h)
+    customerName:  val('pjName')  || sess.name  || '',
+    customerEmail: val('pjEmail') || sess.email || ''
+  };
+  pjSubmit.disabled = true;
+  pjSubmit.textContent = (_currentLang === 'zh') ? '送出中…' : 'Sending…';
+  try {
+    if (typeof window.pjSaveJob !== 'function') throw new Error('not-ready');
+    await window.pjSaveJob(data);
+    pjSubmit.textContent = (_currentLang === 'zh') ? '已送出 ✓' : 'Inquiry Sent ✓';
+    pjSubmit.style.background = '#2d6a4f';
+    ['pjDate','pjTime','pjLocation','pjDuration','pjEnsemble','pjDesc','pjName','pjEmail']
+      .forEach(function(id){ var el = document.getElementById(id); if (el) el.value = ''; });
+    document.querySelectorAll('.pj-pill').forEach(function(p){ p.classList.remove('active'); });
+    setTimeout(function() {
+      closePjModal();
+      pjSubmit.textContent = 'Find Musicians →'; pjSubmit.style.background = ''; pjSubmit.disabled = false;
+    }, 1800);
+  } catch (e) {
+    console.warn('[jobs] save failed:', e && (e.code || e.message));
+    pjSubmit.textContent = (_currentLang === 'zh') ? '送出失敗，請稍後再試' : 'Could not send — try again';
+    pjSubmit.style.background = '#b91c1c';
+    setTimeout(function() {
+      pjSubmit.textContent = 'Find Musicians →'; pjSubmit.style.background = ''; pjSubmit.disabled = false;
+    }, 2600);
+  }
 });
 
 // ── i18n ──
@@ -1125,6 +1168,36 @@ document.querySelectorAll('[data-google]').forEach(function(btn){
   });
 });
 </script>
+  <!-- ── Save a public commission to Firestore (jobs collection) ── -->
+  <script type="module">
+  import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+  import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+  import { getFirestore, collection, addDoc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+  const cfg = { apiKey:'AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s', authDomain:'opusz-45280.firebaseapp.com', projectId:'opusz-45280' };
+  const app  = getApps().length ? getApps()[0] : initializeApp(cfg);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+
+  // A public job-board post must come from *some* authenticated session so the
+  // Firestore rule (create if request.auth != null) lets it through. If the
+  // customer isn't already signed in (Google), sign them in anonymously.
+  async function ensureAuth(){
+    if (auth.currentUser) return auth.currentUser;
+    try { return (await signInAnonymously(auth)).user; }
+    catch(e){ console.warn('[jobs] anonymous sign-in unavailable:', e && e.code); return auth.currentUser; }
+  }
+
+  window.pjSaveJob = async function(data){
+    const user = await ensureAuth();
+    const payload = Object.assign({
+      createdAt: new Date().toISOString(),   // ISO string — matches site conventions
+      status:    'open',                     // open → musicians see it; later: accepted
+      uid:       user ? user.uid : null
+    }, data);
+    return addDoc(collection(db, 'jobs'), payload);
+  };
+  </script>
   <script type="module" src="media-sync.js"></script>
 </body>
 </html>
