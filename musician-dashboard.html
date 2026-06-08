@@ -1802,7 +1802,8 @@
       // load, no extra Firestore reads, no traffic.
       var DAY = 24*60*60*1000, now = Date.now();
       var seenAt = function(id){ try{ var v=localStorage.getItem('opusz_ann_seen_'+id); return v==null?null:Number(v); }catch(e){ return null; } };
-      var live = items.filter(function(a){ if(!a||!a.id) return true; var s=seenAt(a.id); return s==null || (now - s) < DAY; });
+      var dismissed = function(id){ try{ return localStorage.getItem('opusz_ann_dismiss_'+id)==='1'; }catch(e){ return false; } };
+      var live = items.filter(function(a){ if(!a||!a.id) return true; if(dismissed(a.id)) return false; var s=seenAt(a.id); return s==null || (now - s) < DAY; });
       var show = live.slice(0,5);
       if(!show.length){ wrap.style.display='none'; wrap.innerHTML=''; return; }
       // Start the 24h clock for any shown announcement this person hasn't seen before.
@@ -1815,10 +1816,13 @@
           var icon= u==='urgent'?'🔴':(u==='important'?'⚠️':'📢');
           var d = a.ts ? new Date(a.ts) : null;
           var dateStr = d ? (d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()) : '';
-          return '<div style="background:'+bg+';border:1px solid '+bar+'33;border-left:4px solid '+bar+';border-radius:10px;padding:14px 16px;margin-bottom:10px;">'
+          return '<div style="background:'+bg+';border:1px solid '+bar+'33;border-left:4px solid '+bar+';border-radius:10px;padding:14px 16px;margin-bottom:10px;position:relative;">'
             + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">'
             +   '<div style="font-weight:700;font-size:14px;color:#1a1a1a;">'+icon+' '+esc(a.title)+'</div>'
-            +   '<div style="font-size:11px;color:#999;flex:none;">'+dateStr+'</div>'
+            +   '<div style="display:flex;align-items:center;gap:10px;flex:none;">'
+            +     '<div style="font-size:11px;color:#999;">'+dateStr+'</div>'
+            +     '<button onclick="__dismissAnn(\''+esc(a.id)+'\',this)" title="關閉此公告" aria-label="關閉" style="border:none;background:transparent;color:#999;cursor:pointer;font-size:16px;line-height:1;padding:0 2px;">✕</button>'
+            +   '</div>'
             + '</div>'
             + '<div style="font-size:13px;color:#444;margin-top:6px;line-height:1.6;white-space:pre-wrap;">'+esc(a.body)+'</div>'
             + '</div>';
@@ -1826,6 +1830,16 @@
       wrap.style.display='block';
     } catch(e){ wrap.style.display='none'; }
   }
+
+  // Manual dismiss: musician clicks ✕ → hide this announcement permanently on
+  // this device, remove its card, and hide the whole block if none are left.
+  window.__dismissAnn = function(id, btn){
+    try{ localStorage.setItem('opusz_ann_dismiss_'+id, '1'); }catch(e){}
+    var card = btn && btn.closest ? btn.closest('div[style*="border-left"]') : null;
+    if(card && card.parentNode) card.parentNode.removeChild(card);
+    var wrap = document.getElementById('sysAnnounceWrap');
+    if(wrap && !wrap.querySelector('button[onclick^="__dismissAnn"]')){ wrap.style.display='none'; wrap.innerHTML=''; }
+  };
 
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
