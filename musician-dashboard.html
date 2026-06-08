@@ -433,12 +433,30 @@
       width: 390px !important; max-width: 390px; height: 844px; flex: none;
       box-sizing: content-box; background: #111; border-radius: 46px;
       padding: 13px; box-shadow: 0 12px 48px rgba(0,0,0,.45); position: relative;
+      display: flex; flex-direction: column;
     }
-    .pb-frame-inner.pb-phone #pbPreview { border-radius: 34px; }
+    .pb-frame-inner.pb-phone #pbPreview { border-radius: 0 0 34px 34px; flex: 1; height: auto !important; }
     .pb-frame-inner.pb-phone::after {
       content: ''; position: absolute; top: 22px; left: 50%; transform: translateX(-50%);
-      width: 90px; height: 26px; background: #000; border-radius: 16px; z-index: 3; pointer-events: none;
+      width: 90px; height: 26px; background: #000; border-radius: 16px; z-index: 5; pointer-events: none;
     }
+    /* Faux iOS status bar */
+    #pbPhoneStatus { display: none; }
+    .pb-frame-inner.pb-phone #pbPhoneStatus {
+      display: flex; align-items: center; justify-content: space-between; flex: none;
+      height: 44px; width: 100%; box-sizing: border-box;
+      border-radius: 34px 34px 0 0;
+      padding: 4px 28px 0;
+      background: var(--pb-status-bg, #fff);
+      color: var(--pb-status-fg, #11131a);
+      position: relative; z-index: 4; pointer-events: none;
+      font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+      font-weight: 600; font-size: 15px;
+    }
+    #pbPhoneStatus .sps-r { display: flex; align-items: center; gap: 6px; }
+    #pbPhoneStatus svg { height: 12px; width: auto; display: block; }
+    #pbPhoneStatus svg [fill="#fff"] { fill: currentColor; }
+    #pbPhoneStatus svg [stroke="#fff"] { stroke: currentColor; }
     .pb-right { width: 320px; flex-shrink: 0; border-left: 1px solid var(--border); padding: 20px; overflow-y: auto; }
     .pb-field { margin-bottom: 16px; }
     .pb-field-group { display: none; }
@@ -1327,6 +1345,14 @@
             </div>
             <div class="pb-frame-wrap">
               <div class="pb-frame-inner" id="pbFrameInner">
+                <div id="pbPhoneStatus" aria-hidden="true">
+                  <span class="sps-l">9:41</span>
+                  <span class="sps-r">
+                    <svg viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1" fill="#fff"/><rect x="5" y="4.5" width="3" height="7.5" rx="1" fill="#fff"/><rect x="10" y="2" width="3" height="10" rx="1" fill="#fff"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#fff" opacity="0.4"/></svg>
+                    <svg viewBox="0 0 16 12"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l-1.3 1.3A7 7 0 0 0 8 4.3 7 7 0 0 0 3.3 6.2L2 4.9A8.7 8.7 0 0 1 8 2.5zm0 3.2c1.4 0 2.7.5 3.7 1.4l-1.3 1.3A3.4 3.4 0 0 0 8 7.9c-.9 0-1.7.3-2.4.9L4.3 7.5A5.2 5.2 0 0 1 8 5.7zm0 3.1c.6 0 1.1.2 1.5.6L8 11l-1.5-1.6c.4-.4 1-.6 1.5-.6z" fill="#fff"/></svg>
+                    <svg viewBox="0 0 26 12"><rect x="0.5" y="0.5" width="21" height="11" rx="3" fill="none" stroke="#fff" opacity="0.5"/><rect x="2" y="2" width="17" height="8" rx="1.5" fill="#fff"/><rect x="23" y="4" width="2" height="4" rx="1" fill="#fff" opacity="0.6"/></svg>
+                  </span>
+                </div>
                 <iframe id="pbPreview" src="about:blank" style="width:100%;height:100%;border:0;"></iframe>
               </div>
             </div>
