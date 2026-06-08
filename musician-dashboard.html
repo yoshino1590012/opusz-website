@@ -2131,16 +2131,18 @@
       if(!_currentUser){ showNotif('請先登入'); reject(new Error('not-logged-in')); return; }
       if(!/^image\/(jpeg|png|webp)$/.test(file.type)){ reject(new Error('invalid-format')); return; }
       if(file.size > 10*1024*1024){ reject(new Error('file-too-large')); return; }
-      pbCompressImage(file, 1400, 0.82, async function(blob){
-        if(!blob){ reject(new Error('compress-failed')); return; }
+      // Upload the ORIGINAL file unchanged (NO compression / resize) so the admin
+      // can download the poster at the exact original resolution it was submitted at.
+      (async function(){
         try{
-          var path = 'musicians/' + _currentUser.uid + '/poster_' + Date.now() + '.jpg';
+          var ext = file.type==='image/png' ? 'png' : (file.type==='image/webp' ? 'webp' : 'jpg');
+          var path = 'musicians/' + _currentUser.uid + '/poster_' + Date.now() + '.' + ext;
           var r = storageRef(storage, path);
-          await uploadBytes(r, blob);
+          await uploadBytes(r, file, { contentType: file.type });
           var url = await getDownloadURL(r);
           resolve(url);
         }catch(e){ reject(e); }
-      });
+      })();
     });
   }
   function posterHandleFile(file){
@@ -3648,34 +3650,82 @@
     }
   }
 
-  // Let the user upload the avatar straight from "我的資料"; it writes the same
-  // config.about.avatarUrl, so it shows up in 編輯主頁 too.
+  // Clicking the "我的資料" round avatar opens the avatar editor popup
+  // (upload + position + size), writing the same config.about.avatar*.
   function pbWireProfileAvatarUpload(){
     var box = document.getElementById('profileAvatarLg');
     if(!box || box.dataset.avup) return; box.dataset.avup='1';
-    var fi = document.createElement('input'); fi.type='file'; fi.accept='image/*'; fi.style.display='none';
-    box.appendChild(fi);
-    box.addEventListener('click', function(){ fi.click(); });
-    fi.addEventListener('change', async function(){
-      var f = fi.files && fi.files[0]; fi.value='';
-      if(!f) return;
-      if(!/^image\//.test(f.type)){ showNotif('請選擇圖片檔 / Please choose an image'); return; }
-      showNotif('上傳中… / Uploading…');
-      try{
-        var url = await pbUploadImage(f, 'avatar', 600);
-        var inp = document.getElementById('pbAvatarUrl'); if(inp) inp.value = url;
-        if(pbConfig){ pbConfig.about = pbConfig.about || {}; pbConfig.about.avatarUrl = url; }
-        if(_currentUser && db){
-          await setDoc(doc(db,'musicians',_currentUser.uid), { config:{ about:{ avatarUrl:url } } }, { merge:true });
-        }
-        var ab = (pbConfig && pbConfig.about) || {};
-        var ax = (typeof ab.avatarX==='number')?ab.avatarX:50;
-        var ay = (typeof ab.avatarY==='number')?ab.avatarY:50;
-        var asc= (typeof ab.avatarScale==='number')?ab.avatarScale:1;
-        pbRenderAvatarPreview();
-        pbSyncProfileAvatar(url, ax, ay, asc);
-        showNotif('大頭照已更新 ✓');
-      }catch(e){ console.error('[avatar] upload failed:', e); showNotif('上傳失敗：' + (e.code||e.message)); }
+    box.addEventListener('click', function(){ pbOpenAvatarModal(); });
+    pbWireAvatarModal();
+  }
+
+  // ── Avatar editor popup ──────────────────────────────────────────────────
+  var _amUrl = '', _amX = 50, _amY = 50, _amS = 1;
+  function pbAvatarModalRender(){
+    var img = document.getElementById('avatarModalImg');
+    var ph  = document.getElementById('avatarModalPlaceholder');
+    if(!img) return;
+    if(_amUrl){
+      img.src = _amUrl;
+      img.style.display = 'block';
+      img.style.objectPosition = _amX + '% ' + _amY + '%';
+      img.style.transform = 'scale(' + _amS + ')';
+      img.style.transformOrigin = _amX + '% ' + _amY + '%';
+      if(ph) ph.style.display = 'none';
+    } else {
+      img.style.display = 'none';
+      if(ph) ph.style.display = 'flex';
+    }
+  }
+  function pbOpenAvatarModal(){
+    var ab = (pbConfig && pbConfig.about) || {};
+    var fld = function(id){ var e=document.getElementById(id); return e ? e.value : ''; };
+    _amUrl = fld('pbAvatarUrl') || ab.avatarUrl || '';
+    _amX = (typeof ab.avatarX==='number') ? ab.avatarX : (parseFloat(fld('pbAvatarX')) || 50);
+    _amY = (typeof ab.avatarY==='number') ? ab.avatarY : (parseFloat(fld('pbAvatarY')) || 50);
+    _amS = (typeof ab.avatarScale==='number') ? ab.avatarScale : (parseFloat(fld('pbAvatarScale')) || 1);
+    var setv = function(id,v){ var e=document.getElementById(id); if(e) e.value=v; };
+    setv('avatarModalX', _amX); setv('avatarModalY', _amY); setv('avatarModalScale', _amS);
+    pbAvatarModalRender();
+    var m = document.getElementById('avatarEditModal'); if(m) m.style.display = 'flex';
+  }
+  function pbWireAvatarModal(){
+    var m = document.getElementById('avatarEditModal');
+    if(!m || m.dataset.wired) return; m.dataset.wired='1';
+    var X=document.getElementById('avatarModalX'), Y=document.getElementById('avatarModalY'), S=document.getElementById('avatarModalScale');
+    if(X) X.addEventListener('input', function(){ _amX=parseFloat(X.value)||0; pbAvatarModalRender(); });
+    if(Y) Y.addEventListener('input', function(){ _amY=parseFloat(Y.value)||0; pbAvatarModalRender(); });
+    if(S) S.addEventListener('input', function(){ _amS=parseFloat(S.value)||1; pbAvatarModalRender(); });
+    var btn=document.getElementById('avatarModalUploadBtn'), file=document.getElementById('avatarModalFile');
+    if(btn && file){
+      btn.addEventListener('click', function(){ file.click(); });
+      file.addEventListener('change', async function(){
+        var f=file.files && file.files[0]; file.value='';
+        if(!f) return;
+        if(!/^image\//.test(f.type)){ showNotif('請選擇圖片檔 / Please choose an image'); return; }
+        var prev=btn.textContent; btn.textContent='上傳中… / Uploading…'; btn.style.pointerEvents='none';
+        try{ _amUrl = await pbUploadImage(f,'avatar',600); pbAvatarModalRender(); }
+        catch(e){ console.error('[avatar] upload failed:', e); showNotif('上傳失敗：'+(e.code||e.message)); }
+        finally{ btn.textContent=prev; btn.style.pointerEvents=''; }
+      });
+    }
+    var cancel=document.getElementById('avatarModalCancel');
+    if(cancel) cancel.addEventListener('click', function(){ m.style.display='none'; });
+    m.addEventListener('click', function(e){ if(e.target===m) m.style.display='none'; });
+    var save=document.getElementById('avatarModalSave');
+    if(save) save.addEventListener('click', async function(){
+      // push into 編輯主頁 fields + in-memory config + both displays
+      var setv=function(id,v){ var e=document.getElementById(id); if(e) e.value=v; };
+      setv('pbAvatarUrl', _amUrl); setv('pbAvatarX', _amX); setv('pbAvatarY', _amY); setv('pbAvatarScale', _amS);
+      if(pbConfig){ pbConfig.about=pbConfig.about||{}; pbConfig.about.avatarUrl=_amUrl; pbConfig.about.avatarX=_amX; pbConfig.about.avatarY=_amY; pbConfig.about.avatarScale=_amS; }
+      if(typeof pbRenderAvatarPreview==='function') pbRenderAvatarPreview();
+      pbSyncProfileAvatar(_amUrl, _amX, _amY, _amS);
+      if(_currentUser && db){
+        try{ await setDoc(doc(db,'musicians',_currentUser.uid), { config:{ about:{ avatarUrl:_amUrl, avatarX:_amX, avatarY:_amY, avatarScale:_amS } } }, { merge:true }); }
+        catch(e){ console.error('[avatar] save failed:', e); }
+      }
+      showNotif('大頭照已更新 ✓');
+      m.style.display='none';
     });
   }
 
@@ -4210,5 +4260,30 @@
   setTimeout(maybeAutoStart, 1200);
 })();
 </script>
+
+<!-- ── Avatar edit popup (opened from 我的資料 round avatar) ── -->
+<div id="avatarEditModal" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.45);align-items:center;justify-content:center;">
+  <div style="background:#fff;border-radius:16px;padding:24px;width:320px;max-width:90vw;box-shadow:0 20px 60px rgba(0,0,0,.3);font-family:inherit;">
+    <div style="font-size:16px;font-weight:800;margin-bottom:16px;">編輯大頭照 / Edit avatar</div>
+    <div style="display:flex;justify-content:center;margin-bottom:14px;">
+      <div style="width:120px;height:120px;border-radius:50%;overflow:hidden;position:relative;background:#e0e0e0;border:2px solid #f0f0f0;">
+        <img id="avatarModalImg" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
+        <span id="avatarModalPlaceholder" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#aaa;font-size:13px;">無照片</span>
+      </div>
+    </div>
+    <button id="avatarModalUploadBtn" type="button" style="width:100%;padding:9px;border:1.5px dashed #ccc;border-radius:8px;background:#fff;font-size:13px;font-weight:700;cursor:pointer;margin-bottom:16px;font-family:inherit;">⬆ 上傳照片 / Upload</button>
+    <input id="avatarModalFile" type="file" accept="image/*" style="display:none;">
+    <label style="font-size:12px;color:#666;display:block;margin-bottom:2px;">水平 / X (%)</label>
+    <input id="avatarModalX" type="range" min="0" max="100" step="1" value="50" style="width:100%;margin-bottom:8px;">
+    <label style="font-size:12px;color:#666;display:block;margin-bottom:2px;">垂直 / Y (%)</label>
+    <input id="avatarModalY" type="range" min="0" max="100" step="1" value="50" style="width:100%;margin-bottom:8px;">
+    <label style="font-size:12px;color:#666;display:block;margin-bottom:2px;">大小 / Scale（最小＝填滿）</label>
+    <input id="avatarModalScale" type="range" min="1" max="3" step="0.05" value="1" style="width:100%;margin-bottom:18px;">
+    <div style="display:flex;gap:10px;">
+      <button id="avatarModalCancel" type="button" style="flex:1;padding:10px;border:1px solid #ddd;border-radius:8px;background:#fff;font-weight:700;cursor:pointer;font-family:inherit;">取消</button>
+      <button id="avatarModalSave" type="button" style="flex:1;padding:10px;border:none;border-radius:8px;background:#111;color:#fff;font-weight:700;cursor:pointer;font-family:inherit;">儲存 / Save</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
