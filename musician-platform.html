@@ -7109,7 +7109,10 @@ window.addEventListener('keydown', function(e){
   // Show EXACTLY one of Log in / My Account. The drawer CSS forces these buttons
   // display:inline-flex !important, so hide with setProperty('important') to win,
   // and show by removing the inline override so the stylesheet takes over.
-  function _navShow(el){ if(el) el.style.removeProperty('display'); }
+  // Set display explicitly (inline wins over the #navAccountBtn{display:none}
+  // ID rule). Just removing the inline style would let that ID rule re-hide the
+  // account button, so the logged-in user sees neither Log in nor My Account.
+  function _navShow(el){ if(el) el.style.setProperty('display', 'inline-flex'); }
   function _navHide(el){ if(el) el.style.setProperty('display', 'none', 'important'); }
   function updateNavAuth() {
     var user = localStorage.getItem('opusz_user');
