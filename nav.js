@@ -485,14 +485,24 @@
       clearTimeout(drawerTimeout);
       navDrawer.classList.add('nd-visible');
     }
+    // The login / account dropdowns live OUTSIDE the drawer, so moving the cursor
+    // onto them fires the drawer's mouseleave. Keep the drawer open while either
+    // menu is showing, so they appear together (not one replacing the other).
+    function menuOpen() {
+      var ld = document.getElementById('loginDropdown');
+      var ad = document.getElementById('accountDropdown');
+      return (ld && ld.classList.contains('open')) || (ad && ad.classList.contains('open'));
+    }
     function closeDrawer() {
       if (navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return;
+      if (menuOpen()) return;
       drawerTimeout = setTimeout(function () {
         navDrawer.classList.remove('nd-visible');
         if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
       }, 120);
     }
     function closeBoth() {
+      if (menuOpen()) return;
       drawerTimeout = setTimeout(function () {
         navDrawer.classList.remove('nd-visible');
         if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
@@ -599,14 +609,20 @@
     var logoutBtn  = document.getElementById('navLogoutBtn');
     var accDrop    = document.getElementById('accountDropdown');
 
+    // Show EXACTLY one of Log in / My Account. The drawer CSS marks .nav-login-btn
+    // display:inline-flex !important (and the account button also carries that
+    // class), so hide with setProperty('important') to win, and show by removing
+    // the inline override so the stylesheet takes over.
+    function showBtn(el){ if(el) el.style.removeProperty('display'); }
+    function hideBtn(el){ if(el) el.style.setProperty('display', 'none', 'important'); }
     function updateNavAuth() {
       var user = localStorage.getItem('opusz_user');
       if (user) {
-        if (loginBtn)   loginBtn.style.display   = 'none';
-        if (accountBtn) accountBtn.style.display = 'inline-flex';
+        hideBtn(loginBtn);
+        showBtn(accountBtn);
       } else {
-        if (loginBtn)   loginBtn.style.display   = '';
-        if (accountBtn) { accountBtn.style.display = 'none'; accountBtn.classList.remove('open'); }
+        showBtn(loginBtn);
+        if (accountBtn) { hideBtn(accountBtn); accountBtn.classList.remove('open'); }
         if (accDrop)    accDrop.classList.remove('open');
       }
     }
