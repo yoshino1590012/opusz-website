@@ -420,8 +420,8 @@
         <div class="pd active"></div>
       </div>
 
-      <div class="step-title">Almost there!</div>
-      <div class="step-sub">Tell us a bit about yourself so clients can find you.</div>
+      <div class="step-title">樂手申請資料</div>
+      <div class="step-sub">請完整填寫您的基本資料與經歷，送出後將由管理者審核。</div>
 
       <div class="form-group">
         <label class="form-label">Your name (display name)</label>
@@ -463,12 +463,61 @@
         </div>
       </div>
 
+      <!-- Profile photo -->
+      <div class="form-group">
+        <label class="form-label">大頭照 / Profile photo</label>
+        <div style="display:flex;align-items:center;gap:14px;margin-top:6px;">
+          <div id="setupPhotoPreview" style="width:64px;height:64px;border-radius:50%;background:#eee center/cover no-repeat;flex-shrink:0;border:1px solid #e2e2e2;"></div>
+          <label style="cursor:pointer;padding:9px 16px;font-size:14px;border:1px solid #d8d8d8;border-radius:8px;display:inline-flex;align-items:center;background:#fff;">
+            上傳照片 / Upload
+            <input type="file" id="setupPhoto" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="previewSetupPhoto(this)">
+          </label>
+        </div>
+        <div class="form-error" id="setupPhotoErr">請上傳一張照片。</div>
+      </div>
+
+      <!-- Bio -->
+      <div class="form-group">
+        <label class="form-label">簡介 Bio <span style="font-weight:400;color:var(--mid);">— 一段自我介紹</span></label>
+        <textarea class="form-input" id="setupBio" rows="3" placeholder="例如：台北小提琴家，擅長獨奏與室內樂演出…"></textarea>
+        <div class="form-error" id="setupBioErr">請填寫簡介。</div>
+      </div>
+
+      <!-- Education -->
+      <div class="form-group">
+        <label class="form-label">學歷 / Education</label>
+        <textarea class="form-input" id="setupEducation" rows="2" placeholder="例如：國立臺北藝術大學 音樂學系 小提琴演奏 碩士"></textarea>
+        <div class="form-error" id="setupEduErr">請填寫學歷。</div>
+      </div>
+
+      <!-- Work / performance experience -->
+      <div class="form-group">
+        <label class="form-label">工作 / 演出經歷 <span style="font-weight:400;color:var(--mid);">— Experience</span></label>
+        <textarea class="form-input" id="setupExperience" rows="3" placeholder="例如：曾任○○交響樂團小提琴團員、○○國際音樂大賽首獎…"></textarea>
+        <div class="form-error" id="setupExpErr">請填寫工作或演出經歷。</div>
+      </div>
+
+      <!-- Work links (optional) -->
+      <div class="form-group">
+        <label class="form-label">作品連結 <span style="font-weight:400;color:var(--mid);">— optional</span></label>
+        <input class="form-input" type="url" id="setupLinkYoutube"   placeholder="YouTube 影片網址" style="margin-bottom:8px;">
+        <input class="form-input" type="url" id="setupLinkWebsite"   placeholder="個人網站" style="margin-bottom:8px;">
+        <input class="form-input" type="url" id="setupLinkInstagram" placeholder="Instagram">
+      </div>
+
+      <!-- Phone -->
+      <div class="form-group">
+        <label class="form-label">聯絡電話 / Phone</label>
+        <input class="form-input" type="tel" id="setupPhone" placeholder="例如：0912-345-678">
+        <div class="form-error" id="setupPhoneErr">請填寫聯絡電話。</div>
+      </div>
+
       <button class="btn-main btn-primary" id="setupBtn" onclick="doSetup()">
-        Go to my Dashboard
+        送出申請 / Submit application
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
 
-      <div class="terms" style="margin-top:16px;">You can complete your full profile (photo, bio, bank account) inside your dashboard.</div>
+      <div class="terms" style="margin-top:16px;">送出後將由管理者審核，通過後我們會以 Email 通知您，屆時即可登入您的樂手後台。</div>
     </div>
 
     <!-- ═══════════ STEP: SUCCESS ═══════════ -->
@@ -504,6 +553,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, onAuthStateChanged, reload, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
@@ -517,11 +567,62 @@
   const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
   const db   = getFirestore(app);
+  const storage = getStorage(app);
 
   // ── State ──
   var currentStep = 'login';
   var regData = { email:'', name:'', instruments:[], primaryRegion:'', secondaryRegion:'' };
   var selectedInsts = new Set();
+  var _setupPhotoFile = null;   // the chosen profile photo (File), uploaded on submit
+
+  // ── Image compress + upload (mirrors musician-dashboard's pbUploadImage) ──
+  function compressImg(file, maxDim, quality, cb){
+    var reader = new FileReader();
+    var done = false;
+    var guard = setTimeout(function(){ if(!done){ done = true; cb(null); } }, 12000); // HEIC can hang
+    reader.onload = function(e){
+      var img = new Image();
+      img.onload = function(){
+        if(done) return; done = true; clearTimeout(guard);
+        var w = img.width, h = img.height;
+        if(w > h){ if(w > maxDim){ h = Math.round(h*maxDim/w); w = maxDim; } }
+        else     { if(h > maxDim){ w = Math.round(w*maxDim/h); h = maxDim; } }
+        var c = document.createElement('canvas'); c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        c.toBlob(function(blob){ cb(blob); }, 'image/jpeg', quality || 0.82);
+      };
+      img.onerror = function(){ if(done) return; done = true; clearTimeout(guard); cb(null); };
+      img.src = e.target.result;
+    };
+    reader.onerror = function(){ if(done) return; done = true; clearTimeout(guard); cb(null); };
+    reader.readAsDataURL(file);
+  }
+  function uploadPhoto(file, uid){
+    return new Promise(function(resolve, reject){
+      compressImg(file, 800, 0.82, async function(blob){
+        if(!blob){ reject(new Error('compress-failed')); return; }
+        try{
+          var r = storageRef(storage, 'musicians/' + uid + '/photo_' + Date.now() + '.jpg');
+          await uploadBytes(r, blob);
+          resolve(await getDownloadURL(r));
+        }catch(e){ reject(e); }
+      });
+    });
+  }
+  // Live preview of the chosen photo (and remember the File for upload on submit)
+  window.previewSetupPhoto = function(input){
+    var f = input.files && input.files[0];
+    if(!f) return;
+    if(!/^image\/(jpeg|png|webp)$/.test(f.type)){
+      var pe = document.getElementById('setupPhotoErr');
+      pe.textContent = '圖片格式不支援，請改用 JPG／PNG／WebP。'; pe.classList.add('show');
+      input.value = ''; return;
+    }
+    document.getElementById('setupPhotoErr').classList.remove('show');
+    _setupPhotoFile = f;
+    var prev = document.getElementById('setupPhotoPreview');
+    if(prev) prev.style.backgroundImage = 'url("' + URL.createObjectURL(f) + '")';
+  };
 
   // ── Instrument data ──
   const INSTRUMENTS = {
@@ -646,6 +747,16 @@
     }
     goStep('status');
   }
+
+  // "Use another account" on the status screen → sign out + back to login form
+  (function(){
+    var back = document.getElementById('statusBackLogin');
+    if(back) back.addEventListener('click', function(e){
+      e.preventDefault();
+      try { signOut(auth); } catch(_e){}
+      goStep('login');
+    });
+  })();
 
   // ── Check if already logged in → route through the gate (no blind redirect) ──
   onAuthStateChanged(auth, (user) => {
@@ -794,30 +905,54 @@
     }
   }
 
-  // ── Profile setup + Firebase account creation ──
+  // ── Application submit (creates the musician doc as status:'pending') ──
   window.doSetup = async function() {
-    var name          = document.getElementById('setupName').value.trim();
+    var name           = document.getElementById('setupName').value.trim();
     var primaryCountry = document.getElementById('primaryCountry').value;
     var primaryCity    = document.getElementById('primaryCity').value;
     var secondaryCountry = document.getElementById('secondaryCountry').value;
     var secondaryCity  = document.getElementById('secondaryCity').value;
+    var bio        = document.getElementById('setupBio').value.trim();
+    var education  = document.getElementById('setupEducation').value.trim();
+    var experience = document.getElementById('setupExperience').value.trim();
+    var phone      = document.getElementById('setupPhone').value.trim();
+    var links = {
+      youtube:   document.getElementById('setupLinkYoutube').value.trim(),
+      website:   document.getElementById('setupLinkWebsite').value.trim(),
+      instagram: document.getElementById('setupLinkInstagram').value.trim()
+    };
     var ok = true;
+    var show = function(id){ document.getElementById(id).classList.add('show'); ok = false; };
 
-    if (!name)                    { document.getElementById('setupNameErr').classList.add('show'); ok = false; }
-    if (selectedInsts.size === 0) { document.getElementById('setupInstErr').classList.add('show'); ok = false; }
-    if (!primaryCountry || !primaryCity) { document.getElementById('setupRegionErr').classList.add('show'); ok = false; }
+    if (!name)                           show('setupNameErr');
+    if (selectedInsts.size === 0)        show('setupInstErr');
+    if (!primaryCountry || !primaryCity) show('setupRegionErr');
+    if (!_setupPhotoFile)                show('setupPhotoErr');
+    if (!bio)                            show('setupBioErr');
+    if (!education)                      show('setupEduErr');
+    if (!experience)                     show('setupExpErr');
+    if (!phone)                          show('setupPhoneErr');
     if (!ok) return;
 
     var primaryRegion   = primaryCity + ', ' + primaryCountry;
     var secondaryRegion = (secondaryCountry && secondaryCity) ? secondaryCity + ', ' + secondaryCountry : '';
 
     var btn = document.querySelector('#step-setup .btn-primary');
-    btn.textContent = 'Saving…'; btn.disabled = true;
+    btn.textContent = '上傳中… / Submitting…'; btn.disabled = true;
 
     try {
-      // Account already created in step 1 — just save the profile
+      // Account already created in step 1 — now upload photo + save the application.
       var user = regData._user || auth.currentUser;
       var uid  = user.uid;
+
+      var photoURL = '';
+      try { photoURL = await uploadPhoto(_setupPhotoFile, uid); }
+      catch(pe){
+        btn.textContent = '送出申請 / Submit application'; btn.disabled = false;
+        var ep = document.getElementById('setupPhotoErr');
+        ep.textContent = '照片上傳失敗，請改用 JPG／PNG／WebP 再試一次。'; ep.classList.add('show');
+        return;
+      }
 
       await setDoc(doc(db, 'musicians', uid), {
         uid:             uid,
@@ -826,19 +961,29 @@
         instruments:     Array.from(selectedInsts),
         primaryRegion:   primaryRegion,
         secondaryRegion: secondaryRegion,
-        status:          'active',
+        bio:             bio,
+        education:       education,
+        experience:      experience,
+        phone:           phone,
+        links:           links,
+        photoURL:        photoURL,
+        status:          'pending',   // ← awaiting admin approval; gate blocks dashboard
+        published:       false,       // ← not shown publicly until approved
         verified:        false,
         joinedAt:        new Date().toISOString(),
-        profileComplete: 30
+        appliedAt:       new Date().toISOString(),
+        profileComplete: 60
       });
 
-      goStep('success');
-      setTimeout(() => { window.location.href = 'musician-dashboard.html'; }, 2000);
+      // Don't enter the dashboard — sign out and show the "under review" screen.
+      try { await signOut(auth); } catch(_e){}
+      showStatus('pending');
 
     } catch(e) {
-      btn.textContent = 'Complete Setup'; btn.disabled = false;
-      document.getElementById('setupNameErr').textContent = 'Something went wrong. Please try again.';
-      document.getElementById('setupNameErr').classList.add('show');
+      btn.textContent = '送出申請 / Submit application'; btn.disabled = false;
+      var ne = document.getElementById('setupNameErr');
+      ne.textContent = '送出失敗，請稍後再試。'; ne.classList.add('show');
+      console.warn('[apply] submit failed:', e && (e.code || e.message));
     }
   }
 
