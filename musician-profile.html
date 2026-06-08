@@ -3523,9 +3523,28 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     var name=document.getElementById('contactName').value.trim();
     var email=document.getElementById('contactEmail').value.trim();
     if(!name||!email){ alert('Please fill in your name and email.'); return; }
-    // In production: send state + contact to backend
-    alert('✓ Enquiry sent! We\'ll notify you when Martin responds.');
-    closeAvail();
+    var phoneEl=document.getElementById('contactPhone');
+    var phone=phoneEl?phoneEl.value.trim():'';
+    // Build a readable summary of the booking request for the musician's inbox.
+    var lines=[];
+    if(state.eventType) lines.push('類型 Type: '+state.eventType);
+    if(state.date) lines.push('日期 Date: '+state.date);
+    if(state.hour!=null) lines.push('時間 Time: '+state.hour+':'+String(state.min||0).padStart(2,'0')+' '+(state.ampm||''));
+    if(state.duration) lines.push('時長 Duration: '+state.duration);
+    if(state.location) lines.push('地點 Location: '+state.location);
+    if(state.attendees) lines.push('人數 Attendees: '+state.attendees);
+    if(state.notes) lines.push('備註 Notes: '+state.notes);
+    if(phone) lines.push('電話 Phone: '+phone);
+    var payload={
+      kind:'booking', name:name, email:email, phone:phone,
+      subject:'檔期預約 / Booking request',
+      message:lines.join('\n'),
+      details: JSON.parse(JSON.stringify(state||{})),
+      musicianName: (window.MUSICIAN_NAME||'')
+    };
+    function done(){ alert('✓ Enquiry sent! We\'ll notify you when Martin responds.'); closeAvail(); }
+    if(typeof window.opzSendInquiry==='function'){ window.opzSendInquiry(payload).then(done).catch(function(err){ console.warn('[booking] send failed:',err); done(); }); }
+    else { done(); }
   }
 
 })();
@@ -3712,29 +3731,28 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     var fullName = (window.MUSICIAN_NAME || (nameEl && nameEl.textContent) || 'Your teacher').trim();
     var who = fullName.split(' ')[0]; // first name reads more personal
 
-    // ── Deliver the request to the musician's dashboard inbox ──
-    // Stored in localStorage so the musician dashboard can pick it up + notify.
-    // (Real cross-device delivery would POST this same object to a backend.)
-    try {
-      var customer = (localStorage.getItem('opusz_user') || '').trim();
-      var req = {
-        id: 'lr_' + Date.now(),
-        ts: new Date().toISOString(),
-        musician: fullName,
-        customer: customer || 'A prospective student',
-        plan: state.plan,
-        level: state.level,
-        goals: state.goals.slice(),
-        format: state.format,
-        times: state.times.slice(),
-        notes: state.notes.trim(),
-        read: false
-      };
-      var list = JSON.parse(localStorage.getItem('opusz_lesson_requests') || '[]');
-      list.unshift(req);                       // newest first
-      localStorage.setItem('opusz_lesson_requests', JSON.stringify(list));
-      if (window.opuszTrack) opuszTrack('lesson_booked', { musician: fullName, plan: state.plan });
-    } catch(e){ /* storage unavailable — still show success */ }
+    // ── Deliver the lesson request to the musician's dashboard inbox (Firestore) ──
+    var customer = '', custEmail = '';
+    try { customer  = (localStorage.getItem('opusz_user') || '').trim(); } catch(e){}
+    try { custEmail = (localStorage.getItem('opusz_user_email') || '').trim(); } catch(e){}
+    var lines=[];
+    if(state.plan)   lines.push('方案 Plan: '+state.plan);
+    if(state.level)  lines.push('程度 Level: '+state.level);
+    if(state.goals && state.goals.length)  lines.push('目標 Goals: '+state.goals.join('、'));
+    if(state.format) lines.push('形式 Format: '+state.format);
+    if(state.times && state.times.length)  lines.push('時段 Times: '+state.times.join('、'));
+    if(state.notes)  lines.push('備註 Notes: '+state.notes);
+    var lessonPayload={
+      kind:'lesson',
+      name: customer || 'A prospective student',
+      email: custEmail,
+      subject:'課程預約 / Lesson – '+(state.plan||''),
+      message: lines.join('\n'),
+      details:{ plan:state.plan, level:state.level, goals:(state.goals||[]).slice(), format:state.format, times:(state.times||[]).slice(), notes:(state.notes||'').trim() },
+      musicianName: fullName
+    };
+    if(typeof window.opzSendInquiry==='function'){ window.opzSendInquiry(lessonPayload).catch(function(err){ console.warn('[lesson] send failed:',err); }); }
+    if (window.opuszTrack) opuszTrack('lesson_booked', { musician: fullName, plan: state.plan });
 
     document.getElementById('lsDoneMsg').textContent =
       'We\'ve sent your ' + state.plan + ' lesson request. ' + who + ' will get back to you to confirm the details and schedule your first lesson.';
