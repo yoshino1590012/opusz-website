@@ -1683,6 +1683,9 @@ html.in-macbook-iframe .sf-dot    { font-size: clamp(25px, 22vw, 466px) !importa
   z-index: 150; gap: 0; white-space: nowrap;
   box-shadow: 0 4px 28px rgba(0,0,0,.12), 0 1px 4px rgba(0,0,0,.08);
 }
+/* Hide the floating bottom nav on phones (requested). !important beats the inline
+   display:flex the scroll handler sets when the bar would otherwise show. */
+@media (max-width: 900px){ .bottom-nav { display: none !important; } }
 /* Sliding dark pill */
 .bn-slider {
   position: absolute; background: #111; border-radius: 50px;
