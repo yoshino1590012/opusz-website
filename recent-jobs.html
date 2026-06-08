@@ -861,6 +861,7 @@ window.pjOnAuthed = function(name, email) {
   // Also set the global nav session so the rest of the site sees the login.
   if (name)  localStorage.setItem('opusz_user', name);
   if (email) localStorage.setItem('opusz_user_email', email);
+  localStorage.setItem('opusz_role', 'customer');
   closeAuthGate();
   openPjModal();
 };

@@ -1909,6 +1909,9 @@
       try {
         localStorage.setItem('opusz_user', name);
         localStorage.setItem('opusz_user_email', user.email);
+        // Tag the session role so the customer area knows this is a musician
+        // (the shared opusz_user flag alone used to leak musicians into customer-profile).
+        localStorage.setItem('opusz_role', 'musician');
       } catch(e){}
 
       // Greeting
@@ -2057,7 +2060,7 @@
 
   // ── Logout ──
   window.doLogout = async function() {
-    try { localStorage.removeItem('opusz_user'); localStorage.removeItem('opusz_user_email'); } catch(e){}
+    try { localStorage.removeItem('opusz_user'); localStorage.removeItem('opusz_user_email'); localStorage.removeItem('opusz_role'); } catch(e){}
     await signOut(auth);
     window.location.href = 'musician-login.html';
   }

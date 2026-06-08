@@ -584,6 +584,16 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   /* Redirect to login if not logged in */
   if (!user) { window.location.href = 'customer-login.html?redirect=customer-profile.html'; return; }
 
+  /* Musician accounts are NOT customers. Logging into the musician dashboard sets
+     the shared opusz_user flag (for the nav), which used to leak musicians into this
+     customer area. Block sessions explicitly tagged as 'musician'. Real customers are
+     tagged 'customer' or untagged (legacy) — never blocked. */
+  if (localStorage.getItem('opusz_role') === 'musician') {
+    alert('此帳號是音樂家帳號，不是客戶帳號。若要使用客戶功能，請改用客戶帳號登入。');
+    window.location.href = 'customer-login.html?redirect=customer-profile.html';
+    return;
+  }
+
   /* ── Populate hero ── */
   document.getElementById('cpHeroName').textContent  = user;
   document.getElementById('cpHeroEmail').textContent = email;

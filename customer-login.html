@@ -296,6 +296,7 @@ function handleUser(user) {
   const email = user.email;
   localStorage.setItem('opusz_user', name);
   localStorage.setItem('opusz_user_email', email);
+  localStorage.setItem('opusz_role', 'customer');
   showSuccess(name);
   saveToFirestore(name, email);
   setTimeout(() => { window.location.href = redirect; }, 1800);
@@ -361,6 +362,7 @@ function doEmailLogin() {
   const name = email.split('@')[0].replace(/[._-]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
   localStorage.setItem('opusz_user', name);
   localStorage.setItem('opusz_user_email', email);
+  localStorage.setItem('opusz_role', 'customer');
   showSuccess(name);
   saveToFirestore(name, email);
   setTimeout(() => { window.location.href = redirect; }, 1800);

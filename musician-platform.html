@@ -7218,6 +7218,7 @@ window.addEventListener('keydown', function(e){
     var name = email.split('@')[0].replace(/[._-]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
     localStorage.setItem('opusz_user', name);
     localStorage.setItem('opusz_user_email', email);
+    localStorage.setItem('opusz_role', 'customer');
 
     // Show success state
     var lang = window._currentLang || 'en';
