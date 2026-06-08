@@ -707,14 +707,22 @@
       if (opts.silent) return false;   // auto-check: stay on the login form
       throw e;                          // explicit login: surface the error
     }
-    if (!snap.exists()) { await signOut(auth); showStatus('notmusician'); return false; }
-    var st = snap.data().status || '';
-    if (st === 'pending')   { await signOut(auth); showStatus('pending');   return false; }
-    if (st === 'rejected')  { await signOut(auth); showStatus('rejected', snap.data().rejectReason || ''); return false; }
-    if (st === 'suspended') { await signOut(auth); showStatus('suspended'); return false; }
-    // approved / active / legacy (no status) → allowed
-    window.location.href = 'musician-dashboard.html';
-    return true;
+    var st = snap.exists() ? (snap.data().status || '') : '__none__';
+    var allowed = snap.exists() && st !== 'pending' && st !== 'rejected' && st !== 'suspended';
+    if (allowed) {                      // approved / active / legacy (no status)
+      window.location.href = 'musician-dashboard.html';
+      return true;
+    }
+    // Not allowed. On a PASSIVE page-load check (silent) just stay on the login
+    // form — don't hijack the page or sign out a logged-in customer who may be
+    // here to register. Only an EXPLICIT sign-in attempt gets the reason screen.
+    if (opts.silent) return false;
+    await signOut(auth);
+    if (!snap.exists())        showStatus('notmusician');
+    else if (st === 'pending') showStatus('pending');
+    else if (st === 'rejected') showStatus('rejected', snap.data().rejectReason || '');
+    else                       showStatus('suspended');
+    return false;
   }
 
   // ── Status screen (pending / rejected / not-a-musician) ──
@@ -766,7 +774,12 @@
   });
 
   // ── Navigation ──
-  window.goStep = function(id) {
+  // Function DECLARATION (hoisted) so it's defined from the very start of the
+  // module — the auth gate (onAuthStateChanged → routeAfterAuth → showStatus)
+  // can fire and call goStep before this point in source order, which would
+  // throw "goStep is not defined" with a function-expression and break the
+  // whole module (leaving every button, incl. "Create account", dead).
+  function goStep(id) {
     document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
     document.getElementById('step-' + id).classList.add('active');
     currentStep = id;
@@ -774,6 +787,7 @@
     document.querySelectorAll('.form-error').forEach(e => e.classList.remove('show'));
     document.querySelectorAll('.form-input').forEach(i => i.classList.remove('error'));
   }
+  window.goStep = goStep;
 
   // ── Login ──
   window.doLogin = async function() {
