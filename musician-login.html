@@ -757,7 +757,9 @@
   }
 
   // "Use another account" on the status screen → sign out + back to login form
-  (function(){
+  // (leading ; terminates the preceding `window.showStatus = function(){…}`
+  //  assignment so this IIFE isn't parsed as a call to it — ASI guard)
+  ;(function(){
     var back = document.getElementById('statusBackLogin');
     if(back) back.addEventListener('click', function(e){
       e.preventDefault();
@@ -812,7 +814,7 @@
   }
 
   // If the dashboard bounced the user back here, show the matching message.
-  (function(){
+  ;(function(){
     var p = new URLSearchParams(location.search).get('reason');
     if (p === 'pending')          showStatus('pending');
     else if (p === 'rejected')    showStatus('rejected');
