@@ -3006,6 +3006,8 @@
     if(!list) return;
     const n = pbHlRowSeq++;
     const imgId = 'pbHlImg_' + n;
+    const _hn = function(v,d){ return (v!==undefined && v!==null && v!=='') ? Number(v) : d; };
+    const hx = _hn(data.imageX,50), hy = _hn(data.imageY,50), hz = _hn(data.imageZoom,0);
     const row = document.createElement('div');
     row.className = 'pb-dyn-row';
     row.innerHTML =
@@ -3013,6 +3015,9 @@
         + '<div><label>標題</label><input type="text" class="pbHlTitle" value="'+pbEsc(data.title)+'"></div>'
         + '<div style="max-width:90px;flex:0 0 90px;"><label>年份</label><input type="text" class="pbHlYear" value="'+pbEsc(data.year)+'"></div>'
         + '<div style="flex:1 1 100%;"><label>圖片網址 / Image URL</label><input type="text" class="pbHlImage" id="'+imgId+'" value="'+pbEsc(data.imageUrl)+'" placeholder="https://..."></div>'
+        + '<div style="flex:1 1 100%;"><label>水平 X (%)</label><input type="range" class="pbHlX" min="0" max="100" step="1" value="'+hx+'" style="width:100%;"></div>'
+        + '<div style="flex:1 1 100%;"><label>垂直 Y (%)</label><input type="range" class="pbHlY" min="0" max="100" step="1" value="'+hy+'" style="width:100%;"></div>'
+        + '<div style="flex:1 1 100%;"><label>大小 / Zoom (%)</label><input type="range" class="pbHlZoom" min="0" max="150" step="1" value="'+hz+'" style="width:100%;"></div>'
       + '</div>'
       + '<div class="pb-hl-actions" style="display:flex;flex-direction:column;gap:4px;align-items:center;">'
         + '<button type="button" class="pb-hl-up"   title="上移 / Move up"   style="border:1px solid #ddd;background:#fff;border-radius:6px;width:26px;height:22px;cursor:pointer;font-size:11px;line-height:1;color:#555;">▲</button>'
@@ -3502,7 +3507,9 @@
     const hlRows = hlListEl ? Array.prototype.slice.call(hlListEl.querySelectorAll('.pb-dyn-row')) : [];
     const highlights = hlRows.map(function(r){
       const get = (cls)=>{ const el=r.querySelector('.'+cls); return el?el.value.trim():''; };
-      return { title: get('pbHlTitle'), year: get('pbHlYear'), imageUrl: get('pbHlImage') };
+      const getN = (cls,def)=>{ const el=r.querySelector('.'+cls); const v=el?Number(el.value):def; return isFinite(v)?v:def; };
+      return { title: get('pbHlTitle'), year: get('pbHlYear'), imageUrl: get('pbHlImage'),
+               imageX: getN('pbHlX',50), imageY: getN('pbHlY',50), imageZoom: getN('pbHlZoom',0) };
     }).filter(function(h){ return h.title !== '' || h.year !== '' || h.imageUrl !== ''; });
     // Audio: up to 6 rows, drop rows with empty url
     const audio = [0,1,2,3,4,5].map(function(i){

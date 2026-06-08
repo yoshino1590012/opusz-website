@@ -3827,6 +3827,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 
   var idle    = document.getElementById('hlIdle');
   var current = -1;
+  var DEFAULT_IDX = -1;   // photo shown by default (first highlight WITH an image)
 
   function photos(){ return document.querySelectorAll('.hl-photo'); }
 
@@ -3840,6 +3841,9 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   }
 
   function clearPhoto() {
+    // Revert to the default photo (first highlight with an image) instead of the
+    // idle placeholder, so the frame always shows the first highlight's photo.
+    if (DEFAULT_IDX >= 0) { showPhoto(DEFAULT_IDX); return; }
     current = -1;
     photos().forEach(function(p){ p.classList.remove('hl-ph-active'); });
     if (idle) idle.classList.remove('hidden');
@@ -3910,9 +3914,13 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       var bg = document.createElement('div');
       bg.className = 'hl-photo-bg';
       if (hl.imageUrl) {
+        var hx = (hl.imageX != null) ? hl.imageX : 50;
+        var hy = (hl.imageY != null) ? hl.imageY : 50;
+        var hz = (hl.imageZoom != null) ? hl.imageZoom : 0;
         bg.style.backgroundImage = 'url(' + hl.imageUrl + ')';
         bg.style.backgroundSize = 'cover';
-        bg.style.backgroundPosition = 'center';
+        bg.style.backgroundPosition = hx + '% ' + hy + '%';
+        if (hz) { bg.style.transform = 'scale(' + (1 + hz/100) + ')'; bg.style.transformOrigin = 'center center'; }
       } else {
         bg.style.background = HL_GRADIENTS[i % HL_GRADIENTS.length];
       }
@@ -3922,6 +3930,11 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       else frame.appendChild(photo);
     });
 
+    // Default photo = the first highlight that has an image (so the frame shows it
+    // before any hover, and reverts to it on mouse-leave).
+    DEFAULT_IDX = -1;
+    for (var di = 0; di < arr.length; di++){ if (arr[di] && arr[di].imageUrl){ DEFAULT_IDX = di; break; } }
+    current = -1;
     clearPhoto();
     bindHighlightHover();
   };
