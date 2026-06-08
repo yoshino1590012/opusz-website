@@ -3014,8 +3014,14 @@
         + '<div style="max-width:90px;flex:0 0 90px;"><label>年份</label><input type="text" class="pbHlYear" value="'+pbEsc(data.year)+'"></div>'
         + '<div style="flex:1 1 100%;"><label>圖片網址 / Image URL</label><input type="text" class="pbHlImage" id="'+imgId+'" value="'+pbEsc(data.imageUrl)+'" placeholder="https://..."></div>'
       + '</div>'
-      + '<button type="button" class="pb-row-del" title="Remove">✕</button>';
+      + '<div class="pb-hl-actions" style="display:flex;flex-direction:column;gap:4px;align-items:center;">'
+        + '<button type="button" class="pb-hl-up"   title="上移 / Move up"   style="border:1px solid #ddd;background:#fff;border-radius:6px;width:26px;height:22px;cursor:pointer;font-size:11px;line-height:1;color:#555;">▲</button>'
+        + '<button type="button" class="pb-hl-down" title="下移 / Move down" style="border:1px solid #ddd;background:#fff;border-radius:6px;width:26px;height:22px;cursor:pointer;font-size:11px;line-height:1;color:#555;">▼</button>'
+        + '<button type="button" class="pb-row-del" title="Remove">✕</button>'
+      + '</div>';
     row.querySelector('.pb-row-del').onclick = function(){ row.remove(); pbOnInput(); };
+    row.querySelector('.pb-hl-up').onclick   = function(){ var p=row.previousElementSibling; if(p){ row.parentNode.insertBefore(row, p); pbOnInput(); } };
+    row.querySelector('.pb-hl-down').onclick = function(){ var nx=row.nextElementSibling; if(nx){ row.parentNode.insertBefore(nx, row); pbOnInput(); } };
     row.querySelectorAll('input').forEach(function(inp){ inp.addEventListener('input', function(){ pbOnInput(); }); });
     list.appendChild(row);
     // Attach drag/click uploader to this row's image input.
