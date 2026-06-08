@@ -3920,7 +3920,25 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   // showing only the blank template. Inside the function the guards are legal.
   (async () => {
   const uid = new URLSearchParams(window.location.search).get('uid');
-  const reveal = () => document.documentElement.classList.remove('prof-pending');
+  // Reveal the hero ONCE — and only after the banner photo has actually loaded,
+  // so the whole hero (name + photo + details) appears together instead of the
+  // name popping in first and the photo trailing behind.
+  let _revealed = false;
+  const reveal = () => { if (_revealed) return; _revealed = true; document.documentElement.classList.remove('prof-pending'); };
+  const bannerUrl = (p) => {
+    const m = p && p.config && p.config.hero && p.config.hero.media;
+    return (m && m.type !== 'video' && m.url) ? m.url : '';   // video/none → reveal now
+  };
+  const revealWhenReady = (p) => {
+    if (_revealed) return;
+    const url = bannerUrl(p);
+    if (!url) { reveal(); return; }
+    const img = new Image();
+    const t = setTimeout(reveal, 3000);                       // never wait forever
+    img.onload = img.onerror = () => { clearTimeout(t); reveal(); };
+    img.src = url;
+    if (img.complete) { clearTimeout(t); reveal(); }          // already in browser cache
+  };
   if (!uid) { reveal(); return; } // no uid = show hardcoded Martin profile as-is
 
   const firebaseConfig = {
@@ -3988,7 +4006,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
         }, 100);
       }
     }
-    reveal();   // real data is on the page → show the hero (no template flash)
+    revealWhenReady(p);   // show the hero only once the banner photo has loaded
   }
 
   // 1) INSTANT paint from the last-seen copy (repeat visits show immediately,
