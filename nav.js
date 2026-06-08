@@ -701,7 +701,6 @@
   /* ── Boot: inject markup, then wire everything ────────────────────────── */
   function inject() {
     if (document.getElementById('navOrbFixed')) return; // re-check (race safety)
-    injectNavUnderlineCSS();
     var holder = document.createElement('div');
     holder.innerHTML = NAV_HTML;
     // Prepend each top-level node to <body> in source order.
@@ -738,6 +737,7 @@
   window.__applyNavBlendColors = applyNavBlendColors;
 
   function boot() {
+    injectNavUnderlineCSS();   // global CSS → safe even on pages with their own inline nav
     inject();
     // Wire behaviours against the freshly injected elements.
     wireFavourites();
