@@ -752,6 +752,9 @@
           <p>以下是你今天的最新動態。</p>
         </div>
 
+        <!-- System announcements from the platform admin (read-only) -->
+        <div id="sysAnnounceWrap" style="display:none;margin-bottom:22px;"></div>
+
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon si-blue">
@@ -1768,12 +1771,42 @@
   let _currentUser  = null;
   let _currentProfile = null;
 
+  // System announcements posted by the platform admin (siteContent/announcements).
+  // Read-only here; shown at the top of the Overview.
+  async function loadAnnouncements(){
+    var wrap = document.getElementById('sysAnnounceWrap'); if(!wrap) return;
+    var esc = function(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+    try {
+      var snap = await getDoc(doc(db,'siteContent','announcements'));
+      var items = (snap.exists() && Array.isArray(snap.data().items)) ? snap.data().items : [];
+      if(!items.length){ wrap.style.display='none'; wrap.innerHTML=''; return; }
+      wrap.innerHTML = '<div class="sec-head"><div class="sec-title">📢 系統公告</div></div>'
+        + items.slice(0,5).map(function(a){
+          var u=a.urgency;
+          var bar = u==='urgent'?'#c0392b':(u==='important'?'#d97706':'#0e7490');
+          var bg  = u==='urgent'?'#fef2f2':(u==='important'?'#fffbeb':'#ecfeff');
+          var icon= u==='urgent'?'🔴':(u==='important'?'⚠️':'📢');
+          var d = a.ts ? new Date(a.ts) : null;
+          var dateStr = d ? (d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate()) : '';
+          return '<div style="background:'+bg+';border:1px solid '+bar+'33;border-left:4px solid '+bar+';border-radius:10px;padding:14px 16px;margin-bottom:10px;">'
+            + '<div style="display:flex;justify-content:space-between;gap:10px;align-items:baseline;">'
+            +   '<div style="font-weight:700;font-size:14px;color:#1a1a1a;">'+icon+' '+esc(a.title)+'</div>'
+            +   '<div style="font-size:11px;color:#999;flex:none;">'+dateStr+'</div>'
+            + '</div>'
+            + '<div style="font-size:13px;color:#444;margin-top:6px;line-height:1.6;white-space:pre-wrap;">'+esc(a.body)+'</div>'
+            + '</div>';
+        }).join('');
+      wrap.style.display='block';
+    } catch(e){ wrap.style.display='none'; }
+  }
+
   onAuthStateChanged(auth, async (user) => {
     if (!user) {
       window.location.href = 'musician-login.html';
       return;
     }
     _currentUser = user;
+    loadAnnouncements();   // show platform announcements on the dashboard
     window._tourUid = user.uid;   // per-user key for the onboarding tour
     window.__pbUid = user.uid;    // used by the live-preview iframe + snap-back
     // Load the preview as THIS musician's own profile. Without the uid the profile

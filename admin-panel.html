@@ -676,7 +676,7 @@
 
             <div style="margin-top:24px;">
               <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mid);margin-bottom:12px;">Past Announcements</div>
-              <div class="card">
+              <div class="card" id="pastAnnounceList">
                 <div class="empty" style="padding:32px 20px;">No announcements sent yet</div>
               </div>
             </div>
@@ -935,6 +935,7 @@
   window.adminRefreshUI = adminRefreshUI;
 
   loadMusicians();
+  loadPastAnnouncements();   // populate the Announcements page history
 
   // ── Site Editor (Phase 1: homepage hero text) ─────────────────────────────
   // Every field carries a `section` = which homepage block it belongs to (matches
@@ -2794,15 +2795,59 @@
     document.getElementById('charCount').textContent = len;
   }
 
-  window.sendAnnouncement = function() {
+  // Announcements live in siteContent/announcements = { items:[{id,title,body,urgency,ts}] }.
+  // siteContent is admin-writable + world-readable, so musicians can read it with NO
+  // extra Firestore rule. Newest first; keep the last 30.
+  function _annIcon(u){ return u==='urgent'?'🔴':(u==='important'?'⚠️':'📢'); }
+  function _annDate(ts){ if(!ts) return ''; var d=new Date(ts); return d.getFullYear()+'/'+(d.getMonth()+1)+'/'+d.getDate(); }
+  function renderPastAnnouncements(items){
+    var box = document.getElementById('pastAnnounceList'); if(!box) return;
+    if(!items || !items.length){ box.innerHTML = '<div class="empty" style="padding:32px 20px;">No announcements sent yet</div>'; return; }
+    box.innerHTML = items.map(function(a){
+      return '<div style="padding:12px 14px;border-bottom:1px solid var(--border);">'
+        + '<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">'
+        +   '<div style="font-weight:700;font-size:13px;color:var(--black);">'+_annIcon(a.urgency)+' '+_esc(a.title)+'</div>'
+        +   '<button onclick="deleteAnnouncement(\''+a.id+'\')" title="刪除" style="border:none;background:none;color:#c0392b;cursor:pointer;font-size:13px;flex:none;">✕</button>'
+        + '</div>'
+        + '<div style="font-size:12px;color:#666;margin-top:4px;white-space:pre-wrap;">'+_esc(a.body)+'</div>'
+        + '<div style="font-size:11px;color:#aaa;margin-top:4px;">'+_annDate(a.ts)+'</div>'
+        + '</div>';
+    }).join('');
+  }
+  async function _annLoad(){
+    try{ var snap=await getDoc(doc(db,'siteContent','announcements'));
+      return (snap.exists() && Array.isArray(snap.data().items)) ? snap.data().items.slice() : []; }
+    catch(e){ return []; }
+  }
+  async function loadPastAnnouncements(){ renderPastAnnouncements(await _annLoad()); }
+  window.sendAnnouncement = async function() {
     var title = document.getElementById('announceTitle').value.trim();
     var body  = document.getElementById('announceBody').value.trim();
+    var urgency = (document.getElementById('announceUrgency')||{}).value || 'normal';
     if (!title || !body) { showNotif('Please fill in both title and message'); return; }
-    showNotif('📣 Announcement sent to ' + MUSICIANS.length + ' musicians!');
-    document.getElementById('announceTitle').value = '';
-    document.getElementById('announceBody').value = '';
-    updatePreview();
-    updateCharCount();
+    try {
+      var ref = doc(db,'siteContent','announcements');
+      var items = await _annLoad();
+      items.unshift({ id:String(Date.now()), title:title, body:body, urgency:urgency, ts:Date.now() });
+      items = items.slice(0, 30);
+      await setDoc(ref, { items: items }, { merge:true });
+      showNotif('📣 公告已發布給所有樂手！');
+      document.getElementById('announceTitle').value = '';
+      document.getElementById('announceBody').value = '';
+      updatePreview(); updateCharCount();
+      renderPastAnnouncements(items);
+    } catch(e) {
+      showNotif('⚠ 發布失敗（請確認以管理者帳號登入）：' + (e.code||e.message));
+    }
+  }
+  window.deleteAnnouncement = async function(id){
+    if(!confirm('確定刪除這則公告？')) return;
+    try{
+      var items = (await _annLoad()).filter(function(a){ return a.id !== id; });
+      await setDoc(doc(db,'siteContent','announcements'), { items: items }, { merge:true });
+      renderPastAnnouncements(items);
+      showNotif('已刪除');
+    }catch(e){ showNotif('⚠ 刪除失敗：'+(e.code||e.message)); }
   }
 
   window.clearAnnouncement = function() {
