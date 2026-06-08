@@ -44,6 +44,7 @@
 
 > **2026-06-08 本視窗摘要**：Logo 換新＋全站套用、管理者密碼安全強化、部落格圖片可編輯＋雲端同步、海報投稿系統（樂手↔管理者）、樂手後台收件匣合併、管理者刪樂手功能（差規則放行）、nav logo 對齊修正。詳見 §9。
 > **2026-06-08 另一視窗摘要（樂手檔案／公告／海報／手機線）**：系統公告（管理者發→樂手看，看後 24h 自動消失）、Showreel 影片大改（動態1–3、標題=大字+副標、每片X/Y、手機橫向全螢幕疊層）、亮點可排序+預設第一張+每張X/Y/Zoom、海報存原檔+下載原圖+刪除、客戶刪除鈕、首頁輪播標語可拖曳/對齊（分裝置）、全站隱藏捲動軸、首頁手機白卡縮放、上傳格式錯誤訊息修正。**🔴 重要：首頁有自己的 inline nav（不吃 nav.js）；nav.js 已加 `?v=2` 快取版本號**。詳見 §9 + §7 第 9 點。
+> **2026-06-08 本視窗摘要（公開委托串流／樂手主頁載入體驗／雙語內容）**：①**公開委托真資料流**：客戶在 `recent-jobs` 送委托→寫 Firestore **`jobs`**→樂手後台「公開接案」即時看到（onSnapshot＋紅點徽章＋通知；已過活動日期/已接的自動不顯示）。Post-a-Project 加**活動時間**選擇器。**🔴 還沒通：要業主在 Firebase 主控台①開 Anonymous 登入②發布 `jobs` 規則**（見 §10 第 0.5 點）。②**樂手公開主頁載入大修**：修「published 卻顯示空白模板」(module 頂層 `return` 語法錯→包 async IIFE)、改用 **Firestore REST 取代 SDK**（少約 0.8s 灰屏）、**等照片+字型都好才一次顯示**（名字/照片一起出現、不分批）、**開場動畫等資料就緒才播**、**Showreel 輪播改在動畫後+1.5s 才開始**（修白閃）。③**YouTube showreel 填滿**（過去有黑邊：cinematic 影片被 YT 自己加黑邊→把 iframe 放大 ~1.4× 裁掉）。④**列表卡片音樂(MP3)**：Card 編輯器可上傳 MP3、列表卡播放鍵真的播（並修卡片按鈕因字串 uid 沒加引號→點了跳主頁的 bug）。⑤**樂手內容雙語**：bio/學經歷/服務/亮點各加英文版輸入框；主頁切 EN/中文顯示對應版本（英文留空＝空白、不回退）。⑥**退役所有前台浮動編輯器**（全站 CSS 隱藏）。⑦**nav hover 底線**（從左滑出）改用 nav.js 注入的 `::after`，**全站都有**；**nav.js 版本號 bump 成 `?v=3`**。⑧後台預覽 iframe 加 `&_=Date.now()` 快取破壞（預覽永遠載最新）。⑨修 Site Editor「打字後移位置→文字回退」bug。詳見 §9。
 
 ---
 
@@ -166,7 +167,7 @@
 6. **大小寫敏感**：macOS 本機不分、Cloudflare(Linux) 分，路徑大小寫要對。
 7. **發佈端點在線上會 404**（沒 server.py）：所以「發佈照片」按鈕在線上對檔案型內容無效；文字仍會存 Firebase。
 8. **驗證程式**：本機沒有 node；可用 `jsc`（`/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc`）做 `new Function(src)` 純語法檢查（記得先剝掉 `import` 行）。預覽工具（Claude Preview）會用自己的 server，cwd 可能在家目錄，要導到 `/opusz-website/...`；且**無法穩定重現首頁/演出頁的捲動動畫**，動畫類改動請業主在真站確認。
-9. 🔴 **首頁有自己的 inline nav，不吃 `nav.js`**：`musician-platform.html` 的導覽（登入/帳號/抽屜/登入下拉）是頁面內自帶的;其他內頁才用共用 `nav.js`。**改 nav 行為要兩邊都改**，否則「在其他頁好了、首頁沒好」。另：`nav.js` 全站引用帶 **`?v=N` 版本號**（目前 v2），**改 nav.js 後要 bump 版本號**才不會被瀏覽器/iframe 快取吃掉舊版（本視窗被這個快取坑很久）。**外部 `<script src>` 改了，硬重新整理常常刷不到，版本號才可靠。**
+9. 🔴 **首頁有自己的 inline nav，不吃 `nav.js`**：`musician-platform.html` 的導覽（登入/帳號/抽屜/登入下拉）是頁面內自帶的;其他內頁才用共用 `nav.js`。**改 nav 行為要兩邊都改**，否則「在其他頁好了、首頁沒好」。另：`nav.js` 全站引用帶 **`?v=N` 版本號**（**目前 v3**，本視窗從 v2 bump 上來），**改 nav.js 後要 bump 版本號**才不會被瀏覽器/iframe 快取吃掉舊版（本視窗被這個快取坑很久）。**外部 `<script src>` 改了，硬重新整理常常刷不到，版本號才可靠。** 同理本視窗把後台預覽 iframe 的 `musician-profile.html` src 加了 `&_=Date.now()`（HTML 沒版本號、會被快取，這樣預覽永遠最新）。
 10. **預覽工具測不到登入後的後台**：`admin-panel`/`musician-dashboard`/`musician-profile?uid=` 都要登入才完整跑（沒登入會跳轉 login）。後台類功能多半只能用 `jsc` 驗語法 + 模擬資料測邏輯，最後請業主登入實測。
 
 ---
@@ -182,6 +183,31 @@
 ---
 
 ## 9. 變更紀錄 (CHANGELOG)
+
+- **2026-06-08（本視窗：公開委托串流 / 樂手主頁載入 / 雙語內容；全部已 push 上線）**
+  - **公開委托真資料流（recent-jobs ↔ 樂手後台）**：
+    - `recent-jobs.html` 的「Post a Project」原本只顯示「Inquiry Sent ✓」、不存檔。改成 `window.pjSaveJob()` 用 **Firebase Anonymous Auth（沒登入就匿名登入）+ addDoc** 寫進 Firestore **`jobs`** 集合（欄位：type/ensemble/location/duration/desc/eventDate/eventTime/customerName/customerEmail/createdAt(ISO)/status:'open'/uid）。送出前**必填活動日期+時間**。Post-a-Project 表單第一排改成原生 **date + time 選擇器**（活動時間），欄位都給了 id（pjDate/pjTime/...）。
+    - `musician-dashboard.html` 的「公開接案」(`#jobs-public`，原本空殼) 接上 **onSnapshot(`jobs` orderBy createdAt desc)** 即時清單：只顯示 `status==='open'` 且**未過活動日期**的委托（已接/過期自動不顯示）；卡片含活動日期+時間、地點、長度、「發布於 X 前」、客戶、「我有興趣」聯絡鈕。側邊 `sbJobsBadge` 顯示「上次看後新增幾筆」，開「公開接案」分頁即標記已看+清徽章；有新委托即時跳 `showNotif('🔔 有新的公開委托！')`。
+    - `recent-jobs.html` 那 8 張**範例卡**補上「活動日期+時間」與「發布於 X 前」（中英、用相對 now 的位移算，永遠看起來新鮮），純展示用。
+    - 🔴 **未通，待業主在 Firebase 主控台做 2 件事**（見 §10 第 0.5）：①Authentication→Sign-in method→開 **Anonymous**；②Firestore Rules 加 **`jobs`** 規則。我曾把規則文字貼進主控台 CodeMirror（用 JS 插入，**沒幫按發布**），但不確定業主有沒有按「發布」——**請接手視窗向業主確認 `jobs` 規則是否已發布、Anonymous 是否已開**。實測目前寫入仍 `permission-denied`（規則缺）。
+  - **樂手公開主頁 `musician-profile.html` 載入體驗大修**：
+    - 🐞 **「published 卻顯示空白模板」**：載入 Firestore 的那段 `<script type="module">` 用了**頂層 `return`**（module 頂層 return = SyntaxError「Illegal return statement」→整段死掉→只剩模板）。**包進 `(async()=>{ … })()`** 解掉。
+    - **改用 Firestore REST 取代 SDK 讀取**：原本 `getDoc` 走 WebChannel ~2s。改成單一 `fetch()` REST GET + 一個 typed-JSON 解碼器（`fsDec/fsDoc`，輸出和 `snap.data()` 同形狀）→ 資料約 90ms 就開抓、早約 0.8s。**此頁不再載 firestore SDK**（media-sync.js 仍會 lazy 載，不擋首屏）。加了 firestore/firebasestorage 的 `preconnect`。
+    - **名字+照片一起出現**：新增 `prof-pending`（head 內聯，先把 hero 名字/頭銜/地點藏起來避免閃模板）；`revealWhenReady()` **等橫幅照片 `Image()` 載完 + `document.fonts.ready` 都好**才 reveal（EN/字型慢時名字不會比照片晚出）；reveal 同時強制 `heroNameBig.fonts-ready`。localStorage 快取（`opusz_profile_<uid>`）→ 重複造訪秒開。
+    - **開場動畫**（全螢幕照片→縮小→名字滑出）：改成 `window.__startHeroIntro()`，**等 reveal（照片+資料就緒）才開播**（不再在空資料上跑掉）；6s/5s 保險網。
+    - **Showreel 輪播**：原本 `__applyHeroExtraSlides→__heroSlideshowReload` 會在資料一套用就 `startTimer()`（動畫沒跑完就換圖、且 goTo 在投影片還沒 inline 初始化前跑→**白閃**）。加 `_booted` 旗標：未 boot 不啟動計時器；`hero-intro-done` 後做 inline 初始化、設 `_booted`、**再等 1.5s 才開始輪播**。
+    - **YouTube/Vimeo showreel 填滿**：mp4 用 `object-fit:cover` 會填滿，但 YT 把 **cinematic（比 16:9 寬）影片在自己 16:9 播放器裡上下加黑邊**（黑邊在 iframe 內，CSS 去不掉）。把 iframe **放大到 ~1.4× 舞台**（仍 16:9、`margin:auto` 置中、外框 overflow 裁掉），把 YT 黑邊推出畫面外→影片帶填滿。⚠️**取捨**：真 16:9 影片會被放大裁掉約左右各 16%。要每片自調可加 zoom 滑桿（見 §10）。`buildEmbed` + 退出全螢幕還原路徑都改。
+    - **關於卡只顯示名字**：頭貼右邊拿掉「Your title · Your city」那行，名字（`#aboutMusicianName`）**跟主視覺名字同步**。
+  - **列表卡片音樂（MP3）**：`musician-dashboard` 的「列表卡片 / Card」加「卡片音樂 (MP3)」欄位（重用 `pbAttachAudioUploader`→Firebase Storage），存 `config.card.audioUrl`。`musicians.html` 載 `m.audioUrl`，**卡片左下播放鍵真的用 `<audio>` 播放**（有音樂才顯示播放鍵）。
+    - 🐞 **順手修卡片按鈕 bug**：`musicians.html` 卡片所有 onclick 用 `...(event,'+m.id+')` **沒加引號**，但 `MUSICIANS` 現在只有 Firestore 的**字串 uid**→拼成 `togglePlay(event,qR8q45…)`（未定義變數）→拋錯→點擊穿透到 `<a>`→**跳去主頁**。全部加引號（togglePlay/toggleFav/scrollToCard/removeFav）＋togglePlay 補 `preventDefault`。
+  - **樂手內容雙語（中＝預設 / 英＝另存）**：4 區塊各加英文版——
+    - 後台 `musician-dashboard`：簡介→`pbAboutBioEn`、學經歷→`pbAboutCredsEn`、每張服務→`pbSvcNTitleEn/DescEn/TagsEn`、每列亮點→`.pbHlTitleEn`；pbReadForm/pbLoadForm 存讀 `about.bioEn/credentialsEn`、`services[].{titleEn,descriptionEn,tagsEn}`、`highlights[].titleEn`。
+    - 前台 `musician-profile`：新增 `applyLocalizedSections()`（在 applyProfileConfig 結尾＋`switchProfileLang` 都呼叫），依 `_profileLang` 顯示中/英。**英文留空＝該段空白（不回退中文、不自動翻譯）**（業主決定）。
+  - **退役所有前台浮動編輯器**（全站）：各公開頁 `<head>` 注入 `#opz-no-fe-editors` CSS 把舊編輯器面板/按鈕 `display:none!important`（首頁 Photo/Video/responsive、blog `#ebpPanel`、musicians/lessons `.med-overlay`、shows `#editorPanel`、profile `#martin-photo-editor`/`.bve-*`）。**純 CSS，不動後台用的 JS API**（opzEdit/opzShows/opzBlogEdit/opzMusApply/applyProfileConfig）。
+  - **nav hover 底線（全站）**：原本只首頁有、且用會被「逐字上色 re-split」洗掉的 `<span class="nav-ul">`。改用 `nav.js` 注入的 CSS **`::after`**（`background:#fff`+`mix-blend-mode:difference` 自動對比、滑入用 scaleX、mega-open 變黑），**首頁不吃 nav.js→另外把同款 CSS 直接寫進 `musician-platform.html`**。**nav.js 版本號 bump：全站 `?v=2`→`?v=3`**（下次改 nav.js 記得 →`?v=4`）。
+  - **後台預覽 iframe 快取破壞**：`musician-dashboard` 設 `pbPreview`/snap-back 的 src 加 `&_=Date.now()` → 預覽永遠載最新 `musician-profile.html`（之前部署後預覽吃舊快取，YouTube 填滿修正看起來「沒生效」）。
+  - 🐞 **Site Editor「打字後移位置→文字回退」**：`admin-panel` 的 `seBuildControls()` 被很多操作（切裝置、對齊鈕、顏色…）呼叫，每次都從 `seCurrentConfig`（上次存的）重建所有文字框→洗掉沒存的打字。修法：`seBuildControls` 開頭先把現有 DOM 欄位值快照、合併回 `cur/curCms` 當來源。
+  - **音樂家頁 hero/過濾器編輯（順帶）**：`musicians.html` 接上 `site-content.js`（`data-cms-page="musicians"`）＋ `window.opzMusApply`，後台「音樂家」頁可編輯總覽 hero（標題/副標中英、背景影片/圖片、X/Y/縮放）＋過濾器文字；存 `siteContent/musicians`（`musHero`/`musFilters`）。修了「後台預覽有 hero 影片、前台沒有」＝原本 hero 媒體只存 localStorage 沒同步雲端。
 
 - **2026-06-08（本視窗・全部已 push 上線；過程中有 3~4 個 Claude 視窗並行，commit 偶有夾帶彼此改動）**
   - **品牌 Logo 換新（全站）**：業主新 logo＝**去背圓形紅底＋白色螺旋**（檔在 `下載/Black and White Bold Kitchen Knife Logo (2).png`，2000px、含 alpha）。因幾乎所有頁的圓 logo 都吃同一個檔 `assets/images/LOGO/opusz-logo-cropped.png`，**換這一個檔＝前端 nav＋兩個後台側邊欄一次全換**。favicon 另外重生（`favicon.png` 512px、`favicon.ico` 含 16/32/48/64/128、`favicon-16/32.png`）。全站 favicon `?v=` 與 logo 圖引用都加版本號（目前 **?v=7**）強制更新快取。刪掉沒用到的舊 logo 檔。
@@ -264,6 +290,21 @@
    - 🔴 **客戶刪除同款問題**：admin「客戶管理」的 🗑 刪除（`deleteDoc(customers/<id>)`）若 `customers` 規則沒放行管理者刪除，一樣會 permission-denied。要的話比照上面，給 `customers/{id}` 加 `|| request.auth.token.email == 'tzutung.liao@gmail.com'` 的 write 規則。**海報刪除**是改 `musicians/{uid}.posterSubmissions[]`（樂手自己的 doc）——若由管理者操作別人的 doc，也吃同一條 musicians 規則。
    - **海報「下載原圖」CORS**：admin 下載鈕用 `fetch→blob`，若 Firebase Storage 沒開放跨來源讀取會被 CORS 擋（已 fallback 開新分頁；新上傳帶 `Content-Disposition:attachment` 開了也會下載）。要「一鍵直接下載」更順，可用 `gsutil cors set` 給 bucket 設 CORS 允許 `opuszmusic.com`/`localhost`。
 
+0.5. 🔴 **公開委托串流要通，業主在 Firebase 主控台做 2 件事**（程式都寫好了，只差這個；見 §9 本視窗）：
+   - ① **Authentication → Sign-in method → 開啟 Anonymous（匿名登入）**：讓沒登入的客人也能送委托（`pjSaveJob` 會匿名登入再寫入）。
+   - ② **Firestore Database → Rules**，在 `match /databases/{database}/documents {` 內加：
+     ```
+     match /jobs/{jobId} {
+       allow read:   if request.auth != null;
+       allow create: if request.auth != null
+                     && request.resource.data.status == 'open'
+                     && request.resource.data.createdAt is string;
+       allow update, delete: if request.auth != null
+                     && request.auth.token.email == 'tzutung.liao@gmail.com';
+     }
+     ```
+   ⚠️ 改規則＝動存取控制，**Claude 不可代發布**，帶業主親手按「發布」。**接手請先確認這兩項是否已完成**（之前可能貼了規則但沒按發布）。完成後可實測：客戶送委托→樂手後台「公開接案」即時出現。
+
 1. **部落格「文字可編輯」**（banner/文章的標題、標籤）：圖片已可編輯（§9 2026-06-08），但 `.rs-title`/`.feat__title` 文字還寫死在 `blog.html`、`.rs-tag`/`.feat__tag` 是 `data-i18n`。要接成後台可編輯（**業主有要求，是這條線唯一沒做完的**）。
 
 2. **演出頁海報「刪指定某張 / 拖曳排序」**（目前只能刪最後一張）：需把海報文字從 index 綁定的 i18n 改成「綁進每張海報的資料(`posters[].text`)」，這樣刪中間/換序文字才不會錯位（在 `shows.html` 的 `opzShows`：讓 `applyAll` 由 `ST.shows[i]` 直接渲染文字；`removeAt(i)`/`move(i,dir)` = 陣列操作 + 重畫）。
@@ -272,6 +313,8 @@
 4. **子頁更多區段可編輯**：照 §3(4) 模式，給 blog/musicians/jobs/lessons 的各區段加 `data-cms-section` + `SE_SECTIONS_BY_PAGE`。
 5. **影片連結搬雲端**：`mono-hero-video`/`lessons-hero-video`/`martin-showreel-videos`/`mono-vid-*`（Cloudinary 網址存 localStorage）→ 納入 `siteContent/media` 或各頁 config。
 6. 未轉 Firestore 的功能（詢問訊息、課程預約、收藏）仍 localStorage（見 `ADMIN_CMS_HANDOFF.md`）。
+7. **（可選）Showreel YouTube 每片 zoom 滑桿**：目前 YT iframe 固定放大 ~1.4× 以裁掉 cinematic 黑邊（會讓真 16:9 影片被裁約左右各 16%）。若業主要「16:9 不裁、寬影片才放大」，在 showreel 編輯器加一個 zoom 滑桿（存 `config.videos[i].zoom`），`buildEmbed` 依該值決定放大倍率（預設 0＝只做 16:9 cover）。
+8. **公開委托後續**（§9 本視窗已做基本流）：可加「樂手接案→標記 accepted（status 改）→從看板消失」「客戶在後台看自己發的委托/回覆」「委托真的進樂手訊息匣」等。目前委托是單向公開看板，沒有接受/媒合流程。
 
 ---
 
