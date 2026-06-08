@@ -49,7 +49,7 @@
 > ②**首頁主標題/副標可後台編輯**：Site Editor「首頁→主視覺」新增「主標題/副標」**多行文字框**（中英、按 Enter 換行）＋「行距」滑桿（`siteContent/home.heroType`）。主標題 CSS 改 `white-space:pre`（**預設一行、只在手動換行處斷**）、副標 `pre-line`。`site-content.js` 加 `applyHeroType`。
 > ③🟢**訊息後端打通（取代 localStorage）**：樂手公開檔的「聯絡(Message)/檔期(Check availability)/課程(Book a lesson)」三個動作 → 改寫進 Firestore **`inquiries`** 集合（`kind:message/booking/lesson` + `musicianUid`，匿名登入；`musician-profile.html` 的 `window.opzSendInquiry`）。樂手後台「**訊息**」改即時讀 `inquiries`（`onSnapshot where musicianUid==我`，已讀/回覆寫回 Firestore；`musician-dashboard.html` 的 `_fsInbox`/`renderInbox`/`__markInquiryRead`/`__saveInquiryReplies`）。已加 `inquiries` Firestore 規則（業主已發布）。Enquiry 表單補了 email 欄位。
 > ④🟢**自動 Email 通知（全新！見 §12）**：用 **ZeptoMail**（Zoho 自家交易型郵件）以 `info@opuszmusic.com` 寄信，網域已驗證（DKIM + bounce CNAME 已加到 Cloudflare）。寫了 **Firebase Cloud Functions**（`functions/` 資料夾，2nd gen）：`notifyMusicianOnInquiry`（新訊息→寄給該樂手註冊信箱）＋（另一視窗加的）`notifyMusicianOnReview`（樂手申請通過/退件→寄給申請人）。**已部署、實測收到信（進主收件匣）**。本機已用 Homebrew 裝 **Node.js + firebase CLI**，已 `firebase login`（yoshino1590012@gmail.com）。
-> ⑤**還沒做**：公開委托(jobs)發布→**自動 email 通知全體樂手**（目前只「私人訊息→單一樂手」有 email）；課程預約流程沒收集學生 email；`functions/` **還沒 commit 進 git**（見 §10）。
+> ⑤**還沒做**：公開委托(jobs)發布→**自動 email 通知全體樂手**（目前只「私人訊息→單一樂手」有 email）；課程預約流程沒收集學生 email（見 §10 第 0.6）。（`functions/` 已 commit 進 git＝commit `5063f5e`。）
 >
 > **2026-06-08 本視窗摘要（公開委托串流／樂手主頁載入體驗／雙語內容）**：①**公開委托真資料流**：客戶在 `recent-jobs` 送委托→寫 Firestore **`jobs`**→樂手後台「公開接案」即時看到（onSnapshot＋紅點徽章＋通知；已過活動日期/已接的自動不顯示）。Post-a-Project 加**活動時間**選擇器。**🔴 還沒通：要業主在 Firebase 主控台①開 Anonymous 登入②發布 `jobs` 規則**（見 §10 第 0.5 點）。②**樂手公開主頁載入大修**：修「published 卻顯示空白模板」(module 頂層 `return` 語法錯→包 async IIFE)、改用 **Firestore REST 取代 SDK**（少約 0.8s 灰屏）、**等照片+字型都好才一次顯示**（名字/照片一起出現、不分批）、**開場動畫等資料就緒才播**、**Showreel 輪播改在動畫後+1.5s 才開始**（修白閃）。③**YouTube showreel 填滿**（過去有黑邊：cinematic 影片被 YT 自己加黑邊→把 iframe 放大 ~1.4× 裁掉）。④**列表卡片音樂(MP3)**：Card 編輯器可上傳 MP3、列表卡播放鍵真的播（並修卡片按鈕因字串 uid 沒加引號→點了跳主頁的 bug）。⑤**樂手內容雙語**：bio/學經歷/服務/亮點各加英文版輸入框；主頁切 EN/中文顯示對應版本（英文留空＝空白、不回退）。⑥**退役所有前台浮動編輯器**（全站 CSS 隱藏）。⑦**nav hover 底線**（從左滑出）改用 nav.js 注入的 `::after`，**全站都有**；**nav.js 版本號 bump 成 `?v=3`**。⑧後台預覽 iframe 加 `&_=Date.now()` 快取破壞（預覽永遠載最新）。⑨修 Site Editor「打字後移位置→文字回退」bug。詳見 §9。
 
@@ -163,7 +163,7 @@
 - `nav.js` / `nav.css`：共用導覽（內頁注入）。**≤900px 會把愛心/登入/語言搬進漢堡抽屜**（`#navDrawerExtra`，首頁同邏輯內建在 `musician-platform.html`）。
 - `site-data.json` / `shows-data.json`：首頁/演出頁的檔案型設定（會被 git 追蹤＝部署）。
 - `_redirects`、`.gitignore`（排除 >25MB 大檔；那些影片走 Cloudinary）。
-- 🆕 `functions/index.js` + `firebase.json` + `.firebaserc`（2026-06-09）：**Firebase Cloud Functions**（自動寄信通知）。`notifyMusicianOnInquiry`（訊息→樂手信箱）、`notifyMusicianOnReview`（審核→申請人）。詳見 §12。**⚠️ 還沒 commit 進 git。**
+- 🆕 `functions/index.js` + `firebase.json` + `.firebaserc`（2026-06-09）：**Firebase Cloud Functions**（自動寄信通知）。`notifyMusicianOnInquiry`（訊息→樂手信箱）、`notifyMusicianOnReview`（審核→申請人）。詳見 §12。（已在 git，commit `5063f5e`）
 - 🆕 `musician-profile.html` 新增 `window.opzSendInquiry`（聯絡/檔期/課程 → 寫 Firestore `inquiries`，匿名登入）；`musician-dashboard.html`「訊息」改讀 `inquiries`（`_fsInbox`/`renderInbox`）。見 §12.1。
 
 ---
@@ -319,7 +319,7 @@
 
 0.6. 🟡 **公開委托(jobs) → 自動 email 通知「全體樂手」**（2026-06-09 待辦）：目前只有「私人訊息(inquiries)→單一樂手」會自動寄 email（§12）。委托是公開的，業主要求**發布委托時自動 email 給所有樂手**。做法：在 `functions/index.js` 加一個 `onDocumentCreated('jobs/{id}')`，用 `admin.auth().listUsers()` 或撈 `musicians` 集合所有 uid → 各自查 email → 用同一個 `sendZepto()` 寄（注意：量大時要分批、加退訂連結/合法性，見 §12 注意事項）。**課程預約流程目前沒收集學生 email**（樂手收到預約但無對方信箱可回）→ 可在 `musician-profile.html` 的 lesson modal 加 email 欄位。
 
-0.7. 🟡 **把 `functions/` 提交進 git**（2026-06-09）：Cloud Functions 程式（`functions/index.js`、`firebase.json`、`.firebaserc`）**已部署但還沒 commit 進 GitHub**（當時有另一視窗並行改同檔、git 工作區有別人未提交的改動，沒硬推）。請接手視窗確認工作區乾淨後，`git add functions firebase.json .firebaserc`（`functions/.gitignore` 已排除 node_modules）→ commit → push。**注意 `functions/index.js` 可能被多視窗改過，commit 前先重讀。**
+0.7. ✅ **（已完成）`functions/` 已提交進 git**（2026-06-09，commit `5063f5e`）：`functions/index.js`、`firebase.json`、`.firebaserc` 已在 GitHub。**注意 `functions/index.js` 之前被多視窗並行改過（本次提交的是含 `notifyMusicianOnReview` 的合併版＝實際部署版），之後改前先重讀。**
 
 0.5. ✅ **（已完成）公開委托串流 + Anonymous 登入**：2026-06-09 確認 **Anonymous 登入已開、`jobs` 規則已發布**（`inquiries` 也用匿名登入寫入成功、`jobs` 集合已有真實資料）。委托流程已通。下面這段保留作參考：
    - ① **Authentication → Sign-in method → 開啟 Anonymous（匿名登入）**：讓沒登入的客人也能送委托（`pjSaveJob` 會匿名登入再寫入）。
@@ -389,7 +389,7 @@
 - `functions/index.js`（2nd gen, Node 20）：`notifyMusicianOnInquiry`（onCreate `inquiries/{id}`）＋ `notifyMusicianOnReview`（onUpdate `musicians/{uid}`）。共用 `sendZepto()`、`musicianEmail()`、`LOGO_HEADER`、secret `ZEPTOMAIL_TOKEN`。
 - `firebase.json`（functions source/runtime）、`.firebaserc`（default = opusz-45280）。`functions/.gitignore` 排除 node_modules。
 - 函式在 **us-central1**；Firestore DB 在 **nam5**（含 us-central1，相容，沒問題）。
-- ⚠️ **`functions/` 目前還沒 commit 進 git**（已部署但未進版控）→ §10 第 0.7 點。
+- ✅ **`functions/` 已 commit 進 git**（commit `5063f5e`）；之後改 `index.js` 前先重讀（曾多視窗並行）。
 
 ### 12.4 部署 / 改 / 看 log（給接手視窗）
 本機已用 Homebrew 裝好 **Node.js + firebase-tools**，路徑在 `/opt/homebrew/bin`（指令前先 `export PATH="/opt/homebrew/bin:/usr/local/bin:$PATH"`）。已 `firebase login`（**yoshino1590012@gmail.com**，對 opusz-45280 有權限）。
