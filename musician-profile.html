@@ -711,11 +711,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   align-items:start;
   padding:clamp(26px,2.4vw,34px) clamp(30px,3vw,44px);   /* 上下留白縮減 */
   grid-template-areas:
-    "icon  taglabel"
-    "title tags"
+    "title taglabel"
     "desc  tags";
 }
-.serv-grid.serv-solo .serv-card-icon { grid-area:icon;  margin-bottom:16px; }
 .serv-grid.serv-solo .serv-card-title{ grid-area:title; margin-bottom:8px; }
 .serv-grid.serv-solo .serv-card-desc { grid-area:desc;  margin-bottom:0; max-width:340px; }
 .serv-grid.serv-solo .serv-tag-label { grid-area:taglabel; }
@@ -723,7 +721,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 @media(max-width:760px){
   .serv-grid.serv-solo .serv-card{
     grid-template-columns:1fr;
-    grid-template-areas:"icon" "title" "desc" "taglabel" "tags";
+    grid-template-areas:"title" "desc" "taglabel" "tags";
   }
   .serv-grid.serv-solo .serv-card-desc{ margin-bottom:22px; max-width:none; }
 }
@@ -1930,8 +1928,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
         <div class="about-musician-card">
           <div class="about-avatar" id="aboutAvatar"></div>
           <div>
-            <p class="about-musician-name pf-placeholder">NAME</p>
-            <p class="about-musician-role pf-placeholder">Your title · Your city</p>
+            <p class="about-musician-name pf-placeholder" id="aboutMusicianName">NAME</p>
           </div>
         </div>
         <ul class="about-creds">
@@ -2037,11 +2034,6 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 
         <!-- Performance: musician sets their own performance specialties -->
         <div class="serv-card">
-          <div class="serv-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
-            </svg>
-          </div>
           <p class="serv-card-title" data-i18n="svc.perf.title">Your service</p>
           <p class="serv-card-desc" data-i18n="svc.perf.desc">Describe a service you offer (e.g. live performance, lessons).</p>
           <div class="serv-tags">
@@ -2051,11 +2043,6 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 
         <!-- Lessons: linked to the lessons-page filter (levels taught) -->
         <div class="serv-card">
-          <div class="serv-card-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
-            </svg>
-          </div>
           <p class="serv-card-title" data-i18n="svc.teach.title">Your service</p>
           <p class="serv-card-desc" data-i18n="svc.teach.desc">Describe a service you offer (e.g. live performance, lessons).</p>
           <div class="serv-tags">
@@ -5408,6 +5395,9 @@ window.addEventListener('pageshow', function(e) {
       // Showreel big-video label (uppercased) — keep in sync if present
       var bigvidLabel = document.getElementById('bigvidLabelName');
       if(bigvidLabel) bigvidLabel.textContent = String(hero.name).toUpperCase();
+      // About card: show ONLY the name, kept in sync with the hero name.
+      var aboutName = document.getElementById('aboutMusicianName');
+      if(aboutName){ aboutName.textContent = hero.name; aboutName.classList.remove('pf-placeholder'); }
     } else {
       // empty → restore the blank-template placeholder ("NAME")
       var heroNameBigR = document.getElementById('heroNameBig');
