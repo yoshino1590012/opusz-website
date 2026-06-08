@@ -604,7 +604,10 @@ nav.mega-open .nav-links a::before {
   font-size: calc(var(--k)*42px); line-height: 1.04; font-weight: 800;
   letter-spacing: -0.035em; margin: 0 0 calc(var(--k)*14px);
   white-space: nowrap;                 /* keep the headline on one line */
-  color: #fff; mix-blend-mode: difference;   /* black on the light card, like the ref */
+  /* Fixed dark colour — NOT mix-blend-mode: iOS Safari fails to blend over the <canvas>
+     so the headline rendered white & illegible on iPhone (black in desktop preview).
+     The overlay only appears over the light card, so a dark colour always reads. */
+  color: #111;
 }
 .hco-sub {
   font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
@@ -612,7 +615,7 @@ nav.mega-open .nav-links a::before {
   letter-spacing: -0.005em;
   margin: 0 0 calc(var(--k)*24px);
   white-space: nowrap;                          /* keep the subtitle on one line */
-  color: #9aa0a6; mix-blend-mode: difference;  /* reads as soft grey on the light card */
+  color: #6b7177;                               /* soft grey — fixed colour (see headline note) */
 }
 /* Brand name summoned back at the bottom of the white card.
    Auto black/white against whatever is behind it (mix-blend-mode:difference) —
@@ -2208,6 +2211,10 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   .nav-links { display: none; }
   /* Mobile nav: only logo + hamburger in the bar; the rest moves into the drawer */
   .nav-logo { padding-left: 18px; }
+  /* Pull logo orb + OPUS.Z text toward the corner so the LEFT gap (18px) matches the
+     TOP gap (18px). Text shifts by the same amount to keep its spacing from the orb. */
+  #navOrbFixed  { left: 18px; }
+  #navLogoFixed { left: 74px; }
   #navFavBadge { display: none !important; }
   /* heroCard handled by #heroCard responsive rules above */
 
