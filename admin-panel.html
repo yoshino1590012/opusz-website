@@ -1967,11 +1967,25 @@
     var al=p.align||'left';
     function btn(v,lbl){ var on=(al===v);
       return '<button onclick="seHeroSetPhraseAlign(\''+v+'\')" style="font-size:11px;border:1px solid '+(on?'#0e7490':'#cbd5e1')+';background:'+(on?'#0e7490':'#fff')+';color:'+(on?'#fff':'#334155')+';border-radius:6px;padding:5px 13px;cursor:pointer;">'+lbl+'</button>'; }
+    // Current shared phrase offset (per device) → drives the X/Y sliders below.
+    var hp=(typeof window.seActiveHeroPos==='function')?window.seActiveHeroPos():(window.seHeroPos||{});
+    var pp=hp.phrases||{};
+    var xp=(pp.xPct!=null)?pp.xPct:0, yp=(pp.yPct!=null)?pp.yPct:0;
+    function posRow(axis,lbl,val){
+      return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
+        +'<span style="font-size:11px;color:#155e75;width:90px;flex-shrink:0;">'+lbl+'</span>'
+        +'<input type="range" min="-0.5" max="0.5" step="0.01" value="'+val+'" oninput="seHeroSetPhrasePos(\''+axis+'\',this.value)" style="flex:1;">'
+        +'<span id="sePhrPos_'+axis+'" style="font-size:11px;color:#0e7490;width:42px;text-align:right;">'+Math.round(val*100)+'%</span>'
+        +'</div>';
+    }
     return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">標語 對齊 / Phrase align</div>'
       +'<div style="display:flex;gap:7px;margin-bottom:8px;">'+btn('left','靠左')+btn('center','置中')+btn('right','靠右')+'</div>'
-      +'<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#155e75;cursor:pointer;margin-bottom:5px;">'
+      +'<label style="display:flex;align-items:center;gap:6px;font-size:11px;color:#155e75;cursor:pointer;margin-bottom:8px;">'
         +'<input type="checkbox" '+(p.wrap?'checked':'')+' onchange="seHeroSetPhraseWrap(this.checked)"> 自動換行（太長時折行；關閉則只在你按 Enter 處斷行）</label>'
-      +'<div style="font-size:10px;color:#999;line-height:1.5;">💡 三句標語<b>共用同一個位置</b>，可在中間預覽<b>直接拖曳</b>（三句會一起移動）。在標語文字框按 Enter 可手動斷行。</div>';
+      +'<div style="font-size:11px;font-weight:800;color:#0e7490;margin:10px 0 6px;">標語 位置（三句一起移動）</div>'
+      +posRow('x','水平 X',xp)
+      +posRow('y','垂直 Y',yp)
+      +'<div style="font-size:10px;color:#999;line-height:1.5;">💡 拉滑桿即可移動三句標語（共用同一個位置）。也可在預覽直接拖曳。在標語文字框按 Enter 可手動斷行。</div>';
   }
   window.seHeroSetPhraseAlign = function(v){
     window.seHeroPhrase = window.seHeroPhrase || {};
@@ -1983,6 +1997,18 @@
     window.seHeroPhrase = window.seHeroPhrase || {};
     window.seHeroPhrase.wrap = !!on;
     sePreview();
+  };
+  // X/Y position sliders for the shared phrase offset (per device). Stored as
+  // viewport-fraction (xPct/yPct) in the active hero-pos map under the 'phrases'
+  // key — the SAME slot the preview drag writes, so both stay in sync.
+  window.seHeroSetPhrasePos = function(axis, val){
+    var m = window.seActiveHeroPos();
+    m.phrases = Object.assign({}, m.phrases);
+    var v = parseFloat(val) || 0;
+    if(axis==='x'){ m.phrases.xPct = v; m.phrases.x = 0; }
+    else          { m.phrases.yPct = v; m.phrases.y = 0; }
+    var lab=document.getElementById('sePhrPos_'+axis); if(lab) lab.textContent=Math.round(v*100)+'%';
+    sePreview();   // live-apply to the preview
   };
 
   // Brand OPUS.Z colour mode toggle: auto black/white (default) vs solid white.
