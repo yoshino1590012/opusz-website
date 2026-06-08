@@ -4341,12 +4341,8 @@ applySvcImg(1);
     requestAnimationFrame(() => { _rafPending = false; updateColors(); });
   }
 
-  // ── Inject underline span into every nav link ────────────────────────────
-  nav.querySelectorAll('.nav-links a').forEach(a => {
-    const ul = document.createElement('span');
-    ul.className = 'nav-ul';
-    a.appendChild(ul);
-  });
+  // Nav-link hover underline is now a CSS ::after injected globally by nav.js
+  // (a child <span> here got wiped by the per-character re-split below).
 
   // ── Split each hp-phrase into per-char spans (run once at init) ──────────
   (function _initPhraseChars() {

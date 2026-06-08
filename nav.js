@@ -675,9 +675,33 @@
     if (logoutBtn) logoutBtn.addEventListener('click', doLogout, true);
   }
 
+  /* ── Nav-link hover underline ──────────────────────────────────────────────
+     A line that grows left→right under a link on hover and retracts right→left
+     on leave. Implemented as a CSS ::after pseudo-element (NOT a child <span>)
+     so it survives the homepage's per-character re-split (which rewrites each
+     link's innerHTML and would wipe a child element). background:currentColor
+     means it inherits the link's colour — and since every nav uses
+     mix-blend-mode:difference, a white-ish line auto-contrasts on any background.
+     Injected here so it appears identically on EVERY page. */
+  function injectNavUnderlineCSS() {
+    if (document.getElementById('nav-ul-css')) return;
+    var st = document.createElement('style');
+    st.id = 'nav-ul-css';
+    st.textContent =
+      '.nav-links a{position:relative;}' +
+      '.nav-links a::after{content:"";position:absolute;left:10px;right:10px;bottom:3px;' +
+        'height:1px;background:#fff;transform:scaleX(0);transform-origin:right center;' +
+        'transition:transform .4s cubic-bezier(.25,.46,.45,.94);pointer-events:none;}' +
+      '.nav-links a:hover::after{transform:scaleX(1);transform-origin:left center;}' +
+      // When the mega-menu turns the nav into a solid white bar, switch to a dark line.
+      'nav.mega-open .nav-links a:hover::after{background:#000;}';
+    (document.head || document.documentElement).appendChild(st);
+  }
+
   /* ── Boot: inject markup, then wire everything ────────────────────────── */
   function inject() {
     if (document.getElementById('navOrbFixed')) return; // re-check (race safety)
+    injectNavUnderlineCSS();
     var holder = document.createElement('div');
     holder.innerHTML = NAV_HTML;
     // Prepend each top-level node to <body> in source order.
