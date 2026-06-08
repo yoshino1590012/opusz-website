@@ -1383,6 +1383,12 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
   .bigvid-fs{ display: flex; right: 22px; }
   .bigvid-play:not(.bigvid-fs){ right: 80px; }
 }
+/* Landscape "fullscreen" overlay — fills the current viewport (phone screen, or the
+   editor's phone FRAME), NOT the whole monitor. The rotor is sized landscape and
+   rotated 90° so the video plays sideways-full on a portrait phone. */
+.bigvid-fs-overlay{ display:none; position:fixed; inset:0; background:#000; z-index:2147483600; }
+.bigvid-fs-rotor{ position:absolute; top:50%; left:50%; width:100vh; height:100vw; transform:translate(-50%,-50%) rotate(90deg); overflow:hidden; }
+.bigvid-fs-close{ position:absolute; top:12px; right:12px; z-index:5; width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,.5); color:#fff; border:1px solid rgba(255,255,255,.6); font-size:17px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
 /* Prev / Next arrows — top-right */
 .bigvid-nav{
   position: absolute;
@@ -2092,6 +2098,14 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
           <div class="bigvid-progress-handle" id="bigvidProgressHandle"></div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Showreel landscape overlay (mobile expand) — fills the current viewport
+       (phone screen / preview phone frame), rotated 90° for landscape playback. -->
+  <div class="bigvid-fs-overlay" id="bigvidFsOverlay">
+    <div class="bigvid-fs-rotor" id="bigvidFsRotor">
+      <button class="bigvid-fs-close" id="bigvidFsClose" aria-label="Close">✕</button>
     </div>
   </div>
 
@@ -4360,30 +4374,47 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
     setMuted(!isMuted);
   });
 
-  // Mobile fullscreen (landscape): expand the CURRENT video to native fullscreen and
-  // lock landscape. Works for any video type (mp4 <video> uses webkitEnterFullscreen
-  // on iOS; iframes use requestFullscreen). Unmute since tapping = wants to watch.
-  var fsBtn = document.getElementById('bigvidFs');
-  function lockLandscape(){
-    try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function(){}); } catch(e){}
-  }
+  // Mobile "fullscreen": expand the CURRENT video to a LANDSCAPE overlay that fills
+  // the current viewport — i.e. the phone screen on a real device, and the phone
+  // FRAME inside the editor preview (NOT the whole monitor). Implemented as an
+  // in-page fixed overlay rotated 90°, so it never escapes the iframe like the
+  // native Fullscreen API would. Works for mp4 <video> and iframe embeds alike.
+  var fsBtn   = document.getElementById('bigvidFs');
+  var fsOv    = document.getElementById('bigvidFsOverlay');
+  var fsRotor = document.getElementById('bigvidFsRotor');
+  var fsClose = document.getElementById('bigvidFsClose');
+  var fsHome  = null;   // remembers where the embed lived so we can put it back
   function enterFullscreen(){
     if(!currentEmbed){ if(data[cur] && data[cur].url) embedVideo(data[cur].url); }
-    var el = currentEmbed; if(!el) return;
-    try {
-      if (el.tagName === 'VIDEO' && typeof el.webkitEnterFullscreen === 'function' && !document.fullscreenElement) {
-        el.webkitEnterFullscreen();   // iOS Safari path (auto-rotates to landscape)
-      } else {
-        var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
-        if (req) {
-          var p = req.call(el);
-          if (p && p.then) p.then(lockLandscape).catch(function(){}); else lockLandscape();
-        }
-      }
-    } catch(e){}
+    var el = currentEmbed; if(!el || !fsOv || !fsRotor) return;
+    fsHome = { parent: el.parentNode, next: el.nextSibling };
+    // Fill the rotor (which is sized landscape and rotated 90°); show the whole frame.
+    el.style.position = 'absolute'; el.style.inset = '0';
+    el.style.width = '100%'; el.style.height = '100%';
+    el.style.objectFit = 'contain'; el.style.objectPosition = 'center';
+    el.style.transform = ''; el.style.translate = ''; el.style.scale = '';
+    if(el.tagName === 'VIDEO') el.controls = true;   // native scrub / progress
+    fsRotor.appendChild(el);
+    fsOv.style.display = 'block';
     try { setMuted(false); } catch(e){}
   }
-  if(fsBtn) fsBtn.addEventListener('click', enterFullscreen);
+  function exitFullscreen(){
+    if(!fsOv) return;
+    fsOv.style.display = 'none';
+    var el = currentEmbed;
+    if(el && fsHome){
+      // restore inline styles + object-position pan, then drop it back into the player
+      el.style.cssText = (el.tagName === 'VIDEO')
+        ? 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:2;pointer-events:none;'
+        : 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:2;pointer-events:none;';
+      if(el.tagName === 'VIDEO') el.controls = false;
+      (fsHome.parent || pin).insertBefore(el, fsHome.next || null);
+      applyVidPos(el);
+    }
+    fsHome = null;
+  }
+  if(fsBtn)   fsBtn.addEventListener('click', enterFullscreen);
+  if(fsClose) fsClose.addEventListener('click', exitFullscreen);
 
   render();
 })();
