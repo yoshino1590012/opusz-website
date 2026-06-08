@@ -3791,9 +3791,8 @@ function updateHeroDims() {
 
   // Card already fills viewport at scale=1 → no upscaling ever
   _cardScaleMax = 1;
-  // End scale shrinks the card to its visual "card" size (60vw desktop, 63vw mobile)
-  // Mobile shrunk a further 15% per request: 0.74 × 0.85 ≈ 0.629
-  _cardEndScale = vw <= 700 ? 0.629 : 0.60;
+  // End scale shrinks the card to its visual "card" size (60vw desktop, 69vw mobile)
+  _cardEndScale = vw <= 700 ? 0.69 : 0.60;
 }
 
 const _hcOverlayEl = document.getElementById('hcCardOverlay');
