@@ -487,14 +487,15 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 (function(){
   /* ── Mock bookings data ── */
   /* Bookings: load from localStorage (overrides) or use defaults */
-  var DEFAULT_BOOKINGS = [
-    { id:1, title:'String Quartet — Wedding Ceremony', musician:'OPUS.Z Ensemble', date:'2026-06-15', status:'active',    amount:'NT$8,500',  amountNum:8500  },
-    { id:2, title:'Solo Violinist — Corporate Event',  musician:'Pending Match',    date:'2026-07-02', status:'pending',   amount:'NT$3,200',  amountNum:3200  },
-    { id:3, title:'Piano Trio — Birthday Celebration', musician:'Trio Nova',        date:'2026-04-20', status:'completed', amount:'NT$6,000',  amountNum:6000  },
-    { id:4, title:'Harpist — Cocktail Hour',           musician:'OPUS.Z Ensemble',  date:'2026-08-10', status:'open',      amount:'TBC',       amountNum:0     },
-    { id:5, title:'Cello Solo — Gallery Opening',      musician:'Ensemble Echo',    date:'2026-03-05', status:'completed', amount:'NT$2,800',  amountNum:2800  },
-  ];
+  // Demo bookings removed — real bookings will come from the (not-yet-built)
+  // commission/jobs backend. Until then this is an empty list.
+  var DEFAULT_BOOKINGS = [];
   function loadBookings(){
+    // One-time purge of the old demo bookings that used to live in localStorage.
+    if(!localStorage.getItem('opusz_bookings_cleared_v1')){
+      localStorage.removeItem('opusz_bookings');
+      localStorage.setItem('opusz_bookings_cleared_v1','1');
+    }
     var saved = localStorage.getItem('opusz_bookings');
     return saved ? JSON.parse(saved) : DEFAULT_BOOKINGS;
   }
