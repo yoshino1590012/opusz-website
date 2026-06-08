@@ -3680,15 +3680,34 @@ let _vidCurrentFrame = 0;
 let _vidTargetObjY   = _VID_INIT_OBJ_Y;
 let _vidCurrentObjY  = _VID_INIT_OBJ_Y;
 
-// True visible viewport height. On iOS Safari window.innerHeight is unreliable
-// (it lags the address-bar collapse), which left the centred heroCard SHORTER than
-// the real viewport → the photo grid leaked through at top & bottom. .hero-sticky is
-// CSS height:100dvh, so its measured box IS the real visible viewport and the card's
-// containing block → measuring it keeps card height === its parent exactly.
+// LARGEST possible visible viewport (= height when the iOS address bar is hidden).
+// Why "largest" not "current": on iOS Safari the address bar collapses *while you
+// scroll*, growing the viewport. If the cover card is sized to the current (smaller)
+// height, the moment the bar collapses the card is suddenly too short and the photo
+// grid behind it flashes through at top & bottom — the exact flicker reported.
+// Sizing to the large viewport means the card already covers the grown viewport (no
+// leak), and when the bar IS shown the card is merely a little taller than the screen
+// and overflows, clipped by .hero-sticky's overflow:hidden (the OPUS.Z title has 64px+
+// top padding so it never clips). `100lvh` gives this directly on modern iOS; the
+// monotonic cache is a belt-and-braces fallback so once we ever observe a larger
+// height we keep it. Cache is reset on resize/orientationchange (see syncHero binds).
+let _lvhCache = 0;
 function heroViewportH() {
-  const s = document.querySelector('.hero-sticky');
-  const h = s ? s.getBoundingClientRect().height : 0;
-  return Math.round(h || (window.visualViewport && window.visualViewport.height) || window.innerHeight);
+  let probeH = 0;
+  const host = document.body || document.documentElement;
+  if (host) {
+    const probe = document.createElement('div');
+    probe.style.cssText = 'position:absolute;top:0;left:0;width:0;height:100lvh;visibility:hidden;pointer-events:none;';
+    host.appendChild(probe);
+    probeH = probe.getBoundingClientRect().height;
+    probe.remove();
+  }
+  _lvhCache = Math.max(
+    _lvhCache, probeH,
+    window.innerHeight || 0,
+    (window.visualViewport && window.visualViewport.height) || 0
+  );
+  return Math.round(_lvhCache);
 }
 
 // Resize canvas to fill viewport — pin CSS size to pixel size to prevent CSS stretching.
@@ -3909,18 +3928,18 @@ function syncHero() {
   resizeHeroCanvas();
   drawScrubFrame(_vidCurrentFrame, _vidCurrentObjY);
 }
-window.addEventListener('resize', syncHero);
-// iOS Safari: the address-bar collapse fires visualViewport 'resize' (not window resize)
-// and reports the correct height only a beat after first paint. Re-sync for both.
-window.addEventListener('orientationchange', () => setTimeout(syncHero, 250));
+// On a genuine viewport change (rotation / window resize) the large height itself
+// changes, so drop the monotonic cache and re-measure from scratch.
+function resyncHero() { _lvhCache = 0; syncHero(); }
+window.addEventListener('resize', resyncHero);
+window.addEventListener('orientationchange', () => setTimeout(resyncHero, 250));
+// iOS fires visualViewport 'resize' as the address bar collapses. With monotonic
+// sizing this only ever grows the card to cover the newly-revealed area (never
+// shrinks it mid-scroll), so it's safe to run on every change and kills the flash.
 if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', () => {
-    // Only re-sync at the top of the page: while scrolling, the bar animates and the
-    // card is already shrinking, so re-measuring there would cause a visible pop.
-    if (window.scrollY < 4) syncHero();
-  });
+  window.visualViewport.addEventListener('resize', syncHero);
 }
-// iOS often reports a stale innerHeight on the very first frame → re-measure shortly after.
+// iOS often reports a stale height on the very first frame → re-measure shortly after.
 setTimeout(syncHero, 120);
 setTimeout(syncHero, 600);
 
