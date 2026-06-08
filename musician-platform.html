@@ -603,7 +603,7 @@ nav.mega-open .nav-links a::before {
   font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
   font-size: calc(var(--k)*42px); line-height: 1.04; font-weight: 800;
   letter-spacing: -0.035em; margin: 0 0 calc(var(--k)*14px);
-  white-space: nowrap;                 /* keep the headline on one line */
+  white-space: pre-line;               /* honour manual line breaks (\n) from the editor; wrap if needed */
   /* Fixed dark colour — NOT mix-blend-mode: iOS Safari fails to blend over the <canvas>
      so the headline rendered white & illegible on iPhone (black in desktop preview).
      The overlay only appears over the light card, so a dark colour always reads. */
@@ -614,7 +614,7 @@ nav.mega-open .nav-links a::before {
   font-size: calc(var(--k)*15.5px); line-height: 1.55; font-weight: 450;
   letter-spacing: -0.005em;
   margin: 0 0 calc(var(--k)*24px);
-  white-space: nowrap;                          /* keep the subtitle on one line */
+  white-space: pre-line;                        /* honour manual line breaks (\n) from the editor; wrap if needed */
   color: #6b7177;                               /* soft grey — fixed colour (see headline note) */
 }
 /* Brand name summoned back at the bottom of the white card.
@@ -633,8 +633,8 @@ nav.mega-open .nav-links a::before {
 }
 /* On phones let the headline wrap (avoid horizontal overflow from nowrap) */
 @media (max-width: 640px){
-  .hco-headline { white-space: normal; }
-  .hco-sub { white-space: normal; }   /* allow wrap on phones to avoid overflow */
+  .hco-headline { white-space: pre-line; }
+  .hco-sub { white-space: pre-line; }   /* honour manual breaks + wrap on phones */
 }
 /* ── initial hidden state ── */
 .hco-btns,

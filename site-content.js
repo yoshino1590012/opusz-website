@@ -69,6 +69,18 @@ function applyHeroPosResponsive(cfg){
   });
 })();
 
+// Headline / subtitle line-height (行距). cfg.heroType = { headline:{lh}, sub:{lh} }.
+// Empty / missing → leave the CSS default in place.
+function applyHeroType(map){
+  map = map || {};
+  var SEL = { headline:'.hco-headline', sub:'.hco-sub' };
+  Object.keys(SEL).forEach(function(k){
+    var el = document.querySelector(SEL[k]); if(!el) return;
+    var t = map[k] || {};
+    el.style.lineHeight = (t.lh != null && t.lh !== '') ? String(t.lh) : '';
+  });
+}
+
 function applyBrandColor(val){
   var el = document.querySelector('.hco-brand'); if(!el) return;
   if (!val || val === 'auto') { el.style.color = ''; el.style.mixBlendMode = ''; }
@@ -166,6 +178,9 @@ function applyConfig(cfg){
 
   // 1d) brand wordmark colour ('auto' = blend, or a custom colour)
   if ('heroBrandColor' in cfg) { try { applyBrandColor(cfg.heroBrandColor); } catch(e){} }
+
+  // 1d2) headline / subtitle line-height (行距)
+  if ('heroType' in cfg) { try { applyHeroType(cfg.heroType); } catch(e){} }
 
   // 1e) hero button styling (bg / text colour / opacity)
   if ('heroBtn' in cfg) { try { applyHeroBtns(cfg.heroBtn); } catch(e){} }

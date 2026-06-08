@@ -918,6 +918,8 @@
     {section:'hero', sec:'輪播標語 / Phrases（雙語同時顯示）', k:'hero.phrase0', zhk:'hero.phrase0.zh', both:true, label:'標語 1', en:'Find your perfect musician.', zh:'找到你完美的音樂家。'},
     {section:'hero', k:'hero.phrase1', zhk:'hero.phrase1.zh', both:true, label:'標語 2', en:'You came to the right place.', zh:'你來對地方了。'},
     {section:'hero', k:'hero.phrase2', zhk:'hero.phrase2.zh', both:true, label:'標語 3', en:"Taiwan's top musicians, on demand.", zh:'台灣頂尖音樂家，隨時為你。'},
+    {section:'hero', sec:'主標題 / Headline（想換行的地方按 Enter）', k:'hero.headline', multiline:true, label:'主標題', en:"Meet Taiwan's elite musicians.", zh:'遇見台灣菁英音樂家'},
+    {section:'hero', sec:'副標 / Subtitle（想換行的地方按 Enter）', k:'hero.sub', multiline:true, label:'副標', en:'For performances and lessons. Connecting you with the very best.', zh:'演出與教學，媒合最頂尖的他們。'},
     {section:'hero', sec:'按鈕 / Buttons', k:'hero.findArtists', label:'尋找音樂家鈕', en:'Find Artists', zh:'尋找音樂家'},
     {section:'hero', k:'hero.createProject', label:'建立專案鈕', en:'Create a Project', zh:'建立專案'},
 
@@ -1113,6 +1115,7 @@
     if(window.seHeroBtn && typeof window.seHeroBtn==='object') cfg.heroBtn = window.seHeroBtn;
     if(window.seHeroBtnShape && typeof window.seHeroBtnShape==='object') cfg.heroBtnShape = window.seHeroBtnShape;
     cfg.heroBtnGlass = !!window.seHeroBtnGlass;
+    if(window.seHeroType && typeof window.seHeroType==='object') cfg.heroType = window.seHeroType;
     return cfg;
   }
   function seCfgForPreview(){
@@ -1470,6 +1473,17 @@
       var enV=(cur.en && cur.en[ff.k]!=null)?cur.en[ff.k]:ff.en;
       var zhSrc=ff.both?cur.en:cur.zh;
       var zhV=(zhSrc && zhSrc[zhKey]!=null)?zhSrc[zhKey]:ff.zh;
+      if(ff.multiline){
+        // Multi-line text: <textarea> so the owner can press Enter to insert real
+        // line breaks (saved as \n; the page renders them via white-space:pre-line).
+        var taSty='width:100%;margin-bottom:5px;padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;resize:vertical;line-height:1.5;font-family:inherit;';
+        return head+'<div style="margin-bottom:12px;">'
+          +'<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:5px;">'+esc(ff.label)+'</div>'
+          +'<textarea id="se_en_'+id+'" rows="2" placeholder="EN" oninput="seOnInput()" style="'+taSty+'">'+esc(enV)+'</textarea>'
+          +'<textarea id="se_zh_'+id+'" rows="2" placeholder="中文" oninput="seOnInput()" style="'+taSty+'">'+esc(zhV)+'</textarea>'
+          +'<div style="font-size:10px;color:#999;line-height:1.5;">💡 在想斷行的地方按 Enter 即可換行。</div>'
+          +'</div>';
+      }
       return head+'<div style="margin-bottom:12px;">'
         +'<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:5px;">'+esc(ff.label)+'</div>'
         +'<input id="se_en_'+id+'" value="'+esc(enV)+'" placeholder="EN" oninput="seOnInput()" style="width:100%;margin-bottom:5px;padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;">'
@@ -1484,6 +1498,7 @@
         +'🖱️ <b>可直接在中間預覽用滑鼠拖曳</b>：標題、副標、兩個按鈕、OPUS.Z 品牌字，拖到任意位置（不影響動畫）。'
         +'<br>下方滑桿可調<b>每個元素的大小</b>。改完按上方「🚀 儲存並發布到網站」。'
         +seHeroSizeRows()
+        +seHeroTypeRows()
         +seHeroBrandColorRow()
         +seHeroBtnShapeRow()
         +seHeroBtnRows()
@@ -1893,6 +1908,29 @@
         +'</div>';
     }).join('');
   }
+  // Line-height (行距) for the headline + subtitle. Stored in window.seHeroType =
+  // { headline:{lh}, sub:{lh} } → cfg.heroType; applied live by site-content.js.
+  function seHeroTypeRows(){
+    var t=window.seHeroType||{};
+    var defs=[['headline','標題行距',1.04],['sub','副標行距',1.55]];
+    return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">行距 / Line height</div>'+defs.map(function(d){
+      var key=d[0], lbl=d[1], def=d[2];
+      var lh=(t[key]&&t[key].lh)?Number(t[key].lh):def;
+      return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
+        +'<span style="font-size:11px;color:#155e75;width:130px;flex-shrink:0;">'+lbl+'</span>'
+        +'<input type="range" min="0.9" max="2" step="0.05" value="'+lh+'" oninput="seHeroSetLineH(\''+key+'\',this.value)" style="flex:1;">'
+        +'<span id="seHlh_'+key+'" style="font-size:11px;color:#0e7490;width:36px;text-align:right;">'+lh.toFixed(2)+'</span>'
+        +'</div>';
+    }).join('');
+  }
+  window.seHeroSetLineH = function(key,val){
+    window.seHeroType = window.seHeroType || {};
+    window.seHeroType[key] = window.seHeroType[key] || {};
+    window.seHeroType[key].lh = Number(val);
+    var lab=document.getElementById('seHlh_'+key); if(lab) lab.textContent=Number(val).toFixed(2);
+    sePreview();
+  };
+
   // Brand OPUS.Z colour mode toggle: auto black/white (default) vs solid white.
   // Brand OPUS.Z colour: "自動黑白" (blend) OR pick any colour from the palette.
   function seHeroBrandColorRow(){
@@ -2111,6 +2149,7 @@
     window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
     window.seHeroBtnShape = (seCurrentConfig.heroBtnShape && typeof seCurrentConfig.heroBtnShape==='object') ? seCurrentConfig.heroBtnShape : {};
     window.seHeroBtnGlass = !!seCurrentConfig.heroBtnGlass;
+    window.seHeroType = (seCurrentConfig.heroType && typeof seCurrentConfig.heroType==='object') ? seCurrentConfig.heroType : {};
     seBuildPageList();
     seBuildSectionList();
     seBuildControls();
