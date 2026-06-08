@@ -318,6 +318,55 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 <link rel="stylesheet" href="nav.css?v=3">
   <script src="assets/js/analytics.js"></script>
 <style id="opz-no-scrollbar">*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}</style>
+<style id="cp-workroom-styles">
+/* ── Commissions (我的委托) ── */
+.cm-card{background:#fff;border:1px solid #ececec;border-radius:14px;padding:18px 20px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;}
+.cm-title{font-size:15px;font-weight:700;color:#111;margin-bottom:6px;}
+.cm-meta{font-size:12.5px;color:#888;line-height:1.7;}
+.cm-right{text-align:right;flex-shrink:0;}
+.cm-badge{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px;}
+.cm-badge.open{background:#e9f7ef;color:#1a9c54;}
+.cm-badge.closed{background:#f1f1f1;color:#999;}
+.cm-resp{font-size:12px;color:#555;margin-top:8px;}
+.cm-close-btn{margin-top:10px;font-size:11px;color:#c0392b;background:none;border:1px solid #eedcdc;border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit;}
+/* ── Workroom ── */
+.wr-wrap{display:flex;border:1px solid #ececec;border-radius:14px;overflow:hidden;height:calc(100vh - 240px);min-height:520px;background:#fff;}
+.wr-threads{width:300px;flex-shrink:0;border-right:1px solid #f0f0f0;overflow-y:auto;}
+.wr-thread{padding:14px 16px;border-bottom:1px solid #f5f5f5;cursor:pointer;}
+.wr-thread:hover{background:#fafafa;}
+.wr-thread.active{background:#f4f6ff;}
+.wr-th-top{display:flex;align-items:center;gap:10px;margin-bottom:5px;}
+.wr-th-av{width:34px;height:34px;border-radius:50%;background:#1a1a2e;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.wr-th-subject{font-size:13px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wr-th-musician{font-size:11.5px;color:#999;}
+.wr-th-preview{font-size:12px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.wr-th-dot{width:8px;height:8px;border-radius:50%;background:#3b6ef5;margin-left:auto;flex-shrink:0;}
+.wr-main{flex:1;display:flex;min-width:0;}
+.wr-conv{flex:1;display:flex;flex-direction:column;min-width:0;}
+.wr-conv-head{padding:14px 18px;border-bottom:1px solid #f0f0f0;font-size:14px;font-weight:700;color:#111;}
+.wr-conv-body{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px;background:#fbfbfb;}
+.wr-bubble{max-width:78%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;}
+.wr-bubble.them{background:#fff;border:1px solid #eee;align-self:flex-start;border-bottom-left-radius:4px;}
+.wr-bubble.me{background:#111;color:#fff;align-self:flex-end;border-bottom-right-radius:4px;}
+.wr-file{margin-top:6px;font-size:12px;display:inline-flex;align-items:center;gap:5px;opacity:.85;}
+.wr-time{font-size:10px;color:#bbb;margin-top:3px;}
+.wr-sys{align-self:center;background:#eef1f6;color:#5a6577;font-size:11.5px;font-weight:600;padding:6px 14px;border-radius:50px;text-align:center;max-width:90%;}
+.wr-compose{border-top:1px solid #f0f0f0;padding:12px 16px;display:flex;gap:10px;align-items:center;}
+.wr-compose input{flex:1;border:1px solid #e3e3e3;border-radius:10px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;}
+.wr-compose button{background:#111;color:#fff;border:none;border-radius:10px;padding:10px 16px;font-weight:700;font-size:13px;cursor:pointer;font-family:inherit;}
+.wr-deal{width:230px;flex-shrink:0;border-left:1px solid #f0f0f0;padding:18px;overflow-y:auto;background:#fff;}
+.wr-deal h4{font-size:11px;letter-spacing:.06em;color:#aaa;text-transform:uppercase;margin:14px 0 4px;font-weight:700;}
+.wr-deal h4:first-child{margin-top:0;}
+.wr-deal-val{font-size:13px;color:#222;font-weight:600;line-height:1.6;}
+.wr-deal-status{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px;background:#e9f7ef;color:#1a9c54;}
+.wr-empty{margin:auto;color:#bbb;font-size:14px;}
+@media(max-width:760px){
+  .wr-wrap{flex-direction:column;height:auto;}
+  .wr-threads{width:100%;max-height:240px;border-right:none;border-bottom:1px solid #f0f0f0;}
+  .wr-main{flex-direction:column;}
+  .wr-deal{width:100%;border-left:none;border-top:1px solid #f0f0f0;}
+}
+</style>
 </head>
 <body>
 <script src="nav.js?v=3"></script>
@@ -422,22 +471,22 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
       </div>
     </div>
 
-    <!-- ── BOOKINGS PANEL ── -->
+    <!-- ── COMMISSIONS PANEL (我的委托 — public commissions only) ── -->
     <div class="cp-panel" id="panel-bookings">
-      <!-- Status filter -->
       <div class="cp-bk-filters">
-        <button class="cp-bk-filter active" data-status="all">All</button>
-        <button class="cp-bk-filter" data-status="active">Active</button>
-        <button class="cp-bk-filter" data-status="pending">Pending</button>
-        <button class="cp-bk-filter" data-status="completed">Completed</button>
-        <button class="cp-bk-filter" data-status="open">Open</button>
+        <button class="cp-bk-filter active" data-cstatus="all">全部 / All</button>
+        <button class="cp-bk-filter" data-cstatus="open">進行中 / Open</button>
+        <button class="cp-bk-filter" data-cstatus="closed">已關閉 / Closed</button>
       </div>
-      <div class="cp-bk-list" id="bookingList"></div>
+      <div class="cp-bk-list" id="commissionList"></div>
     </div>
 
-    <!-- ── MESSAGES PANEL (embeds messages.html, untouched) ── -->
+    <!-- ── MESSAGES PANEL (SoundBetter-style workroom; mock data) ── -->
     <div class="cp-panel" id="panel-messages">
-      <iframe id="cpMsgFrame" title="Messages" style="width:100%;height:calc(100vh - 200px);min-height:520px;border:0;border-radius:12px;background:#fff;"></iframe>
+      <div class="wr-wrap">
+        <div class="wr-threads" id="wrThreads"></div>
+        <div class="wr-main" id="wrMain"><div class="wr-empty">選擇一個對話 / Select a conversation</div></div>
+      </div>
     </div>
 
   </div>
@@ -563,28 +612,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
       tab.classList.add('active');
       var panel = document.getElementById('panel-' + tab.dataset.tab);
       if(panel) panel.classList.add('active');
-      if(tab.dataset.tab === 'messages') cpLoadMessages();
+      if(tab.dataset.tab === 'messages' && window.cpInitWorkroom) window.cpInitWorkroom();
     });
   });
-
-  /* ── Messages tab: embed messages.html (untouched), hide its own nav ── */
-  function cpLoadMessages(){
-    var f = document.getElementById('cpMsgFrame');
-    if(!f || f.dataset.loaded) return;
-    f.dataset.loaded = '1';
-    f.addEventListener('load', function(){
-      try{
-        var d = f.contentDocument;
-        if(!d) return;
-        var s = d.createElement('style');
-        s.textContent = 'nav,#navOrbFixed,#navLogoFixed,.nav-drawer,.nav-sub-drawer{display:none!important;}'
-          + 'body{padding-top:0!important;}#inboxView{min-height:auto!important;}'
-          + '.inbox-top{padding-top:8px!important;}';
-        d.head.appendChild(s);
-      }catch(e){ /* same-origin; ignore if blocked */ }
-    });
-    f.src = 'messages.html';
-  }
 
   /* Auto-open bookings tab if #bookings in URL */
   if(window.location.hash === '#bookings'){
@@ -1007,6 +1037,117 @@ window.addEventListener('pageshow', function(e) {
     document.documentElement.style.opacity = '1';
   }
 });
+</script>
+<!-- ── Commissions (我的委托) + Messages workroom — front-end skeleton, mock data ── -->
+<script>
+(function(){
+  /* ===== MOCK DATA (placeholder until the commissions/messaging backend is wired) ===== */
+  var COMMISSIONS = [
+    { id:'c1', title:'String Quartet — 婚禮典禮', posted:'2026-06-01', eventDate:'2026-08-10', location:'台北', budget:'NT$8,000', status:'open',   responses:3 },
+    { id:'c2', title:'獨奏小提琴 — 企業晚宴',     posted:'2026-05-20', eventDate:'2026-07-02', location:'新竹', budget:'NT$3,200', status:'open',   responses:1 },
+    { id:'c3', title:'鋼琴三重奏 — 生日派對',     posted:'2026-03-15', eventDate:'2026-04-20', location:'台中', budget:'NT$6,000', status:'closed', responses:5 }
+  ];
+  var THREADS = [
+    { id:'t1', subject:'String Quartet — 婚禮典禮', musician:'陳威霖 Chen Wei-Lin', initials:'CW', unread:true,
+      deal:{ status:'進行中', price:'NT$8,500', date:'2026-06-15', terms:'交付後放款', funded:'NT$8,500', released:'NT$0' },
+      events:[
+        { type:'sys', text:'你選定了 陳威霖。等待你付款啟動委托。', time:'06/10 14:25' },
+        { type:'msg', who:'them', text:'您好！很榮幸能參與您的婚禮，我們已準備好三首曲目。', time:'06/10 14:20' },
+        { type:'sys', text:'你已付款，委托啟動。款項由平台保管。', time:'06/10 14:30' },
+        { type:'msg', who:'me', text:'太好了！附上場地與流程資料。', file:'wedding-flow.pdf', time:'06/10 14:35' }
+      ] },
+    { id:'t2', subject:'上課預約 — 小提琴', musician:'李美珊 Li Mei-Shan', initials:'LM', unread:false,
+      deal:{ status:'待確認', price:'NT$2,000 / 堂', date:'每週日', terms:'單堂', funded:'NT$0', released:'NT$0' },
+      events:[
+        { type:'sys', text:'你送出了上課預約申請。', time:'05/28 10:00' },
+        { type:'msg', who:'them', text:'您好！週日方便，我們可以先約一堂試上。', time:'05/28 11:30' }
+      ] },
+    { id:'t3', subject:'查檔期 — 大提琴獨奏', musician:'OPUS.Z Ensemble', initials:'OZ', unread:false,
+      deal:{ status:'洽談中', price:'TBC', date:'2026-08 待定', terms:'—', funded:'NT$0', released:'NT$0' },
+      events:[
+        { type:'msg', who:'me', text:'您好，想詢問 8 月中旬的檔期是否還有空？', time:'05/15 09:00' },
+        { type:'msg', who:'them', text:'您好！8/10–8/20 目前還可安排，方便告訴我活動細節嗎？', time:'05/15 16:00' }
+      ] }
+  ];
+  function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  /* ===== Commissions ===== */
+  var cFilter = 'all';
+  function renderCommissions(){
+    var box = document.getElementById('commissionList'); if(!box) return;
+    var list = cFilter==='all' ? COMMISSIONS : COMMISSIONS.filter(function(c){ return c.status===cFilter; });
+    if(!list.length){ box.innerHTML = '<div class="cp-empty"><div class="cp-empty-icon">📋</div><div class="cp-empty-text">目前沒有委托 / No commissions</div></div>'; return; }
+    box.innerHTML = list.map(function(c){
+      var badge = c.status==='open' ? '<span class="cm-badge open">進行中</span>' : '<span class="cm-badge closed">已關閉</span>';
+      return '<div class="cm-card"><div><div class="cm-title">'+esc(c.title)+'</div>'
+        + '<div class="cm-meta">公開於 '+c.posted+'　·　演出日 '+c.eventDate+'<br>'+esc(c.location)+'　·　預算 '+esc(c.budget)+'</div></div>'
+        + '<div class="cm-right">'+badge+'<div class="cm-resp">'+c.responses+' 位樂手回覆</div>'
+        + (c.status==='open' ? '<button class="cm-close-btn" data-cid="'+c.id+'">關閉委托</button>' : '')
+        + '</div></div>';
+    }).join('');
+  }
+  document.querySelectorAll('[data-cstatus]').forEach(function(b){
+    b.addEventListener('click', function(){
+      document.querySelectorAll('[data-cstatus]').forEach(function(x){ x.classList.remove('active'); });
+      b.classList.add('active'); cFilter = b.dataset.cstatus; renderCommissions();
+    });
+  });
+  var cList = document.getElementById('commissionList');
+  if(cList) cList.addEventListener('click', function(e){
+    var btn = e.target.closest('.cm-close-btn'); if(!btn) return;
+    var c = COMMISSIONS.find(function(x){ return x.id===btn.dataset.cid; });
+    if(c){ c.status='closed'; renderCommissions(); }
+  });
+  renderCommissions();
+
+  /* ===== Messages workroom ===== */
+  var activeThread = null;
+  function renderThreads(){
+    var box = document.getElementById('wrThreads'); if(!box) return;
+    box.innerHTML = THREADS.map(function(t){
+      var last = t.events[t.events.length-1];
+      var prev = last ? esc(last.text) : '';
+      return '<div class="wr-thread'+(activeThread===t.id?' active':'')+'" data-tid="'+t.id+'">'
+        + '<div class="wr-th-top"><div class="wr-th-av">'+esc(t.initials)+'</div>'
+        + '<div style="min-width:0;"><div class="wr-th-subject">'+esc(t.subject)+'</div><div class="wr-th-musician">'+esc(t.musician)+'</div></div>'
+        + (t.unread?'<div class="wr-th-dot"></div>':'') + '</div>'
+        + '<div class="wr-th-preview">'+prev+'</div></div>';
+    }).join('');
+  }
+  function openThread(id){
+    var t = THREADS.find(function(x){ return x.id===id; }); if(!t) return;
+    activeThread = id; t.unread = false; renderThreads();
+    var main = document.getElementById('wrMain'); if(!main) return;
+    var bubbles = t.events.map(function(ev){
+      if(ev.type==='sys') return '<div class="wr-sys">'+esc(ev.text)+'</div>';
+      var fileHtml = ev.file ? '<div class="wr-file">📎 '+esc(ev.file)+'</div>' : '';
+      return '<div style="display:flex;flex-direction:column;align-items:'+(ev.who==='me'?'flex-end':'flex-start')+'">'
+        + '<div class="wr-bubble '+ev.who+'">'+esc(ev.text)+fileHtml+'</div>'
+        + '<div class="wr-time">'+esc(ev.time)+'</div></div>';
+    }).join('');
+    main.innerHTML =
+      '<div class="wr-conv">'
+        + '<div class="wr-conv-head">'+esc(t.subject)+'　·　'+esc(t.musician)+'</div>'
+        + '<div class="wr-conv-body">'+bubbles+'</div>'
+        + '<div class="wr-compose"><input placeholder="輸入訊息… / Type a message"><button>送出</button></div>'
+      + '</div>'
+      + '<div class="wr-deal">'
+        + '<h4>狀態 / Status</h4><span class="wr-deal-status">'+esc(t.deal.status)+'</span>'
+        + '<h4>價格 / Price</h4><div class="wr-deal-val">'+esc(t.deal.price)+'</div>'
+        + '<h4>日期 / Date</h4><div class="wr-deal-val">'+esc(t.deal.date)+'</div>'
+        + '<h4>付款條件 / Terms</h4><div class="wr-deal-val">'+esc(t.deal.terms)+'</div>'
+        + '<h4>款項 / Payment</h4><div class="wr-deal-val">已入金 '+esc(t.deal.funded)+'<br>已放款 '+esc(t.deal.released)+'</div>'
+        + '<h4>動作 / Actions</h4><div class="wr-deal-val" style="color:#999;font-weight:500;font-size:12px;">付款 / 放款（後端完成後啟用）</div>'
+      + '</div>';
+  }
+  var wrThreads = document.getElementById('wrThreads');
+  if(wrThreads) wrThreads.addEventListener('click', function(e){
+    var th = e.target.closest('.wr-thread'); if(th) openThread(th.dataset.tid);
+  });
+  renderThreads();
+  // Open the first conversation the first time the Messages tab is viewed.
+  window.cpInitWorkroom = function(){ if(!activeThread && THREADS.length) openThread(THREADS[0].id); };
+})();
 </script>
 <script src="assets/js/smooth-scroll.js" defer></script>
   <script type="module" src="media-sync.js"></script>
