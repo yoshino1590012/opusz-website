@@ -2736,7 +2736,9 @@
         showNotif('圖片已上傳 ✓');
       }catch(e){
         console.error('[pagebuilder] upload failed:', e);
-        showNotif('上傳失敗：' + (e.code || e.message) + '（可能需設定 Storage 規則或啟用 Storage）');
+        showNotif(e.message === 'compress-failed'
+          ? '上傳失敗：圖片格式不支援，請改用 JPG / PNG / WebP（iPhone 的 HEIC 格式不支援）'
+          : '上傳失敗：' + (e.code || e.message) + '（可能需設定 Storage 規則或啟用 Storage）');
       }finally{
         busy = false;
         btnLabel.textContent = prev;
@@ -2831,7 +2833,9 @@
         showNotif('音檔已上傳 ✓');
       }catch(e){
         console.error('[pagebuilder] audio upload failed:', e);
-        showNotif('上傳失敗：' + (e.code || e.message) + '（可能需設定 Storage 規則或啟用 Storage）');
+        showNotif(e.message === 'compress-failed'
+          ? '上傳失敗：圖片格式不支援，請改用 JPG / PNG / WebP（iPhone 的 HEIC 格式不支援）'
+          : '上傳失敗：' + (e.code || e.message) + '（可能需設定 Storage 規則或啟用 Storage）');
       }finally{
         busy = false;
         btnLabel.textContent = prev;
