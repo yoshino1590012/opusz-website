@@ -1375,6 +1375,14 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
   width: 42%; height: 42%;
   fill: currentColor;
 }
+/* Fullscreen (landscape) button — MOBILE ONLY, bottom-right corner. On phones the
+   mute button shifts left so the expand button takes the corner. Hidden on desktop. */
+.bigvid-fs{ display: none; }
+.bigvid-fs svg{ width: 40%; height: 40%; fill: none; stroke: currentColor; stroke-width: 2.2; }
+@media(max-width:700px){
+  .bigvid-fs{ display: flex; right: 22px; }
+  .bigvid-play:not(.bigvid-fs){ right: 80px; }
+}
 /* Prev / Next arrows — top-right */
 .bigvid-nav{
   position: absolute;
@@ -2072,6 +2080,10 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
       </div>
       <button class="bigvid-play" id="bigvidPlay" aria-label="Play video">
         <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
+      <!-- Mobile-only: expand the video to landscape fullscreen -->
+      <button class="bigvid-play bigvid-fs" id="bigvidFs" aria-label="Fullscreen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
       </button>
       <div class="bigvid-progress" id="bigvidProgress" role="slider" aria-label="Seek video" tabindex="0">
         <div class="bigvid-progress-track">
@@ -4347,6 +4359,31 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
     }
     setMuted(!isMuted);
   });
+
+  // Mobile fullscreen (landscape): expand the CURRENT video to native fullscreen and
+  // lock landscape. Works for any video type (mp4 <video> uses webkitEnterFullscreen
+  // on iOS; iframes use requestFullscreen). Unmute since tapping = wants to watch.
+  var fsBtn = document.getElementById('bigvidFs');
+  function lockLandscape(){
+    try { if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function(){}); } catch(e){}
+  }
+  function enterFullscreen(){
+    if(!currentEmbed){ if(data[cur] && data[cur].url) embedVideo(data[cur].url); }
+    var el = currentEmbed; if(!el) return;
+    try {
+      if (el.tagName === 'VIDEO' && typeof el.webkitEnterFullscreen === 'function' && !document.fullscreenElement) {
+        el.webkitEnterFullscreen();   // iOS Safari path (auto-rotates to landscape)
+      } else {
+        var req = el.requestFullscreen || el.webkitRequestFullscreen || el.msRequestFullscreen;
+        if (req) {
+          var p = req.call(el);
+          if (p && p.then) p.then(lockLandscape).catch(function(){}); else lockLandscape();
+        }
+      }
+    } catch(e){}
+    try { setMuted(false); } catch(e){}
+  }
+  if(fsBtn) fsBtn.addEventListener('click', enterFullscreen);
 
   render();
 })();
