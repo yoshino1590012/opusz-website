@@ -5098,14 +5098,23 @@ window.addEventListener('pageshow', function(e) {
       if(heroNameBig){
         var orig = heroNameBig.querySelector('.hn-orig');
         var nw   = heroNameBig.querySelector('.hn-new');
-        if(orig) orig.textContent = hero.name;
-        if(nw)   nw.textContent   = hero.name;
+        // Support | as a line-break marker in the big hero name
+        function setNameHtml(el, rawName) {
+          if(!el) return;
+          if(rawName.indexOf('|') !== -1) {
+            el.innerHTML = rawName.split('|').map(function(p){ return '<span style="display:block">' + p + '</span>'; }).join('');
+          } else {
+            el.textContent = rawName;
+          }
+        }
+        setNameHtml(orig, hero.name);
+        setNameHtml(nw,   hero.name);
       }
       var heroNameLeft = document.getElementById('heroNameLeft');
-      if(heroNameLeft) heroNameLeft.textContent = hero.name;
+      if(heroNameLeft) heroNameLeft.textContent = hero.name.replace(/\|/g, ' ');
       // Showreel big-video label (uppercased) — keep in sync if present
       var bigvidLabel = document.getElementById('bigvidLabelName');
-      if(bigvidLabel) bigvidLabel.textContent = String(hero.name).toUpperCase();
+      if(bigvidLabel) bigvidLabel.textContent = String(hero.name).replace(/\|/g, ' ').toUpperCase();
     } else {
       // empty → restore the blank-template placeholder ("NAME")
       var heroNameBigR = document.getElementById('heroNameBig');

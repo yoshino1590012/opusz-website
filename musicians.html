@@ -1263,7 +1263,7 @@ window.addEventListener('load', applyAllSavedXYS);
       realMusicians.push({
         id:         d.id,            // use Firebase UID as id
         uid:        d.id,
-        name:       card.name || (cfg.hero && cfg.hero.name) || p.name || (p.email ? p.email.split('@')[0] : 'Musician'),
+        name:       (card.name || (cfg.hero && cfg.hero.name) || p.name || (p.email ? p.email.split('@')[0] : 'Musician')).replace(/\|/g, ' '),
         instrument: card.instrument || primaryInst,
         instruments: insts,
         country:    (p.primaryRegion || '').split(' · ')[0] || 'Taiwan',

@@ -1338,7 +1338,11 @@
             <!-- Hero -->
             <div class="pb-field-group active" data-pbgroup="hero">
               <div class="pb-group-title">主視覺</div>
-              <div class="pb-field"><label>名稱 / Name</label><input type="text" id="pbHeroName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name"></div>
+              <div class="pb-field">
+  <label>名稱 / Name</label>
+  <input type="text" id="pbHeroName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name" autocomplete="off">
+  <div style="font-size:11px;color:#888;margin-top:4px;">字太長想換行？加入 <strong>|</strong> 符號當斷行點，例：<code>Martin|Liao</code></div>
+</div>
               <div class="pb-field"><label>頭銜 / Title</label><input type="text" id="pbHeroTitle" oninput="pbOnInput()" placeholder="你的頭銜（如：小提琴家）/ Your title (e.g. Violinist)"></div>
               <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbHeroLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
               <div class="pb-subgroup-title" style="margin-top:18px;">Banner 照片（最多 4 張）/ Banner photos (up to 4)</div>
@@ -3025,7 +3029,7 @@
       img.removeAttribute('src'); img.style.display = 'none'; place.style.display = 'flex';
     }
     const setText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val || ''; };
-    setText('pbCardPreviewName',       cd.name);
+    setText('pbCardPreviewName',       (cd.name||'').replace(/\|/g,' '));
     setText('pbCardPreviewInstrument', cd.instrument);
     setText('pbCardPreviewLocation',   cd.location);
     setText('pbCardPreviewBio',        cd.bio);
