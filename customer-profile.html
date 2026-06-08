@@ -342,7 +342,18 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .wr-th-subject{font-size:13px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .wr-th-musician{font-size:11.5px;color:#999;}
 .wr-th-preview{font-size:12px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.wr-th-dot{width:8px;height:8px;border-radius:50%;background:#3b6ef5;margin-left:auto;flex-shrink:0;}
+.wr-th-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;margin-left:auto;}
+.wr-th-time{font-size:10.5px;color:#bbb;white-space:nowrap;}
+.wr-th-dot{width:8px;height:8px;border-radius:50%;background:#3b6ef5;flex-shrink:0;}
+.wr-thread.unread .wr-th-subject{color:#000;}
+.wr-thread.unread .wr-th-preview{color:#333;font-weight:600;}
+/* Pinned commission brief at the top of a conversation */
+.wr-brief{background:#f7f8fa;border:1px solid #eceef2;border-radius:12px;padding:14px 16px;margin-bottom:10px;}
+.wr-brief-title{font-size:12px;font-weight:800;color:#444;margin-bottom:10px;letter-spacing:.02em;}
+.wr-brief-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px 20px;}
+.wr-brief-item .k{color:#999;display:block;font-size:11px;margin-bottom:1px;}
+.wr-brief-item .v{color:#222;font-weight:600;font-size:12.5px;}
+.wr-brief-notes{grid-column:1 / -1;}
 .wr-main{flex:1;display:flex;min-width:0;}
 .wr-conv{flex:1;display:flex;flex-direction:column;min-width:0;}
 .wr-conv-head{padding:14px 18px;border-bottom:1px solid #f0f0f0;font-size:14px;font-weight:700;color:#111;}
@@ -1051,7 +1062,8 @@ window.addEventListener('pageshow', function(e) {
     { id:'c3', title:'鋼琴三重奏 — 生日派對',     posted:'2026-03-15', eventDate:'2026-04-20', location:'台中', budget:'NT$6,000', status:'closed', responses:5 }
   ];
   var THREADS = [
-    { id:'t1', subject:'String Quartet — 婚禮典禮', musician:'陳威霖 Chen Wei-Lin', initials:'CW', unread:true,
+    { id:'t1', subject:'String Quartet — 婚禮典禮', musician:'陳威霖 Chen Wei-Lin', initials:'CW', unread:true, time:'06/10', ts:202606101435,
+      brief:{ type:'弦樂四重奏 · 婚禮典禮', date:'2026-06-15', location:'台北 · 私人會館', budget:'NT$8,000–9,000', notes:'儀式進場＋收場各一首，曲風溫馨古典。' },
       deal:{ status:'進行中', price:'NT$8,500', date:'2026-06-15', terms:'交付後放款', funded:'NT$8,500', released:'NT$0' },
       events:[
         { type:'sys', text:'你選定了 陳威霖。等待你付款啟動委托。', time:'06/10 14:25' },
@@ -1059,13 +1071,15 @@ window.addEventListener('pageshow', function(e) {
         { type:'sys', text:'你已付款，委托啟動。款項由平台保管。', time:'06/10 14:30' },
         { type:'msg', who:'me', text:'太好了！附上場地與流程資料。', file:'wedding-flow.pdf', time:'06/10 14:35' }
       ] },
-    { id:'t2', subject:'上課預約 — 小提琴', musician:'李美珊 Li Mei-Shan', initials:'LM', unread:false,
+    { id:'t2', subject:'上課預約 — 小提琴', musician:'李美珊 Li Mei-Shan', initials:'LM', unread:true, time:'05/28', ts:202605281130,
+      brief:{ type:'小提琴一對一課程', date:'每週日下午', location:'線上 / 台北', budget:'NT$2,000 / 堂', notes:'初學成人，想從基礎開始。' },
       deal:{ status:'待確認', price:'NT$2,000 / 堂', date:'每週日', terms:'單堂', funded:'NT$0', released:'NT$0' },
       events:[
         { type:'sys', text:'你送出了上課預約申請。', time:'05/28 10:00' },
         { type:'msg', who:'them', text:'您好！週日方便，我們可以先約一堂試上。', time:'05/28 11:30' }
       ] },
-    { id:'t3', subject:'查檔期 — 大提琴獨奏', musician:'OPUS.Z Ensemble', initials:'OZ', unread:false,
+    { id:'t3', subject:'查檔期 — 大提琴獨奏', musician:'OPUS.Z Ensemble', initials:'OZ', unread:false, time:'05/15', ts:202605151600,
+      brief:{ type:'大提琴獨奏 · 藝廊開幕', date:'2026-08 中旬（待定）', location:'台北', budget:'洽談中', notes:'約 30 分鐘背景演奏。' },
       deal:{ status:'洽談中', price:'TBC', date:'2026-08 待定', terms:'—', funded:'NT$0', released:'NT$0' },
       events:[
         { type:'msg', who:'me', text:'您好，想詢問 8 月中旬的檔期是否還有空？', time:'05/15 09:00' },
@@ -1107,13 +1121,19 @@ window.addEventListener('pageshow', function(e) {
   var activeThread = null;
   function renderThreads(){
     var box = document.getElementById('wrThreads'); if(!box) return;
-    box.innerHTML = THREADS.map(function(t){
+    // Unread threads float to the top; then most-recent first.
+    var ordered = THREADS.slice().sort(function(a,b){
+      if(!!b.unread !== !!a.unread) return (b.unread?1:0) - (a.unread?1:0);
+      return (b.ts||0) - (a.ts||0);
+    });
+    box.innerHTML = ordered.map(function(t){
       var last = t.events[t.events.length-1];
       var prev = last ? esc(last.text) : '';
-      return '<div class="wr-thread'+(activeThread===t.id?' active':'')+'" data-tid="'+t.id+'">'
+      return '<div class="wr-thread'+(activeThread===t.id?' active':'')+(t.unread?' unread':'')+'" data-tid="'+t.id+'">'
         + '<div class="wr-th-top"><div class="wr-th-av">'+esc(t.initials)+'</div>'
         + '<div style="min-width:0;"><div class="wr-th-subject">'+esc(t.subject)+'</div><div class="wr-th-musician">'+esc(t.musician)+'</div></div>'
-        + (t.unread?'<div class="wr-th-dot"></div>':'') + '</div>'
+        + '<div class="wr-th-right"><div class="wr-th-time">'+esc(t.time||'')+'</div>'+(t.unread?'<div class="wr-th-dot"></div>':'')+'</div>'
+        + '</div>'
         + '<div class="wr-th-preview">'+prev+'</div></div>';
     }).join('');
   }
@@ -1128,10 +1148,20 @@ window.addEventListener('pageshow', function(e) {
         + '<div class="wr-bubble '+ev.who+'">'+esc(ev.text)+fileHtml+'</div>'
         + '<div class="wr-time">'+esc(ev.time)+'</div></div>';
     }).join('');
+    var b = t.brief || {};
+    var briefCard = '<div class="wr-brief">'
+      + '<div class="wr-brief-title">📋 委托內容 / Brief</div>'
+      + '<div class="wr-brief-grid">'
+        + '<div class="wr-brief-item"><span class="k">類型 / Type</span><span class="v">'+esc(b.type||'—')+'</span></div>'
+        + '<div class="wr-brief-item"><span class="k">日期 / Date</span><span class="v">'+esc(b.date||'—')+'</span></div>'
+        + '<div class="wr-brief-item"><span class="k">地點 / Location</span><span class="v">'+esc(b.location||'—')+'</span></div>'
+        + '<div class="wr-brief-item"><span class="k">預算 / Budget</span><span class="v">'+esc(b.budget||'—')+'</span></div>'
+        + (b.notes ? '<div class="wr-brief-item wr-brief-notes"><span class="k">備註 / Notes</span><span class="v" style="font-weight:500;">'+esc(b.notes)+'</span></div>' : '')
+      + '</div></div>';
     main.innerHTML =
       '<div class="wr-conv">'
         + '<div class="wr-conv-head">'+esc(t.subject)+'　·　'+esc(t.musician)+'</div>'
-        + '<div class="wr-conv-body">'+bubbles+'</div>'
+        + '<div class="wr-conv-body">'+briefCard+bubbles+'</div>'
         + '<div class="wr-compose"><input placeholder="輸入訊息… / Type a message"><button>送出</button></div>'
       + '</div>'
       + '<div class="wr-deal">'
