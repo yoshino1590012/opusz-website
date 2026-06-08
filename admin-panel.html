@@ -1904,6 +1904,24 @@
   window.seBuildMusiciansHero = function(box){
     function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
     var h = seMusHero();
+    // ── Migrate legacy localStorage hero media into the CMS config ──
+    // The old front-end editor saved the musicians hero video/photo/position to
+    // localStorage only (mono-hero-video / hero-x|y|s-hero), so it showed in the
+    // localhost preview but NEVER on the live site (which has no localStorage).
+    // If the CMS config has no media yet, pull the legacy values in so the field
+    // pre-fills and a single "發布" syncs it to Firestore → live site shows it.
+    try {
+      if (h.video == null && h.photo == null) {
+        var _lv = localStorage.getItem('mono-hero-video');
+        var _lp = localStorage.getItem('mono-hero-photo');
+        if (_lv) h.video = _lv;
+        else if (_lp && _lp.indexOf('data:') !== 0) h.photo = _lp;  // skip base64 (too big for Firestore)
+        var _lx = localStorage.getItem('hero-x-hero'), _ly = localStorage.getItem('hero-y-hero'), _ls = localStorage.getItem('hero-s-hero');
+        if (h.x == null && _lx != null) h.x = parseFloat(_lx);
+        if (h.y == null && _ly != null) h.y = parseFloat(_ly);
+        if (h.s == null && _ls != null) h.s = parseFloat(_ls);
+      }
+    } catch(e){}
     var x=(h.x!=null)?h.x:0, y=(h.y!=null)?h.y:0, s=(h.s!=null)?h.s:1;
     var inp='width:100%;padding:8px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;';
     var lbl='font-size:12px;font-weight:600;color:#555;margin:0 0 5px;';
@@ -2642,7 +2660,8 @@
 
   // ── 樂手申請審核 / Musician Applications ───────────────────────────────
   // Each musician doc whose status is pending/approved/rejected is an
-  // application. Approve → status:'approved', published:true. Reject →
+  // application. Approve → status:'approved' ONLY (NOT published — the musician
+  // still has to edit their profile and hit Publish to appear publicly). Reject →
   // status:'rejected' + rejectReason. (Legacy musicians with NO status are
   // grandfathered in and not shown here.) NOTE: approve/reject writes another
   // musician's doc → needs the admin-write Firestore rule published, else
@@ -2724,7 +2743,7 @@
       showNotif('已更新');
     }catch(e){ console.error('[app-review] update failed:', e); showNotif('操作失敗：'+(e.code||e.message)+'（可能需先發布 Firestore 規則放行管理者）'); }
   }
-  window.approveApplicant = function(uid){ if(confirm('確定核准這位樂手？核准後他即可登入後台。')) _setApplicantStatus(uid, { status:'approved', published:true }); };
+  window.approveApplicant = function(uid){ if(confirm('確定核准這位樂手？核准後他即可登入後台（仍需他自己編輯主頁並按發佈，才會出現在前端）。')) _setApplicantStatus(uid, { status:'approved' }); };
   window.rejectApplicant  = function(uid){ var r = prompt('拒絕理由（申請人登入時會看到）：', ''); if(r===null) return; _setApplicantStatus(uid, { status:'rejected', rejectReason:(r||'').trim(), published:false }); };
   window.suspendApplicant = function(uid){ if(confirm('將此樂手改為停用？停用後無法登入後台。')) _setApplicantStatus(uid, { status:'suspended', published:false }); };
   function updateAppReviewBadge(){
