@@ -1832,6 +1832,31 @@
       window.location.href = 'musician-login.html';
       return;
     }
+    // ── Access gate ────────────────────────────────────────────────────
+    // A musician doc must EXIST, and must not be in a blocked state, to enter.
+    // Closes the hole where ANY Firebase-authenticated account (e.g. a customer
+    // Gmail, which has no musician doc) could reach the dashboard just by being
+    // logged in. We block only the explicit not-yet-allowed states; legacy
+    // musicians and the owner may have NO status field → grandfathered in.
+    try {
+      const _gateSnap = await getDoc(doc(db, 'musicians', user.uid));
+      const _st = _gateSnap.exists() ? (_gateSnap.data().status || '') : null;
+      const _blocked = ['pending', 'rejected', 'suspended'];
+      const _allowed = _gateSnap.exists() && _blocked.indexOf(_st) === -1;
+      if (!_allowed) {
+        const _reason = !_gateSnap.exists() ? 'notmusician' : (_st || 'blocked');
+        await signOut(auth);
+        window.location.href = 'musician-login.html?reason=' + _reason;
+        return;
+      }
+    } catch (e) {
+      // Fail safe: on a read error, sign out and show the login form rather
+      // than expose the dashboard (and avoid a redirect loop with the gate).
+      console.warn('[gate] musician status check failed:', e && e.code);
+      try { await signOut(auth); } catch(_e){}
+      window.location.href = 'musician-login.html';
+      return;
+    }
     _currentUser = user;
     loadAnnouncements();   // show platform announcements on the dashboard
     window._tourUid = user.uid;   // per-user key for the onboarding tour

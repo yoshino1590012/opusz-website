@@ -483,12 +483,26 @@
       </div>
     </div>
 
+    <!-- ═══════════ STEP: STATUS (pending / rejected / not-a-musician) ═══════════ -->
+    <div class="step" id="step-status">
+      <div style="text-align:center;">
+        <div class="success-icon" id="statusIcon" style="font-size:48px;">⏳</div>
+        <div class="step-title" id="statusTitle" style="text-align:center;">審核中</div>
+        <div class="step-sub" id="statusSub" style="text-align:center;">您的樂手申請已送出，正在審核中。通過後我們會以 Email 通知您。</div>
+        <div id="statusReason" style="display:none;margin-top:14px;padding:12px 14px;background:#fdf2f2;border:1px solid #f3c9c9;border-radius:10px;color:#a13a3a;font-size:14px;text-align:left;"></div>
+        <button class="btn-main" style="margin-top:22px;" onclick="window.location.href='musician-platform.html'">返回首頁</button>
+        <div class="terms" style="margin-top:14px;">
+          <a href="#" id="statusBackLogin" style="color:var(--mid);">使用其他帳號登入</a>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, onAuthStateChanged, reload } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, onAuthStateChanged, reload, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -578,10 +592,65 @@
   buildInstrumentGrid();
   buildCountryDropdowns();
 
-  // ── Check if already logged in ──
+  // ── Gate: decide where an authenticated account may go ──
+  // A musician doc must EXIST and not be in a blocked state. Customers (no doc)
+  // and pending/rejected/suspended applicants are blocked here — never let into
+  // the dashboard. Legacy musicians/owner may have NO status field → allowed.
+  // Returns true if it sent the user to the dashboard.
+  async function routeAfterAuth(user, opts) {
+    opts = opts || {};
+    var snap;
+    try {
+      snap = await getDoc(doc(db, 'musicians', user.uid));
+    } catch(e) {
+      if (opts.silent) return false;   // auto-check: stay on the login form
+      throw e;                          // explicit login: surface the error
+    }
+    if (!snap.exists()) { await signOut(auth); showStatus('notmusician'); return false; }
+    var st = snap.data().status || '';
+    if (st === 'pending')   { await signOut(auth); showStatus('pending');   return false; }
+    if (st === 'rejected')  { await signOut(auth); showStatus('rejected', snap.data().rejectReason || ''); return false; }
+    if (st === 'suspended') { await signOut(auth); showStatus('suspended'); return false; }
+    // approved / active / legacy (no status) → allowed
+    window.location.href = 'musician-dashboard.html';
+    return true;
+  }
+
+  // ── Status screen (pending / rejected / not-a-musician) ──
+  window.showStatus = function(kind, reason) {
+    var icon  = document.getElementById('statusIcon');
+    var title = document.getElementById('statusTitle');
+    var sub   = document.getElementById('statusSub');
+    var rsn   = document.getElementById('statusReason');
+    if (kind === 'rejected') {
+      icon.textContent = '🚫';
+      title.textContent = '申請未通過';
+      sub.textContent = '很抱歉，您的樂手申請尚未通過審核。';
+      if (reason) { rsn.textContent = '審核意見：' + reason; rsn.style.display = 'block'; }
+      else { rsn.style.display = 'none'; }
+    } else if (kind === 'notmusician') {
+      icon.textContent = '🔑';
+      title.textContent = '這不是樂手帳號';
+      sub.textContent = '此帳號沒有樂手資格。若您是客戶請改用客戶登入；想成為樂手，請先送出申請。';
+      rsn.style.display = 'none';
+    } else if (kind === 'suspended') {
+      icon.textContent = '⛔';
+      title.textContent = '帳號已停用';
+      sub.textContent = '您的樂手帳號目前已停用。如有疑問請與我們聯繫。';
+      rsn.style.display = 'none';
+    } else { // pending
+      icon.textContent = '⏳';
+      title.textContent = '審核中';
+      sub.textContent = '您的樂手申請已送出，正在審核中。通過後我們會以 Email 通知您。';
+      rsn.style.display = 'none';
+    }
+    goStep('status');
+  }
+
+  // ── Check if already logged in → route through the gate (no blind redirect) ──
   onAuthStateChanged(auth, (user) => {
     if (user && currentStep === 'login') {
-      window.location.href = 'musician-dashboard.html';
+      routeAfterAuth(user, { silent: true });
     }
   });
 
@@ -606,14 +675,25 @@
 
     btn.textContent = 'Signing in…'; btn.disabled = true;
     try {
-      await signInWithEmailAndPassword(auth, email, pw);
-      window.location.href = 'musician-dashboard.html';
+      var cred = await signInWithEmailAndPassword(auth, email, pw);
+      // Don't redirect blindly — check this account is an approved musician.
+      await routeAfterAuth(cred.user);
+      btn.textContent = 'Sign in'; btn.disabled = false;
     } catch(e) {
       btn.textContent = 'Sign in'; btn.disabled = false;
       err.textContent = 'Incorrect email or password.';
       err.classList.add('show');
     }
   }
+
+  // If the dashboard bounced the user back here, show the matching message.
+  (function(){
+    var p = new URLSearchParams(location.search).get('reason');
+    if (p === 'pending')          showStatus('pending');
+    else if (p === 'rejected')    showStatus('rejected');
+    else if (p === 'suspended')   showStatus('suspended');
+    else if (p === 'notmusician') showStatus('notmusician');
+  })();
 
   // ── Forgot password ──
   window.doForgot = async function() {
