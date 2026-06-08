@@ -567,6 +567,10 @@
 <link rel="stylesheet" href="nav.css?v=3">
   <script src="assets/js/analytics.js"></script>
 <style id="opz-no-scrollbar">*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}</style>
+<style id="opz-no-fe-editors">/* Legacy front-end editors retired — editing now lives in the admin Site Editor.
+   Hide every in-page editor panel/overlay for public visitors. Admin editing uses
+   JS APIs (window.opzBlogEdit etc.), not these panels, so nothing admin-side breaks. */
+#ebpToggle, #ebpPanel, #peOverlay { display: none !important; }</style>
 </head>
 <body>
 <script src="nav.js?v=2"></script>

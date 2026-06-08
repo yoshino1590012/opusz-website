@@ -1815,6 +1815,11 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     }catch(e){}
   })();
 </script>
+<style id="opz-no-fe-editors">/* Legacy front-end editors retired — editing now lives in the admin Site Editor /
+   the musician dashboard. Hide every in-page editor panel/overlay/button for
+   public visitors. Admin/dashboard editing uses JS APIs (window.applyProfileConfig
+   etc.), not these panels, so nothing admin-side breaks. */
+#martin-photo-editor, #bveToggle, #bvePanel, .bve-toggle, .bve-panel, #mpe-toast { display: none !important; }</style>
 </head>
 <body>
 <script src="nav.js?v=2"></script>
