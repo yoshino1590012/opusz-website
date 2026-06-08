@@ -330,6 +330,11 @@
         海報投稿
         <span class="sb-badge" id="sbPostersBadge" style="display:none;background:#f59e0b;color:#fff;">0</span>
       </button>
+      <button class="sb-item" data-page="appreview" onclick="navigate('appreview',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="17 11 19 13 23 9"/></svg>
+        申請審核
+        <span class="sb-badge" id="sbAppReviewBadge" style="display:none;background:#e05;color:#fff;">0</span>
+      </button>
       <button class="sb-item" data-page="siteeditor" onclick="navigate('siteeditor',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         網站編輯 / Site Editor
@@ -711,6 +716,21 @@
         <div id="adminPostersList"></div>
       </div>
 
+      <!-- ════════ 樂手申請審核 / Musician Applications ════════ -->
+      <div class="page" id="page-appreview">
+        <div class="page-header" style="margin-bottom:18px;">
+          <h1>樂手申請審核</h1>
+          <p>新樂手註冊後須經審核才能進入後台。請檢視申請資料，按「核准」放行，或「拒絕」並附理由。</p>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap;">
+          <button onclick="filterAppReview('pending',this)" style="font-size:12.5px;font-weight:600;border:1px solid #fde68a;background:#fef3c7;color:#b45309;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:1;">待審核</button>
+          <button onclick="filterAppReview('approved',this)" style="font-size:12.5px;font-weight:600;border:1px solid #bbf7d0;background:#dcfce7;color:#16a34a;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:.55;">已核准</button>
+          <button onclick="filterAppReview('rejected',this)" style="font-size:12.5px;font-weight:600;border:1px solid #fecaca;background:#fee2e2;color:#dc2626;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:.55;">已拒絕</button>
+          <button onclick="filterAppReview('all',this)" style="font-size:12.5px;font-weight:600;border:1px solid #ddd;background:#fff;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:.55;">全部申請</button>
+        </div>
+        <div id="appReviewList"></div>
+      </div>
+
       <!-- ════════ SITE EDITOR ════════ -->
       <div class="page" id="page-siteeditor">
         <style>
@@ -937,6 +957,7 @@
 
   loadMusicians();
   loadPastAnnouncements();   // populate the Announcements page history
+  loadAppReview();           // populate the 申請審核 pending badge on load
 
   // ── Site Editor (Phase 1: homepage hero text) ─────────────────────────────
   // Every field carries a `section` = which homepage block it belongs to (matches
@@ -2481,7 +2502,7 @@
   };
 
   // ── Page titles ──
-  const TITLES = { overview:'Dashboard', musicians:'Musician Management', customers:'Customer Management', review:'Review Queue', jobs:'Jobs Overview', finance:'Finance', announce:'Announcements', support:'Support Inbox', siteeditor:'網站編輯 / Site Editor', posters:'海報投稿' };
+  const TITLES = { overview:'Dashboard', musicians:'Musician Management', customers:'Customer Management', review:'Review Queue', jobs:'Jobs Overview', finance:'Finance', announce:'Announcements', support:'Support Inbox', siteeditor:'網站編輯 / Site Editor', posters:'海報投稿', appreview:'樂手申請審核' };
 
   window.navigate = function(id, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2493,6 +2514,7 @@
     if (id === 'customers') loadCustomers();
     if (id === 'siteeditor') seInit();
     if (id === 'posters') loadAdminPosters();
+    if (id === 'appreview') loadAppReview();
   }
 
   // ── 海報投稿 / Poster Submissions (admin inbox) ──────────────────────
@@ -2616,6 +2638,99 @@
     if(b){ b.textContent = pending; b.style.display = pending>0 ? '' : 'none'; }
   }
 
+  // ── 樂手申請審核 / Musician Applications ───────────────────────────────
+  // Each musician doc whose status is pending/approved/rejected is an
+  // application. Approve → status:'approved', published:true. Reject →
+  // status:'rejected' + rejectReason. (Legacy musicians with NO status are
+  // grandfathered in and not shown here.) NOTE: approve/reject writes another
+  // musician's doc → needs the admin-write Firestore rule published, else
+  // it fails with permission-denied (handled with a friendly message).
+  var APP_REVIEW = [];
+  var APP_REVIEW_FILTER = 'pending';
+  async function loadAppReview(){
+    var listEl = document.getElementById('appReviewList');
+    if(listEl) listEl.innerHTML = '<div style="padding:30px;text-align:center;color:#888;">載入中…</div>';
+    try{
+      var snap = await getDocs(collection(db,'musicians'));
+      APP_REVIEW = [];
+      snap.forEach(function(d){
+        var x = d.data() || {}; var st = x.status || '';
+        if(st==='pending' || st==='approved' || st==='rejected'){
+          APP_REVIEW.push(Object.assign({}, x, { uid:d.id }));
+        }
+      });
+      APP_REVIEW.sort(function(a,b){ return String(b.appliedAt||b.joinedAt||'').localeCompare(String(a.appliedAt||a.joinedAt||'')); });
+      renderAppReview();
+      updateAppReviewBadge();
+    }catch(e){
+      console.error('[app-review] load failed:', e);
+      if(listEl) listEl.innerHTML = '<div style="padding:30px;text-align:center;color:#c00;">載入失敗：'+(e.code||e.message)+'</div>';
+    }
+  }
+  window.filterAppReview = function(status, btn){
+    APP_REVIEW_FILTER = status;
+    if(btn){ btn.parentNode.querySelectorAll('button').forEach(function(b){ b.style.opacity='.55'; }); btn.style.opacity='1'; }
+    renderAppReview();
+  };
+  function renderAppReview(){
+    var el = document.getElementById('appReviewList'); if(!el) return;
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    var list = (APP_REVIEW_FILTER==='all') ? APP_REVIEW : APP_REVIEW.filter(function(p){ return (p.status||'pending')===APP_REVIEW_FILTER; });
+    if(!list.length){ el.innerHTML = '<div style="padding:40px;text-align:center;color:#999;border:1px dashed #e5e5e5;border-radius:10px;"><div style="font-size:26px;">📭</div><div style="margin-top:6px;font-size:13px;">沒有符合的申請</div></div>'; return; }
+    var stMap = { pending:['⏳ 待審核','#b45309','#fef3c7'], approved:['✓ 已核准','#16a34a','#dcfce7'], rejected:['✗ 已拒絕','#dc2626','#fee2e2'] };
+    el.innerHTML = list.map(function(p){
+      var st = stMap[p.status||'pending'] || stMap.pending;
+      var insts = Array.isArray(p.instruments) ? p.instruments.join('、') : (p.instrument||'—');
+      var region = [p.primaryRegion, p.secondaryRegion].filter(Boolean).join(' / ') || '—';
+      var L = p.links||{}; var linkBits = [];
+      if(L.youtube)   linkBits.push('<a href="'+esc(L.youtube)+'" target="_blank" rel="noopener" style="font-size:12px;color:#2563eb;text-decoration:none;margin-right:12px;font-weight:600;">🔗 YouTube</a>');
+      if(L.website)   linkBits.push('<a href="'+esc(L.website)+'" target="_blank" rel="noopener" style="font-size:12px;color:#2563eb;text-decoration:none;margin-right:12px;font-weight:600;">🔗 網站</a>');
+      if(L.instagram) linkBits.push('<a href="'+esc(L.instagram)+'" target="_blank" rel="noopener" style="font-size:12px;color:#2563eb;text-decoration:none;margin-right:12px;font-weight:600;">🔗 Instagram</a>');
+      var links = linkBits.join('');
+      var actions = (p.status==='pending')
+        ? '<button onclick="approveApplicant(\''+esc(p.uid)+'\')" style="font-size:12.5px;font-weight:700;color:#fff;background:#16a34a;border:none;border-radius:7px;padding:7px 14px;cursor:pointer;margin-right:8px;">✓ 核准</button>'
+          + '<button onclick="rejectApplicant(\''+esc(p.uid)+'\')" style="font-size:12.5px;font-weight:700;color:#dc2626;background:#fff;border:1px solid #fecaca;border-radius:7px;padding:7px 14px;cursor:pointer;">✗ 拒絕</button>'
+        : (p.status==='rejected'
+            ? '<button onclick="approveApplicant(\''+esc(p.uid)+'\')" style="font-size:12px;color:#16a34a;background:#fff;border:1px solid #bbf7d0;border-radius:7px;padding:6px 12px;cursor:pointer;">改為核准</button>'
+            : '<button onclick="suspendApplicant(\''+esc(p.uid)+'\')" style="font-size:12px;color:#666;background:#fff;border:1px solid #ddd;border-radius:7px;padding:6px 12px;cursor:pointer;">停用</button>');
+      var photo = p.photoURL
+        ? '<img src="'+esc(p.photoURL)+'" alt="" style="width:84px;height:84px;object-fit:cover;border-radius:50%;flex-shrink:0;border:1px solid #eee;">'
+        : '<div style="width:84px;height:84px;border-radius:50%;background:#f0f0f0;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#bbb;font-size:26px;">♪</div>';
+      return '<div style="background:#fff;border:1px solid #eee;border-radius:12px;margin-bottom:12px;padding:18px;display:flex;gap:16px;">'
+        + photo
+        + '<div style="flex:1;min-width:0;">'
+          + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:4px;"><span style="font-weight:800;font-size:16px;">'+esc(p.name||'(未命名)')+'</span><span style="font-size:11px;font-weight:700;color:'+st[1]+';background:'+st[2]+';padding:2px 9px;border-radius:20px;">'+st[0]+'</span></div>'
+          + '<div style="font-size:12.5px;color:#888;margin-bottom:8px;">'+esc(insts)+' · '+esc(region)+'</div>'
+          + (p.bio?'<div style="font-size:13px;color:#444;margin-bottom:6px;line-height:1.55;"><b>簡介：</b>'+esc(p.bio)+'</div>':'')
+          + (p.education?'<div style="font-size:13px;color:#444;margin-bottom:6px;line-height:1.55;"><b>學歷：</b>'+esc(p.education)+'</div>':'')
+          + (p.experience?'<div style="font-size:13px;color:#444;margin-bottom:6px;line-height:1.55;"><b>經歷：</b>'+esc(p.experience)+'</div>':'')
+          + '<div style="font-size:12.5px;color:#666;margin-bottom:6px;">📧 '+esc(p.email||'—')+(p.phone?' · 📞 '+esc(p.phone):'')+'</div>'
+          + (links?'<div style="margin-bottom:8px;">'+links+'</div>':'')
+          + (p.status==='rejected' && p.rejectReason?'<div style="font-size:12.5px;color:#a13a3a;background:#fdf2f2;border:1px solid #f3c9c9;border-radius:8px;padding:8px 10px;margin-bottom:8px;">拒絕理由：'+esc(p.rejectReason)+'</div>':'')
+          + '<div style="font-size:11px;color:#aaa;margin-bottom:10px;">申請於 '+esc(String(p.appliedAt||p.joinedAt||'').slice(0,10))+'</div>'
+          + '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">'+actions+'</div>'
+        + '</div></div>';
+    }).join('');
+  }
+  async function _setApplicantStatus(uid, fields){
+    try{
+      await updateDoc(doc(db,'musicians',uid), fields);
+      var local = APP_REVIEW.find(function(p){ return p.uid===uid; });
+      if(local) Object.assign(local, fields);
+      try{ var mm = (MUSICIANS||[]).find(function(m){return m.uid===uid;}); if(mm && fields.status){ mm.status = fields.status; if(typeof renderMusicians==='function') renderMusicians(); } }catch(_e){}
+      renderAppReview(); updateAppReviewBadge();
+      showNotif('已更新');
+    }catch(e){ console.error('[app-review] update failed:', e); showNotif('操作失敗：'+(e.code||e.message)+'（可能需先發布 Firestore 規則放行管理者）'); }
+  }
+  window.approveApplicant = function(uid){ if(confirm('確定核准這位樂手？核准後他即可登入後台。')) _setApplicantStatus(uid, { status:'approved', published:true }); };
+  window.rejectApplicant  = function(uid){ var r = prompt('拒絕理由（申請人登入時會看到）：', ''); if(r===null) return; _setApplicantStatus(uid, { status:'rejected', rejectReason:(r||'').trim(), published:false }); };
+  window.suspendApplicant = function(uid){ if(confirm('將此樂手改為停用？停用後無法登入後台。')) _setApplicantStatus(uid, { status:'suspended', published:false }); };
+  function updateAppReviewBadge(){
+    var pending = APP_REVIEW.filter(function(p){ return (p.status||'')==='pending'; }).length;
+    var b = document.getElementById('sbAppReviewBadge');
+    if(b){ b.textContent = pending; b.style.display = pending>0 ? '' : 'none'; }
+  }
+
   window.switchTab = function(page, tab, btn) {
     btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
@@ -2700,7 +2815,9 @@
   var STATUS_BADGES = {
     active:   '<span class="badge badge-active">Active</span>',
     verified: '<span class="badge badge-verified">Verified</span>',
-    pending:  '<span class="badge badge-pending">Pending</span>',
+    pending:  '<span class="badge badge-pending">待審核</span>',
+    approved: '<span class="badge badge-active">已核准</span>',
+    rejected: '<span class="badge badge-rejected">已拒絕</span>',
     new:      '<span class="badge badge-new">New</span>',
     suspended:'<span class="badge badge-rejected">Suspended</span>'
   };
