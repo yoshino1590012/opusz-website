@@ -356,7 +356,10 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .wr-brief-notes{grid-column:1 / -1;}
 .wr-main{flex:1;display:flex;min-width:0;}
 .wr-conv{flex:1;display:flex;flex-direction:column;min-width:0;}
-.wr-conv-head{padding:14px 18px;border-bottom:1px solid #f0f0f0;font-size:14px;font-weight:700;color:#111;}
+.wr-conv-head{padding:14px 18px;border-bottom:1px solid #f0f0f0;font-size:14px;font-weight:700;color:#111;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.wr-del-btn{font-size:11.5px;font-weight:600;color:#c0392b;background:none;border:1px solid #eedcdc;border-radius:7px;padding:5px 10px;cursor:pointer;font-family:inherit;flex-shrink:0;}
+.wr-del-btn:hover{background:#fdecea;}
+.cm-del-btn{display:block;margin-top:8px;margin-left:auto;font-size:11px;color:#c0392b;background:none;border:1px solid #eedcdc;border-radius:6px;padding:4px 10px;cursor:pointer;font-family:inherit;}
 .wr-conv-body{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:10px;background:#fbfbfb;}
 .wr-bubble{max-width:78%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;}
 .wr-bubble.them{background:#fff;border:1px solid #eee;align-self:flex-start;border-bottom-left-radius:4px;}
@@ -1057,33 +1060,19 @@ window.addEventListener('pageshow', function(e) {
 (function(){
   /* ===== MOCK DATA (placeholder until the commissions/messaging backend is wired) ===== */
   var COMMISSIONS = [
-    { id:'c1', title:'String Quartet — 婚禮典禮', posted:'2026-06-01', eventDate:'2026-08-10', location:'台北', budget:'NT$8,000', status:'open',   responses:3 },
-    { id:'c2', title:'獨奏小提琴 — 企業晚宴',     posted:'2026-05-20', eventDate:'2026-07-02', location:'新竹', budget:'NT$3,200', status:'open',   responses:1 },
-    { id:'c3', title:'鋼琴三重奏 — 生日派對',     posted:'2026-03-15', eventDate:'2026-04-20', location:'台中', budget:'NT$6,000', status:'closed', responses:5 }
+    { id:'demo', title:'範例 · 你的公開委托會長這樣', posted:'示範', eventDate:'（演出日）', location:'（地點）', budget:'（預算）', status:'open', responses:0, demo:true }
   ];
   var THREADS = [
-    { id:'t1', subject:'String Quartet — 婚禮典禮', musician:'陳威霖 Chen Wei-Lin', initials:'CW', unread:true, time:'06/10', ts:202606101435,
-      brief:{ type:'弦樂四重奏 · 婚禮典禮', date:'2026-06-15', location:'台北 · 私人會館', budget:'NT$8,000–9,000', notes:'儀式進場＋收場各一首，曲風溫馨古典。' },
-      deal:{ status:'進行中', price:'NT$8,500', date:'2026-06-15', terms:'交付後放款', funded:'NT$8,500', released:'NT$0' },
+    { id:'demo', subject:'範例 · 委托工作室怎麼用', musician:'OPUS.Z 教學', initials:'示', unread:false, time:'示範', ts:1,
+      brief:{ type:'（這裡會顯示你選的委托類型）', date:'（演出 / 上課日期）', location:'（地點）', budget:'（預算）',
+              notes:'這是示範：你對樂手送出委托後，雙方都會在這裡看到當初的需求重點。' },
+      deal:{ status:'示範', price:'—', date:'—', terms:'交付後放款', funded:'—', released:'—' },
       events:[
-        { type:'sys', text:'你選定了 陳威霖。等待你付款啟動委托。', time:'06/10 14:25' },
-        { type:'msg', who:'them', text:'您好！很榮幸能參與您的婚禮，我們已準備好三首曲目。', time:'06/10 14:20' },
-        { type:'sys', text:'你已付款，委托啟動。款項由平台保管。', time:'06/10 14:30' },
-        { type:'msg', who:'me', text:'太好了！附上場地與流程資料。', file:'wedding-flow.pdf', time:'06/10 14:35' }
-      ] },
-    { id:'t2', subject:'上課預約 — 小提琴', musician:'李美珊 Li Mei-Shan', initials:'LM', unread:true, time:'05/28', ts:202605281130,
-      brief:{ type:'小提琴一對一課程', date:'每週日下午', location:'線上 / 台北', budget:'NT$2,000 / 堂', notes:'初學成人，想從基礎開始。' },
-      deal:{ status:'待確認', price:'NT$2,000 / 堂', date:'每週日', terms:'單堂', funded:'NT$0', released:'NT$0' },
-      events:[
-        { type:'sys', text:'你送出了上課預約申請。', time:'05/28 10:00' },
-        { type:'msg', who:'them', text:'您好！週日方便，我們可以先約一堂試上。', time:'05/28 11:30' }
-      ] },
-    { id:'t3', subject:'查檔期 — 大提琴獨奏', musician:'OPUS.Z Ensemble', initials:'OZ', unread:false, time:'05/15', ts:202605151600,
-      brief:{ type:'大提琴獨奏 · 藝廊開幕', date:'2026-08 中旬（待定）', location:'台北', budget:'洽談中', notes:'約 30 分鐘背景演奏。' },
-      deal:{ status:'洽談中', price:'TBC', date:'2026-08 待定', terms:'—', funded:'NT$0', released:'NT$0' },
-      events:[
-        { type:'msg', who:'me', text:'您好，想詢問 8 月中旬的檔期是否還有空？', time:'05/15 09:00' },
-        { type:'msg', who:'them', text:'您好！8/10–8/20 目前還可安排，方便告訴我活動細節嗎？', time:'05/15 16:00' }
+        { type:'sys', text:'👋 這是「委托工作室」的示範對話，讓你先了解實際運作的樣子。', time:'' },
+        { type:'msg', who:'them', text:'你對樂手送出委托後，樂手的回覆會出現在這邊（白色泡泡）。', time:'' },
+        { type:'msg', who:'me', text:'你傳給樂手的訊息會在這邊（黑色泡泡），也可以附檔案。', file:'example.pdf', time:'' },
+        { type:'sys', text:'像「已選定樂手 / 已付款 / 已完成」這些進度，會用這種灰色提示插在對話裡。', time:'' },
+        { type:'sys', text:'不需要的話，按右上角「🗑 刪除對話」就能移除這個示範。', time:'' }
       ] }
   ];
   function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -1100,6 +1089,7 @@ window.addEventListener('pageshow', function(e) {
         + '<div class="cm-meta">公開於 '+c.posted+'　·　演出日 '+c.eventDate+'<br>'+esc(c.location)+'　·　預算 '+esc(c.budget)+'</div></div>'
         + '<div class="cm-right">'+badge+'<div class="cm-resp">'+c.responses+' 位樂手回覆</div>'
         + (c.status==='open' ? '<button class="cm-close-btn" data-cid="'+c.id+'">關閉委托</button>' : '')
+        + '<button class="cm-del-btn" data-del="'+c.id+'">刪除</button>'
         + '</div></div>';
     }).join('');
   }
@@ -1111,6 +1101,12 @@ window.addEventListener('pageshow', function(e) {
   });
   var cList = document.getElementById('commissionList');
   if(cList) cList.addEventListener('click', function(e){
+    var del = e.target.closest('.cm-del-btn');
+    if(del){
+      if(!confirm('確定要刪除這個委托？')) return;
+      COMMISSIONS = COMMISSIONS.filter(function(x){ return x.id !== del.dataset.del; });
+      renderCommissions(); return;
+    }
     var btn = e.target.closest('.cm-close-btn'); if(!btn) return;
     var c = COMMISSIONS.find(function(x){ return x.id===btn.dataset.cid; });
     if(c){ c.status='closed'; renderCommissions(); }
@@ -1160,7 +1156,8 @@ window.addEventListener('pageshow', function(e) {
       + '</div></div>';
     main.innerHTML =
       '<div class="wr-conv">'
-        + '<div class="wr-conv-head">'+esc(t.subject)+'　·　'+esc(t.musician)+'</div>'
+        + '<div class="wr-conv-head"><span>'+esc(t.subject)+'　·　'+esc(t.musician)+'</span>'
+          + '<button class="wr-del-btn" data-delthread="'+t.id+'">🗑 刪除對話</button></div>'
         + '<div class="wr-conv-body">'+briefCard+bubbles+'</div>'
         + '<div class="wr-compose"><input placeholder="輸入訊息… / Type a message"><button>送出</button></div>'
       + '</div>'
@@ -1173,9 +1170,22 @@ window.addEventListener('pageshow', function(e) {
         + '<h4>動作 / Actions</h4><div class="wr-deal-val" style="color:#999;font-weight:500;font-size:12px;">付款 / 放款（後端完成後啟用）</div>'
       + '</div>';
   }
+  function deleteThread(id){
+    THREADS = THREADS.filter(function(x){ return x.id !== id; });
+    if(activeThread === id) activeThread = null;
+    renderThreads();
+    var main = document.getElementById('wrMain');
+    if(main) main.innerHTML = '<div class="wr-empty">選擇一個對話 / Select a conversation</div>';
+  }
   var wrThreads = document.getElementById('wrThreads');
   if(wrThreads) wrThreads.addEventListener('click', function(e){
     var th = e.target.closest('.wr-thread'); if(th) openThread(th.dataset.tid);
+  });
+  var wrMainEl = document.getElementById('wrMain');
+  if(wrMainEl) wrMainEl.addEventListener('click', function(e){
+    var d = e.target.closest('.wr-del-btn'); if(!d) return;
+    if(!confirm('確定要刪除這個對話？')) return;
+    deleteThread(d.dataset.delthread);
   });
   renderThreads();
   // Open the first conversation the first time the Messages tab is viewed.
