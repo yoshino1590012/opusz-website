@@ -216,6 +216,11 @@ nav.mega-open .nav-links a::before {
   .nav-links { display: none; }
   .nav-logo { padding-left: 18px; }
   #navFavBadge { display: none !important; }
+  /* Pull logo orb + OPUS.Z text toward the corner so the LEFT gap (18px) matches the
+     TOP gap (18px). Text shifts by the same amount to keep its spacing from the orb.
+     (Matches the homepage's own nav, which has identical fixed-logo overrides.) */
+  #navOrbFixed  { left: 18px; }
+  #navLogoFixed { left: 68px; }
 }
 
 .nav-drawer {
