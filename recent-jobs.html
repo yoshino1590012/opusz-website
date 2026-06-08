@@ -242,6 +242,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .pj-textarea { min-height: 80px; line-height: 1.55; }
 .pj-select { cursor: pointer; appearance: none; -webkit-appearance: none; color: #111; }
 .pj-select option { color: #111; }
+/* Native date/time pickers — keep the modal's clean, borderless look */
+.pj-input[type="date"], .pj-input[type="time"] { cursor: pointer; color: #111; }
+.pj-input[type="date"]:invalid, .pj-input[type="time"]:invalid { color: #ccc; }
+.pj-input[type="date"]::-webkit-calendar-picker-indicator,
+.pj-input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .5; }
 
 .pj-submit {
   margin-top: 28px;
@@ -705,42 +710,47 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 
       <!-- Fields -->
       <div class="pj-fields">
-        <!-- Row 1: Date + Location -->
+        <!-- Row 1: Event Date + Event Time (native pickers) -->
         <div class="pj-row">
           <div class="pj-field">
             <div class="pj-label">Event Date</div>
-            <input class="pj-input" type="text" placeholder="e.g. 15 Aug 2025" />
+            <input id="pjDate" class="pj-input" type="date" />
           </div>
           <div class="pj-field">
-            <div class="pj-label">Location</div>
-            <input class="pj-input" type="text" placeholder="e.g. Taipei, Grand Ballroom" />
+            <div class="pj-label">Event Time</div>
+            <input id="pjTime" class="pj-input" type="time" />
           </div>
         </div>
-        <!-- Row 2: Duration + Ensemble -->
+        <!-- Row 2: Location + Duration -->
         <div class="pj-row">
           <div class="pj-field">
-            <div class="pj-label">Duration</div>
-            <input class="pj-input" type="text" placeholder="e.g. 2 hours, half day" />
+            <div class="pj-label">Location</div>
+            <input id="pjLocation" class="pj-input" type="text" placeholder="e.g. Taipei, Grand Ballroom" />
           </div>
           <div class="pj-field">
-            <div class="pj-label">Desired Ensemble / Instrumentation</div>
-            <input class="pj-input" type="text" placeholder="e.g. String Quartet, Solo Piano" />
+            <div class="pj-label">Duration</div>
+            <input id="pjDuration" class="pj-input" type="text" placeholder="e.g. 2 hours, half day" />
           </div>
+        </div>
+        <!-- Ensemble -->
+        <div class="pj-field">
+          <div class="pj-label">Desired Ensemble / Instrumentation</div>
+          <input id="pjEnsemble" class="pj-input" type="text" placeholder="e.g. String Quartet, Solo Piano" />
         </div>
         <!-- Description -->
         <div class="pj-field">
           <div class="pj-label">Tell us about the project</div>
-          <textarea class="pj-textarea" placeholder="Describe the event, repertoire style, atmosphere, or any special requirements…"></textarea>
+          <textarea id="pjDesc" class="pj-textarea" placeholder="Describe the event, repertoire style, atmosphere, or any special requirements…"></textarea>
         </div>
         <!-- Row 3: Name + Email -->
         <div class="pj-row">
           <div class="pj-field">
             <div class="pj-label">Your Name</div>
-            <input class="pj-input" type="text" placeholder="Full name" />
+            <input id="pjName" class="pj-input" type="text" placeholder="Full name" />
           </div>
           <div class="pj-field">
             <div class="pj-label">Email</div>
-            <input class="pj-input" type="email" placeholder="your@email.com" />
+            <input id="pjEmail" class="pj-input" type="email" placeholder="your@email.com" />
           </div>
         </div>
       </div>
