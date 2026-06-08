@@ -1793,6 +1793,28 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
 <link rel="stylesheet" href="nav.css?v=3">
   <script src="assets/js/analytics.js"></script>
 <style id="opz-no-scrollbar">*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}</style>
+<style>
+/* While a real profile (?uid=) is loading, hide the blank-template hero text so
+   visitors never see a flash of "NAME / YOUR TITLE / Your City" before the real
+   data arrives. Revealed the moment the profile is applied (cache or Firestore).
+   visibility (not display) keeps layout stable so nothing jumps on reveal. */
+html.prof-pending .hero-name,
+html.prof-pending .hero-info .info-title,
+html.prof-pending .hero-info .info-location { visibility: hidden !important; }
+</style>
+<script>
+  /* Runs before the body paints: if this is a real musician page (?uid=), mark it
+     pending so the template placeholders start hidden. A 5s safety net reveals
+     anyway, so a slow/failed load can never leave the hero blank forever. */
+  (function(){
+    try{
+      if(new URLSearchParams(location.search).get('uid')){
+        document.documentElement.classList.add('prof-pending');
+        setTimeout(function(){ document.documentElement.classList.remove('prof-pending'); }, 5000);
+      }
+    }catch(e){}
+  })();
+</script>
 </head>
 <body>
 <script src="nav.js?v=2"></script>
@@ -3898,7 +3920,8 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
   // showing only the blank template. Inside the function the guards are legal.
   (async () => {
   const uid = new URLSearchParams(window.location.search).get('uid');
-  if (!uid) return; // no uid = show hardcoded Martin profile as-is
+  const reveal = () => document.documentElement.classList.remove('prof-pending');
+  if (!uid) { reveal(); return; } // no uid = show hardcoded Martin profile as-is
 
   const firebaseConfig = {
     apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
@@ -3912,54 +3935,40 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
   const app = initializeApp(firebaseConfig);
   const db  = getFirestore(app);
 
-  try {
-    const snap = await getDoc(doc(db, 'musicians', uid));
-    if (!snap.exists()) return;
-
-    const p = snap.data();
-    const name = p.name || p.email?.split('@')[0] || 'Musician';
+  // Apply a musician document to the page. Used BOTH for the instant
+  // localStorage paint and the fresh Firestore data, so it must be idempotent.
+  function applyMusician(p){
+    if (!p) return;
+    const name = p.name || (p.email ? p.email.split('@')[0] : '') || 'Musician';
     const insts = Array.isArray(p.instruments) ? p.instruments : (p.instrument ? [p.instrument] : []);
     const instLabel = insts.join(' · ') || '—';
     const region = p.primaryRegion || '';
     const bio = p.bio || '';
 
-    // ── Update page title ──
     document.title = name + ' — OPUS.Z';
 
-    // ── Hero: big decorative name (two copies — orig + replacement) ──
     const heroNameBig = document.getElementById('heroNameBig');
     if (heroNameBig) heroNameBig.querySelectorAll('span').forEach(s => s.textContent = name);
     const heroNameLeft = document.getElementById('heroNameLeft');
     if (heroNameLeft) heroNameLeft.textContent = name;
-    // Showreel big label is driven per-video by updateMeta() (title + subtitle),
-    // NOT the musician name — so nothing to set here.
 
-    // ── Hero info card ──
     const infoTitle = document.querySelector('.info-title');
     if (infoTitle) infoTitle.textContent = instLabel;
-
     const infoLoc = document.querySelector('.info-location');
     if (infoLoc) infoLoc.textContent = region;
 
-    // ── Bio section ──
     const bioText = document.querySelector('.bio-text');
     if (bioText && bio) bioText.textContent = bio;
 
-    // ── Booking sidebar: name ──
     document.querySelectorAll('.book-name, [id="bookName"]').forEach(el => el.textContent = name);
-
-    // ── "Book X for your next event" heading ──
     document.querySelectorAll('h2').forEach(el => {
       if (el.textContent.includes('Book') && el.textContent.includes('event')) {
         el.textContent = 'Book ' + name + ' for your next event';
       }
     });
-
-    // ── Rating: hide stars if no reviews yet ──
     const ratingEl = document.querySelector('.info-rating');
     if (ratingEl) ratingEl.style.display = 'none';
 
-    // ── Apply this musician's saved page-builder config (published page) ──
     if (p.config) {
       // Plans removed — every musician can teach. Teaching shows purely from the
       // musician's own toggle (lessons.visible / lessonsEnabled), no plan gate.
@@ -3968,21 +3977,37 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
         try { window.applyProfileConfig(p.config); }
         catch(e){ console.warn('[profileConfig] apply failed:', e); }
       };
-      if (window.applyProfileConfig) {
-        applyCfg();
-      } else {
+      if (window.applyProfileConfig) applyCfg();
+      else {
         // applyProfileConfig lives in a later regular <script>; poll briefly
         let tries = 0;
         const iv = setInterval(function(){
           tries++;
           if (window.applyProfileConfig) { clearInterval(iv); applyCfg(); }
-          else if (tries > 20) { clearInterval(iv); }
+          else if (tries > 20) clearInterval(iv);
         }, 100);
       }
     }
+    reveal();   // real data is on the page → show the hero (no template flash)
+  }
 
+  // 1) INSTANT paint from the last-seen copy (repeat visits show immediately,
+  //    no flash). Keyed by uid; tolerant of a missing/corrupt entry.
+  try {
+    const cached = JSON.parse(localStorage.getItem('opusz_profile_' + uid) || 'null');
+    if (cached) applyMusician(cached);
+  } catch(e){}
+
+  // 2) FRESH from Firestore → re-apply + refresh the cache for next time.
+  try {
+    const snap = await getDoc(doc(db, 'musicians', uid));
+    if (!snap.exists()) { reveal(); return; }
+    const p = snap.data();
+    try { localStorage.setItem('opusz_profile_' + uid, JSON.stringify(p)); } catch(e){}
+    applyMusician(p);
   } catch(e) {
     console.log('Profile load error:', e);
+    reveal();
   }
   })();
 </script>
