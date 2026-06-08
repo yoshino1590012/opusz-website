@@ -1343,8 +1343,12 @@
                 <input type="text" id="pbHeroName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name" autocomplete="off">
               </div>
               <div class="pb-field">
-                <label>名字大小 / Name size &nbsp;<span id="pbNameSizeVal" style="font-weight:700;color:#333;">100%</span></label>
-                <input type="range" id="pbNameSize" min="40" max="100" step="5" value="100" oninput="document.getElementById('pbNameSizeVal').textContent=this.value+'%'; pbOnInput();" style="width:100%;margin-top:6px;">
+                <label>🖥 名字大小（桌機）&nbsp;<span id="pbNameSizeDeskVal" style="font-weight:700;color:#333;">100%</span></label>
+                <input type="range" id="pbNameSizeDesk" min="40" max="100" step="5" value="100" oninput="document.getElementById('pbNameSizeDeskVal').textContent=this.value+'%'; pbOnInput();" style="width:100%;margin-top:6px;">
+              </div>
+              <div class="pb-field">
+                <label>📱 名字大小（手機）&nbsp;<span id="pbNameSizeMobVal" style="font-weight:700;color:#333;">100%</span></label>
+                <input type="range" id="pbNameSizeMob" min="40" max="100" step="5" value="100" oninput="document.getElementById('pbNameSizeMobVal').textContent=this.value+'%'; pbOnInput();" style="width:100%;margin-top:6px;">
               </div>
               <div class="pb-field"><label>頭銜 / Title</label><input type="text" id="pbHeroTitle" oninput="pbOnInput()" placeholder="你的頭銜（如：小提琴家）/ Your title (e.g. Violinist)"></div>
               <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbHeroLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
@@ -2211,7 +2215,7 @@
   function pbLSKey(){ return 'opusz-profile-config:' + (_currentUser && _currentUser.uid ? _currentUser.uid : 'anon'); }
   // Schema defaults — mirror the current hardcoded profile values.
   const PB_DEFAULTS = {
-    hero:    { name:'', title:'', location:'', nameSize:100,
+    hero:    { name:'', title:'', location:'', nameSizeDesk:100, nameSizeMob:100,
                media:{ type:'photo', url:'', x:50, y:50, zoom:0 },
                extraSlides:[{url:'',x:50,y:50,zoom:0},{url:'',x:50,y:50,zoom:0},{url:'',x:50,y:50,zoom:0}] },
     card:    { photoUrl:'', name:'', instrument:'', location:'',
@@ -2827,9 +2831,12 @@
     v('pbHeroName',     pbConfig.hero.name);
     v('pbHeroTitle',    pbConfig.hero.title);
     v('pbHeroLocation', pbConfig.hero.location);
-    var ns = pbConfig.hero.nameSize || 100;
-    var nsEl = document.getElementById('pbNameSize');
-    if(nsEl){ nsEl.value = ns; document.getElementById('pbNameSizeVal').textContent = ns + '%'; }
+    var nsd = pbConfig.hero.nameSizeDesk || 100;
+    var nsm = pbConfig.hero.nameSizeMob  || 100;
+    var nsdEl = document.getElementById('pbNameSizeDesk');
+    var nsmEl = document.getElementById('pbNameSizeMob');
+    if(nsdEl){ nsdEl.value = nsd; document.getElementById('pbNameSizeDeskVal').textContent = nsd + '%'; }
+    if(nsmEl){ nsmEl.value = nsm; document.getElementById('pbNameSizeMobVal').textContent  = nsm + '%'; }
     // Card (Musicians directory list card)
     const cd = pbConfig.card || {};
     v('pbCardPhotoUrl',   cd.photoUrl);
@@ -3185,7 +3192,8 @@
         name:         txt('pbHeroName').trim(),
         title:        txt('pbHeroTitle').trim(),
         location:     txt('pbHeroLocation').trim(),
-        nameSize:     parseInt((document.getElementById('pbNameSize')||{value:'100'}).value) || 100,
+        nameSizeDesk: parseInt((document.getElementById('pbNameSizeDesk')||{value:'100'}).value) || 100,
+        nameSizeMob:  parseInt((document.getElementById('pbNameSizeMob') ||{value:'100'}).value) || 100,
         media:        heroMedia,
         extraSlides:  heroExtraSlides
       },

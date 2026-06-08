@@ -5100,13 +5100,14 @@ window.addEventListener('pageshow', function(e) {
         var nw   = heroNameBig.querySelector('.hn-new');
         if(orig) orig.textContent = hero.name;
         if(nw)   nw.textContent   = hero.name;
-        // Apply custom name size (percentage of default clamp font-size)
-        var nameSize = hero.nameSize ? parseInt(hero.nameSize) : 100;
-        if(nameSize !== 100){
-          var fs = 'calc(clamp(96px, 14vw, 200px) * ' + (nameSize/100).toFixed(2) + ')';
-          if(orig) orig.style.fontSize = fs;
-          if(nw)   nw.style.fontSize   = fs;
-        }
+        // Apply custom name size per breakpoint via injected <style>
+        var nsd = hero.nameSizeDesk || hero.nameSize || 100;
+        var nsm = hero.nameSizeMob  || hero.nameSize || 100;
+        var styleEl = document.getElementById('heroNameSizeStyle');
+        if(!styleEl){ styleEl = document.createElement('style'); styleEl.id = 'heroNameSizeStyle'; document.head.appendChild(styleEl); }
+        styleEl.textContent =
+          '@media(min-width:481px){.hero-name span{font-size:calc(clamp(96px,14vw,200px)*' + (nsd/100).toFixed(2) + ')!important}}' +
+          '@media(max-width:480px){.hero-name span{font-size:calc(clamp(44px,15vw,60px)*'  + (nsm/100).toFixed(2) + ')!important}}';
       }
       var heroNameLeft = document.getElementById('heroNameLeft');
       if(heroNameLeft) heroNameLeft.textContent = hero.name;
