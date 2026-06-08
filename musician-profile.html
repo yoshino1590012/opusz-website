@@ -6,6 +6,9 @@
 <title>Martin Liao — OPUS.Z</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Warm up the connections used to load the profile (data + banner photo) ASAP. -->
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://firebasestorage.googleapis.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
@@ -3914,10 +3917,12 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 })();
 </script>
 
-<!-- ── Load real musician data from Firestore if ?uid= is in URL ── -->
+<!-- ── Load real musician data via the Firestore REST API if ?uid= is in URL ── -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  // No Firebase SDK here: we read the doc with a single REST GET, which avoids the
+  // SDK's slow WebChannel handshake (getDoc was ~2s vs REST ~0.8-1s) AND skips
+  // loading the ~hundreds-of-KB firestore SDK on this page → the hero photo shows
+  // much sooner. musicians/{uid} is publicly readable per the security rules.
 
   // NOTE: wrapped in an async IIFE. A bare `return` at the top level of a
   // <script type="module"> is a SyntaxError ("Illegal return statement") that
@@ -3950,17 +3955,21 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   };
   if (!uid) { reveal(); return; } // no uid = show hardcoded Martin profile as-is
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
-    authDomain: "opusz-45280.firebaseapp.com",
-    projectId: "opusz-45280",
-    storageBucket: "opusz-45280.firebasestorage.app",
-    messagingSenderId: "304745430147",
-    appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
+  const API_KEY = "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s";
+  // Firestore REST decoder: typed JSON → plain object (same shape as snap.data()).
+  const fsDec = (v) => {
+    if (!v || typeof v !== 'object') return v;
+    if ('stringValue'    in v) return v.stringValue;
+    if ('integerValue'   in v) return Number(v.integerValue);
+    if ('doubleValue'    in v) return v.doubleValue;
+    if ('booleanValue'   in v) return v.booleanValue;
+    if ('nullValue'      in v) return null;
+    if ('timestampValue' in v) return v.timestampValue;
+    if ('arrayValue'     in v) return (v.arrayValue.values || []).map(fsDec);
+    if ('mapValue'       in v) { const o = {}, f = v.mapValue.fields || {}; for (const k in f) o[k] = fsDec(f[k]); return o; }
+    return undefined;
   };
-
-  const app = initializeApp(firebaseConfig);
-  const db  = getFirestore(app);
+  const fsDoc = (j) => { const o = {}, f = (j && j.fields) || {}; for (const k in f) o[k] = fsDec(f[k]); return o; };
 
   // Apply a musician document to the page. Used BOTH for the instant
   // localStorage paint and the fresh Firestore data, so it must be idempotent.
@@ -4025,11 +4034,14 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     if (cached) applyMusician(cached);
   } catch(e){}
 
-  // 2) FRESH from Firestore → re-apply + refresh the cache for next time.
+  // 2) FRESH via the Firestore REST API → re-apply + refresh the cache.
   try {
-    const snap = await getDoc(doc(db, 'musicians', uid));
-    if (!snap.exists()) { reveal(); return; }
-    const p = snap.data();
+    const url = 'https://firestore.googleapis.com/v1/projects/opusz-45280/databases/(default)/documents/musicians/'
+              + encodeURIComponent(uid) + '?key=' + API_KEY;
+    const r = await fetch(url);
+    if (!r.ok) { reveal(); return; }           // 404 (no such musician) etc.
+    const p = fsDoc(await r.json());
+    if (!p || !Object.keys(p).length) { reveal(); return; }
     try { localStorage.setItem('opusz_profile_' + uid, JSON.stringify(p)); } catch(e){}
     applyMusician(p);
   } catch(e) {
