@@ -2243,7 +2243,7 @@
                extraSlides:[{url:'',x:50,y:50,zoom:0},{url:'',x:50,y:50,zoom:0},{url:'',x:50,y:50,zoom:0}] },
     card:    { photoUrl:'', name:'', instrument:'', instruments:[], location:'',
                bio:'',
-               photoX:0, photoY:0, photoScale:1 },
+               photoX:50, photoY:50, photoScale:1 },
     about:   { avatarUrl:'', bio:'', credentials:[] },
     booking: {
       barTitle: 'Check availability & get a free quote',
@@ -2996,9 +2996,9 @@
     pbInstRender();
     v('pbCardLocation',   cd.location);
     v('pbCardBio',        cd.bio);
-    v('pbCardPhotoX',     (cd.photoX !== undefined && cd.photoX !== null) ? cd.photoX : 0);
-    v('pbCardPhotoY',     (cd.photoY !== undefined && cd.photoY !== null) ? cd.photoY : 0);
-    v('pbCardPhotoScale', (cd.photoScale !== undefined && cd.photoScale !== null) ? cd.photoScale : 1);
+    v('pbCardPhotoX',     (typeof cd.photoX === 'number') ? cd.photoX : 50);
+    v('pbCardPhotoY',     (typeof cd.photoY === 'number') ? cd.photoY : 50);
+    v('pbCardPhotoScale', (typeof cd.photoScale === 'number') ? cd.photoScale : 1);
     v('pbAboutBio',     pbConfig.about.bio);
     // Booking
     const bk = pbConfig.booking || {};
@@ -3372,8 +3372,8 @@
         instruments: pbInsts.slice(),
         location:   txt('pbCardLocation').trim(),
         bio:        txt('pbCardBio').trim(),
-        photoX:     num('pbCardPhotoX')     !== undefined ? num('pbCardPhotoX')     : 0,
-        photoY:     num('pbCardPhotoY')     !== undefined ? num('pbCardPhotoY')     : 0,
+        photoX:     num('pbCardPhotoX')     !== undefined ? num('pbCardPhotoX')     : 50,
+        photoY:     num('pbCardPhotoY')     !== undefined ? num('pbCardPhotoY')     : 50,
         photoScale: num('pbCardPhotoScale') !== undefined ? num('pbCardPhotoScale') : 1
       },
       about:   { avatarUrl: txt('pbAvatarUrl').trim(), bio: txt('pbAboutBio'), credentials: lines('pbAboutCreds') },

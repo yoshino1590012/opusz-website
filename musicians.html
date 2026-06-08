@@ -804,12 +804,12 @@ function renderGrid(){
     var ms = localStorage.getItem('mxys-s-'+m.id)||'1';
     var xysStyle = 'transform:translate('+mx+'px,'+my+'px) scale('+ms+');transform-origin:center center;';
     if(m.photoUrl){
-      var cpx = (m.photoX !== undefined && m.photoX !== null) ? m.photoX : 0;
-      var cpy = (m.photoY !== undefined && m.photoY !== null) ? m.photoY : 0;
-      var cps = (m.photoScale !== undefined && m.photoScale !== null) ? m.photoScale : 1;
-      mediaHtml = '<div class="photo-pan" style="position:absolute;inset:0;transform:translate('+cpx+'px,'+cpy+'px) scale('+cps+');transform-origin:center center;">' +
-        '<img src="'+m.photoUrl+'" alt="'+m.name+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">' +
-        '</div>';
+      var cpx = (typeof m.photoX === 'number') ? m.photoX : 50;
+      var cpy = (typeof m.photoY === 'number') ? m.photoY : 50;
+      var cps = (typeof m.photoScale === 'number') ? m.photoScale : 1;
+      // Always fill the frame (cover); pan via object-position % (reaches every
+      // edge incl. the bottom), zoom via scale (min 1 = exactly fills).
+      mediaHtml = '<img src="'+m.photoUrl+'" alt="'+m.name+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+cpx+'% '+cpy+'%;transform:scale('+cps+');transform-origin:'+cpx+'% '+cpy+'%;">';
     } else if(savedPhoto){
       mediaHtml = '<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'">' +
         '<img src="'+savedPhoto+'" alt="'+m.name+'" style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;">' +
@@ -1362,8 +1362,8 @@ window.addEventListener('load', applyAllSavedXYS);
         reviews:    0,
         bio:        card.bio || (cfg.about && cfg.about.bio) || p.bio || '',
         photoUrl:   cardPhoto,
-        photoX:     (typeof card.photoX === 'number') ? card.photoX : 0,
-        photoY:     (typeof card.photoY === 'number') ? card.photoY : 0,
+        photoX:     (typeof card.photoX === 'number') ? card.photoX : 50,
+        photoY:     (typeof card.photoY === 'number') ? card.photoY : 50,
         photoScale: (typeof card.photoScale === 'number') ? card.photoScale : 1,
         emoji:      '🎵',
         color:      CARD_COLORS[colorIdx++ % CARD_COLORS.length],
