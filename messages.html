@@ -828,6 +828,23 @@ function openConv(id){
   /* Render bubbles */
   renderBubbles(conv);
 
+  /* Live messages for real (Firestore) conversations */
+  if(window._msgUnsub){ window._msgUnsub(); window._msgUnsub = null; }
+  if(window.OPUSZ_MSG && conv._real){
+    OPUSZ_MSG.markRead(conv.id, conv._role || 'customer');
+    window._msgUnsub = OPUSZ_MSG.listenMessages(conv.id, function(msgs){
+      conv.messages = msgs.map(function(m){
+        return {
+          from: (m.senderUid === window._myUid) ? 'me' : 'them',
+          time: window._fmtTime ? window._fmtTime(m.createdAt) : '',
+          text: m.text || '',
+          file: (m.file && m.file.name) || undefined
+        };
+      });
+      if(currentConvId === conv.id) renderBubbles(conv);
+    });
+  }
+
   /* Clear pending files */
   pendingFiles = [];
   renderFileChips();
@@ -884,6 +901,15 @@ document.getElementById('sendBtn').addEventListener('click', function(){
   if(!text && !pendingFiles.length) return;
   var conv = CONVS.find(function(c){ return c.id === currentConvId; });
   if(!conv) return;
+
+  /* Real conversation → write to Firestore; the live listener re-renders. */
+  if(window.OPUSZ_MSG && conv._real){
+    if(text) OPUSZ_MSG.sendMessage(conv.id, { text:text, senderRole: conv._role || 'customer' });
+    document.getElementById('composerText').value = '';
+    pendingFiles = [];
+    renderFileChips();
+    return;
+  }
 
   var now = new Date();
   var timeStr = now.toLocaleDateString('en-GB',{day:'numeric',month:'short'}) + ', ' + now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
@@ -1224,6 +1250,50 @@ window.addEventListener('pageshow', function(e) {
     document.documentElement.style.opacity = '1';
   }
 });
+</script>
+<!-- Real messaging: load live conversations for whoever is signed in (musician or customer) -->
+<script type="module" src="messaging.js"></script>
+<script>
+(function(){
+  window._fmtMD = function(ts){ if(!ts) return ''; var d = ts.toDate ? ts.toDate() : new Date(ts); return ('0'+(d.getMonth()+1)).slice(-2)+'/'+('0'+d.getDate()).slice(-2); };
+  window._fmtTime = function(ts){ if(!ts) return ''; var d = ts.toDate ? ts.toDate() : new Date(ts); return d.toLocaleDateString('en-GB',{day:'numeric',month:'short'})+', '+('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); };
+
+  function mapConv(c){
+    var iAmMusician = (window._myUid === c.musicianUid);
+    var otherName = iAmMusician ? (c.customerName || '客戶') : (c.musicianName || '樂手');
+    var b = c.brief || {};
+    return {
+      id: c.id, _real: true, _role: iAmMusician ? 'musician' : 'customer',
+      contact: otherName,
+      initials: (otherName || '?').trim().charAt(0).toUpperCase(),
+      role: '',
+      subject: c.subject || '直接訊息',
+      status: 'open',
+      amount: b.budget || '—',
+      paymentTerms: '—',
+      proposal: b.notes || '—',
+      stars: 0, reviews: 0,
+      unread: iAmMusician ? (c.musicianUnread || 0) : (c.customerUnread || 0),
+      archived: false,
+      date: window._fmtMD(c.updatedAt),
+      messages: []
+    };
+  }
+
+  function boot(){
+    if(!window.OPUSZ_MSG){ window.addEventListener('opusz-msg-ready', boot, { once:true }); return; }
+    OPUSZ_MSG.onAuth(function(uid){
+      window._myUid = uid;
+      if(!uid) return;  // not signed in via Firebase → keep the existing demo inbox
+      OPUSZ_MSG.listConversations(uid, function(convs){
+        // Replace the demo inbox with real conversations.
+        CONVS = convs.map(mapConv);
+        if(typeof renderInbox === 'function') renderInbox();
+      });
+    });
+  }
+  boot();
+})();
 </script>
 <script src="assets/js/smooth-scroll.js" defer></script>
 <script src="assets/js/nav-auth.js" defer></script>
