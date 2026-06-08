@@ -2557,7 +2557,9 @@
           +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;"><span style="font-size:11px;font-weight:700;color:'+st[1]+';background:'+st[2]+';padding:2px 9px;border-radius:20px;">'+st[0]+'</span><span style="font-size:11px;color:#aaa;">投稿於 '+esc(String(p.submittedAt||'').slice(0,10))+'</span></div>'
           +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">'
           +'<button onclick="downloadPoster(\''+esc(p.imageUrl)+'\',\''+esc(p.title||'poster')+'\')" style="font-size:12px;font-weight:700;color:#fff;background:#111;border:none;border-radius:7px;padding:6px 12px;cursor:pointer;">⬇ 下載原圖</button>'
-          +actions+'</div>'
+          +actions
+          +'<button onclick="deleteAdminPoster(\''+esc(p.id)+'\',\''+esc(p.musicianUid)+'\')" title="刪除此投稿" style="font-size:12px;color:#dc2626;background:#fff;border:1px solid #fecaca;border-radius:7px;padding:6px 12px;cursor:pointer;">🗑 刪除</button>'
+          +'</div>'
         +'</div></div>';
     }).join('');
   }
@@ -2594,6 +2596,20 @@
   window.approveAdminPoster = function(id, uid){ _adminSetPosterStatus(id, uid, 'approved'); };
   window.rejectAdminPoster  = function(id, uid){ if(confirm('確定標記為未採用？')) _adminSetPosterStatus(id, uid, 'rejected'); };
   window.resetAdminPoster   = function(id, uid){ _adminSetPosterStatus(id, uid, 'pending'); };
+  // Permanently remove a poster submission (admin clicks + confirms). Drops the
+  // entry from that musician's posterSubmissions[] array.
+  window.deleteAdminPoster = async function(posterId, musicianUid){
+    if(!confirm('確定要永久刪除這筆海報投稿？此動作無法復原。')) return;
+    try{
+      var ref = doc(db,'musicians',musicianUid);
+      var snap = await getDoc(ref); var data = snap.data() || {};
+      var arr = (data.posterSubmissions||[]).filter(function(p){ return p.id !== posterId; });
+      await setDoc(ref, { posterSubmissions: arr }, { merge:true });
+      ADMIN_POSTERS = ADMIN_POSTERS.filter(function(p){ return !(p.id===posterId && p.musicianUid===musicianUid); });
+      renderAdminPosters(); updateAdminPostersBadge();
+      showNotif('已刪除投稿');
+    }catch(e){ console.error('[admin-posters] delete failed:', e); showNotif('刪除失敗：'+(e.code||e.message)); }
+  };
   function updateAdminPostersBadge(){
     var pending = ADMIN_POSTERS.filter(function(p){ return (p.status||'pending')==='pending'; }).length;
     var b = document.getElementById('sbPostersBadge');
