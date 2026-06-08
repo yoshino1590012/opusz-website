@@ -1388,7 +1388,14 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
    rotated 90° so the video plays sideways-full on a portrait phone. */
 .bigvid-fs-overlay{ display:none; position:fixed; inset:0; background:#000; z-index:2147483600; }
 .bigvid-fs-rotor{ position:absolute; top:50%; left:50%; width:100vh; height:100vw; transform:translate(-50%,-50%) rotate(90deg); overflow:hidden; }
-.bigvid-fs-close{ position:absolute; top:12px; right:12px; z-index:5; width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,.5); color:#fff; border:1px solid rgba(255,255,255,.6); font-size:17px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+.bigvid-fs-close{ position:absolute; top:12px; right:12px; z-index:6; width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,.5); color:#fff; border:1px solid rgba(255,255,255,.6); font-size:17px; line-height:1; cursor:pointer; display:flex; align-items:center; justify-content:center; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+/* Landscape control bar (mute + scrub) — pinned to the bottom of the rotated frame */
+.bigvid-fs-bar{ position:absolute; left:0; right:0; bottom:0; z-index:6; display:flex; align-items:center; gap:14px; padding:16px 22px 22px; background:linear-gradient(to top, rgba(0,0,0,.55), transparent); }
+.bigvid-fs-mute{ flex:none; width:40px; height:40px; border-radius:50%; background:rgba(0,0,0,.45); border:1px solid rgba(255,255,255,.55); color:#fff; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.bigvid-fs-mute svg{ fill:currentColor; }
+.bigvid-fs-prog{ flex:1; height:18px; position:relative; display:flex; align-items:center; cursor:pointer; touch-action:none; }
+.bigvid-fs-prog::before{ content:''; position:absolute; left:0; right:0; height:4px; border-radius:2px; background:rgba(255,255,255,.3); }
+.bigvid-fs-prog-fill{ position:absolute; left:0; height:4px; border-radius:2px; background:#fff; width:0%; pointer-events:none; }
 /* Prev / Next arrows — top-right */
 .bigvid-nav{
   position: absolute;
@@ -2106,6 +2113,15 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
   <div class="bigvid-fs-overlay" id="bigvidFsOverlay">
     <div class="bigvid-fs-rotor" id="bigvidFsRotor">
       <button class="bigvid-fs-close" id="bigvidFsClose" aria-label="Close">✕</button>
+      <!-- Landscape controls: mute toggle + scrub bar -->
+      <div class="bigvid-fs-bar">
+        <button class="bigvid-fs-mute" id="bigvidFsMute" aria-label="Mute">
+          <svg viewBox="0 0 24 24" width="22" height="22"></svg>
+        </button>
+        <div class="bigvid-fs-prog" id="bigvidFsProg" role="slider" aria-label="Seek video" tabindex="0">
+          <div class="bigvid-fs-prog-fill" id="bigvidFsProgFill"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -4114,6 +4130,7 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
       if(fillEl)   fillEl.style.width = (p * 100) + '%';
       if(handleEl) handleEl.style.left = (p * 100) + '%';
       if(bufEl && s.buf) bufEl.style.width = (Math.min(1, s.buf / s.dur) * 100) + '%';
+      var ff = document.getElementById('bigvidFsProgFill'); if(ff) ff.style.width = (p * 100) + '%';
     }
   }
   setInterval(paintProgress, 200);
@@ -4383,7 +4400,16 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
   var fsOv    = document.getElementById('bigvidFsOverlay');
   var fsRotor = document.getElementById('bigvidFsRotor');
   var fsClose = document.getElementById('bigvidFsClose');
+  var fsMute  = document.getElementById('bigvidFsMute');
+  var fsProg  = document.getElementById('bigvidFsProg');
+  var fsProgFill = document.getElementById('bigvidFsProgFill');
   var fsHome  = null;   // remembers where the embed lived so we can put it back
+  function fsOpen(){ return fsOv && fsOv.style.display === 'block'; }
+  function updateFsMute(){
+    if(!fsMute) return;
+    var svg = fsMute.querySelector('svg'); if(svg) svg.innerHTML = isMuted ? ICON_MUTED : ICON_SOUND;
+    fsMute.setAttribute('aria-label', isMuted ? 'Unmute' : 'Mute');
+  }
   function enterFullscreen(){
     if(!currentEmbed){ if(data[cur] && data[cur].url) embedVideo(data[cur].url); }
     var el = currentEmbed; if(!el || !fsOv || !fsRotor) return;
@@ -4393,10 +4419,11 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
     el.style.width = '100%'; el.style.height = '100%';
     el.style.objectFit = 'contain'; el.style.objectPosition = 'center';
     el.style.transform = ''; el.style.translate = ''; el.style.scale = '';
-    if(el.tagName === 'VIDEO') el.controls = true;   // native scrub / progress
-    fsRotor.appendChild(el);
+    if(el.tagName === 'VIDEO') el.controls = false;   // use our own bar (mute + scrub)
+    fsRotor.insertBefore(el, fsRotor.firstChild);     // behind the close btn + control bar
     fsOv.style.display = 'block';
     try { setMuted(false); } catch(e){}
+    updateFsMute();
   }
   function exitFullscreen(){
     if(!fsOv) return;
@@ -4415,6 +4442,24 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
   }
   if(fsBtn)   fsBtn.addEventListener('click', enterFullscreen);
   if(fsClose) fsClose.addEventListener('click', exitFullscreen);
+  // Landscape control bar: mute toggle + scrub (reuses setMuted + the media controller).
+  if(fsMute)  fsMute.addEventListener('click', function(){ setMuted(!isMuted); updateFsMute(); });
+  if(fsProg){
+    var fsSeeking = false;
+    function fsSeekFromEvent(e){
+      if(!mediaCtl) return;
+      var r = fsProg.getBoundingClientRect();
+      var x = (e.clientX != null) ? e.clientX : (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+      var ratio = Math.max(0, Math.min(1, (x - r.left) / r.width));
+      mediaCtl.seek(ratio);
+      if(fsProgFill) fsProgFill.style.width = (ratio * 100) + '%';
+    }
+    fsProg.addEventListener('pointerdown', function(e){ fsSeeking = true; seeking = true; try{fsProg.setPointerCapture(e.pointerId);}catch(_){} fsSeekFromEvent(e); });
+    fsProg.addEventListener('pointermove', function(e){ if(fsSeeking) fsSeekFromEvent(e); });
+    function fsEnd(){ if(fsSeeking){ fsSeeking = false; seeking = false; } }
+    fsProg.addEventListener('pointerup', fsEnd);
+    fsProg.addEventListener('pointercancel', fsEnd);
+  }
 
   render();
 })();
