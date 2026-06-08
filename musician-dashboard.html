@@ -1779,9 +1779,18 @@
     try {
       var snap = await getDoc(doc(db,'siteContent','announcements'));
       var items = (snap.exists() && Array.isArray(snap.data().items)) ? snap.data().items : [];
-      if(!items.length){ wrap.style.display='none'; wrap.innerHTML=''; return; }
+      // Per-musician auto-dismiss: each announcement disappears 24h after THIS person
+      // first saw it. Tracked purely in localStorage (a timestamp per id) — no server
+      // load, no extra Firestore reads, no traffic.
+      var DAY = 24*60*60*1000, now = Date.now();
+      var seenAt = function(id){ try{ var v=localStorage.getItem('opusz_ann_seen_'+id); return v==null?null:Number(v); }catch(e){ return null; } };
+      var live = items.filter(function(a){ if(!a||!a.id) return true; var s=seenAt(a.id); return s==null || (now - s) < DAY; });
+      var show = live.slice(0,5);
+      if(!show.length){ wrap.style.display='none'; wrap.innerHTML=''; return; }
+      // Start the 24h clock for any shown announcement this person hasn't seen before.
+      show.forEach(function(a){ if(a && a.id && seenAt(a.id)==null){ try{ localStorage.setItem('opusz_ann_seen_'+a.id, String(now)); }catch(e){} } });
       wrap.innerHTML = '<div class="sec-head"><div class="sec-title">📢 系統公告</div></div>'
-        + items.slice(0,5).map(function(a){
+        + show.map(function(a){
           var u=a.urgency;
           var bar = u==='urgent'?'#c0392b':(u==='important'?'#d97706':'#0e7490');
           var bg  = u==='urgent'?'#fef2f2':(u==='important'?'#fffbeb':'#ecfeff');
