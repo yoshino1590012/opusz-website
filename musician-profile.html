@@ -1153,6 +1153,18 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
   .book-bar-msg{ padding:8px 12px; font-size:13px; }
   .book-bar-cta{ padding:10px 14px; font-size:13px; }
 }
+/* True phone width: the 4 controls don't fit on one row, so the green CTA
+   overflowed the frame. Wrap the right group — price + duration on row 1,
+   Message + Check availability split row 2 (each ~half width, centred). */
+@media(max-width:560px){
+  .book-bar-right{ flex-wrap:wrap; gap:8px; width:100%; justify-content:flex-start; align-items:center; }
+  /* Each control is ~half the row, so they pair up 2-per-line deterministically:
+     row 1 = price + duration, row 2 = Message + Check availability. */
+  .book-bar-price{ flex:1 1 calc(50% - 4px); }
+  .book-bar-select{ flex:1 1 calc(50% - 4px); min-width:0; }
+  .book-bar-msg{ flex:1 1 calc(50% - 4px); justify-content:center; }
+  .book-bar-cta{ flex:1 1 calc(50% - 4px); text-align:center; white-space:nowrap; }
+}
 
 /* ── Photo Gallery (full-width horizontal scroll) ── */
 .gallery-section{
