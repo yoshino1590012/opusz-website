@@ -1810,7 +1810,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     try{
       if(new URLSearchParams(location.search).get('uid')){
         document.documentElement.classList.add('prof-pending');
-        setTimeout(function(){ document.documentElement.classList.remove('prof-pending'); }, 5000);
+        setTimeout(function(){ document.documentElement.classList.remove('prof-pending'); if(window.__startHeroIntro) window.__startHeroIntro(); }, 5000);
       }
     }catch(e){}
   })();
@@ -3929,7 +3929,11 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   // so the whole hero (name + photo + details) appears together instead of the
   // name popping in first and the photo trailing behind.
   let _revealed = false;
-  const reveal = () => { if (_revealed) return; _revealed = true; document.documentElement.classList.remove('prof-pending'); };
+  const reveal = () => {
+    if (_revealed) return; _revealed = true;
+    document.documentElement.classList.remove('prof-pending');
+    if (window.__startHeroIntro) window.__startHeroIntro();   // play the intro now that photo + data are ready
+  };
   const bannerUrl = (p) => {
     const m = p && p.config && p.config.hero && p.config.hero.media;
     return (m && m.type !== 'video' && m.url) ? m.url : '';   // video/none → reveal now
@@ -4563,29 +4567,36 @@ document.addEventListener('keydown', function(e){
 })();
 
 // ── Hero intro: full-screen photo → shrink to inline header (1.5s) ──
+// The intro is NOT started on load. It waits until the profile photo + data are
+// ready (window.__startHeroIntro is called from the loader's reveal()), so the
+// animation always plays WITH the real photo + name — instead of running on the
+// empty template while the data is still loading and finishing before it arrives.
+// A 6s safety net plays it anyway if the data never signals readiness.
 (function(){
   var hero = document.getElementById('heroSection');
-  if(!hero || !hero.classList.contains('hero-intro')) return;
-  // Lock scroll while intro plays
+  if(!hero || !hero.classList.contains('hero-intro')){ window.__startHeroIntro = function(){}; return; }
+  // Hold the full-screen state with scroll locked until the intro is kicked off.
   var prevOverflow = document.documentElement.style.overflow;
   document.documentElement.style.overflow = 'hidden';
   document.body.style.overflow = 'hidden';
-  // Hold the full-screen state for 1.5s, then trigger the exit transitions.
-  // The CSS handles both the hero shrink AND the name-track slide-right
-  // (with wrap-around copies entering from the left) — all tied to the same
-  // hero-intro class removal so they animate in perfect sync.
-  setTimeout(function(){
-    hero.classList.remove('hero-intro');
-    // Restore scroll once the transition finishes (~1.1s)
+  window.__startHeroIntro = function(){
+    if(window.__heroIntroStarted) return;
+    window.__heroIntroStarted = true;
+    // Hold full-screen for 1.5s, then trigger the exit transitions. The CSS drives
+    // both the hero shrink AND the name-track slide (wrap-around copies entering
+    // from the left) — all tied to the hero-intro class removal so they stay synced.
     setTimeout(function(){
-      document.documentElement.style.overflow = prevOverflow;
-      document.body.style.overflow = '';
-    }, 1200);
-    // Signal slideshow to initialise (after banner shrink + some buffer)
-    setTimeout(function(){
-      document.dispatchEvent(new CustomEvent('hero-intro-done'));
-    }, 1200);
-  }, 1500);
+      hero.classList.remove('hero-intro');
+      setTimeout(function(){
+        document.documentElement.style.overflow = prevOverflow;
+        document.body.style.overflow = '';
+      }, 1200);
+      setTimeout(function(){
+        document.dispatchEvent(new CustomEvent('hero-intro-done'));
+      }, 1200);
+    }, 1500);
+  };
+  setTimeout(window.__startHeroIntro, 6000);   // safety net
 })();
 
 // ── Hero banner slideshow (same logic as blog reel) ──
