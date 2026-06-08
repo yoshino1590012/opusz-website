@@ -3947,22 +3947,35 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   let _revealed = false;
   const reveal = () => {
     if (_revealed) return; _revealed = true;
+    // Force the big name visible in its real font at the SAME instant — the
+    // .fonts-ready class flips its opacity to 1 — so the name can never lag behind
+    // the photo (which previously left the photo showing with the name missing).
+    var _nm = document.getElementById('heroNameBig'); if (_nm) _nm.classList.add('fonts-ready');
     document.documentElement.classList.remove('prof-pending');
-    if (window.__startHeroIntro) window.__startHeroIntro();   // play the intro now that photo + data are ready
+    if (window.__startHeroIntro) window.__startHeroIntro();   // play the intro now that photo + name are ready
   };
   const bannerUrl = (p) => {
     const m = p && p.config && p.config.hero && p.config.hero.media;
     return (m && m.type !== 'video' && m.url) ? m.url : '';   // video/none → reveal now
   };
+  // Reveal only once BOTH the banner photo AND the web font are ready, so the photo
+  // and the name ALWAYS appear together (never the photo first with the name missing).
   const revealWhenReady = (p) => {
     if (_revealed) return;
     const url = bannerUrl(p);
-    if (!url) { reveal(); return; }
-    const img = new Image();
-    const t = setTimeout(reveal, 3000);                       // never wait forever
-    img.onload = img.onerror = () => { clearTimeout(t); reveal(); };
-    img.src = url;
-    if (img.complete) { clearTimeout(t); reveal(); }          // already in browser cache
+    const imgReady = new Promise((res) => {
+      if (!url) return res();
+      const img = new Image();
+      const t = setTimeout(res, 3000);                        // never wait forever on the image
+      img.onload = img.onerror = () => { clearTimeout(t); res(); };
+      img.src = url;
+      if (img.complete) { clearTimeout(t); res(); }           // already in browser cache
+    });
+    const fontReady = Promise.race([
+      (document.fonts && document.fonts.ready) ? document.fonts.ready.catch(() => {}) : Promise.resolve(),
+      new Promise((r) => setTimeout(r, 1500))                 // cap so a slow font never blocks reveal
+    ]);
+    Promise.all([imgReady, fontReady]).then(reveal);
   };
   if (!uid) { reveal(); return; } // no uid = show hardcoded Martin profile as-is
 
