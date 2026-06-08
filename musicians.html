@@ -1355,7 +1355,10 @@ window.addEventListener('load', applyAllSavedXYS);
     let colorIdx = 0;
     snap.forEach((d, i) => {
       const p = d.data();
-      if (p.status === 'suspended') return; // skip suspended accounts
+      // Hide accounts that aren't cleared for public display. Pending/rejected
+      // applicants and suspended accounts never appear, even if their doc
+      // somehow has published:true (defense in depth vs. the approval gate).
+      if (p.status === 'pending' || p.status === 'rejected' || p.status === 'suspended') return;
       if (p.published !== true) return;     // only show musicians who clicked Publish
       const insts = Array.isArray(p.instruments) ? p.instruments : (p.instrument ? [p.instrument] : []);
       const primaryInst = insts[0] || '—';

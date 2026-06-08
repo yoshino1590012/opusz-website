@@ -1472,7 +1472,8 @@ window.addEventListener('load', function(){
     let colorIdx = 0;
     snap.forEach((d) => {
       const p = d.data();
-      if (p.status === 'suspended') return;
+      // Only publicly-cleared musicians: hide pending/rejected/suspended.
+      if (p.status === 'pending' || p.status === 'rejected' || p.status === 'suspended') return;
       if (p.published !== true) return;
       const cfg  = p.config || {};
       const less = cfg.lessons || {};
