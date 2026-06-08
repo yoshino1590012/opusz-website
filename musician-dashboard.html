@@ -1428,6 +1428,7 @@
               </div>
               <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbCardLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
               <div class="pb-field"><label>簡短介紹 / Short bio</label><textarea id="pbCardBio" oninput="pbOnInput()" placeholder="一句話介紹你自己 / A one-line intro"></textarea></div>
+              <div class="pb-field"><label>卡片音樂 / Card music (MP3)</label><input type="text" id="pbCardAudioUrl" oninput="pbOnInput()" placeholder="https://….mp3（或拖曳音檔上傳）"><div style="font-size:11px;color:var(--text-muted,#888);margin-top:4px;line-height:1.5;">在「音樂家列表」卡片左下角按播放鍵時會播放這首。</div></div>
 
               <div class="pb-subgroup-title" style="margin-top:18px;">預覽 / Card preview</div>
               <div class="pbcard">
@@ -2880,6 +2881,7 @@
     pbUploadersAttached = true;
     pbAttachUploader('pbCardPhotoUrl', 'card',   800);
     pbAttachUploader('pbAvatarUrl',    'avatar', 600);
+    pbAttachAudioUploader('pbCardAudioUrl', 'cardaudio');   // MP3 played by the list-card play button
     // Hero banner photos: uploaders are attached per-row in pbAddBannerRow (dynamic count).
     // Highlights: uploaders are attached per-row in pbAddHighlightRow (dynamic count).
     // Audio tracks: drag-and-drop MP3 upload → Firebase Storage → URL
@@ -3207,6 +3209,7 @@
     pbInstRender();
     v('pbCardLocation',   cd.location);
     v('pbCardBio',        cd.bio);
+    v('pbCardAudioUrl',   cd.audioUrl);
     v('pbCardPhotoX',     (typeof cd.photoX === 'number') ? cd.photoX : 50);
     v('pbCardPhotoY',     (typeof cd.photoY === 'number') ? cd.photoY : 50);
     v('pbCardPhotoScale', (typeof cd.photoScale === 'number') ? cd.photoScale : 1);
@@ -3592,6 +3595,7 @@
         instruments: pbInsts.slice(),
         location:   txt('pbCardLocation').trim(),
         bio:        txt('pbCardBio').trim(),
+        audioUrl:   txt('pbCardAudioUrl').trim(),
         photoX:     num('pbCardPhotoX')     !== undefined ? num('pbCardPhotoX')     : 50,
         photoY:     num('pbCardPhotoY')     !== undefined ? num('pbCardPhotoY')     : 50,
         photoScale: num('pbCardPhotoScale') !== undefined ? num('pbCardPhotoScale') : 1

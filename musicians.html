@@ -839,7 +839,7 @@ function renderGrid(){
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
           '</button>' +
           '<span class="mcard-explore-photo">Explore →</span>' +
-          '<button class="mcard-play-photo" onclick="togglePlay(event,'+m.id+')" title="Preview">'+playIcon+'</button>' +
+          (m.audioUrl ? '<button class="mcard-play-photo" onclick="togglePlay(event,'+m.id+')" title="Preview">'+playIcon+'</button>' : '') +
         '</div>' +
       '</a>' +
       '<div class="mcard-body">' +
@@ -926,6 +926,9 @@ function scrollToCard(id){
 }
 
 // ── Audio Play ────────────────────────────────────────────────────────────────
+// One shared <audio> element plays the card's MP3 (card.audioUrl, set by the
+// musician in their dashboard → Firestore, so it works on the live site).
+var _cardAudio = null;
 function togglePlay(e, id){
   e.stopPropagation();
   if(currentPlayingId === id){
@@ -933,9 +936,16 @@ function togglePlay(e, id){
     return;
   }
   stopAudio();
-  currentPlayingId = id;
   var m = MUSICIANS.find(function(x){ return x.id===id; });
   if(!m) return;
+  if(!m.audioUrl){
+    showMedToast(currentLang==='zh' ? '這位音樂家還沒上傳試聽音樂' : 'No preview track yet');
+    return;
+  }
+  currentPlayingId = id;
+  if(!_cardAudio){ _cardAudio = new Audio(); _cardAudio.addEventListener('ended', stopAudio); }
+  _cardAudio.src = m.audioUrl;
+  _cardAudio.play().catch(function(){ /* autoplay/network issue — bar still shows */ });
   document.getElementById('audioBarName').textContent = m.name;
   document.getElementById('audioBarInst').textContent = m.instrument + ' · ' + m.region;
   document.getElementById('audioBar').classList.add('visible');
@@ -944,6 +954,7 @@ function togglePlay(e, id){
 
 function stopAudio(){
   currentPlayingId = null;
+  if(_cardAudio){ try{ _cardAudio.pause(); _cardAudio.currentTime = 0; }catch(e){} }
   document.getElementById('audioBar').classList.remove('visible');
   renderGrid();
 }
@@ -1365,6 +1376,7 @@ window.addEventListener('load', applyAllSavedXYS);
         rating:     0,
         reviews:    0,
         bio:        card.bio || (cfg.about && cfg.about.bio) || p.bio || '',
+        audioUrl:   card.audioUrl || '',
         photoUrl:   cardPhoto,
         photoX:     (typeof card.photoX === 'number') ? card.photoX : 50,
         photoY:     (typeof card.photoY === 'number') ? card.photoY : 50,
