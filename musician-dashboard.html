@@ -631,7 +631,7 @@
       </button>
       <button class="sb-item" data-page="jobs" onclick="navigate('jobs',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-        <span>工作與詢問</span>
+        <span>公開接案</span>
         <span class="sb-badge" id="sbJobsBadge" style="display:none;">0</span>
       </button>
       <button class="sb-item" data-page="messages" onclick="navigate('messages',this)">
@@ -794,13 +794,8 @@
       <!-- ══════════════ JOBS ══════════════ -->
       <div class="page" id="page-jobs">
         <div class="page-header">
-          <h1>工作與詢問</h1>
-          <p>公開接案看板與客戶直接詢問。</p>
-        </div>
-
-        <div class="tab-bar">
-          <button class="tab-btn active" onclick="switchTab('jobs','public',this)">📋 公開工作板</button>
-          <button class="tab-btn" onclick="switchTab('jobs','direct',this)">💬 直接詢問</button>
+          <h1>公開接案</h1>
+          <p>平台上的公開演出需求。客戶針對你的詢價與訊息，請看左側「訊息」。</p>
         </div>
 
         <!-- Public board -->
@@ -811,21 +806,13 @@
             <div style="font-size:13px;">當平台上有新演出需求時，會顯示在這裡</div>
           </div>
         </div>
-
-        <!-- Direct inquiries -->
-        <div id="jobs-direct" style="display:none;">
-          <div style="text-align:center;padding:60px 0;color:#aaa;">
-            <div style="font-size:36px;margin-bottom:12px;">💬</div>
-            <div style="font-size:15px;font-weight:700;color:#555;margin-bottom:6px;">尚無直接詢問</div>
-            <div style="font-size:13px;">當客戶直接聯繫你時，詢問會出現在這裡</div>
-          </div>
-        </div>
       </div>
 
       <!-- ══════════════ MESSAGES ══════════════ -->
       <div class="page" id="page-messages">
         <div class="page-header" style="margin-bottom:20px;">
           <h1>訊息</h1>
+          <p style="color:#888;font-size:13px;margin-top:4px;">客戶的詢價與直接訊息都會出現在這裡。</p>
         </div>
         <div class="msg-layout">
           <!-- Left: list -->
@@ -1162,7 +1149,7 @@
             <div class="setting-head">通知</div>
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title">新的直接詢問</div>
+                <div class="sr-title">新的客戶訊息</div>
                 <div class="sr-desc">客戶傳送私人訊息給你時</div>
               </div>
               <label class="toggle">
@@ -1889,7 +1876,7 @@
 
   // ── Navigation ──
   const PAGE_TITLES = {
-    overview: 'Overview', jobs: 'Jobs & Inquiries',
+    overview: 'Overview', jobs: 'Jobs',
     messages: 'Messages', earnings: 'Earnings',
     profile: '我的資料', settings: 'Settings', pagebuilder: '編輯主頁',
     membership: '方案 / Membership', posters: '海報投稿'
@@ -3402,10 +3389,6 @@
   window.switchTab = function(page, tab, btn) {
     btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
-    if (page === 'jobs') {
-      document.getElementById('jobs-public').style.display = tab === 'public' ? '' : 'none';
-      document.getElementById('jobs-direct').style.display = tab === 'direct' ? '' : 'none';
-    }
   };
 
   // ── Messages: real customer enquiries (from musician-profile "Send Enquiry") ──
@@ -3639,7 +3622,7 @@
       body:'查看你的會員等級。升級 Premium（或輸入邀請碼）可開放「教學課程」、公開招收學生，並在老師列表中曝光更前面。' },
     { sel:'[data-page="profile"]',     page:'profile',     title:'我的資料 / My Profile',
       body:'設定顯示名稱、聯絡方式、樂器與地區。這些是帳號層級的基本資料，也會影響你在「社群」與平台上被找到的方式。' },
-    { sel:'[data-page="jobs"]',        page:'jobs',        title:'工作與詢問 / Jobs & Inquiries',
+    { sel:'[data-page="jobs"]',        page:'jobs',        title:'公開接案 / Jobs',
       body:'客戶的演出邀約與課程詢問都會進到這裡，你可以查看、回覆與接案。' },
     { sel:'[data-page="earnings"]',    page:'earnings',    title:'收入 / Earnings',
       body:'追蹤你的接案收入與撥款紀錄。（這部分還在持續完善中。）' },
