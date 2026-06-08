@@ -211,8 +211,8 @@ input[type="email"].shake {
 
   <!-- Form state -->
   <div id="formState">
-    <div class="card-title">Sign in</div>
-    <div class="card-subtitle">New customers are welcome — sign in to get started</div>
+    <div class="card-title" id="cardTitle">Sign in</div>
+    <div class="card-subtitle" id="cardSubtitle">New customers are welcome — sign in to get started</div>
 
     <!-- Google -->
     <button class="oauth-btn btn-google" id="btnGoogle">
@@ -232,11 +232,23 @@ input[type="email"].shake {
 
     <label for="emailInput">Email address</label>
     <input type="email" id="emailInput" placeholder="your@email.com" autocomplete="email"/>
-    <button class="submit-btn" id="submitBtn">Continue with Email →</button>
+
+    <label for="pwInput">密碼 / Password</label>
+    <input type="password" id="pwInput" placeholder="至少 6 個字元" autocomplete="current-password"/>
+
+    <label for="pwConfirm" id="pwConfirmLabel" style="display:none;">確認密碼 / Confirm password</label>
+    <input type="password" id="pwConfirm" placeholder="再輸入一次密碼" autocomplete="new-password" style="display:none;"/>
+
+    <button class="submit-btn" id="submitBtn">登入 / Sign in</button>
 
     <div class="error-msg" id="errorMsg"></div>
+    <div class="info-msg" id="infoMsg" style="display:none;margin-top:12px;padding:11px 13px;background:#eaf6ee;border:1px solid #bfe3cb;border-radius:10px;color:#1f7a3d;font-size:13px;line-height:1.5;"></div>
 
-    <div class="footer-note" style="margin-top:18px;">
+    <div class="footer-note" style="margin-top:16px;">
+      <span id="toggleText">還沒有帳號？</span>
+      <a href="#" id="toggleMode" style="font-weight:600;">建立新帳號 →</a>
+    </div>
+    <div class="footer-note" style="margin-top:12px;">
       By continuing you agree to our <a href="#">Terms</a> &amp; <a href="#">Privacy Policy</a>
     </div>
   </div>
@@ -259,7 +271,9 @@ input[type="email"].shake {
 <!-- Firebase Auth SDK -->
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider }
+import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider,
+         createUserWithEmailAndPassword, signInWithEmailAndPassword,
+         sendEmailVerification, signOut, reload }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
 
 const firebaseConfig = {
@@ -348,27 +362,94 @@ btnFacebook.addEventListener('click', async () => {
   }
 });
 
-// ── Email fallback ──
-function doEmailLogin() {
-  const email = emailInput.value.trim();
-  if (!email || !email.includes('@')) {
-    emailInput.classList.remove('shake');
-    void emailInput.offsetWidth;
-    emailInput.classList.add('shake');
-    emailInput.focus();
-    setTimeout(() => emailInput.classList.remove('shake'), 400);
-    return;
-  }
-  const name = email.split('@')[0].replace(/[._-]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-  localStorage.setItem('opusz_user', name);
-  localStorage.setItem('opusz_user_email', email);
-  localStorage.setItem('opusz_role', 'customer');
-  showSuccess(name);
-  saveToFirestore(name, email);
-  setTimeout(() => { window.location.href = redirect; }, 1800);
+// ── Email + password: real accounts with verification ──
+const pwInput      = document.getElementById('pwInput');
+const pwConfirm    = document.getElementById('pwConfirm');
+const pwConfirmLbl = document.getElementById('pwConfirmLabel');
+const toggleText   = document.getElementById('toggleText');
+const toggleMode   = document.getElementById('toggleMode');
+const cardTitle    = document.getElementById('cardTitle');
+const cardSubtitle = document.getElementById('cardSubtitle');
+const infoMsg      = document.getElementById('infoMsg');
+let mode = 'signin';   // 'signin' | 'create'
+
+function showInfo(msg) {
+  infoMsg.innerHTML = msg;
+  infoMsg.style.display = 'block';
+  errorMsg.classList.remove('visible');
 }
-submitBtn.addEventListener('click', doEmailLogin);
-emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') doEmailLogin(); });
+function hideInfo() { infoMsg.style.display = 'none'; }
+function shake(el) {
+  el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake');
+  el.focus(); setTimeout(() => el.classList.remove('shake'), 400);
+}
+
+toggleMode.addEventListener('click', (e) => {
+  e.preventDefault();
+  mode = (mode === 'signin') ? 'create' : 'signin';
+  const creating = mode === 'create';
+  pwConfirm.style.display    = creating ? '' : 'none';
+  pwConfirmLbl.style.display = creating ? '' : 'none';
+  cardTitle.textContent    = creating ? '建立帳號' : 'Sign in';
+  cardSubtitle.textContent = creating ? '輸入 email 與密碼建立您的客戶帳號' : 'New customers are welcome — sign in to get started';
+  submitBtn.textContent    = creating ? '建立帳號 / Create account' : '登入 / Sign in';
+  toggleText.textContent   = creating ? '已經有帳號了？' : '還沒有帳號？';
+  toggleMode.textContent   = creating ? '改為登入 →' : '建立新帳號 →';
+  pwInput.setAttribute('autocomplete', creating ? 'new-password' : 'current-password');
+  errorMsg.classList.remove('visible'); hideInfo();
+});
+
+async function doEmailSubmit() {
+  const email = emailInput.value.trim();
+  const pw    = pwInput.value;
+  if (!email || !email.includes('@')) { shake(emailInput); return; }
+  if (!pw || pw.length < 6) { showError('密碼至少需要 6 個字元。'); shake(pwInput); return; }
+
+  submitBtn.disabled = true;
+  const original = submitBtn.textContent;
+  submitBtn.textContent = '處理中…';
+  try {
+    if (mode === 'create') {
+      if (pw !== pwConfirm.value) { showError('兩次輸入的密碼不一致。'); shake(pwConfirm); return; }
+      const cred = await createUserWithEmailAndPassword(auth, email, pw);
+      await sendEmailVerification(cred.user);
+      await signOut(auth);   // must verify before they can use the account
+      mode = 'signin';
+      pwConfirm.style.display='none'; pwConfirmLbl.style.display='none';
+      cardTitle.textContent='Sign in'; cardSubtitle.textContent='New customers are welcome — sign in to get started';
+      submitBtn.textContent='登入 / Sign in'; toggleText.textContent='還沒有帳號？'; toggleMode.textContent='建立新帳號 →';
+      pwInput.value=''; pwConfirm.value='';
+      showInfo('帳號已建立！我們寄了一封驗證信到 <b>' + email + '</b>，請點信中的連結完成驗證，再回來登入。');
+      return;
+    }
+    // sign in
+    const cred = await signInWithEmailAndPassword(auth, email, pw);
+    await reload(cred.user);
+    if (!cred.user.emailVerified) {
+      try { await sendEmailVerification(cred.user); } catch(_e){}
+      await signOut(auth);
+      showInfo('您的 email 還沒驗證。我們又寄了一封驗證信到 <b>' + email + '</b>，請點連結完成驗證後再登入。');
+      return;
+    }
+    handleUser(cred.user);
+  } catch(e) {
+    const map = {
+      'auth/email-already-in-use': '這個 email 已經註冊過了，請直接登入。',
+      'auth/invalid-credential':   'email 或密碼不正確。',
+      'auth/wrong-password':       'email 或密碼不正確。',
+      'auth/user-not-found':       '查無此帳號，請先建立新帳號。',
+      'auth/weak-password':        '密碼太弱，請至少 6 個字元。',
+      'auth/invalid-email':        'email 格式不正確。'
+    };
+    showError(map[e.code] || '發生錯誤，請再試一次。');
+  } finally {
+    submitBtn.disabled = false;
+    if (submitBtn.textContent === '處理中…') submitBtn.textContent = original;
+  }
+}
+submitBtn.addEventListener('click', doEmailSubmit);
+pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') doEmailSubmit(); });
+emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') (mode==='signin'?pwInput.focus():doEmailSubmit()); });
 
 // ── Firestore save ──
 function saveToFirestore(name, email) {
