@@ -1428,6 +1428,34 @@
     var box=document.getElementById('seControls'); if(!box) return;
     var cur=seCurrentConfig.i18n||{en:{},zh:{}};
     var curCms=seCurrentConfig.cms||{};
+    // ── Preserve unsaved text/media the user typed but hasn't published yet ──
+    // seBuildControls is called by style-button clicks (alignment, colour, shape,
+    // device-switch, reset, etc.) — every call would otherwise rebuild all text
+    // inputs from seCurrentConfig (last-saved Firestore data) and wipe any typing.
+    // Fix: snapshot live DOM values first and merge them back as the source of truth.
+    (function(){
+      var de={}, dz={}, dc={};
+      SE_FIELDS.forEach(function(ff){
+        var id=seSlug(ff.k); var zhKey2=ff.zhk||ff.k;
+        var enEl=document.getElementById('se_en_'+id);
+        var zhEl=document.getElementById('se_zh_'+id);
+        if(enEl) de[ff.k]=enEl.value;
+        if(zhEl) dz[zhKey2]=zhEl.value;
+        if(ff.type==='image'||ff.type==='video'){
+          var cEl=document.getElementById('se_cms_'+id);
+          var pEl=document.getElementById('se_pos_'+id);
+          var zEl=document.getElementById('se_zoom_'+id);
+          if(cEl) dc[ff.k]=cEl.value;
+          if(pEl) dc[ff.k+'.pos']=pEl.value;
+          if(zEl) dc[ff.k+'.zoom']=(parseInt(zEl.value,10)/100).toString();
+        }
+      });
+      if(Object.keys(de).length||Object.keys(dz).length){
+        cur={en:Object.assign({},cur.en,de),zh:Object.assign({},cur.zh,dz)};
+      }
+      if(Object.keys(dc).length){ curCms=Object.assign({},curCms,dc); }
+    })();
+    // ── End draft preservation ──
     function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
     // Partner marquee uses a custom list editor (not the fixed SE_FIELDS schema).
     if(seCurrentSection==='partners'){ seBuildPartners(box); return; }
