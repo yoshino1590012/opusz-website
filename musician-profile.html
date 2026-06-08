@@ -4360,7 +4360,16 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     var f = document.createElement('iframe');
     f.src = src;
     f.allow = 'autoplay; encrypted-media; picture-in-picture';
-    f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:2;pointer-events:none;';
+    // YouTube/Vimeo iframes can't use object-fit:cover, so a 16:9 video would be
+    // letterboxed (black bars) inside the full-screen stage. Instead, oversize the
+    // 16:9 iframe so it always exceeds the stage in BOTH axes — width is the larger
+    // of 100vw / 16:9-of-height, height the larger of 16:9-of-width / 100vh — then
+    // centre it with margin:auto (the overflow is clipped by .bigvid-pin's
+    // overflow:hidden). margin:auto centring (not transform) leaves the slide-in
+    // transition's translateX free to work. Net effect = object-fit:cover.
+    f.style.cssText = 'position:absolute;top:0;left:0;right:0;bottom:0;margin:auto;' +
+      'width:100vw;height:56.25vw;min-width:177.78vh;min-height:100vh;' +
+      'border:0;z-index:2;pointer-events:none;';
     return f;
   }
 
@@ -4545,10 +4554,11 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     fsOv.style.display = 'none';
     var el = currentEmbed;
     if(el && fsHome){
-      // restore inline styles + object-position pan, then drop it back into the player
+      // restore inline styles + object-position pan, then drop it back into the player.
+      // Iframes use the same oversized cover sizing as buildEmbed (no letterboxing).
       el.style.cssText = (el.tagName === 'VIDEO')
         ? 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:2;pointer-events:none;'
-        : 'position:absolute;inset:0;width:100%;height:100%;border:0;z-index:2;pointer-events:none;';
+        : 'position:absolute;top:0;left:0;right:0;bottom:0;margin:auto;width:100vw;height:56.25vw;min-width:177.78vh;min-height:100vh;border:0;z-index:2;pointer-events:none;';
       if(el.tagName === 'VIDEO') el.controls = false;
       (fsHome.parent || pin).insertBefore(el, fsHome.next || null);
       applyVidPos(el);
