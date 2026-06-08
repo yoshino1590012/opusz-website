@@ -3892,6 +3892,11 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+  // NOTE: wrapped in an async IIFE. A bare `return` at the top level of a
+  // <script type="module"> is a SyntaxError ("Illegal return statement") that
+  // kills this ENTIRE script — which is why published public profiles were
+  // showing only the blank template. Inside the function the guards are legal.
+  (async () => {
   const uid = new URLSearchParams(window.location.search).get('uid');
   if (!uid) return; // no uid = show hardcoded Martin profile as-is
 
@@ -3979,6 +3984,7 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
   } catch(e) {
     console.log('Profile load error:', e);
   }
+  })();
 </script>
 
 <!-- ── Video lightbox ── -->
