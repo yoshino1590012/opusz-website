@@ -347,6 +347,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
     <div class="cp-tabs-inner">
       <button class="cp-tab active" data-tab="profile">Profile</button>
       <button class="cp-tab" data-tab="bookings">My Bookings</button>
+      <button class="cp-tab" data-tab="messages">Messages</button>
     </div>
   </div>
 
@@ -432,6 +433,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
         <button class="cp-bk-filter" data-status="open">Open</button>
       </div>
       <div class="cp-bk-list" id="bookingList"></div>
+    </div>
+
+    <!-- ── MESSAGES PANEL (embeds messages.html, untouched) ── -->
+    <div class="cp-panel" id="panel-messages">
+      <iframe id="cpMsgFrame" title="Messages" style="width:100%;height:calc(100vh - 200px);min-height:520px;border:0;border-radius:12px;background:#fff;"></iframe>
     </div>
 
   </div>
@@ -557,12 +563,36 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
       tab.classList.add('active');
       var panel = document.getElementById('panel-' + tab.dataset.tab);
       if(panel) panel.classList.add('active');
+      if(tab.dataset.tab === 'messages') cpLoadMessages();
     });
   });
+
+  /* ── Messages tab: embed messages.html (untouched), hide its own nav ── */
+  function cpLoadMessages(){
+    var f = document.getElementById('cpMsgFrame');
+    if(!f || f.dataset.loaded) return;
+    f.dataset.loaded = '1';
+    f.addEventListener('load', function(){
+      try{
+        var d = f.contentDocument;
+        if(!d) return;
+        var s = d.createElement('style');
+        s.textContent = 'nav,#navOrbFixed,#navLogoFixed,.nav-drawer,.nav-sub-drawer{display:none!important;}'
+          + 'body{padding-top:0!important;}#inboxView{min-height:auto!important;}'
+          + '.inbox-top{padding-top:8px!important;}';
+        d.head.appendChild(s);
+      }catch(e){ /* same-origin; ignore if blocked */ }
+    });
+    f.src = 'messages.html';
+  }
 
   /* Auto-open bookings tab if #bookings in URL */
   if(window.location.hash === '#bookings'){
     document.querySelector('[data-tab="bookings"]').click();
+  }
+  /* Auto-open messages tab if #messages in URL */
+  if(window.location.hash === '#messages'){
+    document.querySelector('[data-tab="messages"]').click();
   }
 
   /* ── Edit profile ── */
