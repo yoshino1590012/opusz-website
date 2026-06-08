@@ -1455,9 +1455,11 @@
             <!-- About -->
             <div class="pb-field-group" data-pbgroup="about">
               <div class="pb-group-title">關於</div>
-              <div class="pb-field"><label>簡介 / Bio</label><textarea id="pbAboutBio" oninput="pbOnInput()" placeholder="介紹你自己 — 你的背景、訓練與演出特色 / Introduce yourself — your background, training and what makes you special"></textarea></div>
+              <div class="pb-field"><label>簡介（中文）/ Bio</label><textarea id="pbAboutBio" oninput="pbOnInput()" placeholder="介紹你自己 — 你的背景、訓練與演出特色"></textarea></div>
+              <div class="pb-field"><label>🌐 簡介（English）/ Bio (English)</label><textarea id="pbAboutBioEn" oninput="pbOnInput()" placeholder="English version — shown when visitors switch to EN（留空＝英文版此段空白）"></textarea></div>
               <div class="pb-subgroup-title" style="margin-top:18px;">學經歷 / Credentials</div>
-              <div class="pb-field"><label>學經歷 / Credentials (one per line)</label><textarea id="pbAboutCreds" oninput="pbOnInput()" style="min-height:160px;" placeholder="每行一項：樂團、獎項、學歷 / One per line: orchestras, awards, education"></textarea></div>
+              <div class="pb-field"><label>學經歷（中文）/ Credentials (one per line)</label><textarea id="pbAboutCreds" oninput="pbOnInput()" style="min-height:160px;" placeholder="每行一項：樂團、獎項、學歷"></textarea></div>
+              <div class="pb-field"><label>🌐 學經歷（English）/ Credentials, English (one per line)</label><textarea id="pbAboutCredsEn" oninput="pbOnInput()" style="min-height:160px;" placeholder="One per line: orchestras, awards, education（留空＝英文版此段空白）"></textarea></div>
               <div class="pb-subgroup-title" style="margin-top:18px;">大頭照 / Avatar</div>
               <div class="pb-field"><label>頭像網址 / Avatar image URL</label><input type="text" id="pbAvatarUrl" oninput="pbOnInput()" placeholder="https://..."></div>
               <div style="display:flex;align-items:center;gap:12px;margin:6px 0 2px;">
@@ -1608,17 +1610,23 @@
               <div class="pb-subgroup" data-pbsvc="0">
                 <div class="pb-subgroup-title">Card 1 — Performance</div>
                 <label class="pb-check" style="margin-bottom:10px;"><input type="checkbox" id="pbSvc0Visible" onchange="pbOnInput()"> 顯示演出專長卡片 / Show this card</label>
-                <div class="pb-field"><label>標題</label><input type="text" id="pbSvc0Title" oninput="pbOnInput()" placeholder="服務名稱 / Service name"></div>
-                <div class="pb-field"><label>描述</label><textarea id="pbSvc0Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務 / Describe this service"></textarea></div>
-                <div class="pb-field"><label>標籤(每行一項)</label><textarea id="pbSvc0Tags" oninput="pbOnInput()" placeholder="每行一個標籤 / One tag per line"></textarea></div>
+                <div class="pb-field"><label>標題（中文）</label><input type="text" id="pbSvc0Title" oninput="pbOnInput()" placeholder="服務名稱"></div>
+                <div class="pb-field"><label>🌐 標題（English）</label><input type="text" id="pbSvc0TitleEn" oninput="pbOnInput()" placeholder="Service name (English)"></div>
+                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc0Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務"></textarea></div>
+                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc0DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="Describe this service (English)"></textarea></div>
+                <div class="pb-field"><label>標籤・中文(每行一項)</label><textarea id="pbSvc0Tags" oninput="pbOnInput()" placeholder="每行一個標籤"></textarea></div>
+                <div class="pb-field"><label>🌐 標籤・English (one per line)</label><textarea id="pbSvc0TagsEn" oninput="pbOnInput()" placeholder="One tag per line (English)"></textarea></div>
               </div>
               <div class="pb-subgroup" data-pbsvc="1">
                 <div class="pb-subgroup-title">Card 2 — Lessons（教學專長）</div>
                 <label class="pb-check" style="margin-bottom:6px;"><input type="checkbox" id="pbSvc1Visible" onchange="pbOnInput(event)"> 顯示教學專長卡片（＝開啟課程方案）</label>
                 <div style="font-size:11px;color:var(--mid);margin-bottom:10px;line-height:1.5;">勾選後會自動開啟「課程方案」，並讓你出現在 Lessons 老師頁。</div>
-                <div class="pb-field"><label>標題</label><input type="text" id="pbSvc1Title" oninput="pbOnInput()" placeholder="服務名稱 / Service name"></div>
-                <div class="pb-field"><label>描述</label><textarea id="pbSvc1Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務 / Describe this service"></textarea></div>
-                <div class="pb-field"><label>標籤(每行一項)</label><textarea id="pbSvc1Tags" oninput="pbOnInput()" placeholder="每行一個標籤 / One tag per line"></textarea></div>
+                <div class="pb-field"><label>標題（中文）</label><input type="text" id="pbSvc1Title" oninput="pbOnInput()" placeholder="服務名稱"></div>
+                <div class="pb-field"><label>🌐 標題（English）</label><input type="text" id="pbSvc1TitleEn" oninput="pbOnInput()" placeholder="Service name (English)"></div>
+                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc1Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務"></textarea></div>
+                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc1DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="Describe this service (English)"></textarea></div>
+                <div class="pb-field"><label>標籤・中文(每行一項)</label><textarea id="pbSvc1Tags" oninput="pbOnInput()" placeholder="每行一個標籤"></textarea></div>
+                <div class="pb-field"><label>🌐 標籤・English (one per line)</label><textarea id="pbSvc1TagsEn" oninput="pbOnInput()" placeholder="One tag per line (English)"></textarea></div>
               </div>
             </div>
 
@@ -3030,8 +3038,9 @@
     row.className = 'pb-dyn-row';
     row.innerHTML =
       '<div class="pb-dyn-fields">'
-        + '<div><label>標題</label><input type="text" class="pbHlTitle" value="'+pbEsc(data.title)+'"></div>'
+        + '<div><label>標題（中文）</label><input type="text" class="pbHlTitle" value="'+pbEsc(data.title)+'"></div>'
         + '<div style="max-width:90px;flex:0 0 90px;"><label>年份</label><input type="text" class="pbHlYear" value="'+pbEsc(data.year)+'"></div>'
+        + '<div style="flex:1 1 100%;"><label>🌐 標題（English）</label><input type="text" class="pbHlTitleEn" value="'+pbEsc(data.titleEn)+'" placeholder="Title (English) — 留空＝英文版此列標題空白"></div>'
         + '<div style="flex:1 1 100%;"><label>圖片網址 / Image URL</label><input type="text" class="pbHlImage" id="'+imgId+'" value="'+pbEsc(data.imageUrl)+'" placeholder="https://..."></div>'
         + '<div style="flex:1 1 100%;"><label>水平 X (%)</label><input type="range" class="pbHlX" min="0" max="100" step="1" value="'+hx+'" style="width:100%;"></div>'
         + '<div style="flex:1 1 100%;"><label>垂直 Y (%)</label><input type="range" class="pbHlY" min="0" max="100" step="1" value="'+hy+'" style="width:100%;"></div>'
@@ -3214,6 +3223,7 @@
     v('pbCardPhotoY',     (typeof cd.photoY === 'number') ? cd.photoY : 50);
     v('pbCardPhotoScale', (typeof cd.photoScale === 'number') ? cd.photoScale : 1);
     v('pbAboutBio',     pbConfig.about.bio);
+    v('pbAboutBioEn',   pbConfig.about.bioEn);
     // Booking
     const bk = pbConfig.booking || {};
     v('pbBookBarTitle', bk.barTitle);
@@ -3273,6 +3283,7 @@
 
     // About credentials
     v('pbAboutCreds', Array.isArray(pbConfig.about.credentials) ? pbConfig.about.credentials.join('\n') : '');
+    v('pbAboutCredsEn', Array.isArray(pbConfig.about.credentialsEn) ? pbConfig.about.credentialsEn.join('\n') : '');
 
     // Partners (one brand per line)
     v('pbPartners', Array.isArray(pbConfig.partners) ? pbConfig.partners.join('\n') : '');
@@ -3282,6 +3293,9 @@
       v('pbSvc'+i+'Title', svc.title);
       v('pbSvc'+i+'Desc',  svc.description);
       v('pbSvc'+i+'Tags',  Array.isArray(svc.tags) ? svc.tags.join('\n') : '');
+      v('pbSvc'+i+'TitleEn', svc.titleEn);
+      v('pbSvc'+i+'DescEn',  svc.descriptionEn);
+      v('pbSvc'+i+'TagsEn',  Array.isArray(svc.tagsEn) ? svc.tagsEn.join('\n') : '');
     });
 
     // Reviews
@@ -3505,9 +3519,12 @@
 
     const services = [0,1].map(function(i){
       return {
-        title:       txt('pbSvc'+i+'Title').trim(),
-        description: txt('pbSvc'+i+'Desc').trim(),
-        tags:        lines('pbSvc'+i+'Tags')
+        title:        txt('pbSvc'+i+'Title').trim(),
+        description:  txt('pbSvc'+i+'Desc').trim(),
+        tags:         lines('pbSvc'+i+'Tags'),
+        titleEn:       txt('pbSvc'+i+'TitleEn').trim(),
+        descriptionEn: txt('pbSvc'+i+'DescEn').trim(),
+        tagsEn:        lines('pbSvc'+i+'TagsEn')
       };
     });
     const reviews = [0,1,2,3,4].map(function(i){
@@ -3527,9 +3544,9 @@
     const highlights = hlRows.map(function(r){
       const get = (cls)=>{ const el=r.querySelector('.'+cls); return el?el.value.trim():''; };
       const getN = (cls,def)=>{ const el=r.querySelector('.'+cls); const v=el?Number(el.value):def; return isFinite(v)?v:def; };
-      return { title: get('pbHlTitle'), year: get('pbHlYear'), imageUrl: get('pbHlImage'),
+      return { title: get('pbHlTitle'), titleEn: get('pbHlTitleEn'), year: get('pbHlYear'), imageUrl: get('pbHlImage'),
                imageX: getN('pbHlX',50), imageY: getN('pbHlY',50), imageZoom: getN('pbHlZoom',0) };
-    }).filter(function(h){ return h.title !== '' || h.year !== '' || h.imageUrl !== ''; });
+    }).filter(function(h){ return h.title !== '' || h.titleEn !== '' || h.year !== '' || h.imageUrl !== ''; });
     // Audio: up to 6 rows, drop rows with empty url
     const audio = [0,1,2,3,4,5].map(function(i){
       return { title: txt('pbAudio'+i+'Title').trim(), url: txt('pbAudio'+i+'Url').trim() };
@@ -3604,7 +3621,8 @@
                  avatarX:     num('pbAvatarX')     !== undefined ? num('pbAvatarX')     : 50,
                  avatarY:     num('pbAvatarY')     !== undefined ? num('pbAvatarY')     : 50,
                  avatarScale: num('pbAvatarScale') !== undefined ? num('pbAvatarScale') : 1,
-                 bio: txt('pbAboutBio'), credentials: lines('pbAboutCreds') },
+                 bio: txt('pbAboutBio'), credentials: lines('pbAboutCreds'),
+                 bioEn: txt('pbAboutBioEn'), credentialsEn: lines('pbAboutCredsEn') },
       booking: pbReadBooking(),
       lessons: {
         visible: chk('pbLessonVisible'),

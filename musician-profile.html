@@ -1809,6 +1809,9 @@ function switchProfileLang(lang) {
     o.classList.toggle('active', o.dataset.l === lang);
   });
   document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+  // Re-render the musician's bilingual sections (bio/credentials/services/highlights)
+  // in the newly selected language.
+  if (typeof window.__applyLocalizedSections === 'function') window.__applyLocalizedSections();
 }
 
 // nav.js owns the language toggle; re-run page-content translation on change
@@ -5381,8 +5384,86 @@ window.addEventListener('pageshow', function(e) {
     return '#'+t(r)+t(g)+t(b);
   }
 
+  // ── Bilingual content sections (bio / credentials / services / highlights) ──
+  // The existing fields are the DEFAULT (Chinese); the *En fields are English.
+  // In EN mode an empty English value shows blank (NO fallback to Chinese), per
+  // the owner's choice. Runs after applyProfileConfig and on every language
+  // toggle, so switching 中/EN re-localises these four sections' content.
+  var _profileCfg = null;
+  function _locText(zh, en){
+    if(_profileLang === 'en') return (en != null && String(en).trim() !== '') ? String(en) : '';
+    return (zh != null) ? String(zh) : '';
+  }
+  function _locList(zh, en){
+    var src = (_profileLang === 'en') ? (Array.isArray(en) ? en : []) : (Array.isArray(zh) ? zh : []);
+    return src.map(function(s){ return String(s == null ? '' : s).trim(); }).filter(function(s){ return s !== ''; });
+  }
+  function _escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function applyLocalizedSections(){
+    var cfg = _profileCfg; if(!cfg) return;
+    var isEn = (_profileLang === 'en');
+    var about = cfg.about || {};
+
+    // BIO
+    var bioText = document.querySelector('.bio-text');
+    if(bioText){
+      var bio = _locText(about.bio, about.bioEn);
+      if(bio !== ''){
+        bioText.classList.remove('pf-placeholder');
+        bioText.innerHTML = _escHtml(bio).replace(/\n/g,'<br>');
+      } else if(isEn){
+        bioText.textContent = ''; bioText.classList.remove('pf-placeholder');   // EN empty → blank
+      } else {
+        bioText.textContent = 'Introduce yourself — share your background, training, and what makes your performances special.';
+        bioText.classList.add('pf-placeholder');
+      }
+    }
+
+    // CREDENTIALS
+    var credsUl = document.querySelector('.about-creds');
+    if(credsUl){
+      var creds = _locList(about.credentials, about.credentialsEn);
+      if(creds.length){
+        credsUl.innerHTML = creds.map(function(s){ return '<li class="about-cred-item">' + _escHtml(s) + '</li>'; }).join('');
+      } else if(isEn){
+        credsUl.innerHTML = '';
+      } else {
+        credsUl.innerHTML = '<li class="about-cred-item pf-placeholder">Add your credentials — orchestras, awards, education</li>';
+      }
+    }
+
+    // SERVICES (title / description / tags per card)
+    if(Array.isArray(cfg.services)){
+      var servCards = document.querySelectorAll('.serv-card');
+      cfg.services.forEach(function(svc, i){
+        if(!svc || typeof svc !== 'object') return;
+        var card = servCards[i]; if(!card) return;
+        var title = _locText(svc.title, svc.titleEn);
+        var desc  = _locText(svc.description, svc.descriptionEn);
+        var tags  = _locList(svc.tags, svc.tagsEn);
+        var st = card.querySelector('.serv-card-title'); if(st && (title !== '' || isEn)) st.textContent = title;
+        var sd = card.querySelector('.serv-card-desc');  if(sd && (desc  !== '' || isEn)) sd.textContent = desc;
+        var tagsWrap = card.querySelector('.serv-tags');
+        if(tagsWrap && (tags.length || isEn)){
+          tagsWrap.innerHTML = tags.map(function(s){ return '<span class="serv-tag">' + _escHtml(s) + '</span>'; }).join('');
+        }
+      });
+    }
+
+    // CAREER HIGHLIGHTS (localised titles; year + images unchanged)
+    if(Array.isArray(cfg.highlights) && typeof window.__applyHighlights === 'function'){
+      window.__applyHighlights(cfg.highlights.map(function(h){
+        h = h || {};
+        return { title: _locText(h.title, h.titleEn), year: h.year, imageUrl: h.imageUrl,
+                 imageX: h.imageX, imageY: h.imageY, imageZoom: h.imageZoom };
+      }));
+    }
+  }
+  window.__applyLocalizedSections = applyLocalizedSections;
+
   function applyProfileConfig(cfg){
     if(!cfg || typeof cfg !== 'object') return;
+    _profileCfg = cfg;   // remember for language re-localisation
 
     // ── HERO ──────────────────────────────────────────────
     var hero = cfg.hero || {};
@@ -5953,6 +6034,9 @@ window.addEventListener('pageshow', function(e) {
       if(!el) return;
       el.style.display = sections[key] ? '' : 'none';
     });
+
+    // Override the four editable sections with the current-language content.
+    applyLocalizedSections();
   }
 
   // Expose globally
