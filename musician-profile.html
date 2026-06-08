@@ -3841,9 +3841,6 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   }
 
   function clearPhoto() {
-    // Revert to the default photo (first highlight with an image) instead of the
-    // idle placeholder, so the frame always shows the first highlight's photo.
-    if (DEFAULT_IDX >= 0) { showPhoto(DEFAULT_IDX); return; }
     current = -1;
     photos().forEach(function(p){ p.classList.remove('hl-ph-active'); });
     if (idle) idle.classList.remove('hidden');
@@ -3868,10 +3865,8 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
         list.querySelectorAll('.hl-item').forEach(function(i){ i.classList.remove('hl-active'); });
         item.classList.add('hl-active');
       });
-      list.addEventListener('mouseleave', function(){
-        list.querySelectorAll('.hl-item').forEach(function(i){ i.classList.remove('hl-active'); });
-        clearPhoto();
-      });
+      // NOTE: intentionally NO mouse-leave reset — the photo stays on the last
+      // highlight the cursor visited instead of snapping back to the first.
     }
   }
   window.__bindHighlightHover = bindHighlightHover;
@@ -3930,12 +3925,19 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       else frame.appendChild(photo);
     });
 
-    // Default photo = the first highlight that has an image (so the frame shows it
-    // before any hover, and reverts to it on mouse-leave).
+    // On (re)load show the FIRST highlight that has an image. After that the photo
+    // simply follows the mouse and STAYS on whichever highlight was last hovered —
+    // it never snaps back (see bindHighlightHover: no mouse-leave reset).
     DEFAULT_IDX = -1;
     for (var di = 0; di < arr.length; di++){ if (arr[di] && arr[di].imageUrl){ DEFAULT_IDX = di; break; } }
     current = -1;
-    clearPhoto();
+    if (DEFAULT_IDX >= 0) {
+      showPhoto(DEFAULT_IDX);
+      var _d = list.querySelector('.hl-item[data-hl="' + DEFAULT_IDX + '"]');
+      if (_d) _d.classList.add('hl-active');
+    } else {
+      clearPhoto();
+    }
     bindHighlightHover();
   };
 
