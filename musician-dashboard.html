@@ -1661,33 +1661,12 @@
               </div>
             </div>
 
-            <!-- Showreel videos (Phase 2-C) -->
+            <!-- Showreel videos (Phase 2-C) — dynamic list: start at 1, add up to 3,
+                 delete ANY row (not just the last). -->
             <div class="pb-field-group" data-pbgroup="videos">
               <div class="pb-group-title">Showreel 影片 (YouTube / Vimeo / .mp4)</div>
-              <div class="pb-subgroup" data-pbvideo="0">
-                <div class="pb-subgroup-title">影片 1</div>
-                <div class="pb-field"><label>標題</label><input type="text" id="pbVideo0Title" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>影片網址</label><input type="text" id="pbVideo0Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
-                <div class="pb-field"><label>封面圖網址(選填)</label><input type="text" id="pbVideo0Poster" oninput="pbOnInput()" placeholder="https://..."></div>
-              </div>
-              <div class="pb-subgroup" data-pbvideo="1">
-                <div class="pb-subgroup-title">影片 2</div>
-                <div class="pb-field"><label>標題</label><input type="text" id="pbVideo1Title" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>影片網址</label><input type="text" id="pbVideo1Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
-                <div class="pb-field"><label>封面圖網址(選填)</label><input type="text" id="pbVideo1Poster" oninput="pbOnInput()" placeholder="https://..."></div>
-              </div>
-              <div class="pb-subgroup" data-pbvideo="2">
-                <div class="pb-subgroup-title">影片 3</div>
-                <div class="pb-field"><label>標題</label><input type="text" id="pbVideo2Title" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>影片網址</label><input type="text" id="pbVideo2Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
-                <div class="pb-field"><label>封面圖網址(選填)</label><input type="text" id="pbVideo2Poster" oninput="pbOnInput()" placeholder="https://..."></div>
-              </div>
-              <div class="pb-subgroup" data-pbvideo="3">
-                <div class="pb-subgroup-title">影片 4</div>
-                <div class="pb-field"><label>標題</label><input type="text" id="pbVideo3Title" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>影片網址</label><input type="text" id="pbVideo3Url" oninput="pbOnInput()" placeholder="https://www.youtube.com/embed/..."></div>
-                <div class="pb-field"><label>封面圖網址(選填)</label><input type="text" id="pbVideo3Poster" oninput="pbOnInput()" placeholder="https://..."></div>
-              </div>
+              <div id="pbVideoList"></div>
+              <button type="button" class="pb-row-add" id="pbVideoAddBtn" onclick="pbAddVideoRow()">➕ 新增影片 / Add video（最多 3 個）</button>
             </div>
 
             <!-- Theme colors (Phase 2-C) -->
@@ -2367,11 +2346,12 @@
       const ca = (Array.isArray(cfg.audio) && cfg.audio[i] && typeof cfg.audio[i]==='object') ? cfg.audio[i] : {};
       return { title: ca.title || '', url: ca.url || '', desc: ca.desc || '' };
     });
-    // videos: up to 4 rows, merge loaded onto empty defaults
-    const videos = [0,1,2,3].map(function(i){
-      const cv = (Array.isArray(cfg.videos) && cfg.videos[i] && typeof cfg.videos[i]==='object') ? cfg.videos[i] : {};
-      return { title: cv.title || '', url: cv.url || '', poster: cv.poster || '' };
-    });
+    // videos: keep the loaded rows as-is (max 3); at least one empty row to start
+    let videos = (Array.isArray(cfg.videos) ? cfg.videos : [])
+      .filter(function(cv){ return cv && typeof cv === 'object'; })
+      .slice(0, 3)
+      .map(function(cv){ return { title: cv.title || '', url: cv.url || '', poster: cv.poster || '' }; });
+    if(!videos.length) videos = [{ title:'', url:'', poster:'' }];
     // theme: merge onto defaults
     const theme = Object.assign({}, PB_DEFAULTS.theme, cfg.theme || {});
     const hero = Object.assign({}, PB_DEFAULTS.hero, cfg.hero || {});
@@ -2851,6 +2831,59 @@
   }
   window.pbAddBannerRow = function(){ pbAddBannerRow(); pbOnInput(); };
 
+  // ── Showreel videos: dynamic rows (start 1, max 3, delete ANY row) ──
+  let pbVideoRowSeq = 0;
+  const PB_VIDEO_MAX = 3;
+  function pbVideoRows(){
+    const list = document.getElementById('pbVideoList');
+    return list ? Array.prototype.slice.call(list.querySelectorAll('.pb-video-row')) : [];
+  }
+  function pbRelabelVideoRows(){
+    pbVideoRows().forEach(function(row, idx){
+      const lbl = row.querySelector('.pb-video-label');
+      if(lbl) lbl.textContent = '影片 ' + (idx + 1);
+      // Never let the list drop to zero — disable delete when only one row remains.
+      const del = row.querySelector('.pb-video-del');
+      if(del) del.style.visibility = (pbVideoRows().length <= 1) ? 'hidden' : '';
+    });
+  }
+  function pbUpdateVideoAddBtn(){
+    const btn = document.getElementById('pbVideoAddBtn');
+    if(btn) btn.disabled = pbVideoRows().length >= PB_VIDEO_MAX;
+  }
+  function pbAddVideoRow(data){
+    data = data || {};
+    const list = document.getElementById('pbVideoList');
+    if(!list) return;
+    if(pbVideoRows().length >= PB_VIDEO_MAX) return;
+    const n = pbVideoRowSeq++;
+    const row = document.createElement('div');
+    row.className = 'pb-video-row';
+    row.style.cssText = 'border:1.5px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;';
+    row.innerHTML =
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">'
+        + '<span class="pb-video-label" style="font-size:12px;font-weight:700;color:var(--black);letter-spacing:.03em;">影片 1</span>'
+        + '<button type="button" class="pb-row-del pb-video-del" title="刪除此影片 / Remove" style="margin-top:0;margin-left:auto;">✕</button>'
+      + '</div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>標題</label><input type="text" class="pbVideoTitle" value="'+pbEsc(data.title)+'"></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>影片網址</label><input type="text" class="pbVideoUrl" value="'+pbEsc(data.url)+'" placeholder="https://www.youtube.com/embed/..."></div>'
+      + '<div class="pb-field" style="margin-bottom:0;"><label>封面圖網址(選填)</label><input type="text" class="pbVideoPoster" value="'+pbEsc(data.poster)+'" placeholder="https://..."></div>';
+    row.querySelector('.pb-video-del').onclick = function(){
+      if(pbVideoRows().length <= 1) return;   // keep at least one
+      row.remove();
+      pbRelabelVideoRows();
+      pbUpdateVideoAddBtn();
+      pbOnInput();
+    };
+    row.querySelectorAll('input').forEach(function(el){
+      el.addEventListener('input', function(){ pbOnInput(); });
+    });
+    list.appendChild(row);
+    pbRelabelVideoRows();
+    pbUpdateVideoAddBtn();
+  }
+  window.pbAddVideoRow = function(){ pbAddVideoRow(); pbOnInput(); };
+
   function pbPopulateForm(){
     const v = (id,val)=>{ const el=document.getElementById(id); if(el) el.value = (val===undefined||val===null)?'':val; };
     const c = (id,val)=>{ const el=document.getElementById(id); if(el) el.checked = !!val; };
@@ -2986,12 +3019,15 @@
       v('pbAudio'+i+'Url',   a.url);
     });
 
-    // Showreel videos
-    (pbConfig.videos||[]).forEach(function(vd, i){
-      v('pbVideo'+i+'Title',  vd.title);
-      v('pbVideo'+i+'Url',    vd.url);
-      v('pbVideo'+i+'Poster', vd.poster);
-    });
+    // Showreel videos — rebuild the dynamic rows (start at 1, clamp to max 3)
+    (function(){
+      const list = document.getElementById('pbVideoList');
+      if(!list) return;
+      list.innerHTML = ''; pbVideoRowSeq = 0;
+      let vids = Array.isArray(pbConfig.videos) ? pbConfig.videos.slice(0, PB_VIDEO_MAX) : [];
+      if(!vids.length) vids = [{}];   // always show at least one (empty) row
+      vids.forEach(function(vd){ pbAddVideoRow(vd || {}); });
+    })();
 
     // Theme colors
     const colv = (id,val,def)=>{ const el=document.getElementById(id); if(el) el.value = (/^#[0-9a-fA-F]{6}$/.test(val||'')) ? val : def; };
@@ -3176,10 +3212,15 @@
     const audio = [0,1,2,3,4,5].map(function(i){
       return { title: txt('pbAudio'+i+'Title').trim(), url: txt('pbAudio'+i+'Url').trim() };
     }).filter(function(a){ return a.url !== ''; });
-    // Videos: up to 4 rows, drop rows with empty url
-    const videos = [0,1,2,3].map(function(i){
-      return { title: txt('pbVideo'+i+'Title').trim(), url: txt('pbVideo'+i+'Url').trim(), poster: txt('pbVideo'+i+'Poster').trim() };
-    }).filter(function(v2){ return v2.url !== ''; });
+    // Videos: read the dynamic rows (max 3), drop rows with empty url
+    const videos = (function(){
+      const list = document.getElementById('pbVideoList');
+      const rows = list ? Array.prototype.slice.call(list.querySelectorAll('.pb-video-row')) : [];
+      return rows.map(function(row){
+        const g = function(cls){ const el=row.querySelector('.'+cls); return el ? el.value.trim() : ''; };
+        return { title: g('pbVideoTitle'), url: g('pbVideoUrl'), poster: g('pbVideoPoster') };
+      }).filter(function(v2){ return v2.url !== ''; }).slice(0, PB_VIDEO_MAX);
+    })();
     const themeVal = (id,def)=>{ const el=document.getElementById(id); const x=el?el.value:''; return /^#[0-9a-fA-F]{6}$/.test(x)?x:def; };
 
     // Hero banner photos — read the dynamic rows in order.
