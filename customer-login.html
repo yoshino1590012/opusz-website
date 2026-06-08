@@ -347,8 +347,10 @@ btnGoogle.addEventListener('click', async () => {
   }
 });
 
-// ── Facebook Sign-In ──
-btnFacebook.addEventListener('click', async () => {
+// ── Facebook Sign-In (button is currently commented out in the markup, so
+//    guard against it being absent — otherwise this throws and aborts the rest
+//    of the script, including the email handlers below) ──
+if (btnFacebook) btnFacebook.addEventListener('click', async () => {
   btnFacebook.classList.add('loading');
   try {
     const provider = new FacebookAuthProvider();
