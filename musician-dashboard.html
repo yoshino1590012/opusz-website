@@ -3357,6 +3357,45 @@
       if (pbConfig.hero && pbConfig.hero.location)  pubFields.primaryRegion = pbConfig.hero.location;
       if (pbConfig.about && pbConfig.about.bio)     pubFields.bio = pbConfig.about.bio;
       await setDoc(doc(db, 'musicians', _currentUser.uid), pubFields, { merge:true });
+
+      // ── 通知後台：記錄此次發布的改動 ──
+      try {
+        var prev = (_currentProfile && _currentProfile.config) ? _currentProfile.config : {};
+        var curr = pbConfig;
+        var changes = [];
+        var LABELS = {
+          'hero.name':     '名稱', 'hero.title': '頭銜', 'hero.location': '地點',
+          'hero.tagline':  '副標', 'about.bio': '簡介', 'about.avatarUrl': '頭像',
+          'booking.email': '聯絡信箱', 'booking.phone': '聯絡電話',
+          'booking.rate':  '費用', 'booking.currency': '貨幣'
+        };
+        function gv(obj, path){ return path.split('.').reduce(function(o,k){ return o&&o[k]; }, obj); }
+        Object.keys(LABELS).forEach(function(path){
+          var pv = gv(prev, path) || '', cv = gv(curr, path) || '';
+          if(String(pv).trim() !== String(cv).trim())
+            changes.push({ field: LABELS[path], from: String(pv).slice(0,120), to: String(cv).slice(0,120) });
+        });
+        // 服務數量變化
+        var ps = Array.isArray(prev.services)?prev.services.length:0, cs = Array.isArray(curr.services)?curr.services.length:0;
+        if(ps !== cs) changes.push({ field:'服務項目數量', from:String(ps), to:String(cs) });
+        // 主頁照片/影片
+        var pm = (prev.hero&&prev.hero.media&&prev.hero.media.url)||'', cm = (curr.hero&&curr.hero.media&&curr.hero.media.url)||'';
+        if(pm !== cm) changes.push({ field:'主頁媒體（照片/影片）', from: pm?'（有）':'（無）', to: cm?'（有）':'（無）' });
+
+        var editRecord = {
+          uid: _currentUser.uid,
+          name: (curr.hero && curr.hero.name) || _currentUser.displayName || _currentUser.email || '未知',
+          email: _currentUser.email || '',
+          publishedAt: new Date().toISOString(),
+          changes: changes,
+          status: 'pending'
+        };
+        await setDoc(doc(db, 'profileEdits', _currentUser.uid), editRecord, { merge: false });
+      } catch(editErr){ console.warn('[profileEdits] log failed:', editErr); }
+
+      // 更新本地快取，讓下次發布可以比對
+      if(_currentProfile) _currentProfile.config = JSON.parse(JSON.stringify(pbConfig));
+
       showNotif('已發布 ✓ 你的公開頁面已上線');
       pbUpdatePublicUrl();
     }catch(e){
