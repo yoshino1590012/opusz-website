@@ -1909,6 +1909,17 @@
       const sbEmail = document.getElementById('sbUserEmail');
       if (sbEmail) sbEmail.textContent = user.email;
 
+      // Top-right account chip (was hard-coded "Martin" and never updated)
+      const tpName = document.getElementById('tpName');
+      if (tpName) tpName.textContent = name;
+
+      // Avatar initials (both were hard-coded "M")
+      const initial = (name || user.email || '?').trim().charAt(0).toUpperCase();
+      const sbAv = document.getElementById('sbAvatar');
+      if (sbAv) sbAv.textContent = initial;
+      const tpAv = document.getElementById('tpAvatar');
+      if (tpAv) tpAv.textContent = initial;
+
       // Populate profile tab fields
       loadProfileFields();
 
@@ -3923,6 +3934,9 @@
         published: true,
         profileComplete: 100,
         updatedAt: new Date().toISOString(),
+        // Backfill the login email onto the doc so the admin musician list can show it.
+        // (Profiles created by directly publishing — not via the apply form — had no email.)
+        email: _currentUser.email || '',
         // Premium gate: drives teaching visibility + inclusion in the Lessons teachers list
         lessonsEnabled: pbIsPremiumActive(),
         tier: pbIsPremiumActive() ? 'premium' : 'basic'

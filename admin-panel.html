@@ -856,10 +856,12 @@
           uid:    d.id,
           name:   data.name || data.email || '(Unknown)',
           email:  data.email || '',
-          inst:   data.instrument || '—',
-          region: data.region || '—',
-          joined: data.joinedAt ? new Date(data.joinedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—',
-          joinedRaw: data.joinedAt || '',
+          // NOTE: profiles save `instruments` (array) / `primaryRegion`; older code
+          // read `instrument` / `region`, which no longer exist → all dashes. Read both.
+          inst:   (Array.isArray(data.instruments) ? data.instruments.filter(Boolean).join('、') : '') || data.instrument || '—',
+          region: [data.primaryRegion, data.secondaryRegion].filter(Boolean).join(' / ') || data.region || '—',
+          joined: (function(j){ return j ? new Date(j).toLocaleDateString('en-US',{month:'short',day:'numeric'}) : '—'; })(data.joinedAt || data.createdAt || data.updatedAt),
+          joinedRaw: data.joinedAt || data.createdAt || data.updatedAt || '',
           status: data.status || 'new',
           gigs:   data.gigs || 0,
           membership: data.membership || null
@@ -2848,7 +2850,9 @@
     tbody.innerHTML = MUSICIANS.map(function(m, i) {
       // Plans removed — no tier badge / upgrade buttons.
       return '<tr>' +
-        '<td><div class="td-name">'+m.name+'</div></td>' +
+        '<td><div class="td-name">'+m.name+'</div>' +
+          (m.email ? '<div class="td-sub" style="font-size:12px;color:var(--mid);">'+m.email+'</div>' : '') +
+        '</td>' +
         '<td>'+m.inst+'</td>' +
         '<td>'+m.region+'</td>' +
         '<td style="color:var(--mid)">'+m.joined+'</td>' +
