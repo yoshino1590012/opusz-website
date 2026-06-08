@@ -62,7 +62,7 @@
           '<div style="font-size:13px;font-weight:700;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + user + '</div>' +
           '<div style="font-size:11px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + email + '</div>' +
         '</div>' +
-        '<a href="messages.html" style="display:flex;align-items:center;font-weight:700;">Messages' +
+        '<a href="customer-profile.html#messages" style="display:flex;align-items:center;font-weight:700;">Messages' +
           '<span id="sharedMsgBadge" style="background:#e05;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto;display:none">0</span>' +
         '</a>' +
         '<a href="musician-community.html" style="font-weight:700;">🎵 樂手社群</a>' +
@@ -154,7 +154,7 @@
           '<div style="font-size:11.5px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + email + '</div>' +
         '</div>' +
       '</div>' +
-      '<a href="messages.html" style="display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13px;font-weight:700;color:#111;text-decoration:none;border-radius:10px;transition:background .13s" onmouseover="this.style.background=\'#f4f4f4\'" onmouseout="this.style.background=\'\'">Messages <span id="sharedMsgBadge" style="background:#e05;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto;display:none">0</span></a>' +
+      '<a href="customer-profile.html#messages" style="display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13px;font-weight:700;color:#111;text-decoration:none;border-radius:10px;transition:background .13s" onmouseover="this.style.background=\'#f4f4f4\'" onmouseout="this.style.background=\'\'">Messages <span id="sharedMsgBadge" style="background:#e05;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto;display:none">0</span></a>' +
       '<a href="customer-profile.html#bookings" style="display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13px;font-weight:600;color:#111;text-decoration:none;border-radius:10px;transition:background .13s" onmouseover="this.style.background=\'#f4f4f4\'" onmouseout="this.style.background=\'\'">My Bookings</a>' +
       '<a href="customer-profile.html" style="display:flex;align-items:center;gap:10px;padding:10px 12px;font-size:13px;font-weight:600;color:#111;text-decoration:none;border-radius:10px;transition:background .13s" onmouseover="this.style.background=\'#f4f4f4\'" onmouseout="this.style.background=\'\'">My Profile</a>' +
       '<div style="height:1px;background:#f0f0f0;margin:4px 8px"></div>' +
