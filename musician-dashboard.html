@@ -524,6 +524,18 @@
       background: #f2f2f2; color: #333; border: 1px solid #e5e5e5;
       padding: 3px 11px; border-radius: 20px; font-size: 12px; font-weight: 600;
     }
+    .pb-inst-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .pb-inst-chip {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #eef6f0; color: #137a45; border: 1px solid #cfe9da;
+      padding: 4px 6px 4px 11px; border-radius: 20px; font-size: 12px; font-weight: 700;
+    }
+    .pb-inst-chip b {
+      cursor: pointer; color: #137a45; font-weight: 700; font-size: 13px;
+      width: 16px; height: 16px; line-height: 15px; text-align: center;
+      border-radius: 50%; background: rgba(19,122,69,.12);
+    }
+    .pb-inst-chip b:hover { background: #137a45; color: #fff; }
     .field-readonly {
       background: #fafafa !important; color: var(--mid) !important; cursor: default !important;
     }
@@ -623,6 +635,7 @@
   <link rel="icon" href="/favicon.ico?v=7" />
   <link rel="icon" type="image/png" href="/favicon.png?v=7" />
   <script src="partners-library.js"></script>
+  <script src="instruments.js"></script>
   <script src="assets/js/analytics.js"></script>
 </head>
 <body>
@@ -998,7 +1011,7 @@
               <div class="form-section-title">
                 樂器與地區
                 <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--mid);margin-left:6px;">
-                  （註冊時填寫，如需修改請聯繫客服）
+                  （在「編輯主頁 → 列表卡片」選擇樂器，發布後更新）
                 </span>
               </div>
               <div class="form-group" style="margin-bottom:14px;">
@@ -1390,7 +1403,11 @@
               <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">這是你在 Musicians 列表那張卡片顯示的照片與文字（留空會自動沿用主頁設定）。照片請貼網址。</p>
               <div class="pb-field"><label>卡片照片網址 / Card photo URL</label><input type="text" id="pbCardPhotoUrl" placeholder="https://… 圖片網址" oninput="pbOnInput()"></div>
               <div class="pb-field"><label>顯示名稱 / Display name</label><input type="text" id="pbCardName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name"></div>
-              <div class="pb-field"><label>樂器 / Instrument</label><input type="text" id="pbCardInstrument" oninput="pbOnInput()" placeholder="你的樂器（如：小提琴）/ Your instrument"></div>
+              <div class="pb-field"><label>樂器 / Instruments（可多選 · 決定你出現在哪些樂器頁）</label>
+                <select id="pbInstAdd" onchange="pbInstPick()" style="width:100%;padding:9px 10px;border:1px solid #d8d8d8;border-radius:8px;font-size:13px;background:#fff;"></select>
+                <div class="pb-inst-chips" id="pbInstChips"></div>
+                <input type="hidden" id="pbCardInstrument">
+              </div>
               <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbCardLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
               <div class="pb-field"><label>簡短介紹 / Short bio</label><textarea id="pbCardBio" oninput="pbOnInput()" placeholder="一句話介紹你自己 / A one-line intro"></textarea></div>
 
@@ -2223,7 +2240,7 @@
     hero:    { name:'', title:'', location:'', nameSizeDesk:100, nameSizeMob:100,
                media:{ type:'photo', url:'', x:50, y:50, zoom:0 },
                extraSlides:[{url:'',x:50,y:50,zoom:0},{url:'',x:50,y:50,zoom:0},{url:'',x:50,y:50,zoom:0}] },
-    card:    { photoUrl:'', name:'', instrument:'', location:'',
+    card:    { photoUrl:'', name:'', instrument:'', instruments:[], location:'',
                bio:'',
                photoX:0, photoY:0, photoScale:1 },
     about:   { avatarUrl:'', bio:'', credentials:[] },
@@ -2280,6 +2297,61 @@
     theme: { accent:'#1ab864', pageBg:'#ffffff', text:'#000000' }
   };
   let pbConfig = null;
+  let pbInsts  = [];   // canonical English instrument labels chosen by the musician
+
+  // Build the "+ Add instrument" dropdown from the shared taxonomy (grouped by family).
+  function pbInstFill(){
+    var sel = document.getElementById('pbInstAdd');
+    if(!sel || !window.OPUSZ_FAMILIES) return;
+    var html = '<option value="">＋ 新增樂器 / Add instrument…</option>';
+    window.OPUSZ_FAMILIES.forEach(function(f){
+      html += '<optgroup label="'+ f.zh +' / '+ f.en +'">';
+      f.items.forEach(function(it){
+        html += '<option value="'+ it.en +'">'+ it.zh +' / '+ it.en +'</option>';
+      });
+      html += '</optgroup>';
+    });
+    sel.innerHTML = html;
+  }
+
+  function pbInstRender(){
+    var box = document.getElementById('pbInstChips');
+    if(box){
+      box.innerHTML = '';
+      pbInsts.forEach(function(lbl){
+        var rec = window.OPUSZ_INST && window.OPUSZ_INST.resolve(lbl);
+        var zh  = rec ? rec.zh : '';
+        var chip = document.createElement('span');
+        chip.className = 'pb-inst-chip';
+        chip.appendChild(document.createTextNode((zh ? zh + ' · ' : '') + lbl));
+        var x = document.createElement('b');
+        x.textContent = '✕';
+        x.onclick = function(){ pbInstRemove(lbl); };
+        chip.appendChild(x);
+        box.appendChild(chip);
+      });
+    }
+    var hid = document.getElementById('pbCardInstrument');
+    if(hid) hid.value = pbInsts[0] || '';
+  }
+
+  window.pbInstPick = function(){
+    var sel = document.getElementById('pbInstAdd');
+    if(!sel) return;
+    var v = sel.value;
+    if(v && pbInsts.indexOf(v) === -1){
+      pbInsts.push(v);
+      pbInstRender();
+      if(typeof pbOnInput === 'function') pbOnInput();
+    }
+    sel.value = '';
+  };
+
+  window.pbInstRemove = function(lbl){
+    pbInsts = pbInsts.filter(function(x){ return x !== lbl; });
+    pbInstRender();
+    if(typeof pbOnInput === 'function') pbOnInput();
+  };
   let pbInited = false;
 
   function pbClone(o){ return JSON.parse(JSON.stringify(o)); }
@@ -2912,7 +2984,15 @@
     const cd = pbConfig.card || {};
     v('pbCardPhotoUrl',   cd.photoUrl);
     v('pbCardName',       cd.name);
-    v('pbCardInstrument', cd.instrument);
+    // Instruments: prefer the new array, fall back to the old single field, then
+    // to the top-level instruments set at registration.
+    pbInsts = (Array.isArray(cd.instruments) && cd.instruments.length) ? cd.instruments.slice()
+            : (cd.instrument ? [cd.instrument] : []);
+    if(!pbInsts.length && _currentProfile && Array.isArray(_currentProfile.instruments)){
+      pbInsts = _currentProfile.instruments.slice();
+    }
+    pbInstFill();
+    pbInstRender();
     v('pbCardLocation',   cd.location);
     v('pbCardBio',        cd.bio);
     v('pbCardPhotoX',     (cd.photoX !== undefined && cd.photoX !== null) ? cd.photoX : 0);
@@ -3281,7 +3361,8 @@
       card: {
         photoUrl:   txt('pbCardPhotoUrl').trim(),
         name:       txt('pbCardName').trim(),
-        instrument: txt('pbCardInstrument').trim(),
+        instrument:  (pbInsts[0] || '').trim(),
+        instruments: pbInsts.slice(),
         location:   txt('pbCardLocation').trim(),
         bio:        txt('pbCardBio').trim(),
         photoX:     num('pbCardPhotoX')     !== undefined ? num('pbCardPhotoX')     : 0,
@@ -3455,6 +3536,9 @@
       if (pbConfig.hero && pbConfig.hero.name)      pubFields.name = pbConfig.hero.name;
       if (pbConfig.hero && pbConfig.hero.location)  pubFields.primaryRegion = pbConfig.hero.location;
       if (pbConfig.about && pbConfig.about.bio)     pubFields.bio = pbConfig.about.bio;
+      // Instruments drive which category/family pages this musician appears on.
+      if (pbConfig.card && Array.isArray(pbConfig.card.instruments))
+        pubFields.instruments = pbConfig.card.instruments;
       await setDoc(doc(db, 'musicians', _currentUser.uid), pubFields, { merge:true });
 
       // ── 通知後台：記錄此次發布的改動 ──

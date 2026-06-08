@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-cms-page="musicians">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -399,6 +399,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 </head>
 <body>
 <script src="nav.js"></script>
+<script src="instruments.js"></script>
 
 <!-- Login Modal -->
 <div class="login-modal-overlay" id="loginModalOverlay">
@@ -416,7 +417,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 </div>
 
 <!-- HERO -->
-<section class="hero" id="heroSection">
+<section class="hero" id="heroSection" data-cms-section="mus-hero">
   <div class="hero-bg" id="heroBg" style="overflow:hidden;position:absolute;inset:0;">
     <div id="heroBgMedia" style="position:absolute;inset:0;overflow:hidden;"></div>
   </div>
@@ -439,7 +440,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 </section>
 
 <!-- FILTER BAR -->
-<div class="filter-bar">
+<div class="filter-bar" data-cms-section="mus-list">
   <span class="filter-label" id="filterLabel">Filter</span>
   <select class="filter-select" id="filterCountry" onchange="onCountryChange()">
     <option value="">All Regions</option>
@@ -644,6 +645,24 @@ function setLang(l){
 
 function setHero(){
   var cat = CAT_MAP[currentCat];
+  // Fill gaps: instruments/families that exist in nav.js but not in CAT_MAP
+  // (e.g. oboe, clarinet, the voices, conductor…) get a hero from the taxonomy.
+  if(!cat && currentCat){
+    var FL = window.OPUSZ_FAMILY_LABEL || {};
+    var INST = window.OPUSZ_INST || {BY_SLUG:{}};
+    if(FL[currentCat]){
+      cat = { en: FL[currentCat].en + ' Musicians for Hire',
+              zh: '尋找' + FL[currentCat].zh + '音樂家',
+              sub:'en:Find world-class musicians for your event, recording, or project.|zh:為您的活動、錄音或計劃尋找世界級音樂家。',
+              bg:'#1a1a2e' };
+    } else if(INST.BY_SLUG[currentCat]){
+      var it = INST.BY_SLUG[currentCat];
+      cat = { en: it.en + ' for Hire Near You',
+              zh: '在您附近尋找' + it.zh,
+              sub:'en:Find world-class ' + it.en + ' players for your event, recording, or performance.|zh:為您的活動、錄音或演出尋找世界級' + it.zh + '。',
+              bg:'#1a1a2e' };
+    }
+  }
   var title, sub, bg;
   if(cat){
     title = currentLang==='zh' ? cat.zh : cat.en;
@@ -702,10 +721,27 @@ function getFiltered(){
   var style   = document.getElementById('filterStyle').value;
   var sort    = document.getElementById('filterSort').value;
   var cat     = CAT_MAP[currentCat];
+  var INST    = window.OPUSZ_INST || {FAMILY_OF:{},BY_SLUG:{}};
+  var FAMLBL  = window.OPUSZ_FAMILY_LABEL || {};
+  // Is the current category a FAMILY (strings/woodwinds/brass/percussion/keyboard/voice)?
+  var famFilter = FAMLBL[currentCat] ? currentCat : '';
+  // The exact instrument label to match (from CAT_MAP, else resolved from taxonomy slug).
   var instFilter = cat && cat.inst ? cat.inst : '';
+  if(!instFilter && !famFilter && currentCat && INST.BY_SLUG[currentCat]){
+    instFilter = INST.BY_SLUG[currentCat].en;
+  }
 
   var list = MUSICIANS.filter(function(m){
-    if(instFilter && m.instrument !== instFilter) return false;
+    // A musician can have several instruments; match against all of them.
+    var mInsts = (m.instruments && m.instruments.length) ? m.instruments
+               : (m.instrument ? [m.instrument] : []);
+    if(famFilter){
+      var inFam = mInsts.some(function(x){ return INST.FAMILY_OF[x] === famFilter; });
+      if(!inFam) return false;
+    } else if(instFilter){
+      var hit = mInsts.indexOf(instFilter) !== -1 || m.instrument === instFilter;
+      if(!hit) return false;
+    }
     if(country && m.country !== country) return false;
     if(city    && m.region  !== city)    return false;
     if(style   && m.style   !== style)   return false;
