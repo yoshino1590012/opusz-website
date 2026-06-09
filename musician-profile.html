@@ -2536,10 +2536,15 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     }
   }
 
-  // Init: load all 15 highlight images from localStorage
-  for (var _i = 0; _i < 15; _i++) {
-    var _saved = localStorage.getItem('hl-img-' + _i);
-    if (_saved) applyHlImg(_i, _saved);
+  // Init: load legacy local highlight images ONLY when NOT viewing a specific
+  // musician (?uid=). These 'hl-img-*' keys are GLOBAL (not per-uid), so on a real
+  // profile/preview the per-musician config must drive highlights — otherwise one
+  // user's locally-saved photos would leak onto another's page on a shared device.
+  if (!new URLSearchParams(location.search).get('uid')) {
+    for (var _i = 0; _i < 15; _i++) {
+      var _saved = localStorage.getItem('hl-img-' + _i);
+      if (_saved) applyHlImg(_i, _saved);
+    }
   }
 
   // ── Build floating editor panel ──
