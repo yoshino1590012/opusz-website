@@ -227,11 +227,12 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   position:fixed;top:50%;left:clamp(40px,5vw,96px);
   transform:translateY(-50%);
   z-index:50;
-  /* Right edge stops BEFORE the centred poster (poster half-width + 40px gap),
-     so the left text can never overlap the poster — it wraps instead. */
-  right:calc(50vw + clamp(195px,23.5vw,374px) + 40px);
+  /* Right edge stops BEFORE the centred poster (poster half-width + small gap),
+     so the left text (esp. the name) can stretch right toward the poster and
+     only wraps when it actually gets close — never overlapping it. */
+  right:calc(50vw + clamp(195px,23.5vw,374px) + 14px);
   width:auto;
-  max-width:460px;
+  max-width:600px;
   clip-path:inset(100% 0 0 0);
   pointer-events:none;
   transition:opacity .5s ease;
@@ -294,9 +295,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   #fixedPosterFrame{
     width:clamp(260px,31.3vw,505px);
   }
-  /* Text panel: keep clear of the (smaller) MacBook poster — half-width 15.65vw + 40px gap */
+  /* Text panel: stretch toward the (smaller) MacBook poster — half-width 15.65vw + small gap */
   #fixedTextPanel{
-    right:calc(50vw + clamp(130px,15.65vw,252.5px) + 40px);
+    right:calc(50vw + clamp(130px,15.65vw,252.5px) + 14px);
   }
 
   /* Artist name: allow wrapping so a long name never bleeds onto the poster
