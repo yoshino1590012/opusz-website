@@ -1823,7 +1823,8 @@
         </div>
         <div id="policyDraftBanner" style="display:none;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:12px;padding:13px 16px;margin-bottom:18px;font-size:13.5px;line-height:1.6;"></div>
         <div id="policySections"></div>
-        <div id="policyUpdated" style="margin-top:18px;font-size:12px;color:#999;"></div>
+        <div id="policyAck" style="margin-top:18px;"></div>
+        <div id="policyUpdated" style="margin-top:14px;font-size:12px;color:#999;"></div>
       </div>
 
     </div><!-- /page-wrap -->
@@ -2141,6 +2142,12 @@
     membership: '方案 / Membership', posters: '海報投稿', policy: '平台政策'
   };
   window.navigate = function(id, btn) {
+    // Gate: must read + confirm the platform policy before editing the page.
+    if (id === 'pagebuilder' && _currentProfile && !_currentProfile.policyAcknowledged) {
+      if (typeof showNotif === 'function') showNotif('請先到「平台政策」閱讀並按下確認，才能編輯主頁');
+      id = 'policy';
+      btn = document.querySelector('[data-page="policy"]');
+    }
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.sb-item').forEach(b => b.classList.remove('active'));
     document.getElementById('page-' + id).classList.add('active');
@@ -2184,6 +2191,7 @@
         data = snap.data();
       }
     }catch(e){ console.warn('[policy] load failed, using default:', e && e.code); }
+    window.__policyVersion = data.version || 1;
     function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
     var banner = document.getElementById('policyDraftBanner');
     if(banner){ if(data.draftNote){ banner.textContent = '⚠️ ' + data.draftNote; banner.style.display='block'; } else banner.style.display='none'; }
@@ -2197,7 +2205,38 @@
     }
     var up = document.getElementById('policyUpdated');
     if(up) up.textContent = data.updatedAt ? ('最後更新：'+String(data.updatedAt).slice(0,10)+'　·　版本 '+(data.version||1)) : '';
+    renderPolicyAck();
   }
+  // The musician must confirm they've read the policy before editing their page.
+  function renderPolicyAck(){
+    var el = document.getElementById('policyAck'); if(!el) return;
+    var acked = _currentProfile && _currentProfile.policyAcknowledged;
+    if(acked){
+      var when = String(_currentProfile.policyAckAt||'').slice(0,10);
+      el.innerHTML = '<div style="background:#ecfdf3;border:1px solid #bbf7d0;color:#166534;border-radius:12px;padding:14px 16px;font-size:14px;font-weight:600;">✓ 你已'+(when?('於 '+when+' '):'')+'閱讀並同意本平台政策。</div>';
+    } else {
+      el.innerHTML =
+        '<div style="background:#fff;border:2px solid #111;border-radius:14px;padding:18px 20px;">'
+        + '<div style="font-size:14px;color:#333;line-height:1.6;margin-bottom:14px;">請確認你已閱讀並同意以上平台政策。<b>確認後才能開始編輯你的公開主頁。</b></div>'
+        + '<label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;margin-bottom:14px;"><input type="checkbox" id="policyAckChk" style="width:17px;height:17px;"> 我已詳閱並同意以上平台政策</label>'
+        + '<button id="policyAckBtn" onclick="acknowledgePolicy()" style="font-size:14px;font-weight:700;color:#fff;background:#111;border:none;border-radius:9px;padding:11px 22px;cursor:pointer;">確認同意</button>'
+        + '<div id="policyAckErr" style="display:none;color:#c0392b;font-size:13px;margin-top:8px;">請先勾選上方核取方塊。</div>'
+        + '</div>';
+    }
+  }
+  window.acknowledgePolicy = async function(){
+    var chk = document.getElementById('policyAckChk');
+    if(!chk || !chk.checked){ var e=document.getElementById('policyAckErr'); if(e) e.style.display='block'; return; }
+    if(!_currentUser){ showNotif('請先登入'); return; }
+    var btn = document.getElementById('policyAckBtn'); if(btn){ btn.disabled=true; btn.textContent='儲存中…'; }
+    try{
+      var fields = { policyAcknowledged:true, policyAckAt:new Date().toISOString(), policyAckVersion:(window.__policyVersion||1) };
+      await setDoc(doc(db,'musicians',_currentUser.uid), fields, { merge:true });
+      _currentProfile = Object.assign({}, _currentProfile, fields);
+      renderPolicyAck();
+      showNotif('✓ 已確認，現在可以編輯主頁了');
+    }catch(e){ if(btn){ btn.disabled=false; btn.textContent='確認同意'; } showNotif('儲存失敗：'+(e.code||e.message)); }
+  };
 
   // ── Mobile sidebar drawer ──
   window.toggleSidebar = function(){
