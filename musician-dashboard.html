@@ -2227,6 +2227,9 @@
       if (target) target.classList.add('active');
     }
     document.getElementById('topbarTitle').textContent = PAGE_TITLES[id] || id;
+    // Small-screen "fullscreen edit": entering 編輯主頁 on a laptop/small window
+    // auto-collapses the sidebar for max preview width; leaving restores it.
+    if (window.pbAutoFullscreen) window.pbAutoFullscreen(id);
     if (id === 'pagebuilder') { pbInit(); setTimeout(function(){ if(window.pbApplyCurrentDevice) window.pbApplyCurrentDevice(); }, 80); }
     if (id === 'membership') pbRenderMembership();
     if (id === 'posters') posterInit();
@@ -2324,9 +2327,29 @@
     var app = document.querySelector('.app');
     if(!app) return;
     app.classList.toggle('sb-collapsed');
+    window._sbAutoCollapsed = false;   // manual action overrides the auto behaviour
     // The preview column just changed width → re-fit the desktop preview, both
     // now and after the .22s width transition settles.
     if(window.pbApplyCurrentDevice){ window.pbApplyCurrentDevice(); setTimeout(window.pbApplyCurrentDevice, 240); }
+  };
+  // Auto "fullscreen edit" on small screens: collapse the sidebar when opening the
+  // page builder so the live preview is as wide as possible; restore it on leaving.
+  // Skips big monitors (plenty of room) and phones (≤860 uses the drawer instead).
+  var SB_AUTO_MAXW = 1600;
+  window.pbAutoFullscreen = function(pageId){
+    var app = document.querySelector('.app'); if(!app) return;
+    var smallScreen = window.innerWidth > 860 && window.innerWidth <= SB_AUTO_MAXW;
+    if(pageId === 'pagebuilder'){
+      if(smallScreen && !app.classList.contains('sb-collapsed')){
+        app.classList.add('sb-collapsed');
+        window._sbAutoCollapsed = true;                 // remember WE did it
+        if(window.pbApplyCurrentDevice) setTimeout(window.pbApplyCurrentDevice, 240);
+      }
+    } else if(window._sbAutoCollapsed){
+      // left the editor → undo only the auto-collapse (a manual toggle clears the flag)
+      app.classList.remove('sb-collapsed');
+      window._sbAutoCollapsed = false;
+    }
   };
   // Mobile messages: return from a full-screen thread back to the conversation list
   window.msgBackToList = function(){
