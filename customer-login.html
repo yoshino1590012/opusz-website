@@ -326,6 +326,13 @@ if (localStorage.getItem('opusz_user')) {
 function handleUser(user) {
   const name  = user.displayName || user.email.split('@')[0].replace(/[._-]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
   const email = user.email;
+  // Profile data (city/intro/photo/bookings) lives in device localStorage and
+  // is NOT keyed by account. If a DIFFERENT account signs in on this device,
+  // clear the previous account's data so it doesn't leak in (e.g. a new
+  // customer inheriting an old avatar / city). Same account → keep it.
+  if (localStorage.getItem('opusz_user_email') !== email) {
+    ['opusz_city','opusz_intro','opusz_photo','opusz_bookings'].forEach(k => localStorage.removeItem(k));
+  }
   localStorage.setItem('opusz_user', name);
   localStorage.setItem('opusz_user_email', email);
   localStorage.setItem('opusz_role', 'customer');
