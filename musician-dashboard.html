@@ -1844,7 +1844,7 @@
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, doc, getDoc, updateDoc, setDoc, collection, getDocs, query, where, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, doc, getDoc, updateDoc, setDoc, collection, getDocs, query, where, orderBy, onSnapshot, addDoc, serverTimestamp, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   const firebaseConfig = {
@@ -1964,6 +1964,40 @@
         try { if (typeof window.renderInbox === 'function') window.renderInbox(); } catch(e){}
       }, function(err){ console.warn('[inbox] subscribe failed:', err && err.code); });
     } catch(e){ console.warn('[inbox] init failed', e); }
+
+    // ── Shared two-way conversations (same `conversations` the customer's Messages
+    //    reads). This is what makes replies sync both ways in real time. Populates
+    //    window._fsConvos; the inbox UI renders it. ──
+    try {
+      const _qc = query(collection(db, 'conversations'), where('musicianUid', '==', user.uid));
+      onSnapshot(_qc, function(snap){
+        var arr = [];
+        snap.forEach(function(d){ arr.push(Object.assign({ id:d.id }, d.data())); });
+        arr.sort(function(a,b){ var ta=(a.updatedAt&&a.updatedAt.seconds)||0, tb=(b.updatedAt&&b.updatedAt.seconds)||0; return tb-ta; });
+        window._fsConvos = arr;
+        try { if (typeof window.renderInbox === 'function') window.renderInbox(); } catch(e){}
+      }, function(err){ console.warn('[convos] subscribe failed:', err && err.code); });
+    } catch(e){ console.warn('[convos] init failed', e); }
+    // Live messages within one conversation (real-time thread).
+    window.__listenConvMessages = function(convId, cb){
+      try {
+        var qm = query(collection(db,'conversations',convId,'messages'), orderBy('createdAt','asc'));
+        return onSnapshot(qm, function(snap){ var rows=[]; snap.forEach(function(d){ rows.push(d.data()); }); cb(rows); },
+          function(e){ console.warn('[convos] messages:', e && e.code); cb([]); });
+      } catch(e){ cb([]); return function(){}; }
+    };
+    // Musician sends into the shared conversation (customer sees it live).
+    window.__sendConvMessage = async function(convId, text){
+      await addDoc(collection(db,'conversations',convId,'messages'), {
+        senderUid: user.uid, senderRole:'musician', type:'msg', text:text, file:null, createdAt: serverTimestamp()
+      });
+      try { await updateDoc(doc(db,'conversations',convId), {
+        lastMessage:text, lastSenderRole:'musician', updatedAt: serverTimestamp(),
+        customerUnread: increment(1), musicianUnread: 0
+      }); } catch(e){}
+    };
+    window.__markConvRead = function(convId){ try { updateDoc(doc(db,'conversations',convId), { musicianUnread: 0 }); } catch(e){} };
+
     // Helpers the (non-module) inbox UI calls to persist read-state / replies to Firestore.
     window.__markInquiryRead = function(id){ try { updateDoc(doc(db,'inquiries',id), { read:true }); } catch(e){} };
     window.__saveInquiryReplies = function(id, replies){ try { updateDoc(doc(db,'inquiries',id), { replies: replies||[] }); } catch(e){} };
@@ -4222,53 +4256,72 @@
   var currentEnquiryId = null;
   function enqInitial(n){ n=(n||'?').trim(); return n ? n.charAt(0).toUpperCase() : '?'; }
 
+  // Messages inbox now reads the SHARED two-way conversations (same `conversations`
+  // the customer's Messages tab reads) → replies sync both ways in real time.
+  function loadConvos(){ return window._fsConvos || []; }
+  var _convUnsub = null;
+
   function renderMsgList(){
-    var list = loadEnquiries();
+    var list = loadConvos();
     var listEl = document.querySelector('#page-messages .msg-list');
     var empty = document.getElementById('msgListEmpty');
     if(listEl){ listEl.querySelectorAll('.msg-item').forEach(function(el){ el.remove(); }); }
     if(!list.length){ if(empty) empty.style.display=''; return; }
     if(empty) empty.style.display='none';
-    list.forEach(function(enq){
+    list.forEach(function(c){
+      var unread = (c.musicianUnread||0) > 0;
       var item = document.createElement('div');
-      item.className = 'msg-item' + (enq.read?'':' unread') + (enq.id===currentEnquiryId?' active':'');
+      item.className = 'msg-item' + (unread?' unread':'') + (c.id===currentEnquiryId?' active':'');
       item.innerHTML =
-        '<div style="width:38px;height:38px;border-radius:50%;background:#1a1a2e;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">'+enqInitial(enq.name)+'</div>'+
+        '<div style="width:38px;height:38px;border-radius:50%;background:#1a1a2e;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">'+enqInitial(c.customerName)+'</div>'+
         '<div style="min-width:0;flex:1;">'+
-          '<div class="mi-name" style="font-size:13.5px;">'+esc(enq.name||'Anonymous')+'</div>'+
-          '<div style="font-size:12px;color:#999;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(enq.subject||enq.message||'')+'</div>'+
+          '<div class="mi-name" style="font-size:13.5px;">'+esc(c.customerName||'客戶')+'</div>'+
+          '<div style="font-size:12px;color:#999;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(c.lastMessage||c.subject||'')+'</div>'+
         '</div>'+
-        (enq.read?'':'<span style="width:9px;height:9px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></span>');
-      item.onclick = function(){ openEnquiryThread(enq.id); };
+        (unread?'<span style="width:9px;height:9px;border-radius:50%;background:#3b82f6;flex-shrink:0;"></span>':'');
+      item.onclick = function(){ openEnquiryThread(c.id); };
       listEl.appendChild(item);
     });
   }
 
   window.openEnquiryThread = function(id){
-    var list = loadEnquiries(), enq=null;
-    for(var i=0;i<list.length;i++){ if(list[i].id===id){ enq=list[i]; break; } }
-    if(!enq) return;
+    var list = loadConvos(), conv=null;
+    for(var i=0;i<list.length;i++){ if(list[i].id===id){ conv=list[i]; break; } }
+    if(!conv) return;
     currentEnquiryId = id;
-    if(!enq.read){ enq.read = true; if(window.__markInquiryRead) window.__markInquiryRead(id); }
+    if(window.__markConvRead) window.__markConvRead(id);
     var es=document.getElementById('msgEmptyState'); if(es) es.style.display='none';
     var bubbles=document.getElementById('msgBubbles'); var wrap=document.getElementById('msgInputWrap');
+    if(wrap) wrap.style.display='';
+    var lay=document.querySelector('.msg-layout'); if(lay) lay.classList.add('thread-open');  // mobile: full-screen thread
+    var b = conv.brief;
+    var briefHtml = b ? ('<div style="background:#f7f7f8;border:1px solid #eee;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12.5px;color:#555;line-height:1.7;">'+
+        '<b>委托內容</b><br>類型：'+esc(b.type||'—')+'　·　日期：'+esc(b.date||'—')+'<br>地點：'+esc(b.location||'—')+'　·　預算：'+esc(b.budget||'—')+(b.notes?('<br>備註：'+esc(b.notes)):'')+'</div>') : '';
+    var headerHtml =
+      '<div style="padding:4px 4px 14px;border-bottom:1px solid #eee;margin-bottom:14px;">'+
+        '<div style="font-weight:800;font-size:15px;">'+esc(conv.customerName||'客戶')+'</div>'+
+        '<div style="font-size:12px;color:#888;margin-top:2px;">'+esc(conv.subject||'')+'</div>'+
+      '</div>' + briefHtml;
+    if(_convUnsub){ try{ _convUnsub(); }catch(e){} _convUnsub=null; }
     if(bubbles){
       bubbles.style.display='';
-      var html =
-        '<div style="padding:4px 4px 14px;border-bottom:1px solid #eee;margin-bottom:14px;">'+
-          '<div style="font-weight:800;font-size:15px;">'+esc(enq.name||'Anonymous')+'</div>'+
-          '<div style="font-size:12px;color:#888;margin-top:2px;">'+esc(enq.email||'')+(enq.subject?' · '+esc(enq.subject):'')+'</div>'+
-        '</div>'+
-        '<div class="bubble-wrap"><div class="bubble-avatar">'+enqInitial(enq.name)+'</div><div>'+
-          '<div class="bubble theirs">'+esc(enq.message||'').replace(/\n/g,'<br>')+'</div>'+
-          '<div class="bubble-time">'+esc(timeAgo(enq.ts))+'</div></div></div>';
-      (enq.replies||[]).forEach(function(r){
-        html += '<div class="bubble-wrap mine"><div><div class="bubble mine">'+esc(r.text)+'</div><div class="bubble-time">'+esc(r.time)+'</div></div><div class="bubble-avatar" style="background:#1a1a2e;color:#fff;">M</div></div>';
-      });
-      bubbles.innerHTML = html; bubbles.scrollTop = bubbles.scrollHeight;
+      bubbles.innerHTML = headerHtml + '<div style="color:#aaa;font-size:12px;text-align:center;padding:12px;">載入中…</div>';
+      if(window.__listenConvMessages){
+        _convUnsub = window.__listenConvMessages(id, function(msgs){
+          var html = headerHtml;
+          (msgs||[]).forEach(function(m){
+            var mine = (m.senderRole==='musician');
+            var t = m.text || (m.file?'📎 附件':'');
+            if(mine){
+              html += '<div class="bubble-wrap mine"><div><div class="bubble mine">'+esc(t)+'</div></div><div class="bubble-avatar" style="background:#1a1a2e;color:#fff;">M</div></div>';
+            } else {
+              html += '<div class="bubble-wrap"><div class="bubble-avatar">'+enqInitial(conv.customerName)+'</div><div><div class="bubble theirs">'+esc(t).replace(/\n/g,'<br>')+'</div></div></div>';
+            }
+          });
+          bubbles.innerHTML = html; bubbles.scrollTop = bubbles.scrollHeight;
+        });
+      }
     }
-    if(wrap) wrap.style.display='';
-    var lay=document.querySelector('.msg-layout'); if(lay) lay.classList.add('thread-open');  // mobile: show full-screen thread
     renderMsgList(); updateInbox();
   };
   window.openThread = function(){};  // back-compat no-op (old mock entry point)
@@ -4276,14 +4329,10 @@
   window.sendMsg = function(){
     var input=document.getElementById('msgInputBox'); var text=input.value.trim();
     if(!text || !currentEnquiryId) return;
-    var list=loadEnquiries(), enq=null;
-    for(var i=0;i<list.length;i++){ if(list[i].id===currentEnquiryId){ enq=list[i]; break; } }
-    if(!enq) return;
-    var now=new Date(); var time=now.getHours()+':'+String(now.getMinutes()).padStart(2,'0')+' '+(now.getHours()>=12?'PM':'AM');
-    enq.replies=enq.replies||[]; enq.replies.push({ text:text, time:time });
-    if(window.__saveInquiryReplies) window.__saveInquiryReplies(currentEnquiryId, enq.replies);
     input.value=''; input.style.height='auto';
-    openEnquiryThread(currentEnquiryId);
+    if(window.__sendConvMessage){
+      window.__sendConvMessage(currentEnquiryId, text).catch(function(e){ showNotif('傳送失敗：'+(e&&(e.code||e.message))); });
+    }
   };
 
   function renderDirectInquiries(){
@@ -4306,14 +4355,13 @@
   }
 
   function updateInbox(){
-    var list=loadEnquiries();
-    var unread=list.filter(function(e){ return !e.read; }).length;
+    var convos=loadConvos();
+    var unread=convos.reduce(function(s,c){ return s + (((c.musicianUnread||0)>0)?1:0); },0);
     var lessons=[]; try { lessons=JSON.parse(localStorage.getItem('opusz_lesson_requests')||'[]'); } catch(e){}
     var lessonUnread=lessons.filter(function(r){ return !r.read; }).length;
     var mb=document.getElementById('sbMsgBadge'); if(mb){ mb.textContent=unread; mb.style.display=unread?'':'none'; }
-    var jb=document.getElementById('sbJobsBadge'); if(jb){ jb.textContent=list.length; jb.style.display=list.length?'':'none'; }
+    var jb=document.getElementById('sbJobsBadge'); if(jb){ jb.textContent=convos.length; jb.style.display=convos.length?'':'none'; }
     var dot=document.querySelector('.topbar-btn .notif-dot'); if(dot) dot.style.display=(unread+lessonUnread)?'':'none';
-    renderDirectInquiries();
   }
 
   window.showInboxNotif = function(){

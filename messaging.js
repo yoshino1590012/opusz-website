@@ -90,14 +90,19 @@ const OPUSZ_MSG = {
 
   // ── live list of my conversations ──
   listConversations(uid, cb) {
+    // No orderBy → avoids needing a composite index (array-contains + updatedAt).
+    // We sort client-side instead.
     const q = query(
       collection(db, 'conversations'),
-      where('participants', 'array-contains', uid),
-      orderBy('updatedAt', 'desc')
+      where('participants', 'array-contains', uid)
     );
     return onSnapshot(q, function (snap) {
       const rows = [];
       snap.forEach(function (d) { rows.push(Object.assign({ id: d.id }, d.data())); });
+      rows.sort(function (a, b) {
+        var ta = (a.updatedAt && a.updatedAt.seconds) || 0, tb = (b.updatedAt && b.updatedAt.seconds) || 0;
+        return tb - ta;
+      });
       cb(rows);
     }, function (err) { console.warn('[messaging] listConversations:', err); cb([]); });
   },
