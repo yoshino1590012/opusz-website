@@ -2179,7 +2179,16 @@
         +'<input type="range" min="50" max="'+max+'" step="5" value="'+pct+'" oninput="seHeroSetSize(\''+key+'\',this.value)" style="flex:1;">'
         +'<span id="seHzl_'+key+'" style="font-size:11px;color:#0e7490;width:36px;text-align:right;">'+pct+'%</span>'
         +'</div>';
-    }).join('');
+    }).join('')
+    + '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">按鈕寬度 / Button width</div>'
+    + (function(){
+        var bw=(hp._btnW!=null)?hp._btnW:186;
+        return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
+          +'<span style="font-size:11px;color:#155e75;width:130px;flex-shrink:0;">兩顆按鈕一起</span>'
+          +'<input type="range" min="120" max="360" step="2" value="'+bw+'" oninput="seHeroSetBtnW(this.value)" style="flex:1;">'
+          +'<span id="seBtnWl" style="font-size:11px;color:#0e7490;width:42px;text-align:right;">'+bw+'</span>'
+          +'</div>';
+      })();
   }
   // Line-height (行距) for the headline + subtitle. Stored in window.seHeroType =
   // { headline:{lh}, sub:{lh} } → cfg.heroType; applied live by site-content.js.
@@ -2371,6 +2380,13 @@
     m[key] = Object.assign({}, m[key], { s:(parseInt(val,10)||100)/100 });
     var lbl=document.getElementById('seHzl_'+key); if(lbl) lbl.textContent=val+'%';
     sePreview();   // live-apply scale to the preview
+  };
+  // Width of the two hero buttons (per device). Stored as map._btnW (base px).
+  window.seHeroSetBtnW = function(val){
+    var m = window.seActiveHeroPos();
+    m._btnW = parseInt(val,10) || 186;
+    var lab=document.getElementById('seBtnWl'); if(lab) lab.textContent=m._btnW;
+    sePreview();
   };
 
   // Clear the CURRENT device's hero offsets + sizes and push the reset to preview.

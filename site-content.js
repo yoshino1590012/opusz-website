@@ -110,6 +110,12 @@ function applyHeroPosResponsive(cfg){
   var _ty = (map && map._type)   || (cfg.heroPos && cfg.heroPos._type)   || cfg.heroType   || {};
   try { applyHeroPhrase(_ph); } catch(e){}
   try { applyHeroType(_ty); } catch(e){}
+  // Button width (per device). Empty → fall back to the CSS default min-width.
+  var _bw = (map && map._btnW) || (cfg.heroPos && cfg.heroPos._btnW) || null;
+  var _btns = document.querySelectorAll('.hco-btn-pri, .hco-btn-out');
+  for (var _bi = 0; _bi < _btns.length; _bi++){
+    _btns[_bi].style.minWidth = _bw ? ('calc(var(--k) * ' + _bw + 'px)') : '';
+  }
 }
 // Re-apply when crossing the phone breakpoint (debounced).
 (function(){
