@@ -101,6 +101,7 @@
 '',
 '  <!-- My Account Dropdown (outside nav to escape mix-blend-mode) -->',
 '  <div class="nav-login-dropdown acc-menu" id="accountDropdown">',
+'    <div id="navAccEmail" style="padding:9px 14px 9px;font-size:12px;color:#999;border-bottom:1px solid #eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;"></div>',
 '    <a href="customer-profile.html#messages" style="font-weight:700;">Messages <span class="nav-msg-badge" id="dropMsgBadge" style="display:none;background:#e05;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto;">0</span></a>',
 '    <div class="nav-login-vsep"></div>',
 '    <a href="customer-profile.html#bookings">My Bookings</a>',
@@ -620,6 +621,8 @@
       if (user) {
         hideBtn(loginBtn);
         showBtn(accountBtn);
+        var emailEl = document.getElementById('navAccEmail');
+        if (emailEl) emailEl.textContent = localStorage.getItem('opusz_user_email') || user;
       } else {
         showBtn(loginBtn);
         if (accountBtn) { hideBtn(accountBtn); accountBtn.classList.remove('open'); }
