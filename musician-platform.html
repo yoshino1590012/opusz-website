@@ -1680,7 +1680,9 @@ select.contact-input { cursor: pointer; -webkit-appearance: none; appearance: no
 /* ── FOOTER ── */
 /* ── NEW FOOTER ── */
 #site-footer { background: #fff; border-top: 1px solid rgba(0,0,0,0.08); padding: 80px 60px 0; overflow: visible; }
-.sf-links { display: grid; grid-template-columns: repeat(4,1fr); gap: 24px; padding-bottom: 56px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.sf-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 56px; padding-bottom: 48px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.sf-newsletter { flex: 0 1 400px; min-width: 280px; }
+.sf-links { display: grid; grid-template-columns: repeat(4,1fr); gap: 22px 20px; flex: 1 1 480px; min-width: 300px; }
 .sf-col a { display: block; font-size: 14px; color: #000; text-decoration: none; margin-bottom: 14px; opacity: 0.75; transition: opacity 0.2s; }
 .sf-col a:hover { opacity: 1; }
 .sf-copy-bar { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; font-size: 12px; color: #aaa; border-bottom: 1px solid rgba(0,0,0,0.06); }
@@ -3068,11 +3070,12 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   </div>
 </section>
 
-<!-- NEWSLETTER -->
-<section id="newsletter" style="background:#fff; border-top:1px solid rgba(0,0,0,0.08); padding:100px 80px;">
-  <div style="max-width:600px;">
-    <p style="font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#999;margin-bottom:24px;" data-i18n="newsletter.label">Newsletter</p>
-    <h2 style="font-size:clamp(36px,5vw,64px);font-weight:800;letter-spacing:-2px;line-height:1.05;margin-bottom:20px;" data-i18n="newsletter.title">Stay close to the music.</h2>
+<!-- FOOTER (newsletter merged into the top row; links fill the right) -->
+<footer id="site-footer">
+  <div class="sf-top">
+    <div class="sf-newsletter">
+    <p style="font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#999;margin-bottom:20px;" data-i18n="newsletter.label">Newsletter</p>
+    <h2 style="font-size:clamp(28px,3.2vw,44px);font-weight:800;letter-spacing:-1.5px;line-height:1.05;margin-bottom:16px;" data-i18n="newsletter.title">Stay close to the music.</h2>
     <p style="font-size:15px;color:#666;line-height:1.7;margin-bottom:36px;" data-i18n="newsletter.body">Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.</p>
     <form name="newsletter" method="POST" data-netlify="true" action="/newsletter-success.html" style="display:flex;gap:0;max-width:480px;">
       <input type="hidden" name="form-name" value="newsletter" />
@@ -3085,12 +3088,8 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
       </button>
     </form>
     <p style="font-size:11px;color:#bbb;margin-top:14px;" data-i18n="newsletter.note">No spam. Unsubscribe anytime.</p>
-  </div>
-</section>
-
-<!-- FOOTER -->
-<footer id="site-footer">
-  <div class="sf-links">
+    </div>
+    <div class="sf-links">
     <div class="sf-col">
       <a href="#home" data-i18n="footer.link.home">Home</a>
       <a href="#discover" data-i18n="footer.link.discover">Discover</a>
@@ -3114,6 +3113,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
       <a href="#" data-i18n="footer.link.youtube">YouTube</a>
       <a href="#" data-i18n="footer.link.tiktok">TikTok</a>
       <a href="#" data-i18n="footer.link.facebook">Facebook</a>
+    </div>
     </div>
   </div>
   <div class="sf-copy-bar">
