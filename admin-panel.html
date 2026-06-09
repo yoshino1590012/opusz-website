@@ -871,6 +871,7 @@
   import { getFirestore, collection, getDocs, doc, updateDoc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, listAll, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+  import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
@@ -885,6 +886,7 @@
   const db  = getFirestore(app);
   const auth = getAuth(app);  // registers Auth so Firestore writes carry the admin's identity
   const storage = getStorage(app);  // for media uploads (images/videos) used by the Site Editor
+  const functions = getFunctions(app, 'us-central1');  // for sending official emails (e.g. poster-approved)
   const ADMIN_EMAIL = 'tzutung.liao@gmail.com';
 
   // ── Auth guard ──
@@ -2953,10 +2955,22 @@
       var local = ADMIN_POSTERS.find(function(p){ return p.id===posterId && p.musicianUid===musicianUid; });
       if(local) local.status = status;
       renderAdminPosters(); updateAdminPostersBadge();
-      showNotif('已更新');
+      if(status === 'approved' && local && local.musicianEmail){
+        try{
+          await httpsCallable(functions, 'notifyPosterApproved')({
+            email: local.musicianEmail, name: local.musicianName || '', posterTitle: local.title || ''
+          });
+          showNotif('已標記已張貼，並寄出上線通知信給樂手 ✉');
+        }catch(err){
+          console.error('[admin-posters] notify failed:', err);
+          showNotif('已標記已張貼，但通知信寄送失敗：'+(err.code||err.message));
+        }
+      } else {
+        showNotif('已更新');
+      }
     }catch(e){ console.error('[admin-posters] status update failed:', e); showNotif('操作失敗：'+(e.code||e.message)); }
   }
-  window.approveAdminPoster = function(id, uid){ _adminSetPosterStatus(id, uid, 'approved'); };
+  window.approveAdminPoster = function(id, uid){ if(confirm('標記為「已張貼」，並寄送「海報已上線」通知信給這位樂手？')) _adminSetPosterStatus(id, uid, 'approved'); };
   window.rejectAdminPoster  = function(id, uid){ if(confirm('確定標記為未採用？')) _adminSetPosterStatus(id, uid, 'rejected'); };
   window.resetAdminPoster   = function(id, uid){ _adminSetPosterStatus(id, uid, 'pending'); };
   // Permanently remove a poster submission (admin clicks + confirms). Drops the

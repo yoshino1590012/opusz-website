@@ -267,3 +267,32 @@ exports.sendVerifyEmail = onCall(
     return { ok: true };
   }
 );
+
+// ── Poster approved → notify the musician their poster is live ────────────────
+// Called by the admin panel when a poster submission is marked 已張貼.
+// Admin-only (caller must be signed in as the admin account).
+exports.notifyPosterApproved = onCall(
+  { secrets: [ZEPTO_TOKEN] },
+  async (req) => {
+    if (!req.auth || req.auth.token.email !== "tzutung.liao@gmail.com") {
+      throw new HttpsError("permission-denied", "admin only");
+    }
+    const email = String((req.data && req.data.email) || "").trim();
+    const name = String((req.data && req.data.name) || "");
+    const posterTitle = String((req.data && req.data.posterTitle) || "");
+    if (!email) throw new HttpsError("invalid-argument", "email required");
+
+    const greet = name ? ('<p style="margin:0 0 14px;">' + esc(name) + " 您好，</p>") : "";
+    const html = emailShell(
+      '<h1 style="margin:0 0 14px;font-size:21px;color:#111;">🎉 您的海報已上線</h1>' +
+      greet +
+      '<p style="margin:0 0 14px;">好消息！您投稿的演出海報已通過審核並張貼至 OPUS.Z 演出頁，現在所有訪客都能看到了。</p>' +
+      (posterTitle ? ('<p style="margin:0 0 18px;">海報：<b>' + esc(posterTitle) + "</b></p>") : "") +
+      '<p style="margin:0 0 24px;">' + btn(SITE_URL + "/shows", "前往演出頁查看 →") + "</p>" +
+      '<p style="margin:0;color:#777;font-size:13px;">感謝您的投稿，期待與您一起把台灣的好演出帶給更多人。</p>'
+    );
+    await sendZepto(ZEPTO_TOKEN.value(), email, name, "🎉 您投稿的海報已在 OPUS.Z 上線", html);
+    logger.info("poster-approved email sent", { email });
+    return { ok: true };
+  }
+);
