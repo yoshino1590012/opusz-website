@@ -4483,7 +4483,7 @@
   <div class="tw-card">
     <div class="tw-emoji">👋</div>
     <h2 class="tw-title">歡迎來到 OPUS.Z 樂手後台</h2>
-    <p class="tw-text">這裡是你經營音樂事業的基地 —— 編輯你的公開主頁、接演出與課程邀約、管理收入。<br>花 1 分鐘快速看一下各功能吧！</p>
+    <p class="tw-text">這裡是你經營音樂事業的基地 —— 編輯公開主頁、接演出與課程邀約、管理收入。<br>花 1 分鐘帶你認識各個功能與平台規則！</p>
     <div class="tw-actions">
       <button class="tw-start" onclick="startTour()">開始導覽 →</button>
       <button class="tw-skip" onclick="endTour()">略過</button>
@@ -4511,17 +4511,23 @@
   // Each step highlights a sidebar item (by data-page) or the help button.
   var STEPS = [
     { sel:'[data-page="overview"]',    page:'overview',   title:'總覽 Overview',
-      body:'登入後的首頁。一眼看到最新的工作邀約、訊息、收入與待辦，掌握整體狀況。' },
-    { sel:'[data-page="pagebuilder"]', page:'pagebuilder', title:'編輯主頁 / Edit Page（最重要）',
-      body:'這是你的公開門面。左邊選區塊、中間即時預覽、右邊修改內容（Hero 照片、自我介紹、課程方案、合作品牌…），改完按「發佈」就上線給所有人看。' },
-    { sel:'[data-page="membership"]',  page:'membership',  title:'方案 / Membership',
-      body:'查看你的會員等級。升級 Premium（或輸入邀請碼）可開放「教學課程」、公開招收學生，並在老師列表中曝光更前面。' },
-    { sel:'[data-page="profile"]',     page:'profile',     title:'我的資料 / My Profile',
-      body:'設定顯示名稱、聯絡方式、樂器與地區。這些是帳號層級的基本資料，也會影響你在「社群」與平台上被找到的方式。' },
+      body:'這是你的後台首頁。一進來就看到最新的工作邀約、訊息、收入與待辦，一眼掌握整體狀況。' },
+    { sel:'[data-page="profile"]',     page:'profile',     title:'第一步：填「我的資料」',
+      body:'先把基本資料設定好：顯示名稱、樂器、所在地區與聯絡方式。這些是帳號層級的資料，也決定別人能不能在平台上找到你。側邊出現綠色「!」就代表還沒填完，建議先補齊。' },
+    { sel:'[data-page="pagebuilder"]', page:'pagebuilder', title:'第二步：編輯主頁（最重要）',
+      body:'這是你的公開門面。左邊選區塊、中間即時預覽、右邊改內容（主視覺照片、自我介紹、學經歷、演出與教學項目、亮點、合作品牌…）。改完一定要按「發佈」才會上線給客戶看。' },
+    { sel:'[data-page="posters"]',     page:'posters',     title:'海報投稿 / Posters',
+      body:'有演出時，把演出海報＋資訊投稿上來。管理者審核後會張貼到平台的「演出」頁，幫你多一個曝光管道。' },
     { sel:'[data-page="jobs"]',        page:'jobs',        title:'公開接案 / Jobs',
-      body:'客戶的演出邀約與課程詢問都會進到這裡，你可以查看、回覆與接案。' },
+      body:'客戶公開發布的演出委托會出現在這裡，你可以主動表達興趣、接案。有新委托時這顆會跳紅點提醒你。' },
+    { sel:'[data-page="messages"]',    page:'messages',    title:'訊息 / Messages',
+      body:'客戶直接找你的聯絡、檔期詢問、課程預約都會進到這裡，可以即時回覆。有新訊息會跳紅點，也會自動寄 email 通知你。' },
     { sel:'[data-page="earnings"]',    page:'earnings',    title:'收入 / Earnings',
       body:'追蹤你的接案收入與撥款紀錄。（這部分還在持續完善中。）' },
+    { sel:'[data-page="policy"]',      page:'policy',      title:'平台政策（請務必先讀）',
+      body:'這裡是平台的合作規則：收費與抽成、教學收費、付款與結算方式等。第一次使用一定要讀過一遍；日後規則有更新，也都會公告在這一頁。' },
+    { sel:'[data-page="settings"]',    page:'settings',    title:'設定 / Settings',
+      body:'帳號相關設定都在這裡（登入、通知等）。需要時再進來調整即可。' },
     { sel:'#tourHelpBtn',              page:null,          title:'隨時再看一次',
       body:'導覽結束！之後想重看，點右上角這顆「?」按鈕就會再跑一次。開始打造你的主頁吧 🎻' }
   ];
