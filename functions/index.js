@@ -78,7 +78,14 @@ function esc(s) {
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
-async function sendZepto(token, toEmail, toName, subject, html) {
+async function sendZepto(token, toEmail, toName, subject, html, replyTo) {
+  const payload = {
+    from: FROM,
+    to: [{ email_address: { address: toEmail, name: toName || "" } }],
+    subject: subject,
+    htmlbody: html,
+  };
+  if (replyTo) payload.reply_to = [{ address: replyTo }];
   const res = await fetch("https://api.zeptomail.com/v1.1/email", {
     method: "POST",
     headers: {
@@ -86,12 +93,7 @@ async function sendZepto(token, toEmail, toName, subject, html) {
       "Accept": "application/json",
       "Authorization": "Zoho-enczapikey " + token,
     },
-    body: JSON.stringify({
-      from: FROM,
-      to: [{ email_address: { address: toEmail, name: toName || "" } }],
-      subject: subject,
-      htmlbody: html,
-    }),
+    body: JSON.stringify(payload),
   });
   const text = await res.text();
   if (!res.ok) throw new Error("ZeptoMail " + res.status + ": " + text);
@@ -119,6 +121,30 @@ exports.notifyMusicianOnInquiry = onDocumentCreated(
     const snap = event.data;
     if (!snap) return;
     const d = snap.data() || {};
+
+    // General "Contact Us" website form → email the company inbox (info@), with
+    // reply-to set to the visitor so the owner can reply straight from Zoho.
+    if (d.kind === "contact") {
+      const subj = "【OPUS.Z 官網聯絡】" + (d.subject || d.category || "新訊息");
+      const fromLine = esc(d.name || "訪客") + (d.email ? (" &lt;" + esc(d.email) + "&gt;") : "");
+      const cell = '<td style="color:#888;padding:3px 12px 3px 0;white-space:nowrap;vertical-align:top;">';
+      const val = '<td style="color:#111;padding:3px 0;">';
+      const rows =
+        "<tr>" + cell + "來自</td>" + val + fromLine + "</td></tr>" +
+        (d.category ? ("<tr>" + cell + "分類</td>" + val + esc(d.category) + "</td></tr>") : "") +
+        (d.subject ? ("<tr>" + cell + "主旨</td>" + val + esc(d.subject) + "</td></tr>") : "");
+      const html = emailShell(
+        '<h1 style="margin:0 0 6px;font-size:21px;color:#111;">官網聯絡表單新訊息</h1>' +
+        '<p style="color:#777;margin:0 0 22px;font-size:14px;">有人透過網站「Contact」表單與你聯繫</p>' +
+        '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 6px;font-size:15px;">' + rows + "</table>" +
+        '<div style="white-space:pre-wrap;background:#f6f6f6;border:1px solid #eee;padding:16px 18px;border-radius:10px;margin:14px 0 18px;color:#222;">' + esc(d.message || "") + "</div>" +
+        (d.email ? ('<p style="margin:0;color:#777;font-size:13px;">直接回覆本信即可回覆 ' + esc(d.email) + "。</p>") : "")
+      );
+      await sendZepto(ZEPTO_TOKEN.value(), SUPPORT_EMAIL, "OPUS.Z", subj, html, d.email || "");
+      logger.info("contact email sent to admin", { id: event.params.id });
+      return;
+    }
+
     const uid = d.musicianUid;
     if (!uid) { logger.warn("inquiry has no musicianUid", { id: event.params.id }); return; }
 

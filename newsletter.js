@@ -8,7 +8,7 @@
  */
 import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
@@ -72,11 +72,58 @@ function wire(form) {
   });
 }
 
+// ── Contact "Contact Us" form → Firestore `inquiries` (kind:contact) ──────────
+// A Cloud Function emails the company inbox (info@opuszmusic.com) on create.
+async function sendContact(fields) {
+  if (!auth.currentUser) await signInAnonymously(auth);
+  await addDoc(collection(db, "inquiries"), {
+    kind: "contact",
+    name: fields.name || "",
+    email: fields.email || "",
+    subject: fields.subject || "",
+    category: fields.category || "",
+    message: fields.message || "",
+    source: location.pathname || "/",
+    createdAt: new Date().toISOString(),
+    read: false,
+  });
+}
+
+function wireContact(form) {
+  if (!form || form.__opzWired) return;
+  form.__opzWired = true;
+  form.setAttribute("novalidate", "novalidate");
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const get = (n) => { const el = form.querySelector('[name="' + n + '"]'); return el && el.value ? el.value.trim() : ""; };
+    const name = get("name"), email = get("email");
+    if (!name) { const el = form.querySelector('[name="name"]'); if (el) el.focus(); return; }
+    if (!email || email.indexOf("@") < 1) { const el = form.querySelector('[name="email"]'); if (el) el.focus(); return; }
+    const btn = form.querySelector('button[type="submit"], button');
+    const prev = btn ? btn.innerHTML : "";
+    if (btn) { btn.disabled = true; btn.dataset.prev = prev; btn.textContent = "傳送中… / Sending…"; }
+    try {
+      await sendContact({ name, email, subject: get("subject"), category: get("category"), message: get("message") });
+      const succ = form.querySelector(".cp-success") || document.getElementById("cpSuccess");
+      if (succ) { succ.style.display = "block"; succ.classList.add("show"); }
+      form.reset();
+      if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.prev || prev; }
+      if (!succ) alert("✓ 訊息已送出，我們會盡快回覆。\nMessage sent — we'll get back to you soon.");
+    } catch (err) {
+      console.error("contact send failed:", err);
+      if (btn) { btn.disabled = false; btn.innerHTML = btn.dataset.prev || prev; }
+      alert("傳送失敗，請稍後再試。\nFailed to send, please try again.");
+    }
+  });
+}
+
 function init() {
-  // Match the newsletter forms (name="newsletter" or "newsletter-footer").
+  // Newsletter subscribe forms.
   document
     .querySelectorAll('form[name="newsletter"], form[name="newsletter-footer"]')
     .forEach(wire);
+  // "Contact Us" forms.
+  document.querySelectorAll('form[name="contact"]').forEach(wireContact);
 }
 
 if (document.readyState === "loading") {
