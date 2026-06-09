@@ -885,9 +885,27 @@
   const db  = getFirestore(app);
   const auth = getAuth(app);  // registers Auth so Firestore writes carry the admin's identity
   const storage = getStorage(app);  // for media uploads (images/videos) used by the Site Editor
-  onAuthStateChanged(auth, function(u){ if(u) console.log("[admin] Firebase signed in as", u.email); });
+  const ADMIN_EMAIL = 'tzutung.liao@gmail.com';
 
   // ── Auth guard ──
+  // The localStorage flag alone is NOT enough: every admin read/write needs a
+  // LIVE Firebase session signed in AS the admin. If the session is missing or
+  // belongs to a different account (e.g. a customer Google login lingered on
+  // this origin), admin actions silently fail with permission-denied. So verify
+  // the real Firebase user and bounce to the login page if it isn't the admin.
+  onAuthStateChanged(auth, function(u){
+    if (u && u.email === ADMIN_EMAIL) {
+      console.log("[admin] Firebase signed in as", u.email);
+      return;
+    }
+    console.warn("[admin] no valid admin Firebase session (got:", u && u.email, ") → redirecting to login");
+    localStorage.removeItem('opusz_admin_loggedIn');
+    localStorage.removeItem('opusz_admin_email');
+    if (!location.pathname.endsWith('admin-login.html')) {
+      window.location.href = 'admin-login.html?reason=session';
+    }
+  });
+
   if (localStorage.getItem('opusz_admin_loggedIn') !== 'true') {
     window.location.href = 'admin-login.html';
   }
