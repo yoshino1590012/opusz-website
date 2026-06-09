@@ -512,6 +512,15 @@
         <div class="form-error" id="setupPhoneErr">請填寫聯絡電話。</div>
       </div>
 
+      <!-- Consent: must agree to the (shared) platform policy before submitting -->
+      <div class="form-group" style="margin-top:4px;">
+        <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;color:#333;line-height:1.5;cursor:pointer;">
+          <input type="checkbox" id="setupAgree" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;">
+          <span>我已閱讀並同意 OPUS.Z 的 <a href="#" onclick="openPolicyModal();return false;" style="font-weight:600;text-decoration:underline;">樂手條款與平台政策</a>。</span>
+        </label>
+        <div class="form-error" id="setupAgreeErr">請先閱讀並勾選同意樂手條款。</div>
+      </div>
+
       <button class="btn-main btn-primary" id="setupBtn" onclick="doSetup()">
         送出申請 / Submit application
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
@@ -549,6 +558,18 @@
   </div>
 </div>
 
+<!-- Platform policy modal (same content as the dashboard policy page) -->
+<div id="policyModal" style="display:none;position:fixed;inset:0;z-index:4000;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#fff;border-radius:16px;max-width:560px;width:100%;max-height:82vh;overflow:auto;padding:24px 26px;box-shadow:0 20px 60px rgba(0,0,0,.3);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div style="font-size:19px;font-weight:800;">樂手條款與平台政策</div>
+      <button onclick="closePolicyModal()" style="border:none;background:none;font-size:22px;cursor:pointer;color:#999;line-height:1;">×</button>
+    </div>
+    <div id="policyModalBanner" style="display:none;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:10px 12px;margin:8px 0 14px;font-size:13px;line-height:1.6;"></div>
+    <div id="policyModalBody" style="font-size:13.5px;color:#444;line-height:1.7;"></div>
+  </div>
+</div>
+
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, onAuthStateChanged, reload, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -570,6 +591,46 @@
   const db   = getFirestore(app);
   const storage = getStorage(app);
   const functions = getFunctions(app, "us-central1");
+
+  // ── Platform policy (single source: siteContent/policy; same as the
+  //    musician dashboard "平台政策" page and the admin editor) ──
+  var POLICY_DEFAULT = {
+    draftNote: '本政策仍在研擬中，內容可能隨時調整；正式版本將另行公告。',
+    version: 1,
+    sections: [
+      { title:'收費與抽成（演出）', body:'（草擬中，細節後續討論調整）' },
+      { title:'教學收費',          body:'（草擬中，細節後續討論調整）' },
+      { title:'付款與結算',        body:'（草擬中；目前採「交付後放款」）' },
+      { title:'取消與退款',        body:'（草擬中，細節後續討論調整）' },
+      { title:'錄音／影像使用權',   body:'（草擬中，細節後續討論調整）' },
+      { title:'行為準則',          body:'（草擬中，細節後續討論調整）' },
+      { title:'帳號審核與停權',     body:'（草擬中，細節後續討論調整）' },
+      { title:'隱私與資料',        body:'（草擬中，細節後續討論調整）' }
+    ]
+  };
+  window._policyVersion = POLICY_DEFAULT.version;   // recorded on the consent
+  window.openPolicyModal = async function(){
+    var m = document.getElementById('policyModal'); if(m) m.style.display='flex';
+    var bodyEl = document.getElementById('policyModalBody');
+    if(bodyEl) bodyEl.innerHTML = '<div style="color:#999;padding:10px 0;">載入中…</div>';
+    var data = POLICY_DEFAULT;
+    try{
+      var snap = await getDoc(doc(db,'siteContent','policy'));
+      if(snap.exists() && snap.data() && Array.isArray(snap.data().sections) && snap.data().sections.length) data = snap.data();
+    }catch(e){ /* use default */ }
+    window._policyVersion = data.version || 1;
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    var ban = document.getElementById('policyModalBanner');
+    if(ban){ if(data.draftNote){ ban.textContent='⚠️ '+data.draftNote; ban.style.display='block'; } else ban.style.display='none'; }
+    if(bodyEl){
+      bodyEl.innerHTML = (data.sections||[]).map(function(s){
+        return '<div style="margin-bottom:16px;"><div style="font-weight:800;font-size:14.5px;margin-bottom:4px;color:#111;">'+esc(s.title)+'</div>'
+          + '<div style="white-space:pre-wrap;">'+esc(s.body)+'</div></div>';
+      }).join('');
+    }
+  };
+  window.closePolicyModal = function(){ var m=document.getElementById('policyModal'); if(m) m.style.display='none'; };
+  document.addEventListener('click', function(e){ var m=document.getElementById('policyModal'); if(m && e.target===m) m.style.display='none'; });
 
   // Send the verification email via our branded ZeptoMail sender (info@opuszmusic.com)
   // so it lands in the inbox, not spam. Falls back to Firebase's built-in email
@@ -963,6 +1024,8 @@
     if (!education)                      show('setupEduErr');
     if (!experience)                     show('setupExpErr');
     if (!phone)                          show('setupPhoneErr');
+    var agreeEl = document.getElementById('setupAgree');
+    if (!agreeEl || !agreeEl.checked)    show('setupAgreeErr');
     if (!ok) return;
 
     var primaryRegion   = primaryCity + ', ' + primaryCountry;
@@ -1001,6 +1064,9 @@
         status:          'pending',   // ← awaiting admin approval; gate blocks dashboard
         published:       false,       // ← not shown publicly until approved
         verified:        false,
+        agreedToTerms:   true,        // consent checkbox (required to submit)
+        agreedAt:        new Date().toISOString(),
+        termsVersion:    (window._policyVersion || 1),
         joinedAt:        new Date().toISOString(),
         appliedAt:       new Date().toISOString(),
         profileComplete: 60
