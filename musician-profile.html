@@ -4170,17 +4170,12 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 </div>
 
 <script>
-(function(){
-  function syncBarAvatar(){
-    var url = localStorage.getItem('martin-profile-img');
-    var el = document.getElementById('bookBarAvatar');
-    if(el && url) el.style.backgroundImage = "url('" + url + "')";
-    var ab = document.getElementById('aboutAvatar');
-    if(ab && url) ab.style.backgroundImage = "url('" + url + "')";
-  }
-  syncBarAvatar();
-  window.addEventListener('storage', syncBarAvatar);
-})();
+/* Avatars (booking bar + About) are driven SOLELY by this musician's own
+   config (cfg.about.avatarUrl), applied per-profile below. The old global
+   'martin-profile-img' localStorage fallback was removed: it's a shared,
+   non-account key that media-sync replicated platform-wide, so one account's
+   uploaded photo leaked onto every (incl. brand-new, empty) profile. With it
+   gone, a musician who hasn't uploaded an avatar shows a blank grey circle. */
 
 // ── Showreel: switch between videos + play in lightbox ──
 (function(){
