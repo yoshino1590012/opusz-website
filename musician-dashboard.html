@@ -2218,7 +2218,7 @@
       if (target) target.classList.add('active');
     }
     document.getElementById('topbarTitle').textContent = PAGE_TITLES[id] || id;
-    if (id === 'pagebuilder') pbInit();
+    if (id === 'pagebuilder') { pbInit(); setTimeout(function(){ if(window.pbApplyCurrentDevice) window.pbApplyCurrentDevice(); }, 80); }
     if (id === 'membership') pbRenderMembership();
     if (id === 'posters') posterInit();
     if (id === 'policy') loadPolicy();
@@ -3202,7 +3202,7 @@
     pbPushPreview();
     const frame = document.getElementById('pbPreview');
     if(frame){
-      frame.addEventListener('load', function(){ pbLockPreviewNav(frame); pbPushPreview(); });
+      frame.addEventListener('load', function(){ pbLockPreviewNav(frame); pbPushPreview(); if(window.pbApplyCurrentDevice) window.pbApplyCurrentDevice(); });
       pbLockPreviewNav(frame);
     }
     pbUpdatePublicUrl();
@@ -4138,16 +4138,62 @@
     showNotif('已恢復空白模板 ✓ 記得按「發布」套用');
   };
 
+  // 「桌機」預覽：iframe 以「真正的桌機寬度」(≥1280px = 一般桌機/筆電視窗寬) 渲染，
+  // 再用 transform:scale() 等比縮小塞進中間預覽區（Shopify / Webflow 式）。這樣 iframe
+  // 內部的 window.innerWidth 就是 1280+，CSS 會套用真正的「桌機版型」，只是視覺縮小——
+  // 解決「在 MacBook 上中間太窄、桌機預覽看起來像 iPad」的問題。不重載 iframe（避免
+  // 之前的無限重整雷），改用 dispatch resize 讓頁面內依寬度計算的 JS 跟著更新。
+  var PB_DESKTOP_MINW = 1280;
+  function pbFitDesktop(){
+    var wrap  = document.querySelector('.pb-frame-wrap');
+    var inner = document.getElementById('pbFrameInner');
+    var ifr   = document.getElementById('pbPreview');
+    if(!wrap || !inner || !ifr) return;
+    if(inner.classList.contains('pb-phone')) return;   // 手機模式由 CSS 處理
+    var devW = Math.max(PB_DESKTOP_MINW, window.innerWidth || 1536);
+    var devH = Math.max(720, window.innerHeight || Math.round(devW * 0.5625));
+    var availW = Math.max(200, wrap.clientWidth  - 32);
+    var availH = Math.max(200, wrap.clientHeight - 32);
+    var scale  = Math.min(1, availW / devW);           // 永不放大超過 100%
+    // iframe 用真實桌機尺寸渲染，再縮小
+    ifr.style.width  = devW + 'px';
+    ifr.style.height = Math.max(devH, Math.round(availH / scale)) + 'px';  // 至少填滿可視高度
+    ifr.style.transform = 'scale(' + scale + ')';
+    ifr.style.transformOrigin = 'top left';
+    // 外框取「縮放後的尺寸」→ 版面預留正確空間、能正確置中、不溢出
+    inner.style.width    = Math.round(devW * scale) + 'px';
+    inner.style.height   = Math.round(parseFloat(ifr.style.height) * scale) + 'px';
+    inner.style.maxWidth = 'none';
+    // 推一下 resize，讓頁面內依寬度計算的 JS（hero 尺寸等）跟著更新
+    try{ ifr.contentWindow && ifr.contentWindow.dispatchEvent(new Event('resize')); }catch(e){}
+  }
+  window.pbFitDesktop = pbFitDesktop;
+  window.pbApplyCurrentDevice = function(){
+    var inner = document.getElementById('pbFrameInner');
+    if(inner && !inner.classList.contains('pb-phone')) pbFitDesktop();
+  };
+
   window.pbSetDevice = function(mode, btn){
     document.querySelectorAll('.pb-dev-btn').forEach(b=>b.classList.remove('active'));
     if(btn) btn.classList.add('active');
     const inner = document.getElementById('pbFrameInner');
-    if(inner){
-      var phone = (mode==='mobile');
-      inner.classList.toggle('pb-phone', phone);   // phone bezel + notch (sizing via CSS class)
-      inner.style.width = phone ? '' : '100%';
+    const ifr   = document.getElementById('pbPreview');
+    if(!inner) return;
+    var phone = (mode==='mobile');
+    inner.classList.toggle('pb-phone', phone);   // phone bezel + notch (sizing via CSS class)
+    if(phone){
+      // 還原 iframe 原本的 width/height:100%（清掉桌機的縮放 transform），讓手機外框 CSS 乾淨接手
+      if(ifr){ ifr.style.width='100%'; ifr.style.height='100%'; ifr.style.transform=''; ifr.style.transformOrigin=''; }
+      inner.style.width=''; inner.style.height=''; inner.style.maxWidth='';
+    }else{
+      pbFitDesktop();
     }
   };
+  // 視窗大小改變時，若在桌機模式就重新計算縮放比例
+  window.addEventListener('resize', function(){
+    var inner = document.getElementById('pbFrameInner');
+    if(inner && !inner.classList.contains('pb-phone')) pbFitDesktop();
+  });
 
   window.pbSave = async function(){
     pbReadForm();
