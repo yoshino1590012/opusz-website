@@ -70,6 +70,13 @@
 > ⑤🔴🔴**修「頭貼/個資漏到不相干新帳號」（重大雷，發生兩次、兩條獨立路徑）**：(a)`media-sync.js` 的 RESTORE 會把**全站共用 `siteContent/media`** 裡的每個 key 還原進 localStorage、setItem 攔截器又把含 data: 的值上傳雲端 → 客戶 `opusz_photo/opusz_city` 等個資被當「網站媒體」全站散佈 → **排除所有 `opusz_` 開頭 key**（restore/publish/migrate 三處）＋**全站 `media-sync.js` bump `?v=2`**（外部腳本沒版本號＝瀏覽器吃舊版，不 bump 改了等於沒改！）。(b) 樂手檔案頁頭貼有一段讀**寫死全域 key `martin-profile-img`** 的舊 fallback（`syncBarAvatar`，名字還停在 demo「Martin」）→ 同樣被 media-sync 全站散佈 → **整段移除**，頭貼只由各自 `config.about.avatarUrl` 決定（沒上傳＝空灰圈）。`customer-login` 也加：換不同 email 登入時清前一帳號的本機個資。**教訓：任何「會顯示在公開/他人頁面」的資料都不能存在無 uid 區隔的全域 localStorage key；個資 key 一律別讓 media-sync 碰。**
 > ⑥**Hero 大名字微調**：中文底部被 `overflow:hidden`+`line-height:0.82` 切掉 → 改 `line-height:1`（貼齊底緣又不切）；英文名一律大寫（`text-transform:uppercase`）；`.hero-info`（title/city）`bottom +26px` 與大名字拉開、防中文重疊。
 >
+> **2026-06-09 本視窗摘要（後台刪帳號乾淨化 ＋ 客戶寫入修復 ＋ 完整規則檔）**：
+> ①**客戶註冊沒被記錄的 bug**：`customer-login.html` 的 `saveToFirestore` 原本用「**不帶身分驗證**」的 REST PATCH（只帶 API key）寫 `customers` → 現行規則擋掉匿名寫入 → 新客戶（如 andyliao600）默默沒進資料庫（只 console 警告）。改成寫入時**帶登入者的 ID token**（`auth.currentUser.getIdToken()` → `Authorization: Bearer`），以後新客戶都會正確出現在後台。⚠️ 舊的假登入客戶（Firebase Auth 根本沒帳號者）不會回來，要本人重新正式註冊。
+> ②**後台刪音樂家＝連檔案一起清**：`admin-panel.html` 的 `deleteMusician` 刪完 Firestore doc 後，新增 `deleteStorageFolder('musicians/'+uid)`（遞迴 `listAll`+`deleteObject`）清掉該樂手所有上傳檔（大頭照/海報），＋刪 `profileEdits/{uid}`。import 補 `listAll, deleteObject`。**需 Storage 規則放行管理者寫/刪別人的檔**（見 ③）。
+> ③🆕🆕**全站安全規則寫成檔案＋完整化**：新增 **`firestore.rules`**（涵蓋全部 9 個集合：siteContent/musicians/customers/inquiries/conversations+messages/jobs/subscribers/profileEdits/posts）＋ **`storage.rules`**（siteContent/musicians）。兩份都把**管理者(`tzutung.liao@gmail.com`)**設為可刪音樂家/客戶/檔案。`customers` 規則改成「以 email 欄位綁定本人 + 管理者全權」。**業主已（或將）在主控台貼上發布**。**這兩份檔＝目前線上規則的可貼版本，以後改規則先改這檔再請業主貼。**
+> ④**確認**：JD 測試樂手已從 Firestore 刪除（doc NOT_FOUND、email 搜尋 0 筆）；但他刪除前上傳的照片仍在 Storage（孤兒檔、無程式引用、無害；可手動刪 `musicians/6YaJp90vq4N7aq2GnS5vMd1MLXc2/`）。
+> ⑤📌**規則為何不能像程式一樣自動上線**：Cloudflare 只部署 GitHub 上的「網站程式」；**Firestore/Storage 規則只存在 Firebase 主控台、不在 repo**，所以 push 不會更新規則。唯二更新法：(a) 業主到主控台貼上按發布；(b) 用本機 **firebase CLI**（已裝、已登入 yoshino，見 §12.4）`firebase deploy --only firestore:rules,storage`。**規則發布權限＝業主保留（見守則第 4 點），Claude 預設只準備可貼版、不代發。**
+>
 > **🔑 業主給的「多視窗協作守則」（本視窗實證，下個視窗務必遵守）**：
 > 1. **業主同時開多個 Claude 視窗**（jobs/inquiries/newsletter/Cloud Functions/nav-auth.js 多是「另一視窗」的領域）。動工前先 `git fetch && git status` 看哪些檔有別人未提交的改動。
 > 2. **改好就直接 push**（業主已授權，不用每次問）——**除非**有別的視窗正在改同一個檔。
@@ -186,6 +193,7 @@
 - `server.py`：本機編輯伺服器（端點：`/upload-file /save-config /save-shows /save-videos /git-push /submit-application /update-application /get-applications`）。**POST 回應 (`_ok`/`_err`) 一定要送 `Content-Length`**（HTTP/1.1 keep-alive，否則上傳卡住）；改 server.py 後**要重啟**才生效。
 - `nav.js` / `nav.css`：共用導覽（內頁注入）。**≤900px 會把愛心/登入/語言搬進漢堡抽屜**（`#navDrawerExtra`，首頁同邏輯內建在 `musician-platform.html`）。
 - `site-data.json` / `shows-data.json`：首頁/演出頁的檔案型設定（會被 git 追蹤＝部署）。
+- 🆕 `firestore.rules` / `storage.rules`（2026-06-09）：**全站安全規則的可貼版本**（不會自動上線，要業主到 Firebase 主控台貼上發布，或用 firebase CLI deploy）。改規則一律先改這兩個檔、再請業主發布。
 - `_redirects`、`.gitignore`（排除 >25MB 大檔；那些影片走 Cloudinary）。
 - 🆕 `functions/index.js` + `firebase.json` + `.firebaserc`（2026-06-09）：**Firebase Cloud Functions**（自動寄信通知）。`notifyMusicianOnInquiry`（訊息→樂手信箱）、`notifyMusicianOnReview`（審核→申請人）。詳見 §12。（已在 git，commit `5063f5e`）
 - 🆕 `musician-profile.html` 新增 `window.opzSendInquiry`（聯絡/檔期/課程 → 寫 Firestore `inquiries`，匿名登入）；`musician-dashboard.html`「訊息」改讀 `inquiries`（`_fsInbox`/`renderInbox`）。見 §12.1。
