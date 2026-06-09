@@ -1122,6 +1122,36 @@ window.addEventListener('pageshow', function(e) {
   });
   renderCommissions();
 
+  /* ── Load the customer's REAL public commissions (Firestore `jobs`) ──
+     Posted from recent-jobs.html (pjSaveJob → jobs, with uid = this customer).
+     Replaces the demo card once the logged-in customer has posted any. */
+  (function wireRealCommissions(){
+    function boot(){
+      if(!window.OPUSZ_MSG){ window.addEventListener('opusz-msg-ready', boot, { once:true }); return; }
+      OPUSZ_MSG.onAuth(function(uid){
+        if(!uid) return;
+        OPUSZ_MSG.listMyJobs(uid, function(jobs){
+          if(jobs && jobs.length){
+            COMMISSIONS = jobs.map(function(j){
+              return {
+                id: j.id,
+                title: j.title || j.desc || ((j.type||'公開委托') + (j.ensemble ? ' · '+j.ensemble : '')),
+                posted: (j.createdAt ? new Date(j.createdAt).toLocaleDateString('en-GB',{day:'numeric',month:'short'}) : '—'),
+                eventDate: (j.eventDate||'—') + (j.eventTime ? ' '+j.eventTime : ''),
+                location: j.location || '—',
+                budget: j.budget || '—',
+                status: (j.status==='closed' ? 'closed' : 'open'),
+                responses: j.responses || 0
+              };
+            });
+            renderCommissions();
+          }
+        });
+      });
+    }
+    boot();
+  })();
+
   /* ===== Messages workroom (real Firestore via OPUSZ_MSG; demo fallback) ===== */
   var liveThreads = [];   // mapped from Firestore conversations (customer view)
   var activeThread = null;
@@ -1259,7 +1289,7 @@ window.addEventListener('pageshow', function(e) {
   bootWorkroom();
 })();
 </script>
-<script type="module" src="messaging.js"></script>
+<script type="module" src="messaging.js?v=2"></script>
 <script src="assets/js/smooth-scroll.js" defer></script>
   <script type="module" src="media-sync.js?v=2"></script>
 </body>

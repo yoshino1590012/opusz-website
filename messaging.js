@@ -102,6 +102,18 @@ const OPUSZ_MSG = {
     }, function (err) { console.warn('[messaging] listConversations:', err); cb([]); });
   },
 
+  // ── live list of the public commissions (jobs) I posted ──
+  listMyJobs(uid, cb) {
+    if (!uid) { cb([]); return function(){}; }
+    const q = query(collection(db, 'jobs'), where('uid', '==', uid));
+    return onSnapshot(q, function (snap) {
+      const rows = [];
+      snap.forEach(function (d) { rows.push(Object.assign({ id: d.id }, d.data())); });
+      rows.sort(function (a, b) { return String(b.createdAt || '').localeCompare(String(a.createdAt || '')); });
+      cb(rows);
+    }, function (err) { console.warn('[messaging] listMyJobs:', err); cb([]); });
+  },
+
   // ── live messages within a conversation ──
   listenMessages(convId, cb) {
     const q = query(collection(db, 'conversations', convId, 'messages'), orderBy('createdAt', 'asc'));

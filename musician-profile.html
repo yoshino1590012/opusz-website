@@ -3754,6 +3754,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       details:{ plan:state.plan, level:state.level, goals:(state.goals||[]).slice(), format:state.format, times:(state.times||[]).slice(), notes:(state.notes||'').trim() },
       musicianName: fullName
     };
+    if(typeof window.opzMirrorToConversation==='function'){ window.opzMirrorToConversation(lessonPayload); }  // → customer's Messages
     if(typeof window.opzSendInquiry==='function'){ window.opzSendInquiry(lessonPayload).catch(function(err){ console.warn('[lesson] send failed:',err); }); }
     if (window.opuszTrack) opuszTrack('lesson_booked', { musician: fullName, plan: state.plan });
 
@@ -6196,7 +6197,7 @@ window.addEventListener('pageshow', function(e) {
   </script>
 
   <!-- Real messaging: "Message" starts a conversation with this musician -->
-  <script type="module" src="messaging.js"></script>
+  <script type="module" src="messaging.js?v=2"></script>
   <script>
     // Mirror a booking/enquiry into the customer's Messages workroom, so a
     // logged-in customer sees everything they send (the musician still gets the
@@ -6205,8 +6206,20 @@ window.addEventListener('pageshow', function(e) {
     window.opzMirrorToConversation = async function(payload){
       try{
         var musicianUid = new URLSearchParams(location.search).get('uid');
-        var customerUid = window.OPUSZ_MSG && OPUSZ_MSG.currentUid && OPUSZ_MSG.currentUid();
-        if(!musicianUid || !customerUid || !window.OPUSZ_MSG) return;
+        if(!musicianUid || !window.OPUSZ_MSG) return;
+        // Wait for the messaging layer's Firebase identity to resolve before giving
+        // up — it loads async, so a synchronous currentUid() right after send is
+        // often still null and the mirror used to silently no-op (customer never
+        // saw their own message). Resolve the uid via onAuth (up to ~6s).
+        var customerUid = OPUSZ_MSG.currentUid && OPUSZ_MSG.currentUid();
+        if(!customerUid){
+          customerUid = await new Promise(function(res){
+            var settled=false;
+            OPUSZ_MSG.onAuth(function(u){ if(!settled && u){ settled=true; res(u); } });
+            setTimeout(function(){ if(!settled){ settled=true; res(OPUSZ_MSG.currentUid && OPUSZ_MSG.currentUid()); } }, 6000);
+          });
+        }
+        if(!customerUid){ console.warn('[mirror-conv] no customer identity — not mirrored'); return; }
         var brief = null;
         if(payload.kind === 'booking' && payload.details){
           var s = payload.details;
