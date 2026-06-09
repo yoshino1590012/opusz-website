@@ -39,6 +39,11 @@ const auth = getAuth(app);
 const MEDIA_DOC = doc(db, 'siteContent', 'media');
 // matches any base64 image/video data URL
 const DATAURL_RE = /data:(?:image|video)\/[A-Za-z0-9.+-]+;base64,[A-Za-z0-9+/=]+/g;
+// Per-user / session state (login name, customer city/intro/avatar, bookings,
+// language…) all use the `opusz_` prefix. These are NOT shared site media and
+// must NEVER be synced to the global media doc or restored across devices/
+// accounts — doing so leaked one customer's avatar/city onto everyone else.
+const IS_USER_KEY = function(k){ return /^opusz_/.test(String(k)); };
 
 // ── 1) RESTORE published media into localStorage so existing render code shows it ──
 (async function restore(){
@@ -48,6 +53,7 @@ const DATAURL_RE = /data:(?:image|video)\/[A-Za-z0-9.+-]+;base64,[A-Za-z0-9+/=]+
     const map = snap.data() || {};
     let changed = false;
     Object.keys(map).forEach(function(k){
+      if(IS_USER_KEY(k)) return;   // never restore per-user/session state from the shared map
       try{ if(localStorage.getItem(k) == null){ localStorage.setItem(k, map[k]); changed = true; } }catch(e){}
     });
     // The pages render from localStorage at parse time; if we just filled it, reload once.
@@ -103,7 +109,7 @@ localStorage.setItem = function(k, v){
   // Sync when the value carries media (data: URL) OR when it's a blog photo entry —
   // blog photos store {url,x,y,zoom}; position/zoom edits have no data: URL but still
   // need to reach the cloud so the live site and other devices stay in sync.
-  if(typeof v === 'string' && ((v.indexOf('data:') >= 0 && /image|video/.test(v.slice(0,40))) || k.indexOf('blog-photo:')===0)){
+  if(typeof v === 'string' && !IS_USER_KEY(k) && ((v.indexOf('data:') >= 0 && /image|video/.test(v.slice(0,40))) || k.indexOf('blog-photo:')===0)){
     clearTimeout(_timers[k]);
     _timers[k] = setTimeout(function(){
       publishValue(k, v).catch(function(e){ console.warn('[media-sync] publish failed:', k, e); });
@@ -117,6 +123,7 @@ window.opzMigrateMedia = async function(){
   const keys = []; for(let i=0;i<localStorage.length;i++) keys.push(localStorage.key(i));
   const uploaded = [], failed = [];
   for(const k of keys){
+    if(IS_USER_KEY(k)) continue;   // never migrate per-user/session state
     const v = localStorage.getItem(k) || '';
     if(v.indexOf('data:') >= 0 && /image|video/.test(v)){
       try{ await publishValue(k, v); uploaded.push(k); }
