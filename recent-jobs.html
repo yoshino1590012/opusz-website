@@ -1199,6 +1199,53 @@ document.querySelectorAll('[data-google]').forEach(function(btn){
     return addDoc(collection(db, 'jobs'), payload);
   };
   </script>
+
+  <!-- ── Load real posted commissions from Firestore (jobs collection) ── -->
+  <script type="module">
+    import { initializeApp, getApps } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+    import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+    import { getFirestore, collection, getDocs, query, where } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+    const cfg = { apiKey:'AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s', authDomain:'opusz-45280.firebaseapp.com', projectId:'opusz-45280' };
+    const app = getApps().length ? getApps()[0] : initializeApp(cfg);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    function timeAgo(iso){
+      if(!iso) return '';
+      const t = Date.parse(iso); if(isNaN(t)) return '';
+      const s = Math.floor((Date.now()-t)/1000);
+      if(s<60) return 'Posted just now';
+      const m=Math.floor(s/60); if(m<60) return 'Posted '+m+' min ago';
+      const h=Math.floor(m/60); if(h<24) return 'Posted '+h+'h ago';
+      return 'Posted '+Math.floor(h/24)+'d ago';
+    }
+    function jobCard(j){
+      const dateStr = j.eventDate ? (j.eventDate + (j.eventTime ? ' · '+j.eventTime : '')) : '';
+      const rows = [];
+      if(j.location) rows.push('<div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>'+esc(j.location)+'</div>');
+      if(dateStr)    rows.push('<div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>'+esc(dateStr)+(j.duration?(' · '+esc(j.duration)):'')+'</div>');
+      const ago = timeAgo(j.createdAt);
+      if(ago) rows.push('<div class="rj-meta-row" style="opacity:.55;">'+esc(ago)+'</div>');
+      return '<div class="rj-card rj-real" data-type="'+esc(j.type||'')+'">'
+        + '<span class="rj-type-badge">'+esc(j.type||'Job')+'</span>'
+        + '<div class="rj-instr-pill">'+esc(j.ensemble||'—')+'</div>'
+        + (j.desc ? '<div class="rj-card-title">'+esc(j.desc)+'</div>' : '')
+        + '<div class="rj-card-meta">'+rows.join('')+'</div>'
+        + '</div>';
+    }
+    (async function(){
+      try {
+        // jobs read requires auth → use the existing session, else sign in anonymously.
+        if(!auth.currentUser){ try{ await signInAnonymously(auth); }catch(e){} }
+        const snap = await getDocs(query(collection(db,'jobs'), where('status','==','open')));
+        const jobs = [];
+        snap.forEach(d => jobs.push(Object.assign({ id:d.id }, d.data())));
+        jobs.sort((a,b)=> String(b.createdAt||'').localeCompare(String(a.createdAt||'')));
+        const grid = document.querySelector('.rj-grid');
+        if(grid && jobs.length){ grid.insertAdjacentHTML('afterbegin', jobs.map(jobCard).join('')); }
+      } catch(e){ console.warn('[recent-jobs] load failed:', e); }
+    })();
+  </script>
   <script type="module" src="media-sync.js?v=2"></script>
 </body>
 </html>
