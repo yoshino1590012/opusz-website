@@ -1107,6 +1107,57 @@ window.opzShows = (function(){
     try{ saveState(); }catch(e){} try{ syncShowsToServer(); }catch(e){}
     return SHOW_N;
   }
+  // Renumber one slide's DOM (ids + data-i18n keys + seq) from oldI → newI.
+  function _renumberSlide(oldI, newI){
+    var fp=document.getElementById('fpSlide'+oldI);
+    if(fp){ fp.id='fpSlide'+newI;
+      var bg=document.getElementById('fpBg'+oldI);  if(bg)  bg.id='fpBg'+newI;
+      var img=document.getElementById('fpImg'+oldI); if(img) img.id='fpImg'+newI; }
+    var ftp=document.getElementById('ftpSlide'+oldI);
+    if(ftp){ ftp.id='ftpSlide'+newI;
+      ftp.querySelectorAll('[data-i18n]').forEach(function(el){
+        var m=(el.getAttribute('data-i18n')||'').match(/^show\.(\d+)\.(.+)$/);
+        if(m) el.setAttribute('data-i18n','show.'+(newI+1)+'.'+m[2]);
+      });
+      var seq=ftp.querySelector('.show-seq'); if(seq) seq.textContent=('0'+(newI+1)).slice(-2)+' · 2025';
+    }
+    var si=document.querySelector('.shows-track .show-item[data-show-index="'+oldI+'"]');
+    if(si){ si.setAttribute('data-show-index', newI);
+      var sbg=document.getElementById('sbg'+oldI); if(sbg) sbg.id='sbg'+newI;
+      var sbi=document.getElementById('sbi'+oldI); if(sbi) sbi.id='sbi'+newI; }
+  }
+  // Delete ANY poster by index (not just the last). Shifts each later poster's
+  // text (i18n keys show.N.*) down so nothing gets misaligned.
+  function removeAt(idx){
+    if(SHOW_N<=1) return SHOW_N;
+    if(idx==null || idx<0 || idx>=SHOW_N) return SHOW_N;
+    var FIELDS=['artist','title','venue','desc','url'];
+    // 1) shift i18n text: array index a (a≥idx) takes the text of a+1 → key show.(a+1)=show.(a+2)
+    try{
+      var I=window.I18N||{};
+      ['en','zh'].forEach(function(L){
+        var d=I[L]; if(!d) return;
+        for(var a=idx; a<SHOW_N-1; a++){
+          FIELDS.forEach(function(fd){
+            var from='show.'+(a+2)+'.'+fd, to='show.'+(a+1)+'.'+fd;
+            if(d[from]!==undefined) d[to]=d[from]; else delete d[to];
+          });
+        }
+        FIELDS.forEach(function(fd){ delete d['show.'+SHOW_N+'.'+fd]; });
+      });
+    }catch(e){}
+    // 2) remove the chosen slide's DOM
+    ['fpSlide'+idx,'ftpSlide'+idx].forEach(function(id){ var el=document.getElementById(id); if(el) el.remove(); });
+    var siDel=document.querySelector('.shows-track .show-item[data-show-index="'+idx+'"]'); if(siDel) siDel.remove();
+    // 3) renumber every slide after idx down by one
+    for(var k=idx+1; k<SHOW_N; k++) _renumberSlide(k, k-1);
+    // 4) splice state + re-render
+    ST.shows.splice(idx,1); SHOW_N--;
+    applyAll();
+    try{ if(typeof switchLang==='function') switchLang(_currentLang); }catch(e){}
+    try{ saveState(); }catch(e){} try{ syncShowsToServer(); }catch(e){}
+    return SHOW_N;
+  }
   // Apply a saved config (from Firebase via site-content.js): reconcile the NUMBER
   // of posters, then each poster's image + frame. Lets add/remove/position done in
   // the admin take effect on the LIVE site without server.py.
@@ -1125,7 +1176,7 @@ window.opzShows = (function(){
   }
   return { count:function(){return SHOW_N;}, list:list, setFrame:setFrame,
            setImageUrl:setImageUrl, setImageFile:setImageFile, publish:publish,
-           add:addPoster, removeLast:removeLast, applyConfig:applyConfig };
+           add:addPoster, removeLast:removeLast, removeAt:removeAt, applyConfig:applyConfig };
 })();
 
 // ══════════════════════════════════════════

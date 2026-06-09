@@ -1454,7 +1454,10 @@
       var id='shp'+s.i; var sc=Math.round((s.scale||1)*100); var bl=Math.round(s.blur||0);
       var bgx=Math.round(s.bgX!=null?s.bgX:50); var bgy=Math.round(s.bgY!=null?s.bgY:50);
       return '<div style="margin-bottom:18px;border-top:2px solid #e5e5e5;padding-top:12px;">'
-        +'<div style="font-size:13px;font-weight:800;color:#111;margin-bottom:6px;">海報 '+(s.i+1)+'</div>'
+        +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">'
+          +'<span style="font-size:13px;font-weight:800;color:#111;">海報 '+(s.i+1)+'</span>'
+          +'<button type="button" onclick="seShowsRemoveAt('+s.i+')" title="刪除這張海報" style="font-size:11px;color:#dc2626;background:#fff;border:1px solid #fecaca;border-radius:6px;padding:3px 9px;cursor:pointer;">🗑 刪除這張</button>'
+        +'</div>'
         +'<div id="'+id+'" class="shp-pad" data-i="'+s.i+'" style="position:relative;height:150px;border-radius:9px;overflow:hidden;background:#111;border:1px solid #e2e2e6;cursor:'+(s.url?'grab':'default')+';user-select:none;touch-action:none;">'
           +'<div class="shp-img" style="position:absolute;inset:0;background:#111 center/cover no-repeat;'+(s.url?('background-image:url(\''+escU(s.url)+'\');'):'')+'"></div>'
           +'<div class="shp-hint" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:11px;color:#bbb;pointer-events:none;">'+(s.url?'<span style="background:rgba(0,0,0,.5);padding:2px 8px;border-radius:20px;">拖曳移位</span>':'⬇ 拖照片到這裡或按下方上傳')+'</div>'
@@ -1486,6 +1489,32 @@
   window.seShowsRemoveLast = function(){
     var w=(typeof _seWin==='function')?_seWin():null;
     if(w && w.opzShows && w.opzShows.removeLast){ w.opzShows.removeLast(); setTimeout(function(){ if(seCurrentSection==='sh-poster') seBuildShowsPoster(document.getElementById('seControls')); }, 220); }
+  };
+  // Delete a SPECIFIC poster (any position). Shifts the admin's saved i18n text
+  // down to match the engine, so later posters' name/title/etc don't get misaligned.
+  window.seShowsRemoveAt = function(i){
+    var w=(typeof _seWin==='function')?_seWin():null;
+    if(!w || !w.opzShows || !w.opzShows.removeAt) return;
+    var N = (w.opzShows.count) ? w.opzShows.count() : 0;
+    if(N<=1){ showNotif('至少要保留一張海報'); return; }
+    if(!confirm('確定刪除第 '+(i+1)+' 張海報？（記得之後按發佈才會上線）')) return;
+    try{
+      var FIELDS=['artist','title','venue','desc','url'];
+      seCurrentConfig.i18n=seCurrentConfig.i18n||{};
+      ['en','zh'].forEach(function(L){
+        var d=seCurrentConfig.i18n[L]; if(!d) return;
+        for(var a=i; a<N-1; a++){
+          FIELDS.forEach(function(fd){
+            var from='show.'+(a+2)+'.'+fd, to='show.'+(a+1)+'.'+fd;
+            if(d[from]!==undefined) d[to]=d[from]; else delete d[to];
+          });
+        }
+        FIELDS.forEach(function(fd){ delete d['show.'+N+'.'+fd]; });
+      });
+    }catch(e){}
+    try{ w.opzShows.removeAt(i); }catch(e){}
+    setTimeout(function(){ if(seCurrentSection==='sh-poster') seBuildShowsPoster(document.getElementById('seControls')); }, 220);
+    if(typeof seOnInput==='function') seOnInput();
   };
   function seWireShowsPoster(box){
     function win(){ var ifr=document.getElementById('seFrame'); return ifr&&ifr.contentWindow; }
