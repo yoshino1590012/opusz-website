@@ -1969,7 +1969,11 @@
     //    reads). This is what makes replies sync both ways in real time. Populates
     //    window._fsConvos; the inbox UI renders it. ──
     try {
-      const _qc = query(collection(db, 'conversations'), where('musicianUid', '==', user.uid));
+      // Query by participants (NOT musicianUid): the read rule is `uid in
+      // resource.data.participants`, and Firestore only permits a query whose
+      // constraints guarantee rule compliance — `musicianUid == uid` doesn't, so
+      // the whole query was rejected and the musician inbox stayed empty.
+      const _qc = query(collection(db, 'conversations'), where('participants', 'array-contains', user.uid));
       onSnapshot(_qc, function(snap){
         var arr = [];
         snap.forEach(function(d){ arr.push(Object.assign({ id:d.id }, d.data())); });
