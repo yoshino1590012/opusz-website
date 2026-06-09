@@ -52,6 +52,22 @@
 > ⑤**還沒做**：公開委托(jobs)發布→**自動 email 通知全體樂手**（目前只「私人訊息→單一樂手」有 email）；課程預約流程沒收集學生 email（見 §10 第 0.6）。（`functions/` 已 commit 進 git＝commit `5063f5e`。）
 >
 > **2026-06-08 本視窗摘要（公開委托串流／樂手主頁載入體驗／雙語內容）**：①**公開委托真資料流**：客戶在 `recent-jobs` 送委托→寫 Firestore **`jobs`**→樂手後台「公開接案」即時看到（onSnapshot＋紅點徽章＋通知；已過活動日期/已接的自動不顯示）。Post-a-Project 加**活動時間**選擇器。**🔴 還沒通：要業主在 Firebase 主控台①開 Anonymous 登入②發布 `jobs` 規則**（見 §10 第 0.5 點）。②**樂手公開主頁載入大修**：修「published 卻顯示空白模板」(module 頂層 `return` 語法錯→包 async IIFE)、改用 **Firestore REST 取代 SDK**（少約 0.8s 灰屏）、**等照片+字型都好才一次顯示**（名字/照片一起出現、不分批）、**開場動畫等資料就緒才播**、**Showreel 輪播改在動畫後+1.5s 才開始**（修白閃）。③**YouTube showreel 填滿**（過去有黑邊：cinematic 影片被 YT 自己加黑邊→把 iframe 放大 ~1.4× 裁掉）。④**列表卡片音樂(MP3)**：Card 編輯器可上傳 MP3、列表卡播放鍵真的播（並修卡片按鈕因字串 uid 沒加引號→點了跳主頁的 bug）。⑤**樂手內容雙語**：bio/學經歷/服務/亮點各加英文版輸入框；主頁切 EN/中文顯示對應版本（英文留空＝空白、不回退）。⑥**退役所有前台浮動編輯器**（全站 CSS 隱藏）。⑦**nav hover 底線**（從左滑出）改用 nav.js 注入的 `::after`，**全站都有**；**nav.js 版本號 bump 成 `?v=3`**。⑧後台預覽 iframe 加 `&_=Date.now()` 快取破壞（預覽永遠載最新）。⑨修 Site Editor「打字後移位置→文字回退」bug。詳見 §9。
+>
+> **2026-06-09 本視窗摘要（B 視窗：媒合前端／Hero 編輯器／訊息工作室／NAV）**：
+> ①**樂器改下拉選單**：新增 `instruments.js`（樂器→家族對照表，唯一來源，沿用 nav.js 選單）。音樂家後台「列表卡片」樂器欄 自由打字→**分組下拉、可多選**，存 `card.instruments[]`＋發布時同步頂層 `instruments`。`musicians.html` 分類頁比對升級：選「雙簧管」→自動出現在 雙簧管頁＋木管(家族)頁＋所有音樂家；順手修 CAT_MAP 漏掉的樂器（oboe/clarinet… 以前點進去會錯列全部）。
+> ②**卡片/大頭照照片**：卡片照片改 `object-fit:cover`+`object-position`（**永遠填滿、可拖到任何部位、縮放最小＝填滿**；X/Y 改 0–100%）。大頭照可調**位置+大小**，「我的資料」⇄「編輯主頁」**連動**（同一份 `about.avatar*`），點「我的資料」頭像跳**編輯彈窗**（上傳+X/Y+大小）。亮點區手機隱藏照片框、Hero 輪播指示點手機隱藏。
+> ③**Hero 編輯器：四螢幕各自獨立！**標準/MacBook/iPad/手機**各存各的位置+大小**（`heroPos`/`heroPosMacbook`/`heroPosIpad`/`heroPosPhone`；`site-content.js` 依視窗寬 ≤700/≤1024/≤1440/else 套對應那套，剛好對上裝置寬 393/820/1280/1536）。新增**按鈕寬度**滑桿（`map._btnW`）、**品牌字 OPUS.Z 可複製 1–8 個**（各自拖位、大小共用 `brand.s`、顏色共用；`site-content.js` 的 `ensureBrandCopies`+`data-bk`，拖曳 `wireDragOn`）；兩顆 CTA 按鈕等高（`box-sizing`+`line-height:1`）。
+> ④**客戶後台 `customer-profile`**：My Bookings→「我的委托」、Messages→ **SoundBetter 式「工作室」**（左聊天泡泡+系統里程碑+右側交易面板+主題 Brief），已接**真 Firestore**（見⑤）。
+> ⑤🟡**訊息：`conversations` 引擎（新檔 `messaging.js`）**——⚠️**與另一視窗的 `inquiries` 是兩套不同的訊息系統，下個視窗務必擇一／對齊，別兩套並存！** 我這套：`conversations/{c_客戶__m_樂手}` + `messages` 子集合（雙向、即時 onSnapshot、角色感知）；客戶在 customer-profile 工作室、**樂手+客戶都可用 `messages.html`**（已接真資料、角色感知）；樂手檔案頁「Message」鈕→`opzStartMessage`→建 conversation→deeplink `customer-profile.html#msg=<id>`。**已加 `conversations` Firestore 規則（業主已發布）**。
+> ⑥**Recent Jobs 顯示真委托**：`recent-jobs.html` 載入 `jobs`(status==open) 真資料排最前（匿名登入後讀）；8 張示範卡→留 1 張「範例」；左欄假評價→留 1 則範例。**後台「Jobs」頁**已接：列出真 jobs + 每筆「刪除」(`deleteDoc`，管理者 email 規則允許)。
+> ⑦**NAV 顯示登入 email**：帳號下拉最上面加 email 行（`#navAccEmail`，讀 `opusz_user_email`）；改了 `nav.js`(內頁)＋**首頁 inline nav**（首頁自己一套！）；**nav.js bump 到 `?v=5`** 破快取。**⚠️ NAV 仍分散**：首頁 inline／內頁 `nav.js`／2 頁 `nav-auth.js`——**尚未統一**（業主希望統一成一套，待另一視窗 nav-auth 全站鋪好後一起遷移）。
+>
+> **🔑 業主給的「多視窗協作守則」（本視窗實證，下個視窗務必遵守）**：
+> 1. **業主同時開多個 Claude 視窗**（jobs/inquiries/newsletter/Cloud Functions/nav-auth.js 多是「另一視窗」的領域）。動工前先 `git fetch && git status` 看哪些檔有別人未提交的改動。
+> 2. **改好就直接 push**（業主已授權，不用每次問）——**除非**有別的視窗正在改同一個檔。
+> 3. **commit 只 `git add <你改的特定檔>`，絕不 `git add -A`**（會把別人未提交的工作一起 commit/蓋掉）。push 前一律 `git -c rebase.autoStash=true pull --rebase`。
+> 4. 🔴 **Claude 不能改／發布 Firestore 安全規則**（＝動存取權限，硬性禁止，業主再三要求也不行）。只能把規則**準備到完整可貼**，請業主本人到 Firebase 主控台 Cmd+A→貼上→按發布（跟「放行管理者刪樂手」「conversations 規則」一樣）。
+> 5. 改完用 `jsc` 做語法檢查；**互動式/拖曳/動畫類自己無法完全驗證 → 請業主在真站確認**。
 
 ---
 
