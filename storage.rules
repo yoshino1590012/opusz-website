@@ -1,0 +1,32 @@
+rules_version = '2';
+
+// =====================================================================
+// OPUS.Z Firebase Storage 安全規則（完整版，2026-06-09）
+// 貼到 Firebase 主控台 → Storage（儲存空間）→ 規則 / Rules → 全選貼上 → 發布。
+// 管理者 = tzutung.liao@gmail.com。
+// 重點：讓管理者可刪除任一樂手上傳的檔案（後台刪樂手時連照片一起清掉）。
+// =====================================================================
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'tzutung.liao@gmail.com';
+    }
+
+    // 網站媒體（首頁/各頁圖片）：任何人可讀，管理者可寫/刪
+    match /siteContent/{allPaths=**} {
+      allow read:  if true;
+      allow write: if isAdmin();
+    }
+
+    // 樂手上傳的檔案（大頭照、海報…）：任何人可讀；
+    // 本人可寫/刪自己的，管理者可寫/刪任何人的（刪樂手時清空間用）
+    match /musicians/{uid}/{allPaths=**} {
+      allow read:  if true;
+      allow write: if request.auth != null
+                   && (request.auth.uid == uid || isAdmin());
+    }
+  }
+}

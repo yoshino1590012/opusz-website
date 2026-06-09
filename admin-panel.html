@@ -870,7 +870,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getFirestore, collection, getDocs, doc, updateDoc, setDoc, getDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+  import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, listAll, deleteObject } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
@@ -3169,6 +3169,15 @@
     } catch(e) { console.log('Update error:', e); }
   }
 
+  // Recursively delete everything under a Storage folder (best-effort).
+  // Used when removing an account so its uploaded files stop taking up space.
+  async function deleteStorageFolder(path){
+    const folder = storageRef(storage, path);
+    const res = await listAll(folder);
+    await Promise.all(res.items.map(function(it){ return deleteObject(it).catch(function(){}); }));
+    await Promise.all(res.prefixes.map(function(p){ return deleteStorageFolder(p.fullPath); }));
+  }
+
   // ── Delete a musician (irreversible) — guarded by type-to-confirm ──
   // Misclicking the 🗑 can't delete anything: the admin must type the
   // musician's exact name into the prompt before it proceeds.
@@ -3187,7 +3196,11 @@
     }
     try {
       await deleteDoc(doc(db, 'musicians', uid));
-      showNotif('已刪除樂手「' + name + '」');
+      // 連同這位樂手上傳的所有檔案（大頭照、海報…）一起清掉，不再佔用儲存空間；
+      // 以及可能還留著的「主頁送審」紀錄。皆採盡力刪除，失敗不影響主資料已刪。
+      try { await deleteStorageFolder('musicians/' + uid); } catch(_e){ console.warn('[admin] storage cleanup failed:', _e); }
+      try { await deleteDoc(doc(db, 'profileEdits', uid)); } catch(_e){}
+      showNotif('已刪除樂手「' + name + '」（含上傳的照片檔）');
       loadMusicians();                                // 重新載入列表
     } catch(e) {
       console.error('[admin] delete musician failed:', e);
