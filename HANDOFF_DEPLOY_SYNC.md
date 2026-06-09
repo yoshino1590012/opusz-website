@@ -233,6 +233,18 @@
 
 ## 9. 變更紀錄 (CHANGELOG)
 
+- **2026-06-10（本視窗：後台帳號管理修復 ＋ 海報系統強化；全部已 push / 規則已用 CLI 部署）**
+  - **規則改用 CLI 部署**：`firebase.json` 加入 `firestore`/`storage` 規則引用；規則檔 `firestore.rules`＋`storage.rules`（見 §6）。新流程＝Claude 改規則檔→業主口頭批准→Claude 跑 `firebase deploy --only firestore:rules,storage`（見守則第 4 點）。
+  - **客戶註冊寫入修復**：`customer-login.html` 的 `saveToFirestore` 改帶 ID token（之前匿名 REST 寫入被規則擋→新客戶沒進 `customers`）。
+  - **後台准入 gate**：`admin-panel.html` 改成驗證 Firebase 真的登入為 `tzutung.liao@gmail.com`，否則導去 `admin-login`（修「畫面像登入、其實 session 掉了→動作 permission-denied」）。
+  - **刪音樂家連檔案一起清**：`deleteMusician` 加 `deleteStorageFolder('musicians/'+uid)`（遞迴刪 Storage）＋刪 `profileEdits/{uid}`。
+  - **Site Editor 存檔**：加 `seSanitizeForFirestore`（剝 base64 data:／NaN／Infinity／undefined-in-array／空欄位名）＋把誤導的「請先登入」訊息改成講真話（invalid-argument＝圖太大）。
+  - 🆕 **首頁「作品·海報」可動態增/刪每張＋可編輯說明文字**：`musician-platform.html` 的 work-card 改資料驅動，`opzEdit` 加 `addPoster/removeAt/setCaption`，滾動堆疊動畫 z-index/漸層支援任意張數，live 由 `site-data.json` 的 `positions.poster` cls 鍵 reconcile 張數。後台 poster 編輯器加增/刪鈕＋EN/中文說明欄。仍是**模型 B（localhost 發布）**。
+  - 🆕 **演出頁海報版面/連結**：`shows.html` 的 `#fixedTextPanel` 右邊界用 `calc(50vw + 海報半寬 + 40px)` 鎖住→左字永不蓋海報（改自動換行）＋整體左移；`.show-artist` 可換行＋吃手動 `\n`（後台改 textarea）；每張海報新增**連結**（i18n `show.N.url`，`switchLang` 套到該張 `.show-cta` href，新分頁開）。後台海報編輯器加 textarea 姓名＋連結欄。
+  - **帳號清理（CLI）**：用 firebase CLI 權杖呼叫 Identity Toolkit `accounts:batchDelete`，刪除 tzutung 以外的測試帳號（kydanwood/andyliao600/yoshino1590012）。JD 測試樂手已從 Firestore＋Storage 刪除。
+
+
+
 - **2026-06-09（本視窗：樂手審核制 / 客戶真帳號 / 平台政策 / PWA / 修頭貼外漏；全部已 push 上線、Functions 已部署）** — 完整說明見 **§13**，重點：①樂手後台准入 gate（修「任何登入帳號都能進」漏洞）＋註冊申請→管理者「申請審核」核准/拒絕→email 通知。②客戶 `customer-login` 改 email+密碼真帳號＋驗證（並修 Facebook null listener 害整支腳本死的 bug）。③平台政策系統（`siteContent/policy`：admin 編輯＋樂手唯讀＋註冊同意書＋編輯主頁前須確認，全連動）。④PWA：`manifest.json`＋方形 App 圖示＋iOS meta，加到主畫面一鍵開後台保持登入。⑤🔴修「頭貼/個資漏到新帳號」兩條獨立路徑：`media-sync.js` 排除 `opusz_` key＋bump `?v=2`；移除樂手頭貼讀全域 `martin-profile-img` 的舊 fallback（改純 config 驅動）。⑥Hero 大名字：中文不再被切（line-height 0.82→1）、英文大寫、與 title 拉開防重疊。新增/改檔：`musician-login.html`、`musician-dashboard.html`、`admin-panel.html`、`customer-login.html`、`musician-profile.html`、`musicians.html`、`lessons.html`、`media-sync.js`、`manifest.json`、`functions/index.js`（加 `notifyMusicianOnReview`）、`icon-*/apple-touch-icon/favicon`。
 
 - **2026-06-09（本視窗：iOS 修正 / 主標題後台可編 / 訊息後端 / 自動 Email；前端已 push、Functions 已部署）**
