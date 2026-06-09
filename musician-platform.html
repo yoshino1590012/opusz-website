@@ -3729,6 +3729,11 @@ let heroRafId   = null;
 const _SCRUB_TOTAL   = 362;                  // total frames extracted at 60fps
 const _scrubFrames   = new Array(_SCRUB_TOTAL).fill(null);
 let   _scrubLoaded   = 0;
+// Phones choked on holding/decoding all 362 frames (memory + main-thread decode
+// = scroll jank). On small screens load only every Nth frame and snap drawing to
+// the nearest loaded one — far less memory, smooth scroll, barely-noticeable
+// coarser scrub. Desktop keeps every frame.
+const _SCRUB_STEP    = (window.innerWidth <= 768) ? 4 : 1;
 const _VID_INIT_OBJ_Y = 22;  // initial crop: musicians half-visible at page load
 let _vidTargetFrame  = 0;
 let _vidCurrentFrame = 0;
@@ -3782,8 +3787,16 @@ function drawScrubFrame(frameIndex, objY) {
   const c = document.getElementById('heroCanvas');
   if (!c) return;
   const ctx = c.getContext('2d');
-  const fi  = Math.max(0, Math.min(Math.round(frameIndex), _SCRUB_TOTAL - 1));
-  const img = _scrubFrames[fi];
+  let fi  = Math.max(0, Math.min(Math.round(frameIndex), _SCRUB_TOTAL - 1));
+  let img = _scrubFrames[fi];
+  // Snap to nearest loaded frame when sampling a subset (mobile).
+  if (!img && _SCRUB_STEP > 1) {
+    fi = Math.max(0, Math.min(Math.round(fi / _SCRUB_STEP) * _SCRUB_STEP, _SCRUB_TOTAL - 1));
+    img = _scrubFrames[fi];
+    for (let d = 1; !img && d <= _SCRUB_STEP * 2; d++) {
+      img = _scrubFrames[fi - d] || _scrubFrames[fi + d] || null;
+    }
+  }
   if (!img || !img.complete || !img.naturalWidth) return;
   const cw = c.width, ch = c.height;
   const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
@@ -3797,7 +3810,7 @@ function drawScrubFrame(frameIndex, objY) {
 
 // Preload all frames (parallel, no blocking)
 (function preloadScrubFrames() {
-  for (let i = 0; i < _SCRUB_TOTAL; i++) {
+  for (let i = 0; i < _SCRUB_TOTAL; i += _SCRUB_STEP) {
     const img = new Image();
     const n   = String(i + 1).padStart(4, '0');
     img.src   = 'assets/videos/frames/f' + n + '.jpg';
