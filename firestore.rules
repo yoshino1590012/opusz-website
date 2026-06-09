@@ -1,0 +1,99 @@
+rules_version = '2';
+
+// =====================================================================
+// OPUS.Z Firestore 安全規則（完整版，2026-06-09）
+// 貼到 Firebase 主控台 → Firestore Database → 規則 → 全選貼上 → 發布。
+// 管理者 = tzutung.liao@gmail.com（唯一有後台管理權的帳號）。
+// =====================================================================
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // 是不是平台管理者
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'tzutung.liao@gmail.com';
+    }
+
+    // ── 網站內容（首頁/政策/公告/媒體/各子頁設定）：任何人可讀，管理者可寫 ──
+    match /siteContent/{page} {
+      allow read:  if true;
+      allow write: if isAdmin();
+    }
+
+    // ── 音樂家：公開可讀；本人或管理者可寫；管理者可刪除 ──
+    match /musicians/{uid} {
+      allow read:           if true;
+      allow create, update: if request.auth != null
+                            && (request.auth.uid == uid || isAdmin());
+      allow delete:         if isAdmin();
+    }
+
+    // ── 客戶：管理者可讀全部、可刪除；登入者可建立/更新「自己 email」那筆 ──
+    match /customers/{id} {
+      allow read:           if isAdmin()
+                            || (request.auth != null
+                                && request.auth.token.email == resource.data.email);
+      allow create, update: if request.auth != null
+                            && request.resource.data.email == request.auth.token.email;
+      allow delete:         if isAdmin();
+    }
+
+    // ── 詢問訊息（客戶→樂手）：登入者可建立；該樂手或管理者可讀/改/刪 ──
+    match /inquiries/{id} {
+      allow create:               if request.auth != null;
+      allow read, update, delete: if request.auth != null
+                                  && (request.auth.uid == resource.data.musicianUid
+                                      || isAdmin());
+    }
+
+    // ── 對話 + 訊息子集合：只有對話的兩方（participants）可讀寫 ──
+    match /conversations/{convId} {
+      allow read:   if request.auth != null
+                    && request.auth.uid in resource.data.participants;
+      allow create: if request.auth != null
+                    && request.auth.uid in request.resource.data.participants;
+      allow update: if request.auth != null
+                    && request.auth.uid in resource.data.participants;
+      allow delete: if isAdmin();
+
+      match /messages/{msgId} {
+        allow read, create: if request.auth != null
+                            && request.auth.uid in
+                               get(/databases/$(database)/documents/conversations/$(convId)).data.participants;
+      }
+    }
+
+    // ── 公開委托：登入者可讀；登入者可建立（status=open）；管理者可改/刪 ──
+    match /jobs/{jobId} {
+      allow read:           if request.auth != null;
+      allow create:         if request.auth != null
+                            && request.resource.data.status == 'open';
+      allow update, delete: if isAdmin();
+    }
+
+    // ── 電子報訂閱：登入者（含匿名）可建立/更新；管理者可讀/刪 ──
+    match /subscribers/{id} {
+      allow create, update: if request.auth != null;
+      allow read, delete:   if isAdmin();
+    }
+
+    // ── 樂手主頁送審紀錄：本人可寫自己的；管理者可讀全部/刪除 ──
+    match /profileEdits/{uid} {
+      allow read:           if isAdmin()
+                            || (request.auth != null && request.auth.uid == uid);
+      allow create, update: if request.auth != null
+                            && (request.auth.uid == uid || isAdmin());
+      allow delete:         if isAdmin();
+    }
+
+    // ── 音樂家社群貼文：登入者可讀/建立；作者本人或管理者可改/刪 ──
+    match /posts/{id} {
+      allow read:           if request.auth != null;
+      allow create:         if request.auth != null;
+      allow update, delete: if isAdmin()
+                            || (request.auth != null
+                                && request.auth.uid == resource.data.uid);
+    }
+  }
+}

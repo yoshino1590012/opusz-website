@@ -479,26 +479,36 @@ pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') doEmailSubmit(
 emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') (mode==='signin'?pwInput.focus():doEmailSubmit()); });
 
 // ── Firestore save ──
-function saveToFirestore(name, email) {
+async function saveToFirestore(name, email) {
   const API_KEY = 'AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s';
   const PROJECT = 'opusz-45280';
   const now     = new Date().toISOString();
   const docId   = email.replace(/[@.]/g, '_');
   const url = `https://firestore.googleapis.com/v1/projects/${PROJECT}/databases/(default)/documents/customers/${docId}?key=${API_KEY}`;
-  fetch(url)
-    .then(r => r.ok ? r.json() : null)
-    .then(existing => {
-      const regAt = existing?.fields?.registeredAt?.stringValue || now;
-      const body  = { fields: {
-        name:         { stringValue: name },
-        email:        { stringValue: email },
-        registeredAt: { stringValue: regAt },
-        lastLogin:    { stringValue: now },
-        type:         { stringValue: 'customer' }
-      }};
-      return fetch(url, { method:'PATCH', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
-    })
-    .catch(e => console.warn('Firestore error:', e));
+  try {
+    // Authenticated write: attach the signed-in user's ID token so Firestore
+    // rules see request.auth. (Unauthenticated REST writes are rejected by the
+    // rules, which is why some customers never got recorded in the database.)
+    const token   = auth.currentUser ? await auth.currentUser.getIdToken() : null;
+    const headers = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+
+    // Preserve the original registration date if the doc already exists.
+    let regAt = now;
+    try {
+      const r = await fetch(url, { headers });
+      if (r.ok) { const ex = await r.json(); regAt = ex?.fields?.registeredAt?.stringValue || now; }
+    } catch (_e) {}
+
+    const body = { fields: {
+      name:         { stringValue: name },
+      email:        { stringValue: email },
+      registeredAt: { stringValue: regAt },
+      lastLogin:    { stringValue: now },
+      type:         { stringValue: 'customer' }
+    }};
+    await fetch(url, { method:'PATCH', headers, body: JSON.stringify(body) });
+  } catch (e) { console.warn('Firestore error:', e); }
 }
 
 // Focus email on load
