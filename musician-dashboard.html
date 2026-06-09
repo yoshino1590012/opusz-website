@@ -743,6 +743,10 @@
         <span>海報投稿</span>
       </button>
       <!-- 方案 / Membership removed — all musicians have every feature -->
+      <button class="sb-item" data-page="policy" onclick="navigate('policy',this)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+        <span>平台政策</span>
+      </button>
       <button class="sb-item" data-page="settings" onclick="navigate('settings',this)">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
         <span>設定</span>
@@ -1811,6 +1815,17 @@
         </div>
       </div>
 
+      <!-- ════════ 平台政策 / Platform Policy (read-only for musicians) ════════ -->
+      <div class="page" id="page-policy">
+        <div class="page-header">
+          <h1>平台政策</h1>
+          <p>OPUS.Z 與樂手之間的合作政策。請花一點時間閱讀。</p>
+        </div>
+        <div id="policyDraftBanner" style="display:none;background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:12px;padding:13px 16px;margin-bottom:18px;font-size:13.5px;line-height:1.6;"></div>
+        <div id="policySections"></div>
+        <div id="policyUpdated" style="margin-top:18px;font-size:12px;color:#999;"></div>
+      </div>
+
     </div><!-- /page-wrap -->
   </div><!-- /main -->
 </div><!-- /app -->
@@ -2123,7 +2138,7 @@
     overview: 'Overview', jobs: 'Jobs',
     messages: 'Messages', earnings: 'Earnings',
     profile: '我的資料', settings: 'Settings', pagebuilder: '編輯主頁',
-    membership: '方案 / Membership', posters: '海報投稿'
+    membership: '方案 / Membership', posters: '海報投稿', policy: '平台政策'
   };
   window.navigate = function(id, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2138,9 +2153,51 @@
     if (id === 'pagebuilder') pbInit();
     if (id === 'membership') pbRenderMembership();
     if (id === 'posters') posterInit();
+    if (id === 'policy') loadPolicy();
     if (id === 'jobs') { jobsMarkSeen(); renderJobs(); }   // opening the board = "seen"
     closeSidebar();   // mobile: collapse the drawer after picking a page
   };
+
+  // ── Platform Policy (read-only). Single source of truth: siteContent/policy
+  //    (also shown in the registration consent + editable in the admin panel). ──
+  window.POLICY_DEFAULT = {
+    draftNote: '本政策仍在研擬中，內容可能隨時調整；正式版本將另行公告。',
+    version: 1,
+    sections: [
+      { title:'收費與抽成（演出）', body:'（草擬中，細節後續討論調整）' },
+      { title:'教學收費',          body:'（草擬中，細節後續討論調整）' },
+      { title:'付款與結算',        body:'（草擬中；目前採「交付後放款」）' },
+      { title:'取消與退款',        body:'（草擬中，細節後續討論調整）' },
+      { title:'錄音／影像使用權',   body:'（草擬中，細節後續討論調整）' },
+      { title:'行為準則',          body:'（草擬中，細節後續討論調整）' },
+      { title:'帳號審核與停權',     body:'（草擬中，細節後續討論調整）' },
+      { title:'隱私與資料',        body:'（草擬中，細節後續討論調整）' }
+    ]
+  };
+  async function loadPolicy(){
+    var wrap = document.getElementById('policySections');
+    if(wrap) wrap.innerHTML = '<div style="padding:24px;color:#999;">載入中…</div>';
+    var data = window.POLICY_DEFAULT;
+    try{
+      var snap = await getDoc(doc(db, 'siteContent', 'policy'));
+      if(snap.exists() && snap.data() && Array.isArray(snap.data().sections) && snap.data().sections.length){
+        data = snap.data();
+      }
+    }catch(e){ console.warn('[policy] load failed, using default:', e && e.code); }
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+    var banner = document.getElementById('policyDraftBanner');
+    if(banner){ if(data.draftNote){ banner.textContent = '⚠️ ' + data.draftNote; banner.style.display='block'; } else banner.style.display='none'; }
+    if(wrap){
+      wrap.innerHTML = (data.sections||[]).map(function(s){
+        return '<div style="background:#fff;border:1px solid #eee;border-radius:14px;padding:20px 22px;margin-bottom:14px;">'
+          + '<div style="font-weight:800;font-size:16px;margin-bottom:8px;">'+esc(s.title)+'</div>'
+          + '<div style="font-size:14px;color:#444;line-height:1.7;white-space:pre-wrap;">'+esc(s.body)+'</div>'
+          + '</div>';
+      }).join('');
+    }
+    var up = document.getElementById('policyUpdated');
+    if(up) up.textContent = data.updatedAt ? ('最後更新：'+String(data.updatedAt).slice(0,10)+'　·　版本 '+(data.version||1)) : '';
+  }
 
   // ── Mobile sidebar drawer ──
   window.toggleSidebar = function(){
