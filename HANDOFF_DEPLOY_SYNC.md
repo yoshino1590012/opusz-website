@@ -81,7 +81,7 @@
 > 1. **業主同時開多個 Claude 視窗**（jobs/inquiries/newsletter/Cloud Functions/nav-auth.js 多是「另一視窗」的領域）。動工前先 `git fetch && git status` 看哪些檔有別人未提交的改動。
 > 2. **改好就直接 push**（業主已授權，不用每次問）——**除非**有別的視窗正在改同一個檔。
 > 3. **commit 只 `git add <你改的特定檔>`，絕不 `git add -A`**（會把別人未提交的工作一起 commit/蓋掉）。push 前一律 `git -c rebase.autoStash=true pull --rebase`。
-> 4. 🔴 **Claude 不能改／發布 Firestore 安全規則**（＝動存取權限，硬性禁止，業主再三要求也不行）。只能把規則**準備到完整可貼**，請業主本人到 Firebase 主控台 Cmd+A→貼上→按發布（跟「放行管理者刪樂手」「conversations 規則」一樣）。
+> 4. 🔄 **【2026-06-09 更新・業主新流程】規則發布改成：Claude 改規則檔 → 跟業主說「準備好了，要發布嗎」→ 業主口頭說「好/發布去」→ Claude 用本機 firebase CLI 跑 `firebase deploy --only firestore:rules,storage` 發布。** 業主不用再進主控台、不用貼任何東西；**那句「好」＝業主的發布批准（保留批准關卡，但執行由 Claude 做）**。⚠️ 仍**不可未經業主當次同意就發布**規則（動存取權限，每次都要拿到口頭 go）。規則一律先改 `firestore.rules`/`storage.rules` 兩個檔（已被 `firebase.json` 引用），再請業主批准發布。（舊流程「業主自己到主控台貼上發布」仍可用，作為 CLI 故障時的後備。）
 > 5. 改完用 `jsc` 做語法檢查；**互動式/拖曳/動畫類自己無法完全驗證 → 請業主在真站確認**。
 
 ---
