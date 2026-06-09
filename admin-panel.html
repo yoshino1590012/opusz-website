@@ -346,6 +346,10 @@
         申請審核
         <span class="sb-badge" id="sbAppReviewBadge" style="display:none;background:#e05;color:#fff;">0</span>
       </button>
+      <button class="sb-item" data-page="policy" onclick="navigate('policy',this)">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+        平台政策
+      </button>
       <button class="sb-item" data-page="siteeditor" onclick="navigate('siteeditor',this)">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
         網站編輯 / Site Editor
@@ -762,6 +766,24 @@
           <button onclick="filterAppReview('all',this)" style="font-size:12.5px;font-weight:600;border:1px solid #ddd;background:#fff;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:.55;">全部申請</button>
         </div>
         <div id="appReviewList"></div>
+      </div>
+
+      <!-- ════════ 平台政策 / Platform Policy editor ════════ -->
+      <div class="page" id="page-policy">
+        <div class="page-header" style="margin-bottom:18px;">
+          <h1>平台政策</h1>
+          <p>這裡編輯的政策，會同步顯示在「音樂家後台 → 平台政策」與「樂手註冊同意書」裡（同一份來源）。</p>
+        </div>
+        <div style="background:#fff;border:1px solid #eee;border-radius:12px;padding:18px 20px;max-width:760px;">
+          <label style="font-size:12px;font-weight:700;color:#666;display:block;margin-bottom:6px;">頂部提示（草擬中註記，可留空）</label>
+          <textarea id="polDraftNote" rows="2" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:10px;font-family:inherit;font-size:13.5px;margin-bottom:18px;"></textarea>
+          <div id="polSections"></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+            <button onclick="polAddSection()" style="font-size:13px;font-weight:600;border:1px dashed #bbb;background:#fafafa;border-radius:8px;padding:9px 16px;cursor:pointer;">＋ 新增段落</button>
+            <button onclick="polSave()" style="font-size:13px;font-weight:700;color:#fff;background:#111;border:none;border-radius:8px;padding:9px 20px;cursor:pointer;">💾 儲存政策</button>
+          </div>
+          <div id="polSaveMsg" style="margin-top:10px;font-size:12.5px;color:#16a34a;display:none;"></div>
+        </div>
       </div>
 
       <!-- ════════ SITE EDITOR ════════ -->
@@ -2665,7 +2687,7 @@
   };
 
   // ── Page titles ──
-  const TITLES = { overview:'Dashboard', musicians:'Musician Management', customers:'Customer Management', newsletter:'電子報訂閱 / Newsletter', review:'Review Queue', jobs:'Jobs Overview', finance:'Finance', announce:'Announcements', support:'Support Inbox', siteeditor:'網站編輯 / Site Editor', posters:'海報投稿', appreview:'樂手申請審核' };
+  const TITLES = { overview:'Dashboard', musicians:'Musician Management', customers:'Customer Management', newsletter:'電子報訂閱 / Newsletter', review:'Review Queue', jobs:'Jobs Overview', finance:'Finance', announce:'Announcements', support:'Support Inbox', siteeditor:'網站編輯 / Site Editor', posters:'海報投稿', appreview:'樂手申請審核', policy:'平台政策' };
 
   window.navigate = function(id, btn) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -2679,6 +2701,7 @@
     if (id === 'siteeditor') seInit();
     if (id === 'posters') loadAdminPosters();
     if (id === 'appreview') loadAppReview();
+    if (id === 'policy') loadPolicyAdmin();
   }
 
   // ── 海報投稿 / Poster Submissions (admin inbox) ──────────────────────
@@ -2895,6 +2918,52 @@
     var b = document.getElementById('sbAppReviewBadge');
     if(b){ b.textContent = pending; b.style.display = pending>0 ? '' : 'none'; }
   }
+
+  // ── 平台政策 editor (single source siteContent/policy → musician dashboard +
+  //    registration consent all read the same doc) ──
+  var POLICY_DEFAULT = { draftNote:'本政策仍在研擬中，內容可能隨時調整；正式版本將另行公告。', version:1, sections:[
+    {title:'收費與抽成（演出）',body:'（草擬中，細節後續討論調整）'},
+    {title:'教學收費',body:'（草擬中，細節後續討論調整）'},
+    {title:'付款與結算',body:'（草擬中；目前採「交付後放款」）'},
+    {title:'取消與退款',body:'（草擬中，細節後續討論調整）'},
+    {title:'錄音／影像使用權',body:'（草擬中，細節後續討論調整）'},
+    {title:'行為準則',body:'（草擬中，細節後續討論調整）'},
+    {title:'帳號審核與停權',body:'（草擬中，細節後續討論調整）'},
+    {title:'隱私與資料',body:'（草擬中，細節後續討論調整）'}
+  ]};
+  var POL = null;
+  async function loadPolicyAdmin(){
+    POL = JSON.parse(JSON.stringify(POLICY_DEFAULT));
+    try{ var s = await getDoc(doc(db,'siteContent','policy')); if(s.exists() && s.data() && Array.isArray(s.data().sections) && s.data().sections.length){ POL = s.data(); } }catch(e){ console.warn('[policy] load:', e&&e.code); }
+    var n=document.getElementById('polDraftNote'); if(n) n.value = POL.draftNote || '';
+    polRender();
+  }
+  function polRender(){
+    var el = document.getElementById('polSections'); if(!el) return;
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+    el.innerHTML = (POL.sections||[]).map(function(sec,i){
+      return '<div style="border:1px solid #eee;border-radius:10px;padding:12px 14px;margin-bottom:12px;background:#fafafa;">'
+        + '<div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">'
+          + '<input value="'+esc(sec.title)+'" oninput="polSet('+i+',\'title\',this.value)" placeholder="段落標題" style="flex:1;border:1px solid #ddd;border-radius:7px;padding:8px 10px;font-weight:700;font-size:13.5px;font-family:inherit;">'
+          + '<button onclick="polRemove('+i+')" title="刪除這段" style="border:1px solid #fecaca;color:#c0392b;background:#fff;border-radius:7px;padding:6px 10px;cursor:pointer;font-size:12px;">刪</button>'
+        + '</div>'
+        + '<textarea oninput="polSet('+i+',\'body\',this.value)" rows="3" placeholder="內容（先寫大方向即可）" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:7px;padding:9px 10px;font-size:13px;font-family:inherit;line-height:1.6;">'+esc(sec.body)+'</textarea>'
+        + '</div>';
+    }).join('');
+  }
+  window.polSet = function(i,k,v){ if(POL&&POL.sections&&POL.sections[i]) POL.sections[i][k]=v; };
+  window.polAddSection = function(){ if(!POL) POL=JSON.parse(JSON.stringify(POLICY_DEFAULT)); POL.sections.push({title:'新段落',body:'（草擬中）'}); polRender(); };
+  window.polRemove = function(i){ if(POL&&POL.sections){ POL.sections.splice(i,1); polRender(); } };
+  window.polSave = async function(){
+    if(!POL) return;
+    POL.draftNote = (document.getElementById('polDraftNote')||{}).value || '';
+    POL.version = POL.version || 1;
+    POL.updatedAt = new Date().toISOString();
+    try{
+      await setDoc(doc(db,'siteContent','policy'), POL, { merge:false });
+      var m = document.getElementById('polSaveMsg'); if(m){ m.textContent='✓ 已儲存。音樂家後台與註冊同意書會即時同步。'; m.style.display='block'; setTimeout(function(){ m.style.display='none'; }, 4000); }
+    }catch(e){ showNotif('儲存失敗：'+(e.code||e.message)+'（需管理者登入）'); }
+  };
 
   window.switchTab = function(page, tab, btn) {
     btn.closest('.tab-bar').querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
