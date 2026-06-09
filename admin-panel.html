@@ -1168,6 +1168,8 @@
     // Hero drag-to-position offsets (Canva-style). Always include so saves persist
     // them and a reset (empty object) is written through.
     if(window.seHeroPos && typeof window.seHeroPos==='object') cfg.heroPos = window.seHeroPos;
+    if(window.seHeroPosMacbook && typeof window.seHeroPosMacbook==='object') cfg.heroPosMacbook = window.seHeroPosMacbook;
+    if(window.seHeroPosIpad && typeof window.seHeroPosIpad==='object') cfg.heroPosIpad = window.seHeroPosIpad;
     if(window.seHeroPosPhone && typeof window.seHeroPosPhone==='object') cfg.heroPosPhone = window.seHeroPosPhone;
     cfg.heroBrandColor = (typeof window.seHeroBrandColor==='string' && window.seHeroBrandColor) ? window.seHeroBrandColor : 'auto';
     if(window.seHeroBtn && typeof window.seHeroBtn==='object') cfg.heroBtn = window.seHeroBtn;
@@ -2140,7 +2142,8 @@
     var _hpActive = (typeof window.seActiveHeroPos==='function') ? window.seActiveHeroPos() : (window.seHeroPos||{});
     var defs=[['headline','標題'],['sub','副標'],['btnFind','按鈕 · Find Artists'],['btnProject','按鈕 · Create a Project'],['brand','品牌 OPUS.Z']];
     var hp=_hpActive;
-    var devNote=(seCurrentDevice==='phone')?'<div style="font-size:10px;color:#b45309;margin:2px 0 6px;">📱 目前編輯「手機版」位置與大小（不影響桌機）</div>':'';
+    var _devLabel={desktop:'標準螢幕',macbook:'MacBook',ipad:'iPad',phone:'手機'}[seCurrentDevice]||'標準螢幕';
+    var devNote='<div style="font-size:10px;color:#b45309;margin:2px 0 6px;">🖥️ 目前編輯「'+_devLabel+'」的位置與大小（四個螢幕各自獨立，互不影響）</div>';
     return devNote+'<div style="font-size:11px;font-weight:800;color:#0e7490;margin:10px 0 6px;">元素大小</div>'+defs.map(function(d){
       var key=d[0], lbl=d[1]; var s=(hp[key]&&hp[key].s)?hp[key].s:1; var pct=Math.round(s*100);
       var max=(key==='brand')?400:200;   // brand gets a wider zoom range
@@ -2323,11 +2326,13 @@
     if(window.seHeroBtn) delete window.seHeroBtn[key];
     seBuildControls(); sePreview();
   };
-  // The position/size set for the CURRENT preview device: phone has its own set,
-  // everything else shares the desktop set.
+  // The position/size set for the CURRENT preview device. Each of the four
+  // devices (標準 / MacBook / iPad / 手機) keeps its OWN independent set.
   window.seActiveHeroPos = function(){
-    if(seCurrentDevice==='phone') return (window.seHeroPosPhone = window.seHeroPosPhone || {});
-    return (window.seHeroPos = window.seHeroPos || {});
+    if(seCurrentDevice==='phone')   return (window.seHeroPosPhone   = window.seHeroPosPhone   || {});
+    if(seCurrentDevice==='macbook') return (window.seHeroPosMacbook = window.seHeroPosMacbook || {});
+    if(seCurrentDevice==='ipad')    return (window.seHeroPosIpad    = window.seHeroPosIpad    || {});
+    return (window.seHeroPos = window.seHeroPos || {});   // desktop / 標準螢幕
   };
   window.seHeroSetSize = function(key, val){
     var m = window.seActiveHeroPos();
@@ -2338,7 +2343,10 @@
 
   // Clear the CURRENT device's hero offsets + sizes and push the reset to preview.
   window.seHeroPosReset = function(){
-    if(seCurrentDevice==='phone') window.seHeroPosPhone = {}; else window.seHeroPos = {};
+    if(seCurrentDevice==='phone')        window.seHeroPosPhone   = {};
+    else if(seCurrentDevice==='macbook') window.seHeroPosMacbook = {};
+    else if(seCurrentDevice==='ipad')    window.seHeroPosIpad    = {};
+    else                                  window.seHeroPos       = {};
     seBuildControls();   // refresh sliders back to 100%
     var ifr=document.getElementById('seFrame');
     if(ifr && ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszCmsPreview:true, config:seReadInputs()}, '*'); }catch(e){} }
@@ -2435,11 +2443,13 @@
         if(p.yPct==null && p.y!=null) p.yPct=+(p.y/avh).toFixed(5);
       });
     })();
-    // Phone has its OWN position/size set. Start it as a copy of desktop (so phone
-    // initially looks the same) unless a phone set was already saved.
-    window.seHeroPosPhone = (seCurrentConfig.heroPosPhone && typeof seCurrentConfig.heroPosPhone==='object')
-      ? seCurrentConfig.heroPosPhone
-      : JSON.parse(JSON.stringify(window.seHeroPos || {}));
+    // Each device (MacBook / iPad / phone) has its OWN position/size set. A device
+    // with no saved set starts as a copy of the desktop set (so it initially looks
+    // the same), then diverges as it's edited independently.
+    var _copyDesk = function(){ return JSON.parse(JSON.stringify(window.seHeroPos || {})); };
+    window.seHeroPosMacbook = (seCurrentConfig.heroPosMacbook && typeof seCurrentConfig.heroPosMacbook==='object') ? seCurrentConfig.heroPosMacbook : _copyDesk();
+    window.seHeroPosIpad    = (seCurrentConfig.heroPosIpad    && typeof seCurrentConfig.heroPosIpad==='object')    ? seCurrentConfig.heroPosIpad    : _copyDesk();
+    window.seHeroPosPhone   = (seCurrentConfig.heroPosPhone   && typeof seCurrentConfig.heroPosPhone==='object')   ? seCurrentConfig.heroPosPhone   : _copyDesk();
     window.seHeroBrandColor = (typeof seCurrentConfig.heroBrandColor==='string' && seCurrentConfig.heroBrandColor) ? seCurrentConfig.heroBrandColor : 'auto';
     window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
     window.seHeroBtnShape = (seCurrentConfig.heroBtnShape && typeof seCurrentConfig.heroBtnShape==='object') ? seCurrentConfig.heroBtnShape : {};

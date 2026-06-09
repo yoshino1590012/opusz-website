@@ -96,8 +96,13 @@ function applyHeroPhrase(s){
 // Pick the per-device hero position map by viewport and apply it.
 function applyHeroPosResponsive(cfg){
   cfg = cfg || window.__opzHeroCfg || {};
-  var phone = (window.innerWidth || 9999) <= 700;
-  var map = (phone && cfg.heroPosPhone) ? cfg.heroPosPhone : (cfg.heroPos || {});
+  // Four independent layouts by viewport width: phone / iPad / MacBook / desktop.
+  // Each falls back to the desktop set when that device has no saved layout.
+  var w = window.innerWidth || 9999;
+  var map = (w <= 700  && cfg.heroPosPhone)   ? cfg.heroPosPhone
+          : (w <= 1024 && cfg.heroPosIpad)    ? cfg.heroPosIpad
+          : (w <= 1440 && cfg.heroPosMacbook) ? cfg.heroPosMacbook
+          : (cfg.heroPos || {});
   applyHeroPos(map);
 }
 // Re-apply when crossing the phone breakpoint (debounced).
