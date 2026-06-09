@@ -429,6 +429,9 @@
 
     /* ── Page Builder (Edit my page) ── */
     #page-pagebuilder.page.active { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; height: auto; }
+    /* Reclaim vertical space: the topbar already shows the "編輯主頁" title, so the
+       big in-page header is redundant here — hide it so the preview gets more height. */
+    #page-pagebuilder .page-header { display: none; }
     .pb-shell { display: flex; flex: 1; min-height: 0; gap: 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; background: var(--white); }
     .pb-left { width: 180px; flex-shrink: 0; border-right: 1px solid var(--border); padding: 12px 0; background: #fafafa; overflow-y: auto; }
     .pb-sec-item { display: block; width: 100%; text-align: left; padding: 11px 18px; font-size: 13px; font-weight: 600; color: var(--mid); background: none; border: none; cursor: pointer; font-family: inherit; border-left: 3px solid transparent; }
@@ -469,7 +472,7 @@
     #pbPhoneStatus svg { height: 12px; width: auto; display: block; }
     #pbPhoneStatus svg [fill="#fff"] { fill: currentColor; }
     #pbPhoneStatus svg [stroke="#fff"] { stroke: currentColor; }
-    .pb-right { width: 320px; flex-shrink: 0; border-left: 1px solid var(--border); padding: 20px; overflow-y: auto; }
+    .pb-right { width: 280px; flex-shrink: 0; border-left: 1px solid var(--border); padding: 18px; overflow-y: auto; }
     .pb-field { margin-bottom: 16px; }
     .pb-field-group { display: none; }
     .pb-field-group.active { display: block; }
@@ -4196,6 +4199,8 @@
     var availW = Math.max(200, wrap.clientWidth  - 32);
     var availH = Math.max(200, wrap.clientHeight - 32);
     var scale  = Math.min(1, availW / devW);           // 永不放大超過 100%
+    // 清掉手機模式可能殘留的 transform / 負邊距
+    inner.style.transform=''; inner.style.transformOrigin=''; inner.style.marginBottom=''; inner.style.marginLeft=''; inner.style.marginRight='';
     // iframe 用真實桌機尺寸渲染，再縮小
     ifr.style.width  = devW + 'px';
     ifr.style.height = Math.max(devH, Math.round(availH / scale)) + 'px';  // 至少填滿可視高度
@@ -4209,11 +4214,29 @@
     try{ ifr.contentWindow && ifr.contentWindow.dispatchEvent(new Event('resize')); }catch(e){}
   }
   window.pbFitDesktop = pbFitDesktop;
+  // 「手機」預覽：整台手機（含邊框）等比縮放，永遠完整塞進預覽區（不會被切掉底部）。
+  function pbFitPhone(){
+    var wrap  = document.querySelector('.pb-frame-wrap');
+    var inner = document.getElementById('pbFrameInner');
+    if(!wrap || !inner || !inner.classList.contains('pb-phone')) return;
+    var boxW = 390 + 26, boxH = 844 + 26;   // content-box 螢幕 + 13px 邊框 ×2
+    var availW = Math.max(160, wrap.clientWidth  - 36);  // 扣掉 wrap padding + 一點留白
+    var availH = Math.max(160, wrap.clientHeight - 36);
+    var scale  = Math.min(availH / boxH, availW / boxW, 1.15);
+    inner.style.transformOrigin = 'top center';
+    inner.style.transform = 'scale(' + scale + ')';
+    // 用負邊距收掉「縮放後留下的空白版面空間」→ 不會多出捲動條、整台手機置中且完整
+    inner.style.marginBottom = '-' + Math.round(boxH * (1 - scale)) + 'px';
+    var mx = Math.round(boxW * (1 - scale) / 2);
+    inner.style.marginLeft = '-' + mx + 'px';
+    inner.style.marginRight = '-' + mx + 'px';
+  }
   window.pbApplyCurrentDevice = function(){
     var pg = document.getElementById('page-pagebuilder');
     if(!pg || !pg.classList.contains('active')) return;   // only when the editor is visible
     var inner = document.getElementById('pbFrameInner');
-    if(inner && !inner.classList.contains('pb-phone')) pbFitDesktop();
+    if(!inner) return;
+    if(inner.classList.contains('pb-phone')) pbFitPhone(); else pbFitDesktop();
   };
 
   window.pbSetDevice = function(mode, btn){
@@ -4228,15 +4251,13 @@
       // 還原 iframe 原本的 width/height:100%（清掉桌機的縮放 transform），讓手機外框 CSS 乾淨接手
       if(ifr){ ifr.style.width='100%'; ifr.style.height='100%'; ifr.style.transform=''; ifr.style.transformOrigin=''; }
       inner.style.width=''; inner.style.height=''; inner.style.maxWidth='';
+      pbFitPhone();   // 縮放整台手機以完整顯示
     }else{
       pbFitDesktop();
     }
   };
-  // 視窗大小改變時，若在桌機模式就重新計算縮放比例
-  window.addEventListener('resize', function(){
-    var inner = document.getElementById('pbFrameInner');
-    if(inner && !inner.classList.contains('pb-phone')) pbFitDesktop();
-  });
+  // 視窗大小改變時，依目前裝置重新計算縮放比例
+  window.addEventListener('resize', function(){ if(window.pbApplyCurrentDevice) window.pbApplyCurrentDevice(); });
 
   window.pbSave = async function(){
     pbReadForm();
