@@ -62,8 +62,13 @@ const OPUSZ_MSG = {
     // opts: {customerUid, customerName, musicianUid, musicianName, subject, brief}
     const id  = convIdFor(opts.customerUid, opts.musicianUid);
     const ref = doc(db, 'conversations', id);
-    const snap = await getDoc(ref);
-    if (!snap.exists()) {
+    // NOTE: a get() on a NON-EXISTENT conversation evaluates the read rule with
+    // resource == null, so `uid in resource.data.participants` errors → permission
+    // denied. That used to block creation entirely. Treat a failed/empty read as
+    // "doesn't exist yet" and proceed to create.
+    let exists = false;
+    try { const snap = await getDoc(ref); exists = snap.exists(); } catch (e) { exists = false; }
+    if (!exists) {
       await setDoc(ref, {
         participants:   [opts.customerUid, opts.musicianUid],
         customerUid:    opts.customerUid,
