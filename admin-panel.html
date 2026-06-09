@@ -1876,7 +1876,13 @@
         var to=setTimeout(function(){ if(settled) return; settled=true;
           if(note){ note.textContent='⚠ 上傳逾時，請重試或換一張較小的圖'; note.style.color='#c00'; } }, 30000);
         function fail(m){ if(settled) return; settled=true; clearTimeout(to); if(note){ note.textContent=m; note.style.color='#c00'; } }
-        Promise.resolve(eng.setImageFile(group, cls, file)).then(function(url){
+        // Homepage "Work" posters now upload to Firebase Storage so they're
+        // editable on the LIVE site (no server.py). Other engine groups still
+        // use the file-based path (localhost only).
+        var _up = (group==='poster')
+          ? seUploadAuto(file,'img',cls,note).then(function(url){ if(url){ try{ eng.setImageUrl('poster', cls, url); }catch(e){} } return url; })
+          : Promise.resolve(eng.setImageFile(group, cls, file));
+        _up.then(function(url){
           if(settled) return; settled=true; clearTimeout(to);
           if(url){ pad.setAttribute('data-url', url); pad._url=url; pad.style.cursor='grab';
                    if(hint) hint.innerHTML='<span style="background:rgba(0,0,0,.45);color:#fff;padding:2px 8px;border-radius:20px;">拖曳照片移位</span>';
@@ -2588,6 +2594,18 @@
           // live in Firebase Storage as small URLs; drop any stray data: URL.
           ps.forEach(function(p){ if(typeof p.url==='string' && p.url.slice(0,5)==='data:') p.url=''; });
           cfg.posters = ps;
+        }catch(e){}
+      }
+    }
+    // Home: persist the "Work" posters (count + image URLs + captions + framing)
+    // to Firebase as cfg.homePosters, so they're editable on the LIVE site too.
+    if(page==='home'){
+      var wh=(typeof _seWin==='function')?_seWin():null;
+      if(wh && wh.opzEdit && wh.opzEdit.list){
+        try{
+          var hps = wh.opzEdit.list('poster');
+          hps.forEach(function(p){ if(typeof p.url==='string' && p.url.slice(0,5)==='data:') p.url=''; });
+          cfg.homePosters = hps;
         }catch(e){}
       }
     }

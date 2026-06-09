@@ -299,6 +299,16 @@ function applyConfig(cfg){
     })(0);
   }
 
+  // homepage "Work" posters — image URLs + captions + count, driven from Firebase
+  // so they're editable on the LIVE site (no server.py needed).
+  if (Array.isArray(cfg.homePosters)) {
+    (function applyHomePosters(n){
+      if (window.opzEdit && typeof window.opzEdit.applyPosterConfig === 'function') {
+        try { window.opzEdit.applyPosterConfig(cfg.homePosters); } catch(e){}
+      } else if ((n || 0) < 50) { setTimeout(function(){ applyHomePosters((n || 0) + 1); }, 150); }
+    })(0);
+  }
+
   // 2) direct data-cms overrides (non-i18n text / images / links)
   if (cfg.cms) {
     var cms = cfg.cms;

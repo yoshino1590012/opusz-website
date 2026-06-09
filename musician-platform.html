@@ -5153,6 +5153,26 @@ try {
   }
   _initPostersFromConfig();   // run once at startup (local case)
 
+  // Apply a full poster config from the cloud (Firebase via site-content.js):
+  // reconcile count, then set each poster's image URL + caption + framing. This
+  // is what makes the homepage "Work" posters editable on the LIVE site (no
+  // server.py) — mirrors the shows page's opzShows.applyConfig.
+  function _applyPosterConfig(arr){
+    if(!Array.isArray(arr)) return;
+    while(posterSlots.length < arr.length) _addPoster();
+    while(posterSlots.length > arr.length && posterSlots.length > 1){
+      _removePosterAt(posterSlots[posterSlots.length-1].cls);
+    }
+    arr.forEach(function(p,i){
+      var d=posterSlots[i]; if(!d||!p) return; var cls=d.cls; var s=pS[cls]; if(!s) return;
+      if(p.url!=null && p.url!==''){ s.url=p.url; try{ localStorage.setItem(IMG_PFX+cls, p.url); }catch(e){} }
+      if(p.x!=null) s.x=+p.x; if(p.y!=null) s.y=+p.y; if(p.zoom!=null) s.zoom=+p.zoom;
+      if(p.cap!=null) s.cap=p.cap; if(p.capZh!=null) s.capZh=p.capZh;
+      try{ applyPoster(cls); }catch(e){}
+    });
+  }
+  window.__opzEditReady = true;
+
   window.opzEdit = (function(){
     var G = {
       hero:   { slots: heroSlots,   S: hS,  apply: applyHero  },
@@ -5222,7 +5242,8 @@ try {
     return { groups:Object.keys(G), list:list, setFrame:setFrame,
              setImageUrl:setImageUrl, setImageFile:setImageFile, publish:publish,
              // Dynamic posters (homepage Work section)
-             addPoster:_addPoster, removeAt:_removePosterAt, setCaption:_setPosterCaption };
+             addPoster:_addPoster, removeAt:_removePosterAt, setCaption:_setPosterCaption,
+             applyPosterConfig:_applyPosterConfig };
   })();
 
   // Expose for switchLang to re-render panel names on language change
@@ -7557,7 +7578,7 @@ window.addEventListener('keydown', function(e){
 <!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
-<script type="module" src="site-content.js"></script>
+<script type="module" src="site-content.js?v=2"></script>
   <script type="module" src="media-sync.js?v=2"></script>
 <script type="module" src="newsletter.js?v=2"></script>
 </body>
