@@ -549,8 +549,11 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 
 /* ── My Account avatar button (fixed, outside nav to escape mix-blend-mode) ── */
 /* My Account button sits inside nav — hidden until logged in, no border box */
+/* NOTE: do NOT add display:none here. The button starts hidden via its inline
+   style="display:none" (nav.js); wireAuth() reveals it on login by clearing that
+   inline style. A stylesheet #navAccountBtn{display:none} would out-specify the
+   cleared inline style and keep "My Account" hidden on every nav.js page. */
 #navAccountBtn {
-  display: none;
   border: none;
   padding: 6px 2px;
 }
