@@ -286,24 +286,34 @@
 
       <div class="alert alert-error" id="loginError">Email or password is incorrect.</div>
 
+      <!-- Real <form> so the browser / iOS Keychain offers to SAVE the password
+           and later auto-fills it with Face ID / Touch ID / fingerprint. The
+           email uses autocomplete="username" (the canonical login pairing with
+           current-password) so password managers reliably pair the two. -->
+      <form id="loginForm" autocomplete="on" onsubmit="doLogin();return false;">
       <div class="form-group">
         <label class="form-label">Email</label>
-        <input class="form-input" type="email" id="loginEmail" placeholder="your@email.com" autocomplete="email">
+        <input class="form-input" type="email" id="loginEmail" name="username" placeholder="your@email.com" autocomplete="username" inputmode="email" autocapitalize="none">
       </div>
       <div class="form-group">
         <label class="form-label">Password</label>
         <div class="pw-wrap">
-          <input class="form-input" type="password" id="loginPw" placeholder="Enter your password" autocomplete="current-password">
-          <button class="pw-toggle" onclick="togglePw('loginPw',this)" tabindex="-1">
+          <input class="form-input" type="password" id="loginPw" name="password" placeholder="Enter your password" autocomplete="current-password">
+          <button type="button" class="pw-toggle" onclick="togglePw('loginPw',this)" tabindex="-1">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
       </div>
-      <div style="text-align:right;margin-bottom:20px;">
-        <a href="#" style="font-size:12.5px;color:var(--mid);text-decoration:none;" onclick="goStep('forgot');return false;">Forgot password?</a>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;">
+        <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--mid);cursor:pointer;user-select:none;">
+          <input type="checkbox" id="rememberMe" checked style="width:15px;height:15px;accent-color:#000;cursor:pointer;">
+          保持登入 / Remember me
+        </label>
+        <a href="#" style="font-size:12.5px;color:var(--mid);text-decoration:none;white-space:nowrap;" onclick="goStep('forgot');return false;">Forgot password?</a>
       </div>
 
-      <button class="btn-main" onclick="doLogin()">Sign In</button>
+      <button type="submit" class="btn-main">Sign In</button>
+      </form>
 
       <div class="divider"><span>or</span></div>
 
@@ -579,7 +589,7 @@
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, onAuthStateChanged, reload, signOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, sendEmailVerification, onAuthStateChanged, reload, signOut, setPersistence, browserLocalPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
   import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
@@ -881,10 +891,17 @@
     var err   = document.getElementById('loginError');
     var btn   = document.querySelector('#step-login .btn-main');
 
+    if (btn.disabled) return;   // guard: form-submit + Enter key could both fire
     if (!email || !pw) { err.textContent = 'Please fill in all fields.'; err.classList.add('show'); return; }
 
     btn.textContent = 'Signing in…'; btn.disabled = true;
     try {
+      // "Remember me" (default on) → keep the session in localStorage so they stay
+      // signed in next time they open the dashboard (incl. the phone PWA), no
+      // re-login needed. Unchecked → session lasts only until the tab/app closes.
+      var remember = document.getElementById('rememberMe');
+      remember = !remember || remember.checked;   // default to remembering
+      try { await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence); } catch(_) {}
       var cred = await signInWithEmailAndPassword(auth, email, pw);
       // Don't redirect blindly — check this account is an approved musician.
       await routeAfterAuth(cred.user);
@@ -1120,8 +1137,9 @@
   // ── Enter key submit ──
   document.addEventListener('keydown', function(e) {
     if (e.key !== 'Enter') return;
-    if (currentStep === 'login') doLogin();
-    else if (currentStep === 'register-email') doRegister();
+    // 'login' is handled by the <form> submit (so the browser's save-password
+    // prompt fires) — don't also call doLogin() here or it submits twice.
+    if (currentStep === 'register-email') doRegister();
     else if (currentStep === 'forgot') doForgot();
   });
 </script>
