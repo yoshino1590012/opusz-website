@@ -2456,21 +2456,30 @@
     var msg=document.getElementById('seSaveMsg'); if(msg){ msg.textContent='已重置此裝置的位置與大小（記得按發布）'; msg.style.color='#155e75'; }
   };
 
-  // Recursively strip values that Firestore rejects: base64 data: URLs (too big
-  // → invalid-argument) become '', and undefined keys are dropped.
+  // Recursively coerce a value into something Firestore will accept. Anything
+  // Firestore rejects → invalid-argument, so we neutralise every known cause:
+  //   • base64 data: URLs (blow past the 1MB doc limit)  → ''
+  //   • undefined / null                                  → null (arrays can't hold undefined)
+  //   • NaN / Infinity                                    → null
+  //   • functions / symbols / other exotic types          → null
+  //   • empty map keys ('')                               → dropped
   function seSanitizeForFirestore(v){
-    if (typeof v === 'string') return (v.slice(0,5)==='data:') ? '' : v;
-    if (Array.isArray(v)) return v.map(seSanitizeForFirestore);
-    if (v && typeof v === 'object'){
+    if (v === undefined || v === null) return null;
+    var t = typeof v;
+    if (t === 'string')  return (v.slice(0,5)==='data:') ? '' : v;
+    if (t === 'number')  return isFinite(v) ? v : null;
+    if (t === 'boolean') return v;
+    if (Array.isArray(v)) return v.map(seSanitizeForFirestore);   // no undefined leaks now
+    if (t === 'object'){
       var o={};
       for (var k in v){
         if(!Object.prototype.hasOwnProperty.call(v,k)) continue;
-        var sv=seSanitizeForFirestore(v[k]);
-        if (sv!==undefined) o[k]=sv;
+        if(!k) continue;                       // Firestore forbids empty field names
+        o[k] = seSanitizeForFirestore(v[k]);
       }
       return o;
     }
-    return v;
+    return null;                               // function / symbol / bigint → drop
   }
 
   window.seSave = async function(){
@@ -2503,6 +2512,11 @@
       if(msg){ msg.textContent='✓ 文字已儲存並發布'; msg.style.color='#16a34a'; }
     }catch(e){
       console.warn('[siteeditor] Firestore save failed:', e);
+      try{
+        var _json=JSON.stringify(cfg);
+        console.warn('[siteeditor] payload size:', _json.length, 'bytes; keys:', Object.keys(cfg||{}));
+        console.warn('[siteeditor] payload preview:', _json.slice(0,1500));
+      }catch(_e){ console.warn('[siteeditor] payload not serialisable:', _e); }
       var code=(e.code||e.message||'')+'';
       var human = code.indexOf('invalid-argument')>=0
         ? '⚠ 儲存失敗：有海報圖片太大、無法存進文字設定。請用照片框的「上傳檔案」鈕（會存成小連結），或移除過大的圖片後再試。'
