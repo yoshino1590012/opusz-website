@@ -485,7 +485,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
     <p class="show-title" data-i18n="show.1.title">Piano Recital — Reflections</p>
     <div class="show-details">
       <span data-i18n="show.1.venue">National Concert Hall, Taipei</span>
-      <span>July 18, 2025 · 7:30 PM</span>
+      <span data-i18n="show.1.date">July 18, 2025 · 7:30 PM</span>
       <span data-i18n="show.1.desc">Chopin · Debussy · Ravel</span>
     </div>
     <a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>
@@ -496,7 +496,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
     <p class="show-title" data-i18n="show.2.title">Midsummer Gala Night</p>
     <div class="show-details">
       <span data-i18n="show.2.venue">Eslite Performance Hall, Taipei</span>
-      <span>August 3, 2025 · 7:00 PM</span>
+      <span data-i18n="show.2.date">August 3, 2025 · 7:00 PM</span>
       <span data-i18n="show.2.desc">Beethoven · Schubert</span>
     </div>
     <a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>
@@ -507,7 +507,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
     <p class="show-title" data-i18n="show.3.title">Violin &amp; Orchestra — Homecoming</p>
     <div class="show-details">
       <span data-i18n="show.3.venue">Kaohsiung Music Center</span>
-      <span>September 12, 2025 · 7:30 PM</span>
+      <span data-i18n="show.3.date">September 12, 2025 · 7:30 PM</span>
       <span data-i18n="show.3.desc">Brahms Concerto in D major, Op. 77</span>
     </div>
     <a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>
@@ -518,7 +518,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
     <p class="show-title" data-i18n="show.4.title">Cello Suite — Solitude &amp; Light</p>
     <div class="show-details">
       <span data-i18n="show.4.venue">Chimei Museum, Tainan</span>
-      <span>October 5, 2025 · 3:00 PM</span>
+      <span data-i18n="show.4.date">October 5, 2025 · 3:00 PM</span>
       <span data-i18n="show.4.desc">Bach Cello Suites Nos. 1–3</span>
     </div>
     <a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>
@@ -529,7 +529,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
     <p class="show-title" data-i18n="show.5.title">Harp Recital — Luminescence</p>
     <div class="show-details">
       <span data-i18n="show.5.venue">Chiang Kai-shek Memorial Hall</span>
-      <span>November 22, 2025 · 7:30 PM</span>
+      <span data-i18n="show.5.date">November 22, 2025 · 7:30 PM</span>
       <span data-i18n="show.5.desc">Ravel · Debussy · Fauré</span>
     </div>
     <a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>
@@ -1084,7 +1084,7 @@ window.opzShows = (function(){
       ftp.innerHTML='<div class="show-seq">'+seq+'</div>'
         +'<h2 class="show-artist" data-i18n="show.'+(i+1)+'.artist">New Artist</h2>'
         +'<p class="show-title" data-i18n="show.'+(i+1)+'.title">New Show</p>'
-        +'<div class="show-details"><span data-i18n="show.'+(i+1)+'.venue">Venue</span><span>Date · Time</span><span data-i18n="show.'+(i+1)+'.desc">Programme</span></div>'
+        +'<div class="show-details"><span data-i18n="show.'+(i+1)+'.venue">Venue</span><span data-i18n="show.'+(i+1)+'.date">Date · Time</span><span data-i18n="show.'+(i+1)+'.desc">Programme</span></div>'
         +'<a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>';
       tp.appendChild(ftp); }
     var tr=document.querySelector('.shows-track');
@@ -1132,7 +1132,7 @@ window.opzShows = (function(){
   function removeAt(idx){
     if(SHOW_N<=1) return SHOW_N;
     if(idx==null || idx<0 || idx>=SHOW_N) return SHOW_N;
-    var FIELDS=['artist','title','venue','desc','url'];
+    var FIELDS=['artist','title','venue','date','desc','url'];
     // 1) shift i18n text: array index a (a≥idx) takes the text of a+1 → key show.(a+1)=show.(a+2)
     try{
       var I=window.I18N||{};

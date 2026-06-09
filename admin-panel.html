@@ -1434,7 +1434,7 @@
     function tv(key,lang){ var ci=seCurrentConfig.i18n[lang]||{}; if(ci[key]!=null) return ci[key]; var d=I18[lang]||{}; return d[key]!=null?d[key]:''; }
     function textFields(i){
       // [key, label, multiline?]  — 姓名 supports manual line breaks (Enter).
-      var rows=[['show.'+(i+1)+'.artist','音樂家姓名',true],['show.'+(i+1)+'.title','標題'],['show.'+(i+1)+'.venue','場地'],['show.'+(i+1)+'.desc','曲目／說明']];
+      var rows=[['show.'+(i+1)+'.artist','音樂家姓名',true],['show.'+(i+1)+'.title','標題'],['show.'+(i+1)+'.venue','場地'],['show.'+(i+1)+'.date','日期／時間'],['show.'+(i+1)+'.desc','曲目／說明']];
       var st='width:100%;margin-bottom:5px;padding:6px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;';
       var urlKey='show.'+(i+1)+'.url';
       function fld(k,lang,ph,multi){
@@ -1499,7 +1499,7 @@
     if(N<=1){ showNotif('至少要保留一張海報'); return; }
     if(!confirm('確定刪除第 '+(i+1)+' 張海報？（記得之後按發佈才會上線）')) return;
     try{
-      var FIELDS=['artist','title','venue','desc','url'];
+      var FIELDS=['artist','title','venue','date','desc','url'];
       seCurrentConfig.i18n=seCurrentConfig.i18n||{};
       ['en','zh'].forEach(function(L){
         var d=seCurrentConfig.i18n[L]; if(!d) return;
