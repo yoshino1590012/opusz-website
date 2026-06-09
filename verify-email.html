@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Email 驗證 — OPUS.Z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: 'Inter', 'Helvetica Neue', sans-serif;
+    background: #f7f7f7; min-height: 100vh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 24px; color: #111;
+  }
+  .logo-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 28px; }
+  .logo-img {
+    width: 52px; height: 52px;
+    background: url('assets/images/LOGO/opusz-logo-cropped.png?v=7') center/cover no-repeat;
+    margin-bottom: 10px;
+  }
+  .logo-name { font-size: 18px; font-weight: 800; letter-spacing: -.03em; }
+  .card {
+    background: #fff; border-radius: 20px; padding: 44px 36px 38px;
+    width: 100%; max-width: 420px; text-align: center;
+    box-shadow: 0 2px 16px rgba(0,0,0,.07), 0 0 0 1px rgba(0,0,0,.06);
+  }
+  .spinner {
+    width: 38px; height: 38px; border-radius: 50%;
+    border: 3px solid #eee; border-top-color: #111;
+    animation: spin .8s linear infinite; margin: 6px auto 22px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    display: none; align-items: center; justify-content: center; margin: 0 auto 18px;
+  }
+  .icon.ok { background: #111; }
+  .icon.bad { background: #c62828; }
+  .icon svg { width: 32px; height: 32px; stroke: #fff; stroke-width: 2.5; fill: none; }
+  h1 { font-size: 21px; font-weight: 800; letter-spacing: -.02em; margin-bottom: 8px; }
+  p { font-size: 14.5px; color: #777; line-height: 1.6; }
+  .btn {
+    display: inline-block; margin-top: 24px;
+    padding: 13px 28px; background: #111; color: #fff;
+    border-radius: 11px; font-size: 14px; font-weight: 700; text-decoration: none;
+  }
+  .btn:hover { opacity: .85; }
+  .muted { font-size: 12px; color: #aaa; margin-top: 18px; }
+</style>
+</head>
+<body>
+  <div class="logo-wrap">
+    <div class="logo-img"></div>
+    <div class="logo-name">OPUS.Z</div>
+  </div>
+  <div class="card">
+    <div id="spinner" class="spinner"></div>
+    <div id="iconOk" class="icon ok"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <div id="iconBad" class="icon bad"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+    <h1 id="title">驗證中…</h1>
+    <p id="msg">正在確認您的 Email，請稍候。</p>
+    <a id="cta" class="btn" style="display:none" href="musician-login.html">前往登入 →</a>
+    <p class="muted">OPUS.Z · 遇見台灣菁英音樂家</p>
+  </div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, applyActionCode } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
+    authDomain: "opusz-45280.firebaseapp.com",
+    projectId: "opusz-45280",
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  const params = new URLSearchParams(location.search);
+  const code = params.get("code") || params.get("oobCode");
+  const role = params.get("r") === "customer" ? "customer" : "musician";
+  const loginUrl = role === "customer" ? "customer-login.html" : "musician-login.html";
+
+  const $ = (id) => document.getElementById(id);
+  function show(kind, title, msg) {
+    $("spinner").style.display = "none";
+    $("title").textContent = title;
+    $("msg").textContent = msg;
+    if (kind === "ok") { $("iconOk").style.display = "flex"; }
+    if (kind === "bad") { $("iconBad").style.display = "flex"; }
+    const cta = $("cta");
+    cta.href = loginUrl;
+    cta.textContent = kind === "ok" ? "前往登入 →" : "回到登入頁 →";
+    cta.style.display = "inline-block";
+  }
+
+  (async () => {
+    if (!code) { show("bad", "連結無效", "這個驗證連結缺少必要資訊，請回到登入頁重新申請驗證信。"); return; }
+    try {
+      await applyActionCode(auth, code);
+      show("ok", "Email 驗證成功！", "您的帳號已啟用，現在可以登入 OPUS.Z 了。");
+    } catch (e) {
+      const expired = e && (e.code === "auth/expired-action-code" || e.code === "auth/invalid-action-code");
+      show("bad",
+        expired ? "連結已失效" : "驗證失敗",
+        expired
+          ? "這個驗證連結已過期或已使用過。請回到登入頁，登入後我們會再寄一封新的驗證信給您。"
+          : "驗證時發生問題，請回到登入頁再試一次。");
+    }
+  })();
+</script>
+</body>
+</html>

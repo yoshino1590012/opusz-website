@@ -241,14 +241,24 @@ exports.sendVerifyEmail = onCall(
       throw new HttpsError("failed-precondition", "could-not-generate-link");
     }
 
+    // Rewrite Firebase's firebaseapp.com action link to a clean same-domain link
+    // on opuszmusic.com. A scary cross-domain URL full of tokens is the #1 reason
+    // verification emails get flagged as phishing/spam. Our /verify-email page
+    // applies the oobCode. Falls back to the original link if parsing fails.
+    let verifyUrl = link;
+    try {
+      const code = new URL(link).searchParams.get("oobCode");
+      if (code) verifyUrl = SITE_URL + "/verify-email?code=" + encodeURIComponent(code) + "&r=" + role;
+    } catch (e) { /* keep original link */ }
+
     const greet = name ? ('<p style="margin:0 0 14px;">' + esc(name) + " 您好，</p>") : "";
     const html = emailShell(
       '<h1 style="margin:0 0 14px;font-size:21px;color:#111;">請驗證您的 Email</h1>' +
       greet +
       '<p style="margin:0 0 22px;">感謝您註冊 OPUS.Z。請點擊下方按鈕完成 Email 驗證，啟用您的帳號：</p>' +
-      '<p style="margin:0 0 24px;">' + btn(link, "驗證我的 Email →") + "</p>" +
+      '<p style="margin:0 0 24px;">' + btn(verifyUrl, "驗證我的 Email →") + "</p>" +
       '<p style="margin:0 0 6px;color:#777;font-size:13px;">若按鈕無法點擊，請複製以下連結貼到瀏覽器開啟：</p>' +
-      '<p style="margin:0;word-break:break-all;font-size:12px;color:#999;">' + esc(link) + "</p>" +
+      '<p style="margin:0;word-break:break-all;font-size:12px;color:#999;">' + esc(verifyUrl) + "</p>" +
       '<p style="margin:24px 0 0;color:#777;font-size:13px;">如果這不是您本人的操作，請直接忽略本信。</p>'
     );
 
