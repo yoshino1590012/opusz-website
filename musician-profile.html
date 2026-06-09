@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Martin Liao — OPUS.Z</title>
+<title>OPUS.Z</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Warm up the connections used to load the profile (data + banner photo) ASAP. -->
@@ -1702,7 +1702,7 @@ var PROFILE_I18N = {
     'nav.lessons':       'Lessons',
     'bio.label':         'About',
     'bio.text':          'Introduce yourself — share your background, training, and what makes your performances special.',
-    'book.title':        'Book Martin',
+    'book.title':        'Book this musician',
     'book.sub':          'For performances, recordings & private sessions',
     'book.enquiry':      'Send Enquiry',
     'book.avail':        'Check Availability',
@@ -1739,14 +1739,14 @@ var PROFILE_I18N = {
     'bar.msg':           'Message',
     'bar.check':         'Check availability',
     'enq.title':         'Send Enquiry',
-    'enq.sub':           'Describe your project and Martin will reply with a proposal',
+    'enq.sub':           'Describe your project and the musician will reply with a proposal',
     'enq.what':          'What can we help you with?',
     'enq.tell':          'Tell us more about your project:',
     'enq.name':          'Your name',
     'enq.email':         'Email',
     'enq.send':          'SEND ENQUIRY',
     'enq.ok':            'Enquiry sent!',
-    'enq.okSub':         'Martin will review your project and get back to you within 24 hours.',
+    'enq.okSub':         'The musician will review your project and get back to you within 24 hours.',
     'gal.title':         'Photos',
     'vid.title':         'Watch & Listen',
     'vid.sub':           '/ SHOWREEL',
@@ -1761,7 +1761,7 @@ var PROFILE_I18N = {
     'nav.lessons':       '音樂老師',
     'bio.label':         '個人簡介',
     'bio.text':          '介紹你自己 — 分享你的背景、訓練，以及讓你的演出與眾不同之處。',
-    'book.title':        '預約 Martin 演出',
+    'book.title':        '預約演出',
     'book.sub':          '歡迎洽詢現場表演、錄音及私人課程',
     'book.enquiry':      '立即詢問',
     'book.avail':        '查詢檔期',
@@ -1798,14 +1798,14 @@ var PROFILE_I18N = {
     'bar.msg':           '訊息',
     'bar.check':         '查詢檔期',
     'enq.title':         '立即詢問',
-    'enq.sub':           '描述你的活動，Martin 將回覆專屬提案',
+    'enq.sub':           '描述你的活動，音樂家將回覆專屬提案',
     'enq.what':          '需要什麼協助？',
     'enq.tell':          '請描述你的活動：',
     'enq.name':          '你的姓名',
     'enq.email':         '電子郵件',
     'enq.send':          '送出詢問',
     'enq.ok':            '詢問已送出！',
-    'enq.okSub':         'Martin 會在 24 小時內回覆。',
+    'enq.okSub':         '音樂家會在 24 小時內回覆。',
     'gal.title':         '照片集',
     'vid.title':         '影音作品',
     'vid.sub':           '/ 精選作品',
@@ -2307,78 +2307,14 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       <div class="reviews-big-count">0 Reviews &nbsp;·&nbsp; 0 Saves</div>
     </div>
 
+    <!-- Reviews are per-musician and there is no review system yet, so show a
+         neutral empty state. (Previously this held hard-coded demo testimonials
+         that mentioned "Martin" by name — those showed on EVERY musician's page,
+         leaking one musician's content onto everyone else's profile.) -->
     <div class="review-list">
-
-      <div class="review-item">
-        <div class="review-top">
-          <div class="review-left">
-            <div class="review-avatar" style="background:#1a1a1a;">YC</div>
-            <div>
-              <div class="review-name">Y.C.</div>
-              <div class="review-stars">★★★★★</div>
-            </div>
-          </div>
-          <div class="review-date">3 天前</div>
-        </div>
-        <div class="review-body">Martin 在我們的婚禮上表現出色，從排練到正式演出都非常專業。現場氣氛感人至深，所有賓客都讚不絕口。非常推薦！</div>
+      <div class="review-empty" style="padding:8px 0 4px;color:#9aa0a6;font-size:15px;">
+        <span data-i18n="reviews.empty">目前還沒有評價 / No reviews yet</span>
       </div>
-
-      <div class="review-item">
-        <div class="review-top">
-          <div class="review-left">
-            <div class="review-avatar" style="background:#2c2c2c;">JL</div>
-            <div>
-              <div class="review-name">J.L.</div>
-              <div class="review-stars">★★★★★</div>
-            </div>
-          </div>
-          <div class="review-date">1 週前</div>
-        </div>
-        <div class="review-body">We hired Martin for our company gala and he absolutely exceeded our expectations. His stage presence and musicianship were world-class. Will definitely book again.</div>
-      </div>
-
-      <div class="review-item">
-        <div class="review-top">
-          <div class="review-left">
-            <div class="review-avatar" style="background:#333;">SH</div>
-            <div>
-              <div class="review-name">S.H.</div>
-              <div class="review-stars">★★★★☆</div>
-            </div>
-          </div>
-          <div class="review-date">2 週前</div>
-        </div>
-        <div class="review-body">錄音工作坊進行得非常順利，Martin 的技術指導讓整個團隊受益良多。課程內容深入淺出，節奏掌握得很好。唯一建議是時間可以再安排寬裕一些。</div>
-      </div>
-
-      <div class="review-item">
-        <div class="review-top">
-          <div class="review-left">
-            <div class="review-avatar" style="background:#111;">MW</div>
-            <div>
-              <div class="review-name">M.W.</div>
-              <div class="review-stars">★★★★★</div>
-            </div>
-          </div>
-          <div class="review-date">1 個月前</div>
-        </div>
-        <div class="review-body">Breathtaking performance at the chamber music concert. The way Martin interpreted Brahms was deeply moving — you could feel every phrase. A true artist.</div>
-      </div>
-
-      <div class="review-item">
-        <div class="review-top">
-          <div class="review-left">
-            <div class="review-avatar" style="background:#222;">AT</div>
-            <div>
-              <div class="review-name">A.T.</div>
-              <div class="review-stars">★★★★★</div>
-            </div>
-          </div>
-          <div class="review-date">1 個月前</div>
-        </div>
-        <div class="review-body">私人小提琴課非常有收穫，Martin 對學生的程度判斷精準，給的練習建議實用又有針對性。短短幾堂課就感受到明顯進步，很感謝。</div>
-      </div>
-
     </div>
   </div>
 
@@ -3163,7 +3099,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
         <small>We'll notify you when the musician responds.</small>
       </div>
       <div class="avail-check">
-        <label><input type="checkbox" id="chkSimilar"> Send me similar musicians if Martin isn't available</label>
+        <label><input type="checkbox" id="chkSimilar"> Send me similar musicians if this musician isn't available</label>
       </div>
       <div class="avail-check">
         <label><input type="checkbox" id="chkBiz"> I'm booking for a business</label>
@@ -3563,7 +3499,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       details: JSON.parse(JSON.stringify(state||{})),
       musicianName: (window.MUSICIAN_NAME||'')
     };
-    function done(){ alert('✓ Enquiry sent! We\'ll notify you when Martin responds.'); closeAvail(); }
+    function done(){ alert('✓ Enquiry sent! We\'ll notify you when the musician responds.'); closeAvail(); }
     if(typeof window.opzMirrorToConversation==='function'){ window.opzMirrorToConversation(payload); }  // → customer's Messages
     if(typeof window.opzSendInquiry==='function'){ window.opzSendInquiry(payload).then(done).catch(function(err){ console.warn('[booking] send failed:',err); done(); }); }
     else { done(); }
@@ -4081,6 +4017,8 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     if (bioText && bio) bioText.textContent = bio;
 
     document.querySelectorAll('.book-name, [id="bookName"]').forEach(el => el.textContent = name);
+    // Enquiry form's hidden musician field → the ACTUAL musician (was hard-coded "Martin Liao")
+    document.querySelectorAll('input[name="musician"]').forEach(el => { el.value = name; });
     document.querySelectorAll('h2').forEach(el => {
       if (el.textContent.includes('Book') && el.textContent.includes('event')) {
         el.textContent = 'Book ' + name + ' for your next event';
@@ -4163,17 +4101,17 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     <button class="enq-close" onclick="closeEnquiry()" aria-label="Close">✕</button>
     <div id="enqFormView">
       <div class="enq-title" data-i18n="enq.title">Send Enquiry</div>
-      <div class="enq-sub" data-i18n="enq.sub">Describe your project and Martin will reply with a proposal</div>
+      <div class="enq-sub" data-i18n="enq.sub">Describe your project and the musician will reply with a proposal</div>
       <form id="enqForm" name="musician-enquiry-modal" method="POST" data-netlify="true" onsubmit="submitEnquiryModal(event)">
         <input type="hidden" name="form-name" value="musician-enquiry-modal" />
-        <input type="hidden" name="musician" value="Martin Liao" />
+        <input type="hidden" name="musician" value="" />
         <div class="enq-field">
           <label class="enq-label" data-i18n="enq.what">What can we help you with?</label>
           <input class="enq-input" type="text" name="subject" placeholder="e.g. Live performance for corporate event" required />
         </div>
         <div class="enq-field">
           <label class="enq-label" data-i18n="enq.tell">Tell us more about your project:</label>
-          <textarea class="enq-textarea" name="message" required>HI MARTIN,
+          <textarea class="enq-textarea" name="message" required>Hi,
 
 </textarea>
         </div>
@@ -4191,7 +4129,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     <div class="enq-success" id="enqSuccess">
       <div class="enq-success-icon">✓</div>
       <h4 data-i18n="enq.ok">Enquiry sent!</h4>
-      <p data-i18n="enq.okSub">Martin will review your project and get back to you within 24 hours.</p>
+      <p data-i18n="enq.okSub">The musician will review your project and get back to you within 24 hours.</p>
     </div>
   </div>
 </div>

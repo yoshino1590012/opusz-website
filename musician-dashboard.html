@@ -788,9 +788,9 @@
     <div class="sb-spacer"></div>
 
     <div class="sb-user">
-      <div class="sb-avatar" id="sbAvatar">M</div>
+      <div class="sb-avatar" id="sbAvatar"></div>
       <div class="sb-user-info">
-        <div class="sb-user-name" id="sbUserName">Martin</div>
+        <div class="sb-user-name" id="sbUserName">…</div>
         <div class="sb-user-role" id="sbUserEmail">—</div>
       </div>
     </div>
@@ -826,8 +826,8 @@
           <div class="notif-dot"></div>
         </button>
         <div class="topbar-profile">
-          <div class="tp-avatar" id="tpAvatar">M</div>
-          <span style="font-size:13px;font-weight:600;" id="tpName">Martin</span>
+          <div class="tp-avatar" id="tpAvatar"></div>
+          <span style="font-size:13px;font-weight:600;" id="tpName">…</span>
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
         </div>
       </div>
@@ -839,7 +839,7 @@
       <!-- ══════════════ OVERVIEW ══════════════ -->
       <div class="page active" id="page-overview">
         <div class="page-header">
-          <h1 id="welcomeMsg">早安，Martin 👋</h1>
+          <h1 id="welcomeMsg">歡迎回來 👋</h1>
           <p>以下是你今天的最新動態。</p>
         </div>
 
@@ -2040,44 +2040,44 @@
       if(_pf){ _pf.__pbSnapped = false; _pf.src = 'musician-profile.html?edit=1&uid=' + encodeURIComponent(user.uid) + '&_=' + Date.now(); }
     }catch(e){}
 
-    // Load profile from Firestore
-    try {
-      const snap = await getDoc(doc(db, 'musicians', user.uid));
-      _currentProfile = snap.exists() ? snap.data() : {};
-      const name = _currentProfile.name || user.email.split('@')[0];
-
-      // Bridge to the shared localStorage login flag so the community page
-      // (and front-end nav) recognise this logged-in musician.
+    // Apply the signed-in identity to every name/avatar slot in the chrome.
+    // CRITICAL: the HTML placeholders must NEVER stay as a real person's name.
+    // This runs with the email-prefix fallback FIRST (before any Firestore read)
+    // so that even if the profile fetch fails, the UI shows THIS account's name —
+    // never the previous build's hard-coded "Martin". It's re-run with the real
+    // display name once the doc loads.
+    function applyAccountIdentity(name){
+      name = name || (user.email ? user.email.split('@')[0] : '樂手');
       try {
         localStorage.setItem('opusz_user', name);
-        localStorage.setItem('opusz_user_email', user.email);
+        localStorage.setItem('opusz_user_email', user.email || '');
         // Tag the session role so the customer area knows this is a musician
         // (the shared opusz_user flag alone used to leak musicians into customer-profile).
         localStorage.setItem('opusz_role', 'musician');
       } catch(e){}
-
-      // Greeting
       const hour = new Date().getHours();
       const greeting = hour < 12 ? '早安' : hour < 18 ? '午安' : '晚安';
       const el = document.getElementById('welcomeMsg');
-      if (el) el.textContent = greeting + ', ' + name + ' 👋';
-
-      // Sidebar
+      if (el) el.textContent = greeting + '，' + name + ' 👋';
       const sbName = document.getElementById('sbUserName');
       if (sbName) sbName.textContent = name;
       const sbEmail = document.getElementById('sbUserEmail');
-      if (sbEmail) sbEmail.textContent = user.email;
-
-      // Top-right account chip (was hard-coded "Martin" and never updated)
+      if (sbEmail) sbEmail.textContent = user.email || '';
       const tpName = document.getElementById('tpName');
       if (tpName) tpName.textContent = name;
-
-      // Avatar initials (both were hard-coded "M")
       const initial = (name || user.email || '?').trim().charAt(0).toUpperCase();
       const sbAv = document.getElementById('sbAvatar');
       if (sbAv) sbAv.textContent = initial;
       const tpAv = document.getElementById('tpAvatar');
       if (tpAv) tpAv.textContent = initial;
+    }
+    applyAccountIdentity();   // immediate, safe fallback (this account's own email)
+
+    // Load profile from Firestore
+    try {
+      const snap = await getDoc(doc(db, 'musicians', user.uid));
+      _currentProfile = snap.exists() ? snap.data() : {};
+      applyAccountIdentity(_currentProfile.name);   // override with the real display name
 
       // Populate profile tab fields
       loadProfileFields();
@@ -2086,6 +2086,7 @@
       try{ pbRenderMembership(); }catch(e){ console.warn('[membership] render failed:', e); }
     } catch(e) {
       console.log('Profile load error:', e);
+      _currentProfile = _currentProfile || {};   // keep the safe fallback identity already applied
     }
 
     // Live public-jobs feed (badge + board). Runs regardless of profile load.
