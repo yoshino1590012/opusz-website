@@ -2456,6 +2456,23 @@
     var msg=document.getElementById('seSaveMsg'); if(msg){ msg.textContent='已重置此裝置的位置與大小（記得按發布）'; msg.style.color='#155e75'; }
   };
 
+  // Recursively strip values that Firestore rejects: base64 data: URLs (too big
+  // → invalid-argument) become '', and undefined keys are dropped.
+  function seSanitizeForFirestore(v){
+    if (typeof v === 'string') return (v.slice(0,5)==='data:') ? '' : v;
+    if (Array.isArray(v)) return v.map(seSanitizeForFirestore);
+    if (v && typeof v === 'object'){
+      var o={};
+      for (var k in v){
+        if(!Object.prototype.hasOwnProperty.call(v,k)) continue;
+        var sv=seSanitizeForFirestore(v[k]);
+        if (sv!==undefined) o[k]=sv;
+      }
+      return o;
+    }
+    return v;
+  }
+
   window.seSave = async function(){
     var page = seCurrentPage || 'home';
     var cfg = (page==='home') ? seReadInputs() : (seCurrentConfig || {i18n:{en:{},zh:{}}});
@@ -2474,6 +2491,10 @@
       }
     }
     try{ localStorage.setItem('opusz_site_'+page, JSON.stringify(cfg)); }catch(e){}
+    // Deep-sanitize before Firestore: a base64 data: URL anywhere in the config
+    // blows past the 1MB document limit → invalid-argument. Strip every data:
+    // string (they can't be persisted here anyway) and drop undefined values.
+    cfg = seSanitizeForFirestore(cfg);
     var msg=document.getElementById('seSaveMsg');
     var ok=false;
     try{
@@ -2482,7 +2503,13 @@
       if(msg){ msg.textContent='✓ 文字已儲存並發布'; msg.style.color='#16a34a'; }
     }catch(e){
       console.warn('[siteeditor] Firestore save failed:', e);
-      if(msg){ msg.textContent='⚠ 文字寫入被拒：請先用管理者帳號登入（'+(e.code||e.message)+'）'; msg.style.color='#c00'; }
+      var code=(e.code||e.message||'')+'';
+      var human = code.indexOf('invalid-argument')>=0
+        ? '⚠ 儲存失敗：有海報圖片太大、無法存進文字設定。請用照片框的「上傳檔案」鈕（會存成小連結），或移除過大的圖片後再試。'
+        : (code.indexOf('permission')>=0
+          ? '⚠ 儲存失敗：權限不足，請先用管理者帳號登入 Firebase。'
+          : '⚠ 儲存失敗：'+code);
+      if(msg){ msg.textContent=human; msg.style.color='#c00'; }
     }
     sePreview();
     return ok;
