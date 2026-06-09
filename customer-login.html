@@ -278,6 +278,8 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider,
          createUserWithEmailAndPassword, signInWithEmailAndPassword,
          sendEmailVerification, signOut, reload }
   from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js';
+import { getFunctions, httpsCallable }
+  from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js';
 
 const firebaseConfig = {
   apiKey:    'AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s',
@@ -287,6 +289,19 @@ const firebaseConfig = {
 
 const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const functions = getFunctions(app, 'us-central1');
+
+// Send the verification email via our branded ZeptoMail sender (info@opuszmusic.com)
+// so it lands in the inbox, not spam. Falls back to Firebase's built-in email.
+async function sendBrandedVerify(user, email) {
+  try {
+    const fn = httpsCallable(functions, 'sendVerifyEmail');
+    await fn({ email: email, role: 'customer' });
+  } catch (e) {
+    console.log('branded verify failed, falling back:', e);
+    try { await sendEmailVerification(user); } catch (_e) {}
+  }
+}
 
 // Where to redirect after login
 const params   = new URLSearchParams(window.location.search);
@@ -417,7 +432,7 @@ async function doEmailSubmit() {
     if (mode === 'create') {
       if (pw !== pwConfirm.value) { showError('兩次輸入的密碼不一致。'); shake(pwConfirm); return; }
       const cred = await createUserWithEmailAndPassword(auth, email, pw);
-      await sendEmailVerification(cred.user);
+      await sendBrandedVerify(cred.user, email);
       await signOut(auth);   // must verify before they can use the account
       mode = 'signin';
       pwConfirm.style.display='none'; pwConfirmLbl.style.display='none';
@@ -431,7 +446,7 @@ async function doEmailSubmit() {
     const cred = await signInWithEmailAndPassword(auth, email, pw);
     await reload(cred.user);
     if (!cred.user.emailVerified) {
-      try { await sendEmailVerification(cred.user); } catch(_e){}
+      try { await sendBrandedVerify(cred.user, email); } catch(_e){}
       await signOut(auth);
       showInfo('您的 email 還沒驗證。我們又寄了一封驗證信到 <b>' + email + '</b>，請點連結完成驗證後再登入。');
       return;
