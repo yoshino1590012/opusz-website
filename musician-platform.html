@@ -746,7 +746,7 @@ nav.mega-open .nav-links a::before {
 .hco-btn-out:hover { background: #f7f7f8; border-color: #d4d4d8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
 /* Equal-width buttons: both match the longest label ("Create a Project"),
    centred, consistent across every screen size. */
-.hco-btn-pri, .hco-btn-out { justify-content: center; min-width: calc(var(--k)*186px); }
+.hco-btn-pri, .hco-btn-out { justify-content: center; min-width: calc(var(--k)*186px); box-sizing: border-box; line-height: 1; }
 /* chevron › after each button label, nudges right on hover */
 .hco-btn-pri::after, .hco-btn-out::after {
   content: '\203A'; font-size: calc(var(--k)*17px); line-height: 0; font-weight: 600;

@@ -36,7 +36,7 @@ const PAGE = (document.documentElement.getAttribute('data-cms-page') || 'home').
 var HERO_DRAG = { headline:'.hco-headline', sub:'.hco-sub', btnFind:'.hco-btn-pri', btnProject:'.hco-btn-out', brand:'.hco-brand' };
 // Ensure the right number of OPUS.Z brand copies (1–4) exist in the DOM.
 function ensureBrandCopies(count){
-  count = Math.max(1, Math.min(4, parseInt(count,10) || 1));
+  count = Math.max(1, Math.min(8, parseInt(count,10) || 1));
   var first = document.querySelector('.hco-brand'); if(!first) return;
   if(!first.getAttribute('data-bk')) first.setAttribute('data-bk','brand');
   var parent = first.parentNode;
