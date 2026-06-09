@@ -4114,19 +4114,33 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   } catch(e){}
 
   // 2) FRESH via the Firestore REST API → re-apply + refresh the cache.
-  try {
-    const url = 'https://firestore.googleapis.com/v1/projects/opusz-45280/databases/(default)/documents/musicians/'
-              + encodeURIComponent(uid) + '?key=' + API_KEY;
-    const r = await fetch(url);
-    if (!r.ok) { reveal(); return; }           // 404 (no such musician) etc.
-    const p = fsDoc(await r.json());
-    if (!p || !Object.keys(p).length) { reveal(); return; }
-    try { localStorage.setItem('opusz_profile_' + uid, JSON.stringify(p)); } catch(e){}
-    applyMusician(p);
-  } catch(e) {
-    console.log('Profile load error:', e);
-    reveal();
+  //    A single transient failure (network blip, or Firestore briefly returning
+  //    429/5xx) used to fall straight through to reveal() on the BLANK template —
+  //    that was the "my page randomly resets to the factory template, refresh a
+  //    few times and it comes back" bug. We now RETRY with backoff and only ever
+  //    fall back to the empty template for a genuine 404 / empty doc, so one
+  //    hiccup can never wipe a real profile back to the placeholder.
+  const url = 'https://firestore.googleapis.com/v1/projects/opusz-45280/databases/(default)/documents/musicians/'
+            + encodeURIComponent(uid) + '?key=' + API_KEY;
+  let applied = false;
+  for (let attempt = 0; attempt < 5 && !applied; attempt++) {
+    if (attempt) await new Promise(res => setTimeout(res, 400 * attempt)); // 0,400,800,1200,1600ms
+    try {
+      const r = await fetch(url);
+      if (r.status === 404) { reveal(); return; }        // genuinely no such musician
+      if (!r.ok) continue;                                // 429 / 5xx → retry, don't show template
+      const p = fsDoc(await r.json());
+      if (!p || !Object.keys(p).length) { reveal(); return; } // empty doc = genuinely blank
+      try { localStorage.setItem('opusz_profile_' + uid, JSON.stringify(p)); } catch(e){}
+      applyMusician(p);
+      applied = true;
+    } catch(e) {
+      console.log('Profile load attempt', attempt + 1, 'failed:', e);  // network blip → retry
+    }
   }
+  // All attempts failed. If we already painted from the localStorage cache the
+  // real data is on screen; otherwise reveal so the page isn't stuck hidden.
+  if (!applied) reveal();
   })();
 </script>
 
