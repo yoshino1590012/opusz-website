@@ -3545,6 +3545,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       musicianName: (window.MUSICIAN_NAME||'')
     };
     function done(){ alert('✓ Enquiry sent! We\'ll notify you when Martin responds.'); closeAvail(); }
+    if(typeof window.opzMirrorToConversation==='function'){ window.opzMirrorToConversation(payload); }  // → customer's Messages
     if(typeof window.opzSendInquiry==='function'){ window.opzSendInquiry(payload).then(done).catch(function(err){ console.warn('[booking] send failed:',err); done(); }); }
     else { done(); }
   }
@@ -4954,6 +4955,7 @@ window.submitEnquiryModal = function(e){
   }
   // Deliver to the musician's dashboard inbox via Firestore (opzSendInquiry, defined
   // in the module script below). Falls back to just showing success if unavailable.
+  if(typeof window.opzMirrorToConversation==='function'){ window.opzMirrorToConversation(payload); }  // → customer's Messages
   if (typeof window.opzSendInquiry === 'function') {
     window.opzSendInquiry(payload).then(done).catch(function(err){ console.warn('[enquiry] send failed:', err); done(); });
   } else {
@@ -6196,6 +6198,33 @@ window.addEventListener('pageshow', function(e) {
   <!-- Real messaging: "Message" starts a conversation with this musician -->
   <script type="module" src="messaging.js"></script>
   <script>
+    // Mirror a booking/enquiry into the customer's Messages workroom, so a
+    // logged-in customer sees everything they send (the musician still gets the
+    // inquiries-inbox notification + email separately). No-op if not a real,
+    // logged-in customer on a real profile.
+    window.opzMirrorToConversation = async function(payload){
+      try{
+        var musicianUid = new URLSearchParams(location.search).get('uid');
+        var customerUid = window.OPUSZ_MSG && OPUSZ_MSG.currentUid && OPUSZ_MSG.currentUid();
+        if(!musicianUid || !customerUid || !window.OPUSZ_MSG) return;
+        var brief = null;
+        if(payload.kind === 'booking' && payload.details){
+          var s = payload.details;
+          var dt = [s.date, (s.hour!=null ? (s.hour+':'+String(s.min||0).padStart(2,'0')+' '+(s.ampm||'')) : '')].filter(Boolean).join(' ');
+          brief = { type: s.eventType||'檔期預約', date: dt||'—', location: s.location||'—', budget:'—', notes: s.notes||'' };
+        }
+        var convId = await OPUSZ_MSG.startConversation({
+          customerUid: customerUid,
+          customerName: payload.name || localStorage.getItem('opusz_user') || '',
+          musicianUid: musicianUid,
+          musicianName: payload.musicianName || (window.MUSICIAN_NAME||'樂手'),
+          subject: payload.subject || '詢問',
+          brief: brief
+        });
+        await OPUSZ_MSG.sendMessage(convId, { text: payload.message || payload.subject || '（詢問）', senderRole: 'customer' });
+      }catch(e){ console.warn('[mirror-conv] failed:', e && (e.code||e.message)); }
+    };
+
     window.opzStartMessage = function(){
       var musicianUid = new URLSearchParams(location.search).get('uid');
       var customerUid = window.OPUSZ_MSG && OPUSZ_MSG.currentUid();
