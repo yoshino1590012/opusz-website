@@ -619,12 +619,12 @@
 
       <!-- ══════════ JOBS ══════════ -->
       <div class="page" id="page-jobs">
-        <div class="page-header"><h1>Jobs Overview</h1><p>All active and completed gigs on the platform.</p></div>
+        <div class="page-header"><h1>公開委托 / Jobs</h1><p>客戶貼出的公開委托。你可以在這裡移除不適當或測試的委托。</p></div>
         <div class="card">
           <table class="data-table">
-            <thead><tr><th>Event</th><th>Client</th><th>Date</th><th>Budget</th><th>Status</th><th>Applicants</th></tr></thead>
-            <tbody>
-              <tr><td colspan="6" style="text-align:center;color:var(--mid);padding:40px;">No jobs yet — gigs will appear here when customers post them.</td></tr>
+            <thead><tr><th>委托 / Event</th><th>客戶 / Client</th><th>活動日期</th><th>狀態</th><th>貼出</th><th>管理</th></tr></thead>
+            <tbody id="adminJobsBody">
+              <tr><td colspan="6" style="text-align:center;color:var(--mid);padding:40px;">載入中…</td></tr>
             </tbody>
           </table>
         </div>
@@ -2571,6 +2571,43 @@
 
 
   // ── Load customers from Firestore ──
+  // ── 公開委托 / Jobs management (list + remove) ──────────────────────────
+  // jobs are admin-writable by the Firestore rule (delete if email == admin).
+  window.loadAdminJobs = async function loadAdminJobs() {
+    var body = document.getElementById('adminJobsBody'); if(!body) return;
+    var jesc = function(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--mid);padding:30px;">載入中…</td></tr>';
+    try {
+      var snap = await getDocs(collection(db, 'jobs'));
+      var rows = [];
+      snap.forEach(function(d){ rows.push(Object.assign({ id:d.id }, d.data())); });
+      rows.sort(function(a,b){ return String(b.createdAt||'').localeCompare(String(a.createdAt||'')); });
+      if(!rows.length){ body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--mid);padding:40px;">目前沒有公開委托。</td></tr>'; return; }
+      body.innerHTML = rows.map(function(j){
+        var ev = [j.type, j.ensemble].filter(Boolean).join(' · ') || '—';
+        var date = (j.eventDate||'') + (j.eventTime ? (' '+j.eventTime) : '');
+        return '<tr>'
+          + '<td>'+jesc(ev)+(j.desc?('<div style="font-size:12px;color:var(--mid);margin-top:2px;">'+jesc(String(j.desc).slice(0,90))+'</div>'):'')+'</td>'
+          + '<td>'+jesc(j.customerName||'—')+'</td>'
+          + '<td>'+jesc(date||'—')+'</td>'
+          + '<td>'+jesc(j.status||'open')+'</td>'
+          + '<td>'+jesc(String(j.createdAt||'').slice(0,10))+'</td>'
+          + '<td><button class="btn-del-job" data-jid="'+jesc(j.id)+'" style="font-size:12px;color:#c0392b;background:none;border:1px solid #eedcdc;border-radius:6px;padding:4px 10px;cursor:pointer;">刪除</button></td>'
+          + '</tr>';
+      }).join('');
+    } catch(e){
+      console.warn('[admin jobs] load failed:', e);
+      body.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#c0392b;padding:30px;">載入失敗：'+(e.code||e.message)+'</td></tr>';
+    }
+  };
+  document.addEventListener('click', async function(e){
+    var btn = e.target.closest && e.target.closest('.btn-del-job'); if(!btn) return;
+    if(!confirm('確定要移除這個公開委托？此動作無法復原。')) return;
+    btn.disabled = true; btn.textContent = '刪除中…';
+    try { await deleteDoc(doc(db, 'jobs', btn.getAttribute('data-jid'))); if(window.loadAdminJobs) loadAdminJobs(); }
+    catch(err){ btn.disabled=false; btn.textContent='刪除'; alert('刪除失敗：'+(err.code||err.message)+'（請確認你是用管理者帳號登入）'); }
+  });
+
   window.loadCustomers = async function loadCustomers() {
     const tbody = document.getElementById('customerTableBody');
     if (!tbody) return;
@@ -2697,6 +2734,7 @@
     else { var t = document.querySelector('[data-page="'+id+'"]'); if(t) t.classList.add('active'); }
     document.getElementById('topbarTitle').textContent = TITLES[id] || id;
     if (id === 'customers') loadCustomers();
+    if (id === 'jobs') loadAdminJobs();
     if (id === 'newsletter') loadSubscribers();
     if (id === 'siteeditor') seInit();
     if (id === 'posters') loadAdminPosters();
