@@ -667,6 +667,14 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   font-size:20px;font-weight:800;letter-spacing:-.03em;
   color:#000;font-family:'Inter',sans-serif;
 }
+/* mobile: tighter gap + faster scroll + wider visible area */
+@media(max-width:700px){
+  .marquee-track-wrap{ max-width:90%; }
+  .marquee-track-wrap::before,
+  .marquee-track-wrap::after{ width:48px; }
+  .marquee-track{ animation-duration:13s; }
+  .marquee-logo{ padding:0 22px; }
+}
 
 /* Stats row */
 .stats-row{
