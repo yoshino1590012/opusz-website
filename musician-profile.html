@@ -4366,6 +4366,8 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     // transition's translateX working.
     var vid = (data || []).filter(function(d){ return d && d.url === url; })[0] || data[cur] || {};
     f.style.cssText = iframeCoverCss(vid.zoom);
+    // Once the iframe is laid out, apply the X/Y pan (and re-centre) for it.
+    f.addEventListener('load', function(){ if(f === currentEmbed) applyVidPos(f); });
     return f;
   }
   // Size a 16:9 YouTube/Vimeo iframe to cover the frame. zoom is PER-VIDEO (%, set
@@ -4403,17 +4405,37 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   }
 
   // Instant swap — used on initial render and when the editor saves new data.
-  // Pan an mp4 <video> within its (cover-cropped) frame. Per device: phones
-  // (≤700px) use the video's xm/ym, desktop uses x/y. Iframes (YouTube/Vimeo)
-  // can't be panned, so they're skipped.
+  // Position the video within its (cover-cropped) frame. Per device: phones
+  // (≤700px) use xm/ym, desktop uses x/y. 50/50 = centred.
+  //  • mp4 <video> → object-position (resolution-independent %).
+  //  • YouTube/Vimeo <iframe> → the iframe is oversized (zoom) and clipped by the
+  //    pin's overflow, so we PAN it by shifting left/top by a fraction of its
+  //    overflow. (object-position doesn't work on iframes, and transform is already
+  //    used by the slide animation, so we use left/top.) This also fixes centring:
+  //    margin:auto didn't reliably centre an oversized iframe → it sat left-aligned
+  //    with its right half clipped off; explicit 50% = true centre.
   function applyVidPos(el){
-    if(!el || el.tagName !== 'VIDEO') return;
+    if(!el) return;
     var d = data[cur] || {};
     var mobile = (window.innerWidth || 9999) <= 700;
     var x = mobile ? (d.xm != null ? d.xm : 50) : (d.x != null ? d.x : 50);
     var y = mobile ? (d.ym != null ? d.ym : 50) : (d.y != null ? d.y : 50);
-    el.style.objectPosition = x + '% ' + y + '%';
+    if(el.tagName === 'VIDEO'){ el.style.objectPosition = x + '% ' + y + '%'; return; }
+    if(el.tagName === 'IFRAME'){
+      var cont = el.parentNode || pin;
+      var iw = el.offsetWidth, ih = el.offsetHeight, cw = cont.clientWidth, ch = cont.clientHeight;
+      if(!iw || !cw){ requestAnimationFrame(function(){ applyVidPos(el); }); return; } // not laid out yet
+      var ox = Math.max(0, iw - cw), oy = Math.max(0, ih - ch);   // how much the iframe overflows
+      el.style.margin = '0';
+      el.style.right = 'auto'; el.style.bottom = 'auto';
+      el.style.left = (-ox * (x/100)).toFixed(1) + 'px';          // 50% → -ox/2 = centred
+      el.style.top  = (-oy * (y/100)).toFixed(1) + 'px';
+    }
   }
+  // Re-pan the iframe on window resize (its overflow changes with viewport size).
+  window.addEventListener('resize', function(){
+    if(currentEmbed && currentEmbed.tagName === 'IFRAME') applyVidPos(currentEmbed);
+  });
   function embedVideo(url){
     if(currentEmbed){ currentEmbed.remove(); currentEmbed = null; }
     var el = buildEmbed(url);
