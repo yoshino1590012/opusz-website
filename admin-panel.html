@@ -2585,12 +2585,13 @@
           else if(Array.isArray(v)){ v.forEach(function(x,i){ scan(x,p+'['+i+']'); }); }
           else if(v&&typeof v==='object'){ Object.keys(v).forEach(function(k){ scan(v[k],p+'.'+k); }); }
         })(cfg,'');
-        diag=' ｜ 診斷: 總'+total+'字, 最大區塊['+big+']='+bigN+'字, 最長文字'+maxPath+'='+maxStr+'字';
+        diag=' ｜ 鍵:'+Object.keys(cfg||{}).join(',')+' ｜ 總'+total+'字, 最大['+big+']='+bigN+', 最長'+maxPath+'='+maxStr;
         console.warn('[siteeditor]'+diag, JSON.stringify(cfg).slice(0,2000));
       }catch(_e){}
+      var detail=((e&&e.message)||'').slice(0,240);
       var human = code.indexOf('permission')>=0
         ? '⚠ 儲存失敗：權限不足，請先用管理者帳號登入 Firebase（admin-login）。'
-        : '⚠ 儲存失敗（'+code+'）'+diag+' — 把這整行截圖給我。';
+        : '⚠ 失敗：'+detail+diag+' — 把這整行截圖給我。';
       if(msg){ msg.textContent=human; msg.style.color='#c00'; }
     }
     sePreview();
