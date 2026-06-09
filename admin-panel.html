@@ -2571,17 +2571,26 @@
       if(msg){ msg.textContent='✓ 文字已儲存並發布'; msg.style.color='#16a34a'; }
     }catch(e){
       console.warn('[siteeditor] Firestore save failed:', e);
-      try{
-        var _json=JSON.stringify(cfg);
-        console.warn('[siteeditor] payload size:', _json.length, 'bytes; keys:', Object.keys(cfg||{}));
-        console.warn('[siteeditor] payload preview:', _json.slice(0,1500));
-      }catch(_e){ console.warn('[siteeditor] payload not serialisable:', _e); }
       var code=(e.code||e.message||'')+'';
-      var human = code.indexOf('invalid-argument')>=0
-        ? '⚠ 儲存失敗：有海報圖片太大、無法存進文字設定。請用照片框的「上傳檔案」鈕（會存成小連結），或移除過大的圖片後再試。'
-        : (code.indexOf('permission')>=0
-          ? '⚠ 儲存失敗：權限不足，請先用管理者帳號登入 Firebase。'
-          : '⚠ 儲存失敗：'+code);
+      // Self-diagnose ON SCREEN so the owner can just screenshot the red line:
+      // total size, biggest top-level field, and the single longest string + where it is.
+      var diag='';
+      try{
+        var total=JSON.stringify(cfg).length;
+        var big='', bigN=0;
+        Object.keys(cfg||{}).forEach(function(k){ var n=JSON.stringify(cfg[k]).length; if(n>bigN){bigN=n;big=k;} });
+        var maxStr=0, maxPath='';
+        (function scan(v,p){
+          if(typeof v==='string'){ if(v.length>maxStr){maxStr=v.length;maxPath=p;} }
+          else if(Array.isArray(v)){ v.forEach(function(x,i){ scan(x,p+'['+i+']'); }); }
+          else if(v&&typeof v==='object'){ Object.keys(v).forEach(function(k){ scan(v[k],p+'.'+k); }); }
+        })(cfg,'');
+        diag=' ｜ 診斷: 總'+total+'字, 最大區塊['+big+']='+bigN+'字, 最長文字'+maxPath+'='+maxStr+'字';
+        console.warn('[siteeditor]'+diag, JSON.stringify(cfg).slice(0,2000));
+      }catch(_e){}
+      var human = code.indexOf('permission')>=0
+        ? '⚠ 儲存失敗：權限不足，請先用管理者帳號登入 Firebase（admin-login）。'
+        : '⚠ 儲存失敗（'+code+'）'+diag+' — 把這整行截圖給我。';
       if(msg){ msg.textContent=human; msg.style.color='#c00'; }
     }
     sePreview();
