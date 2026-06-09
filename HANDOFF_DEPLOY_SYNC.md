@@ -178,7 +178,11 @@
 6. **大小寫敏感**：macOS 本機不分、Cloudflare(Linux) 分，路徑大小寫要對。
 7. **發佈端點在線上會 404**（沒 server.py）：所以「發佈照片」按鈕在線上對檔案型內容無效；文字仍會存 Firebase。
 8. **驗證程式**：本機沒有 node；可用 `jsc`（`/System/Library/Frameworks/JavaScriptCore.framework/Versions/Current/Helpers/jsc`）做 `new Function(src)` 純語法檢查（記得先剝掉 `import` 行）。預覽工具（Claude Preview）會用自己的 server，cwd 可能在家目錄，要導到 `/opusz-website/...`；且**無法穩定重現首頁/演出頁的捲動動畫**，動畫類改動請業主在真站確認。
-9. 🔴 **首頁有自己的 inline nav，不吃 `nav.js`**：`musician-platform.html` 的導覽（登入/帳號/抽屜/登入下拉）是頁面內自帶的;其他內頁才用共用 `nav.js`。**改 nav 行為要兩邊都改**，否則「在其他頁好了、首頁沒好」。另：`nav.js` 全站引用帶 **`?v=N` 版本號**（**目前 v3**，本視窗從 v2 bump 上來），**改 nav.js 後要 bump 版本號**才不會被瀏覽器/iframe 快取吃掉舊版（本視窗被這個快取坑很久）。**外部 `<script src>` 改了，硬重新整理常常刷不到，版本號才可靠。** 同理本視窗把後台預覽 iframe 的 `musician-profile.html` src 加了 `&_=Date.now()`（HTML 沒版本號、會被快取，這樣預覽永遠最新）。
+9. 🔴 **首頁有自己的 inline nav，不吃 `nav.js`**：`musician-platform.html` 的導覽（登入/帳號/抽屜/登入下拉）是頁面內自帶的;其他內頁才用共用 `nav.js`。**改 nav 行為要兩邊都改**，否則「在其他頁好了、首頁沒好」。另：`nav.js` 全站引用帶 **`?v=N` 版本號**（**目前 v3**，本視窗從 v2 bump 上來），**改 nav.js 後要 bump 版本號**才不會被瀏覽器/iframe 快取吃掉舊版（本視窗被這個快取坑很久）。**外部 `<script src>` 改了，硬重新整理常常刷不到，版本號才可靠。** 同理本視窗把後台預覽 iframe 的 `musician-profile.html` src 加了 `&_=Date.now()`（HTML 沒版本號、會被快取，這樣預覽永遠最新）。**（2026-06-09：`nav.js` 現為 `?v=4`、`nav.css` 現為 `?v=4`，下次改各自記得再 bump。）**
+
+9a. 🔴🔴 **【鐵則・業主反覆要求】NAV 登入狀態在「所有頁面」都要一致**：**有登入 → 右上角顯示「My Account」；沒登入 → 顯示「Log in」**。判斷依據 = `localStorage.opusz_user`（有值＝已登入），由 `nav.js` 的 `wireAuth()` 切換（首頁是 inline nav 自己一套，邏輯相同）。
+   - ⚠️ **千萬不要在 `nav.css`（或任何頁）加 `#navAccountBtn { display:none }` 之類的「樣式表 display 規則」到登入/帳號鈕上**。`#navAccountBtn` 帳號鈕的初始隱藏是靠 **HTML inline `style="display:none"`**（nav.js 注入），登入時 `wireAuth()` 用「清掉 inline style」來顯示它。若樣式表又寫 `#navAccountBtn{display:none}`，ID 優先級會贏過「被清掉的 inline」→ **登入後 My Account 永遠出不來**（2026-06-09 就是這條害的：所有 nav.js 頁面登入都看不到 My Account，首頁因為沒這條才正常）。**已移除該 `display:none`，請勿再加回。**
+   - 測試法：`localStorage.setItem('opusz_user','x')` 重整 → 該顯示 My Account；`removeItem` 重整 → 該顯示 Log in。兩種都要對。
 10. **預覽工具測不到登入後的後台**：`admin-panel`/`musician-dashboard`/`musician-profile?uid=` 都要登入才完整跑（沒登入會跳轉 login）。後台類功能多半只能用 `jsc` 驗語法 + 模擬資料測邏輯，最後請業主登入實測。
 
 ---
