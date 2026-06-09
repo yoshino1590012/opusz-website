@@ -4364,17 +4364,23 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     // band fills the frame — the iframe equivalent of object-fit:cover (it crops,
     // exactly like the mp4 path). margin:auto (not transform) keeps the slide-in
     // transition's translateX working.
-    f.style.cssText = IFRAME_COVER_CSS;
+    var vid = (data || []).filter(function(d){ return d && d.url === url; })[0] || data[cur] || {};
+    f.style.cssText = iframeCoverCss(vid.zoom);
     return f;
   }
-  // Oversize a 16:9 YouTube/Vimeo iframe so its internal letterbox bars (which CSS
-  // can't clip) are pushed off-screen and the video fills the frame — the iframe
-  // equivalent of object-fit:cover. 1.8× covers wide/cinematic sources too (it
-  // crops more of a true-16:9 video in exchange for zero black bars). Centred via
-  // margin:auto and clipped by .bigvid-pin's overflow:hidden.
-  var IFRAME_COVER_CSS = 'position:absolute;top:0;left:0;right:0;bottom:0;margin:auto;' +
-    'width:180vw;height:101.25vw;min-width:320vh;min-height:180vh;' +
-    'border:0;z-index:2;pointer-events:none;';
+  // Size a 16:9 YouTube/Vimeo iframe to cover the frame. zoom is PER-VIDEO (%, set
+  // by the musician): 100 = exact 16:9 fit (no extra crop, perfectly centred);
+  // higher zooms in (crops equally from the centre) to swallow a cinematic source's
+  // internal letterbox bars — those bars live inside the iframe so CSS can't clip
+  // them, only oversizing pushes them off-screen. Always kept 16:9 and centred via
+  // margin:auto, clipped by .bigvid-pin's overflow:hidden.
+  function iframeCoverCss(zoomPct){
+    var f = Math.max(1, (Number(zoomPct) || 100) / 100);
+    return 'position:absolute;top:0;left:0;right:0;bottom:0;margin:auto;' +
+      'width:' + (100*f).toFixed(2) + 'vw;height:' + (56.25*f).toFixed(2) + 'vw;' +
+      'min-width:' + (177.78*f).toFixed(2) + 'vh;min-height:' + (100*f).toFixed(2) + 'vh;' +
+      'border:0;z-index:2;pointer-events:none;';
+  }
 
   function startEmbed(el){
     if(el && el.tagName === 'VIDEO'){ el.play().catch(function(){}); el.muted = isMuted; }
@@ -4561,7 +4567,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       // Iframes use the same oversized cover sizing as buildEmbed (no letterboxing).
       el.style.cssText = (el.tagName === 'VIDEO')
         ? 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000;z-index:2;pointer-events:none;'
-        : IFRAME_COVER_CSS;
+        : iframeCoverCss((data[cur] || {}).zoom);
       if(el.tagName === 'VIDEO') el.controls = false;
       (fsHome.parent || pin).insertBefore(el, fsHome.next || null);
       applyVidPos(el);
@@ -5992,7 +5998,8 @@ window.addEventListener('pageshow', function(e) {
         .map(function(v2){
           var nn = function(n){ return (typeof n === 'number' && isFinite(n)) ? n : 50; };
           return { url: v2.url, title: v2.title || '', subtitle: v2.subtitle || '', poster: v2.poster || '',
-                   x: nn(v2.x), y: nn(v2.y), xm: nn(v2.xm), ym: nn(v2.ym) };
+                   x: nn(v2.x), y: nn(v2.y), xm: nn(v2.xm), ym: nn(v2.ym),
+                   zoom: (typeof v2.zoom === 'number' && isFinite(v2.zoom)) ? v2.zoom : 100 };
         });
       if(vids.length){
         window.BIGVID_DATA = vids;

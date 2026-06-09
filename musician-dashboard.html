@@ -3483,6 +3483,7 @@
     const n = pbVideoRowSeq++;
     const num = function(val){ return (val !== undefined && val !== null && val !== '') ? Number(val) : 50; };
     const dx = num(data.x), dy = num(data.y), dxm = num(data.xm), dym = num(data.ym);
+    const dz = (data.zoom !== undefined && data.zoom !== null && data.zoom !== '') ? Number(data.zoom) : 100;
     const row = document.createElement('div');
     row.className = 'pb-video-row';
     row.style.cssText = 'border:1.5px solid var(--border);border-radius:10px;padding:12px;margin-bottom:10px;';
@@ -3499,7 +3500,9 @@
       + '<div class="pb-field" style="margin-bottom:4px;"><label>桌機 水平 X (%)</label><input type="range" class="pbVideoX"  min="0" max="100" step="1" value="'+dx+'"  style="width:100%;"></div>'
       + '<div class="pb-field" style="margin-bottom:8px;"><label>桌機 垂直 Y (%)</label><input type="range" class="pbVideoY"  min="0" max="100" step="1" value="'+dy+'"  style="width:100%;"></div>'
       + '<div class="pb-field" style="margin-bottom:4px;"><label>📱 手機 水平 X (%)</label><input type="range" class="pbVideoXM" min="0" max="100" step="1" value="'+dxm+'" style="width:100%;"></div>'
-      + '<div class="pb-field" style="margin-bottom:0;"><label>📱 手機 垂直 Y (%)</label><input type="range" class="pbVideoYM" min="0" max="100" step="1" value="'+dym+'" style="width:100%;"></div>';
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>📱 手機 垂直 Y (%)</label><input type="range" class="pbVideoYM" min="0" max="100" step="1" value="'+dym+'" style="width:100%;"></div>'
+      + '<div style="font-size:11px;font-weight:700;color:var(--mid);margin:6px 0 4px;">縮放 / Zoom（YouTube 有黑邊時拉大來填滿；100% = 完整顯示+置中，越大從中心裁越多）</div>'
+      + '<div class="pb-field" style="margin-bottom:0;"><label>🔍 縮放 (%)</label><input type="range" class="pbVideoZoom" min="100" max="300" step="5" value="'+dz+'" style="width:100%;"></div>';
     row.querySelector('.pb-video-del').onclick = function(){
       if(pbVideoRows().length <= 1) return;   // keep at least one
       row.remove();
@@ -3883,8 +3886,9 @@
       return rows.map(function(row){
         const g = function(cls){ const el=row.querySelector('.'+cls); return el ? el.value.trim() : ''; };
         const gn = function(cls){ const el=row.querySelector('.'+cls); const x=el?Number(el.value):50; return isFinite(x)?x:50; };
+        const gz = function(cls){ const el=row.querySelector('.'+cls); const x=el?Number(el.value):100; return isFinite(x)?x:100; };
         return { title: g('pbVideoTitle'), subtitle: g('pbVideoSub'), url: g('pbVideoUrl'), poster: g('pbVideoPoster'),
-                 x: gn('pbVideoX'), y: gn('pbVideoY'), xm: gn('pbVideoXM'), ym: gn('pbVideoYM') };
+                 x: gn('pbVideoX'), y: gn('pbVideoY'), xm: gn('pbVideoXM'), ym: gn('pbVideoYM'), zoom: gz('pbVideoZoom') };
       }).filter(function(v2){ return v2.url !== ''; }).slice(0, PB_VIDEO_MAX);
     })();
     const themeVal = (id,def)=>{ const el=document.getElementById(id); const x=el?el.value:''; return /^#[0-9a-fA-F]{6}$/.test(x)?x:def; };
