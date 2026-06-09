@@ -1680,10 +1680,10 @@ select.contact-input { cursor: pointer; -webkit-appearance: none; appearance: no
 /* ── FOOTER ── */
 /* ── NEW FOOTER ── */
 #site-footer { background: #fff; border-top: 1px solid rgba(0,0,0,0.08); padding: 80px 60px 0; overflow: visible; }
-.sf-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 56px; padding-bottom: 48px; border-bottom: 1px solid rgba(0,0,0,0.08); }
+.sf-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 100px; padding-bottom: 48px; border-bottom: 1px solid rgba(0,0,0,0.08); }
 .sf-newsletter { flex: 0 1 400px; min-width: 280px; }
-.sf-links { display: grid; grid-template-columns: repeat(4,1fr); gap: 22px 20px; flex: 1 1 480px; min-width: 300px; }
-.sf-col a { display: block; font-size: 14px; color: #000; text-decoration: none; margin-bottom: 14px; opacity: 0.75; transition: opacity 0.2s; }
+.sf-links { display: grid; grid-template-columns: repeat(4,1fr); gap: 30px 48px; flex: 1 1 560px; min-width: 300px; }
+.sf-col a { display: block; font-size: 14px; color: #000; text-decoration: none; margin-bottom: 22px; opacity: 0.75; transition: opacity 0.2s; }
 .sf-col a:hover { opacity: 1; }
 .sf-copy-bar { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; font-size: 12px; color: #aaa; border-bottom: 1px solid rgba(0,0,0,0.06); }
 .sf-copy-right { display: flex; gap: 28px; }
@@ -3077,7 +3077,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     <p style="font-size:11px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#999;margin-bottom:20px;" data-i18n="newsletter.label">Newsletter</p>
     <h2 style="font-size:clamp(28px,3.2vw,44px);font-weight:800;letter-spacing:-1.5px;line-height:1.05;margin-bottom:16px;" data-i18n="newsletter.title">Stay close to the music.</h2>
     <p style="font-size:15px;color:#666;line-height:1.7;margin-bottom:36px;" data-i18n="newsletter.body">Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.</p>
-    <form name="newsletter" method="POST" data-netlify="true" action="/newsletter-success.html" style="display:flex;gap:0;max-width:480px;">
+    <form name="newsletter" method="POST" style="display:flex;gap:0;max-width:480px;">
       <input type="hidden" name="form-name" value="newsletter" />
       <input type="email" name="email" placeholder="Enter email" required data-i18n-ph="newsletter.email_ph"
         style="flex:1;padding:14px 18px;border:1.5px solid #ddd;border-right:none;font-size:14px;font-family:inherit;outline:none;background:#f8f8f8;color:#111;" />
@@ -7450,5 +7450,6 @@ window.addEventListener('keydown', function(e){
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
 <script type="module" src="site-content.js"></script>
   <script type="module" src="media-sync.js"></script>
+<script type="module" src="newsletter.js?v=1"></script>
 </body>
 </html>

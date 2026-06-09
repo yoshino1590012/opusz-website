@@ -486,7 +486,7 @@
     <div class="footer-col">
       <div class="footer-col__label" data-i18n="footer.newsletter">Newsletter</div>
       <div class="footer-col__body" data-i18n="footer.tagline">Stay close to the music.</div>
-      <form class="footer-subscribe" name="newsletter-footer" method="POST" data-netlify="true" action="/newsletter-success.html">
+      <form class="footer-subscribe" name="newsletter-footer" method="POST">
         <input type="hidden" name="form-name" value="newsletter-footer" />
         <input type="email" name="email" placeholder="Your email" data-i18n-ph="footer.ph.email" required />
         <button type="submit" data-i18n="footer.subscribe">Subscribe</button>
@@ -739,5 +739,6 @@ window.addEventListener('pageshow', function(e) {
 });
 </script>
   <script type="module" src="media-sync.js"></script>
+<script type="module" src="newsletter.js?v=1"></script>
 </body>
 </html>
