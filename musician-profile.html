@@ -308,11 +308,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   font-weight: 900;
   color: #fff;
   letter-spacing: -0.03em;
-  line-height: 0.82;
-  /* Lift the glyphs off the very bottom edge. line-height<1 + overflow:hidden
-     was clipping the bottom of CJK characters (and leaving them flush against
-     the booking bar); this gives breathing room without changing the look. */
-  padding-bottom: 0.12em;
+  /* line-height:1 (not <1) so CJK isn't clipped by the container's overflow:hidden,
+     while the glyph bottom still sits flush against the hero's bottom edge. */
+  line-height: 1;
+  /* Big names are shown ALL-CAPS (English); CJK is unaffected. */
+  text-transform: uppercase;
   text-shadow: 0 2px 32px rgba(0,0,0,0.18);
   transition: transform 1.1s cubic-bezier(.7,0,.2,1);
   will-change: transform;
@@ -331,8 +331,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 /* Info card — vertically centered on the left side, offset below fixed nav */
 .hero-info{
   position:absolute;
-  /* Sit JUST above the big bottom-left "Martin" — clamped to its line height */
-  bottom: calc(clamp(96px, 14vw, 200px) - 8px);
+  /* Sit ABOVE the big bottom-left name with a gap (so a tall CJK name doesn't
+     overlap the title/city). */
+  bottom: calc(clamp(96px, 14vw, 200px) + 26px);
   /* Match the big Martin's left anchor so they're flush-aligned */
   left: clamp(32px, 4vw, 72px);
   z-index:4;
