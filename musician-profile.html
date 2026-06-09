@@ -302,12 +302,17 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .hero-name.fonts-ready{ opacity: 1; }
 .hero-name span{
   position: absolute;
-  bottom: 0;
+  /* Drop the name a touch lower (negative em removes some of the empty space the
+     line-box leaves below the caps). Small enough not to clip CJK glyph bottoms. */
+  bottom: -0.06em;
   white-space: nowrap;
   font-size: clamp(96px, 14vw, 200px);
   font-weight: 900;
   color: #fff;
   letter-spacing: -0.03em;
+  /* Optical-align the heavy first glyph's left edge with the title/location above
+     it (a bold first letter sits slightly inset from the text box). Scales w/ size. */
+  text-indent: -0.025em;
   /* line-height:1 (not <1) so CJK isn't clipped by the container's overflow:hidden,
      while the glyph bottom still sits flush against the hero's bottom edge. */
   line-height: 1;
@@ -323,7 +328,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .hn-orig{ right: clamp(32px, 4vw, 72px); transform: translateX(0); }
 /* Hide fully off-screen left regardless of name length: push right edge past
    the container's left edge by (own width + left offset + 10px safety). */
-.hn-new { left:  clamp(32px, 4vw, 72px); transform: translateX(calc(-100% - clamp(32px, 4vw, 72px) - 10px)); }
+.hn-new { left:  clamp(20px, 2.6vw, 44px); transform: translateX(calc(-100% - clamp(32px, 4vw, 72px) - 10px)); }
 /* Exit fully off-screen right by the SAME distance → keeps the synced treadmill feel. */
 .hero:not(.hero-intro) .hn-orig{ transform: translateX(calc(100% + clamp(32px, 4vw, 72px) + 10px)); }
 .hero:not(.hero-intro) .hn-new { transform: translateX(0); }
@@ -333,9 +338,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   position:absolute;
   /* Sit ABOVE the big bottom-left name with a gap (so a tall CJK name doesn't
      overlap the title/city). */
-  bottom: calc(clamp(96px, 14vw, 200px) + 26px);
-  /* Match the big Martin's left anchor so they're flush-aligned */
-  left: clamp(32px, 4vw, 72px);
+  bottom: calc(clamp(96px, 14vw, 200px) * 0.94 + 10px);
+  /* Match the big name's NEW (more-left) anchor so they're flush-aligned */
+  left: clamp(20px, 2.6vw, 44px);
   z-index:4;
   max-width:520px;
   transform: translateX(-110%);
@@ -5518,11 +5523,11 @@ window.addEventListener('pageshow', function(e) {
         styleEl.textContent =
           '@media(min-width:481px){' +
             '.hero-name span{font-size:calc(clamp(96px,14vw,200px)*' + (nsd/100).toFixed(2) + ')!important}' +
-            '.hero-info{bottom:calc(clamp(96px,14vw,200px)*' + (nsd/100).toFixed(2) + ' + 10px)!important}' +
+            '.hero-info{bottom:calc(clamp(96px,14vw,200px)*' + (nsd/100*0.94).toFixed(3) + ' + 10px)!important}' +
           '}' +
           '@media(max-width:480px){' +
             '.hero-name span{font-size:calc(clamp(44px,15vw,60px)*'  + (nsm/100).toFixed(2) + ')!important}' +
-            '.hero-info{bottom:calc(clamp(44px,15vw,60px)*'  + (nsm/100).toFixed(2) + ' + 6px)!important}' +
+            '.hero-info{bottom:calc(clamp(44px,15vw,60px)*'  + (nsm/100*0.94).toFixed(3) + ' + 6px)!important}' +
           '}';
       }
       var heroNameLeft = document.getElementById('heroNameLeft');
