@@ -2082,6 +2082,14 @@
       // Populate profile tab fields
       loadProfileFields();
 
+      // Login race: if the editor was opened BEFORE this profile finished loading,
+      // its config came up empty (pbConfigLoaded=false). Now that the real config
+      // is here, re-init so the preview fills in instead of staying blank.
+      try {
+        var _pg = document.getElementById('page-pagebuilder');
+        if (_pg && _pg.classList.contains('active') && !pbConfigLoaded && !pbUserEdited && typeof pbInit === 'function') pbInit();
+      } catch(e){}
+
       // Membership tier: render banner + lock/unlock lesson editor
       try{ pbRenderMembership(); }catch(e){ console.warn('[membership] render failed:', e); }
     } catch(e) {
@@ -2884,6 +2892,12 @@
     if(typeof pbOnInput === 'function') pbOnInput();
   };
   let pbInited = false;
+  // Guards against the preview going blank: only push config into the live preview
+  // iframe once we actually HAVE real data (loaded from storage) or the user has
+  // edited. Otherwise an early empty/default push would clobber the data the iframe
+  // loads itself from Firestore (its own ?uid= REST load) → the "blank template" flash.
+  let pbConfigLoaded = false;
+  let pbUserEdited = false;
 
   function pbClone(o){ return JSON.parse(JSON.stringify(o)); }
 
@@ -3226,16 +3240,22 @@
   function pbInit(){
     // (re)load config from localStorage each time the editor opens
     let loaded = {};
+    let _fromRealSource = false;
     try{
       const raw = localStorage.getItem(pbLSKey());
       if(raw){
         loaded = JSON.parse(raw) || {};
-      } else if(_currentProfile && _currentProfile.config){
+        _fromRealSource = true;
+      } else if(_currentProfile && _currentProfile.config && Object.keys(_currentProfile.config).length){
         // No local draft for THIS account → fall back to this musician's own
         // saved Firestore config (empty for a brand-new account → blank template).
         loaded = _currentProfile.config;
+        _fromRealSource = true;
       }
     }catch(e){ console.warn('[pagebuilder] load failed:', e); }
+    // Real data present? Then it's safe to push. If NOT (login race / profile not
+    // loaded yet), don't push a blank over the iframe's own Firestore load.
+    pbConfigLoaded = _fromRealSource;
     pbConfig = pbDeepDefaults(loaded);
     pbPopulateForm();
     pbInited = true;
@@ -3990,6 +4010,9 @@
 
   function pbPushPreview(){
     if(!pbConfig) return;
+    // Don't clobber the iframe's own Firestore data with a blank/default config.
+    // Only push when we actually have real loaded data, or the user has edited.
+    if(!pbConfigLoaded && !pbUserEdited) return;
     const frame = document.getElementById('pbPreview');
     if(frame && frame.contentWindow){
       // teaching/lessons is Premium-only → let the preview reflect the current tier
@@ -4114,6 +4137,7 @@
   }
 
   window.pbOnInput = function(ev){
+    pbUserEdited = true;   // from now on the user's edits are real → safe to push
     // Keep lesson visibility consistent between the Lesson Plans toggle
     // and the Visibility checkbox (lessons.visible is the source of truth).
     const tgt = ev && ev.target ? ev.target : null;
