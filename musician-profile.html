@@ -5510,16 +5510,20 @@ window.addEventListener('pageshow', function(e) {
         var styleEl = document.getElementById('heroNameSizeStyle');
         if(!styleEl){ styleEl = document.createElement('style'); styleEl.id = 'heroNameSizeStyle'; document.head.appendChild(styleEl); }
         // Also re-anchor the title/location block to the SCALED name height (× the
-        // same factor) so it always sits a fixed ~26px above the name. Without this
-        // the block stayed pinned at the full-size name height, so shrinking the name
-        // left a big gap between it and the (now shorter) name. Desktop only — the
-        // mobile name is tiny and can wrap, so its fixed offset is left alone.
+        // same factor) so it always sits a small fixed gap above the name. Without
+        // this the block stayed pinned at the full-size name height, so shrinking the
+        // name left a big gap above the (now shorter) name. Done for BOTH desktop and
+        // mobile so the title/location follows the name on every device. The trailing
+        // px is the gap — smaller = closer to the name (tunable).
         styleEl.textContent =
           '@media(min-width:481px){' +
             '.hero-name span{font-size:calc(clamp(96px,14vw,200px)*' + (nsd/100).toFixed(2) + ')!important}' +
-            '.hero-info{bottom:calc(clamp(96px,14vw,200px)*' + (nsd/100).toFixed(2) + ' + 26px)!important}' +
+            '.hero-info{bottom:calc(clamp(96px,14vw,200px)*' + (nsd/100).toFixed(2) + ' + 10px)!important}' +
           '}' +
-          '@media(max-width:480px){.hero-name span{font-size:calc(clamp(44px,15vw,60px)*'  + (nsm/100).toFixed(2) + ')!important}}';
+          '@media(max-width:480px){' +
+            '.hero-name span{font-size:calc(clamp(44px,15vw,60px)*'  + (nsm/100).toFixed(2) + ')!important}' +
+            '.hero-info{bottom:calc(clamp(44px,15vw,60px)*'  + (nsm/100).toFixed(2) + ' + 6px)!important}' +
+          '}';
       }
       var heroNameLeft = document.getElementById('heroNameLeft');
       if(heroNameLeft) heroNameLeft.textContent = hero.name;
