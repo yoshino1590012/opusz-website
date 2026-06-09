@@ -104,6 +104,12 @@ function applyHeroPosResponsive(cfg){
           : (w <= 1440 && cfg.heroPosMacbook) ? cfg.heroPosMacbook
           : (cfg.heroPos || {});
   applyHeroPos(map);
+  // Phrase align/wrap + line-height are ALSO per-device. Prefer the picked map's
+  // _phrase/_type, fall back to the desktop set, then the legacy global config.
+  var _ph = (map && map._phrase) || (cfg.heroPos && cfg.heroPos._phrase) || cfg.heroPhrase || {};
+  var _ty = (map && map._type)   || (cfg.heroPos && cfg.heroPos._type)   || cfg.heroType   || {};
+  try { applyHeroPhrase(_ph); } catch(e){}
+  try { applyHeroType(_ty); } catch(e){}
 }
 // Re-apply when crossing the phone breakpoint (debounced).
 (function(){
@@ -222,19 +228,14 @@ function applyConfig(cfg){
   // 1c) hero element drag-offsets (Canva-style positioning), PER DEVICE: phones
   // (<=700px) use cfg.heroPosPhone when present; otherwise fall back to the desktop
   // set cfg.heroPos. Re-applied on resize so it switches at the breakpoint.
-  if ('heroPos' in cfg || 'heroPosPhone' in cfg) {
+  if ('heroPos' in cfg || 'heroPosPhone' in cfg || 'heroPosMacbook' in cfg || 'heroPosIpad' in cfg || 'heroPhrase' in cfg || 'heroType' in cfg) {
     window.__opzHeroCfg = cfg;
+    // applyHeroPosResponsive also applies the per-device phrase align + line-height.
     try { applyHeroPosResponsive(cfg); } catch(e){}
   }
 
   // 1d) brand wordmark colour ('auto' = blend, or a custom colour)
   if ('heroBrandColor' in cfg) { try { applyBrandColor(cfg.heroBrandColor); } catch(e){} }
-
-  // 1d2) headline / subtitle line-height (行距)
-  if ('heroType' in cfg) { try { applyHeroType(cfg.heroType); } catch(e){} }
-
-  // 1d3) rotating phrases alignment (left/center/right) + auto-wrap
-  if ('heroPhrase' in cfg) { try { applyHeroPhrase(cfg.heroPhrase); } catch(e){} }
 
   // 1e) hero button styling (bg / text colour / opacity)
   if ('heroBtn' in cfg) { try { applyHeroBtns(cfg.heroBtn); } catch(e){} }

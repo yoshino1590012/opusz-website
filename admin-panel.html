@@ -2184,7 +2184,8 @@
   // Line-height (行距) for the headline + subtitle. Stored in window.seHeroType =
   // { headline:{lh}, sub:{lh} } → cfg.heroType; applied live by site-content.js.
   function seHeroTypeRows(){
-    var t=window.seHeroType||{};
+    var _m=(typeof window.seActiveHeroPos==='function')?window.seActiveHeroPos():(window.seHeroPos||{});
+    var t=_m._type||window.seHeroType||{};
     var defs=[['headline','標題行距',1.04],['sub','副標行距',1.55]];
     return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">行距 / Line height</div>'+defs.map(function(d){
       var key=d[0], lbl=d[1], def=d[2];
@@ -2197,9 +2198,10 @@
     }).join('');
   }
   window.seHeroSetLineH = function(key,val){
-    window.seHeroType = window.seHeroType || {};
-    window.seHeroType[key] = window.seHeroType[key] || {};
-    window.seHeroType[key].lh = Number(val);
+    var m=window.seActiveHeroPos();
+    m._type = m._type || {};
+    m._type[key] = m._type[key] || {};
+    m._type[key].lh = Number(val);
     var lab=document.getElementById('seHlh_'+key); if(lab) lab.textContent=Number(val).toFixed(2);
     sePreview();
   };
@@ -2208,7 +2210,8 @@
   // window.seHeroPhrase = { align, wrap } → cfg.heroPhrase. The three phrases share
   // ONE position (dragged in the preview, key 'phrases'); this only controls align/wrap.
   function seHeroPhraseRows(){
-    var p=window.seHeroPhrase||{};
+    var _mp=(typeof window.seActiveHeroPos==='function')?window.seActiveHeroPos():(window.seHeroPos||{});
+    var p=_mp._phrase||window.seHeroPhrase||{};
     var al=p.align||'left';
     function btn(v,lbl){ var on=(al===v);
       return '<button onclick="seHeroSetPhraseAlign(\''+v+'\')" style="font-size:11px;border:1px solid '+(on?'#0e7490':'#cbd5e1')+';background:'+(on?'#0e7490':'#fff')+';color:'+(on?'#fff':'#334155')+';border-radius:6px;padding:5px 13px;cursor:pointer;">'+lbl+'</button>'; }
@@ -2233,14 +2236,16 @@
       +'<div style="font-size:10px;color:#999;line-height:1.5;">💡 三句標語共用同一個位置。標語維持原本的浮現動畫；<b>捲到它出現時</b>拉滑桿或直接拖曳即可看到它移動。在標語文字框按 Enter 可手動斷行。</div>';
   }
   window.seHeroSetPhraseAlign = function(v){
-    window.seHeroPhrase = window.seHeroPhrase || {};
-    window.seHeroPhrase.align = v;
+    var m=window.seActiveHeroPos();
+    m._phrase = m._phrase || {};
+    m._phrase.align = v;
     seBuildControls();   // refresh button highlight
     sePreview();         // live-apply
   };
   window.seHeroSetPhraseWrap = function(on){
-    window.seHeroPhrase = window.seHeroPhrase || {};
-    window.seHeroPhrase.wrap = !!on;
+    var m=window.seActiveHeroPos();
+    m._phrase = m._phrase || {};
+    m._phrase.wrap = !!on;
     sePreview();
   };
   // X/Y position sliders for the shared phrase offset (per device). Stored as
