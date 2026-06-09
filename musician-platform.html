@@ -1682,8 +1682,10 @@ select.contact-input { cursor: pointer; -webkit-appearance: none; appearance: no
 #site-footer { background: #fff; border-top: 1px solid rgba(0,0,0,0.08); padding: 80px 60px 0; overflow: visible; }
 .sf-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 100px; padding-bottom: 48px; border-bottom: 1px solid rgba(0,0,0,0.08); }
 .sf-newsletter { flex: 0 1 400px; min-width: 280px; }
-.sf-links { display: grid; grid-template-columns: repeat(4,1fr); gap: 30px 48px; flex: 1 1 560px; min-width: 300px; }
-.sf-col a { display: block; font-size: 14px; color: #000; text-decoration: none; margin-bottom: 22px; opacity: 0.75; transition: opacity 0.2s; }
+.sf-links { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 40px; flex: 1 1 620px; min-width: 300px; }
+.sf-col { flex: 0 0 auto; }
+.sf-col a { display: block; font-size: 14px; color: #000; text-decoration: none; margin-bottom: 34px; opacity: 0.75; transition: opacity 0.2s; }
+.sf-col a:last-child { margin-bottom: 0; }
 .sf-col a:hover { opacity: 1; }
 .sf-copy-bar { display: flex; justify-content: space-between; align-items: center; padding: 22px 0; font-size: 12px; color: #aaa; border-bottom: 1px solid rgba(0,0,0,0.06); }
 .sf-copy-right { display: flex; gap: 28px; }
@@ -2273,7 +2275,8 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   .success-inner { grid-template-columns: 1fr; }
   .blog-grid { grid-template-columns: repeat(2,1fr); }
   .pricing-cards { grid-template-columns: 1fr; }
-  .sf-links { grid-template-columns: repeat(2,1fr); }
+  .sf-links { justify-content: flex-start; gap: 28px 40px; }
+  .sf-col { flex: 0 0 40%; }
   #site-footer { padding: 48px 24px 0; }
   .sf-copy-bar { flex-direction: column; gap: 12px; align-items: flex-start; }
 }
