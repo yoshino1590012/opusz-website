@@ -34,9 +34,30 @@ const PAGE = (document.documentElement.getAttribute('data-cms-page') || 'home').
 // the INDEPENDENT CSS `translate` property — separate from `transform`, so the
 // reveal / card-scale ANIMATIONS (which use transform) are completely untouched.
 var HERO_DRAG = { headline:'.hco-headline', sub:'.hco-sub', btnFind:'.hco-btn-pri', btnProject:'.hco-btn-out', brand:'.hco-brand' };
+// Ensure the right number of OPUS.Z brand copies (1–4) exist in the DOM.
+function ensureBrandCopies(count){
+  count = Math.max(1, Math.min(4, parseInt(count,10) || 1));
+  var first = document.querySelector('.hco-brand'); if(!first) return;
+  if(!first.getAttribute('data-bk')) first.setAttribute('data-bk','brand');
+  var parent = first.parentNode;
+  for(var i = parent.querySelectorAll('.hco-brand').length; i < count; i++){
+    var clone = first.cloneNode(true);
+    clone.setAttribute('data-bk', 'brand' + (i+1));
+    clone.setAttribute('data-bcopy', '1');
+    clone.style.translate = ''; clone.style.scale = ''; clone.style.outline = '';
+    parent.appendChild(clone);
+  }
+  var list = Array.prototype.slice.call(parent.querySelectorAll('.hco-brand'));
+  while(list.length > count){
+    var last = list[list.length - 1];
+    if(last.getAttribute('data-bcopy')){ last.remove(); list.pop(); } else break;
+  }
+}
 function applyHeroPos(map){
   map = map || {};
+  ensureBrandCopies(map._brandCount || 1);   // make the brand copies first
   Object.keys(HERO_DRAG).forEach(function(k){
+    if(k === 'brand') return;   // every brand copy handled below
     var el = document.querySelector(HERO_DRAG[k]); if(!el) return;
     var p = map[k] || {};
     // Position via independent `translate` (separate from `transform`, so animations
@@ -61,6 +82,19 @@ function applyHeroPos(map){
       els[i].style.scale     = (p.s && p.s !== 1) ? String(p.s) : '';
     }
   })();
+  // Brand copies: each positioned by its own key (brand / brand2 / …) but they ALL
+  // SHARE one size (map.brand.s), so the size slider moves them together.
+  var brandScale = (map.brand && map.brand.s && map.brand.s !== 1) ? String(map.brand.s) : '';
+  Array.prototype.forEach.call(document.querySelectorAll('.hco-brand'), function(el){
+    var bp = map[el.getAttribute('data-bk') || 'brand'] || {};
+    var bHas = (bp.xPct != null || bp.yPct != null || bp.x || bp.y);
+    var btx = (bp.xPct != null) ? ('calc(' + bp.xPct + ' * 100vw)') : ((bp.x || 0) + 'px');
+    var bty = (bp.yPct != null) ? ('calc(' + bp.yPct + ' * 100vh)') : ((bp.y || 0) + 'px');
+    el.style.translate = bHas ? (btx + ' ' + bty) : '';
+    el.style.scale = brandScale;
+  });
+  // Re-wire drag so freshly-created copies become grabbable in editor mode.
+  if (window.__opzWireHeroDrag) window.__opzWireHeroDrag();
 }
 // Phrase alignment (left/center/right) + line-wrap. cfg.heroPhrase = {align, wrap}.
 // Shared by all three rotating phrases. align changes the anchor edge so center/
@@ -139,9 +173,10 @@ function applyHeroType(map){
 }
 
 function applyBrandColor(val){
-  var el = document.querySelector('.hco-brand'); if(!el) return;
-  if (!val || val === 'auto') { el.style.color = ''; el.style.mixBlendMode = ''; }
-  else { el.style.color = val; el.style.mixBlendMode = 'normal'; }
+  Array.prototype.forEach.call(document.querySelectorAll('.hco-brand'), function(el){
+    if (!val || val === 'auto') { el.style.color = ''; el.style.mixBlendMode = ''; }
+    else { el.style.color = val; el.style.mixBlendMode = 'normal'; }
+  });
 }
 
 // Hero button styling: per-button background colour, text colour, and BACKGROUND
@@ -449,41 +484,51 @@ window.addEventListener('message', function(e){
     var tr = el.style.translate; if(!tr) return {x:0,y:0};
     var p = tr.split(/\s+/); return {x:parseFloat(p[0])||0, y:parseFloat(p[1])||0};
   }
+  function wireDragOn(el, key){
+    if(!el || el.__opzDrag) return;
+    el.__opzDrag = true;
+    el.style.cursor = 'move';
+    el.style.pointerEvents = 'auto';   // brand is aria-hidden; ensure it's grabbable
+    el.title = '拖曳調整位置';
+    var on=false, sx=0, sy=0, ox=0, oy=0, moved=false;
+    el.addEventListener('pointerdown', function(e){
+      on=true; moved=false; var o=curOffset(el); ox=o.x; oy=o.y; sx=e.clientX; sy=e.clientY;
+      try{ el.setPointerCapture(e.pointerId); }catch(_){}
+      el.style.outline='2px solid #2563eb'; el.style.outlineOffset='2px';
+      e.preventDefault(); e.stopPropagation();
+    });
+    el.addEventListener('pointermove', function(e){
+      if(!on) return;
+      var s = cardScale() || 1;
+      var nx = ox + (e.clientX - sx)/s, ny = oy + (e.clientY - sy)/s;
+      el.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px';
+      if(Math.abs(e.clientX-sx)>2 || Math.abs(e.clientY-sy)>2) moved=true;
+      e.preventDefault(); e.stopPropagation();
+    });
+    function end(){
+      if(!on) return; on=false; el.style.outline='';
+      var o = curOffset(el);
+      var vw = window.innerWidth || 1, vh = window.innerHeight || 1;
+      // report BOTH px (legacy) and viewport-fraction (width-independent, preferred)
+      try{ parent.postMessage({__opuszHeroPos:true, key:key,
+        x:Math.round(o.x), y:Math.round(o.y),
+        xPct:+(o.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
+    }
+    el.addEventListener('pointerup', end);
+    el.addEventListener('pointercancel', end);
+    // swallow the click that follows a real drag (so buttons/links don't fire)
+    el.addEventListener('click', function(e){ if(moved){ e.preventDefault(); e.stopPropagation(); } }, true);
+  }
+  // Exposed so applyHeroPos can re-wire newly-created brand copies.
+  window.__opzWireHeroDrag = function(){ try{ wireHeroDrag(); }catch(e){} };
   function wireHeroDrag(){
     Object.keys(HERO_DRAG).forEach(function(key){
-      var el = document.querySelector(HERO_DRAG[key]); if(!el || el.__opzDrag) return;
-      el.__opzDrag = true;
-      el.style.cursor = 'move';
-      el.style.pointerEvents = 'auto';   // brand is aria-hidden; ensure it's grabbable
-      el.title = '拖曳調整位置';
-      var on=false, sx=0, sy=0, ox=0, oy=0, moved=false;
-      el.addEventListener('pointerdown', function(e){
-        on=true; moved=false; var o=curOffset(el); ox=o.x; oy=o.y; sx=e.clientX; sy=e.clientY;
-        try{ el.setPointerCapture(e.pointerId); }catch(_){}
-        el.style.outline='2px solid #2563eb'; el.style.outlineOffset='2px';
-        e.preventDefault(); e.stopPropagation();
-      });
-      el.addEventListener('pointermove', function(e){
-        if(!on) return;
-        var s = cardScale() || 1;
-        var nx = ox + (e.clientX - sx)/s, ny = oy + (e.clientY - sy)/s;
-        el.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px';
-        if(Math.abs(e.clientX-sx)>2 || Math.abs(e.clientY-sy)>2) moved=true;
-        e.preventDefault(); e.stopPropagation();
-      });
-      function end(){
-        if(!on) return; on=false; el.style.outline='';
-        var o = curOffset(el);
-        var vw = window.innerWidth || 1, vh = window.innerHeight || 1;
-        // report BOTH px (legacy) and viewport-fraction (width-independent, preferred)
-        try{ parent.postMessage({__opuszHeroPos:true, key:key,
-          x:Math.round(o.x), y:Math.round(o.y),
-          xPct:+(o.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
-      }
-      el.addEventListener('pointerup', end);
-      el.addEventListener('pointercancel', end);
-      // swallow the click that follows a real drag (so buttons/links don't fire)
-      el.addEventListener('click', function(e){ if(moved){ e.preventDefault(); e.stopPropagation(); } }, true);
+      if(key==='brand') return;   // brand copies handled below (each its own key)
+      wireDragOn(document.querySelector(HERO_DRAG[key]), key);
+    });
+    // Brand copies: every .hco-brand is draggable and reports its own data-bk key.
+    Array.prototype.forEach.call(document.querySelectorAll('.hco-brand'), function(el){
+      wireDragOn(el, el.getAttribute('data-bk') || 'brand');
     });
 
     // Phrases: grab ANY one phrase and all three move together (shared position),

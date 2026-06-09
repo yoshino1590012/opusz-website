@@ -2188,6 +2188,13 @@
           +'<input type="range" min="120" max="360" step="2" value="'+bw+'" oninput="seHeroSetBtnW(this.value)" style="flex:1;">'
           +'<span id="seBtnWl" style="font-size:11px;color:#0e7490;width:42px;text-align:right;">'+bw+'</span>'
           +'</div>';
+      })()
+    + '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">品牌字 OPUS.Z 數量</div>'
+    + (function(){
+        var n=(hp._brandCount!=null)?hp._brandCount:1;
+        function b(v){ var on=(n===v); return '<button onclick="seHeroSetBrandCount('+v+')" style="font-size:12px;border:1px solid '+(on?'#0e7490':'#cbd5e1')+';background:'+(on?'#0e7490':'#fff')+';color:'+(on?'#fff':'#334155')+';border-radius:6px;padding:5px 13px;cursor:pointer;">'+v+'</button>'; }
+        return '<div style="display:flex;gap:6px;margin-bottom:4px;">'+b(1)+b(2)+b(3)+b(4)+'</div>'
+          +'<div style="font-size:10px;color:#999;line-height:1.5;">複製出多個 OPUS.Z，每個可各自拖到不同位置（雜誌風）；大小用上面「品牌 OPUS.Z」滑桿一起調、會一起變。</div>';
       })();
   }
   // Line-height (行距) for the headline + subtitle. Stored in window.seHeroType =
@@ -2387,6 +2394,13 @@
     m._btnW = parseInt(val,10) || 186;
     var lab=document.getElementById('seBtnWl'); if(lab) lab.textContent=m._btnW;
     sePreview();
+  };
+  // Number of OPUS.Z brand copies (1–4, per device). Stored as map._brandCount.
+  window.seHeroSetBrandCount = function(n){
+    var m = window.seActiveHeroPos();
+    m._brandCount = Math.max(1, Math.min(4, parseInt(n,10) || 1));
+    seBuildControls();   // refresh the count-button highlight
+    sePreview();         // re-render the copies in the preview
   };
 
   // Clear the CURRENT device's hero offsets + sizes and push the reset to preview.
