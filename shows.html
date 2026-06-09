@@ -224,10 +224,14 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 
 /* ══ FIXED TEXT PANEL — same reveal + wipe logic as poster ══ */
 #fixedTextPanel{
-  position:fixed;top:50%;left:clamp(72px,12vw,190px);
+  position:fixed;top:50%;left:clamp(40px,5vw,96px);
   transform:translateY(-50%);
   z-index:50;
-  width:clamp(280px,34vw,460px);
+  /* Right edge stops BEFORE the centred poster (poster half-width + 40px gap),
+     so the left text can never overlap the poster — it wraps instead. */
+  right:calc(50vw + clamp(195px,23.5vw,374px) + 40px);
+  width:auto;
+  max-width:460px;
   clip-path:inset(100% 0 0 0);
   pointer-events:none;
   transition:opacity .5s ease;
@@ -290,11 +294,15 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   #fixedPosterFrame{
     width:clamp(260px,31.3vw,505px);
   }
+  /* Text panel: keep clear of the (smaller) MacBook poster — half-width 15.65vw + 40px gap */
+  #fixedTextPanel{
+    right:calc(50vw + clamp(130px,15.65vw,252.5px) + 40px);
+  }
 
-  /* Artist name: keep single line */
+  /* Artist name: allow wrapping so a long name never bleeds onto the poster
+     (manual line breaks via Enter are still honoured). */
   .show-artist{
     font-size:clamp(22px,2.6vw,36px);
-    white-space:nowrap;
   }
   .show-left{ max-width:clamp(200px,24vw,320px); }
 }
@@ -317,8 +325,10 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
     top:auto;
     bottom:3%;
     left:50%;
+    right:auto;
     transform:translateX(-50%);
     width:88vw;
+    max-width:none;
     text-align:center;
   }
   #fixedTextPanel .show-seq{justify-content:center;margin-bottom:10px;}
@@ -1503,6 +1513,17 @@ function switchLang(lang) {
         el.textContent = v;
       }
     }
+  });
+  // Per-poster "VIEW DETAILS →" link — URL stored in i18n key show.{n}.url.
+  document.querySelectorAll('#fixedTextPanel .ftp-slide').forEach(function(slide) {
+    var art = slide.querySelector('.show-artist');
+    var cta = slide.querySelector('.show-cta');
+    if (!art || !cta) return;
+    var m = (art.getAttribute('data-i18n') || '').match(/show\.(\d+)\.artist/);
+    if (!m) return;
+    var url = dict['show.' + m[1] + '.url'] || (I18N.en && I18N.en['show.' + m[1] + '.url']) || '';
+    if (url) { cta.setAttribute('href', url); cta.setAttribute('target', '_blank'); cta.setAttribute('rel', 'noopener'); }
+    else { cta.setAttribute('href', '#'); cta.removeAttribute('target'); }
   });
   document.querySelectorAll('[data-i18n-ph]').forEach(function(el) {
     var v = phDict[el.getAttribute('data-i18n-ph')];

@@ -1431,12 +1431,21 @@
     function escA(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
     function tv(key,lang){ var ci=seCurrentConfig.i18n[lang]||{}; if(ci[key]!=null) return ci[key]; var d=I18[lang]||{}; return d[key]!=null?d[key]:''; }
     function textFields(i){
-      var rows=[['show.'+(i+1)+'.artist','音樂家姓名'],['show.'+(i+1)+'.title','標題'],['show.'+(i+1)+'.venue','場地'],['show.'+(i+1)+'.desc','曲目／說明']];
+      // [key, label, multiline?]  — 姓名 supports manual line breaks (Enter).
+      var rows=[['show.'+(i+1)+'.artist','音樂家姓名',true],['show.'+(i+1)+'.title','標題'],['show.'+(i+1)+'.venue','場地'],['show.'+(i+1)+'.desc','曲目／說明']];
       var st='width:100%;margin-bottom:5px;padding:6px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;';
+      var urlKey='show.'+(i+1)+'.url';
+      function fld(k,lang,ph,multi){
+        return multi
+          ? '<textarea data-i18nk="'+escA(k)+'" data-lang="'+lang+'" rows="2" placeholder="'+ph+'" style="'+st+'resize:vertical;line-height:1.3;">'+escA(tv(k,lang))+'</textarea>'
+          : '<input data-i18nk="'+escA(k)+'" data-lang="'+lang+'" value="'+escA(tv(k,lang))+'" placeholder="'+ph+'" style="'+st+'">';
+      }
       return '<div style="font-size:11px;font-weight:800;color:#111;margin:12px 0 8px;">資訊 / Info</div>'
-        + rows.map(function(r){ return '<div style="margin-bottom:9px;"><div style="font-size:11px;color:#666;margin-bottom:4px;">'+r[1]+'</div>'
-            +'<input data-i18nk="'+escA(r[0])+'" data-lang="en" value="'+escA(tv(r[0],'en'))+'" placeholder="EN" style="'+st+'">'
-            +'<input data-i18nk="'+escA(r[0])+'" data-lang="zh" value="'+escA(tv(r[0],'zh'))+'" placeholder="中文" style="'+st+'"></div>'; }).join('');
+        + rows.map(function(r){ return '<div style="margin-bottom:9px;"><div style="font-size:11px;color:#666;margin-bottom:4px;">'+r[1]+(r[2]?'（可按 Enter 手動換行）':'')+'</div>'
+            + fld(r[0],'en','EN',r[2]) + fld(r[0],'zh','中文',r[2]) +'</div>'; }).join('')
+        // Per-poster link for the "VIEW DETAILS →" button (one URL, used in both languages)
+        + '<div style="margin-bottom:9px;"><div style="font-size:11px;color:#666;margin-bottom:4px;">連結 / Link（VIEW DETAILS 按鈕；留空＝無連結）</div>'
+        + '<input class="shp-link" data-urlk="'+escA(urlKey)+'" value="'+escA(tv(urlKey,'en')||tv(urlKey,'zh')||'')+'" placeholder="https://..." style="'+st+'"></div>';
     }
     box.innerHTML='<div style="font-size:12px;color:#666;line-height:1.6;margin-bottom:10px;">每張海報＝<b>圖＋資訊</b>。把照片<b>拖進框</b>、框內<b>拖曳移位</b>、滑桿調<b>大小／模糊</b>，下面直接改該場的<b>姓名/標題/場地/曲目</b>。改動即時預覽。</div>'
       + items.map(function(s){
@@ -1516,11 +1525,23 @@
       pad.addEventListener('drop', function(e){ e.preventDefault(); pad.style.outline=''; var f=e.dataTransfer&&e.dataTransfer.files&&e.dataTransfer.files[0]; if(f) doUp(f); });
     });
     // Text fields (姓名/標題/場地/曲目) → per-page i18n config + live preview.
-    box.querySelectorAll('input[data-i18nk]').forEach(function(el){
+    // (use [data-i18nk] so the multiline 姓名 <textarea> is wired too.)
+    box.querySelectorAll('[data-i18nk]').forEach(function(el){
       el.addEventListener('input', function(){
         var k=el.getAttribute('data-i18nk'), lang=el.getAttribute('data-lang');
         seCurrentConfig.i18n[lang]=seCurrentConfig.i18n[lang]||{};
         seCurrentConfig.i18n[lang][k]=el.value; seOnInput();
+      });
+    });
+    // Per-poster link → write the same URL to BOTH languages (lang-independent).
+    box.querySelectorAll('.shp-link').forEach(function(el){
+      el.addEventListener('input', function(){
+        var k=el.getAttribute('data-urlk'); var v=el.value.trim();
+        ['en','zh'].forEach(function(lang){
+          seCurrentConfig.i18n[lang]=seCurrentConfig.i18n[lang]||{};
+          seCurrentConfig.i18n[lang][k]=v;
+        });
+        seOnInput();
       });
     });
   }
@@ -1716,8 +1737,17 @@
           +'<input type="file" accept="image/*" class="see-file" style="display:none;"></label>'
           +'<span class="see-note" style="font-size:11px;color:#888;"></span>'
         +'</div>'
+        // Poster-only extras: editable caption (EN + 中文) + delete-this-poster button
+        + (group==='poster' ? (
+            '<div style="margin-top:8px;">'
+            +'<input type="text" class="see-cap-en" data-cls="'+escA(s.cls)+'" value="'+escA(s.cap||'')+'" placeholder="說明文字 EN" style="width:100%;margin-bottom:5px;padding:6px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;">'
+            +'<input type="text" class="see-cap-zh" data-cls="'+escA(s.cls)+'" value="'+escA(s.capZh||'')+'" placeholder="說明文字 中文" style="width:100%;padding:6px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;">'
+            +'<button type="button" class="see-del" data-cls="'+escA(s.cls)+'" style="margin-top:8px;font-size:12px;color:#dc2626;background:#fff;border:1px solid #fecaca;border-radius:7px;padding:5px 11px;cursor:pointer;">🗑 刪除這張海報</button>'
+            +'</div>'
+          ) : '')
         +'</div>';
-    }).join('');
+    }).join('')
+    + (group==='poster' ? '<button type="button" id="seePosterAdd" style="width:100%;margin-top:6px;padding:10px;border:none;border-radius:8px;background:#111;color:#fff;font-weight:700;cursor:pointer;font-size:13px;">➕ 新增一張海報</button>' : '');
     seEngWire(group);
     seEngApplyAspect(group);
     setTimeout(function(){ seEngApplyAspect(group); }, 400);   // re-measure once layout settles
@@ -1838,6 +1868,33 @@
         if(m){ pad.setAttribute('data-url', m[1]); pad._url=m[1]; }
       }
     });
+
+    // ── Poster-only: caption editing, delete-this-poster, add-new-poster ──
+    if(group==='poster'){
+      document.querySelectorAll('#seEngBox .see-cap-en').forEach(function(inp){
+        inp.addEventListener('input', function(){
+          var e=_seEng(); if(e&&e.setCaption){ try{ e.setCaption(inp.getAttribute('data-cls'), inp.value, null); }catch(err){} }
+        });
+      });
+      document.querySelectorAll('#seEngBox .see-cap-zh').forEach(function(inp){
+        inp.addEventListener('input', function(){
+          var e=_seEng(); if(e&&e.setCaption){ try{ e.setCaption(inp.getAttribute('data-cls'), null, inp.value); }catch(err){} }
+        });
+      });
+      document.querySelectorAll('#seEngBox .see-del').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          if(!confirm('確定要刪除這張海報嗎？（記得之後按發佈才會上線）')) return;
+          var e=_seEng();
+          if(e&&e.removeAt){ try{ if(e.removeAt(btn.getAttribute('data-cls'))===false){ alert('至少要保留一張海報。'); return; } }catch(err){} }
+          seEngLoad('poster');
+        });
+      });
+      var addBtn=document.getElementById('seePosterAdd');
+      if(addBtn) addBtn.addEventListener('click', function(){
+        var e=_seEng(); if(e&&e.addPoster){ try{ e.addPoster(); }catch(err){} }
+        seEngLoad('poster');
+      });
+    }
   }
 
   // Publish engine images/positions to the live site (commit + git push via server.py).

@@ -1254,7 +1254,9 @@ nav.mega-open .nav-links a::before {
   opacity: .8;
   letter-spacing: .01em;
 }
-/* Placeholder gradients until real images added */
+/* Placeholder gradients until real images added (dynamically-added cards fall
+   back to the default below) */
+.work-card-img { background: linear-gradient(160deg,#1a1a2e,#16213e,#0f3460); }
 .wc1 { background: linear-gradient(160deg,#1a1a2e,#16213e,#0f3460); }
 .wc2 { background: linear-gradient(160deg,#1a0a0a,#2d1010,#0f0a0a); }
 .wc3 { background: linear-gradient(160deg,#0a1a0a,#0d2b0d,#051505); }
@@ -4438,7 +4440,10 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   const LIFT_PX    = 40;     // how many px the outgoing card lifts up
 
   function update() {
+    const cards = Array.from(document.querySelectorAll('.work-card'));   // live: picks up added/removed cards
+    if (!cards.length) return;
     cards.forEach((card, i) => {
+      card.style.zIndex = (i + 1) * 10;   // stack order for ANY number of cards (CSS nth-child only covered 3)
       const rect = card.getBoundingClientRect();
       const vh   = window.innerHeight;
 
@@ -4679,6 +4684,9 @@ try {
       if (cfg.positions && !localStorage.getItem(POS_KEY)) {
         try { localStorage.setItem(POS_KEY, JSON.stringify(cfg.positions)); updated = true; } catch(e) {}
       }
+      // Reconcile the homepage poster count/captions to whatever was saved
+      // (so add/remove done in the back office appears on the live site).
+      try { if (typeof _initPostersFromConfig === 'function') _initPostersFromConfig(); } catch(e) {}
       if (updated) {
         // Re-apply images that were just restored from server
         heroSlots.forEach(function(d) {
@@ -4712,7 +4720,7 @@ try {
       pos.hero.colSpeeds = {c1:_heroColSpeeds.c1, c2:_heroColSpeeds.c2};
       catSlots.forEach(function(d){ pos.cat[d.cls]={xC:cS[d.cls].xC,yC:cS[d.cls].yC,zC:cS[d.cls].zC,xE:cS[d.cls].xE,yE:cS[d.cls].yE,zE:cS[d.cls].zE,label:cS[d.cls].label,sub:cS[d.cls].sub,aspect:cS[d.cls].aspect||null}; });
       svcSlots.forEach(function(d){ var v=svS[d.cls]; var o={x:v.x,y:v.y,zoom:v.zoom}; if(v.xN!==undefined){o.xN=v.xN;o.yN=v.yN;o.zN=v.zN;} pos.svc[d.cls]=o; });
-      posterSlots.forEach(function(d){ var p=pS[d.cls]; var o={x:p.x,y:p.y,zoom:p.zoom}; if(p.xN!==undefined){o.xN=p.xN;o.yN=p.yN;o.zN=p.zN;} pos.poster[d.cls]=o; });
+      posterSlots.forEach(function(d){ var p=pS[d.cls]; var o={x:p.x,y:p.y,zoom:p.zoom,cap:p.cap||'',capZh:p.capZh||''}; if(p.xN!==undefined){o.xN=p.xN;o.yN=p.yN;o.zN=p.zN;} pos.poster[d.cls]=o; });
       blogSlots.forEach(function(d){ var b=blS[d.cls]; pos.blog[d.cls]={x:b.x,y:b.y,zoom:b.zoom,url:localStorage.getItem(IMG_PFX+d.cls)||''}; });
       try { localStorage.setItem(POS_KEY, JSON.stringify(pos)); } catch(e){}
       _syncConfigToServer();
@@ -4834,7 +4842,7 @@ try {
     var s = {};
     posterSlots.forEach(function(d) {
       var p = pp[d.cls]||{};
-      s[d.cls] = { x:p.x??50, y:p.y??50, zoom:p.zoom??0, xN:p.xN, yN:p.yN, zN:p.zN, url: localStorage.getItem(IMG_PFX+d.cls)||'', blobUrl:'' };
+      s[d.cls] = { x:p.x??50, y:p.y??50, zoom:p.zoom??0, xN:p.xN, yN:p.yN, zN:p.zN, cap:p.cap||'', capZh:p.capZh||'', url: localStorage.getItem(IMG_PFX+d.cls)||'', blobUrl:'' };
     });
     return s;
   }
@@ -4957,6 +4965,12 @@ try {
     el.style.backgroundPosition = `${x}% ${y}%`;
     const zf = 1 + (zoom || 0) / 100;
     el.style.backgroundSize = zf <= 1 ? 'cover' : `${Math.round(zf * 100)}%`;
+    // Caption: editable per-poster (EN + 中文). Falls back to the hardcoded text if blank.
+    const capEl = el.querySelector('.work-card-caption');
+    if (capEl) {
+      const cap = (_currentLang === 'en') ? (s.cap || '') : (s.capZh || s.cap || '');
+      if (cap) capEl.textContent = cap;
+    }
   }
   posterSlots.forEach(d => applyPoster(d.cls));
 
@@ -5067,6 +5081,78 @@ try {
   // ── Bridge API: lets the back-office Site Editor drive THIS page's mature
   //    photo engine. Same storage (site-data.json + assets/images via server.py)
   //    and same git-push deploy — we only relocate the editing UI to the back office.
+  // ── Dynamic posters (homepage "Work / 作品·海報") ───────────────────────────
+  // Mirrors shows.html's add/remove pattern so the count is no longer fixed at 3.
+  function _mkWorkCard(cls, capEn){
+    var photos=document.getElementById('work-photos'); if(!photos) return;
+    if(document.querySelector('.work-card-img.'+cls)) return;   // already exists
+    var card=document.createElement('div'); card.className='work-card';
+    var img=document.createElement('div'); img.className='work-card-img '+cls;
+    var cap=document.createElement('div'); cap.className='work-card-caption'; cap.textContent=capEn||'';
+    img.appendChild(cap); card.appendChild(img); photos.appendChild(card);
+  }
+  function _nextPosterCls(){
+    var mx=0; posterSlots.forEach(function(d){ var n=parseInt(String(d.cls).replace('wc',''),10)||0; if(n>mx) mx=n; });
+    return 'wc'+(mx+1);
+  }
+  function _addPoster(){
+    var cls=_nextPosterCls();
+    _mkWorkCard(cls,'');
+    posterSlots.push({ cls:cls, label:'Show '+posterSlots.length });
+    pS[cls]={ x:50,y:50,zoom:0,cap:'',capZh:'',url:'',blobUrl:'' };
+    try{ applyPoster(cls); }catch(e){}
+    savePhotoPos(true);
+    return posterSlots.length;
+  }
+  function _removePosterAt(cls){
+    if(posterSlots.length<=1) return false;                     // keep at least one
+    var idx=-1; posterSlots.forEach(function(d,i){ if(d.cls===cls) idx=i; });
+    if(idx<0) return false;
+    var el=document.querySelector('.work-card-img.'+cls);
+    var card=el && el.closest('.work-card'); if(card) card.remove();
+    posterSlots.splice(idx,1); delete pS[cls];
+    try{ localStorage.removeItem(IMG_PFX+cls); }catch(e){}
+    savePhotoPos(true);
+    return true;
+  }
+  function _setPosterCaption(cls, en, zh){
+    var s=pS[cls]; if(!s) return;
+    if(en!=null) s.cap=en; if(zh!=null) s.capZh=zh;
+    try{ applyPoster(cls); }catch(e){}
+    savePhotoPos(true);
+  }
+  // Rebuild posterSlots/DOM to match the cls keys saved in config (so add/remove
+  // done in the back office show up on the LIVE site without server.py).
+  function _initPostersFromConfig(){
+    try{
+      var pos=_loadPos(); var pp=(pos&&pos.poster)||{};
+      var clsList=Object.keys(pp).filter(function(k){ return /^wc\d+$/.test(k); });
+      if(!clsList.length) return;                                // no saved posters → keep default 3
+      clsList.sort(function(a,b){ return (parseInt(a.slice(2),10)||0)-(parseInt(b.slice(2),10)||0); });
+      // remove slots/cards not in config
+      posterSlots.slice().forEach(function(d){
+        if(clsList.indexOf(d.cls)<0){
+          var el=document.querySelector('.work-card-img.'+d.cls); var c=el&&el.closest('.work-card'); if(c) c.remove();
+          var ix=-1; posterSlots.forEach(function(x,i){ if(x.cls===d.cls) ix=i; }); if(ix>=0) posterSlots.splice(ix,1);
+          delete pS[d.cls];
+        }
+      });
+      // add slots/cards present in config but missing locally
+      clsList.forEach(function(cls,i){
+        var p=pp[cls]||{};
+        if(!posterSlots.some(function(d){ return d.cls===cls; })){
+          _mkWorkCard(cls, p.cap||'');
+          posterSlots.push({ cls:cls, label:'Show '+(i+1) });
+        }
+        pS[cls]={ x:p.x??50,y:p.y??50,zoom:p.zoom??0,xN:p.xN,yN:p.yN,zN:p.zN,
+                  cap:p.cap||'',capZh:p.capZh||'',
+                  url: localStorage.getItem(IMG_PFX+cls)||'', blobUrl:'' };
+      });
+      posterSlots.forEach(function(d){ try{ applyPoster(d.cls); }catch(e){} });
+    }catch(e){}
+  }
+  _initPostersFromConfig();   // run once at startup (local case)
+
   window.opzEdit = (function(){
     var G = {
       hero:   { slots: heroSlots,   S: hS,  apply: applyHero  },
@@ -5084,7 +5170,8 @@ try {
       return g.slots.map(function(d){
         var s=g.S[d.cls]||{}; var f=fr(g,s);
         return { cls:d.cls, label:(d.label||d.col||d.cls),
-                 url:(s.url||localStorage.getItem(IMG_PFX+d.cls)||''), x:f.x, y:f.y, zoom:f.zoom };
+                 url:(s.url||localStorage.getItem(IMG_PFX+d.cls)||''), x:f.x, y:f.y, zoom:f.zoom,
+                 cap:(s.cap||''), capZh:(s.capZh||'') };
       });
     }
     function setFrame(group, cls, f){
@@ -5133,7 +5220,9 @@ try {
       try{ await fetch('/git-push',{method:'POST'}); return true; }catch(e){ return false; }
     }
     return { groups:Object.keys(G), list:list, setFrame:setFrame,
-             setImageUrl:setImageUrl, setImageFile:setImageFile, publish:publish };
+             setImageUrl:setImageUrl, setImageFile:setImageFile, publish:publish,
+             // Dynamic posters (homepage Work section)
+             addPoster:_addPoster, removeAt:_removePosterAt, setCaption:_setPosterCaption };
   })();
 
   // Expose for switchLang to re-render panel names on language change
