@@ -2528,7 +2528,11 @@
     if (t === 'string')  return (v.slice(0,5)==='data:') ? '' : v;
     if (t === 'number')  return isFinite(v) ? v : null;
     if (t === 'boolean') return v;
-    if (Array.isArray(v)) return v.map(seSanitizeForFirestore);   // no undefined leaks now
+    // Rebuild as a PLAIN array in THIS window's realm. Arrays coming from the
+    // preview <iframe> are a different realm's Array → Firestore rejects them
+    // ("Unsupported field value: a custom Array object"). v.map() would keep the
+    // foreign realm, so build a fresh [] and push.
+    if (Array.isArray(v)) { var arr=[]; for(var ai=0; ai<v.length; ai++) arr.push(seSanitizeForFirestore(v[ai])); return arr; }
     if (t === 'object'){
       var o={};
       for (var k in v){
