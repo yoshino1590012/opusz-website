@@ -813,7 +813,10 @@ function renderGrid(){
       var cps = (typeof m.photoScale === 'number') ? m.photoScale : 1;
       // Always fill the frame (cover); pan via object-position % (reaches every
       // edge incl. the bottom), zoom via scale (min 1 = exactly fills).
-      mediaHtml = '<img src="'+m.photoUrl+'" alt="'+m.name+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+cpx+'% '+cpy+'%;transform:scale('+cps+');transform-origin:'+cpx+'% '+cpy+'%;">';
+      // Fade the photo in on load so it doesn't "pop"/flash when it finishes
+      // decoding (the frame is blank grey until then). onload covers cached
+      // images too; the inline fallback shows it if onload somehow doesn't fire.
+      mediaHtml = '<img src="'+m.photoUrl+'" alt="'+m.name+'" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+cpx+'% '+cpy+'%;transform:scale('+cps+');transform-origin:'+cpx+'% '+cpy+'%;opacity:0;transition:opacity .35s ease;">';
     } else if(savedPhoto){
       mediaHtml = '<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'">' +
         '<img src="'+savedPhoto+'" alt="'+m.name+'" style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;">' +
@@ -855,6 +858,12 @@ function renderGrid(){
       '</div>' +
     '</div>';
   }).join('');
+  // Safety net: a cached image may already be complete before its onload can
+  // fire, which would leave it stuck at opacity:0 (invisible). Reveal any that
+  // are already loaded.
+  grid.querySelectorAll('.mcard-photo img').forEach(function(im){
+    if(im.complete && im.naturalWidth) im.style.opacity = 1;
+  });
 }
 
 function renderStars(r){
