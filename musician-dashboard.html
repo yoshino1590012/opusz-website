@@ -276,10 +276,16 @@
     .mth-info .mth-name { font-size: 14px; font-weight: 700; }
     .mth-info .mth-sub { font-size: 11.5px; color: var(--mid); }
     .msg-bubbles { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; }
-    .bubble-wrap { display: flex; gap: 10px; }
+    .bubble-wrap { display: flex; gap: 10px; align-items: flex-end; }
     .bubble-wrap.mine { flex-direction: row-reverse; }
+    /* The text column sizes to ≤70% of the thread; the bubble inside hugs its
+       content (fit-content) so short messages are small and long ones wrap by
+       word/line — like Telegram/Line. (max-width:68% on the bubble used to be
+       relative to a 0-width wrapper, collapsing each bubble to ~1 char wide.) */
+    .bubble-wrap > div:not(.bubble-avatar) { display: flex; flex-direction: column; max-width: 70%; min-width: 0; }
+    .bubble-wrap.mine > div:not(.bubble-avatar) { align-items: flex-end; }
     .bubble-avatar { width: 30px; height: 30px; border-radius: 50%; background: #f0f0f0; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #555; }
-    .bubble { padding: 10px 14px; border-radius: 18px; font-size: 13.5px; line-height: 1.5; max-width: 68%; }
+    .bubble { padding: 10px 14px; border-radius: 18px; font-size: 13.5px; line-height: 1.5; width: fit-content; max-width: 100%; word-break: break-word; overflow-wrap: anywhere; }
     .bubble.theirs { background: #f0f0f0; border-bottom-left-radius: 4px; }
     .bubble.mine { background: var(--black); color: #fff; border-bottom-right-radius: 4px; }
     .bubble-time { font-size: 10.5px; color: var(--mid); margin-top: 4px; text-align: right; }
@@ -680,6 +686,9 @@
         flex-shrink:0; padding:10px 12px; padding-bottom:max(12px, env(safe-area-inset-bottom));
         background:var(--white); border-top:1px solid var(--border);
       }
+      /* iOS auto-zooms the page when focusing an input with font-size < 16px.
+         16px stops the zoom while still allowing the user to pinch-zoom manually. */
+      .msg-input { font-size:16px; }
     }
     /* Back button lives in the thread; hidden on desktop */
     .msg-back { display:none; align-items:center; gap:8px; padding:13px 16px; border:none; border-bottom:1px solid var(--border); background:var(--white); font-family:inherit; font-size:14px; font-weight:700; color:#111; cursor:pointer; width:100%; text-align:left; }
