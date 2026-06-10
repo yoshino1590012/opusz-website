@@ -43,8 +43,9 @@
       { slug: 'xylophone',  en: 'Xylophone',  zh: '木琴' }
     ]},
     { slug: 'keyboard', en: 'Keyboard', zh: '鍵盤樂器', items: [
-      { slug: 'piano',     en: 'Piano',      zh: '鋼琴' },
-      { slug: 'pipeorgan', en: 'Pipe Organ', zh: '管風琴' }
+      { slug: 'piano',       en: 'Piano',              zh: '鋼琴' },
+      { slug: 'collabpiano', en: 'Collaborative Piano', zh: '合作鋼琴' },
+      { slug: 'pipeorgan',   en: 'Pipe Organ',         zh: '管風琴' }
     ]},
     { slug: 'voice', en: 'Voice', zh: '聲樂', items: [
       { slug: 'soprano',      en: 'Soprano',       zh: '女高音' },
