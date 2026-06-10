@@ -3007,6 +3007,11 @@
   // ── Image upload to Firebase Storage ──────────────────────────────
   // Compress an image File to a JPEG Blob via canvas (scaled to maxDim).
   function pbCompressImage(file, maxDim, quality, cb){
+    // Guard against hangs: iPhone HEIC/HEIF can't be decoded by the browser and
+    // neither onload nor onerror fires → the upload would spin forever. Bail out.
+    var done=false;
+    function finish(b){ if(done) return; done=true; clearTimeout(to); cb(b); }
+    var to=setTimeout(function(){ finish(null); }, 15000);
     const reader = new FileReader();
     reader.onload = function(e){
       const img = new Image();
@@ -3017,12 +3022,12 @@
         const canvas = document.createElement('canvas');
         canvas.width = w; canvas.height = h;
         canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        canvas.toBlob(function(blob){ cb(blob); }, 'image/jpeg', quality || 0.82);
+        canvas.toBlob(function(blob){ finish(blob); }, 'image/jpeg', quality || 0.82);
       };
-      img.onerror = function(){ cb(null); };
+      img.onerror = function(){ finish(null); };
       img.src = e.target.result;
     };
-    reader.onerror = function(){ cb(null); };
+    reader.onerror = function(){ finish(null); };
     reader.readAsDataURL(file);
   }
 
@@ -4110,8 +4115,16 @@
         var f=file.files && file.files[0]; file.value='';
         if(!f) return;
         if(!/^image\//.test(f.type)){ showNotif('請選擇圖片檔 / Please choose an image'); return; }
+        var nm=(f.name||'').toLowerCase(), tp=(f.type||'').toLowerCase();
+        if(tp.indexOf('heic')>=0 || tp.indexOf('heif')>=0 || /\.(heic|heif)$/.test(nm)){
+          showNotif('這是 iPhone HEIC 檔，瀏覽器無法處理。請改用 JPG／PNG（iPhone：設定→相機→格式→「最相容」，或先截圖）'); return;
+        }
         var prev=btn.textContent; btn.textContent='上傳中… / Uploading…'; btn.style.pointerEvents='none';
-        try{ _amUrl = await pbUploadImage(f,'avatar',600); pbAvatarModalRender(); }
+        try{
+          var u = await pbUploadImage(f,'avatar',600);
+          if(!u){ showNotif('圖片無法處理（可能格式不支援），請改用 JPG／PNG'); }
+          else { _amUrl = u; pbAvatarModalRender(); }
+        }
         catch(e){ console.error('[avatar] upload failed:', e); showNotif('上傳失敗：'+(e.code||e.message)); }
         finally{ btn.textContent=prev; btn.style.pointerEvents=''; }
       });
@@ -4128,8 +4141,14 @@
       if(typeof pbRenderAvatarPreview==='function') pbRenderAvatarPreview();
       pbSyncProfileAvatar(_amUrl, _amX, _amY, _amS);
       if(_currentUser && db){
-        try{ await setDoc(doc(db,'musicians',_currentUser.uid), { config:{ about:{ avatarUrl:_amUrl, avatarX:_amX, avatarY:_amY, avatarScale:_amS } } }, { merge:true }); }
-        catch(e){ console.error('[avatar] save failed:', e); }
+        try{
+          await setDoc(doc(db,'musicians',_currentUser.uid), { config:{ about:{ avatarUrl:_amUrl, avatarX:_amX, avatarY:_amY, avatarScale:_amS } } }, { merge:true });
+        }
+        catch(e){
+          console.error('[avatar] save failed:', e);
+          showNotif('大頭照儲存失敗：'+(e.code||e.message));   // was silent → looked like success
+          return;   // keep the modal open so the change isn't lost
+        }
       }
       showNotif('大頭照已更新 ✓');
       m.style.display='none';
