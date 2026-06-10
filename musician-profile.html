@@ -200,11 +200,18 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
               min-height 1.1s cubic-bezier(.7,0,.2,1),
               max-height 1.1s cubic-bezier(.7,0,.2,1);
 }
-/* INTRO STATE — full-screen takeover for 1.5s after page loads */
+/* INTRO STATE — full-screen takeover for 1.5s after page loads.
+   Use svh (small viewport height) so the full-screen photo + the bottom-anchored
+   name sit ABOVE the mobile browser's bottom toolbar (Safari's URL/share bar),
+   which overlays 100vh and was clipping the name on load. Falls back to vh on
+   browsers without svh; on desktop svh == vh so nothing changes there. */
 .hero.hero-intro{
   height:100vh;
   min-height:100vh;
   max-height:100vh;
+  height:100svh;
+  min-height:100svh;
+  max-height:100svh;
 }
 .hero.hero-intro .hero-photo-wrap{
   -webkit-mask-image:none;
