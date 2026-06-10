@@ -1929,7 +1929,10 @@ function renderMembers() {
   MEMBERS.forEach(function(m) {
     // Whole row opens that musician's in-community profile (delegated handler).
     html += '<div class="member-item comm-profile-link" data-uid="' + (m.uid||'') + '" style="cursor:pointer">';
-    html += '<div class="member-avatar" style="background:' + m.color + '">' + m.initials;
+    html += '<div class="member-avatar" style="background:' + m.color + ';overflow:hidden">';
+    html += m.avatarUrl
+      ? '<img src="' + escHtml(m.avatarUrl) + '" alt="" style="width:100%;height:100%;object-fit:cover;object-position:' + (m.avatarX!=null?m.avatarX:50) + '% ' + (m.avatarY!=null?m.avatarY:50) + '%;transform:scale(' + (m.avatarScale||1) + ')">'
+      : m.initials;
     html += '<div class="member-status-dot ' + (m.online ? 'online' : 'offline') + '"></div>';
     html += '</div>';
     html += '<div class="member-info"><div class="member-name">' + escHtml(m.name) + '</div>';
@@ -2004,7 +2007,13 @@ document.addEventListener('click', function(e){
       snap.forEach(d => {
         const m = d.data();
         const name = m.name || (m.email ? m.email.split('@')[0] : '樂手');
-        const entry = { uid:d.id, name, instrument:instrumentLabel(m), color:colorFor(name), initials:initialsFor(name), online:false, bio:m.bio||'', region:m.primaryRegion||'' };
+        // Same data as the dashboard "我的資料": photo/email/website/region all come
+        // from this one musicians/{uid} doc — edit once, shows everywhere.
+        const ab = (m.config && m.config.about) || {};
+        const entry = { uid:d.id, name, instrument:instrumentLabel(m), color:colorFor(name), initials:initialsFor(name), online:false,
+          bio: m.bio || ab.bio || '', region: m.primaryRegion || '', region2: m.secondaryRegion || '',
+          email: m.email || '', website: m.website || '',
+          avatarUrl: ab.avatarUrl || '', avatarX: ab.avatarX, avatarY: ab.avatarY, avatarScale: ab.avatarScale };
         arr.push(entry); membersByUid[d.id] = entry;
       });
       window.MEMBERS = arr;
@@ -2069,11 +2078,18 @@ document.addEventListener('click', function(e){
         '<div style="height:96px;background:linear-gradient(135deg,'+m.color+',#111);"></div>' +
         '<div style="padding:0 26px 24px;">' +
           '<div style="display:flex;align-items:flex-end;gap:16px;margin-top:-36px;">' +
-            '<div style="width:80px;height:80px;border-radius:50%;background:'+m.color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;border:4px solid #fff;flex-shrink:0;">'+esc(m.initials)+'</div>' +
+            '<div style="width:80px;height:80px;border-radius:50%;background:'+m.color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;border:4px solid #fff;flex-shrink:0;overflow:hidden;">'+
+              (m.avatarUrl ? '<img src="'+esc(m.avatarUrl)+'" alt="" style="width:100%;height:100%;object-fit:cover;object-position:'+(m.avatarX!=null?m.avatarX:50)+'% '+(m.avatarY!=null?m.avatarY:50)+'%;transform:scale('+(m.avatarScale||1)+');">' : esc(m.initials)) +
+            '</div>' +
             '<button onclick="document.getElementById(\'commProfileOverlay\').remove()" style="margin-left:auto;margin-bottom:8px;background:#f1f1f1;border:none;border-radius:50px;width:32px;height:32px;font-size:16px;cursor:pointer;color:#666;">✕</button>' +
           '</div>' +
           '<div style="font-size:22px;font-weight:800;color:#111;margin-top:12px;">'+esc(m.name)+'</div>' +
-          '<div style="font-size:14px;color:#666;margin-top:3px;">'+esc(m.instrument)+(m.region?' · '+esc(m.region):'')+'</div>' +
+          '<div style="font-size:14px;color:#666;margin-top:3px;">'+esc(m.instrument)+(m.region?' · '+esc(m.region):'')+(m.region2?'、'+esc(m.region2):'')+'</div>' +
+          ((m.email||m.website) ?
+            '<div style="font-size:13px;color:#555;margin-top:8px;line-height:1.9;">' +
+              (m.email ? '✉️ <a href="mailto:'+esc(m.email)+'" style="color:#2563eb;text-decoration:none;">'+esc(m.email)+'</a>'+(m.website?'<br>':'') : '') +
+              (m.website ? '🔗 <a href="'+esc(/^https?:\/\//.test(m.website)?m.website:'https://'+m.website)+'" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">'+esc(m.website)+'</a>' : '') +
+            '</div>' : '') +
           '<div id="commBioWrap" style="margin-top:12px;">' +
             '<div id="commBioView" style="font-size:14px;color:'+(m.bio?'#444':'#aaa')+';line-height:1.7;white-space:pre-wrap;">'+(m.bio?esc(m.bio):(isMe?'還沒有自我介紹，點下方「編輯簡介」新增一段吧。':''))+'</div>' +
             (isMe ? '<button onclick="window.opuszEditBio(\''+uid+'\')" style="margin-top:8px;background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#2563eb;cursor:pointer;">✏️ 編輯簡介</button>' : '') +
