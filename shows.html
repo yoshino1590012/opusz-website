@@ -348,6 +348,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
     top:33dvh;
     left:50%;
     transform:translate(-50%,-50%);
+    /* Tap the (smallish) poster to open it full-screen — mobile only. */
+    pointer-events:auto;
+    cursor:zoom-in;
   }
 
   /* ── 文字面板：海報下方、置中。同樣用 dvh，與海報維持固定間距、一起置中。 ── */
@@ -447,6 +450,30 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 .ep-thumb{width:100%;aspect-ratio:1/1.414;border-radius:6px;object-fit:cover;border:1px solid rgba(255,255,255,.1);display:none;margin-top:4px;}
 .ep-divider{height:1px;background:rgba(255,255,255,.07);margin:2px 0;}
 
+/* ══ POSTER LIGHTBOX (mobile tap-to-zoom full screen) ══ */
+#posterLightbox{
+  position:fixed;inset:0;z-index:99998;display:none;
+  align-items:center;justify-content:center;
+  background:rgba(0,0,0,.94);
+  padding:calc(env(safe-area-inset-top) + 12px) 12px calc(env(safe-area-inset-bottom) + 12px);
+  -webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);
+  animation:plbIn .2s ease;
+}
+#posterLightbox.open{display:flex;}
+@keyframes plbIn{from{opacity:0;}to{opacity:1;}}
+#posterLightboxImg{
+  max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;
+  border-radius:8px;box-shadow:0 24px 70px rgba(0,0,0,.6);
+}
+.plb-close{
+  position:absolute;top:calc(env(safe-area-inset-top) + 10px);right:14px;
+  width:40px;height:40px;border-radius:50%;
+  background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);
+  color:#fff;font-size:22px;line-height:1;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+}
+
 /* Save button */
 .ep-save{
   margin:12px 16px 16px;padding:10px;border-radius:10px;
@@ -508,6 +535,12 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
     <div class="fp-slide-bg" id="fpBg4" style="background:linear-gradient(160deg,#1a0010,#3d0030,#28001a)"></div>
     <img class="fp-slide-img" id="fpImg4" alt="">
   </div>
+</div>
+
+<!-- ══ POSTER LIGHTBOX — full-screen poster on mobile tap ══ -->
+<div id="posterLightbox" onclick="opzClosePosterLightbox()">
+  <button type="button" class="plb-close" aria-label="關閉" onclick="opzClosePosterLightbox()">✕</button>
+  <img id="posterLightboxImg" alt="演出海報">
 </div>
 
 <!-- ══ FIXED TEXT PANEL — left side, same reveal as poster ══ -->
@@ -696,6 +729,33 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
   const textPanel  = document.getElementById('fixedTextPanel');
   let slides     = Array.from(document.querySelectorAll('.fp-slide'));
   let textSlides = Array.from(document.querySelectorAll('.ftp-slide'));
+
+  // ── Mobile tap-to-zoom: open the currently-shown poster full screen ──
+  // The visible poster is the slide whose clip-path is fully open at the top
+  // (showOnly sets exactly one slide to 'inset(0% 0 0 0)'); the exit state
+  // 'inset(0 0 X% 0)' is intentionally excluded so a half-wiped poster won't open.
+  function opzActivePosterSrc(){
+    const s = Array.from(document.querySelectorAll('#fixedPosterFrame .fp-slide'))
+      .find(el => (el.style.clipPath || '').indexOf('inset(0%') === 0);
+    if(!s) return null;
+    const img = s.querySelector('img.fp-slide-img');
+    if(img && img.getAttribute('src') && img.style.display !== 'none') return img.src;
+    return null;   // gradient placeholder → nothing to enlarge
+  }
+  window.opzOpenPosterLightbox = function(){
+    if(window.innerWidth > 700) return;          // mobile only
+    const src = opzActivePosterSrc();
+    if(!src) return;
+    const lb = document.getElementById('posterLightbox');
+    document.getElementById('posterLightboxImg').src = src;
+    lb.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  };
+  window.opzClosePosterLightbox = function(){
+    document.getElementById('posterLightbox').classList.remove('open');
+    document.body.style.overflow = '';
+  };
+  if(frame) frame.addEventListener('click', window.opzOpenPosterLightbox);
 
   // Hide all slides / show one fully
   function showOnly(idx){
