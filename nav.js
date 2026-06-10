@@ -102,12 +102,14 @@
 '  <!-- My Account Dropdown (outside nav to escape mix-blend-mode) -->',
 '  <div class="nav-login-dropdown acc-menu" id="accountDropdown">',
 '    <div id="navAccEmail" style="padding:9px 14px 9px;font-size:12px;color:#999;border-bottom:1px solid #eee;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;"></div>',
-'    <a href="customer-profile.html#messages" style="font-weight:700;"><span data-i18n="acct.messages">Messages</span> <span class="nav-msg-badge" id="dropMsgBadge" style="display:none;background:#e05;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto;">0</span></a>',
-'    <div class="nav-login-vsep"></div>',
-'    <a href="customer-profile.html#bookings" data-i18n="acct.bookings">My Bookings</a>',
-'    <div class="nav-login-vsep"></div>',
-'    <a href="customer-profile.html" data-i18n="acct.profile">My Profile</a>',
-'    <div class="nav-login-vsep"></div>',
+'    <a href="musician-dashboard.html" class="acct-mus" data-i18n="acct.dashboard" style="display:none;font-weight:700;">Go to Dashboard</a>',
+'    <div class="nav-login-vsep acct-mus" style="display:none"></div>',
+'    <a href="customer-profile.html#messages" class="acct-cust" style="font-weight:700;"><span data-i18n="acct.messages">Messages</span> <span class="nav-msg-badge" id="dropMsgBadge" style="display:none;background:#e05;color:#fff;border-radius:50px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto;">0</span></a>',
+'    <div class="nav-login-vsep acct-cust"></div>',
+'    <a href="customer-profile.html#bookings" class="acct-cust" data-i18n="acct.bookings">My Bookings</a>',
+'    <div class="nav-login-vsep acct-cust"></div>',
+'    <a href="customer-profile.html" class="acct-cust" data-i18n="acct.profile">My Profile</a>',
+'    <div class="nav-login-vsep acct-cust"></div>',
 '    <a href="#" id="navLogoutBtn" style="color:#c00" data-i18n="acct.logout">Log Out</a>',
 '  </div>',
 '',
@@ -286,7 +288,7 @@
       'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
       'nav.artists_short':'Musicians','nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
       'nav.jobs':'Recent Jobs','nav.account':'My Account',
-      'acct.messages':'Messages','acct.bookings':'My Bookings','acct.profile':'My Profile','acct.logout':'Log Out',
+      'acct.messages':'Messages','acct.bookings':'My Bookings','acct.profile':'My Profile','acct.logout':'Log Out','acct.dashboard':'Go to Dashboard',
       'login.customer':'Customer login','login.musician':'Musician login',
       'login.email':'Email','login.password':'Password',
       'login.btn':'Log in','login.noAccount':'No account?','login.signup':'Sign up →',
@@ -310,7 +312,7 @@
       'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
       'nav.artists_short':'音樂家','nav.news':'近期演出','nav.contact':'聯絡我們','nav.lessons':'音樂老師',
       'nav.jobs':'近期委託','nav.account':'我的帳號',
-      'acct.messages':'訊息','acct.bookings':'我的委託','acct.profile':'我的檔案','acct.logout':'登出',
+      'acct.messages':'訊息','acct.bookings':'我的委託','acct.profile':'我的檔案','acct.logout':'登出','acct.dashboard':'前往後台',
       'login.customer':'客戶登入','login.musician':'樂手登入',
       'login.email':'電郵地址','login.password':'密碼',
       'login.btn':'登入','login.noAccount':'還沒有帳號？','login.signup':'立即註冊 →',
@@ -627,6 +629,13 @@
         showBtn(accountBtn);
         var emailEl = document.getElementById('navAccEmail');
         if (emailEl) emailEl.textContent = localStorage.getItem('opusz_user_email') || user;
+        // Account-type split: a musician browsing the front-end only gets
+        // "Go to Dashboard" + "Log Out"; customers keep the full menu.
+        if (accDrop) {
+          var isMus = localStorage.getItem('opusz_role') === 'musician';
+          accDrop.querySelectorAll('.acct-mus').forEach(function(el){ el.style.display = isMus ? '' : 'none'; });
+          accDrop.querySelectorAll('.acct-cust').forEach(function(el){ el.style.display = isMus ? 'none' : ''; });
+        }
       } else {
         showBtn(loginBtn);
         if (accountBtn) { hideBtn(accountBtn); accountBtn.classList.remove('open'); }

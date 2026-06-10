@@ -403,7 +403,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 #medOverlay, .med-overlay, #medPanel, #medToast { display: none !important; }</style>
 </head>
 <body>
-<script src="nav.js?v=8"></script>
+<script src="nav.js?v=9"></script>
 <script src="instruments.js"></script>
 
 <!-- Login Modal -->
@@ -1409,8 +1409,8 @@ window.addEventListener('load', applyAllSavedXYS);
         name:       card.name || (cfg.hero && cfg.hero.name) || p.name || (p.email ? p.email.split('@')[0] : 'Musician'),
         instrument: card.instrument || primaryInst,
         instruments: insts,
-        country:    (p.primaryRegion || '').split(' · ')[0] || 'Taiwan',
-        region:     card.location || (p.primaryRegion || '').split(' · ').slice(1).join(' · ') || p.primaryRegion || '—',
+        country:    p.country || ((p.primaryRegion || '').split(',').pop() || '').trim() || 'Taiwan',
+        region:     p.region  || ((p.primaryRegion || '').split(',')[0] || '').trim() || card.location || '—',
         styles:     Array.isArray(p.styles) ? p.styles : [],
         style:      (Array.isArray(p.styles) && p.styles[0]) ? p.styles[0] : 'Classical',
         level:      'Professional',
