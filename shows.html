@@ -282,6 +282,15 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .show-note-wrap.open .snt-arrow{transform:rotate(180deg);}
 .show-note{max-height:0;overflow:hidden;opacity:0;font-size:13.5px;color:rgba(255,255,255,.62);line-height:1.7;white-space:pre-wrap;transition:max-height .35s ease,opacity .3s ease,margin-top .3s ease;}
 .show-note-wrap.open .show-note{max-height:50vh;opacity:1;margin-top:12px;}
+/* Mobile-only popup card for 說明 (desktop/tablet keep the inline expand above) */
+.snm-overlay{position:fixed;inset:0;z-index:99999;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.62);padding:22px;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);}
+.snm-overlay.open{display:flex;}
+.snm-card{position:relative;background:#161616;color:#fff;border:1px solid rgba(255,255,255,.1);border-radius:18px;width:100%;max-width:440px;max-height:74vh;overflow-y:auto;padding:26px 22px 24px;box-shadow:0 24px 70px rgba(0,0,0,.55);text-align:left;animation:snmIn .22s ease;}
+@keyframes snmIn{from{opacity:0;transform:translateY(14px) scale(.98);}to{opacity:1;transform:none;}}
+.snm-close{position:absolute;top:8px;right:12px;background:none;border:none;color:rgba(255,255,255,.55);font-size:28px;line-height:1;cursor:pointer;padding:4px;}
+.snm-close:hover{color:#fff;}
+.snm-title{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.42);margin-bottom:12px;padding-right:24px;}
+.snm-body{font-size:14.5px;line-height:1.85;color:rgba(255,255,255,.86);white-space:pre-wrap;}
 .show-right{position:absolute;top:50%;right:clamp(40px,7vw,100px);transform:translateY(-50%);text-align:right;}
 .show-year{font-size:13px;letter-spacing:.1em;color:rgba(255,255,255,.3);}
 
@@ -322,22 +331,22 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   .show-right{display:none;}
   .sh-end{flex-direction:column;}
 
-  /* ── 海報：置中縮小 ── */
+  /* ── 海報：置中放大、稍微上移 ── */
   #fixedPosterFrame{
-    width:clamp(204px,64vw,280px);
-    top:40%;
+    width:clamp(240px,82vw,340px);
+    top:35%;
     left:50%;
     transform:translate(-50%,-50%);
   }
 
-  /* ── 文字面板：緊貼海報下方、置中、字距內縮 ── */
+  /* ── 文字面板：緊貼海報下方（上移靠近）、置中、字距內縮 ── */
   #fixedTextPanel{
-    top:auto;
-    bottom:3%;
+    top:64%;
+    bottom:auto;
     left:50%;
     right:auto;
     transform:translateX(-50%);
-    width:88vw;
+    width:90vw;
     max-width:none;
     text-align:center;
   }
@@ -1559,9 +1568,36 @@ var PH_SHOWS = {
   zh: { 'footer.ph.email':'電子郵件' }
 };
 // ── Collapsible 說明 / description (per show) ──
+function _ensureNoteModal(){
+  if(document.getElementById('showNoteModal')) return;
+  var m=document.createElement('div'); m.id='showNoteModal'; m.className='snm-overlay';
+  m.innerHTML='<div class="snm-card"><button class="snm-close" type="button" aria-label="關閉">×</button><div class="snm-title" id="snmTitle">說明</div><div class="snm-body" id="snmBody"></div></div>';
+  document.body.appendChild(m);
+  m.addEventListener('click', function(e){ if(e.target===m) closeShowNoteModal(); });
+  m.querySelector('.snm-close').addEventListener('click', closeShowNoteModal);
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeShowNoteModal(); });
+}
+window.closeShowNoteModal = function(){
+  var m=document.getElementById('showNoteModal'); if(m) m.classList.remove('open');
+  document.body.style.overflow='';
+};
+window.openShowNoteModal = function(text, title){
+  _ensureNoteModal();
+  document.getElementById('snmBody').textContent = text||'';
+  document.getElementById('snmTitle').textContent = title || (_currentLang==='zh'?'說明':'About');
+  document.getElementById('showNoteModal').classList.add('open');
+  document.body.style.overflow='hidden';
+};
 window.toggleShowNote = function(btn){
   var wrap = btn.closest('.show-note-wrap'); if(!wrap) return;
   var note = wrap.querySelector('.show-note'); if(!note || !note.textContent.trim()) return;
+  // Mobile (≤700px): pop up a small description card. Desktop/tablet: inline expand.
+  if(window.innerWidth <= 700){
+    var slide = btn.closest('.ftp-slide');
+    var art = slide && slide.querySelector('.show-artist');
+    openShowNoteModal(note.textContent, art ? art.textContent.trim() : '');
+    return;
+  }
   var open = wrap.classList.toggle('open');   // CSS .open drives max-height/opacity
   var lbl = wrap.querySelector('.snt-label');
   if(lbl) lbl.textContent = open ? (_currentLang==='zh'?'收起':'Show less') : (_currentLang==='zh'?'瞭解更多':'Learn more');
