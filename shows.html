@@ -338,17 +338,22 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   .sh-hero-title{font-size:clamp(40px,13vw,66px);}
   .sh-hero-eyebrow{margin-bottom:14px;}
 
-  /* ── 海報：置中放大、稍微上移 ── */
+  /* ── 海報：置中。用 svh（小視窗高度，固定值）定位，海報與下方文字一起釘住，
+        不再因瀏覽器工具列收合／展開而各自位移、互相重疊。略縮尺寸，確保「海報＋
+        日期＋文字」在工具列出現時也塞得進可見高度（日期不被吃掉）。
+        top 先寫 % 給不支援 svh 的舊瀏覽器當後備，再用 svh 覆蓋。 ── */
   #fixedPosterFrame{
-    width:clamp(240px,82vw,340px);
-    top:35%;
+    width:clamp(220px,68vw,300px);
+    top:34%;
+    top:33svh;
     left:50%;
     transform:translate(-50%,-50%);
   }
 
-  /* ── 文字面板：緊貼海報下方（上移靠近）、置中、字距內縮 ── */
+  /* ── 文字面板：海報下方、置中。同樣用 svh 固定，與海報維持固定間距。 ── */
   #fixedTextPanel{
-    top:64%;
+    top:63%;
+    top:62svh;
     bottom:auto;
     left:50%;
     right:auto;
