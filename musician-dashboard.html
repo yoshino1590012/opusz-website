@@ -1291,6 +1291,17 @@
           </div>
 
           <div class="setting-section">
+            <div class="setting-head">📱 安裝手機 App</div>
+            <div style="padding:8px 0 4px;font-size:13.5px;color:var(--mid);line-height:1.75;">
+              把樂手後台加到手機主畫面，像 App 一樣一鍵開啟、保持登入、隨時查看訊息與檔期。
+              <div style="margin-top:16px;font-size:11px;font-weight:800;letter-spacing:.08em;color:#999;">IOS · SAFARI</div>
+              <div style="margin-top:5px;">① 用 <b>Safari</b> 開啟此後台頁面<br>② 點下方工具列的 <b>分享</b> 按鈕 <span style="opacity:.7;">（方框加向上箭頭）</span><br>③ 選「<b>加入主畫面</b>」</div>
+              <div style="margin-top:16px;font-size:11px;font-weight:800;letter-spacing:.08em;color:#999;">ANDROID · CHROME</div>
+              <div style="margin-top:5px;">① 用 <b>Chrome</b> 開啟此後台頁面<br>② 點右上角的 <b>選單</b> <span style="opacity:.7;">（三個點 ⋮）</span><br>③ 選「<b>安裝應用程式</b>」或「<b>新增至主畫面</b>」</div>
+            </div>
+          </div>
+
+          <div class="setting-section">
             <div class="setting-head">通知</div>
             <div class="setting-row">
               <div class="setting-info">
@@ -2094,7 +2105,13 @@
       const _qc = query(collection(db, 'conversations'), where('participants', 'array-contains', user.uid));
       onSnapshot(_qc, function(snap){
         var arr = [];
-        snap.forEach(function(d){ arr.push(Object.assign({ id:d.id }, d.data())); });
+        snap.forEach(function(d){
+          var c = Object.assign({ id:d.id }, d.data());
+          // Exclude musician↔musician community DMs — those belong in the community
+          // inbox, NOT this customer-inquiry page.
+          if (c.peer === true || c.kind === 'peer' || c.subject === '樂手私訊') return;
+          arr.push(c);
+        });
         arr.sort(function(a,b){ var ta=(a.updatedAt&&a.updatedAt.seconds)||0, tb=(b.updatedAt&&b.updatedAt.seconds)||0; return tb-ta; });
         window._fsConvos = arr;
         try { if (typeof window.renderInbox === 'function') window.renderInbox(); } catch(e){}

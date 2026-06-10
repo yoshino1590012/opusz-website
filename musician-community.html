@@ -1106,6 +1106,11 @@ body {
         <span class="channel-emoji">🙋</span>
         <span class="channel-name">我的主頁</span>
       </a></li>
+      <li><a href="#" id="myMessagesNav">
+        <span class="channel-emoji">💬</span>
+        <span class="channel-name">訊息</span>
+        <span class="channel-badge" id="dmBadge" style="display:none;margin-left:auto;background:#ef4444;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:1px 7px;">0</span>
+      </a></li>
     </ul>
 
     <div class="sidebar-divider"></div>
@@ -1124,15 +1129,6 @@ body {
         <span class="channel-name">宣傳你的音樂</span>
       </a></li>
     </ul>
-
-    <div class="sidebar-divider"></div>
-
-    <div class="sidebar-install-link" style="padding: 4px 10px;">
-      <a href="#" data-channel="install" id="installNavLink">
-        <span class="channel-emoji">📱</span>
-        <span class="channel-name">安裝手機App</span>
-      </a>
-    </div>
 
     <div class="sidebar-footer">
       OPUS.Z Community<br>
@@ -1963,6 +1959,14 @@ document.addEventListener('click', function(e){
     e.preventDefault();
     if (window.opuszMyUid && window.opuszOpenProfile) window.opuszOpenProfile(window.opuszMyUid);
     else showToast && showToast('請先登入');
+    return;
+  }
+  // "訊息" → open my chat inbox (all my musician chats)
+  var msgs = e.target.closest('#myMessagesNav');
+  if (msgs){
+    e.preventDefault();
+    if (window.opzOpenInbox) window.opzOpenInbox();
+    else showToast && showToast('請先登入');
   }
 });
 </script>
@@ -2148,7 +2152,12 @@ document.addEventListener('click', function(e){
     var bName = (b===meUid) ? meName : (other.name||'樂手');
     var myRole = (meUid === a) ? 'customer' : 'musician';   // just a slot; display uses senderUid
     MSG.startConversation({ customerUid:a, musicianUid:b, customerName:aName, musicianName:bName, subject:'樂手私訊' })
-      .then(function(convId){ openDMChat(convId, other.name||'樂手', myRole); })
+      .then(function(convId){
+        // Mark as a musician peer chat so the dashboard's customer-inquiry inbox
+        // excludes it (it belongs only in the community inbox).
+        try { updateDoc(doc(db,'conversations',convId), { peer:true, kind:'peer' }); } catch(e){}
+        openDMChat(convId, other.name||'樂手', myRole);
+      })
       .catch(function(e){ console.warn('[community DM] start failed', e); alert('無法開啟對話，請稍後再試'); });
   };
 
@@ -2175,6 +2184,8 @@ document.addEventListener('click', function(e){
       '</div>';
     document.body.appendChild(ov);
     document.getElementById('dmClose').onclick = closeDM;
+    // Opening the thread = I've read it → clear my unread counter for this conversation.
+    try { updateDoc(doc(db,'conversations',convId), myRole==='customer' ? {customerUnread:0} : {musicianUnread:0}); } catch(e){}
     var msgsEl = document.getElementById('dmMsgs');
     _dmUnsub = window.OPUSZ_MSG.listenMessages(convId, function(rows){
       if (!rows.length){ msgsEl.innerHTML = '<div style="margin:auto;color:#bbb;font-size:13px;">還沒有訊息，打聲招呼吧 👋</div>'; return; }
@@ -2195,6 +2206,75 @@ document.addEventListener('click', function(e){
     setTimeout(function(){ var i=document.getElementById('dmInput'); if(i) i.focus(); }, 50);
   }
 
+  // ── Inbox: all my chats with other musicians ──
+  function otherUidOf(r, meUid){ return (r.customerUid===meUid) ? r.musicianUid : r.customerUid; }
+  function myRoleIn(r, meUid){ return (r.customerUid===meUid) ? 'customer' : 'musician'; }
+  // A musician↔musician chat (not a customer inquiry). `peer` flag is the marker;
+  // subject fallback covers threads created before the flag existed.
+  function isPeer(r){ return r.peer === true || r.kind === 'peer' || r.subject === '樂手私訊'; }
+
+  window.opzOpenInbox = function(){
+    if (!window.opuszMyUid){ alert('請先登入音樂家帳號'); return; }
+    var MSG = window.OPUSZ_MSG;
+    if (!MSG){ document.addEventListener('opusz-msg-ready', function once(){ document.removeEventListener('opusz-msg-ready', once); window.opzOpenInbox(); }, { once:true }); return; }
+    var meUid = window.opuszMyUid;
+    var old = document.getElementById('commInboxOverlay'); if(old) old.remove();
+    var ov = document.createElement('div');
+    ov.id = 'commInboxOverlay';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:9050;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:24px 16px;';
+    var unsub = null;
+    var close = function(){ if(unsub){try{unsub();}catch(e){}} ov.remove(); };
+    ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+    ov.innerHTML =
+      '<div style="background:#fff;border-radius:18px;max-width:460px;width:100%;height:min(640px,86vh);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:inherit;">' +
+        '<div style="display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid #eee;">' +
+          '<div style="font-size:17px;font-weight:800;color:#111;">💬 訊息</div>' +
+          '<button id="inboxClose" style="margin-left:auto;background:#f1f1f1;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;color:#666;font-size:15px;">✕</button>' +
+        '</div>' +
+        '<div id="inboxList" style="flex:1;overflow-y:auto;"><div style="padding:40px;text-align:center;color:#bbb;font-size:13px;">載入中…</div></div>' +
+      '</div>';
+    document.body.appendChild(ov);
+    document.getElementById('inboxClose').onclick = close;
+    var listEl = document.getElementById('inboxList');
+    unsub = MSG.listConversations(meUid, function(rows){
+      var peers = rows.filter(isPeer);   // musician↔musician chats only
+      if (!peers.length){ listEl.innerHTML = '<div style="padding:40px;text-align:center;color:#bbb;font-size:13.5px;line-height:1.7;">還沒有任何對話。<br>到成員的主頁按「💬 傳訊息」開始聊天。</div>'; return; }
+      listEl.innerHTML = peers.map(function(r){
+        var ouid = otherUidOf(r, meUid);
+        var role = myRoleIn(r, meUid);
+        var oname = (role==='customer') ? (r.musicianName||'樂手') : (r.customerName||'樂手');
+        var mem = membersByUid[ouid] || {};
+        if (mem.name) oname = mem.name;
+        var unread = (role==='customer' ? r.customerUnread : r.musicianUnread) || 0;
+        var avatar = mem.avatarUrl
+          ? '<img src="'+esc(mem.avatarUrl)+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;object-position:'+(mem.avatarX!=null?mem.avatarX:50)+'% '+(mem.avatarY!=null?mem.avatarY:50)+'%;">'
+          : '<div style="width:44px;height:44px;border-radius:50%;background:'+(mem.color||'#888')+';color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;">'+esc(mem.initials||oname.charAt(0))+'</div>';
+        return '<div class="inbox-row" data-conv="'+esc(r.id)+'" data-role="'+role+'" data-name="'+esc(oname)+'" style="display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid #f3f3f3;cursor:pointer;">' +
+          avatar +
+          '<div style="flex:1;min-width:0;"><div style="font-weight:700;color:#111;font-size:14.5px;">'+esc(oname)+'</div>' +
+          '<div style="font-size:13px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(r.lastMessage||'（尚無訊息）')+'</div></div>' +
+          (unread ? '<div style="background:#ef4444;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:1px 7px;flex-shrink:0;">'+unread+'</div>' : '') +
+        '</div>';
+      }).join('');
+      Array.prototype.forEach.call(listEl.querySelectorAll('.inbox-row'), function(row){
+        row.onclick = function(){ close(); openDMChat(row.dataset.conv, row.dataset.name, row.dataset.role); };
+      });
+    });
+  };
+
+  // Sidebar unread badge: total unread across my musician chats (live).
+  function startInboxBadge(meUid){
+    if (!window.OPUSZ_MSG) return;
+    try {
+      window.OPUSZ_MSG.listConversations(meUid, function(rows){
+        var total = 0;
+        rows.forEach(function(r){ if(isPeer(r)){ total += (myRoleIn(r, meUid)==='customer' ? r.customerUnread : r.musicianUnread) || 0; } });
+        var b = document.getElementById('dmBadge');
+        if (b){ b.textContent = total; b.style.display = total>0 ? '' : 'none'; }
+      });
+    } catch(e){ console.warn('[community] inbox badge failed', e); }
+  }
+
   // ── Auth: identify the logged-in musician for authoring ──
   onAuthStateChanged(auth, async user => {
     if (user){
@@ -2204,6 +2284,9 @@ document.addEventListener('click', function(e){
         me = { uid:user.uid, name: m.name || user.email.split('@')[0], instrument: instrumentLabel(m) };
       }catch(e){ me = { uid:user.uid, name:(user.email||'樂手').split('@')[0], instrument:'樂手' }; }
       window.opuszMyUid = user.uid;   // lets "我的主頁" open my own profile
+      // live unread badge on the 訊息 sidebar item
+      if (window.OPUSZ_MSG) startInboxBadge(user.uid);
+      else document.addEventListener('opusz-msg-ready', function once(){ document.removeEventListener('opusz-msg-ready', once); if(window.opuszMyUid) startInboxBadge(window.opuszMyUid); }, { once:true });
     } else { me = null; window.opuszMyUid = null; }
   });
 
