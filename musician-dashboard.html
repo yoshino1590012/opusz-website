@@ -620,8 +620,9 @@
        field while the tour explains it. Only the popover re-enables clicks. */
     .tour-overlay{ position:fixed; inset:0; z-index:4000; display:none; pointer-events:none; }
     .tour-overlay.show{ display:block; }
-    /* Spotlight: a transparent box with a huge dark shadow dims everything else */
-    .tour-spot{ position:absolute; border-radius:12px; box-shadow:0 0 0 9999px rgba(10,10,14,.66); transition:all .3s cubic-bezier(.4,0,.2,1); pointer-events:none; }
+    /* Highlight: just a ring around the active field — no page dimming, so the
+       rest of the dashboard stays at normal brightness and fully usable. */
+    .tour-spot{ position:absolute; border-radius:10px; box-shadow:0 0 0 3px #1ab864, 0 0 0 6px rgba(26,184,100,.28); transition:all .3s cubic-bezier(.4,0,.2,1); pointer-events:none; }
     .tour-pop{ position:absolute; width:320px; max-width:calc(100vw - 32px); background:#fff; border-radius:14px; box-shadow:0 18px 60px rgba(0,0,0,.3); padding:20px 20px 16px; z-index:4001; transition:top .3s, left .3s; pointer-events:auto; }
     .tour-step{ font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:#1ab864; margin-bottom:8px; }
     .tour-title{ font-size:16px; font-weight:800; color:#111; margin:0 0 7px; letter-spacing:-.01em; }
