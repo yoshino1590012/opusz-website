@@ -377,13 +377,13 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 <div class="login-modal-overlay" id="loginModalOverlay">
   <div class="login-modal">
     <button class="login-modal-close" id="loginModalClose">✕</button>
-    <div class="login-modal-title" id="loginModalTitle">Customer Login</div>
-    <input class="login-modal-input" type="email" placeholder="Email" autocomplete="email"/>
-    <input class="login-modal-input" type="password" placeholder="Password" autocomplete="current-password"/>
-    <button class="login-modal-btn">Log in</button>
+    <div class="login-modal-title" id="loginModalTitle" data-i18n="page.customerLogin">Customer Login</div>
+    <input class="login-modal-input" type="email" placeholder="Email" autocomplete="email" data-i18n-ph="page.email"/>
+    <input class="login-modal-input" type="password" placeholder="Password" autocomplete="current-password" data-i18n-ph="page.password"/>
+    <button class="login-modal-btn" data-i18n="page.logIn">Log in</button>
     <div class="login-modal-footer">
-      <span>No account?</span>
-      <a href="musician-platform.html#contact">Sign up →</a>
+      <span data-i18n="page.noAccount">No account?</span>
+      <a href="musician-platform.html#contact" data-i18n="page.signUp">Sign up →</a>
     </div>
   </div>
 </div>
@@ -394,11 +394,11 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
   <div id="heroBgMedia" style="position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;"></div>
   <div class="hero-overlay"></div>
   <div class="hero-content">
-    <h1 class="hero-title" id="heroTitle">Find a Teacher</h1>
-    <p class="hero-sub" id="heroSub">Book one-on-one lessons with professional musicians. All levels welcome.</p>
+    <h1 class="hero-title" id="heroTitle" data-i18n="page.heroTitle">Find a Teacher</h1>
+    <p class="hero-sub" id="heroSub" data-i18n="page.heroSub">Book one-on-one lessons with professional musicians. All levels welcome.</p>
     <div class="hero-search-wrap">
-      <input class="hero-search" type="text" id="searchInput" placeholder="Search teachers...">
-      <button class="hero-search-btn" onclick="doSearch()" id="searchBtn">Search</button>
+      <input class="hero-search" type="text" id="searchInput" placeholder="Search teachers..." data-i18n-ph="page.searchPh">
+      <button class="hero-search-btn" onclick="doSearch()" id="searchBtn" data-i18n="page.searchBtn">Search</button>
     </div>
   </div>
 </section>
@@ -425,16 +425,16 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 
 <!-- INSTRUMENT FILTER PILLS -->
 <div class="inst-filter" id="instFilter">
-  <button class="inst-pill active" data-inst="" onclick="setInst(this,'')">All</button>
-  <button class="inst-pill" data-inst="Violin" onclick="setInst(this,'Violin')">Violin</button>
-  <button class="inst-pill" data-inst="Viola" onclick="setInst(this,'Viola')">Viola</button>
-  <button class="inst-pill" data-inst="Cello" onclick="setInst(this,'Cello')">Cello</button>
-  <button class="inst-pill" data-inst="Piano" onclick="setInst(this,'Piano')">Piano</button>
-  <button class="inst-pill" data-inst="Flute" onclick="setInst(this,'Flute')">Flute</button>
-  <button class="inst-pill" data-inst="Saxophone" onclick="setInst(this,'Saxophone')">Saxophone</button>
-  <button class="inst-pill" data-inst="Trumpet" onclick="setInst(this,'Trumpet')">Trumpet</button>
-  <button class="inst-pill" data-inst="Guitar" onclick="setInst(this,'Guitar')">Guitar</button>
-  <button class="inst-pill" data-inst="Voice" onclick="setInst(this,'Voice')">Voice</button>
+  <button class="inst-pill active" data-inst="" onclick="setInst(this,'')" data-i18n="page.inst.all">All</button>
+  <button class="inst-pill" data-inst="Violin" onclick="setInst(this,'Violin')" data-i18n="menu.violin">Violin</button>
+  <button class="inst-pill" data-inst="Viola" onclick="setInst(this,'Viola')" data-i18n="menu.viola">Viola</button>
+  <button class="inst-pill" data-inst="Cello" onclick="setInst(this,'Cello')" data-i18n="menu.cello">Cello</button>
+  <button class="inst-pill" data-inst="Piano" onclick="setInst(this,'Piano')" data-i18n="menu.piano">Piano</button>
+  <button class="inst-pill" data-inst="Flute" onclick="setInst(this,'Flute')" data-i18n="menu.flute">Flute</button>
+  <button class="inst-pill" data-inst="Saxophone" onclick="setInst(this,'Saxophone')" data-i18n="menu.saxophone">Saxophone</button>
+  <button class="inst-pill" data-inst="Trumpet" onclick="setInst(this,'Trumpet')" data-i18n="menu.trumpet">Trumpet</button>
+  <button class="inst-pill" data-inst="Guitar" onclick="setInst(this,'Guitar')" data-i18n="page.inst.guitar">Guitar</button>
+  <button class="inst-pill" data-inst="Voice" onclick="setInst(this,'Voice')" data-i18n="menu.voice">Voice</button>
   <div class="inst-divider"></div>
 
   <!-- Advanced filters (mirror the quiz; also editable directly) -->
@@ -484,7 +484,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
   <div class="musician-grid" id="musicianGrid"></div>
   <div class="no-results" id="noResults" style="display:none">
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-    <p id="noResultsText">No teachers found. Try a different instrument.</p>
+    <p id="noResultsText" data-i18n="page.noResults">No teachers found. Try a different instrument.</p>
   </div>
 </section>
 
@@ -492,18 +492,18 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 <div class="audio-bar" id="audioBar">
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
   <div><div class="audio-bar-name" id="audioBarName">—</div><div class="audio-bar-inst" id="audioBarInst">—</div></div>
-  <button class="audio-bar-stop" onclick="stopAudio()">■ Stop</button>
+  <button class="audio-bar-stop" onclick="stopAudio()" data-i18n="page.stop">■ Stop</button>
 </div>
 
 <!-- LOGIN REQUIRED MODAL -->
 <div class="login-modal-overlay" id="loginRequiredModal" style="display:none;align-items:center;justify-content:center;">
   <div class="login-modal" style="max-width:360px;text-align:center;padding:36px 32px 28px;">
     <div style="font-size:36px;margin-bottom:12px;">🔒</div>
-    <h3 id="lrTitle" style="font-size:18px;font-weight:700;margin-bottom:8px;">Login Required</h3>
-    <p id="lrDesc" style="font-size:14px;color:#666;margin-bottom:24px;line-height:1.6;">Please log in to save teachers to your favourites.</p>
+    <h3 id="lrTitle" style="font-size:18px;font-weight:700;margin-bottom:8px;" data-i18n="page.loginRequired">Login Required</h3>
+    <p id="lrDesc" style="font-size:14px;color:#666;margin-bottom:24px;line-height:1.6;" data-i18n="page.loginRequiredDesc">Please log in to save teachers to your favourites.</p>
     <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-      <a id="lrLoginBtn" href="musician-login.html" style="padding:11px 28px;background:#000;color:#fff;border-radius:50px;font-size:14px;font-weight:700;text-decoration:none;">Log in / Sign up</a>
-      <button onclick="document.getElementById('loginRequiredModal').style.display='none'" style="padding:11px 22px;background:#f0f0f0;color:#333;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;">Cancel</button>
+      <a id="lrLoginBtn" href="musician-login.html" style="padding:11px 28px;background:#000;color:#fff;border-radius:50px;font-size:14px;font-weight:700;text-decoration:none;" data-i18n="page.loginSignup">Log in / Sign up</a>
+      <button onclick="document.getElementById('loginRequiredModal').style.display='none'" style="padding:11px 22px;background:#f0f0f0;color:#333;border:none;border-radius:50px;font-size:14px;font-weight:600;cursor:pointer;" data-i18n="page.cancel">Cancel</button>
     </div>
   </div>
 </div>
@@ -512,7 +512,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 <div class="fav-modal-overlay" id="favModal">
   <div class="fav-modal">
     <div class="fav-modal-head">
-      <h3 id="favModalTitle">My Favourites</h3>
+      <h3 id="favModalTitle" data-i18n="page.myFavourites">My Favourites</h3>
       <button class="fav-modal-close" id="favModalClose">✕</button>
     </div>
     <div class="fav-modal-body" id="favModalBody"></div>
@@ -770,6 +770,10 @@ function updateQuizI18n(){
   document.querySelectorAll('[data-ql]').forEach(function(el){ el.textContent = t(el.getAttribute('data-ql')); });
   syncFilterUI();
   if(document.getElementById('quizOverlay').classList.contains('open')) renderQuizStep();
+  // Re-render JS-generated, language-aware content (cards, counts, fav modal)
+  if(typeof renderGrid === 'function') renderGrid();
+  var favM = document.getElementById('favModal');
+  if(favM && favM.classList.contains('open') && typeof renderFavModal === 'function') renderFavModal();
 }
 
 document.getElementById('fqBack').addEventListener('click', function(){ if(quizStep>0){ quizStep--; renderQuizStep(); } });
@@ -803,7 +807,9 @@ function renderGrid(){
   var list = getFiltered();
   var grid = document.getElementById('musicianGrid');
   var noRes = document.getElementById('noResults');
-  document.getElementById('filterCount').textContent = list.length + (list.length === 1 ? ' teacher' : ' teachers');
+  document.getElementById('filterCount').textContent = _currentLang==='zh'
+    ? (list.length + ' 位老師')
+    : (list.length + (list.length === 1 ? ' teacher' : ' teachers'));
 
   if(!list.length){
     grid.innerHTML=''; noRes.style.display='block'; return;
@@ -841,7 +847,7 @@ function renderGrid(){
           '<button class="mcard-heart'+(isFav?' active':'')+'" onclick="toggleFav(event,'+m.id+')" aria-label="Favourite" style="position:absolute;top:10px;right:10px;z-index:6;">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
           '</button>' +
-          '<span class="mcard-explore-photo">View Profile →</span>' +
+          '<span class="mcard-explore-photo">'+(_currentLang==='zh'?'查看檔案 →':'View Profile →')+'</span>' +
           '<button class="mcard-play-photo" onclick="togglePlay(event,'+m.id+')" title="Preview">'+playIcon+'</button>' +
         '</div>' +
       '</a>' +
@@ -851,7 +857,9 @@ function renderGrid(){
         '<div class="mcard-name">'+m.name+'</div>' +
         '<div class="mcard-instrument">'+m.instrument+'</div>' +
         '<div class="mcard-bio">'+m.bio+'</div>' +
-        '<div class="mcard-lesson-price"><span class="from">From </span>NT$'+m.lessonFrom.toLocaleString()+' / session</div>' +
+        '<div class="mcard-lesson-price">'+(_currentLang==='zh'
+            ? ('<span class="from">每堂 </span>NT$'+m.lessonFrom.toLocaleString()+' 起')
+            : ('<span class="from">From </span>NT$'+m.lessonFrom.toLocaleString()+' / session'))+'</div>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -878,7 +886,7 @@ function updateFavBtn(){
 }
 function renderFavModal(){
   var body=document.getElementById('favModalBody');
-  if(!favourites.length){body.innerHTML='<div class="fav-empty">No favourite teachers yet</div>';return;}
+  if(!favourites.length){body.innerHTML='<div class="fav-empty">'+(_currentLang==='zh'?'尚未收藏任何老師':'No favourite teachers yet')+'</div>';return;}
   body.innerHTML=favourites.map(function(id){
     var m=TEACHERS.find(function(x){return x.id===id;});if(!m)return'';
     return '<div class="fav-item"><div class="fav-thumb" style="background:linear-gradient(135deg,'+m.color+',#1a1a1a);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:20px;">'+m.emoji+'</div><div><div class="fav-name">'+m.name+'</div><div class="fav-inst">'+m.instrument+'</div></div></div>';
@@ -952,7 +960,19 @@ var I18N = {
     'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet',
     'menu.pianoquintet':'Piano Quintet','menu.all':'All','menu.allmusicians':'All Musicians',
     'menu.conductor':'Conductor','menu.tuner':'Tuner',
-    'login.customer':'Customer login','login.musician':'Musician login'
+    'login.customer':'Customer login','login.musician':'Musician login',
+    'page.heroTitle':'Find a Teacher',
+    'page.heroSub':'Book one-on-one lessons with professional musicians. All levels welcome.',
+    'page.searchPh':'Search teachers...','page.searchBtn':'Search',
+    'page.inst.all':'All','page.inst.guitar':'Guitar',
+    'page.noResults':'No teachers found. Try a different instrument.',
+    'page.stop':'■ Stop',
+    'page.customerLogin':'Customer Login','page.email':'Email','page.password':'Password',
+    'page.logIn':'Log in','page.noAccount':'No account?','page.signUp':'Sign up →',
+    'page.loginRequired':'Login Required',
+    'page.loginRequiredDesc':'Please log in to save teachers to your favourites.',
+    'page.loginSignup':'Log in / Sign up','page.cancel':'Cancel',
+    'page.myFavourites':'My Favourites'
   },
   zh: {
     'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
@@ -973,7 +993,19 @@ var I18N = {
     'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏',
     'menu.pianoquintet':'鋼琴五重奏','menu.all':'全部','menu.allmusicians':'所有音樂家',
     'menu.conductor':'指揮','menu.tuner':'調音師',
-    'login.customer':'客戶登入','login.musician':'音樂家登入'
+    'login.customer':'客戶登入','login.musician':'音樂家登入',
+    'page.heroTitle':'尋找音樂老師',
+    'page.heroSub':'與專業音樂家預約一對一課程，歡迎各程度學員。',
+    'page.searchPh':'搜尋老師…','page.searchBtn':'搜尋',
+    'page.inst.all':'全部','page.inst.guitar':'吉他',
+    'page.noResults':'找不到符合的老師，請嘗試其他樂器。',
+    'page.stop':'■ 停止',
+    'page.customerLogin':'客戶登入','page.email':'電子郵件','page.password':'密碼',
+    'page.logIn':'登入','page.noAccount':'還沒有帳號？','page.signUp':'註冊 →',
+    'page.loginRequired':'需要登入',
+    'page.loginRequiredDesc':'請先登入即可將老師加入收藏。',
+    'page.loginSignup':'登入 / 註冊','page.cancel':'取消',
+    'page.myFavourites':'我的收藏'
   }
 };
 var MENU_I18N = I18N;

@@ -410,13 +410,13 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 <div class="login-modal-overlay" id="loginModalOverlay">
   <div class="login-modal">
     <button class="login-modal-close" id="loginModalClose">✕</button>
-    <div class="login-modal-title" id="loginModalTitle">Customer Login</div>
-    <input class="login-modal-input" type="email" placeholder="Email" autocomplete="email"/>
-    <input class="login-modal-input" type="password" placeholder="Password" autocomplete="current-password"/>
-    <button class="login-modal-btn">Log in</button>
+    <div class="login-modal-title" id="loginModalTitle" data-i18n="login.title">Customer Login</div>
+    <input class="login-modal-input" id="loginEmailInput" type="email" placeholder="Email" autocomplete="email"/>
+    <input class="login-modal-input" id="loginPwInput" type="password" placeholder="Password" autocomplete="current-password"/>
+    <button class="login-modal-btn" data-i18n="login.btn">Log in</button>
     <div class="login-modal-footer">
-      <span>No account?</span>
-      <a href="musician-platform.html#contact">Sign up →</a>
+      <span data-i18n="login.noaccount">No account?</span>
+      <a href="musician-platform.html#contact" data-i18n="login.signup">Sign up →</a>
     </div>
   </div>
 </div>
@@ -429,9 +429,9 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
   <div class="hero-overlay"></div>
   <div class="hero-content">
     <div class="hero-breadcrumb">
-      <a href="musician-platform.html">Home</a>
+      <a href="musician-platform.html" data-i18n="crumb.home">Home</a>
       <span>›</span>
-      <a href="musicians.html">Musicians</a>
+      <a href="musicians.html" data-i18n="crumb.musicians">Musicians</a>
       <span>›</span>
       <span id="heroBreCat">All</span>
     </div>
@@ -457,12 +457,12 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
   </select>
   <select class="filter-select" id="filterStyle" onchange="applyFilters()">
     <option value="">All Styles</option>
-    <option value="Classical">Classical</option>
-    <option value="Jazz">Jazz</option>
-    <option value="Pop">Pop / Commercial</option>
-    <option value="Film">Film / TV Scoring</option>
-    <option value="Wedding">Wedding</option>
-    <option value="Contemporary">Contemporary</option>
+    <option value="Classical" data-i18n="style.classical">Classical</option>
+    <option value="Jazz" data-i18n="style.jazz">Jazz</option>
+    <option value="Pop" data-i18n="style.pop">Pop / Commercial</option>
+    <option value="Film" data-i18n="style.film">Film / TV Scoring</option>
+    <option value="Wedding" data-i18n="style.wedding">Wedding</option>
+    <option value="Contemporary" data-i18n="style.contemporary">Contemporary</option>
   </select>
   <div class="filter-sort">
     <select class="filter-select" id="filterSort" onchange="applyFilters()">
@@ -490,7 +490,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
     <div class="audio-bar-name" id="audioBarName">—</div>
     <div class="audio-bar-inst" id="audioBarInst">—</div>
   </div>
-  <button class="audio-bar-stop" onclick="stopAudio()">■ Stop</button>
+  <button class="audio-bar-stop" id="audioBarStopBtn" onclick="stopAudio()">■ Stop</button>
 </div>
 
 <!-- LOGIN REQUIRED MODAL -->
@@ -603,7 +603,16 @@ var MENU_I18N = {
     'menu.soprano':'Soprano','menu.mezzosoprano':'Mezzo-soprano','menu.tenor':'Tenor',
     'menu.baritone':'Baritone','menu.choral':'Choral','menu.conductor':'Conductor','menu.tuner':'Tuner',
     'menu.stringquartet':'String Quartet','menu.pianotrio':'Piano Trio','menu.stringtrio':'String Trio',
-    'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet','menu.pianoquintet':'Piano Quintet'
+    'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet','menu.pianoquintet':'Piano Quintet',
+    'crumb.home':'Home','crumb.musicians':'Musicians',
+    'style.classical':'Classical','style.jazz':'Jazz','style.pop':'Pop / Commercial',
+    'style.film':'Film / TV Scoring','style.wedding':'Wedding','style.contemporary':'Contemporary',
+    'login.title':'Customer Login','login.email':'Email','login.password':'Password',
+    'login.btn':'Log in','login.noaccount':'No account?','login.signup':'Sign up →',
+    'enq.tagline':'Describe your project and the musician will reply with a proposal',
+    'enq.help':'What can we help you with?','enq.subject':'e.g. Live performance for corporate event',
+    'enq.more':'Tell us more about your project:','enq.attach':'Attach file','enq.send':'SEND',
+    'enq.sent':'Enquiry sent!','enq.sentDesc':"We'll pass your message along and get back to you as soon as possible."
   },
   zh: {
     'nav.lessons':'音樂老師',
@@ -621,7 +630,16 @@ var MENU_I18N = {
     'menu.soprano':'女高音','menu.mezzosoprano':'次女高音','menu.tenor':'男高音',
     'menu.baritone':'男中音','menu.choral':'合唱','menu.conductor':'指揮','menu.tuner':'調音師',
     'menu.stringquartet':'弦樂四重奏','menu.pianotrio':'鋼琴三重奏','menu.stringtrio':'弦樂三重奏',
-    'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏','menu.pianoquintet':'鋼琴五重奏'
+    'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏','menu.pianoquintet':'鋼琴五重奏',
+    'crumb.home':'首頁','crumb.musicians':'音樂家',
+    'style.classical':'古典','style.jazz':'爵士','style.pop':'流行 / 商業',
+    'style.film':'電影 / 影視配樂','style.wedding':'婚禮','style.contemporary':'當代',
+    'login.title':'顧客登入','login.email':'電子郵件','login.password':'密碼',
+    'login.btn':'登入','login.noaccount':'還沒有帳號？','login.signup':'註冊 →',
+    'enq.tagline':'描述您的需求，音樂家將回覆專屬提案',
+    'enq.help':'有什麼能為您服務的？','enq.subject':'例如：企業活動現場演出',
+    'enq.more':'請詳述您的需求：','enq.attach':'附加檔案','enq.send':'送出',
+    'enq.sent':'需求已送出！','enq.sentDesc':'我們將為您轉達訊息，並盡快回覆您。'
   }
 };
 
@@ -646,6 +664,14 @@ function setLang(l){
   document.getElementById('filterCountry').options[1].text = l==='zh' ? '台灣' : 'Taiwan';
   document.getElementById('filterCountry').options[2].text = l==='zh' ? '美國' : 'USA';
   document.getElementById('filterStyle').options[0].text  = l==='zh' ? '所有風格' : 'All Styles';
+  var fSort = document.getElementById('filterSort');
+  fSort.options[0].text = l==='zh' ? '最受歡迎' : 'Most popular';
+  fSort.options[1].text = l==='zh' ? '評價最高' : 'Top rated';
+  fSort.options[2].text = l==='zh' ? '最新加入' : 'Newest';
+  var emailIn = document.getElementById('loginEmailInput'); if(emailIn) emailIn.placeholder = l==='zh' ? '電子郵件' : 'Email';
+  var pwIn = document.getElementById('loginPwInput'); if(pwIn) pwIn.placeholder = l==='zh' ? '密碼' : 'Password';
+  var audioStop = document.getElementById('audioBarStopBtn'); if(audioStop) audioStop.textContent = l==='zh' ? '■ 停止' : '■ Stop';
+  var enqSub = document.getElementById('enqSubject'); if(enqSub) enqSub.placeholder = l==='zh' ? '例如：企業活動現場演出' : 'e.g. Live performance for corporate event';
   applyFilterLabels();   // re-apply owner overrides after the default resets above
 }
 
@@ -841,8 +867,8 @@ function renderGrid(){
           '<button class="mcard-heart'+(isFav?' active':'')+'" onclick="toggleFav(event,\''+m.id+'\')" aria-label="Favourite" style="position:absolute;top:10px;right:10px;z-index:6;">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>' +
           '</button>' +
-          '<span class="mcard-explore-photo">Explore →</span>' +
-          (m.audioUrl ? '<button class="mcard-play-photo" onclick="togglePlay(event,\''+m.id+'\')" title="Preview">'+playIcon+'</button>' : '') +
+          '<span class="mcard-explore-photo">'+(currentLang==='zh'?'探索 →':'Explore →')+'</span>' +
+          (m.audioUrl ? '<button class="mcard-play-photo" onclick="togglePlay(event,\''+m.id+'\')" title="'+(currentLang==='zh'?'試聽':'Preview')+'">'+playIcon+'</button>' : '') +
         '</div>' +
       '</a>' +
       '<div class="mcard-body">' +
@@ -918,7 +944,7 @@ function renderFavModal(){
     return '<div class="fav-item" onclick="scrollToCard(\''+m.id+'\')">' +
       '<div class="fav-avatar" style="background:linear-gradient(135deg,'+m.color+',#1a1a1a);color:rgba(255,255,255,.15);">'+m.emoji+'</div>' +
       '<div class="fav-info"><div class="fav-name">'+m.name+'</div><div class="fav-inst">'+m.instrument+' · '+m.region+'</div></div>' +
-      '<button class="fav-remove" onclick="removeFav(event,\''+m.id+'\')" title="Remove">✕</button>' +
+      '<button class="fav-remove" onclick="removeFav(event,\''+m.id+'\')" title="'+(currentLang==='zh'?'移除':'Remove')+'">✕</button>' +
     '</div>';
   }).join('');
 }
@@ -1437,7 +1463,7 @@ window.addEventListener('load', applyAllSavedXYS);
     <div id="enqFormView">
       <div class="enq-header">
         <div class="enq-header-text">
-          <div class="enq-tagline" id="enqTagline">Describe your project and the musician will reply with a proposal</div>
+          <div class="enq-tagline" id="enqTagline" data-i18n="enq.tagline">Describe your project and the musician will reply with a proposal</div>
         </div>
         <button class="enq-close" onclick="closeEnquiryBtn()">✕</button>
       </div>
@@ -1445,28 +1471,28 @@ window.addEventListener('load', applyAllSavedXYS);
         <input type="hidden" name="form-name" value="enquiry" />
         <input type="hidden" name="musician" id="enqMusicianField" value="" />
         <div>
-          <div class="enq-label">What can we help you with?</div>
+          <div class="enq-label" data-i18n="enq.help">What can we help you with?</div>
           <input class="enq-input" type="text" name="subject" id="enqSubject" placeholder="e.g. Live performance for corporate event" required />
         </div>
         <div>
-          <div class="enq-label">Tell us more about your project:</div>
+          <div class="enq-label" data-i18n="enq.more">Tell us more about your project:</div>
           <textarea class="enq-textarea" name="message" id="enqMessage" required></textarea>
         </div>
         <div class="enq-actions">
           <label class="enq-file-label">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
-            Attach file
+            <span data-i18n="enq.attach">Attach file</span>
             <input type="file" class="enq-file-input" name="attachment" />
           </label>
-          <button type="submit" class="enq-send-btn">SEND</button>
+          <button type="submit" class="enq-send-btn" data-i18n="enq.send">SEND</button>
         </div>
       </form>
     </div>
     <!-- Success view -->
     <div class="enq-success" id="enqSuccess">
       <div class="enq-success-icon">✓</div>
-      <h3>Enquiry sent!</h3>
-      <p>We'll pass your message along and get back to you as soon as possible.</p>
+      <h3 data-i18n="enq.sent">Enquiry sent!</h3>
+      <p data-i18n="enq.sentDesc">We'll pass your message along and get back to you as soon as possible.</p>
     </div>
   </div>
 </div>
@@ -1477,8 +1503,9 @@ function openEnquiry(e, id) {
   e.stopPropagation();
   var m = MUSICIANS.find(function(x){ return x.id === id; });
   if (!m) return;
-  document.getElementById('enqTagline').textContent =
-    'Describe your project and ' + m.name + ' will reply with a proposal';
+  document.getElementById('enqTagline').textContent = currentLang==='zh'
+    ? '描述您的需求，' + m.name + ' 將回覆專屬提案'
+    : 'Describe your project and ' + m.name + ' will reply with a proposal';
   document.getElementById('enqMusicianField').value = m.name;
   document.getElementById('enqMessage').value = 'HI ' + m.name.split(' ')[0].toUpperCase() + ',\n\n';
   // reset state

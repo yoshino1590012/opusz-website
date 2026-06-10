@@ -453,13 +453,13 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 <div class="login-modal-overlay" id="loginModalOverlay">
   <div class="login-modal">
     <button class="login-modal-close" id="loginModalClose">✕</button>
-    <div class="login-modal-title" id="loginModalTitle">Customer Login</div>
-    <input class="login-modal-input" type="email" placeholder="Email" autocomplete="email"/>
-    <input class="login-modal-input" type="password" placeholder="Password" autocomplete="current-password"/>
-    <button class="login-modal-btn">Log in</button>
+    <div class="login-modal-title" id="loginModalTitle" data-i18n="login.title">Customer Login</div>
+    <input class="login-modal-input" type="email" placeholder="Email" autocomplete="email" data-i18n-ph="login.ph.email"/>
+    <input class="login-modal-input" type="password" placeholder="Password" autocomplete="current-password" data-i18n-ph="login.ph.password"/>
+    <button class="login-modal-btn" data-i18n="login.btn">Log in</button>
     <div class="login-modal-footer">
-      <span>No account?</span>
-      <a href="musician-platform.html#contact">Sign up →</a>
+      <span data-i18n="login.noaccount">No account?</span>
+      <a href="musician-platform.html#contact" data-i18n="login.signup">Sign up →</a>
     </div>
   </div>
 </div>
@@ -502,7 +502,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
         <div class="rj-review-meta">範例 / Example</div>
         <div class="rj-review-collab">
           <div class="rj-review-avatar" style="background:linear-gradient(135deg,#667eea,#764ba2);">OZ</div>
-          <div class="rj-review-collab-text"><strong>客戶</strong> worked with<br><strong>OPUS.Z 音樂家</strong></div>
+          <div class="rj-review-collab-text"><strong>客戶</strong> <span data-i18n="jobs.review.workedwith">worked with</span><br><strong>OPUS.Z 音樂家</strong></div>
         </div>
       </div>
     </div>
@@ -513,7 +513,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
       <!-- Single example card. Real posted commissions are prepended ABOVE this. -->
       <div class="rj-card rj-demo">
         <span class="rj-type-badge">範例 / Example</span>
-        <div class="rj-instr-pill">Violin</div>
+        <div class="rj-instr-pill" data-i18n="jobs.demo.instr">Violin</div>
         <div class="rj-card-title">這是「公開委托」範例卡片 — 客戶按「Post a Job」貼出的委托，會像這樣自動顯示在這裡（最新的排最上面）。</div>
         <div class="rj-card-meta">
           <div class="rj-meta-row"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13S3 17 3 10a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>地點 / Location</div>
@@ -532,54 +532,54 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 
     <!-- Sign-Up view (default) -->
     <div id="pjAuthSignup">
-      <div class="pj-auth-eyebrow">OPUS.Z — Job Board</div>
-      <div class="pj-auth-title">Create a free account</div>
-      <div class="pj-auth-sub">Sign up to post projects and connect with musicians.</div>
+      <div class="pj-auth-eyebrow">OPUS.Z — <span data-i18n="jobs.eyebrow.board">Job Board</span></div>
+      <div class="pj-auth-title" data-i18n="auth.signup.title">Create a free account</div>
+      <div class="pj-auth-sub" data-i18n="auth.signup.sub">Sign up to post projects and connect with musicians.</div>
       <button class="pj-google-btn" type="button" data-google>
         <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-2.1 14.1-5.5l-6.5-5.5C29.6 34.5 26.9 35.5 24 35.5c-5.2 0-9.6-3.3-11.2-7.9l-6.6 5.1C9.6 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.5l6.5 5.5C40.8 35.7 44 30.4 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>
-        <span>Continue with Google</span>
+        <span data-i18n="auth.google">Continue with Google</span>
       </button>
-      <div class="pj-or"><span>or</span></div>
+      <div class="pj-or"><span data-i18n="auth.or">or</span></div>
       <div class="pj-auth-fields">
         <div class="pj-auth-field">
-          <div class="pj-auth-label">Full Name</div>
-          <input class="pj-auth-input" id="authSignupName" type="text" placeholder="Your name" autocomplete="name" />
+          <div class="pj-auth-label" data-i18n="auth.fullname">Full Name</div>
+          <input class="pj-auth-input" id="authSignupName" type="text" placeholder="Your name" autocomplete="name" data-i18n-ph="auth.ph.yourname" />
         </div>
         <div class="pj-auth-field">
-          <div class="pj-auth-label">Email</div>
+          <div class="pj-auth-label" data-i18n="auth.email">Email</div>
           <input class="pj-auth-input" id="authSignupEmail" type="email" placeholder="your@email.com" autocomplete="email" />
         </div>
         <div class="pj-auth-field">
-          <div class="pj-auth-label">Password</div>
-          <input class="pj-auth-input" id="authSignupPwd" type="password" placeholder="Create a password" autocomplete="new-password" />
+          <div class="pj-auth-label" data-i18n="auth.password">Password</div>
+          <input class="pj-auth-input" id="authSignupPwd" type="password" placeholder="Create a password" autocomplete="new-password" data-i18n-ph="auth.ph.createpwd" />
         </div>
       </div>
-      <button class="pj-auth-btn" id="pjSignupBtn">Sign Up &amp; Continue →</button>
-      <div class="pj-auth-switch">Already have an account? <a id="switchToLogin">Sign in</a></div>
+      <button class="pj-auth-btn" id="pjSignupBtn" data-i18n="auth.signup.btn">Sign Up &amp; Continue →</button>
+      <div class="pj-auth-switch"><span data-i18n="auth.haveaccount">Already have an account?</span> <a id="switchToLogin" data-i18n="auth.signin.link">Sign in</a></div>
     </div>
 
     <!-- Sign-In view (hidden) -->
     <div id="pjAuthLogin" style="display:none;">
-      <div class="pj-auth-eyebrow">OPUS.Z — Job Board</div>
-      <div class="pj-auth-title">Welcome back</div>
-      <div class="pj-auth-sub">Sign in to post your project.</div>
+      <div class="pj-auth-eyebrow">OPUS.Z — <span data-i18n="jobs.eyebrow.board">Job Board</span></div>
+      <div class="pj-auth-title" data-i18n="auth.login.title">Welcome back</div>
+      <div class="pj-auth-sub" data-i18n="auth.login.sub">Sign in to post your project.</div>
       <button class="pj-google-btn" type="button" data-google>
         <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6.1 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.3-.4-3.5z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.6 6.1 29.6 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.5 0 10.4-2.1 14.1-5.5l-6.5-5.5C29.6 34.5 26.9 35.5 24 35.5c-5.2 0-9.6-3.3-11.2-7.9l-6.6 5.1C9.6 39.6 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.5l6.5 5.5C40.8 35.7 44 30.4 44 24c0-1.3-.1-2.3-.4-3.5z"/></svg>
-        <span>Continue with Google</span>
+        <span data-i18n="auth.google">Continue with Google</span>
       </button>
-      <div class="pj-or"><span>or</span></div>
+      <div class="pj-or"><span data-i18n="auth.or">or</span></div>
       <div class="pj-auth-fields">
         <div class="pj-auth-field">
-          <div class="pj-auth-label">Email</div>
+          <div class="pj-auth-label" data-i18n="auth.email">Email</div>
           <input class="pj-auth-input" id="authLoginEmail" type="email" placeholder="your@email.com" autocomplete="email" />
         </div>
         <div class="pj-auth-field">
-          <div class="pj-auth-label">Password</div>
-          <input class="pj-auth-input" id="authLoginPwd" type="password" placeholder="Your password" autocomplete="current-password" />
+          <div class="pj-auth-label" data-i18n="auth.password">Password</div>
+          <input class="pj-auth-input" id="authLoginPwd" type="password" placeholder="Your password" autocomplete="current-password" data-i18n-ph="auth.ph.yourpwd" />
         </div>
       </div>
-      <button class="pj-auth-btn" id="pjLoginBtn">Sign In &amp; Continue →</button>
-      <div class="pj-auth-switch">No account yet? <a id="switchToSignup">Create one</a></div>
+      <button class="pj-auth-btn" id="pjLoginBtn" data-i18n="auth.login.btn">Sign In &amp; Continue →</button>
+      <div class="pj-auth-switch"><span data-i18n="auth.noaccount">No account yet?</span> <a id="switchToSignup" data-i18n="auth.createone">Create one</a></div>
     </div>
   </div>
 </div>
@@ -589,23 +589,23 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
   <div class="pj-modal">
     <div class="pj-modal-head">
       <div>
-        <div class="pj-eyebrow">OPUS.Z — Job Board</div>
-        <div class="pj-title">Post a Project</div>
+        <div class="pj-eyebrow">OPUS.Z — <span data-i18n="jobs.eyebrow.board">Job Board</span></div>
+        <div class="pj-title" data-i18n="pj.title">Post a Project</div>
       </div>
       <button class="pj-close" id="pjClose">✕</button>
     </div>
     <div class="pj-body">
 
       <!-- Event type -->
-      <div class="pj-section-label" style="margin-top:4px;">What's the occasion?</div>
+      <div class="pj-section-label" style="margin-top:4px;" data-i18n="pj.occasion">What's the occasion?</div>
       <div class="pj-type-pills">
-        <button class="pj-pill" data-type="wedding">Wedding</button>
-        <button class="pj-pill" data-type="corporate">Corporate Event</button>
-        <button class="pj-pill" data-type="recording">Recording Session</button>
-        <button class="pj-pill" data-type="concert">Concert / Performance</button>
-        <button class="pj-pill" data-type="masterclass">Masterclass</button>
-        <button class="pj-pill" data-type="private">Private Event</button>
-        <button class="pj-pill" data-type="other">Other</button>
+        <button class="pj-pill" data-type="wedding" data-i18n="pj.type.wedding">Wedding</button>
+        <button class="pj-pill" data-type="corporate" data-i18n="pj.type.corporate">Corporate Event</button>
+        <button class="pj-pill" data-type="recording" data-i18n="pj.type.recording">Recording Session</button>
+        <button class="pj-pill" data-type="concert" data-i18n="pj.type.concert">Concert / Performance</button>
+        <button class="pj-pill" data-type="masterclass" data-i18n="pj.type.masterclass">Masterclass</button>
+        <button class="pj-pill" data-type="private" data-i18n="pj.type.private">Private Event</button>
+        <button class="pj-pill" data-type="other" data-i18n="pj.type.other">Other</button>
       </div>
 
       <!-- Fields -->
@@ -613,50 +613,50 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
         <!-- Row 1: Event Date + Event Time (native pickers) -->
         <div class="pj-row">
           <div class="pj-field">
-            <div class="pj-label">Event Date</div>
+            <div class="pj-label" data-i18n="pj.eventdate">Event Date</div>
             <input id="pjDate" class="pj-input" type="date" />
           </div>
           <div class="pj-field">
-            <div class="pj-label">Event Time</div>
+            <div class="pj-label" data-i18n="pj.eventtime">Event Time</div>
             <input id="pjTime" class="pj-input" type="time" />
           </div>
         </div>
         <!-- Row 2: Location + Duration -->
         <div class="pj-row">
           <div class="pj-field">
-            <div class="pj-label">Location</div>
-            <input id="pjLocation" class="pj-input" type="text" placeholder="e.g. Taipei, Grand Ballroom" />
+            <div class="pj-label" data-i18n="pj.location">Location</div>
+            <input id="pjLocation" class="pj-input" type="text" placeholder="e.g. Taipei, Grand Ballroom" data-i18n-ph="pj.ph.location" />
           </div>
           <div class="pj-field">
-            <div class="pj-label">Duration</div>
-            <input id="pjDuration" class="pj-input" type="text" placeholder="e.g. 2 hours, half day" />
+            <div class="pj-label" data-i18n="pj.duration">Duration</div>
+            <input id="pjDuration" class="pj-input" type="text" placeholder="e.g. 2 hours, half day" data-i18n-ph="pj.ph.duration" />
           </div>
         </div>
         <!-- Ensemble -->
         <div class="pj-field">
-          <div class="pj-label">Desired Ensemble / Instrumentation</div>
-          <input id="pjEnsemble" class="pj-input" type="text" placeholder="e.g. String Quartet, Solo Piano" />
+          <div class="pj-label" data-i18n="pj.ensemble">Desired Ensemble / Instrumentation</div>
+          <input id="pjEnsemble" class="pj-input" type="text" placeholder="e.g. String Quartet, Solo Piano" data-i18n-ph="pj.ph.ensemble" />
         </div>
         <!-- Description -->
         <div class="pj-field">
-          <div class="pj-label">Tell us about the project</div>
-          <textarea id="pjDesc" class="pj-textarea" placeholder="Describe the event, repertoire style, atmosphere, or any special requirements…"></textarea>
+          <div class="pj-label" data-i18n="pj.desc">Tell us about the project</div>
+          <textarea id="pjDesc" class="pj-textarea" placeholder="Describe the event, repertoire style, atmosphere, or any special requirements…" data-i18n-ph="pj.ph.desc"></textarea>
         </div>
         <!-- Row 3: Name + Email -->
         <div class="pj-row">
           <div class="pj-field">
-            <div class="pj-label">Your Name</div>
-            <input id="pjName" class="pj-input" type="text" placeholder="Full name" />
+            <div class="pj-label" data-i18n="pj.yourname">Your Name</div>
+            <input id="pjName" class="pj-input" type="text" placeholder="Full name" data-i18n-ph="pj.ph.fullname" />
           </div>
           <div class="pj-field">
-            <div class="pj-label">Email</div>
+            <div class="pj-label" data-i18n="auth.email">Email</div>
             <input id="pjEmail" class="pj-input" type="email" placeholder="your@email.com" />
           </div>
         </div>
       </div>
 
-      <button class="pj-submit" id="pjSubmit">Find Musicians →</button>
-      <div class="pj-note">We'll match you with available musicians within 24 hours.</div>
+      <button class="pj-submit" id="pjSubmit" data-i18n="pj.submit">Find Musicians →</button>
+      <div class="pj-note" data-i18n="pj.note">We'll match you with available musicians within 24 hours.</div>
 
     </div>
   </div>
@@ -733,7 +733,7 @@ var pjSignupBtn = document.getElementById('pjSignupBtn');
 if (pjSignupBtn) pjSignupBtn.addEventListener('click', function() {
   var email = document.getElementById('authSignupEmail').value.trim();
   var name  = document.getElementById('authSignupName').value.trim();
-  if (!name || !email) { pjSignupBtn.textContent = 'Please fill in name & email'; setTimeout(function(){ pjSignupBtn.textContent = 'Sign Up & Continue →'; }, 2000); return; }
+  if (!name || !email) { pjSignupBtn.textContent = (_currentLang==='zh') ? '請填寫姓名與電子郵件' : 'Please fill in name & email'; setTimeout(function(){ pjSignupBtn.textContent = (_currentLang==='zh') ? '註冊並繼續 →' : 'Sign Up & Continue →'; }, 2000); return; }
   localStorage.setItem(SESSION_KEY, JSON.stringify({ name: name, email: email }));
   closeAuthGate();
   openPjModal();
@@ -743,7 +743,7 @@ if (pjSignupBtn) pjSignupBtn.addEventListener('click', function() {
 var pjLoginBtn = document.getElementById('pjLoginBtn');
 if (pjLoginBtn) pjLoginBtn.addEventListener('click', function() {
   var email = document.getElementById('authLoginEmail').value.trim();
-  if (!email) { pjLoginBtn.textContent = 'Please enter your email'; setTimeout(function(){ pjLoginBtn.textContent = 'Sign In & Continue →'; }, 2000); return; }
+  if (!email) { pjLoginBtn.textContent = (_currentLang==='zh') ? '請輸入電子郵件' : 'Please enter your email'; setTimeout(function(){ pjLoginBtn.textContent = (_currentLang==='zh') ? '登入並繼續 →' : 'Sign In & Continue →'; }, 2000); return; }
   localStorage.setItem(SESSION_KEY, JSON.stringify({ email: email }));
   closeAuthGate();
   openPjModal();
@@ -812,14 +812,14 @@ if (pjSubmit) pjSubmit.addEventListener('click', async function() {
     document.querySelectorAll('.pj-pill').forEach(function(p){ p.classList.remove('active'); });
     setTimeout(function() {
       closePjModal();
-      pjSubmit.textContent = 'Find Musicians →'; pjSubmit.style.background = ''; pjSubmit.disabled = false;
+      pjSubmit.textContent = (_currentLang==='zh') ? '尋找音樂家 →' : 'Find Musicians →'; pjSubmit.style.background = ''; pjSubmit.disabled = false;
     }, 1800);
   } catch (e) {
     console.warn('[jobs] save failed:', e && (e.code || e.message));
     pjSubmit.textContent = (_currentLang === 'zh') ? '送出失敗，請稍後再試' : 'Could not send — try again';
     pjSubmit.style.background = '#b91c1c';
     setTimeout(function() {
-      pjSubmit.textContent = 'Find Musicians →'; pjSubmit.style.background = ''; pjSubmit.disabled = false;
+      pjSubmit.textContent = (_currentLang==='zh') ? '尋找音樂家 →' : 'Find Musicians →'; pjSubmit.style.background = ''; pjSubmit.disabled = false;
     }, 2600);
   }
 });
@@ -871,7 +871,28 @@ var I18N = {
     'jobs.card7.title':'Flute, Oboe & Clarinet — Gallery Opening',
     'jobs.card7.desc':'Art gallery seeks a wind trio for a 90-min opening night performance. Contemporary and classical mix. Outdoor-capable a plus.',
     'jobs.card8.title':'Acoustic Guitar — Singer-Songwriter EP',
-    'jobs.card8.desc':'Indie folk artist needs a fingerstyle guitarist for a 5-track EP. Warm, intimate tone. Reference: Iron & Wine, Nick Drake style.'
+    'jobs.card8.desc':'Indie folk artist needs a fingerstyle guitarist for a 5-track EP. Warm, intimate tone. Reference: Iron & Wine, Nick Drake style.',
+    'login.title':'Customer Login','login.btn':'Log in','login.noaccount':'No account?','login.signup':'Sign up →',
+    'login.ph.email':'Email','login.ph.password':'Password',
+    'jobs.eyebrow.board':'Job Board','jobs.review.workedwith':'worked with','jobs.demo.instr':'Violin',
+    'auth.signup.title':'Create a free account','auth.signup.sub':'Sign up to post projects and connect with musicians.',
+    'auth.login.title':'Welcome back','auth.login.sub':'Sign in to post your project.',
+    'auth.google':'Continue with Google','auth.or':'or',
+    'auth.fullname':'Full Name','auth.email':'Email','auth.password':'Password',
+    'auth.ph.yourname':'Your name','auth.ph.createpwd':'Create a password','auth.ph.yourpwd':'Your password',
+    'auth.signup.btn':'Sign Up & Continue →','auth.login.btn':'Sign In & Continue →',
+    'auth.haveaccount':'Already have an account?','auth.signin.link':'Sign in',
+    'auth.noaccount':'No account yet?','auth.createone':'Create one',
+    'pj.title':'Post a Project','pj.occasion':'What’s the occasion?',
+    'pj.type.wedding':'Wedding','pj.type.corporate':'Corporate Event','pj.type.recording':'Recording Session',
+    'pj.type.concert':'Concert / Performance','pj.type.masterclass':'Masterclass','pj.type.private':'Private Event','pj.type.other':'Other',
+    'pj.eventdate':'Event Date','pj.eventtime':'Event Time','pj.location':'Location','pj.duration':'Duration',
+    'pj.ensemble':'Desired Ensemble / Instrumentation','pj.desc':'Tell us about the project','pj.yourname':'Your Name',
+    'pj.ph.location':'e.g. Taipei, Grand Ballroom','pj.ph.duration':'e.g. 2 hours, half day',
+    'pj.ph.ensemble':'e.g. String Quartet, Solo Piano',
+    'pj.ph.desc':'Describe the event, repertoire style, atmosphere, or any special requirements…',
+    'pj.ph.fullname':'Full name',
+    'pj.submit':'Find Musicians →','pj.note':'We’ll match you with available musicians within 24 hours.'
   },
   zh: {
     'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
@@ -917,7 +938,28 @@ var I18N = {
     'jobs.card7.title':'長笛、雙簧管與單簧管三重奏 — 藝廊開幕',
     'jobs.card7.desc':'藝廊徵求木管三重奏，演出 90 分鐘開幕夜表演，曲目涵蓋當代與古典，可戶外演出者尤佳。',
     'jobs.card8.title':'木吉他 — 創作歌手 EP',
-    'jobs.card8.desc':'獨立民謠歌手徵求指彈吉他手，錄製 5 首 EP，音色溫暖細膩，參考風格：Iron & Wine、Nick Drake。'
+    'jobs.card8.desc':'獨立民謠歌手徵求指彈吉他手，錄製 5 首 EP，音色溫暖細膩，參考風格：Iron & Wine、Nick Drake。',
+    'login.title':'客戶登入','login.btn':'登入','login.noaccount':'還沒有帳號？','login.signup':'註冊 →',
+    'login.ph.email':'電子郵件','login.ph.password':'密碼',
+    'jobs.eyebrow.board':'委託專區','jobs.review.workedwith':'合作對象','jobs.demo.instr':'小提琴',
+    'auth.signup.title':'建立免費帳號','auth.signup.sub':'註冊即可發布委託，與音樂家媒合。',
+    'auth.login.title':'歡迎回來','auth.login.sub':'登入以發布您的委託。',
+    'auth.google':'使用 Google 繼續','auth.or':'或',
+    'auth.fullname':'姓名','auth.email':'電子郵件','auth.password':'密碼',
+    'auth.ph.yourname':'您的姓名','auth.ph.createpwd':'設定密碼','auth.ph.yourpwd':'您的密碼',
+    'auth.signup.btn':'註冊並繼續 →','auth.login.btn':'登入並繼續 →',
+    'auth.haveaccount':'已經有帳號了？','auth.signin.link':'登入',
+    'auth.noaccount':'還沒有帳號？','auth.createone':'立即建立',
+    'pj.title':'發布委託','pj.occasion':'這是什麼場合？',
+    'pj.type.wedding':'婚禮','pj.type.corporate':'企業活動','pj.type.recording':'錄音工作',
+    'pj.type.concert':'音樂會 / 演出','pj.type.masterclass':'大師班','pj.type.private':'私人活動','pj.type.other':'其他',
+    'pj.eventdate':'活動日期','pj.eventtime':'活動時間','pj.location':'地點','pj.duration':'時長',
+    'pj.ensemble':'期望編制 / 樂器組合','pj.desc':'告訴我們您的委託內容','pj.yourname':'您的姓名',
+    'pj.ph.location':'例如：台北、宴會大廳','pj.ph.duration':'例如：2 小時、半天',
+    'pj.ph.ensemble':'例如：弦樂四重奏、鋼琴獨奏',
+    'pj.ph.desc':'描述活動內容、曲目風格、氛圍或任何特殊需求…',
+    'pj.ph.fullname':'全名',
+    'pj.submit':'尋找音樂家 →','pj.note':'我們會在 24 小時內為您媒合可接案的音樂家。'
   }
 };
 
@@ -1107,11 +1149,12 @@ document.querySelectorAll('[data-google]').forEach(function(btn){
     function timeAgo(iso){
       if(!iso) return '';
       const t = Date.parse(iso); if(isNaN(t)) return '';
+      const zh = (window._currentLang === 'zh');
       const s = Math.floor((Date.now()-t)/1000);
-      if(s<60) return 'Posted just now';
-      const m=Math.floor(s/60); if(m<60) return 'Posted '+m+' min ago';
-      const h=Math.floor(m/60); if(h<24) return 'Posted '+h+'h ago';
-      return 'Posted '+Math.floor(h/24)+'d ago';
+      if(s<60) return zh ? '剛剛發布' : 'Posted just now';
+      const m=Math.floor(s/60); if(m<60) return zh ? ('發布於 '+m+' 分鐘前') : ('Posted '+m+' min ago');
+      const h=Math.floor(m/60); if(h<24) return zh ? ('發布於 '+h+' 小時前') : ('Posted '+h+'h ago');
+      return zh ? ('發布於 '+Math.floor(h/24)+' 天前') : ('Posted '+Math.floor(h/24)+'d ago');
     }
     function jobCard(j){
       const dateStr = j.eventDate ? (j.eventDate + (j.eventTime ? ' · '+j.eventTime : '')) : '';
@@ -1121,7 +1164,7 @@ document.querySelectorAll('[data-google]').forEach(function(btn){
       const ago = timeAgo(j.createdAt);
       if(ago) rows.push('<div class="rj-meta-row" style="opacity:.55;">'+esc(ago)+'</div>');
       return '<div class="rj-card rj-real" data-type="'+esc(j.type||'')+'">'
-        + '<span class="rj-type-badge">'+esc(j.type||'Job')+'</span>'
+        + '<span class="rj-type-badge">'+esc(j.type||(window._currentLang==='zh'?'委託':'Job'))+'</span>'
         + '<div class="rj-instr-pill">'+esc(j.ensemble||'—')+'</div>'
         + (j.desc ? '<div class="rj-card-title">'+esc(j.desc)+'</div>' : '')
         + '<div class="rj-card-meta">'+rows.join('')+'</div>'

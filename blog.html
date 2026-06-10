@@ -670,21 +670,21 @@
     <a class="mag-mini" href="#">
       <div class="mag-mini__img"><div class="mag-mini__img-inner c4" data-photo-id="mini-1"></div></div>
       <div class="mag-mini__body">
-        <div class="mag-mini__tag">Tips · Nov 2025</div>
+        <div class="mag-mini__tag" data-i18n="blog.mini1.tag">Tips · Nov 2025</div>
         <div class="mag-mini__title">The power of authenticity in modern music branding</div>
       </div>
     </a>
     <a class="mag-mini" href="#">
       <div class="mag-mini__img"><div class="mag-mini__img-inner c5" data-photo-id="mini-2"></div></div>
       <div class="mag-mini__body">
-        <div class="mag-mini__tag">Industry · Jul 2025</div>
+        <div class="mag-mini__tag" data-i18n="blog.mini2.tag">Industry · Jul 2025</div>
         <div class="mag-mini__title">From bedroom producer to booked artist: building momentum</div>
       </div>
     </a>
     <a class="mag-mini" href="#">
       <div class="mag-mini__img"><div class="mag-mini__img-inner c6" data-photo-id="mini-3"></div></div>
       <div class="mag-mini__body">
-        <div class="mag-mini__tag">Tips · May 2025</div>
+        <div class="mag-mini__tag" data-i18n="blog.mini3.tag">Tips · May 2025</div>
         <div class="mag-mini__title">Why great artists are discovered through clarity, not volume</div>
       </div>
     </a>
@@ -720,7 +720,7 @@
       <div class="home-breaker__headline">
         OPUS.Z 不只是<br>一個平台——<br>我們正在<br><em>重新定義</em><br>一切。
       </div>
-      <div class="home-breaker__body">
+      <div class="home-breaker__body" data-i18n="blog.breaker.body">
         We are a platform that commissions and connects real classical musicians with the opportunities they deserve — live performances, session work, corporate events, and artist branding. We want every engagement to be meaningful, precise, and built to last. The classical music world has always needed this infrastructure. We are building it.
       </div>
     </div>
@@ -758,25 +758,25 @@
     <div class="mag-small__img"><div class="mag-small__img-inner c7"></div></div>
     <div class="mag-small__tag" data-i18n="blog.tag.industry">Industry</div>
     <h3 class="mag-small__title">Designing your artist profile that books gigs and scales</h3>
-    <div class="mag-small__date">Apr 10, 2025</div>
+    <div class="mag-small__date" data-i18n="blog.date1">Apr 10, 2025</div>
   </a>
   <a class="mag-small reveal" href="#" style="transition-delay:.07s">
     <div class="mag-small__img"><div class="mag-small__img-inner c8"></div></div>
     <div class="mag-small__tag" data-i18n="blog.tag.industry">Industry</div>
     <h3 class="mag-small__title">How classical musicians are entering the corporate event market</h3>
-    <div class="mag-small__date">Mar 5, 2025</div>
+    <div class="mag-small__date" data-i18n="blog.date2">Mar 5, 2025</div>
   </a>
   <a class="mag-small reveal" href="#" style="transition-delay:.14s">
     <div class="mag-small__img"><div class="mag-small__img-inner c9"></div></div>
     <div class="mag-small__tag" data-i18n="blog.tag.tips">Tips</div>
     <h3 class="mag-small__title">Building a lasting brand as a performing musician in Asia</h3>
-    <div class="mag-small__date">Feb 18, 2025</div>
+    <div class="mag-small__date" data-i18n="blog.date3">Feb 18, 2025</div>
   </a>
   <a class="mag-small reveal" href="#" style="transition-delay:.21s">
     <div class="mag-small__img"><div class="mag-small__img-inner c10"></div></div>
     <div class="mag-small__tag" data-i18n="blog.tag.tips">Tips</div>
     <h3 class="mag-small__title">Session work vs. live gigs: which path is right for you?</h3>
-    <div class="mag-small__date">Jan 22, 2025</div>
+    <div class="mag-small__date" data-i18n="blog.date4">Jan 22, 2025</div>
   </a>
 </div>
 
@@ -787,9 +787,9 @@
     <div class="footer-col">
       <div class="footer-col__label" data-i18n="blog.footer.contact">Contact</div>
       <div class="footer-col__body">
-        Taipei, Taiwan<br>
+        <span data-i18n="blog.footer.location">Taipei, Taiwan</span><br>
         <a href="mailto:info@opuszmusic.com">info@opuszmusic.com</a><br><br>
-        <a href="musician-platform.html#contact">Send a message →</a>
+        <a href="musician-platform.html#contact" data-i18n="blog.footer.sendmsg">Send a message →</a>
       </div>
     </div>
     <div class="footer-col">
@@ -855,7 +855,13 @@ var I18N = {
     'blog.footer.contact':'Contact','blog.footer.follow':'Follow',
     'blog.footer.subscribe':'Subscribe','blog.footer.newsletter':'Sign up for our newsletter:',
     'blog.footer.email.ph':'Your email','blog.footer.subscribe.btn':'Subscribe',
-    'blog.footer.copy':'© 2026 OPUS.Z. All rights reserved.'
+    'blog.footer.copy':'© 2026 OPUS.Z. All rights reserved.',
+    'blog.footer.location':'Taipei, Taiwan','blog.footer.sendmsg':'Send a message →',
+    'blog.mini1.tag':'Tips · Nov 2025','blog.mini2.tag':'Industry · Jul 2025',
+    'blog.mini3.tag':'Tips · May 2025',
+    'blog.date1':'Apr 10, 2025','blog.date2':'Mar 5, 2025',
+    'blog.date3':'Feb 18, 2025','blog.date4':'Jan 22, 2025',
+    'blog.breaker.body':'We are a platform that commissions and connects real classical musicians with the opportunities they deserve — live performances, session work, corporate events, and artist branding. We want every engagement to be meaningful, precise, and built to last. The classical music world has always needed this infrastructure. We are building it.'
   },
   zh: {
     'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
@@ -891,7 +897,13 @@ var I18N = {
     'blog.footer.contact':'聯絡','blog.footer.follow':'追蹤',
     'blog.footer.subscribe':'訂閱','blog.footer.newsletter':'訂閱我們的電子報：',
     'blog.footer.email.ph':'電子郵件','blog.footer.subscribe.btn':'訂閱',
-    'blog.footer.copy':'© 2026 OPUS.Z 版權所有。'
+    'blog.footer.copy':'© 2026 OPUS.Z 版權所有。',
+    'blog.footer.location':'台灣 台北','blog.footer.sendmsg':'傳送訊息 →',
+    'blog.mini1.tag':'實用技巧 · 2025 年 11 月','blog.mini2.tag':'產業動態 · 2025 年 7 月',
+    'blog.mini3.tag':'實用技巧 · 2025 年 5 月',
+    'blog.date1':'2025 年 4 月 10 日','blog.date2':'2025 年 3 月 5 日',
+    'blog.date3':'2025 年 2 月 18 日','blog.date4':'2025 年 1 月 22 日',
+    'blog.breaker.body':'我們是一個媒合平台，為真正的古典音樂家連結他們應得的機會——現場演出、錄音工作、企業活動與藝術家品牌經營。我們希望每一次合作都富有意義、精準到位、經得起時間考驗。古典音樂界一直需要這樣的基礎建設，而我們正在打造它。'
   }
 };
 function switchLang(lang) {
