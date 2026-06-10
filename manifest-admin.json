@@ -1,0 +1,17 @@
+{
+  "name": "OPUS.Z 管理後台",
+  "short_name": "OPUS.Z 管理",
+  "description": "OPUS.Z 平台管理後台 — 審核樂手申請、訊息、管理音樂家與客戶。",
+  "start_url": "/admin-panel.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1a1a",
+  "theme_color": "#1a1a1a",
+  "lang": "zh-Hant",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

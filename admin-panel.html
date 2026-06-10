@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>OPUS.Z · Admin</title>
+  <!-- PWA: installable as a phone app (separate from the musician dashboard) -->
+  <link rel="manifest" href="/manifest-admin.json">
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="OPUS.Z 管理">
+  <link rel="apple-touch-icon" href="/icon-192.png">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -54,6 +61,25 @@
     .topbar-right { display: flex; align-items: center; gap: 10px; }
     .admin-chip { font-size: 11px; font-weight: 700; background: #ede9fe; color: var(--admin); padding: 4px 10px; border-radius: 20px; letter-spacing: .04em; }
     .topbar-avatar { width: 32px; height: 32px; border-radius: 50%; background: var(--admin); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; color: #fff; cursor: pointer; }
+    /* ── Mobile: off-canvas drawer sidebar (same pattern as the musician dashboard) ── */
+    .sb-hamburger { display: none; width: 38px; height: 38px; border: none; background: transparent; cursor: pointer; align-items: center; justify-content: center; border-radius: 8px; color: #222; margin-right: 6px; flex-shrink: 0; }
+    .sb-hamburger:hover { background: #f0f0f0; }
+    .sb-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 60; }
+    .sb-backdrop.show { display: block; }
+    @media (max-width: 860px) {
+      .app { height: 100dvh; }
+      .sidebar { position: fixed; top: 0; left: 0; bottom: 0; z-index: 70; transform: translateX(-100%); transition: transform .25s ease; box-shadow: 0 0 40px rgba(0,0,0,.4); }
+      .sidebar.open { transform: translateX(0); }
+      .sb-hamburger { display: flex; }
+      .main { width: 100%; }
+      .topbar { padding: 0 12px; height: 54px; position: sticky; top: 0; z-index: 40; }
+      .topbar-title { font-size: 14px; }
+      .topbar-right { gap: 6px; }
+      .topbar-right a { display: none; }            /* hide "← View Platform" on mobile */
+      .topbar-right .admin-chip { display: none; }  /* hide ADMIN MODE chip on mobile */
+      /* wide tables scroll horizontally instead of breaking the page */
+      .page table { display: block; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+    }
 
     /* ── Page wrap ── */
     .page-wrap { flex: 1; overflow-y: auto; padding: 28px 32px; }
@@ -367,9 +393,14 @@
   </aside>
 
   <!-- ── MAIN ── -->
+  <div class="sb-backdrop" id="sbBackdrop" onclick="closeSidebar()"></div>
+
   <div class="main">
     <header class="topbar">
-      <div class="topbar-title" id="topbarTitle">Dashboard</div>
+      <button class="sb-hamburger" id="sbHamburger" aria-label="選單" onclick="toggleSidebar()">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="topbar-title" id="topbarTitle" style="flex:1;">Dashboard</div>
       <div class="topbar-right">
         <span class="admin-chip">ADMIN MODE</span>
         <a href="musician-platform.html" style="font-size:12.5px;color:var(--mid);text-decoration:none;">← View Platform</a>
@@ -3543,6 +3574,24 @@
 
   // ── Date ──
   document.getElementById('todayDate').textContent = new Date().toLocaleDateString('en-US', {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+</script>
+
+<!-- Mobile sidebar drawer (off-canvas) -->
+<script>
+  window.toggleSidebar = function(){
+    var sb = document.querySelector('.sidebar'), bd = document.getElementById('sbBackdrop');
+    var open = sb && sb.classList.toggle('open');
+    if (bd) bd.classList.toggle('show', !!open);
+  };
+  window.closeSidebar = function(){
+    var sb = document.querySelector('.sidebar'); if (sb) sb.classList.remove('open');
+    var bd = document.getElementById('sbBackdrop'); if (bd) bd.classList.remove('show');
+  };
+  // Picking a page in the drawer closes it (mobile).
+  (function(){
+    var sb = document.querySelector('.sidebar');
+    if (sb) sb.addEventListener('click', function(e){ if (e.target.closest('a, button, [onclick], .sb-item, .nav-item')) closeSidebar(); });
+  })();
 </script>
 </body>
 </html>
