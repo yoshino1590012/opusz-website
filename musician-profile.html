@@ -641,10 +641,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   overflow:hidden;
   max-width:68%;
   margin:0 auto;
-  /* Dead zone (0→80px): ensures CJK chars are fully invisible before overflow clips them.
-     Fade zone (80px→160px): smooth transition into visible area. */
-  -webkit-mask-image:linear-gradient(to right,transparent 0,transparent 80px,black 160px,black calc(100% - 160px),transparent calc(100% - 80px),transparent 100%);
-  mask-image:linear-gradient(to right,transparent 0,transparent 80px,black 160px,black calc(100% - 160px),transparent calc(100% - 80px),transparent 100%);
+  /* Wide, gentle fade (18% each side). A blocky CJK glyph straddling a gentle
+     gradient fades almost uniformly across its width → reads as "fading away",
+     not "left side sliced off" (which a steep gradient causes). */
+  -webkit-mask-image:linear-gradient(to right,transparent 0,black 18%,black 82%,transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0,black 18%,black 82%,transparent 100%);
 }
 .marquee-track{
   display:flex;align-items:center;
@@ -679,8 +680,8 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 @media(max-width:700px){
   .marquee-track-wrap{
     max-width:90%;
-    -webkit-mask-image:linear-gradient(to right,transparent 0,transparent 40px,black 72px,black calc(100% - 72px),transparent calc(100% - 40px),transparent 100%);
-    mask-image:linear-gradient(to right,transparent 0,transparent 40px,black 72px,black calc(100% - 72px),transparent calc(100% - 40px),transparent 100%);
+    -webkit-mask-image:linear-gradient(to right,transparent 0,black 14%,black 86%,transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0,black 14%,black 86%,transparent 100%);
   }
   .marquee-track{ animation-duration:13s; }
   .marquee-logo{ padding:0 22px; }
