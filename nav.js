@@ -307,7 +307,7 @@
       'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet','menu.pianoquintet':'Piano Quintet'
     },
     zh: {
-      'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家 (12)',
+      'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
       'nav.artists_short':'音樂家','nav.news':'近期演出','nav.contact':'聯絡我們','nav.lessons':'音樂老師',
       'nav.jobs':'近期委託','nav.account':'我的帳號',
       'acct.messages':'訊息','acct.bookings':'我的委託','acct.profile':'我的檔案','acct.logout':'登出',
