@@ -1102,6 +1102,10 @@ body {
         <span class="channel-emoji">📰</span>
         <span class="channel-name">全部動態</span>
       </a></li>
+      <li><a href="#" id="myProfileNav">
+        <span class="channel-emoji">🙋</span>
+        <span class="channel-name">我的主頁</span>
+      </a></li>
     </ul>
 
     <div class="sidebar-divider"></div>
@@ -1923,7 +1927,8 @@ document.getElementById('sidebarOverlay').addEventListener('click', function() {
 function renderMembers() {
   var html = '';
   MEMBERS.forEach(function(m) {
-    html += '<div class="member-item">';
+    // Whole row opens that musician's in-community profile (delegated handler).
+    html += '<div class="member-item comm-profile-link" data-uid="' + (m.uid||'') + '" style="cursor:pointer">';
     html += '<div class="member-avatar" style="background:' + m.color + '">' + m.initials;
     html += '<div class="member-status-dot ' + (m.online ? 'online' : 'offline') + '"></div>';
     html += '</div>';
@@ -1947,6 +1952,14 @@ document.addEventListener('click', function(e){
   var link = e.target.closest('.comm-profile-link');
   if (link && link.dataset.uid && window.opuszOpenProfile){
     window.opuszOpenProfile(link.dataset.uid);
+    return;
+  }
+  // "我的主頁" → open my own profile
+  var mine = e.target.closest('#myProfileNav');
+  if (mine){
+    e.preventDefault();
+    if (window.opuszMyUid && window.opuszOpenProfile) window.opuszOpenProfile(window.opuszMyUid);
+    else showToast && showToast('請先登入');
   }
 });
 </script>
@@ -1954,7 +1967,7 @@ document.addEventListener('click', function(e){
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
@@ -2038,6 +2051,7 @@ document.addEventListener('click', function(e){
   window.opuszOpenProfile = function(uid){
     const m = membersByUid[uid];
     if (!m) return;
+    const isMe = (uid === window.opuszMyUid);
     const myPosts = (window.POSTS || []).filter(p => p.authorUid === uid);
     let ov = document.getElementById('commProfileOverlay');
     if (!ov){
@@ -2060,12 +2074,38 @@ document.addEventListener('click', function(e){
           '</div>' +
           '<div style="font-size:22px;font-weight:800;color:#111;margin-top:12px;">'+esc(m.name)+'</div>' +
           '<div style="font-size:14px;color:#666;margin-top:3px;">'+esc(m.instrument)+(m.region?' · '+esc(m.region):'')+'</div>' +
-          (m.bio ? '<div style="font-size:14px;color:#444;line-height:1.7;margin-top:12px;white-space:pre-wrap;">'+esc(m.bio)+'</div>' : '') +
+          '<div id="commBioWrap" style="margin-top:12px;">' +
+            '<div id="commBioView" style="font-size:14px;color:'+(m.bio?'#444':'#aaa')+';line-height:1.7;white-space:pre-wrap;">'+(m.bio?esc(m.bio):(isMe?'還沒有自我介紹，點下方「編輯簡介」新增一段吧。':''))+'</div>' +
+            (isMe ? '<button onclick="window.opuszEditBio(\''+uid+'\')" style="margin-top:8px;background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#2563eb;cursor:pointer;">✏️ 編輯簡介</button>' : '') +
+          '</div>' +
           '<a href="musician-profile.html?uid='+encodeURIComponent(uid)+'" style="display:inline-block;margin-top:14px;font-size:13px;font-weight:700;color:#111;text-decoration:underline;text-underline-offset:3px;">查看完整個人頁 →</a>' +
           '<div style="font-size:12px;font-weight:700;letter-spacing:.08em;color:#999;text-transform:uppercase;margin-top:24px;">貼文 · '+myPosts.length+'</div>' +
           postsHtml +
         '</div>' +
       '</div>';
+  };
+
+  // Inline-edit my own community intro (writes to musicians/{uid}.bio).
+  window.opuszEditBio = function(uid){
+    if (uid !== window.opuszMyUid) return;
+    var wrap = document.getElementById('commBioWrap'); if(!wrap) return;
+    var cur = (membersByUid[uid] && membersByUid[uid].bio) || '';
+    wrap.innerHTML =
+      '<textarea id="commBioEdit" rows="4" style="width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-family:inherit;font-size:14px;line-height:1.6;resize:vertical;" placeholder="寫一段簡短的自我介紹…">'+esc(cur)+'</textarea>' +
+      '<div style="display:flex;gap:8px;margin-top:8px;">' +
+        '<button id="commBioSave" style="background:#111;color:#fff;border:none;border-radius:50px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;">儲存</button>' +
+        '<button id="commBioCancel" style="background:#f1f1f1;color:#555;border:none;border-radius:50px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;">取消</button>' +
+      '</div>';
+    document.getElementById('commBioCancel').onclick = function(){ window.opuszOpenProfile(uid); };
+    document.getElementById('commBioSave').onclick = async function(){
+      var btn=this; btn.textContent='儲存中…'; btn.disabled=true;
+      var val=(document.getElementById('commBioEdit').value||'').trim();
+      try{
+        await updateDoc(doc(db,'musicians',uid),{ bio: val });
+        if(membersByUid[uid]) membersByUid[uid].bio = val;
+      }catch(e){ console.warn('[community] bio save failed:',e); alert('儲存失敗，請稍後再試'); btn.textContent='儲存'; btn.disabled=false; return; }
+      window.opuszOpenProfile(uid);   // refresh with the saved intro
+    };
   };
 
   // ── Auth: identify the logged-in musician for authoring ──
@@ -2076,7 +2116,8 @@ document.addEventListener('click', function(e){
         const m = snap.exists() ? snap.data() : {};
         me = { uid:user.uid, name: m.name || user.email.split('@')[0], instrument: instrumentLabel(m) };
       }catch(e){ me = { uid:user.uid, name:(user.email||'樂手').split('@')[0], instrument:'樂手' }; }
-    } else { me = null; }
+      window.opuszMyUid = user.uid;   // lets "我的主頁" open my own profile
+    } else { me = null; window.opuszMyUid = null; }
   });
 
   loadMembers();
