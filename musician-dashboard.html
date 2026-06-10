@@ -1486,9 +1486,7 @@
             <button class="pb-sec-item"        data-pbsec="videos"     onclick="pbSelectSection('videos',this)">Showreel 影片</button>
             <button class="pb-sec-item"        data-pbsec="lessons"    onclick="pbSelectSection('lessons',this)">課程方案</button>
             <button class="pb-sec-item"        data-pbsec="stats"      onclick="pbSelectSection('stats',this)">數據</button>
-            <button class="pb-sec-item"        data-pbsec="reviews"    onclick="pbSelectSection('reviews',this)">評論</button>
             <button class="pb-sec-item"        data-pbsec="theme"      onclick="pbSelectSection('theme',this)">Theme 顏色</button>
-            <button class="pb-sec-item"        data-pbsec="visibility" onclick="pbSelectSection('visibility',this)">可見度</button>
           </div>
 
           <!-- CENTER: live iframe preview -->
@@ -1839,50 +1837,9 @@
               </div>
             </div>
 
-            <!-- Reviews -->
-            <div class="pb-field-group" data-pbgroup="reviews">
-              <div class="pb-group-title">Reviews / 評論</div>
-              <div class="pb-subgroup" data-pbreview="0">
-                <div class="pb-subgroup-title">評論 1</div>
-                <div class="pb-field"><label>縮寫</label><input type="text" id="pbReview0Initials" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>頭像顏色</label><input type="color" id="pbReview0Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
-                <div class="pb-field"><label>名稱</label><input type="text" id="pbReview0Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>日期</label><input type="text" id="pbReview0Date" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>內容</label><textarea id="pbReview0Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
-              </div>
-              <div class="pb-subgroup" data-pbreview="1">
-                <div class="pb-subgroup-title">評論 2</div>
-                <div class="pb-field"><label>縮寫</label><input type="text" id="pbReview1Initials" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>頭像顏色</label><input type="color" id="pbReview1Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
-                <div class="pb-field"><label>名稱</label><input type="text" id="pbReview1Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>日期</label><input type="text" id="pbReview1Date" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>內容</label><textarea id="pbReview1Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
-              </div>
-              <div class="pb-subgroup" data-pbreview="2">
-                <div class="pb-subgroup-title">評論 3</div>
-                <div class="pb-field"><label>縮寫</label><input type="text" id="pbReview2Initials" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>頭像顏色</label><input type="color" id="pbReview2Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
-                <div class="pb-field"><label>名稱</label><input type="text" id="pbReview2Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>日期</label><input type="text" id="pbReview2Date" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>內容</label><textarea id="pbReview2Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
-              </div>
-              <div class="pb-subgroup" data-pbreview="3">
-                <div class="pb-subgroup-title">評論 4</div>
-                <div class="pb-field"><label>縮寫</label><input type="text" id="pbReview3Initials" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>頭像顏色</label><input type="color" id="pbReview3Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
-                <div class="pb-field"><label>名稱</label><input type="text" id="pbReview3Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>日期</label><input type="text" id="pbReview3Date" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>內容</label><textarea id="pbReview3Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
-              </div>
-              <div class="pb-subgroup" data-pbreview="4">
-                <div class="pb-subgroup-title">評論 5</div>
-                <div class="pb-field"><label>縮寫</label><input type="text" id="pbReview4Initials" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>頭像顏色</label><input type="color" id="pbReview4Color" oninput="pbOnInput()" style="width:60px;height:34px;padding:2px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;"></div>
-                <div class="pb-field"><label>名稱</label><input type="text" id="pbReview4Name" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>日期</label><input type="text" id="pbReview4Date" oninput="pbOnInput()"></div>
-                <div class="pb-field"><label>內容</label><textarea id="pbReview4Body" oninput="pbOnInput()" style="min-height:80px;"></textarea></div>
-              </div>
-            </div>
+            <!-- Reviews: removed. Reviews come from real clients, not authored by
+                 the musician. The public page renders the live client-review system,
+                 not these fields, so there is nothing to edit here. -->
 
             <!-- Highlights -->
             <div class="pb-field-group" data-pbgroup="highlights">
@@ -1943,18 +1900,13 @@
               <button class="btn" style="margin-top:8px;" onclick="pbResetTheme()">重置顏色 / Reset to default</button>
             </div>
 
-            <!-- Visibility -->
-            <div class="pb-field-group" data-pbgroup="visibility">
-              <div class="pb-group-title">區塊顯示</div>
-              <label class="pb-check"><input type="checkbox" id="pbSecLessonPlans" onchange="pbOnInput(event)"> 課程方案 / Lesson plans</label>
-              <label class="pb-check"><input type="checkbox" id="pbSecReviews"     onchange="pbOnInput()"> 評論 / Reviews</label>
-              <label class="pb-check"><input type="checkbox" id="pbSecStats"       onchange="pbOnInput()"> 數據 / Stats</label>
-              <label class="pb-check"><input type="checkbox" id="pbSecHighlights"  onchange="pbOnInput()"> 亮點 / Highlights</label>
-              <label class="pb-check"><input type="checkbox" id="pbSecAudio"       onchange="pbOnInput()"> 音檔 / Audio</label>
-            </div>
+            <!-- Visibility section removed. Sections (reviews, stats, highlights,
+                 audio) always show — musicians can't hide them. 課程方案 keeps its
+                 own toggle in the Lessons section. Publish controls below are not a
+                 pb-field-group, so they stay permanently visible under every tab. -->
 
             <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border);">
-              <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="pbPublish()">發布我的頁面 / Publish</button>
+              <button id="pbPublishBtn" class="btn btn-primary" style="width:100%;justify-content:center;" onclick="pbPublish()">發布我的頁面 / Publish</button>
               <button id="pbUnpublishBtn" onclick="pbUnpublish()" style="width:100%;justify-content:center;margin-top:8px;background:none;border:none;color:#c0392b;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:6px;">下架我的頁面 / Unpublish</button>
               <button id="pbResetAllBtn" onclick="pbResetAll()" style="width:100%;justify-content:center;margin-top:4px;background:none;border:1px solid var(--border);border-radius:8px;color:#888;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:8px;">↺ 恢復空白模板 / Reset to template</button>
               <div id="pbPublicUrlLine" style="margin-top:12px;font-size:12px;color:var(--text-muted);word-break:break-all;">
@@ -4200,11 +4152,13 @@
       },
       stats:   stats,
       sections:{
-        lessonPlans: chk('pbSecLessonPlans'),
-        reviews:     chk('pbSecReviews'),
-        stats:       chk('pbSecStats'),
-        highlights:  chk('pbSecHighlights'),
-        audio:       chk('pbSecAudio'),
+        // 課程方案 follows its own toggle in the Lessons section; everything else
+        // is always visible (musicians can no longer hide these sections).
+        lessonPlans: chk('pbSvc1Visible'),
+        reviews:     true,
+        stats:       true,
+        highlights:  true,
+        audio:       true,
         specPerformance: chk('pbSvc0Visible')   // show the Performance specialty card
       },
       partners:   lines('pbPartners'),
@@ -4375,7 +4329,7 @@
     const tgt = ev && ev.target ? ev.target : null;
     // Lesson plans, the Visibility "課程方案" checkbox, and the teaching-specialty
     // card toggle are ONE switch — keep all three in lockstep.
-    const LESSON_TOGGLES = ['pbLessonVisible','pbSecLessonPlans','pbSvc1Visible'];
+    const LESSON_TOGGLES = ['pbLessonVisible','pbSvc1Visible'];
     if(tgt && LESSON_TOGGLES.indexOf(tgt.id) !== -1){
       LESSON_TOGGLES.forEach(function(id){
         const el = document.getElementById(id);
@@ -4901,7 +4855,34 @@
     { sel:'[data-page="profile"]',     page:'profile',     title:'第一步：填「我的資料」',
       body:'先把基本資料設定好：顯示名稱、樂器、所在地區與聯絡方式。這些是帳號層級的資料，也決定別人能不能在平台上找到你。側邊出現綠色「!」就代表還沒填完，建議先補齊。' },
     { sel:'[data-page="pagebuilder"]', page:'pagebuilder', title:'第二步：編輯主頁（最重要）',
-      body:'這是你的公開門面。左邊選區塊、中間即時預覽、右邊改內容（主視覺照片、自我介紹、學經歷、演出與教學項目、亮點、合作品牌…）。改完一定要按「發佈」才會上線給客戶看。' },
+      body:'這是你的公開門面。左邊選區塊、中間即時預覽、右邊改內容。接下來我從上到下，一個區塊一個區塊帶你看怎麼填、為什麼要填。慢慢來，每一步都可以按「上一步」回去。' },
+    // ── Page-builder section-by-section walkthrough (top → bottom) ──
+    { sel:'.pb-sec-item[data-pbsec="hero"]',       page:'pagebuilder', pbsec:'hero',       title:'① 主視覺（第一印象）',
+      body:'訪客一進來最先看到的大圖＋你的名字。上傳最有氣勢的演奏照（最多 4 張會自動輪播）；名字下方的頭銜會依你選的主要樂器自動顯示。挑最好的一張，第一眼就靠它。' },
+    { sel:'.pb-sec-item[data-pbsec="card"]',       page:'pagebuilder', pbsec:'card',       title:'② 列表卡片',
+      body:'這是你出現在「找音樂家」列表時的小卡長相——縮圖、一句話簡介、起價。決定別人會不會點進來，所以簡介寫吸引人一點。' },
+    { sel:'.pb-sec-item[data-pbsec="booking"]',    page:'pagebuilder', pbsec:'booking',    title:'③ 預約 / 報價',
+      body:'設定你的起跳價格與每節時間（例如 NT$5,000／1 小時）。客戶會看到「Check availability」直接詢價，這裡填了才有報價依據。' },
+    { sel:'.pb-sec-item[data-pbsec="about"]',      page:'pagebuilder', pbsec:'about',      title:'④ 關於（建立信任）',
+      body:'自我介紹＋學經歷。用幾句話講清楚你是誰、擅長什麼風格、演出過哪裡。這段是讓客戶信任你的關鍵，值得花時間寫好。' },
+    { sel:'.pb-sec-item[data-pbsec="audio"]',      page:'pagebuilder', pbsec:'audio',      title:'⑤ Audio 音檔',
+      body:'放幾首代表作的試聽（上傳 MP3 或貼網址）。客戶聽得到你的聲音，成交機率大增。現在沒有檔案也沒關係，之後再回來補。' },
+    { sel:'.pb-sec-item[data-pbsec="services"]',   page:'pagebuilder', pbsec:'services',   title:'⑥ Specialties / 專長',
+      body:'列出你提供的服務（獨奏、室內樂、婚禮、企業活動、錄音、教學…）。讓客戶一眼知道能找你做什麼。' },
+    { sel:'.pb-sec-item[data-pbsec="highlights"]', page:'pagebuilder', pbsec:'highlights', title:'⑦ 亮點',
+      body:'條列重要經歷或成就：得獎、重要演出、合作對象。一行一個，挑最有份量的放，不用全部寫。' },
+    { sel:'.pb-sec-item[data-pbsec="partners"]',   page:'pagebuilder', pbsec:'partners',   title:'⑧ 合作夥伴',
+      body:'放曾合作的單位或品牌，增加專業可信度。沒有的話可以先略過。' },
+    { sel:'.pb-sec-item[data-pbsec="videos"]',     page:'pagebuilder', pbsec:'videos',     title:'⑨ Showreel 影片',
+      body:'放演出影片（YouTube／Vimeo 連結，最多 3 支）。動態影像最有說服力，強烈建議至少放一支。' },
+    { sel:'.pb-sec-item[data-pbsec="lessons"]',    page:'pagebuilder', pbsec:'lessons',    title:'⑩ 課程方案',
+      body:'有教學的話，這裡設定課程方案與收費，並可在此開關「是否招生」。（教學是 Premium 功能，未訂閱會先鎖住。）不教學就把它關掉即可。' },
+    { sel:'.pb-sec-item[data-pbsec="stats"]',      page:'pagebuilder', pbsec:'stats',      title:'⑪ 數據',
+      body:'年資、演出場次等數字，讓你的檔案更有份量。據實填寫即可。' },
+    { sel:'.pb-sec-item[data-pbsec="theme"]',      page:'pagebuilder', pbsec:'theme',      title:'⑫ Theme 顏色',
+      body:'微調頁面的主色、背景與文字顏色，讓風格符合你的個人品牌。不確定就用預設，之後隨時能改。' },
+    { sel:'#pbPublishBtn',                         page:'pagebuilder', pbsec:null,         title:'⭐ 最後一步：發布',
+      body:'全部填好後，一定要按這顆「發布我的頁面」才會真正上線給客戶看！之後每次改完內容，都記得回來再按一次發布。下方還有你的公開頁面網址，可以分享給別人。' },
     { sel:'[data-page="posters"]',     page:'posters',     title:'海報投稿 / Posters',
       body:'有演出時，把演出海報＋資訊投稿上來。管理者審核後會張貼到平台的「演出」頁，幫你多一個曝光管道。' },
     { sel:'[data-page="jobs"]',        page:'jobs',        title:'公開接案 / Jobs',
@@ -4963,6 +4944,12 @@
       var btn = document.querySelector('[data-page="' + step.page + '"]');
       try{ window.navigate(step.page, btn); }catch(e){}
     }
+    // Page-builder section steps: open the matching section so its edit panel +
+    // live preview update while we explain it.
+    if(step.pbsec && typeof window.pbSelectSection === 'function'){
+      var sbtn = document.querySelector('.pb-sec-item[data-pbsec="' + step.pbsec + '"]');
+      try{ window.pbSelectSection(step.pbsec, sbtn); }catch(e){}
+    }
     document.getElementById('tourStepLabel').textContent = 'Step ' + (idx+1) + ' / ' + STEPS.length;
     document.getElementById('tourTitle').textContent = step.title;
     document.getElementById('tourBody').textContent = step.body;
@@ -4970,9 +4957,17 @@
     document.getElementById('tourNext').textContent = idx === STEPS.length-1 ? '完成 ✓' : '下一步';
     var dots = document.getElementById('tourDots');
     dots.innerHTML = '';
-    STEPS.forEach(function(_, i){
-      var d = document.createElement('div'); d.className = 'tour-dot' + (i===idx?' on':''); dots.appendChild(d);
-    });
+    // With many steps a dot-per-step row won't fit; the "Step X / N" label covers it.
+    if(STEPS.length <= 12){
+      STEPS.forEach(function(_, i){
+        var d = document.createElement('div'); d.className = 'tour-dot' + (i===idx?' on':''); dots.appendChild(d);
+      });
+    }
+    // Make sure the highlighted target is on-screen (e.g. the Publish button sits
+    // at the bottom of a scrollable panel). Instant scroll so place() reads the
+    // settled position.
+    var tgt = step.sel ? document.querySelector(step.sel) : null;
+    if(tgt && tgt.scrollIntoView){ try{ tgt.scrollIntoView({ block:'center', inline:'nearest' }); }catch(e){} }
     // position now, then again after navigate()'s layout settles
     place();
     setTimeout(place, 70);
