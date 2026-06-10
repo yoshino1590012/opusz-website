@@ -480,56 +480,51 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 <!-- ══ FIXED TEXT PANEL — left side, same reveal as poster ══ -->
 <div id="fixedTextPanel" data-cms-section="sh-info">
   <div class="ftp-slide ftp-active" id="ftpSlide0">
-    <div class="show-seq">01 · 2025</div>
+    <div class="show-seq" data-i18n="show.1.date">01 · 2025</div>
     <h2 class="show-artist" data-i18n="show.1.artist">Chen Wei-Chen</h2>
     <p class="show-title" data-i18n="show.1.title">Piano Recital — Reflections</p>
     <div class="show-details">
       <span data-i18n="show.1.venue">National Concert Hall, Taipei</span>
-      <span data-i18n="show.1.date">July 18, 2025 · 7:30 PM</span>
       <span data-i18n="show.1.desc">Chopin · Debussy · Ravel</span>
     </div>
     <a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>
   </div>
   <div class="ftp-slide" id="ftpSlide1">
-    <div class="show-seq">02 · 2025</div>
+    <div class="show-seq" data-i18n="show.2.date">02 · 2025</div>
     <h2 class="show-artist" data-i18n="show.2.artist">Taipei Piano Trio</h2>
     <p class="show-title" data-i18n="show.2.title">Midsummer Gala Night</p>
     <div class="show-details">
       <span data-i18n="show.2.venue">Eslite Performance Hall, Taipei</span>
-      <span data-i18n="show.2.date">August 3, 2025 · 7:00 PM</span>
       <span data-i18n="show.2.desc">Beethoven · Schubert</span>
     </div>
     <a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>
   </div>
   <div class="ftp-slide" id="ftpSlide2">
-    <div class="show-seq">03 · 2025</div>
+    <div class="show-seq" data-i18n="show.3.date">03 · 2025</div>
     <h2 class="show-artist" data-i18n="show.3.artist">Lin Hui-Chun</h2>
     <p class="show-title" data-i18n="show.3.title">Violin &amp; Orchestra — Homecoming</p>
     <div class="show-details">
       <span data-i18n="show.3.venue">Kaohsiung Music Center</span>
-      <span data-i18n="show.3.date">September 12, 2025 · 7:30 PM</span>
       <span data-i18n="show.3.desc">Brahms Concerto in D major, Op. 77</span>
     </div>
     <a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>
   </div>
   <div class="ftp-slide" id="ftpSlide3">
-    <div class="show-seq">04 · 2025</div>
+    <div class="show-seq" data-i18n="show.4.date">04 · 2025</div>
     <h2 class="show-artist" data-i18n="show.4.artist">Wu Ching-Yu</h2>
     <p class="show-title" data-i18n="show.4.title">Cello Suite — Solitude &amp; Light</p>
     <div class="show-details">
       <span data-i18n="show.4.venue">Chimei Museum, Tainan</span>
-      <span data-i18n="show.4.date">October 5, 2025 · 3:00 PM</span>
       <span data-i18n="show.4.desc">Bach Cello Suites Nos. 1–3</span>
     </div>
     <a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>
   </div>
   <div class="ftp-slide" id="ftpSlide4">
-    <div class="show-seq">05 · 2025</div>
+    <div class="show-seq" data-i18n="show.5.date">05 · 2025</div>
     <h2 class="show-artist" data-i18n="show.5.artist">Chang Shu-Fen</h2>
     <p class="show-title" data-i18n="show.5.title">Harp Recital — Luminescence</p>
     <div class="show-details">
       <span data-i18n="show.5.venue">Chiang Kai-shek Memorial Hall</span>
-      <span data-i18n="show.5.date">November 22, 2025 · 7:30 PM</span>
       <span data-i18n="show.5.desc">Ravel · Debussy · Fauré</span>
     </div>
     <a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>
@@ -1081,10 +1076,10 @@ window.opzShows = (function(){
       pf.appendChild(fp); }
     var tp=document.getElementById('fixedTextPanel');
     if(tp){ var ftp=document.createElement('div'); ftp.className='ftp-slide'; ftp.id='ftpSlide'+i;
-      ftp.innerHTML='<div class="show-seq">'+seq+'</div>'
+      ftp.innerHTML='<div class="show-seq" data-i18n="show.'+(i+1)+'.date">'+seq+'</div>'
         +'<h2 class="show-artist" data-i18n="show.'+(i+1)+'.artist">New Artist</h2>'
         +'<p class="show-title" data-i18n="show.'+(i+1)+'.title">New Show</p>'
-        +'<div class="show-details"><span data-i18n="show.'+(i+1)+'.venue">Venue</span><span data-i18n="show.'+(i+1)+'.date">Date · Time</span><span data-i18n="show.'+(i+1)+'.desc">Programme</span></div>'
+        +'<div class="show-details"><span data-i18n="show.'+(i+1)+'.venue">Venue</span><span data-i18n="show.'+(i+1)+'.desc">Programme</span></div>'
         +'<a href="#" class="show-cta" data-i18n="show.cta">View Details →</a>';
       tp.appendChild(ftp); }
     var tr=document.querySelector('.shows-track');
@@ -1120,7 +1115,8 @@ window.opzShows = (function(){
         var m=(el.getAttribute('data-i18n')||'').match(/^show\.(\d+)\.(.+)$/);
         if(m) el.setAttribute('data-i18n','show.'+(newI+1)+'.'+m[2]);
       });
-      var seq=ftp.querySelector('.show-seq'); if(seq) seq.textContent=('0'+(newI+1)).slice(-2)+' · 2025';
+      // .show-seq now shows the date (data-i18n show.N.date, renumbered by the loop
+      // above) instead of a hard-coded sequence number — no textContent override here.
     }
     var si=document.querySelector('.shows-track .show-item[data-show-index="'+oldI+'"]');
     if(si){ si.setAttribute('data-show-index', newI);
