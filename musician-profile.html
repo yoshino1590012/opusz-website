@@ -641,9 +641,12 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   overflow:hidden;
   max-width:68%;
   margin:0 auto;
-  /* No CSS mask: a gradient mask fades each GLYPH unevenly across its own width,
-     which slices blocky CJK chars. Instead JS fades each whole logo as a unit
-     (var(--edge)) and zeroes it out BEFORE the clip edge → never a half-char. */
+  /* mask-image fades the edges to fully TRANSPARENT — there is no hard clip line,
+     so a CJK glyph can never be sliced; it dissolves. The fade band is wide and
+     the logos are already very faint (opacity .22), so any per-glyph unevenness
+     within the band is imperceptible. Robust: pure CSS, no JS/rAF/layout timing. */
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 130px,#000 calc(100% - 130px),transparent 100%);
+          mask-image:linear-gradient(to right,transparent 0,#000 130px,#000 calc(100% - 130px),transparent 100%);
 }
 .marquee-track{
   display:flex;align-items:center;
@@ -659,12 +662,12 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .marquee-logo{
   display:flex;align-items:center;justify-content:center;
   padding:0 52px;
-  /* --edge (0→1) is driven per-frame by JS; the whole logo fades as one unit */
-  opacity:calc(.22 * var(--edge, 1));
+  opacity:.22;
+  transition:opacity .3s;
   white-space:nowrap;
   flex-shrink:0;
 }
-.marquee-logo:hover{ opacity:calc(.55 * var(--edge, 1)); }
+.marquee-logo:hover{ opacity:.55; }
 .marquee-logo svg{
   display:block;
   height:28px;width:auto;
@@ -676,7 +679,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 }
 /* mobile: tighter gap + faster scroll + wider visible area */
 @media(max-width:700px){
-  .marquee-track-wrap{ max-width:90%; }
+  .marquee-track-wrap{
+    max-width:90%;
+    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 56px,#000 calc(100% - 56px),transparent 100%);
+            mask-image:linear-gradient(to right,transparent 0,#000 56px,#000 calc(100% - 56px),transparent 100%);
+  }
   .marquee-track{ animation-duration:13s; }
   .marquee-logo{ padding:0 22px; }
 }
@@ -5908,46 +5915,6 @@ window.addEventListener('pageshow', function(e) {
       }
     }
 
-    // Marquee engine — JS-DRIVEN (not CSS animation). CSS transform animations run
-    // on the GPU compositor, where the main thread can't read the live position
-    // (getBoundingClientRect returns the stale translateX=0 value) — that's why the
-    // earlier per-item fade never fired and CJK glyphs stayed hard-clipped. Here JS
-    // owns translateX, so each logo's exact X is known and it's faded to opacity 0
-    // as a WHOLE unit BEFORE it touches the clip edge → never a half glyph.
-    if(!window.__startMarqueeEdgeFade){
-      window.__startMarqueeEdgeFade = function(track, wrap){
-        if(!track || !wrap) return;
-        if(track.__fadeRAF) cancelAnimationFrame(track.__fadeRAF);
-        track.style.animation = 'none';                 // we drive the motion ourselves
-        var logos = [].slice.call(track.children);
-        // Static geometry (transform-independent) — read once after layout.
-        var geo = logos.map(function(el){ return { el: el, left: el.offsetLeft, w: el.offsetWidth }; });
-        var half = track.scrollWidth / 2;               // one block width (track = block+block)
-        var SPEED = 55;                                  // px per second (steady, any partner count)
-        var tx = 0, last = null, paused = false;
-        wrap.onmouseenter = function(){ paused = true; };
-        wrap.onmouseleave = function(){ paused = false; };
-        var tick = function(ts){
-          if(last == null) last = ts;
-          var dt = (ts - last) / 1000; last = ts;
-          if(!paused){
-            tx -= SPEED * dt;
-            if(tx <= -half) tx += half;                  // seamless loop (2nd block identical)
-            track.style.transform = 'translateX(' + tx + 'px)';
-          }
-          var ww = wrap.clientWidth, fade = Math.min(160, ww * 0.2);
-          for(var i=0;i<geo.length;i++){
-            var L = geo[i].left + tx, R = L + geo[i].w;
-            var fl = Math.max(0, Math.min(1, L / fade));        // fade out toward left edge
-            var fr = Math.max(0, Math.min(1, (ww - R) / fade));  // fade in from right edge
-            geo[i].el.style.setProperty('--edge', Math.min(fl, fr).toFixed(3));
-          }
-          track.__fadeRAF = requestAnimationFrame(tick);
-        };
-        track.__fadeRAF = requestAnimationFrame(tick);
-      };
-    }
-
     // ── PARTNERS / BRAND MARQUEE ──────────────────────────
     if(Array.isArray(cfg.partners)){
       var marqueeTrack = document.getElementById('marqueeTrack');
@@ -5976,8 +5943,7 @@ window.addEventListener('pageshow', function(e) {
           var K = Math.max(2, Math.ceil(wrapW / setW) + 1);
           var block = ''; for(var bi=0; bi<K; bi++) block += oneSet;
           marqueeTrack.innerHTML = block + block;
-          marqueeTrack.style.animation = ''; // re-enable scroll loop (template empty-state disables it)
-          window.__startMarqueeEdgeFade(marqueeTrack, wrap);
+          marqueeTrack.style.animation = ''; // re-enable CSS scroll loop (template empty-state disables it)
         }
       }
     }
