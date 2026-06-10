@@ -273,6 +273,15 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .show-details span{display:block;}
 .show-cta{display:inline-flex;align-items:center;gap:8px;color:rgba(255,255,255,.7);font-size:12px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.2);padding-bottom:3px;transition:color .2s,border-color .2s,gap .2s;pointer-events:auto;}
 .show-cta:hover{color:#fff;border-color:rgba(255,255,255,.7);gap:12px;}
+/* Collapsible 說明 / description — hidden until "瞭解更多" is clicked. The wrap is
+   shown by JS only when there is note text (empty = no button). */
+.show-note-wrap{display:none;margin:-22px 0 36px;}
+.show-note-toggle{display:inline-flex;align-items:center;gap:7px;background:none;border:none;padding:0;cursor:pointer;color:rgba(255,255,255,.6);font-family:inherit;font-size:12px;letter-spacing:.05em;text-transform:uppercase;transition:color .2s;pointer-events:auto;}
+.show-note-toggle:hover{color:#fff;}
+.snt-arrow{font-size:11px;transition:transform .25s;}
+.show-note-wrap.open .snt-arrow{transform:rotate(180deg);}
+.show-note{max-height:0;overflow:hidden;opacity:0;font-size:13.5px;color:rgba(255,255,255,.62);line-height:1.7;white-space:pre-wrap;transition:max-height .35s ease,opacity .3s ease,margin-top .3s ease;}
+.show-note-wrap.open .show-note{max-height:50vh;opacity:1;margin-top:12px;}
 .show-right{position:absolute;top:50%;right:clamp(40px,7vw,100px);transform:translateY(-50%);text-align:right;}
 .show-year{font-size:13px;letter-spacing:.1em;color:rgba(255,255,255,.3);}
 
@@ -338,6 +347,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   #fixedTextPanel .show-details{line-height:1.5;margin-bottom:14px;}
   #fixedTextPanel .show-details span{display:inline;}
   #fixedTextPanel .show-details span:not(:last-child)::after{content:' · ';}
+  #fixedTextPanel .show-note-wrap{margin:2px 0 14px;}
+  #fixedTextPanel .show-note{font-size:12.5px;}
+  #fixedTextPanel .show-note-wrap.open .show-note{max-height:38vh;}
 }
 
 /* ══════════════════════════════════════════
@@ -438,7 +450,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 #editorToggle, #editorPanel { display: none !important; }</style>
 </head>
 <body>
-<script src="nav.js?v=5"></script>
+<script src="nav.js?v=6"></script>
 
 <!-- ══ HERO (fixed) ══ -->
 <section class="sh-hero" data-cms-section="sh-hero">
@@ -1546,8 +1558,43 @@ var PH_SHOWS = {
   en: { 'footer.ph.email':'Your email' },
   zh: { 'footer.ph.email':'電子郵件' }
 };
+// ── Collapsible 說明 / description (per show) ──
+window.toggleShowNote = function(btn){
+  var wrap = btn.closest('.show-note-wrap'); if(!wrap) return;
+  var note = wrap.querySelector('.show-note'); if(!note || !note.textContent.trim()) return;
+  var open = wrap.classList.toggle('open');
+  var lbl = wrap.querySelector('.snt-label');
+  if(lbl) lbl.textContent = open ? (_currentLang==='zh'?'收起':'Show less') : (_currentLang==='zh'?'瞭解更多':'Learn more');
+};
+function _ensureShowNotes(){
+  document.querySelectorAll('#fixedTextPanel .ftp-slide').forEach(function(slide){
+    if(slide.querySelector('.show-note-wrap')) return;
+    var art = slide.querySelector('.show-artist'), cta = slide.querySelector('.show-cta');
+    if(!art || !cta) return;
+    var m = (art.getAttribute('data-i18n')||'').match(/show\.(\d+)\.artist/); if(!m) return;
+    var w = document.createElement('div'); w.className = 'show-note-wrap';
+    w.innerHTML = '<button type="button" class="show-note-toggle" onclick="toggleShowNote(this)"><span class="snt-label">'+(_currentLang==='zh'?'瞭解更多':'Learn more')+'</span> <span class="snt-arrow">▾</span></button>'
+      + '<div class="show-note" data-i18n="show.'+m[1]+'.note"></div>';
+    cta.parentNode.insertBefore(w, cta);
+  });
+}
+function _refreshShowNotes(){
+  document.querySelectorAll('#fixedTextPanel .show-note-wrap').forEach(function(w){
+    var note = w.querySelector('.show-note');
+    var has = !!(note && note.textContent.trim());
+    w.style.display = has ? 'block' : 'none';
+    if(!has) w.classList.remove('open');
+    var lbl = w.querySelector('.snt-label');
+    if(lbl && !w.classList.contains('open')) lbl.textContent = (_currentLang==='zh'?'瞭解更多':'Learn more');
+  });
+}
+// Re-apply after async CMS (siteContent) overrides land so notes reveal/hide correctly.
+setTimeout(function(){ try{ switchLang(_currentLang||'en'); }catch(e){} }, 1300);
+setTimeout(function(){ try{ switchLang(_currentLang||'en'); }catch(e){} }, 3000);
+
 function switchLang(lang) {
   _currentLang = lang;
+  _ensureShowNotes();
   var dict = I18N[lang] || I18N.en;
   var phDict = PH_SHOWS[lang] || PH_SHOWS.en;
   document.querySelectorAll('[data-i18n]').forEach(function(el) {
@@ -1580,6 +1627,7 @@ function switchLang(lang) {
   document.querySelectorAll('#langToggle .lt-opt').forEach(function(o) {
     o.classList.toggle('active', o.dataset.l === lang);
   });
+  _refreshShowNotes();
   document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
   if (typeof window.__navResplit === 'function') window.__navResplit();
 }
