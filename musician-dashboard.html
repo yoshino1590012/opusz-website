@@ -2330,7 +2330,7 @@
     // Small-screen "fullscreen edit": entering 編輯主頁 on a laptop/small window
     // auto-collapses the sidebar for max preview width; leaving restores it.
     if (window.pbAutoFullscreen) window.pbAutoFullscreen(id);
-    if (id === 'pagebuilder') { pbInit(); setTimeout(function(){ if(window.pbApplyCurrentDevice) window.pbApplyCurrentDevice(); }, 80); }
+    if (id === 'pagebuilder') { pbInit(); setTimeout(function(){ if(window.pbApplyCurrentDevice) window.pbApplyCurrentDevice(); }, 80); if(window.pbMaybeOfferTour) window.pbMaybeOfferTour(); }
     if (id === 'membership') pbRenderMembership();
     if (id === 'posters') posterInit();
     if (id === 'policy') loadPolicy();
@@ -4851,6 +4851,20 @@
   </div>
 </div>
 
+<!-- Page-builder tutorial offer (Flow 2): appears when entering 編輯主頁 -->
+<div class="tour-welcome" id="pbTourIntro">
+  <div class="tw-card">
+    <div class="tw-emoji">🎨</div>
+    <h2 class="tw-title">要不要教你編輯主頁？</h2>
+    <p class="tw-text">第一次編輯公開主頁嗎？我可以從上到下，一個區塊一個區塊帶你看怎麼填、為什麼要填，讓你輕鬆把主頁做起來。</p>
+    <div class="tw-actions">
+      <button class="tw-start" onclick="pbTourYes()">好，教我 →</button>
+      <button class="tw-skip" onclick="pbTourNo()">先不用</button>
+    </div>
+    <button onclick="pbTourNever()" style="margin-top:10px;background:none;border:none;color:#aaa;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;text-decoration:underline;">不要再顯示這個訊息</button>
+  </div>
+</div>
+
 <div class="tour-overlay" id="tourOverlay">
   <div class="tour-spot" id="tourSpot"></div>
   <div class="tour-pop" id="tourPop">
@@ -4875,8 +4889,26 @@
     { sel:'[data-page="profile"]',     page:'profile',     title:'第一步：填「我的資料」',
       body:'先把基本資料設定好：顯示名稱、樂器、所在地區與聯絡方式。這些是帳號層級的資料，也決定別人能不能在平台上找到你。側邊出現綠色「!」就代表還沒填完，建議先補齊。' },
     { sel:'[data-page="pagebuilder"]', page:'pagebuilder', title:'第二步：編輯主頁（最重要）',
-      body:'這是你的公開門面。左邊選區塊、中間即時預覽、右邊改內容。接下來我從上到下，一個區塊一個區塊帶你看怎麼填、為什麼要填。慢慢來，每一步都可以按「上一步」回去。' },
-    // ── Page-builder section-by-section walkthrough (top → bottom) ──
+      body:'這是你的公開門面 —— 編輯給客戶看的個人主頁。第一次點進來開始編輯時，會再問你要不要一步步教你怎麼填。' },
+    { sel:'[data-page="posters"]',     page:'posters',     title:'海報投稿 / Posters',
+      body:'有演出時，把演出海報＋資訊投稿上來。管理者審核後會張貼到平台的「演出」頁，幫你多一個曝光管道。' },
+    { sel:'[data-page="jobs"]',        page:'jobs',        title:'公開接案 / Jobs',
+      body:'客戶公開發布的演出委托會出現在這裡，你可以主動表達興趣、接案。有新委托時這顆會跳紅點提醒你。' },
+    { sel:'[data-page="messages"]',    page:'messages',    title:'訊息 / Messages',
+      body:'客戶直接找你的聯絡、檔期詢問、課程預約都會進到這裡，可以即時回覆。有新訊息會跳紅點，也會自動寄 email 通知你。' },
+    { sel:'[data-page="earnings"]',    page:'earnings',    title:'收入 / Earnings',
+      body:'追蹤你的接案收入與撥款紀錄。（這部分還在持續完善中。）' },
+    { sel:'[data-page="policy"]',      page:'policy',      title:'平台政策（請務必先讀）',
+      body:'這裡是平台的合作規則：收費與抽成、教學收費、付款與結算方式等。第一次使用一定要讀過一遍；日後規則有更新，也都會公告在這一頁。' },
+    { sel:'[data-page="settings"]',    page:'settings',    title:'設定 / Settings',
+      body:'帳號相關設定都在這裡（登入、通知等）。需要時再進來調整即可。' },
+    { sel:'#tourHelpBtn',              page:null,          title:'隨時再看一次',
+      body:'導覽結束！之後想重看，點右上角這顆「?」按鈕就會再跑一次。開始打造你的主頁吧 🎻' }
+  ];
+
+  // ── Page-builder tutorial steps (separate flow, offered when you enter 編輯主頁) ──
+  // Walks the builder top → bottom, one section at a time, then the Publish button.
+  var PB_STEPS = [
     { sel:'.pb-sec-item[data-pbsec="hero"]',       page:'pagebuilder', pbsec:'hero',       title:'① 主視覺（第一印象）',
       body:'訪客一進來最先看到的大圖＋你的名字。上傳最有氣勢的演奏照（最多 4 張會自動輪播）；名字下方的頭銜會依你選的主要樂器自動顯示。挑最好的一張，第一眼就靠它。' },
     { sel:'.pb-sec-item[data-pbsec="card"]',       page:'pagebuilder', pbsec:'card',       title:'② 列表卡片',
@@ -4902,24 +4934,12 @@
     { sel:'.pb-sec-item[data-pbsec="theme"]',      page:'pagebuilder', pbsec:'theme',      title:'⑫ Theme 顏色',
       body:'微調頁面的主色、背景與文字顏色，讓風格符合你的個人品牌。不確定就用預設，之後隨時能改。' },
     { sel:'#pbPublishBtn',                         page:'pagebuilder', pbsec:null,         title:'⭐ 最後一步：發布',
-      body:'全部填好後，一定要按這顆「發布我的頁面」才會真正上線給客戶看！之後每次改完內容，都記得回來再按一次發布。下方還有你的公開頁面網址，可以分享給別人。' },
-    { sel:'[data-page="posters"]',     page:'posters',     title:'海報投稿 / Posters',
-      body:'有演出時，把演出海報＋資訊投稿上來。管理者審核後會張貼到平台的「演出」頁，幫你多一個曝光管道。' },
-    { sel:'[data-page="jobs"]',        page:'jobs',        title:'公開接案 / Jobs',
-      body:'客戶公開發布的演出委托會出現在這裡，你可以主動表達興趣、接案。有新委托時這顆會跳紅點提醒你。' },
-    { sel:'[data-page="messages"]',    page:'messages',    title:'訊息 / Messages',
-      body:'客戶直接找你的聯絡、檔期詢問、課程預約都會進到這裡，可以即時回覆。有新訊息會跳紅點，也會自動寄 email 通知你。' },
-    { sel:'[data-page="earnings"]',    page:'earnings',    title:'收入 / Earnings',
-      body:'追蹤你的接案收入與撥款紀錄。（這部分還在持續完善中。）' },
-    { sel:'[data-page="policy"]',      page:'policy',      title:'平台政策（請務必先讀）',
-      body:'這裡是平台的合作規則：收費與抽成、教學收費、付款與結算方式等。第一次使用一定要讀過一遍；日後規則有更新，也都會公告在這一頁。' },
-    { sel:'[data-page="settings"]',    page:'settings',    title:'設定 / Settings',
-      body:'帳號相關設定都在這裡（登入、通知等）。需要時再進來調整即可。' },
-    { sel:'#tourHelpBtn',              page:null,          title:'隨時再看一次',
-      body:'導覽結束！之後想重看，點右上角這顆「?」按鈕就會再跑一次。開始打造你的主頁吧 🎻' }
+      body:'全部填好後，一定要按這顆「發布我的頁面」才會真正上線給客戶看！之後每次改完內容，都記得回來再按一次發布。下方還有你的公開頁面網址，可以分享給別人。' }
   ];
 
   var idx = 0, active = false;
+  var curSteps = STEPS;     // which list the engine is currently running
+  var isPbTour = false;     // true while the page-builder tutorial is running
   var overlay = document.getElementById('tourOverlay');
   var welcome = document.getElementById('tourWelcome');
   var spot = document.getElementById('tourSpot');
@@ -4928,7 +4948,7 @@
   function lsKey(){ try{ return 'opusz-tour-done-' + ((window._tourUid)||'anon'); }catch(e){ return 'opusz-tour-done'; } }
 
   function place(){
-    var step = STEPS[idx];
+    var step = curSteps[idx];
     var el = document.querySelector(step.sel);
     if(!el){ // target missing → center the popover, no spotlight
       spot.style.display = 'none';
@@ -4959,7 +4979,7 @@
   }
 
   function render(){
-    var step = STEPS[idx];
+    var step = curSteps[idx];
     if(step.page && typeof window.navigate === 'function'){
       var btn = document.querySelector('[data-page="' + step.page + '"]');
       try{ window.navigate(step.page, btn); }catch(e){}
@@ -4970,16 +4990,16 @@
       var sbtn = document.querySelector('.pb-sec-item[data-pbsec="' + step.pbsec + '"]');
       try{ window.pbSelectSection(step.pbsec, sbtn); }catch(e){}
     }
-    document.getElementById('tourStepLabel').textContent = 'Step ' + (idx+1) + ' / ' + STEPS.length;
+    document.getElementById('tourStepLabel').textContent = 'Step ' + (idx+1) + ' / ' + curSteps.length;
     document.getElementById('tourTitle').textContent = step.title;
     document.getElementById('tourBody').textContent = step.body;
     document.getElementById('tourBack').style.visibility = idx === 0 ? 'hidden' : 'visible';
-    document.getElementById('tourNext').textContent = idx === STEPS.length-1 ? '完成 ✓' : '下一步';
+    document.getElementById('tourNext').textContent = idx === curSteps.length-1 ? '完成 ✓' : '下一步';
     var dots = document.getElementById('tourDots');
     dots.innerHTML = '';
     // With many steps a dot-per-step row won't fit; the "Step X / N" label covers it.
-    if(STEPS.length <= 12){
-      STEPS.forEach(function(_, i){
+    if(curSteps.length <= 12){
+      curSteps.forEach(function(_, i){
         var d = document.createElement('div'); d.className = 'tour-dot' + (i===idx?' on':''); dots.appendChild(d);
       });
     }
@@ -4995,12 +5015,13 @@
 
   window.startTour = function(){
     welcome.classList.remove('show');
+    curSteps = STEPS; isPbTour = false;
     idx = 0; active = true;
     overlay.classList.add('show');
     render();
   };
   window.tourNext = function(){
-    if(idx >= STEPS.length-1){ endTour(); return; }
+    if(idx >= curSteps.length-1){ endTour(); return; }
     idx++; render();
   };
   window.tourPrev = function(){ if(idx>0){ idx--; render(); } };
@@ -5008,7 +5029,40 @@
     active = false;
     overlay.classList.remove('show');
     welcome.classList.remove('show');
-    try{ localStorage.setItem(lsKey(), '1'); }catch(e){}
+    // Only the welcome overview tour writes the "seen welcome" flag; the
+    // page-builder tutorial's own intro modal manages its own opt-out.
+    if(!isPbTour){ try{ localStorage.setItem(lsKey(), '1'); }catch(e){} }
+    isPbTour = false; curSteps = STEPS;
+  };
+
+  // ── Page-builder tutorial (Flow 2) ──────────────────────────────────────────
+  // Offered via its own intro modal when the musician enters 編輯主頁. Separate
+  // from the welcome overview tour above.
+  var pbIntro = document.getElementById('pbTourIntro');
+  function pbTourKey(){ try{ return 'opusz-pbtour-skip-' + ((window._tourUid)||'anon'); }catch(e){ return 'opusz-pbtour-skip'; } }
+
+  window.startPbTour = function(){
+    if(pbIntro) pbIntro.classList.remove('show');
+    curSteps = PB_STEPS; isPbTour = true;
+    idx = 0; active = true;
+    overlay.classList.add('show');
+    render();
+  };
+  // Buttons on the intro modal.
+  window.pbTourYes   = function(){ window.startPbTour(); };
+  window.pbTourNo    = function(){ if(pbIntro) pbIntro.classList.remove('show'); };   // ask again next time
+  window.pbTourNever = function(){ try{ localStorage.setItem(pbTourKey(), '1'); }catch(e){} if(pbIntro) pbIntro.classList.remove('show'); };
+
+  // Called from navigate() each time the editable page-builder is opened.
+  // Shows the offer unless the welcome tour is running, a tour is already active,
+  // or the user chose "don't show again".
+  window.pbMaybeOfferTour = function(){
+    if(active) return;                                  // welcome/pb tour already running
+    if(!pbIntro) return;
+    var skip = '1';
+    try{ skip = localStorage.getItem(pbTourKey()); }catch(e){}
+    if(skip) return;
+    setTimeout(function(){ if(!active) pbIntro.classList.add('show'); }, 400);
   };
 
   // Reposition on resize/scroll while active
