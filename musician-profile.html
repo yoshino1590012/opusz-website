@@ -5908,26 +5908,39 @@ window.addEventListener('pageshow', function(e) {
       }
     }
 
-    // Whole-logo edge fade: every frame, fade each logo as ONE unit by its X
-    // position, hitting opacity 0 BEFORE it reaches the clip edge — so a half
-    // glyph is never shown (the real cause of "中文被切"). Throttled to ~30fps.
+    // Marquee engine — JS-DRIVEN (not CSS animation). CSS transform animations run
+    // on the GPU compositor, where the main thread can't read the live position
+    // (getBoundingClientRect returns the stale translateX=0 value) — that's why the
+    // earlier per-item fade never fired and CJK glyphs stayed hard-clipped. Here JS
+    // owns translateX, so each logo's exact X is known and it's faded to opacity 0
+    // as a WHOLE unit BEFORE it touches the clip edge → never a half glyph.
     if(!window.__startMarqueeEdgeFade){
       window.__startMarqueeEdgeFade = function(track, wrap){
         if(!track || !wrap) return;
         if(track.__fadeRAF) cancelAnimationFrame(track.__fadeRAF);
-        var logos = [].slice.call(track.children), flip = false;
-        var tick = function(){
-          flip = !flip;
-          if(flip){   // run the math every other frame (~30fps) to stay light
-            var ww = wrap.clientWidth, fade = Math.min(160, ww * 0.18);
-            var wr = wrap.getBoundingClientRect();
-            var rects = logos.map(function(el){ return el.getBoundingClientRect(); });
-            for(var i=0;i<logos.length;i++){
-              var L = rects[i].left - wr.left, R = rects[i].right - wr.left;
-              var fl = Math.max(0, Math.min(1, L / fade));        // fade out toward left edge
-              var fr = Math.max(0, Math.min(1, (ww - R) / fade));  // fade in from right edge
-              logos[i].style.setProperty('--edge', Math.min(fl, fr).toFixed(3));
-            }
+        track.style.animation = 'none';                 // we drive the motion ourselves
+        var logos = [].slice.call(track.children);
+        // Static geometry (transform-independent) — read once after layout.
+        var geo = logos.map(function(el){ return { el: el, left: el.offsetLeft, w: el.offsetWidth }; });
+        var half = track.scrollWidth / 2;               // one block width (track = block+block)
+        var SPEED = 55;                                  // px per second (steady, any partner count)
+        var tx = 0, last = null, paused = false;
+        wrap.onmouseenter = function(){ paused = true; };
+        wrap.onmouseleave = function(){ paused = false; };
+        var tick = function(ts){
+          if(last == null) last = ts;
+          var dt = (ts - last) / 1000; last = ts;
+          if(!paused){
+            tx -= SPEED * dt;
+            if(tx <= -half) tx += half;                  // seamless loop (2nd block identical)
+            track.style.transform = 'translateX(' + tx + 'px)';
+          }
+          var ww = wrap.clientWidth, fade = Math.min(160, ww * 0.2);
+          for(var i=0;i<geo.length;i++){
+            var L = geo[i].left + tx, R = L + geo[i].w;
+            var fl = Math.max(0, Math.min(1, L / fade));        // fade out toward left edge
+            var fr = Math.max(0, Math.min(1, (ww - R) / fade));  // fade in from right edge
+            geo[i].el.style.setProperty('--edge', Math.min(fl, fr).toFixed(3));
           }
           track.__fadeRAF = requestAnimationFrame(tick);
         };
