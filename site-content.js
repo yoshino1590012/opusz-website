@@ -130,12 +130,17 @@ function applyHeroPhrase(s){
 // Pick the per-device hero position map by viewport and apply it.
 function applyHeroPosResponsive(cfg){
   cfg = cfg || window.__opzHeroCfg || {};
-  // Four independent layouts by viewport width: phone / iPad / MacBook / desktop.
-  // Each falls back to the desktop set when that device has no saved layout.
+  // THREE layouts by viewport width: phone / tablet / computer.
+  // ALL computers (laptop + desktop) now SHARE one config — cfg.heroPos, the
+  // "標準顯示螢幕" set. Combined with the hero's uniform scaling (see updateHeroDims
+  // in musician-platform.html) this means a SINGLE design scales proportionally to
+  // every computer width: nothing clips, nothing jumps, you only tune it once.
+  // Phone & iPad keep their own layouts (genuinely different shapes).
+  // NOTE: legacy cfg.heroPosMacbook is intentionally no longer read — editing the
+  // "標準顯示螢幕" tab is now the single source of truth for all computers.
   var w = window.innerWidth || 9999;
   var map = (w <= 700  && cfg.heroPosPhone)   ? cfg.heroPosPhone
           : (w <= 1024 && cfg.heroPosIpad)    ? cfg.heroPosIpad
-          : (w <= 1440 && cfg.heroPosMacbook) ? cfg.heroPosMacbook
           : (cfg.heroPos || {});
   applyHeroPos(map);
   // Phrase align/wrap + line-height are ALSO per-device. Prefer the picked map's
