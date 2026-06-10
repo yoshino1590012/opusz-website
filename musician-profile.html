@@ -627,21 +627,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   overflow:hidden;
   max-width:68%;
   margin:0 auto;
-}
-/* fade masks left + right */
-.marquee-track-wrap::before,
-.marquee-track-wrap::after{
-  content:'';
-  position:absolute;top:0;bottom:0;
-  width:160px;z-index:2;pointer-events:none;
-}
-.marquee-track-wrap::before{
-  left:0;
-  background:linear-gradient(to right, #fff 0%, transparent 100%);
-}
-.marquee-track-wrap::after{
-  right:0;
-  background:linear-gradient(to left, #fff 0%, transparent 100%);
+  /* mask-image fades edges without hard-clipping glyphs (fixes CJK cut-off) */
+  -webkit-mask-image:linear-gradient(to right,transparent 0,black 100px,black calc(100% - 100px),transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0,black 100px,black calc(100% - 100px),transparent 100%);
 }
 .marquee-track{
   display:flex;align-items:center;
@@ -674,9 +662,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 }
 /* mobile: tighter gap + faster scroll + wider visible area */
 @media(max-width:700px){
-  .marquee-track-wrap{ max-width:90%; }
-  .marquee-track-wrap::before,
-  .marquee-track-wrap::after{ width:48px; }
+  .marquee-track-wrap{
+    max-width:90%;
+    -webkit-mask-image:linear-gradient(to right,transparent 0,black 48px,black calc(100% - 48px),transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0,black 48px,black calc(100% - 48px),transparent 100%);
+  }
   .marquee-track{ animation-duration:13s; }
   .marquee-logo{ padding:0 22px; }
 }
@@ -5885,15 +5875,21 @@ window.addEventListener('pageshow', function(e) {
         .map(function(s){ return String(s == null ? '' : s).trim(); })
         .filter(function(s){ return s !== ''; });
       if(marqueeTrack && brandNames.length){
-        var esc = function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
-        var oneSet = brandNames.map(function(name){
-          var svg = window.partnerWordmark ? window.partnerWordmark(name) : '';
-          if(svg){ return '<div class="marquee-logo marquee-logo--svg">' + svg + '</div>'; }
-          return '<div class="marquee-logo"><span class="logo-text">' + esc(name) + '</span></div>';
-        }).join('');
-        // Two identical sets so the CSS scroll loop stays seamless
-        marqueeTrack.innerHTML = oneSet + oneSet;
-        marqueeTrack.style.animation = ''; // re-enable scroll loop (template empty-state disables it)
+        var newKey = brandNames.join('|||');
+        // Skip rebuild if partners haven't changed — prevents animation restart on
+        // second applyProfileConfig call (cache paint → Firestore fresh load).
+        if(marqueeTrack.dataset.partnersKey !== newKey){
+          marqueeTrack.dataset.partnersKey = newKey;
+          var esc = function(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+          var oneSet = brandNames.map(function(name){
+            var svg = window.partnerWordmark ? window.partnerWordmark(name) : '';
+            if(svg){ return '<div class="marquee-logo marquee-logo--svg">' + svg + '</div>'; }
+            return '<div class="marquee-logo"><span class="logo-text">' + esc(name) + '</span></div>';
+          }).join('');
+          // Two identical sets so the CSS scroll loop stays seamless
+          marqueeTrack.innerHTML = oneSet + oneSet;
+          marqueeTrack.style.animation = ''; // re-enable scroll loop (template empty-state disables it)
+        }
       }
     }
 
