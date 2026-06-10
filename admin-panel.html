@@ -1932,11 +1932,13 @@
         var to=setTimeout(function(){ if(settled) return; settled=true;
           if(note){ note.textContent='⚠ 上傳逾時，請重試或換一張較小的圖'; note.style.color='#c00'; } }, 30000);
         function fail(m){ if(settled) return; settled=true; clearTimeout(to); if(note){ note.textContent=m; note.style.color='#c00'; } }
-        // Homepage "Work" posters now upload to Firebase Storage so they're
-        // editable on the LIVE site (no server.py). Other engine groups still
-        // use the file-based path (localhost only).
-        var _up = (group==='poster')
-          ? seUploadAuto(file,'img',cls,note).then(function(url){ if(url){ try{ eng.setImageUrl('poster', cls, url); }catch(e){} } return url; })
+        // Homepage photos upload to Firebase Storage so they're editable on the
+        // LIVE site (no server.py needed). Covers the Hero photo wall (hero),
+        // categories (cat), services (svc) and Work posters (poster). The blog
+        // page's own engine still uses the file-based path (localhost).
+        var _cloudGrp = (group==='poster' || group==='hero' || group==='cat' || group==='svc');
+        var _up = _cloudGrp
+          ? seUploadAuto(file,'img',cls,note).then(function(url){ if(url){ try{ eng.setImageUrl(group, cls, url); }catch(e){} } return url; })
           : Promise.resolve(eng.setImageFile(group, cls, file));
         _up.then(function(url){
           if(settled) return; settled=true; clearTimeout(to);
@@ -2662,6 +2664,20 @@
           var hps = wh.opzEdit.list('poster');
           hps.forEach(function(p){ if(typeof p.url==='string' && p.url.slice(0,5)==='data:') p.url=''; });
           cfg.homePosters = hps;
+          // Hero photo wall / categories / services background photos → Firebase
+          // (image URL + framing) so they're editable on the LIVE site too. Only
+          // Storage URLs are persisted (never base64 — that blows the 1MB limit).
+          var hp = [];
+          ['hero','cat','svc'].forEach(function(grp){
+            try{
+              wh.opzEdit.list(grp).forEach(function(s){
+                if(s.url && String(s.url).slice(0,5)!=='data:'){
+                  hp.push({ group:grp, cls:s.cls, url:s.url, x:s.x, y:s.y, zoom:s.zoom });
+                }
+              });
+            }catch(e){}
+          });
+          cfg.homePhotos = hp;
         }catch(e){}
       }
     }

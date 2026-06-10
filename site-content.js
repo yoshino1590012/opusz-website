@@ -314,6 +314,24 @@ function applyConfig(cfg){
     })(0);
   }
 
+  // homepage background photos (Hero 照片牆 / 分類 / 服務) — image URLs + framing,
+  // driven from Firebase so they're editable on the LIVE site (no server.py needed).
+  // Additive + fail-safe: if absent or the engine isn't ready yet, the existing
+  // file-based photos (site-data.json) stay in place. Each entry: {group,cls,url,x,y,zoom}.
+  if (Array.isArray(cfg.homePhotos) && cfg.homePhotos.length) {
+    (function applyHomePhotos(n){
+      if (window.opzEdit && typeof window.opzEdit.setImageUrl === 'function') {
+        cfg.homePhotos.forEach(function(p){
+          if (!p || !p.cls || !p.url) return;
+          try { window.opzEdit.setImageUrl(p.group, p.cls, p.url); } catch(e){}
+          if (p.x != null || p.y != null || p.zoom != null) {
+            try { window.opzEdit.setFrame(p.group, p.cls, { x:p.x, y:p.y, zoom:p.zoom }); } catch(e){}
+          }
+        });
+      } else if ((n || 0) < 50) { setTimeout(function(){ applyHomePhotos((n || 0) + 1); }, 150); }
+    })(0);
+  }
+
   // 2) direct data-cms overrides (non-i18n text / images / links)
   if (cfg.cms) {
     var cms = cfg.cms;
