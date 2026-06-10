@@ -304,9 +304,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 
 /* ══ MACBOOK 13" — hero ghost-text fix + single-line artist name ══ */
 @media(max-width:1400px){
-  /* Hero title bleeds through poster clip-path — hide in MacBook view */
-  .sh-hero-title   { visibility:hidden; }
-  .sh-hero-eyebrow { visibility:hidden; }
+  /* Title/eyebrow stay VISIBLE here (business wants them on MacBook/iPad/phone).
+     To stop the old "ghost bleed-through" when posters clip over the fixed hero,
+     .sh-hero-content fades out on scroll (see _heroIntroFade in JS). */
   .sh-hero-right   { visibility:hidden; }
 
   /* Poster: ~13% smaller than base */
@@ -330,6 +330,10 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   .show-left{max-width:60vw;}
   .show-right{display:none;}
   .sh-end{flex-direction:column;}
+  /* Intro title fits small screens; sit it nearer the top so it's clearly seen */
+  .sh-hero{align-items:flex-start;padding-top:clamp(90px,16vh,140px);}
+  .sh-hero-title{font-size:clamp(40px,13vw,66px);}
+  .sh-hero-eyebrow{margin-bottom:14px;}
 
   /* ── 海報：置中放大、稍微上移 ── */
   #fixedPosterFrame{
@@ -697,6 +701,19 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 
   function onScroll(){
     const vh    = window.innerHeight;
+    // Intro hero title/eyebrow: fade out on scroll on ≤1400px so it doesn't ghost
+    // through the poster clip-path. Desktop (>1400) keeps it always visible.
+    var _heroContent = document.querySelector('.sh-hero-content');
+    if(_heroContent){
+      if(window.innerWidth <= 1400){
+        var _hp = Math.max(0, Math.min(1, window.scrollY / (vh * 0.55)));
+        _heroContent.style.opacity = (1 - _hp).toFixed(2);
+        _heroContent.style.pointerEvents = _hp > 0.9 ? 'none' : '';
+      } else {
+        _heroContent.style.opacity = '';
+        _heroContent.style.pointerEvents = '';
+      }
+    }
     // Re-query live so added/removed posters are always included.
     slides     = Array.from(document.querySelectorAll('.fp-slide'));
     textSlides = Array.from(document.querySelectorAll('.ftp-slide'));
