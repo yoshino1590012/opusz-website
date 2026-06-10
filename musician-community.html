@@ -1100,7 +1100,11 @@ body {
 .dm-del:hover { opacity:1; }
 .dm-msgs { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:2px; background:#fafafa; }
 .dm-time-sep { align-self:center; font-size:11px; color:#aaa; margin:12px 0 6px; }
-.dm-bubble { max-width:74%; padding:9px 13px; border-radius:15px; font-size:14px; line-height:1.5; white-space:pre-wrap; word-break:break-word; margin-top:2px; }
+/* Cap is provided by the row wrapper (max-width:78% of the definite-width
+   .dm-msgs). The bubble itself must NOT use a % max-width — the wrapper is
+   shrink-to-fit, so a % here resolves against an indefinite width and collapses
+   the bubble to one character per line (vertical text). Content-size it instead. */
+.dm-bubble { max-width:100%; width:fit-content; padding:9px 13px; border-radius:15px; font-size:14px; line-height:1.5; white-space:pre-wrap; word-break:break-word; margin-top:2px; }
 .dm-bubble.me { align-self:flex-end; background:#111; color:#fff; }
 .dm-bubble.them { align-self:flex-start; background:#fff; color:#222; border:1px solid #eee; }
 .dm-input-row { display:flex; gap:8px; padding:12px; border-top:1px solid #eee; }
