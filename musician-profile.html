@@ -1870,7 +1870,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 #martin-photo-editor, #bveToggle, #bvePanel, .bve-toggle, .bve-panel, #mpe-toast { display: none !important; }</style>
 </head>
 <body>
-<script src="nav.js?v=6"></script>
+<script src="nav.js?v=7"></script>
 <script src="partners-library.js"></script>
 
 
@@ -5421,10 +5421,64 @@ window.addEventListener('pageshow', function(e) {
     return src.map(function(s){ return String(s == null ? '' : s).trim(); }).filter(function(s){ return s !== ''; });
   }
   function _escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  // Bilingual lookup tables for the hero TITLE (instrument role) and LOCATION.
+  // Values picked from the suggestion lists translate with the language toggle;
+  // anything custom the musician typed is left exactly as entered.
+  var TITLE_PAIRS = [
+    ['Violinist','小提琴家'],['Violist','中提琴家'],['Cellist','大提琴家'],['Double Bassist','低音提琴家'],
+    ['Pianist','鋼琴家'],['Organist','管風琴家'],['Harpsichordist','大鍵琴家'],['Guitarist','吉他手'],['Harpist','豎琴家'],
+    ['Flutist','長笛家'],['Flautist','長笛家'],['Clarinetist','單簧管演奏家'],['Oboist','雙簧管演奏家'],
+    ['Bassoonist','低音管演奏家'],['Saxophonist','薩克斯風手'],['Trumpeter','小號手'],['Trombonist','長號手'],
+    ['Hornist','法國號手'],['French Hornist','法國號手'],['Tubist','低音號手'],['Percussionist','打擊樂家'],['Drummer','鼓手'],
+    ['Vocalist','聲樂家'],['Singer','歌手'],['Soprano','女高音'],['Mezzo-soprano','次女高音'],['Alto','女低音'],
+    ['Tenor','男高音'],['Baritone','男中音'],['Bass','男低音'],['Conductor','指揮'],['Composer','作曲家'],
+    ['Arranger','編曲家'],['Accompanist','伴奏'],['Music Teacher','音樂教師']
+  ];
+  var LOC_PAIRS = [
+    ['Taipei, Taiwan','台北, 台灣'],['New Taipei, Taiwan','新北, 台灣'],['Taoyuan, Taiwan','桃園, 台灣'],
+    ['Taichung, Taiwan','台中, 台灣'],['Tainan, Taiwan','台南, 台灣'],['Kaohsiung, Taiwan','高雄, 台灣'],
+    ['Hsinchu, Taiwan','新竹, 台灣'],['Keelung, Taiwan','基隆, 台灣'],['Chiayi, Taiwan','嘉義, 台灣'],
+    ['Yilan, Taiwan','宜蘭, 台灣'],['Hualien, Taiwan','花蓮, 台灣'],['Taitung, Taiwan','台東, 台灣'],
+    ['New York, USA','紐約, 美國'],['Los Angeles, USA','洛杉磯, 美國'],['San Francisco, USA','舊金山, 美國'],
+    ['Boston, USA','波士頓, 美國'],['Chicago, USA','芝加哥, 美國'],['Seattle, USA','西雅圖, 美國'],
+    ['Houston, USA','休士頓, 美國'],['Washington, DC, USA','華盛頓特區, 美國'],['Philadelphia, USA','費城, 美國'],
+    ['Austin, USA','奧斯汀, 美國'],['San Diego, USA','聖地牙哥, 美國'],['Dallas, USA','達拉斯, 美國'],
+    ['Miami, USA','邁阿密, 美國'],['Atlanta, USA','亞特蘭大, 美國'],['Denver, USA','丹佛, 美國'],
+    ['Portland, USA','波特蘭, 美國'],['Minneapolis, USA','明尼亞波利斯, 美國'],['Nashville, USA','納許維爾, 美國'],
+    ['San Jose, USA','聖荷西, 美國'],['Las Vegas, USA','拉斯維加斯, 美國'],['Phoenix, USA','鳳凰城, 美國'],
+    ['Detroit, USA','底特律, 美國'],['Baltimore, USA','巴爾的摩, 美國'],['Pittsburgh, USA','匹茲堡, 美國'],
+    ['Cleveland, USA','克里夫蘭, 美國'],['Cincinnati, USA','辛辛那提, 美國'],['Indianapolis, USA','印第安納波利斯, 美國'],
+    ['New Orleans, USA','紐奧良, 美國'],['Salt Lake City, USA','鹽湖城, 美國']
+  ];
+  function _biTrans(pairs, val){
+    if(!val) return val;
+    var s = String(val).trim();
+    for(var i=0;i<pairs.length;i++){
+      if(pairs[i][0] === s || pairs[i][1] === s) return (_profileLang === 'zh') ? pairs[i][1] : pairs[i][0];
+    }
+    return val;  // custom entry → unchanged
+  }
+
   function applyLocalizedSections(){
     var cfg = _profileCfg; if(!cfg) return;
     var isEn = (_profileLang === 'en');
     var about = cfg.about || {};
+
+    // HERO title (instrument role) + location — translate known values on toggle
+    var _hero = cfg.hero || {};
+    if(_hero.title && String(_hero.title).trim() !== ''){
+      var _itEl = document.querySelector('.info-title');
+      if(_itEl) _itEl.textContent = _biTrans(TITLE_PAIRS, _hero.title);
+    }
+    if(_hero.location && String(_hero.location).trim() !== ''){
+      var _ilEl = document.querySelector('.info-location');
+      if(_ilEl){
+        var _lt = _biTrans(LOC_PAIRS, _hero.location);
+        if(_hero.location2 && String(_hero.location2).trim() !== '') _lt += ' · ' + _biTrans(LOC_PAIRS, _hero.location2);
+        _ilEl.textContent = _lt;
+      }
+    }
 
     // BIO
     var bioText = document.querySelector('.bio-text');
