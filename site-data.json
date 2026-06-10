@@ -20,9 +20,7 @@
     "cat-compose": "assets/images/cat-compose.jpg",
     "cat-chamber": "assets/images/cat-chamber.jpg",
     "cat-perc": "assets/images/cat-perc.jpg",
-    "wc1": "assets/images/wc1.jpg",
-    "wc2": "assets/images/wc2.jpg",
-    "wc3": "assets/images/wc3.jpg",
+    "wc1": "https://firebasestorage.googleapis.com/v0/b/opusz-45280.firebasestorage.app/o/siteContent%2Fhome%2Fauto_work_img_wc1_1781033907614_poster.jpg?alt=media&token=a5a445db-5e3c-4f0e-8866-baa8dead57b2",
     "bi1": "assets/images/bi1.jpg",
     "bi2": "assets/images/bi2.jpg"
   },
@@ -206,17 +204,9 @@
       "wc1": {
         "x": 50,
         "y": 50,
-        "zoom": 0
-      },
-      "wc2": {
-        "x": 50,
-        "y": 50,
-        "zoom": 0
-      },
-      "wc3": {
-        "x": 50,
-        "y": 50,
-        "zoom": 0
+        "zoom": 0,
+        "cap": "",
+        "capZh": ""
       }
     },
     "blog": {
@@ -224,13 +214,13 @@
         "x": 50,
         "y": 50,
         "zoom": 0,
-        "url": ""
+        "url": "assets/images/bi1.jpg"
       },
       "bi2": {
         "x": 50,
         "y": 50,
         "zoom": 0,
-        "url": ""
+        "url": "assets/images/bi2.jpg"
       },
       "bi3": {
         "x": 50,

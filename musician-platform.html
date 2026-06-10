@@ -603,7 +603,7 @@ nav.mega-open .nav-links a::before {
   position: absolute; inset: 0;          /* cover the card */
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  padding-bottom: calc(var(--k)*120px);  /* nudge content upward (中上) */
+  padding-bottom: calc(var(--k)*90px);  /* nudge content upward (中上) — unified across all widths */
   box-sizing: border-box;
   /* CRITICAL: NO transform / opacity / filter / z-index on this container, so the
      mix-blend-mode text below can invert against the canvas photo behind it
@@ -672,7 +672,7 @@ nav.mega-open .nav-links a::before {
   gap: calc(var(--k)*9px); align-items: flex-start;
 }
 .hco-services li {
-  font-size: calc(var(--k)*25.5px); font-weight: 600;
+  font-size: calc(var(--k)*30.6px); font-weight: 600;  /* unified across all widths */
   display: flex; align-items: center;
   cursor: default;
 }
@@ -2232,12 +2232,10 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   .sf-brand  { height: clamp(80px, 30vw, 600px); align-items: center; }
   .sf-letter { font-size: clamp(29px, 26vw, 543px); }
   .sf-dot    { font-size: clamp(25px, 22vw, 466px); align-self: auto; }
-  /* Hero card overlay (services + buttons): reduce --k so content fits MacBook viewport */
+  /* Hero card overlay --k is now set by JS (uniform scaling, see updateHeroDims).
+     This CSS value only remains as a no-JS fallback; services-font + overlay
+     padding are unified in the base rules so there's no jump at this breakpoint. */
   #heroCard { --k: 0.86; }
-  /* Services items: 20% bigger than --k baseline */
-  .hco-services li { font-size: calc(var(--k) * 30.6px); }
-  /* Overlay stays centred (upper-centre) at this breakpoint too */
-  .hc-card-overlay { padding-bottom: calc(var(--k)*90px); }  /* keep flex-centre; no transform */
 }
 
 /* ── RESPONSIVE ── */
@@ -3849,6 +3847,21 @@ function updateHeroDims() {
   const vh  = heroViewportH();
   _effectiveVH = vh;
   heroCardEl.style.top = '50%';
+
+  // ── Uniform scaling ──────────────────────────────────────────────────────
+  // The hero keeps the SAME proportions on EVERY screen: content size (--k)
+  // scales linearly with viewport width, so the card + its text grow/shrink as
+  // one unit. Nothing ever clips, overflows, or jumps at a breakpoint.
+  // Anchored to the "MacBook 顯示器" editor design (1280px → --k 0.86), so the
+  // saved layout renders identically at 1280 and scales proportionally elsewhere.
+  // REF = 1280 / 0.86 ≈ 1488. Clamped so phones/ultrawides stay sane.
+  // Mobile (≤700) keeps its own separate layout, so we clear the inline override.
+  if (vw <= 700) {
+    heroCardEl.style.removeProperty('--k');
+  } else {
+    const kUniform = Math.max(0.62, Math.min(1.9, vw / 1488));
+    heroCardEl.style.setProperty('--k', kUniform.toFixed(4));
+  }
 
   // Force heroCard to exactly match the viewport height so:
   //  (a) top = vh/2 - vh/2 = 0 → OPUS.Z title never clips above viewport
