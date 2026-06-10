@@ -1213,9 +1213,17 @@ window.opzShows = (function(){
     });
     applyAll();
   }
+  // Hero overlay darkness (0–100). save=false → live preview only; true → persist.
+  function setOverlay(v, save){
+    v = Math.max(0, Math.min(100, parseFloat(v) || 0));
+    ST.heroOverlay = v; applyHeroOverlay(v);
+    if(save){ try{ saveState(); }catch(e){} try{ syncShowsToServer(); }catch(e){} }
+  }
+  function getOverlay(){ return ST.heroOverlay; }
   return { count:function(){return SHOW_N;}, list:list, setFrame:setFrame,
            setImageUrl:setImageUrl, setImageFile:setImageFile, publish:publish,
-           add:addPoster, removeLast:removeLast, removeAt:removeAt, applyConfig:applyConfig };
+           add:addPoster, removeLast:removeLast, removeAt:removeAt, applyConfig:applyConfig,
+           setOverlay:setOverlay, getOverlay:getOverlay };
 })();
 
 // ══════════════════════════════════════════

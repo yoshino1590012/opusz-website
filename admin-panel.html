@@ -1417,6 +1417,29 @@
   }
 
   // ── Shows poster editor (drives shows.html opzShows: front X/Y/size + back blur + drag-drop) ──
+  // Shows Banner (sh-hero): generic text/video auto editor + an Overlay-darkness slider.
+  window.seBuildShowsHero = function(box){
+    var ifr=document.getElementById('seFrame'); var win=ifr&&ifr.contentWindow;
+    if(!win || !win.opzShows || !win.opzShows.getOverlay){
+      seBuildAutoControls(box);   // show text/video meanwhile
+      seBuildShowsHero._n=(seBuildShowsHero._n||0)+1;
+      if(seBuildShowsHero._n<25) setTimeout(function(){ if(seCurrentPage==='shows'&&seCurrentSection==='sh-hero') seBuildShowsHero(box); },300);
+      return;
+    }
+    seBuildShowsHero._n=0;
+    seBuildAutoControls(box);     // text + video fields (iframe is ready → builds once)
+    var cur = win.opzShows.getOverlay();
+    var wrap=document.createElement('div');
+    wrap.style.cssText='margin-top:16px;border-top:1px solid #eee;padding-top:14px;';
+    wrap.innerHTML='<div style="font-size:11px;font-weight:800;color:#111;margin-bottom:6px;">濾鏡暗度 / Overlay darkness</div>'
+      +'<div style="font-size:11px;color:#666;line-height:1.5;margin-bottom:8px;">Banner 上的黑色濾鏡：<b>0＝最亮</b>、<b>100＝最暗</b>。拖曳即時預覽，改完按上方「🚀 儲存並發布」。</div>'
+      +'<div style="display:flex;align-items:center;gap:10px;"><input type="range" id="seShOverlay" min="0" max="100" value="'+cur+'" style="flex:1;"><span id="seShOverlayVal" style="font-size:12px;color:#888;width:44px;text-align:right;">'+cur+'%</span></div>';
+    box.appendChild(wrap);
+    var range=wrap.querySelector('#seShOverlay'), val=wrap.querySelector('#seShOverlayVal');
+    range.addEventListener('input', function(){ val.textContent=this.value+'%'; try{ win.opzShows.setOverlay(+this.value,false); }catch(e){} });
+    range.addEventListener('change', function(){ try{ win.opzShows.setOverlay(+this.value,true); }catch(e){} });
+  };
+
   window.seBuildShowsPoster = function(box){
     var ifr=document.getElementById('seFrame'); var win=ifr&&ifr.contentWindow;
     if(!win || !win.opzShows){
@@ -1614,6 +1637,7 @@
     if(seCurrentSection==='partners'){ seBuildPartners(box); return; }
     // Shows poster → specialised control (front X/Y/size + back blur + drag-drop).
     if(seCurrentPage==='shows' && seCurrentSection==='sh-poster'){ seBuildShowsPoster(box); return; }
+    if(seCurrentPage==='shows' && seCurrentSection==='sh-hero'){ seBuildShowsHero(box); return; }
     // Musicians page → dedicated hero (text/video/position) + filter-label editors.
     if(seCurrentPage==='musicians' && seCurrentSection==='mus-hero'){ seBuildMusiciansHero(box); return; }
     if(seCurrentPage==='musicians' && seCurrentSection==='mus-list'){ seBuildMusiciansFilters(box); return; }
