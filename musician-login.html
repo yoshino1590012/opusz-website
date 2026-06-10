@@ -566,6 +566,10 @@
         <div class="form-error" id="setupAgreeErr">請先閱讀並勾選同意樂手條款。</div>
       </div>
 
+      <div id="setupGenErr" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13.5px;color:#b91c1c;">
+        ⚠️ 有必填欄位未填寫，已自動捲動到需要補填的地方，請向上查看。
+      </div>
+
       <button class="btn-main btn-primary" id="setupBtn" onclick="doSetup()">
         送出申請 / Submit application
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
@@ -1133,7 +1137,12 @@
       instagram: document.getElementById('setupLinkInstagram').value.trim()
     };
     var ok = true;
-    var show = function(id){ document.getElementById(id).classList.add('show'); ok = false; };
+    var firstErrEl = null;
+    var show = function(id){
+      var el = document.getElementById(id);
+      if(el){ el.classList.add('show'); if(!firstErrEl) firstErrEl = el; }
+      ok = false;
+    };
 
     if (!name)                           show('setupNameErr');
     if (selectedInsts.size === 0)        show('setupInstErr');
@@ -1145,7 +1154,13 @@
     if (!phone)                          show('setupPhoneErr');
     var agreeEl = document.getElementById('setupAgree');
     if (!agreeEl || !agreeEl.checked)    show('setupAgreeErr');
-    if (!ok) return;
+    if (!ok) {
+      // 自動捲到第一個錯誤，讓申請人看到哪裡沒填
+      if (firstErrEl) firstErrEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var genErr = document.getElementById('setupGenErr');
+      if (genErr) { genErr.style.display = 'block'; setTimeout(function(){ genErr.style.display='none'; }, 4000); }
+      return;
+    }
 
     var primaryRegion   = primaryCity + ', ' + primaryCountry;
     var secondaryRegion = (secondaryCountry && secondaryCity) ? secondaryCity + ', ' + secondaryCountry : '';
