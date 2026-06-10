@@ -1182,6 +1182,12 @@
         return;
       }
 
+      // Seed the PUBLIC profile (config.about) from what they typed in the form,
+      // so their approved profile is pre-filled instead of blank. 學歷 + 經歷 are
+      // merged (education first) into the "學經歷 / Credentials" list, one per line.
+      var _credLines = (education + '\n' + experience)
+        .split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+
       await setDoc(doc(db, 'musicians', uid), {
         uid:             uid,
         email:           regData.email,
@@ -1201,6 +1207,8 @@
             avatarX:     parseFloat((document.getElementById('setupAvatarX')||{value:50}).value) || 50,
             avatarY:     parseFloat((document.getElementById('setupAvatarY')||{value:50}).value) || 50,
             avatarScale: parseFloat((document.getElementById('setupAvatarScale')||{value:1}).value) || 1,
+            bio:         bio,
+            credentials: _credLines,
           }
         },
         status:          'pending',   // ← awaiting admin approval; gate blocks dashboard

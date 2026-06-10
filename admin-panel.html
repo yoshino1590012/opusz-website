@@ -795,6 +795,7 @@
           <button onclick="filterAppReview('approved',this)" style="font-size:12.5px;font-weight:600;border:1px solid #bbf7d0;background:#dcfce7;color:#16a34a;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:.55;">已核准</button>
           <button onclick="filterAppReview('rejected',this)" style="font-size:12.5px;font-weight:600;border:1px solid #fecaca;background:#fee2e2;color:#dc2626;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:.55;">已拒絕</button>
           <button onclick="filterAppReview('all',this)" style="font-size:12.5px;font-weight:600;border:1px solid #ddd;background:#fff;border-radius:8px;padding:7px 14px;cursor:pointer;opacity:.55;">全部申請</button>
+          <button id="backfillBtn" onclick="backfillApplicantProfiles()" title="把每位樂手申請時填的簡介／學歷／經歷，補進他們公開檔案的「關於」（只補空白、不覆蓋）" style="margin-left:auto;font-size:12.5px;font-weight:700;border:1px solid #c7d2fe;background:#eef2ff;color:#3730a3;border-radius:8px;padding:7px 14px;cursor:pointer;">⬇︎ 把申請資料補進個人檔案</button>
         </div>
         <div id="appReviewList"></div>
       </div>
@@ -3139,6 +3140,45 @@
       if(listEl) listEl.innerHTML = '<div style="padding:30px;text-align:center;color:#c00;">載入失敗：'+(e.code||e.message)+'</div>';
     }
   }
+  // One-time migration: copy each musician's APPLICATION data (top-level
+  // bio / education / experience, typed at registration) into their PUBLIC
+  // profile (config.about). Fills ONLY blank About fields — never overwrites a
+  // profile the musician already edited. Idempotent: safe to run repeatedly.
+  // (New registrations are seeded automatically in musician-login.html, so this
+  //  button is mainly for people who registered before that change.)
+  window.backfillApplicantProfiles = async function(){
+    if(!confirm('把每位樂手「申請時填的簡介／學歷／經歷」補進他們公開檔案的「關於」。\n\n只會補目前還空白的欄位，不會蓋掉樂手自己編輯過的內容。\n\n要繼續嗎？')) return;
+    var btn = document.getElementById('backfillBtn');
+    if(btn){ btn.disabled = true; btn.textContent = '補搬中…'; }
+    var migrated = 0, skipped = 0, failed = 0;
+    for(var i=0;i<APP_REVIEW.length;i++){
+      var p = APP_REVIEW[i];
+      var about = (p.config && p.config.about) || {};
+      var upd = {};
+      // 簡介 → about.bio  (only if the public bio is still blank)
+      if((!about.bio || !String(about.bio).trim()) && p.bio && String(p.bio).trim()){
+        upd['config.about.bio'] = String(p.bio).trim();
+      }
+      // 學歷 + 經歷 → about.credentials  (only if the list is still empty)
+      var hasCreds = Array.isArray(about.credentials) && about.credentials.length;
+      if(!hasCreds){
+        var lines = (String(p.education||'') + '\n' + String(p.experience||''))
+          .split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+        if(lines.length) upd['config.about.credentials'] = lines;
+      }
+      if(!Object.keys(upd).length){ skipped++; continue; }
+      try{
+        await updateDoc(doc(db,'musicians',p.uid), upd);   // dotted paths keep avatar etc. intact
+        p.config = p.config || {}; p.config.about = Object.assign({}, about);
+        if(upd['config.about.bio']!=null)         p.config.about.bio = upd['config.about.bio'];
+        if(upd['config.about.credentials']!=null) p.config.about.credentials = upd['config.about.credentials'];
+        migrated++;
+      }catch(e){ console.error('[backfill] failed for', p.uid, e); failed++; }
+    }
+    if(btn){ btn.disabled = false; btn.textContent = '⬇︎ 把申請資料補進個人檔案'; }
+    showNotif('完成：補搬 '+migrated+' 位，略過 '+skipped+' 位（已有資料）'+(failed?('，失敗 '+failed+' 位（看 Console）'):'')+'。內容已寫進公開檔案「關於」，個人檔案頁即時生效；樂手登入後台→編輯主頁→關於 也能再微調。');
+    renderAppReview();
+  };
   window.filterAppReview = function(status, btn){
     APP_REVIEW_FILTER = status;
     if(btn){ btn.parentNode.querySelectorAll('button').forEach(function(b){ b.style.opacity='.55'; }); btn.style.opacity='1'; }
