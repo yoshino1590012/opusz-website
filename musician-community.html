@@ -1073,6 +1073,52 @@ body {
   vertical-align: middle;
   margin-left: 8px;
 }
+
+/* ── INLINE MESSAGES + PROFILE PAGES (replace the old modals) ── */
+.comm-page { display:flex; justify-content:center; align-items:flex-start; padding:24px; }
+.comm-page .dm-wrap, .comm-page .prof-inline { width:100%; max-width:1000px; }
+
+.dm-wrap { display:flex; height:calc(100vh - 58px - 48px); min-height:480px; background:#fff; border:1px solid #eee; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.05); }
+.dm-list { width:300px; flex-shrink:0; border-right:1px solid #eee; overflow-y:auto; }
+.dm-list-empty { padding:40px 20px; text-align:center; color:#bbb; font-size:13.5px; line-height:1.7; }
+.dm-row { display:flex; align-items:center; gap:12px; padding:13px 16px; border-bottom:1px solid #f4f4f4; cursor:pointer; }
+.dm-row:hover { background:#fafafa; }
+.dm-row.active { background:#f0f4ff; }
+.dm-row-av { width:44px; height:44px; border-radius:50%; flex-shrink:0; object-fit:cover; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800; }
+.dm-row-main { flex:1; min-width:0; }
+.dm-row-name { font-weight:700; color:#111; font-size:14.5px; }
+.dm-row-last { font-size:13px; color:#999; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.dm-row-unread { background:#ef4444; color:#fff; font-size:11px; font-weight:700; border-radius:10px; padding:1px 7px; flex-shrink:0; }
+
+.dm-chat { flex:1; min-width:0; display:flex; flex-direction:column; }
+.dm-chat-empty { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#bbb; font-size:14px; }
+.dm-thread { flex:1; display:flex; flex-direction:column; min-height:0; }
+.dm-thread-head { display:flex; align-items:center; gap:8px; padding:13px 14px; border-bottom:1px solid #eee; }
+.dm-back { display:none; background:none; border:none; font-size:28px; line-height:1; color:#333; cursor:pointer; padding:0 4px; }
+.dm-thread-title { font-weight:800; color:#111; font-size:15.5px; flex:1; }
+.dm-del { background:none; border:none; cursor:pointer; font-size:16px; opacity:.55; padding:4px; }
+.dm-del:hover { opacity:1; }
+.dm-msgs { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:2px; background:#fafafa; }
+.dm-time-sep { align-self:center; font-size:11px; color:#aaa; margin:12px 0 6px; }
+.dm-bubble { max-width:74%; padding:9px 13px; border-radius:15px; font-size:14px; line-height:1.5; white-space:pre-wrap; word-break:break-word; margin-top:2px; }
+.dm-bubble.me { align-self:flex-end; background:#111; color:#fff; }
+.dm-bubble.them { align-self:flex-start; background:#fff; color:#222; border:1px solid #eee; }
+.dm-input-row { display:flex; gap:8px; padding:12px; border-top:1px solid #eee; }
+.dm-input { flex:1; border:1.5px solid #ddd; border-radius:50px; padding:10px 16px; font-family:inherit; font-size:14px; outline:none; }
+.dm-send { background:#111; color:#fff; border:none; border-radius:50px; padding:0 20px; font-weight:700; cursor:pointer; }
+
+.prof-inline { background:#fff; border:1px solid #eee; border-radius:16px; overflow:hidden; box-shadow:0 4px 24px rgba(0,0,0,.05); max-width:620px; }
+
+@media (max-width: 768px) {
+  .comm-page { padding:0; align-items:stretch; }
+  .comm-page .dm-wrap, .comm-page .prof-inline { max-width:none; border-radius:0; border:none; box-shadow:none; }
+  .dm-wrap { height:calc(100dvh - 54px); min-height:0; }
+  .dm-list { width:100%; border-right:none; }
+  .dm-chat { display:none; }
+  .dm-wrap.chat-open .dm-list { display:none; }
+  .dm-wrap.chat-open .dm-chat { display:flex; }
+  .dm-back { display:block; }
+}
 </style>
   <script src="assets/js/analytics.js"></script>
 <style id="opz-no-scrollbar">*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}</style>
@@ -1158,7 +1204,7 @@ body {
     </header>
 
     <!-- CONTENT -->
-    <div class="content-wrap">
+    <div class="content-wrap" id="feedPage">
 
       <!-- FEED COLUMN -->
       <div class="feed-col" id="feedCol">
@@ -1330,6 +1376,38 @@ body {
         </div>
       </div>
     </div><!-- /installPage -->
+
+    <!-- MESSAGES PAGE (inline two-pane chat — no modal) -->
+    <div class="content-wrap comm-page" id="messagesPage" style="display:none;">
+      <div class="dm-wrap">
+        <div class="dm-list" id="dmList">
+          <div class="dm-list-empty">載入中…</div>
+        </div>
+        <div class="dm-chat" id="dmChat">
+          <div class="dm-chat-empty" id="dmChatEmpty">
+            <div style="font-size:34px;margin-bottom:8px;">💬</div>
+            選擇一個對話開始聊天
+          </div>
+          <div class="dm-thread" id="dmThread" style="display:none;">
+            <div class="dm-thread-head">
+              <button class="dm-back" id="dmBack" aria-label="返回">‹</button>
+              <div class="dm-thread-title" id="dmThreadTitle"></div>
+              <button class="dm-del" id="dmDelBtn" title="刪除對話">🗑</button>
+            </div>
+            <div class="dm-msgs" id="dmMsgs"></div>
+            <div class="dm-input-row">
+              <input class="dm-input" id="dmInput" placeholder="輸入訊息…" autocomplete="off">
+              <button class="dm-send" id="dmSend">送出</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /messagesPage -->
+
+    <!-- PROFILE PAGE (inline — no modal) -->
+    <div class="content-wrap comm-page" id="profilePage" style="display:none;">
+      <div class="prof-inline" id="profInline"></div>
+    </div><!-- /profilePage -->
 
   </div><!-- /main-area -->
 
@@ -1841,6 +1919,11 @@ function renderFeed(channel) {
 function activateChannel(channel) {
   currentChannel = channel;
 
+  // Leave the inline Messages/Profile views and return to the feed.
+  if (window.showCommView) window.showCommView('feed');
+  var pn=document.getElementById('myProfileNav'); if(pn) pn.classList.remove('active');
+  var mn=document.getElementById('myMessagesNav'); if(mn) mn.classList.remove('active');
+
   // Update nav links
   document.querySelectorAll('[data-channel]').forEach(function(el) {
     if (el.dataset.channel === channel) {
@@ -1974,7 +2057,7 @@ document.addEventListener('click', function(e){
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
@@ -2061,49 +2144,63 @@ document.addEventListener('click', function(e){
   };
 
   // ── Profile page (Threads-style): info + this member's posts ──
+  // Switch which inline page fills the main area (feed / messages / profile).
+  function showCommView(name){
+    ['feedPage','messagesPage','profilePage','installPage'].forEach(function(id){ var e=document.getElementById(id); if(e) e.style.display='none'; });
+    var id = name==='messages' ? 'messagesPage' : name==='profile' ? 'profilePage' : name==='install' ? 'installPage' : 'feedPage';
+    var e=document.getElementById(id); if(e) e.style.display='flex';
+    var postBtn=document.getElementById('openComposerBtn'); if(postBtn) postBtn.style.display=(id==='feedPage')?'':'none';
+    var t=document.getElementById('topbarTitle');
+    if(t){ if(name==='messages') t.textContent='訊息'; else if(name==='profile') t.textContent='個人主頁'; }
+    var sl=document.getElementById('sidebarLeft'); if(sl) sl.classList.remove('mobile-open');
+    var so=document.getElementById('sidebarOverlay'); if(so) so.classList.remove('active');
+  }
+  window.showCommView = showCommView;
+  function setNavActive(id){
+    document.querySelectorAll('[data-channel]').forEach(function(el){ el.classList.remove('active'); });
+    var prof=document.getElementById('myProfileNav'), msg=document.getElementById('myMessagesNav');
+    if(prof) prof.classList.toggle('active', id==='myProfileNav');
+    if(msg)  msg.classList.toggle('active', id==='myMessagesNav');
+  }
+  window.setNavActive = setNavActive;
+
   window.opuszOpenProfile = function(uid){
     const m = membersByUid[uid];
     if (!m) return;
     const isMe = (uid === window.opuszMyUid);
     const myPosts = (window.POSTS || []).filter(p => p.authorUid === uid);
-    let ov = document.getElementById('commProfileOverlay');
-    if (!ov){
-      ov = document.createElement('div');
-      ov.id = 'commProfileOverlay';
-      ov.style.cssText = 'position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,.5);display:flex;align-items:flex-start;justify-content:center;padding:40px 16px;overflow:auto;';
-      ov.addEventListener('click', e => { if(e.target===ov) ov.remove(); });
-      document.body.appendChild(ov);
-    }
+    const host = document.getElementById('profInline');
+    if (!host) return;
     const postsHtml = myPosts.length
       ? myPosts.map(p => '<div style="border-top:1px solid #f0f0f0;padding:16px 0;"><div style="font-size:12px;color:#999;margin-bottom:6px;">'+esc(p.timestamp)+'</div><div style="font-size:14.5px;color:#222;line-height:1.65;white-space:pre-wrap;">'+esc(p.content)+'</div></div>').join('')
       : '<div style="padding:30px 0;text-align:center;color:#aaa;font-size:13.5px;">還沒有發過貼文</div>';
-    ov.innerHTML =
-      '<div style="background:#fff;border-radius:18px;max-width:560px;width:100%;box-shadow:0 24px 70px rgba(0,0,0,.3);overflow:hidden;font-family:inherit;">' +
-        '<div style="height:96px;background:linear-gradient(135deg,'+m.color+',#111);"></div>' +
-        '<div style="padding:0 26px 24px;">' +
-          '<div style="display:flex;align-items:flex-end;gap:16px;margin-top:-36px;">' +
-            '<div style="width:80px;height:80px;border-radius:50%;background:'+m.color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;border:4px solid #fff;flex-shrink:0;overflow:hidden;">'+
-              (m.avatarUrl ? '<img src="'+esc(m.avatarUrl)+'" alt="" style="width:100%;height:100%;object-fit:cover;object-position:'+(m.avatarX!=null?m.avatarX:50)+'% '+(m.avatarY!=null?m.avatarY:50)+'%;transform:scale('+(m.avatarScale||1)+');">' : esc(m.initials)) +
-            '</div>' +
-            '<button onclick="document.getElementById(\'commProfileOverlay\').remove()" style="margin-left:auto;margin-bottom:8px;background:#f1f1f1;border:none;border-radius:50px;width:32px;height:32px;font-size:16px;cursor:pointer;color:#666;">✕</button>' +
+    host.innerHTML =
+      '<div style="height:96px;background:linear-gradient(135deg,'+m.color+',#111);"></div>' +
+      '<div style="padding:0 26px 26px;">' +
+        '<div style="display:flex;align-items:flex-end;gap:16px;margin-top:-36px;">' +
+          '<div style="width:80px;height:80px;border-radius:50%;background:'+m.color+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;border:4px solid #fff;flex-shrink:0;overflow:hidden;">'+
+            (m.avatarUrl ? '<img src="'+esc(m.avatarUrl)+'" alt="" style="width:100%;height:100%;object-fit:cover;object-position:'+(m.avatarX!=null?m.avatarX:50)+'% '+(m.avatarY!=null?m.avatarY:50)+'%;transform:scale('+(m.avatarScale||1)+');">' : esc(m.initials)) +
           '</div>' +
-          '<div style="font-size:22px;font-weight:800;color:#111;margin-top:12px;">'+esc(m.name)+'</div>' +
-          '<div style="font-size:14px;color:#666;margin-top:3px;">'+esc(m.instrument)+(m.region?' · '+esc(m.region):'')+(m.region2?'、'+esc(m.region2):'')+'</div>' +
-          ((m.email||m.website) ?
-            '<div style="font-size:13px;color:#555;margin-top:8px;line-height:1.9;">' +
-              (m.email ? '✉️ <a href="mailto:'+esc(m.email)+'" style="color:#2563eb;text-decoration:none;">'+esc(m.email)+'</a>'+(m.website?'<br>':'') : '') +
-              (m.website ? '🔗 <a href="'+esc(/^https?:\/\//.test(m.website)?m.website:'https://'+m.website)+'" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">'+esc(m.website)+'</a>' : '') +
-            '</div>' : '') +
-          '<div id="commBioWrap" style="margin-top:12px;">' +
-            '<div id="commBioView" style="font-size:14px;color:'+(m.bio?'#444':'#aaa')+';line-height:1.7;white-space:pre-wrap;">'+(m.bio?esc(m.bio):(isMe?'還沒有自我介紹，點下方「編輯簡介」新增一段吧。':''))+'</div>' +
-            (isMe ? '<button onclick="window.opuszEditBio(\''+uid+'\')" style="margin-top:8px;background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#2563eb;cursor:pointer;">✏️ 編輯簡介</button>' : '') +
-          '</div>' +
-          (!isMe ? '<div style="margin-top:16px;"><button onclick="window.opzCommunityDM(\''+uid+'\')" style="background:#111;color:#fff;border:none;border-radius:50px;padding:11px 22px;font-size:13.5px;font-weight:700;cursor:pointer;">💬 傳訊息</button></div>' : '') +
-          '<a href="musician-profile.html?uid='+encodeURIComponent(uid)+'" style="display:inline-block;margin-top:14px;font-size:13px;font-weight:700;color:#111;text-decoration:underline;text-underline-offset:3px;">查看完整個人頁 →</a>' +
-          '<div style="font-size:12px;font-weight:700;letter-spacing:.08em;color:#999;text-transform:uppercase;margin-top:24px;">貼文 · '+myPosts.length+'</div>' +
-          postsHtml +
         '</div>' +
+        '<div style="font-size:22px;font-weight:800;color:#111;margin-top:12px;">'+esc(m.name)+'</div>' +
+        '<div style="font-size:14px;color:#666;margin-top:3px;">'+esc(m.instrument)+(m.region?' · '+esc(m.region):'')+(m.region2?'、'+esc(m.region2):'')+'</div>' +
+        ((m.email||m.website) ?
+          '<div style="font-size:13px;color:#555;margin-top:8px;line-height:1.9;">' +
+            (m.email ? '✉️ <a href="mailto:'+esc(m.email)+'" style="color:#2563eb;text-decoration:none;">'+esc(m.email)+'</a>'+(m.website?'<br>':'') : '') +
+            (m.website ? '🔗 <a href="'+esc(/^https?:\/\//.test(m.website)?m.website:'https://'+m.website)+'" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:none;">'+esc(m.website)+'</a>' : '') +
+          '</div>' : '') +
+        '<div id="commBioWrap" style="margin-top:12px;">' +
+          '<div id="commBioView" style="font-size:14px;color:'+(m.bio?'#444':'#aaa')+';line-height:1.7;white-space:pre-wrap;">'+(m.bio?esc(m.bio):(isMe?'還沒有自我介紹，點下方「編輯簡介」新增一段吧。':''))+'</div>' +
+          (isMe ? '<button onclick="window.opuszEditBio(\''+uid+'\')" style="margin-top:8px;background:none;border:none;padding:0;font-size:13px;font-weight:700;color:#2563eb;cursor:pointer;">✏️ 編輯簡介</button>' : '') +
+        '</div>' +
+        (!isMe ? '<div style="margin-top:16px;"><button onclick="window.opzCommunityDM(\''+uid+'\')" style="background:#111;color:#fff;border:none;border-radius:50px;padding:11px 22px;font-size:13.5px;font-weight:700;cursor:pointer;">💬 傳訊息</button></div>' : '') +
+        '<a href="musician-profile.html?uid='+encodeURIComponent(uid)+'" style="display:inline-block;margin-top:14px;font-size:13px;font-weight:700;color:#111;text-decoration:underline;text-underline-offset:3px;">查看完整個人頁 →</a>' +
+        '<div style="font-size:12px;font-weight:700;letter-spacing:.08em;color:#999;text-transform:uppercase;margin-top:24px;">貼文 · '+myPosts.length+'</div>' +
+        postsHtml +
       '</div>';
+    showCommView('profile');
+    setNavActive(isMe ? 'myProfileNav' : '');
+    var ma=document.querySelector('.main-area'); if(ma) ma.scrollTop=0;
   };
 
   // Inline-edit my own community intro (writes to musicians/{uid}.bio).
@@ -2173,32 +2270,28 @@ document.addEventListener('click', function(e){
     return (d.getFullYear()!==now.getFullYear()) ? (d.getFullYear()+'年'+base) : base;
   }
 
+  var _currentConvId = null;
   function openDMChat(convId, title, myRole){
     if (_dmUnsub){ try{ _dmUnsub(); }catch(e){} _dmUnsub = null; }
-    var pov = document.getElementById('commProfileOverlay'); if (pov) pov.remove();
-    var old = document.getElementById('commDMOverlay'); if (old) old.remove();
-    var ov = document.createElement('div');
-    ov.id = 'commDMOverlay';
-    ov.style.cssText = 'position:fixed;inset:0;z-index:9100;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:24px 16px;';
-    var closeDM = function(){ if(_dmUnsub){ try{_dmUnsub();}catch(e){} _dmUnsub=null; } ov.remove(); };
-    ov.addEventListener('click', function(e){ if(e.target===ov) closeDM(); });
-    ov.innerHTML =
-      '<div style="background:#fff;border-radius:18px;max-width:480px;width:100%;height:min(640px,86vh);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:inherit;">' +
-        '<div style="display:flex;align-items:center;gap:10px;padding:15px 18px;border-bottom:1px solid #eee;">' +
-          '<div style="font-size:16px;font-weight:800;color:#111;">'+esc(title)+'</div>' +
-          '<button id="dmClose" style="margin-left:auto;background:#f1f1f1;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;color:#666;font-size:15px;">✕</button>' +
-        '</div>' +
-        '<div id="dmMsgs" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:8px;background:#fafafa;"><div style="margin:auto;color:#bbb;font-size:13px;">載入中…</div></div>' +
-        '<div style="display:flex;gap:8px;padding:12px;border-top:1px solid #eee;">' +
-          '<input id="dmInput" placeholder="輸入訊息…" autocomplete="off" style="flex:1;border:1.5px solid #ddd;border-radius:50px;padding:10px 16px;font-family:inherit;font-size:14px;outline:none;">' +
-          '<button id="dmSend" style="background:#111;color:#fff;border:none;border-radius:50px;padding:0 20px;font-weight:700;cursor:pointer;">送出</button>' +
-        '</div>' +
-      '</div>';
-    document.body.appendChild(ov);
-    document.getElementById('dmClose').onclick = closeDM;
-    // Opening the thread = I've read it → clear my unread counter for this conversation.
+    _currentConvId = convId;
+    showCommView('messages');
+    setNavActive('myMessagesNav');
+    ensureInboxList();
+    var thread = document.getElementById('dmThread');
+    var emptyEl = document.getElementById('dmChatEmpty');
+    var wrap = document.querySelector('.dm-wrap');
+    if (emptyEl) emptyEl.style.display = 'none';
+    if (thread) thread.style.display = 'flex';
+    if (wrap) wrap.classList.add('chat-open');   // mobile: switch to chat pane
+    document.getElementById('dmThreadTitle').textContent = title;
+    // highlight the active row in the list
+    Array.prototype.forEach.call(document.querySelectorAll('#dmList .dm-row'), function(row){ row.classList.toggle('active', row.dataset.conv===convId); });
+    // mark read
     try { updateDoc(doc(db,'conversations',convId), myRole==='customer' ? {customerUnread:0} : {musicianUnread:0}); } catch(e){}
+    document.getElementById('dmBack').onclick = function(){ if(wrap) wrap.classList.remove('chat-open'); };
+    document.getElementById('dmDelBtn').onclick = function(){ deleteConversation(convId, myRole, title); };
     var msgsEl = document.getElementById('dmMsgs');
+    msgsEl.innerHTML = '<div style="margin:auto;color:#bbb;font-size:13px;">載入中…</div>';
     _dmUnsub = window.OPUSZ_MSG.listenMessages(convId, function(rows){
       if (!rows.length){ msgsEl.innerHTML = '<div style="margin:auto;color:#bbb;font-size:13px;">還沒有訊息，打聲招呼吧 👋</div>'; return; }
       var html = '', lastDay = null;
@@ -2206,12 +2299,12 @@ document.addEventListener('click', function(e){
         var dayKey = _dmDayKey(r.createdAt);
         if (dayKey && dayKey !== lastDay){
           lastDay = dayKey;
-          html += '<div style="align-self:center;background:#ececec;color:#888;font-size:11px;font-weight:600;padding:3px 12px;border-radius:50px;">'+esc(_dmDayLabel(r.createdAt))+'</div>';
+          html += '<div class="dm-time-sep">'+esc(_dmDayLabel(r.createdAt))+'</div>';
         }
         var mine = r.senderUid === window.opuszMyUid;
         var tstr = _dmTime(r.createdAt);
         html += '<div style="display:flex;flex-direction:column;align-items:'+(mine?'flex-end':'flex-start')+';align-self:'+(mine?'flex-end':'flex-start')+';max-width:78%;">' +
-          '<div style="background:'+(mine?'#111':'#fff')+';color:'+(mine?'#fff':'#222')+';border:'+(mine?'none':'1px solid #eee')+';border-radius:14px;padding:9px 13px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word;">'+esc(r.text)+'</div>' +
+          '<div class="dm-bubble '+(mine?'me':'them')+'">'+esc(r.text)+'</div>' +
           (tstr ? '<div style="font-size:10px;color:#bbb;margin-top:3px;">'+tstr+'</div>' : '') +
         '</div>';
       });
@@ -2225,8 +2318,24 @@ document.addEventListener('click', function(e){
         .catch(function(e){ console.warn('[community DM] send failed', e); inp.value = t; alert('傳送失敗，請稍後再試'); });
     };
     document.getElementById('dmSend').onclick = send;
-    document.getElementById('dmInput').addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); send(); } });
+    document.getElementById('dmInput').onkeydown = function(e){ if(e.key==='Enter'){ e.preventDefault(); send(); } };
     setTimeout(function(){ var i=document.getElementById('dmInput'); if(i) i.focus(); }, 50);
+  }
+
+  // Delete (hide) a conversation from MY list — adds me to hiddenFor; the other
+  // person still keeps the thread. The live inbox subscription filters it out.
+  function deleteConversation(convId, myRole, title){
+    if (!confirm('確定要刪除與「'+(title||'對方')+'」的對話嗎？\n（只會從你的列表移除，對方不受影響）')) return;
+    var meUid = window.opuszMyUid;
+    updateDoc(doc(db,'conversations',convId), { hiddenFor: arrayUnion(meUid) })
+      .then(function(){
+        if (_dmUnsub){ try{_dmUnsub();}catch(e){} _dmUnsub=null; }
+        _currentConvId = null;
+        document.getElementById('dmThread').style.display='none';
+        document.getElementById('dmChatEmpty').style.display='flex';
+        var wrap=document.querySelector('.dm-wrap'); if(wrap) wrap.classList.remove('chat-open');
+      })
+      .catch(function(e){ console.warn('[community] delete conv failed', e); alert('刪除失敗，請稍後再試'); });
   }
 
   // ── Inbox: all my chats with other musicians ──
@@ -2236,32 +2345,32 @@ document.addEventListener('click', function(e){
   // subject fallback covers threads created before the flag existed.
   function isPeer(r){ return r.peer === true || r.kind === 'peer' || r.subject === '樂手私訊'; }
 
+  // Open the inline Messages view (left list + right chat).
   window.opzOpenInbox = function(){
     if (!window.opuszMyUid){ alert('請先登入音樂家帳號'); return; }
     var MSG = window.OPUSZ_MSG;
     if (!MSG){ document.addEventListener('opusz-msg-ready', function once(){ document.removeEventListener('opusz-msg-ready', once); window.opzOpenInbox(); }, { once:true }); return; }
-    var meUid = window.opuszMyUid;
-    var old = document.getElementById('commInboxOverlay'); if(old) old.remove();
-    var ov = document.createElement('div');
-    ov.id = 'commInboxOverlay';
-    ov.style.cssText = 'position:fixed;inset:0;z-index:9050;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;padding:24px 16px;';
-    var unsub = null;
-    var close = function(){ if(unsub){try{unsub();}catch(e){}} ov.remove(); };
-    ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
-    ov.innerHTML =
-      '<div style="background:#fff;border-radius:18px;max-width:460px;width:100%;height:min(640px,86vh);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 70px rgba(0,0,0,.3);font-family:inherit;">' +
-        '<div style="display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid #eee;">' +
-          '<div style="font-size:17px;font-weight:800;color:#111;">💬 訊息</div>' +
-          '<button id="inboxClose" style="margin-left:auto;background:#f1f1f1;border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;color:#666;font-size:15px;">✕</button>' +
-        '</div>' +
-        '<div id="inboxList" style="flex:1;overflow-y:auto;"><div style="padding:40px;text-align:center;color:#bbb;font-size:13px;">載入中…</div></div>' +
-      '</div>';
-    document.body.appendChild(ov);
-    document.getElementById('inboxClose').onclick = close;
-    var listEl = document.getElementById('inboxList');
-    unsub = MSG.listConversations(meUid, function(rows){
-      var peers = rows.filter(isPeer);   // musician↔musician chats only
-      if (!peers.length){ listEl.innerHTML = '<div style="padding:40px;text-align:center;color:#bbb;font-size:13.5px;line-height:1.7;">還沒有任何對話。<br>到成員的主頁按「💬 傳訊息」開始聊天。</div>'; return; }
+    showCommView('messages');
+    setNavActive('myMessagesNav');
+    // reset chat pane to the empty state (until a conversation is picked)
+    if (_dmUnsub){ try{_dmUnsub();}catch(e){} _dmUnsub=null; }
+    _currentConvId = null;
+    var thread=document.getElementById('dmThread'); if(thread) thread.style.display='none';
+    var empty=document.getElementById('dmChatEmpty'); if(empty) empty.style.display='flex';
+    var wrap=document.querySelector('.dm-wrap'); if(wrap) wrap.classList.remove('chat-open');
+    ensureInboxList();
+  };
+
+  // Live conversation list rendered into #dmList (shared by inbox + openDMChat).
+  var _inboxUnsub = null;
+  function ensureInboxList(){
+    var MSG = window.OPUSZ_MSG, meUid = window.opuszMyUid;
+    if (!MSG || !meUid) return;
+    if (_inboxUnsub) return;   // already subscribed
+    var listEl = document.getElementById('dmList');
+    _inboxUnsub = MSG.listConversations(meUid, function(rows){
+      var peers = rows.filter(function(r){ return isPeer(r) && !(Array.isArray(r.hiddenFor) && r.hiddenFor.indexOf(meUid)!==-1); });
+      if (!peers.length){ listEl.innerHTML = '<div class="dm-list-empty">還沒有任何對話。<br>到成員主頁按「💬 傳訊息」開始聊天。</div>'; return; }
       listEl.innerHTML = peers.map(function(r){
         var ouid = otherUidOf(r, meUid);
         var role = myRoleIn(r, meUid);
@@ -2270,20 +2379,20 @@ document.addEventListener('click', function(e){
         if (mem.name) oname = mem.name;
         var unread = (role==='customer' ? r.customerUnread : r.musicianUnread) || 0;
         var avatar = mem.avatarUrl
-          ? '<img src="'+esc(mem.avatarUrl)+'" style="width:44px;height:44px;border-radius:50%;object-fit:cover;flex-shrink:0;object-position:'+(mem.avatarX!=null?mem.avatarX:50)+'% '+(mem.avatarY!=null?mem.avatarY:50)+'%;">'
-          : '<div style="width:44px;height:44px;border-radius:50%;background:'+(mem.color||'#888')+';color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;">'+esc(mem.initials||oname.charAt(0))+'</div>';
-        return '<div class="inbox-row" data-conv="'+esc(r.id)+'" data-role="'+role+'" data-name="'+esc(oname)+'" style="display:flex;align-items:center;gap:12px;padding:13px 18px;border-bottom:1px solid #f3f3f3;cursor:pointer;">' +
+          ? '<img class="dm-row-av" src="'+esc(mem.avatarUrl)+'" style="object-position:'+(mem.avatarX!=null?mem.avatarX:50)+'% '+(mem.avatarY!=null?mem.avatarY:50)+'%;">'
+          : '<div class="dm-row-av" style="background:'+(mem.color||'#888')+';">'+esc(mem.initials||oname.charAt(0))+'</div>';
+        return '<div class="dm-row'+(r.id===_currentConvId?' active':'')+'" data-conv="'+esc(r.id)+'" data-role="'+role+'" data-name="'+esc(oname)+'">' +
           avatar +
-          '<div style="flex:1;min-width:0;"><div style="font-weight:700;color:#111;font-size:14.5px;">'+esc(oname)+'</div>' +
-          '<div style="font-size:13px;color:#999;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(r.lastMessage||'（尚無訊息）')+'</div></div>' +
-          (unread ? '<div style="background:#ef4444;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:1px 7px;flex-shrink:0;">'+unread+'</div>' : '') +
+          '<div class="dm-row-main"><div class="dm-row-name">'+esc(oname)+'</div>' +
+          '<div class="dm-row-last">'+esc(r.lastMessage||'（尚無訊息）')+'</div></div>' +
+          (unread ? '<div class="dm-row-unread">'+unread+'</div>' : '') +
         '</div>';
       }).join('');
-      Array.prototype.forEach.call(listEl.querySelectorAll('.inbox-row'), function(row){
-        row.onclick = function(){ close(); openDMChat(row.dataset.conv, row.dataset.name, row.dataset.role); };
+      Array.prototype.forEach.call(listEl.querySelectorAll('.dm-row'), function(row){
+        row.onclick = function(){ openDMChat(row.dataset.conv, row.dataset.name, row.dataset.role); };
       });
     });
-  };
+  }
 
   // Sidebar unread badge: total unread across my musician chats (live).
   function startInboxBadge(meUid){
@@ -2291,7 +2400,7 @@ document.addEventListener('click', function(e){
     try {
       window.OPUSZ_MSG.listConversations(meUid, function(rows){
         var total = 0;
-        rows.forEach(function(r){ if(isPeer(r)){ total += (myRoleIn(r, meUid)==='customer' ? r.customerUnread : r.musicianUnread) || 0; } });
+        rows.forEach(function(r){ if(isPeer(r) && !(Array.isArray(r.hiddenFor) && r.hiddenFor.indexOf(meUid)!==-1)){ total += (myRoleIn(r, meUid)==='customer' ? r.customerUnread : r.musicianUnread) || 0; } });
         var b = document.getElementById('dmBadge');
         if (b){ b.textContent = total; b.style.display = total>0 ? '' : 'none'; }
       });
