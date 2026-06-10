@@ -1727,7 +1727,7 @@ var PROFILE_I18N = {
     'serv.beginner':     'Beginner',
     'serv.intermediate': 'Intermediate',
     'serv.advanced':     'Advanced',
-    'serv.find':         'See this teacher in lessons',
+    'serv.find':         'View lesson plans & pricing',
     'hl.title':          'Career Highlights',
     'hl.preview':        'Hover to preview',
     'reviews.label':     'Client Reviews',
@@ -1786,7 +1786,7 @@ var PROFILE_I18N = {
     'serv.beginner':     '初學',
     'serv.intermediate': '中級',
     'serv.advanced':     '進階',
-    'serv.find':         '在課程頁查看這位老師',
+    'serv.find':         '查看課程方案與價格',
     'hl.title':          '職涯亮點',
     'hl.preview':        '移至查看',
     'reviews.label':     '客戶評價',
@@ -2083,7 +2083,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
             <span class="serv-tag pf-placeholder" data-i18n="serv.addtags">Add tags</span>
           </div>
           <div class="serv-card-foot">
-            <a class="serv-link" href="lessons.html"><span data-i18n="serv.find">See this teacher in lessons</span> →</a>
+            <a class="serv-link" href="#lessonSection" onclick="var el=document.getElementById('lessonSection'); if(el){ el.scrollIntoView({behavior:'smooth'}); } return false;"><span data-i18n="serv.find">View lesson plans &amp; pricing</span> →</a>
           </div>
         </div>
 
@@ -5433,7 +5433,10 @@ window.addEventListener('pageshow', function(e) {
     ['Hornist','法國號手'],['French Hornist','法國號手'],['Tubist','低音號手'],['Percussionist','打擊樂家'],['Drummer','鼓手'],
     ['Vocalist','聲樂家'],['Singer','歌手'],['Soprano','女高音'],['Mezzo-soprano','次女高音'],['Alto','女低音'],
     ['Tenor','男高音'],['Baritone','男中音'],['Bass','男低音'],['Conductor','指揮'],['Composer','作曲家'],
-    ['Arranger','編曲家'],['Accompanist','伴奏'],['Music Teacher','音樂教師']
+    ['Arranger','編曲家'],['Accompanist','伴奏'],['Music Teacher','音樂教師'],
+    ['Piccolo Player','短笛演奏家'],['Euphonium Player','上低音號演奏家'],['Timpanist','定音鼓演奏家'],
+    ['Marimbist','馬林巴演奏家'],['Vibraphonist','顫音琴演奏家'],['Xylophonist','木琴演奏家'],
+    ['Choral Director','合唱指揮'],['Piano Tuner','鋼琴調音師']
   ];
   var LOC_PAIRS = [
     ['Taipei, Taiwan','台北, 台灣'],['New Taipei, Taiwan','新北, 台灣'],['Taoyuan, Taiwan','桃園, 台灣'],

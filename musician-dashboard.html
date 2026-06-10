@@ -1503,7 +1503,7 @@
                 <label>📱 名字大小（手機）&nbsp;<span id="pbNameSizeMobVal" style="font-weight:700;color:#333;">100%</span></label>
                 <input type="range" id="pbNameSizeMob" min="40" max="100" step="5" value="100" oninput="document.getElementById('pbNameSizeMobVal').textContent=this.value+'%'; pbOnInput();" style="width:100%;margin-top:6px;">
               </div>
-              <div class="pb-field"><label>頭銜 / Title</label><input type="text" id="pbHeroTitle" oninput="pbOnInput()" placeholder="你的頭銜（如：小提琴家）/ Your title (e.g. Violinist)"></div>
+              <div class="pb-field"><label>頭銜 / Title</label><div style="font-size:12px;color:var(--mid);line-height:1.5;">頭銜會依你下面選的<b>主要樂器（第一個）</b>自動顯示在 Banner 上，例如選「小提琴」→ 顯示「Violinist / 小提琴家」。</div></div>
               <div class="pb-field"><label>樂器 / Instruments（可多選 · 決定你出現在哪些樂器頁與前台篩選）</label>
                 <select id="pbInstAdd" onchange="pbInstPick()" style="width:100%;padding:9px 10px;border:1px solid #d8d8d8;border-radius:8px;font-size:13px;background:#fff;"></select>
                 <div class="pb-inst-chips" id="pbInstChips"></div>
@@ -2945,6 +2945,18 @@
 
   // ── Location dropdowns (Country + City). Canonical English values that match
   //    the public Musicians directory filter; shown bilingually in the picker. ──
+  // Instrument → role label shown on the banner (the public page localises it).
+  var PB_INST_ROLE = {
+    'Violin':'Violinist','Viola':'Violist','Cello':'Cellist','Double Bass':'Double Bassist','Harp':'Harpist',
+    'Flute':'Flutist','Piccolo':'Piccolo Player','Oboe':'Oboist','Clarinet':'Clarinetist','Saxophone':'Saxophonist','Bassoon':'Bassoonist',
+    'French Horn':'French Hornist','Trumpet':'Trumpeter','Trombone':'Trombonist','Euphonium':'Euphonium Player','Tuba':'Tubist',
+    'Timpani':'Timpanist','Marimba':'Marimbist','Vibraphone':'Vibraphonist','Xylophone':'Xylophonist',
+    'Piano':'Pianist','Pipe Organ':'Organist',
+    'Voice':'Vocalist','Soprano':'Soprano','Mezzo-soprano':'Mezzo-soprano','Tenor':'Tenor','Baritone':'Baritone','Choral':'Choral Director',
+    'Conductor':'Conductor','Tuner':'Piano Tuner'
+  };
+  function pbRoleFromInst(inst){ return inst ? (PB_INST_ROLE[inst] || inst) : ''; }
+
   var PB_REGIONS = {
     'Taiwan': ['Taipei','New Taipei','Taoyuan','Taichung','Tainan','Kaohsiung','Hsinchu','Keelung','Chiayi','Yilan','Hualien','Taitung'],
     'USA': ['New York','Los Angeles','San Francisco','Boston','Chicago','Seattle','Houston','Washington','Philadelphia','Austin','San Diego','Dallas','Miami','Atlanta','Denver','Portland','Nashville','San Jose','Las Vegas','Phoenix']
@@ -4084,7 +4096,7 @@
     pbConfig = {
       hero: {
         name:         txt('pbHeroName').trim(),
-        title:        txt('pbHeroTitle').trim(),
+        title:        pbRoleFromInst((typeof pbInsts !== 'undefined' && pbInsts[0]) || ''),
         location:     (function(){ var c=(document.getElementById('pbHeroCountry')||{}).value||'', ci=(document.getElementById('pbHeroCity')||{}).value||''; return ci ? (ci+', '+c) : ''; })(),
         location2:    (function(){ var c=(document.getElementById('pbHeroCountry2')||{}).value||'', ci=(document.getElementById('pbHeroCity2')||{}).value||''; return ci ? (ci+', '+c) : ''; })(),
         nameSizeDesk: parseInt((document.getElementById('pbNameSizeDesk')||{value:'100'}).value) || 100,
