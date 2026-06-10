@@ -627,9 +627,10 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   overflow:hidden;
   max-width:68%;
   margin:0 auto;
-  /* mask-image fades edges without hard-clipping glyphs (fixes CJK cut-off) */
-  -webkit-mask-image:linear-gradient(to right,transparent 0,black 100px,black calc(100% - 100px),transparent 100%);
-  mask-image:linear-gradient(to right,transparent 0,black 100px,black calc(100% - 100px),transparent 100%);
+  /* Dead zone (0→80px): ensures CJK chars are fully invisible before overflow clips them.
+     Fade zone (80px→160px): smooth transition into visible area. */
+  -webkit-mask-image:linear-gradient(to right,transparent 0,transparent 80px,black 160px,black calc(100% - 160px),transparent calc(100% - 80px),transparent 100%);
+  mask-image:linear-gradient(to right,transparent 0,transparent 80px,black 160px,black calc(100% - 160px),transparent calc(100% - 80px),transparent 100%);
 }
 .marquee-track{
   display:flex;align-items:center;
@@ -664,8 +665,8 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 @media(max-width:700px){
   .marquee-track-wrap{
     max-width:90%;
-    -webkit-mask-image:linear-gradient(to right,transparent 0,black 48px,black calc(100% - 48px),transparent 100%);
-    mask-image:linear-gradient(to right,transparent 0,black 48px,black calc(100% - 48px),transparent 100%);
+    -webkit-mask-image:linear-gradient(to right,transparent 0,transparent 40px,black 72px,black calc(100% - 72px),transparent calc(100% - 40px),transparent 100%);
+    mask-image:linear-gradient(to right,transparent 0,transparent 40px,black 72px,black calc(100% - 72px),transparent calc(100% - 40px),transparent 100%);
   }
   .marquee-track{ animation-duration:13s; }
   .marquee-logo{ padding:0 22px; }
@@ -5880,8 +5881,9 @@ window.addEventListener('pageshow', function(e) {
             if(svg){ return '<div class="marquee-logo marquee-logo--svg">' + svg + '</div>'; }
             return '<div class="marquee-logo"><span class="logo-text">' + esc(name) + '</span></div>';
           }).join('');
-          // Two identical sets so the CSS scroll loop stays seamless
-          marqueeTrack.innerHTML = oneSet + oneSet;
+          // Six identical sets — ensures track is always wider than the container
+          // even with very few partners (2 sets was too narrow → gap at loop point)
+          marqueeTrack.innerHTML = oneSet + oneSet + oneSet + oneSet + oneSet + oneSet;
           marqueeTrack.style.animation = ''; // re-enable scroll loop (template empty-state disables it)
         }
       }
