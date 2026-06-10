@@ -5847,15 +5847,9 @@ window.addEventListener('pageshow', function(e) {
         });
       }
 
-      // Bar title / sub (textContent overrides the i18n default — acceptable).
-      if(has(booking.barTitle)){
-        var tEl=document.querySelector('[data-i18n="bar.title"]');
-        if(tEl) tEl.textContent = booking.barTitle;
-      }
-      if(has(booking.barSub)){
-        var sEl=document.querySelector('[data-i18n="bar.sub"]');
-        if(sEl) sEl.textContent = booking.barSub;
-      }
+      // Bar title / sub are LOCKED to the platform i18n default (bar.title / bar.sub).
+      // Musicians can no longer customise them, so we intentionally do NOT override
+      // the translated text with any saved booking.barTitle / booking.barSub value.
 
       // Re-render the modal duration step / tabs if the modal is open.
       if(typeof window.__applyBookingConfig === 'function') window.__applyBookingConfig();
