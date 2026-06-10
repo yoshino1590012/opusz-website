@@ -1500,7 +1500,32 @@
                 <input type="range" id="pbNameSizeMob" min="40" max="100" step="5" value="100" oninput="document.getElementById('pbNameSizeMobVal').textContent=this.value+'%'; pbOnInput();" style="width:100%;margin-top:6px;">
               </div>
               <div class="pb-field"><label>頭銜 / Title</label><input type="text" id="pbHeroTitle" oninput="pbOnInput()" placeholder="你的頭銜（如：小提琴家）/ Your title (e.g. Violinist)"></div>
-              <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbHeroLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
+              <div class="pb-field"><label>主要地點 / Primary location</label><input type="text" id="pbHeroLocation" list="opzRegionList" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
+              <div class="pb-field"><label>次要地點 / Secondary location（選填 / optional）</label><input type="text" id="pbHeroLocation2" list="opzRegionList" oninput="pbOnInput()" placeholder="第二個服務地點（可留空）"></div>
+              <datalist id="opzRegionList">
+                <option value="Taipei, Taiwan"></option>
+                <option value="New Taipei, Taiwan"></option>
+                <option value="Taoyuan, Taiwan"></option>
+                <option value="Taichung, Taiwan"></option>
+                <option value="Tainan, Taiwan"></option>
+                <option value="Kaohsiung, Taiwan"></option>
+                <option value="Hsinchu, Taiwan"></option>
+                <option value="Keelung, Taiwan"></option>
+                <option value="Chiayi, Taiwan"></option>
+                <option value="Yilan, Taiwan"></option>
+                <option value="Hualien, Taiwan"></option>
+                <option value="Taitung, Taiwan"></option>
+                <option value="New York, USA"></option>
+                <option value="Los Angeles, USA"></option>
+                <option value="San Francisco, USA"></option>
+                <option value="Boston, USA"></option>
+                <option value="Chicago, USA"></option>
+                <option value="Seattle, USA"></option>
+                <option value="Houston, USA"></option>
+                <option value="Washington, DC, USA"></option>
+                <option value="Philadelphia, USA"></option>
+                <option value="Austin, USA"></option>
+              </datalist>
               <div class="pb-subgroup-title" style="margin-top:18px;">Banner 照片（最多 4 張）/ Banner photos (up to 4)</div>
               <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">第 1 張是主照片；最多 4 張會自動輪播，留空的不顯示。每張可單獨調整位置與縮放。</p>
               <div id="pbBannerList"></div>
@@ -3570,6 +3595,7 @@
     v('pbHeroName',     pbConfig.hero.name);
     v('pbHeroTitle',    pbConfig.hero.title);
     v('pbHeroLocation', pbConfig.hero.location);
+    v('pbHeroLocation2', pbConfig.hero.location2);
     var nsd = pbConfig.hero.nameSizeDesk || 100;
     var nsm = pbConfig.hero.nameSizeMob  || 100;
     var nsdEl = document.getElementById('pbNameSizeDesk');
@@ -3979,6 +4005,7 @@
         name:         txt('pbHeroName').trim(),
         title:        txt('pbHeroTitle').trim(),
         location:     txt('pbHeroLocation').trim(),
+        location2:    txt('pbHeroLocation2').trim(),
         nameSizeDesk: parseInt((document.getElementById('pbNameSizeDesk')||{value:'100'}).value) || 100,
         nameSizeMob:  parseInt((document.getElementById('pbNameSizeMob') ||{value:'100'}).value) || 100,
         media:        heroMedia,
@@ -4372,6 +4399,7 @@
       // (which reads name / bio / primaryRegion) reflects the edited page.
       if (pbConfig.hero && pbConfig.hero.name)      pubFields.name = pbConfig.hero.name;
       if (pbConfig.hero && pbConfig.hero.location)  pubFields.primaryRegion = pbConfig.hero.location;
+      if (pbConfig.hero && pbConfig.hero.location2) pubFields.secondaryRegion = pbConfig.hero.location2;
       if (pbConfig.about && pbConfig.about.bio)     pubFields.bio = pbConfig.about.bio;
       // Instruments drive which category/family pages this musician appears on.
       if (pbConfig.card && Array.isArray(pbConfig.card.instruments))

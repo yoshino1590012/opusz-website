@@ -5557,7 +5557,9 @@ window.addEventListener('pageshow', function(e) {
     // Location
     if(has(hero.location)){
       var infoLoc = document.querySelector('.info-location');
-      if(infoLoc) infoLoc.textContent = hero.location;
+      var _locTxt = hero.location;
+      if(has(hero.location2)) _locTxt += ' · ' + hero.location2;
+      if(infoLoc) infoLoc.textContent = _locTxt;
     } else {
       // empty → restore the blank-template placeholder
       var infoLocR = document.querySelector('.info-location');
