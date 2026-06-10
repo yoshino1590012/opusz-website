@@ -457,3 +457,41 @@ exports.notifyOnNewJob = onDocumentCreated(
     logger.info("notifyOnNewJob done", { jobId, sent: promises.length });
   }
 );
+
+// ── New musician application → email the admin (official inbox) ──
+// Fires when a musicians/{uid} doc is created as status:'pending' (the apply
+// form). Profiles created by other flows aren't 'pending' → skipped.
+exports.notifyAdminOnApplication = onDocumentCreated(
+  { document: "musicians/{uid}", secrets: [ZEPTO_TOKEN] },
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+    const d = snap.data() || {};
+    if (d.status !== "pending") return;   // only real applications awaiting review
+
+    const name   = d.name || (d.email ? d.email.split("@")[0] : "（未填姓名）");
+    const insts  = Array.isArray(d.instruments) ? d.instruments.join("、") : (d.instrument || "");
+    const region = d.primaryRegion || "";
+    const cell = '<td style="color:#888;padding:3px 12px 3px 0;white-space:nowrap;vertical-align:top;">';
+    const val  = '<td style="color:#111;padding:3px 0;">';
+    const rows =
+      "<tr>" + cell + "姓名</td>" + val + esc(name) + "</td></tr>" +
+      (d.email  ? ("<tr>" + cell + "Email</td>" + val + esc(d.email) + "</td></tr>") : "") +
+      (insts    ? ("<tr>" + cell + "樂器</td>" + val + esc(insts) + "</td></tr>") : "") +
+      (region   ? ("<tr>" + cell + "地區</td>" + val + esc(region) + "</td></tr>") : "");
+
+    const html = emailShell(
+      '<h1 style="margin:0 0 6px;font-size:21px;color:#111;">🎼 有新的樂手申請待審核</h1>' +
+      '<p style="color:#777;margin:0 0 22px;font-size:14px;">一位新樂手送出了申請，請到後台「申請審核」核准或退件。</p>' +
+      '<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 20px;font-size:15px;">' + rows + "</table>" +
+      '<p style="margin:0;">' + btn(SITE_URL + "/admin-panel", "前往後台審核 →") + "</p>"
+    );
+
+    try {
+      await sendZepto(ZEPTO_TOKEN.value(), SUPPORT_EMAIL, "OPUS.Z", "🎼 新樂手申請待審核：" + name, html, d.email || "");
+      logger.info("admin notified: new application", { uid: event.params.uid });
+    } catch (e) {
+      logger.error("notifyAdminOnApplication failed", { uid: event.params.uid, err: String(e) });
+    }
+  }
+);
