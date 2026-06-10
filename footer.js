@@ -51,7 +51,7 @@
     + '#site-footer .sf-copy-right a{color:' + t.muted + ';text-decoration:none;transition:color .2s;}'
     + '#site-footer .sf-copy-right a:hover{color:' + t.text + ';}'
     + '#site-footer .sf-brand{display:flex;justify-content:center;align-items:flex-end;gap:clamp(2px,1.2vw,20px);height:clamp(80px,32vw,640px);overflow:visible;user-select:none;margin-top:-2px;width:100%;}'
-    + '#site-footer .sf-letter{display:block;font-family:"Roboto Flex","Inter",sans-serif;font-size:clamp(30px,27vw,560px);font-weight:220;line-height:.86;color:' + t.word + ';}'
+    + '#site-footer .sf-letter{display:block;font-family:"Roboto Flex","Inter",sans-serif;font-size:clamp(30px,27vw,560px);font-weight:220;line-height:.86;color:' + t.word + ';will-change:font-variation-settings;}'
     + '#site-footer .sf-dot{font-size:clamp(26px,23vw,480px);line-height:1;align-self:flex-end;}'
     + '@media(max-width:760px){#site-footer{padding:48px 24px 0;}#site-footer .sf-top{gap:40px;}}';
 
@@ -115,6 +115,61 @@
   footer.id = 'site-footer';
   footer.innerHTML = html;
   document.body.appendChild(footer);
+
+  // Load the Roboto Flex variable font so the big wordmark renders thin (and can
+  // animate its weight/width). Without it the letters fall back heavy/static.
+  if (!document.querySelector('link[href*="Roboto+Flex"]')) {
+    var fl = document.createElement('link');
+    fl.rel = 'stylesheet';
+    fl.href = 'https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,slnt,wdth,wght@8..144,-10..0,25..151,100..900&display=swap';
+    document.head.appendChild(fl);
+  }
+
+  // Big "OPUS.Z" wordmark animation — letters thicken/widen/slant toward the
+  // cursor (mirrors the homepage footer). Pointer-only; no-op on touch.
+  (function(){
+    var brand = footer.querySelector('.sf-brand');
+    if(!brand) return;
+    var letters = Array.prototype.slice.call(brand.querySelectorAll('.sf-letter'));
+    var n = letters.length;
+    var weights=new Array(n).fill(220), targets=new Array(n).fill(220);
+    var widths=new Array(n).fill(60),  tWidths=new Array(n).fill(60);
+    var slants=new Array(n).fill(0),   tSlants=new Array(n).fill(0);
+    var raf=null;
+    var BASE_W=220, MAX_W=720, BASE_D=60, MAX_D=151, BASE_S=0, MAX_S=-7;
+    var RADIUS=Math.min(780, window.innerWidth*0.55);
+    function onMove(e){
+      var mx=e.clientX, my=e.clientY;
+      letters.forEach(function(l,i){
+        var r=l.getBoundingClientRect();
+        var nearX=Math.max(r.left,Math.min(mx,r.right));
+        var nearY=Math.max(r.top, Math.min(my,r.bottom));
+        var dx=mx-nearX, dy=my-nearY, dist=Math.sqrt(dx*dx+dy*dy);
+        var t=Math.max(0,1-dist/RADIUS), t2=t*t*t;
+        targets[i]=BASE_W+(MAX_W-BASE_W)*t2;
+        tWidths[i]=BASE_D+(MAX_D-BASE_D)*t2;
+        tSlants[i]=BASE_S+(MAX_S-BASE_S)*t2;
+      });
+      if(!raf) raf=requestAnimationFrame(tick);
+    }
+    function tick(){
+      raf=null; var more=false;
+      letters.forEach(function(l,i){
+        var dw=targets[i]-weights[i]; if(Math.abs(dw)>0.5){weights[i]+=dw*0.04;more=true;}else{weights[i]=targets[i];}
+        var dd=tWidths[i]-widths[i];  if(Math.abs(dd)>0.1){widths[i]+=dd*0.04;more=true;}else{widths[i]=tWidths[i];}
+        var ds=tSlants[i]-slants[i];  if(Math.abs(ds)>0.01){slants[i]+=ds*0.04;more=true;}else{slants[i]=tSlants[i];}
+        var w=Math.round(weights[i]), d=Math.round(widths[i]), s=slants[i].toFixed(2);
+        l.style.fontWeight=w;
+        l.style.fontVariationSettings="'wght' "+w+", 'wdth' "+d+", 'slnt' "+s;
+      });
+      if(more) raf=requestAnimationFrame(tick);
+    }
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseleave', function(){
+      targets.fill(BASE_W); tWidths.fill(BASE_D); tSlants.fill(BASE_S);
+      if(!raf) raf=requestAnimationFrame(tick);
+    });
+  })();
 
   // Translate the footer if the page already ran its i18n engine.
   try {
