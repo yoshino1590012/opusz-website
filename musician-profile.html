@@ -421,6 +421,13 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   .hn-new{ left:18px;  max-width: calc(100% - 36px); }
   .hn-orig{ right:18px; max-width: calc(100% - 36px); }
 
+  /* During the full-screen intro, lift the bottom-anchored name clear of the
+     phone's bottom safe area (home indicator / gesture bar) on top of the svh
+     fix that already clears the browser toolbar. env() is reported per-device,
+     so this works on any phone. Scoped to the intro only → the settled layout
+     (44vh banner) is untouched. */
+  .hero.hero-intro .hero-name{ bottom: calc(env(safe-area-inset-bottom, 0px) + 6px); }
+
   /* sit snug just above the name, flush to the same left edge */
   .hero-info{
     bottom:70px;
