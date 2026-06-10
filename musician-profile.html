@@ -2448,7 +2448,10 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   var STORE_POS = 'martin-profile-pos';
 
   // ── State ──
-  var state = { x:50, y:50, zoom:0, url:'' };
+  // x/y = desktop position, xm/ym = independent phone (≤700px) position.
+  var state = { x:50, y:50, xm:null, ym:null, zoom:0, url:'' };
+  function heroPosX(){ var m=(window.innerWidth||9999)<=700; return m ? (state.xm!=null?state.xm:state.x) : state.x; }
+  function heroPosY(){ var m=(window.innerWidth||9999)<=700; return m ? (state.ym!=null?state.ym:state.y) : state.y; }
 
   // ── Init ──
   // Hero photo is CONFIG-DRIVEN now. We do NOT auto-load the legacy localStorage
@@ -2458,27 +2461,38 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     applyPhoto();   // state.url is '' → shows #photoPlaceholder (empty banner)
   })();
 
+  // Re-apply on resize so crossing the 700px phone breakpoint (or the editor's
+  // 桌機/手機 preview toggle) swaps desktop ⇄ mobile position live.
+  (function(){
+    var lastMob = (window.innerWidth||9999) <= 700;
+    window.addEventListener('resize', function(){
+      var m = (window.innerWidth||9999) <= 700;
+      if(m !== lastMob){ lastMob = m; applyPhoto(); }
+    });
+  })();
+
   // ── Apply photo + position to the bg div ──
   function applyPhoto(){
     var bg = document.getElementById('photoBg');
     var heroBg = document.querySelector('.hero-bg');
     var ph = document.getElementById('photoPlaceholder');
     if(!bg) return;
+    var px = heroPosX(), py = heroPosY();
     if(state.url){
       bg.style.backgroundImage = "url('" + state.url + "')";
-      bg.style.backgroundPosition = state.x + '% ' + state.y + '%';
+      bg.style.backgroundPosition = px + '% ' + py + '%';
       var zf = 1 + state.zoom/100;
       bg.style.backgroundSize = zf <= 1 ? 'cover' : Math.round(zf*100) + '%';
       // Mirror same photo into the blurred colour-wash layer
       if(heroBg){
         heroBg.style.backgroundImage = "url('" + state.url + "')";
-        heroBg.style.backgroundPosition = state.x + '% ' + state.y + '%';
+        heroBg.style.backgroundPosition = px + '% ' + py + '%';
       }
       if(ph) ph.classList.add('hidden');
     } else {
       bg.style.backgroundImage = '';
       bg.style.backgroundSize = 'cover';
-      bg.style.backgroundPosition = state.x + '% ' + state.y + '%';
+      bg.style.backgroundPosition = px + '% ' + py + '%';
       if(heroBg) heroBg.style.backgroundImage = '';
       if(ph) ph.classList.remove('hidden');
     }
@@ -2825,10 +2839,20 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     var d=extraSlides[n-1]||{};
     if(!d.url){el.style.backgroundImage='';return;}
     var zf=1+((d.zoom||0)/100);
+    var mob=(window.innerWidth||9999)<=700;
+    var sx=mob?(d.xm!=null?d.xm:(d.x!=null?d.x:50)):(d.x!=null?d.x:50);
+    var sy=mob?(d.ym!=null?d.ym:(d.y!=null?d.y:50)):(d.y!=null?d.y:50);
     el.style.backgroundImage    ="url('"+d.url+"')";
-    el.style.backgroundPosition =(d.x||50)+'% '+(d.y||50)+'%';
+    el.style.backgroundPosition =sx+'% '+sy+'%';
     el.style.backgroundSize     =zf<=1?'cover':Math.round(zf*100)+'%';
   }
+  (function(){
+    var lm=(window.innerWidth||9999)<=700;
+    window.addEventListener('resize',function(){
+      var m=(window.innerWidth||9999)<=700;
+      if(m!==lm){ lm=m; [1,2,3].forEach(applyExtraSlide); }
+    });
+  })();
 
   function syncExtraSliders(){
     [1,2,3].forEach(function(n){
@@ -2980,6 +3004,8 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     state.url  = media.url;
     if(media.x    != null) state.x    = Number(media.x);
     if(media.y    != null) state.y    = Number(media.y);
+    state.xm = (media.xm != null && media.xm !== '') ? Number(media.xm) : null;
+    state.ym = (media.ym != null && media.ym !== '') ? Number(media.ym) : null;
     if(media.zoom != null) state.zoom = Number(media.zoom);
     applyPhoto();
     if(typeof syncSliders === 'function'){ try{ syncSliders(); }catch(e){} }
@@ -4837,14 +4863,17 @@ document.addEventListener('keydown', function(e){
   // Config-driven: apply extra banner slides 2-4 (slideEls[1..3]) from an array
   // of up to 3 {url,x,y,zoom}. Empty/missing entries clear that slide. Reuses the
   // same rotation/dots mechanism via __heroSlideshowReload.
+  var _lastExtraArr = null;
   window.__applyHeroExtraSlides = function(arr){
+    _lastExtraArr = arr;
+    var mob = (window.innerWidth||9999) <= 700;
     for(var i=0;i<3;i++){
       var el = slideEls[i+1];
       if(!el) continue;
       var d = (arr && arr[i]) ? arr[i] : null;
       if(!d || !d.url){ el.style.backgroundImage=''; continue; }
-      var x = d.x!=null ? d.x : 50;
-      var y = d.y!=null ? d.y : 50;
+      var x = mob ? (d.xm!=null ? d.xm : (d.x!=null?d.x:50)) : (d.x!=null ? d.x : 50);
+      var y = mob ? (d.ym!=null ? d.ym : (d.y!=null?d.y:50)) : (d.y!=null ? d.y : 50);
       var z = d.zoom!=null ? d.zoom : 0;
       var zf = 1 + (z/100);
       el.style.backgroundImage    = "url('" + d.url + "')";
@@ -4853,6 +4882,13 @@ document.addEventListener('keydown', function(e){
     }
     if(window.__heroSlideshowReload) window.__heroSlideshowReload();
   };
+  (function(){
+    var lm = (window.innerWidth||9999) <= 700;
+    window.addEventListener('resize', function(){
+      var m = (window.innerWidth||9999) <= 700;
+      if(m !== lm){ lm = m; if(_lastExtraArr) window.__applyHeroExtraSlides(_lastExtraArr); }
+    });
+  })();
 
   // Boot only AFTER the intro animation fully completes — so the rotation never
   // overlaps the full-screen → shrink animation.

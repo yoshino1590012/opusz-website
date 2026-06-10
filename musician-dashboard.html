@@ -3642,6 +3642,10 @@
     const imgId = 'pbBannerImg_' + n;
     const x = (data.x !== undefined && data.x !== null) ? data.x : 50;
     const y = (data.y !== undefined && data.y !== null) ? data.y : 50;
+    // Mobile position is independent. For photos saved before this feature it
+    // defaults to the desktop value so nothing jumps until the musician moves it.
+    const xm = (data.xm !== undefined && data.xm !== null && data.xm !== '') ? data.xm : x;
+    const ym = (data.ym !== undefined && data.ym !== null && data.ym !== '') ? data.ym : y;
     const zoom = (data.zoom !== undefined && data.zoom !== null) ? data.zoom : 0;
     const type = (data.type === 'video') ? 'video' : 'photo';
     const row = document.createElement('div');
@@ -3660,9 +3664,12 @@
         + '<button type="button" class="pb-row-del pb-banner-del" title="Remove" style="margin-top:0;">✕</button>'
       + '</div>'
       + '<div class="pb-field" style="margin-bottom:8px;"><label>媒體網址 / Media URL</label><input type="text" class="pbBannerUrl" id="'+imgId+'" value="'+pbEsc(data.url)+'" placeholder="https://..."></div>'
-      + '<div class="pb-field" style="margin-bottom:6px;"><label>水平位置 / X (%)</label><input type="range" class="pbBannerX" min="0" max="100" step="1" value="'+x+'" style="width:100%;"></div>'
-      + '<div class="pb-field" style="margin-bottom:6px;"><label>垂直位置 / Y (%)</label><input type="range" class="pbBannerY" min="0" max="100" step="1" value="'+y+'" style="width:100%;"></div>'
-      + '<div class="pb-field" style="margin-bottom:0;"><label>縮放 / Zoom (%)</label><input type="range" class="pbBannerZoom" min="-30" max="150" step="1" value="'+zoom+'" style="width:100%;"></div>';
+      + '<div style="font-size:11px;font-weight:700;color:var(--mid);margin:4px 0 4px;">桌機與手機的照片位置各自獨立，互不影響</div>'
+      + '<div class="pb-field" style="margin-bottom:6px;"><label>桌機 水平 X (%)</label><input type="range" class="pbBannerX" min="0" max="100" step="1" value="'+x+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>桌機 垂直 Y (%)</label><input type="range" class="pbBannerY" min="0" max="100" step="1" value="'+y+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:6px;"><label>📱 手機 水平 X (%)</label><input type="range" class="pbBannerXM" min="0" max="100" step="1" value="'+xm+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>📱 手機 垂直 Y (%)</label><input type="range" class="pbBannerYM" min="0" max="100" step="1" value="'+ym+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:0;"><label>縮放 / Zoom (%)（桌機手機共用）</label><input type="range" class="pbBannerZoom" min="-30" max="150" step="1" value="'+zoom+'" style="width:100%;"></div>';
     row.querySelector('.pb-banner-del').onclick = function(){
       row.remove();
       pbRelabelBannerRows();
@@ -3890,12 +3897,12 @@
       bList.innerHTML = '';
       pbBannerRowSeq = 0;
       const hm = (pbConfig.hero && pbConfig.hero.media) || {};
-      pbAddBannerRow({ type: hm.type || 'photo', url: hm.url, x: hm.x, y: hm.y, zoom: hm.zoom });
+      pbAddBannerRow({ type: hm.type || 'photo', url: hm.url, x: hm.x, y: hm.y, xm: hm.xm, ym: hm.ym, zoom: hm.zoom });
       const hes = (pbConfig.hero && Array.isArray(pbConfig.hero.extraSlides)) ? pbConfig.hero.extraSlides : [];
       hes.forEach(function(s){
         s = s || {};
         if(s.url && String(s.url).trim() !== ''){
-          pbAddBannerRow({ url: s.url, x: s.x, y: s.y, zoom: s.zoom });
+          pbAddBannerRow({ url: s.url, x: s.x, y: s.y, xm: s.xm, ym: s.ym, zoom: s.zoom });
         }
       });
       pbRelabelBannerRows();
@@ -4151,16 +4158,18 @@
         url:  g('pbBannerUrl').trim(),
         x:    gn('pbBannerX', 50),
         y:    gn('pbBannerY', 50),
+        xm:   gn('pbBannerXM', gn('pbBannerX', 50)),
+        ym:   gn('pbBannerYM', gn('pbBannerY', 50)),
         zoom: gn('pbBannerZoom', 0)
       };
     };
     let heroMedia, heroExtraSlides;
     if(bannerRowEls.length){
       const first = readBannerRow(bannerRowEls[0]);
-      heroMedia = { type: first.type, url: first.url, x: first.x, y: first.y, zoom: first.zoom };
+      heroMedia = { type: first.type, url: first.url, x: first.x, y: first.y, xm: first.xm, ym: first.ym, zoom: first.zoom };
       heroExtraSlides = bannerRowEls.slice(1).map(function(r){
         const d = readBannerRow(r);
-        return { url: d.url, x: d.x, y: d.y, zoom: d.zoom };
+        return { url: d.url, x: d.x, y: d.y, xm: d.xm, ym: d.ym, zoom: d.zoom };
       }).filter(function(s){ return s.url !== ''; });
     } else {
       // No rows rendered (e.g. read before populate): fall back to current config.
