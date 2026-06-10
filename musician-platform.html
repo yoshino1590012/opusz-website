@@ -1233,8 +1233,9 @@ nav.mega-open .nav-links a::before {
 .work-card:nth-child(3) { z-index: 30; }
 
 .work-card-img {
-  /* Portrait poster ratio 2:3 */
-  aspect-ratio: 2 / 3;
+  /* A-series poster ratio 1:1.414 (A1/A2/A3) — matches standard print posters
+     so the whole poster shows without cropping the edges. */
+  aspect-ratio: 1 / 1.414;
   height: min(85vh, 72vw);
   width: auto;
   border-radius: 12px;
@@ -1267,7 +1268,7 @@ nav.mega-open .nav-links a::before {
   .work-left { position: relative; height: auto; padding: 60px 28px 40px; }
   .work-photos { padding-bottom: 0; }
   .work-card { position: sticky; top: 0; height: 100vh; padding: 0; }
-  .work-card-img { aspect-ratio: 2/3; height: min(70vh, 105vw); width: auto; }
+  .work-card-img { aspect-ratio: 1/1.414; height: min(70vh, 105vw); width: auto; }
 }
 
 /* ── SHOWREEL VIDEO GRID ── */

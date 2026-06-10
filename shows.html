@@ -211,7 +211,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   transform:translate(-50%,-50%);
   z-index:50;
   width:clamp(390px,47vw,748px);
-  aspect-ratio:2/3;
+  aspect-ratio:1/1.414;   /* A-series (A1/A2/A3) = standard print poster ratio */
   border-radius:10px;overflow:hidden;
   box-shadow:0 48px 120px rgba(0,0,0,.8),0 8px 32px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.1);
   clip-path:inset(100% 0 0 0);
@@ -411,7 +411,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
   width:100%;
 }
 .ep-upload-btn:hover{background:rgba(255,255,255,.16);}
-.ep-thumb{width:100%;aspect-ratio:2/3;border-radius:6px;object-fit:cover;border:1px solid rgba(255,255,255,.1);display:none;margin-top:4px;}
+.ep-thumb{width:100%;aspect-ratio:1/1.414;border-radius:6px;object-fit:cover;border:1px solid rgba(255,255,255,.1);display:none;margin-top:4px;}
 .ep-divider{height:1px;background:rgba(255,255,255,.07);margin:2px 0;}
 
 /* Save button */
