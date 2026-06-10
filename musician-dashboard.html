@@ -1663,7 +1663,7 @@
               <div class="pb-subgroup">
                 <div class="pb-subgroup-title">按小時方案 / Per-hour options</div>
                 <div id="pbHourlyList"></div>
-                <button type="button" class="pb-row-add" onclick="pbAddHourlyRow()">➕ 新增時段 / Add option</button>
+                <button type="button" id="pbAddHourlyBtn" class="pb-row-add" onclick="pbAddHourlyRow()">➕ 新增時段 / Add option</button>
               </div>
 
               <div class="pb-subgroup">
@@ -1676,7 +1676,7 @@
               <div class="pb-subgroup">
                 <div class="pb-subgroup-title">加購 / Add-ons</div>
                 <div id="pbAddonsList"></div>
-                <button type="button" class="pb-row-add" onclick="pbAddAddonRow()">➕ 新增加購 / Add add-on</button>
+                <button type="button" id="pbAddAddonBtn" class="pb-row-add" onclick="pbAddAddonRow()">➕ 新增加購 / Add add-on</button>
               </div>
 
               <p class="pb-help-note">按小時方案會自動帶到預約列下拉與「From 起價」（取最低價）；組合包勾選後才會在 Check availability 顯示 Packages 分頁。</p>
@@ -1846,7 +1846,7 @@
             <div class="pb-field-group" data-pbgroup="highlights">
               <div class="pb-group-title">Career Highlights / 亮點</div>
               <div id="pbHighlightsList"></div>
-              <button type="button" class="pb-row-add" onclick="pbAddHighlightRow()">➕ 新增亮點 / Add highlight</button>
+              <button type="button" id="pbAddHighlightBtn" class="pb-row-add" onclick="pbAddHighlightRow()">➕ 新增亮點 / Add highlight</button>
             </div>
 
             <!-- Audio tracks (Phase 2-C) -->
@@ -4907,34 +4907,63 @@
   ];
 
   // ── Page-builder tutorial steps (separate flow, offered when you enter 編輯主頁) ──
-  // Walks the builder top → bottom, one section at a time, then the Publish button.
+  // Nanny-level: walks EVERY field on the right panel, top → bottom, section by
+  // section, then the Publish button. Each step opens its section (pbsec) and
+  // spotlights the specific control (sel).
+  var P = function(pbsec, sel, title, body){ return { page:'pagebuilder', pbsec:pbsec, sel:sel, title:title, body:body }; };
   var PB_STEPS = [
-    { sel:'.pb-sec-item[data-pbsec="hero"]',       page:'pagebuilder', pbsec:'hero',       title:'① 主視覺（第一印象）',
-      body:'訪客一進來最先看到的大圖＋你的名字。上傳最有氣勢的演奏照（最多 4 張會自動輪播）；名字下方的頭銜會依你選的主要樂器自動顯示。挑最好的一張，第一眼就靠它。' },
-    { sel:'.pb-sec-item[data-pbsec="card"]',       page:'pagebuilder', pbsec:'card',       title:'② 列表卡片',
-      body:'這是你出現在「找音樂家」列表時的小卡長相——縮圖、一句話簡介、起價。決定別人會不會點進來，所以簡介寫吸引人一點。' },
-    { sel:'.pb-sec-item[data-pbsec="booking"]',    page:'pagebuilder', pbsec:'booking',    title:'③ 預約 / 報價',
-      body:'設定你的起跳價格與每節時間（例如 NT$5,000／1 小時）。客戶會看到「Check availability」直接詢價，這裡填了才有報價依據。' },
-    { sel:'.pb-sec-item[data-pbsec="about"]',      page:'pagebuilder', pbsec:'about',      title:'④ 關於（建立信任）',
-      body:'自我介紹＋學經歷。用幾句話講清楚你是誰、擅長什麼風格、演出過哪裡。這段是讓客戶信任你的關鍵，值得花時間寫好。' },
-    { sel:'.pb-sec-item[data-pbsec="audio"]',      page:'pagebuilder', pbsec:'audio',      title:'⑤ Audio 音檔',
-      body:'放幾首代表作的試聽（上傳 MP3 或貼網址）。客戶聽得到你的聲音，成交機率大增。現在沒有檔案也沒關係，之後再回來補。' },
-    { sel:'.pb-sec-item[data-pbsec="services"]',   page:'pagebuilder', pbsec:'services',   title:'⑥ Specialties / 專長',
-      body:'列出你提供的服務（獨奏、室內樂、婚禮、企業活動、錄音、教學…）。讓客戶一眼知道能找你做什麼。' },
-    { sel:'.pb-sec-item[data-pbsec="highlights"]', page:'pagebuilder', pbsec:'highlights', title:'⑦ 亮點',
-      body:'條列重要經歷或成就：得獎、重要演出、合作對象。一行一個，挑最有份量的放，不用全部寫。' },
-    { sel:'.pb-sec-item[data-pbsec="partners"]',   page:'pagebuilder', pbsec:'partners',   title:'⑧ 合作夥伴',
-      body:'放曾合作的單位或品牌，增加專業可信度。沒有的話可以先略過。' },
-    { sel:'.pb-sec-item[data-pbsec="videos"]',     page:'pagebuilder', pbsec:'videos',     title:'⑨ Showreel 影片',
-      body:'放演出影片（YouTube／Vimeo 連結，最多 3 支）。動態影像最有說服力，強烈建議至少放一支。' },
-    { sel:'.pb-sec-item[data-pbsec="lessons"]',    page:'pagebuilder', pbsec:'lessons',    title:'⑩ 課程方案',
-      body:'有教學的話，這裡設定課程方案與收費，並可在此開關「是否招生」。（教學是 Premium 功能，未訂閱會先鎖住。）不教學就把它關掉即可。' },
-    { sel:'.pb-sec-item[data-pbsec="stats"]',      page:'pagebuilder', pbsec:'stats',      title:'⑪ 數據',
-      body:'年資、演出場次等數字，讓你的檔案更有份量。據實填寫即可。' },
-    { sel:'.pb-sec-item[data-pbsec="theme"]',      page:'pagebuilder', pbsec:'theme',      title:'⑫ Theme 顏色',
-      body:'微調頁面的主色、背景與文字顏色，讓風格符合你的個人品牌。不確定就用預設，之後隨時能改。' },
-    { sel:'#pbPublishBtn',                         page:'pagebuilder', pbsec:null,         title:'⭐ 最後一步：發布',
-      body:'全部填好後，一定要按這顆「發布我的頁面」才會真正上線給客戶看！之後每次改完內容，都記得回來再按一次發布。下方還有你的公開頁面網址，可以分享給別人。' }
+    // ── 主視覺 / Hero ──
+    P('hero','#pbHeroName','主視覺 · 名稱','你的藝名／顯示名字。會大大地秀在主頁最上方的大圖上，也是客戶記住你的名字。'),
+    P('hero','#pbNameSizeDesk','主視覺 · 名字大小（桌機）','拉這條調整名字在「電腦」上顯示的大小。名字比較長時就往左調小一點，才不會擠。'),
+    P('hero','#pbNameSizeMob','主視覺 · 名字大小（手機）','同上，但這條控制「手機」上的大小。手機螢幕窄，通常要再調小一點。'),
+    P('hero','#pbInstAdd','主視覺 · 樂器','從這裡選你的樂器（可多選）。第一個樂器會自動變成你的頭銜（例如小提琴 → Violinist），也決定你出現在哪些樂器分類與前台篩選。'),
+    P('hero','#pbHeroCountry','主視覺 · 主要地點','選你主要活動的國家與城市，決定你出現在前台哪個地區的搜尋結果。'),
+    P('hero','#pbHeroCountry2','主視覺 · 次要地點（選填）','如果你也接其他城市的案子，可以再選一個；沒有就留空。'),
+    P('hero','#pbBannerAddBtn','主視覺 · Banner 照片','按這顆上傳大圖，最多 4 張會自動輪播。每張都能單獨調整位置與縮放——挑最有氣勢的演奏照，這是第一印象。'),
+    // ── 列表卡片 / Card ──
+    P('card','#pbCardPhotoUrl','列表卡片 · 照片網址','你在「找音樂家」列表裡那張小卡的照片，貼圖片網址即可；留空會自動沿用主頁照片。'),
+    P('card','#pbCardName','列表卡片 · 顯示名稱','小卡上顯示的名字，通常跟你的藝名一樣。'),
+    P('card','#pbCardLocation','列表卡片 · 地點','小卡上顯示的城市，例如「台北，台灣」。'),
+    P('card','#pbCardBio','列表卡片 · 簡短介紹','一句話介紹自己。這句話決定別人會不會點進來看你，寫得吸引人一點。'),
+    P('card','#pbCardAudioUrl','列表卡片 · 卡片音樂','選一首代表作，客戶在列表卡片按播放鍵就能直接聽到你的聲音。'),
+    P('card','#pbCardPhotoX','列表卡片 · 照片位置','用這三條滑桿（水平／垂直／縮放）把照片裡的你喬到小卡上最好看的位置。'),
+    // ── 預約 / Booking ──
+    P('booking','#pbBookBarTitle','預約 · 標題','預約區塊最上方的標題文字（例如「預約我的演出」）。'),
+    P('booking','#pbBookBarSub','預約 · 副標','標題下面的一行小字說明。'),
+    P('booking','#pbAddHourlyBtn','預約 · 按小時方案','按這顆新增「每小時方案」（時段＋價格）。其中最低的價格會自動變成主頁上的「From 起價」。'),
+    P('booking','#pbPackagesEnabled','預約 · 組合包','勾選後可提供整套組合包方案，客戶會在「Check availability」看到 Packages 分頁；勾了再用下面的 ➕ 新增。'),
+    P('booking','#pbAddAddonBtn','預約 · 加購','按這顆新增可加購的項目（例如加長時間、額外曲目），客戶下單時可勾選。'),
+    // ── 關於 / About ──
+    P('about','#pbAboutBio','關於 · 簡介（中文）','介紹你的背景、訓練與演出特色。這段是讓客戶信任你的關鍵，值得花時間寫好。'),
+    P('about','#pbAboutBioEn','關於 · 簡介（英文）','英文版簡介，訪客切換成 EN 時會顯示；留空的話英文版這段就空白。'),
+    P('about','#pbAboutCreds','關於 · 學經歷（中文）','每行一項，列出你的樂團、獎項、學歷等。'),
+    P('about','#pbAboutCredsEn','關於 · 學經歷（英文）','上面學經歷的英文版，一樣每行一項。'),
+    P('about','#pbAvatarUrl','關於 · 大頭照','貼一張頭像圖片網址，下面三條滑桿可調整露出的部位與大小（照片永遠填滿圓框）。'),
+    // ── Audio 音檔 ──
+    P('audio','#pbAudio0Title','Audio · 曲目','每首曲目填「標題」＋「MP3 網址」（或直接拖曳音檔上傳）。最多 6 首，放代表作讓客戶聽得到你。'),
+    // ── Specialties / 專長 ──
+    P('services','.pbStyleChk','專長 · 音樂風格','勾選你的音樂風格（可複選）。這會用於前台篩選，也會自動變成你的演出標籤。'),
+    P('services','#pbSvc0Title','專長 · 演出專長卡','填「演出」這張卡的標題、描述與標籤（含英文）。這是客戶看你能做什麼的重點區。'),
+    P('services','#pbSvc2Visible','專長 · 其他自訂卡','另外還有 2 張可自訂的專長卡，需要時才勾選顯示並填內容。'),
+    // ── 亮點 / Highlights ──
+    P('highlights','#pbAddHighlightBtn','亮點','按這顆一行一個列出重要經歷或成就：得獎、重要演出、合作對象。挑最有份量的放，不用全部寫。'),
+    // ── 合作夥伴 / Partners ──
+    P('partners','#pbPartners','合作夥伴','每行打一個你合作過的單位／品牌，公開頁會自動排成統一風格的文字標誌。沒有可先略過。'),
+    // ── Showreel 影片 / Videos ──
+    P('videos','#pbVideoAddBtn','Showreel 影片','按這顆貼演出影片連結（YouTube／Vimeo，最多 3 支）。動態影像最有說服力，強烈建議至少放一支。'),
+    // ── 課程方案 / Lessons ──
+    P('lessons','#pbLessonVisible','課程方案 · 開關','這是 Premium 功能。打開後才會顯示課程方案、讓你出現在 Lessons 老師頁。不教學就維持關閉。'),
+    P('lessons','#pbLevelBeginner','課程方案 · 招生條件','勾選你收的程度、上課形式與時段。學生用這些條件篩選老師時，才會看到符合的你。'),
+    P('lessons','#pbPlan0Name','課程方案 · 方案內容','每個方案填名稱、價格、單位、特色等。最多 3 個方案，這裡以「方案 1」為例，其餘照樣填。'),
+    // ── 數據 / Stats ──
+    P('stats','#pbStat0Value','數據','每組填「數值＋後綴＋標籤」，例如 10／年／演出經驗。'),
+    P('stats','#pbStat2Value','數據 · 第三格（自動）','第三格是「客戶評論數」，會依你實際收到的評論自動跳動，不能手動修改。'),
+    // ── Theme 顏色 ──
+    P('theme','#pbThemeAccent','Theme · 主色','按鈕等重點元素的顏色。'),
+    P('theme','#pbThemePageBg','Theme · 背景色','整個頁面的底色。'),
+    P('theme','#pbThemeText','Theme · 文字色','主要文字的顏色。不確定就維持預設，之後隨時能改。'),
+    // ── 發布 ──
+    P(null,'#pbPublishBtn','⭐ 最後一步：發布','全部填好後，一定要按這顆「發布我的頁面」才會真正上線給客戶看！之後每次改完內容，都記得回來再按一次。下方還有你的公開頁面網址可以分享。')
   ];
 
   var idx = 0, active = false;
