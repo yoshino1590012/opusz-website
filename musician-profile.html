@@ -5883,6 +5883,12 @@ window.addEventListener('pageshow', function(e) {
       if(on) _visCount++;
     });
     if(_servGrid) _servGrid.classList.toggle('serv-solo', _visCount === 1);
+    // When an odd number of cards is shown (3), the lone card on the last row
+    // stretches full-width so its right edge lines up with the cards above.
+    var _shown = [];
+    for(var _si=0; _si<_allServ.length; _si++){ if(_allServ[_si] && _allServ[_si].style.display !== 'none') _shown.push(_allServ[_si]); }
+    _shown.forEach(function(c){ c.style.gridColumn = ''; });
+    if(_shown.length >= 3 && (_shown.length % 2 === 1)) _shown[_shown.length - 1].style.gridColumn = '1 / -1';
     var _servBlock = document.querySelector('.serv-block');
     if(_servBlock) _servBlock.style.display = (_visCount === 0) ? 'none' : '';
 
