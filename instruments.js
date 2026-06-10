@@ -37,10 +37,10 @@
       { slug: 'tuba',       en: 'Tuba',        zh: '大號' }
     ]},
     { slug: 'percussion', en: 'Percussion', zh: '打擊樂器', items: [
-      { slug: 'timpani',    en: 'Timpani',    zh: '定音鼓' },
-      { slug: 'marimba',    en: 'Marimba',    zh: '馬林巴' },
-      { slug: 'vibraphone', en: 'Vibraphone', zh: '顫音琴' },
-      { slug: 'xylophone',  en: 'Xylophone',  zh: '木琴' }
+      { slug: 'drummers',        en: 'Drummers',                  zh: '鼓手' },
+      { slug: 'orchpercussion',  en: 'Orchestral Percussion',     zh: '管弦打擊樂' },
+      { slug: 'worldpercussion', en: 'World Percussion',          zh: '世界打擊樂' },
+      { slug: 'marchingperc',    en: 'Marching Corps Percussion', zh: '行進打擊樂' }
     ]},
     { slug: 'keyboard', en: 'Keyboard', zh: '鍵盤樂器', items: [
       { slug: 'piano',       en: 'Piano',              zh: '鋼琴' },
