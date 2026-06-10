@@ -210,7 +210,10 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   left:50%;
   transform:translate(-50%,-50%);
   z-index:50;
-  width:clamp(390px,47vw,748px);
+  /* Width drives the size, but never let the derived height (width × 1.414)
+     exceed ~78vh — the 55vh cap leaves a comfortable top/bottom margin on short
+     (laptop) screens so the poster is never clipped. Tall screens keep the vw size. */
+  width:min(clamp(390px,47vw,748px), 55vh);
   aspect-ratio:1/1.414;   /* A-series (A1/A2/A3) = standard print poster ratio */
   border-radius:10px;overflow:hidden;
   box-shadow:0 48px 120px rgba(0,0,0,.8),0 8px 32px rgba(0,0,0,.5),inset 0 0 0 1px rgba(255,255,255,.1);
@@ -309,9 +312,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
      .sh-hero-content fades out on scroll (see _heroIntroFade in JS). */
   .sh-hero-right   { visibility:hidden; }
 
-  /* Poster: ~13% smaller than base */
+  /* Poster: ~13% smaller than base — same 55vh height cap so it never clips. */
   #fixedPosterFrame{
-    width:clamp(260px,31.3vw,505px);
+    width:min(clamp(260px,31.3vw,505px), 55vh);
   }
   /* Text panel: stretch toward the (smaller) MacBook poster — half-width 15.65vw + small gap */
   #fixedTextPanel{
