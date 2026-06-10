@@ -338,22 +338,22 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   .sh-hero-title{font-size:clamp(40px,13vw,66px);}
   .sh-hero-eyebrow{margin-bottom:14px;}
 
-  /* ── 海報：置中。用 svh（小視窗高度，固定值）定位，海報與下方文字一起釘住，
-        不再因瀏覽器工具列收合／展開而各自位移、互相重疊。略縮尺寸，確保「海報＋
-        日期＋文字」在工具列出現時也塞得進可見高度（日期不被吃掉）。
-        top 先寫 % 給不支援 svh 的舊瀏覽器當後備，再用 svh 覆蓋。 ── */
+  /* ── 海報：置中。用 dvh（動態視窗高度）定位 → 跟著「目前實際看得到的高度」走，
+        所以不管手機瀏覽器工具列開或關，海報＋文字都會自動置中在使用者真正看到的畫面裡
+        （和後台 iframe 預覽一致），下方不再留一大塊空白。海報略縮，確保海報＋日期＋
+        文字不重疊、日期看得到。top 先寫 % 給不支援 dvh 的舊瀏覽器當後備，再用 dvh 覆蓋。 ── */
   #fixedPosterFrame{
-    width:clamp(220px,68vw,300px);
+    width:clamp(216px,66vw,296px);
     top:34%;
-    top:33svh;
+    top:33dvh;
     left:50%;
     transform:translate(-50%,-50%);
   }
 
-  /* ── 文字面板：海報下方、置中。同樣用 svh 固定，與海報維持固定間距。 ── */
+  /* ── 文字面板：海報下方、置中。同樣用 dvh，與海報維持固定間距、一起置中。 ── */
   #fixedTextPanel{
     top:63%;
-    top:62svh;
+    top:62dvh;
     bottom:auto;
     left:50%;
     right:auto;
