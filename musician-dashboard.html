@@ -4433,8 +4433,19 @@
       // Sync key identity fields to top-level so the Musicians directory card
       // (which reads name / bio / primaryRegion) reflects the edited page.
       if (pbConfig.hero && pbConfig.hero.name)      pubFields.name = pbConfig.hero.name;
-      if (pbConfig.hero && pbConfig.hero.location)  pubFields.primaryRegion = pbConfig.hero.location;
-      if (pbConfig.hero && pbConfig.hero.location2) pubFields.secondaryRegion = pbConfig.hero.location2;
+      if (pbConfig.hero && pbConfig.hero.location){
+        pubFields.primaryRegion = pbConfig.hero.location;
+        // Split "City, Country" into the structured fields the directory filter uses.
+        var _p1 = String(pbConfig.hero.location).split(',');
+        pubFields.region  = (_p1[0] || '').trim();
+        pubFields.country = (_p1.length > 1 ? _p1[_p1.length - 1] : '').trim();
+      }
+      if (pbConfig.hero && pbConfig.hero.location2){
+        pubFields.secondaryRegion = pbConfig.hero.location2;
+        var _p2 = String(pbConfig.hero.location2).split(',');
+        pubFields.region2  = (_p2[0] || '').trim();
+        pubFields.country2 = (_p2.length > 1 ? _p2[_p2.length - 1] : '').trim();
+      }
       if (pbConfig.about && pbConfig.about.bio)     pubFields.bio = pbConfig.about.bio;
       // Instruments drive which category/family pages this musician appears on.
       if (pbConfig.card && Array.isArray(pbConfig.card.instruments))

@@ -728,8 +728,18 @@ function doSearch(){
   applyFilters();
 }
 
-var TAIWAN_CITIES = ['台北','台中','台南','高雄','新竹','嘉義','花蓮'];
-var USA_CITIES    = ['New York','Los Angeles','Boston','Houston','Seattle','Chicago'];
+// Canonical English city values (must match what the dashboard stores in region).
+// Displayed in Chinese via CITY_ZH when the page is in 中文.
+var TAIWAN_CITIES = ['Taipei','New Taipei','Taoyuan','Taichung','Tainan','Kaohsiung','Hsinchu','Keelung','Chiayi','Yilan','Hualien','Taitung'];
+var USA_CITIES    = ['New York','Los Angeles','San Francisco','Boston','Chicago','Seattle','Houston','Washington','Philadelphia','Austin','San Diego','Dallas','Miami','Atlanta','Denver','Portland','Nashville','San Jose','Las Vegas','Phoenix'];
+var CITY_ZH = {
+  'Taipei':'台北','New Taipei':'新北','Taoyuan':'桃園','Taichung':'台中','Tainan':'台南','Kaohsiung':'高雄',
+  'Hsinchu':'新竹','Keelung':'基隆','Chiayi':'嘉義','Yilan':'宜蘭','Hualien':'花蓮','Taitung':'台東',
+  'New York':'紐約','Los Angeles':'洛杉磯','San Francisco':'舊金山','Boston':'波士頓','Chicago':'芝加哥',
+  'Seattle':'西雅圖','Houston':'休士頓','Washington':'華盛頓','Philadelphia':'費城','Austin':'奧斯汀',
+  'San Diego':'聖地牙哥','Dallas':'達拉斯','Miami':'邁阿密','Atlanta':'亞特蘭大','Denver':'丹佛',
+  'Portland':'波特蘭','Nashville':'納許維爾','San Jose':'聖荷西','Las Vegas':'拉斯維加斯','Phoenix':'鳳凰城'
+};
 
 function onCountryChange(){
   var country = document.getElementById('filterCountry').value;
@@ -742,7 +752,7 @@ function onCountryChange(){
   var cities = country==='Taiwan' ? TAIWAN_CITIES : country==='USA' ? USA_CITIES : [];
   cities.forEach(function(c){
     var o = document.createElement('option');
-    o.value = c; o.textContent = c;
+    o.value = c; o.textContent = (currentLang==='zh' && CITY_ZH[c]) ? CITY_ZH[c] : c;
     citySelect.appendChild(o);
   });
   citySelect.style.display = country ? 'inline-block' : 'none';
