@@ -450,7 +450,7 @@ input[type=text].ep-input:focus,input[type=url].ep-input:focus{border-color:rgba
 #editorToggle, #editorPanel { display: none !important; }</style>
 </head>
 <body>
-<script src="nav.js?v=6"></script>
+<script src="nav.js?v=7"></script>
 
 <!-- ══ HERO (fixed) ══ -->
 <section class="sh-hero" data-cms-section="sh-hero">
@@ -1562,7 +1562,7 @@ var PH_SHOWS = {
 window.toggleShowNote = function(btn){
   var wrap = btn.closest('.show-note-wrap'); if(!wrap) return;
   var note = wrap.querySelector('.show-note'); if(!note || !note.textContent.trim()) return;
-  var open = wrap.classList.toggle('open');
+  var open = wrap.classList.toggle('open');   // CSS .open drives max-height/opacity
   var lbl = wrap.querySelector('.snt-label');
   if(lbl) lbl.textContent = open ? (_currentLang==='zh'?'收起':'Show less') : (_currentLang==='zh'?'瞭解更多':'Learn more');
 };
