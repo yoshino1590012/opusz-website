@@ -593,7 +593,9 @@
         <div class="step-title" id="statusTitle" style="text-align:center;">審核中</div>
         <div class="step-sub" id="statusSub" style="text-align:center;">您的樂手申請已送出，正在審核中。通過後我們會以 Email 通知您。</div>
         <div id="statusReason" style="display:none;margin-top:14px;padding:12px 14px;background:#fdf2f2;border:1px solid #f3c9c9;border-radius:10px;color:#a13a3a;font-size:14px;text-align:left;"></div>
-        <button class="btn-main" style="margin-top:22px;" onclick="window.location.href='musician-platform.html'">返回首頁</button>
+        <!-- 只有「申請未完成」狀態才顯示這顆鈕 -->
+        <button id="statusContinueBtn" class="btn-main" style="margin-top:22px;display:none;" onclick="continueIncompleteApplication()">繼續完成申請 →</button>
+        <button id="statusHomeBtn" class="btn-main" style="margin-top:22px;" onclick="window.location.href='musician-platform.html'">返回首頁</button>
         <div class="terms" style="margin-top:14px;">
           <a href="#" id="statusBackLogin" style="color:var(--mid);">使用其他帳號登入</a>
         </div>
@@ -855,9 +857,16 @@
     // form — don't hijack the page or sign out a logged-in customer who may be
     // here to register. Only an EXPLICIT sign-in attempt gets the reason screen.
     if (opts.silent) return false;
+    // 沒有樂手 doc → 帳號存在但申請未完成（例如中途重新整理）
+    // 不登出、讓他繼續填申請；若是誤入的客戶可按「使用其他帳號」
+    if (!snap.exists()) {
+      regData._user  = user;
+      regData.email  = user.email || '';
+      showStatus('incomplete');
+      return false;
+    }
     await signOut(auth);
-    if (!snap.exists())        showStatus('notmusician');
-    else if (st === 'pending') showStatus('pending');
+    if (st === 'pending') showStatus('pending');
     else if (st === 'rejected') showStatus('rejected', snap.data().rejectReason || '');
     else                       showStatus('suspended');
     return false;
@@ -865,6 +874,11 @@
 
   // ── Status screen (pending / rejected / not-a-musician) ──
   window.showStatus = function(kind, reason) {
+    // 預設：顯示返回首頁、隱藏繼續申請
+    var contBtn = document.getElementById('statusContinueBtn');
+    var homeBtn = document.getElementById('statusHomeBtn');
+    if (contBtn) contBtn.style.display = 'none';
+    if (homeBtn) homeBtn.style.display = 'block';
     var icon  = document.getElementById('statusIcon');
     var title = document.getElementById('statusTitle');
     var sub   = document.getElementById('statusSub');
@@ -875,6 +889,15 @@
       sub.textContent = '很抱歉，您的樂手申請尚未通過審核。';
       if (reason) { rsn.textContent = '審核意見：' + reason; rsn.style.display = 'block'; }
       else { rsn.style.display = 'none'; }
+    } else if (kind === 'incomplete') {
+      icon.textContent = '📝';
+      title.textContent = '申請未完成';
+      sub.textContent = '你的帳號已建立，但申請資料尚未送出。繼續填寫資料並送出申請吧！';
+      rsn.style.display = 'none';
+      var contBtn = document.getElementById('statusContinueBtn');
+      var homeBtn = document.getElementById('statusHomeBtn');
+      if (contBtn) contBtn.style.display = 'block';
+      if (homeBtn) homeBtn.style.display = 'none';
     } else if (kind === 'notmusician') {
       icon.textContent = '🔑';
       title.textContent = '這不是樂手帳號';
@@ -1016,12 +1039,37 @@
     } catch(e) {
       btn.textContent = 'Continue'; btn.disabled = false;
       var errEl = document.getElementById('regError');
-      errEl.textContent = e.code === 'auth/email-already-in-use'
-        ? 'This email is already registered. Please sign in instead.'
-        : 'Something went wrong. Please try again.';
-      errEl.classList.add('show');
+      if (e.code === 'auth/email-already-in-use') {
+        // 帳號已存在 → 試著用填的密碼登入，看看是否是上次中途放棄的申請
+        btn.textContent = 'Checking…'; btn.disabled = true;
+        try {
+          var cred2 = await signInWithEmailAndPassword(auth, email, pw);
+          var snap2 = await getDoc(doc(db, 'musicians', cred2.user.uid));
+          if (!snap2.exists()) {
+            // 申請未完成，繼續填 Step 2
+            regData._user = cred2.user;
+            regData.email = email;
+            showStatus('incomplete');
+          } else {
+            // 已有樂手資料，走正常登入判斷
+            await routeAfterAuth(cred2.user);
+          }
+        } catch(e2) {
+          btn.textContent = 'Continue'; btn.disabled = false;
+          errEl.textContent = 'This email is already registered. Please sign in instead.';
+          errEl.classList.add('show');
+        }
+      } else {
+        errEl.textContent = 'Something went wrong. Please try again.';
+        errEl.classList.add('show');
+      }
     }
   }
+
+  // 「繼續完成申請」按鈕：從 incomplete status 畫面回到 Step 2
+  window.continueIncompleteApplication = function() {
+    goStep('setup');
+  };
 
   // ── Check if email verified ──
   window.checkVerified = async function() {
