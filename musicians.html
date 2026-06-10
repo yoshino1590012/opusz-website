@@ -783,7 +783,7 @@ function getFiltered(){
     }
     if(country && m.country !== country) return false;
     if(city    && m.region  !== city)    return false;
-    if(style   && m.style   !== style)   return false;
+    if(style   && !((Array.isArray(m.styles) && m.styles.indexOf(style) !== -1) || m.style === style)) return false;
     if(searchQuery && m.name.toLowerCase().indexOf(searchQuery)===-1 && m.instrument.toLowerCase().indexOf(searchQuery)===-1 && m.bio.toLowerCase().indexOf(searchQuery)===-1) return false;
     return true;
   });
@@ -1411,7 +1411,8 @@ window.addEventListener('load', applyAllSavedXYS);
         instruments: insts,
         country:    (p.primaryRegion || '').split(' · ')[0] || 'Taiwan',
         region:     card.location || (p.primaryRegion || '').split(' · ').slice(1).join(' · ') || p.primaryRegion || '—',
-        style:      'Classical',
+        styles:     Array.isArray(p.styles) ? p.styles : [],
+        style:      (Array.isArray(p.styles) && p.styles[0]) ? p.styles[0] : 'Classical',
         level:      'Professional',
         rating:     0,
         reviews:    0,

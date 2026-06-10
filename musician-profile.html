@@ -5451,6 +5451,10 @@ window.addEventListener('pageshow', function(e) {
     ['Cleveland, USA','克里夫蘭, 美國'],['Cincinnati, USA','辛辛那提, 美國'],['Indianapolis, USA','印第安納波利斯, 美國'],
     ['New Orleans, USA','紐奧良, 美國'],['Salt Lake City, USA','鹽湖城, 美國']
   ];
+  var STYLE_PAIRS = [
+    ['Classical','古典'],['Jazz','爵士'],['Pop','流行'],['Pop / Commercial','流行 / 商業'],
+    ['Film','電影配樂'],['Film / TV Scoring','電影 / 影視配樂'],['Wedding','婚禮'],['Contemporary','當代']
+  ];
   function _biTrans(pairs, val){
     if(!val) return val;
     var s = String(val).trim();
@@ -5524,6 +5528,23 @@ window.addEventListener('pageshow', function(e) {
           tagsWrap.innerHTML = tags.map(function(s){ return '<span class="serv-tag">' + _escHtml(s) + '</span>'; }).join('');
         }
       });
+    }
+
+    // STYLE ↔ TAGS link: the musician's selected styles appear as tags on the
+    // Performance card (translated). Cleared + re-added each run so toggling
+    // language or re-applying config never duplicates them.
+    if(Array.isArray(cfg.styles) && cfg.styles.length){
+      var _perfCard = document.querySelectorAll('.serv-card')[0];
+      var _pw = _perfCard && _perfCard.querySelector('.serv-tags');
+      if(_pw){
+        Array.prototype.forEach.call(_pw.querySelectorAll('.serv-tag-style, .pf-placeholder'), function(n){ n.remove(); });
+        cfg.styles.forEach(function(s){
+          var span = document.createElement('span');
+          span.className = 'serv-tag serv-tag-style';
+          span.textContent = _biTrans(STYLE_PAIRS, s);
+          _pw.appendChild(span);
+        });
+      }
     }
 
     // CAREER HIGHLIGHTS (localised titles; year + images unchanged)

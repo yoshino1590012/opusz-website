@@ -1743,6 +1743,17 @@
             <!-- Specialties / Services -->
             <div class="pb-field-group" data-pbgroup="services">
               <div class="pb-group-title">Specialties / 專長</div>
+              <div class="pb-subgroup">
+                <div class="pb-subgroup-title">音樂風格 / Styles（可複選；用於前台篩選，並自動成為演出標籤）</div>
+                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
+                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Classical" onchange="pbOnInput()"> 古典 / Classical</label>
+                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Jazz" onchange="pbOnInput()"> 爵士 / Jazz</label>
+                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Pop" onchange="pbOnInput()"> 流行 / Pop</label>
+                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Film" onchange="pbOnInput()"> 電影配樂 / Film</label>
+                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Wedding" onchange="pbOnInput()"> 婚禮 / Wedding</label>
+                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Contemporary" onchange="pbOnInput()"> 當代 / Contemporary</label>
+                </div>
+              </div>
               <div class="pb-subgroup" data-pbsvc="0">
                 <div class="pb-subgroup-title">Card 1 — Performance</div>
                 <label class="pb-check" style="margin-bottom:10px;"><input type="checkbox" id="pbSvc0Visible" onchange="pbOnInput()"> 顯示演出專長卡片 / Show this card</label>
@@ -3717,6 +3728,10 @@
       if(i >= 2) c('pbSvc'+i+'Visible', svc.visible === true);  // custom cards' own switch
     });
 
+    // Music styles (multi-select) → drives the public filter + performance tags
+    var _styles = Array.isArray(pbConfig.styles) ? pbConfig.styles : [];
+    document.querySelectorAll('.pbStyleChk').forEach(function(c){ c.checked = _styles.indexOf(c.value) !== -1; });
+
     // Reviews
     (pbConfig.reviews||[]).forEach(function(rv, i){
       v('pbReview'+i+'Initials', rv.initials);
@@ -4068,6 +4083,7 @@
       },
       partners:   lines('pbPartners'),
       services:   services,
+      styles:     Array.prototype.slice.call(document.querySelectorAll('.pbStyleChk:checked')).map(function(c){ return c.value; }),
       reviews:    reviews,
       highlights: highlights,
       audio:      audio,
@@ -4423,6 +4439,8 @@
       // Instruments drive which category/family pages this musician appears on.
       if (pbConfig.card && Array.isArray(pbConfig.card.instruments))
         pubFields.instruments = pbConfig.card.instruments;
+      // Styles drive the directory style filter (any match shows the musician).
+      if (Array.isArray(pbConfig.styles)) pubFields.styles = pbConfig.styles;
       await setDoc(doc(db, 'musicians', _currentUser.uid), pubFields, { merge:true });
 
       // ── 通知後台：記錄此次發布的改動 ──
