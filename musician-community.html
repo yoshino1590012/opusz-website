@@ -1911,6 +1911,7 @@ function renderFeed(channel) {
   // Enter key for comment input
   container.querySelectorAll('.comment-input').forEach(function(inp) {
     inp.addEventListener('keydown', function(e) {
+      if (e.isComposing || e.keyCode === 229) return;   // ignore IME selection Enter
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         inp.nextElementSibling.click();
@@ -2322,7 +2323,7 @@ document.addEventListener('click', function(e){
         .catch(function(e){ console.warn('[community DM] send failed', e); inp.value = t; alert('傳送失敗，請稍後再試'); });
     };
     document.getElementById('dmSend').onclick = send;
-    document.getElementById('dmInput').onkeydown = function(e){ if(e.key==='Enter'){ e.preventDefault(); send(); } };
+    document.getElementById('dmInput').onkeydown = function(e){ if(e.isComposing||e.keyCode===229) return; if(e.key==='Enter'){ e.preventDefault(); send(); } };
     setTimeout(function(){ var i=document.getElementById('dmInput'); if(i) i.focus(); }, 50);
   }
 

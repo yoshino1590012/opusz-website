@@ -1244,7 +1244,7 @@ window.addEventListener('pageshow', function(e) {
         if(window.OPUSZ_MSG) OPUSZ_MSG.sendMessage(t.id, { text:text, senderRole:'customer' });
       };
       send.addEventListener('click', doSend);
-      input.addEventListener('keydown', function(e){ if(e.key==='Enter') doSend(); });
+      input.addEventListener('keydown', function(e){ if(e.isComposing||e.keyCode===229) return; if(e.key==='Enter') doSend(); });
     }
   }
 
