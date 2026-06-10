@@ -2161,6 +2161,18 @@ document.addEventListener('click', function(e){
       .catch(function(e){ console.warn('[community DM] start failed', e); alert('無法開啟對話，請稍後再試'); });
   };
 
+  // ── chat timestamp helpers (Line-style: time on every bubble, date divider on day change) ──
+  function _dmDate(ts){ return (ts && ts.toDate) ? ts.toDate() : (ts && ts.seconds ? new Date(ts.seconds*1000) : null); }
+  function _dmTime(ts){ var d=_dmDate(ts); if(!d) return ''; return d.toLocaleTimeString('zh-TW',{hour:'numeric',minute:'2-digit'}); }
+  function _dmDayKey(ts){ var d=_dmDate(ts); if(!d) return ''; return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate(); }
+  function _dmDayLabel(ts){
+    var d=_dmDate(ts); if(!d) return '';
+    var wk=['日','一','二','三','四','五','六'][d.getDay()];
+    var base=(d.getMonth()+1)+'月'+d.getDate()+'日 星期'+wk;
+    var now=new Date();
+    return (d.getFullYear()!==now.getFullYear()) ? (d.getFullYear()+'年'+base) : base;
+  }
+
   function openDMChat(convId, title, myRole){
     if (_dmUnsub){ try{ _dmUnsub(); }catch(e){} _dmUnsub = null; }
     var pov = document.getElementById('commProfileOverlay'); if (pov) pov.remove();
@@ -2189,10 +2201,21 @@ document.addEventListener('click', function(e){
     var msgsEl = document.getElementById('dmMsgs');
     _dmUnsub = window.OPUSZ_MSG.listenMessages(convId, function(rows){
       if (!rows.length){ msgsEl.innerHTML = '<div style="margin:auto;color:#bbb;font-size:13px;">還沒有訊息，打聲招呼吧 👋</div>'; return; }
-      msgsEl.innerHTML = rows.map(function(r){
+      var html = '', lastDay = null;
+      rows.forEach(function(r){
+        var dayKey = _dmDayKey(r.createdAt);
+        if (dayKey && dayKey !== lastDay){
+          lastDay = dayKey;
+          html += '<div style="align-self:center;background:#ececec;color:#888;font-size:11px;font-weight:600;padding:3px 12px;border-radius:50px;">'+esc(_dmDayLabel(r.createdAt))+'</div>';
+        }
         var mine = r.senderUid === window.opuszMyUid;
-        return '<div style="align-self:'+(mine?'flex-end':'flex-start')+';max-width:78%;background:'+(mine?'#111':'#fff')+';color:'+(mine?'#fff':'#222')+';border:'+(mine?'none':'1px solid #eee')+';border-radius:14px;padding:9px 13px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word;">'+esc(r.text)+'</div>';
-      }).join('');
+        var tstr = _dmTime(r.createdAt);
+        html += '<div style="display:flex;flex-direction:column;align-items:'+(mine?'flex-end':'flex-start')+';align-self:'+(mine?'flex-end':'flex-start')+';max-width:78%;">' +
+          '<div style="background:'+(mine?'#111':'#fff')+';color:'+(mine?'#fff':'#222')+';border:'+(mine?'none':'1px solid #eee')+';border-radius:14px;padding:9px 13px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-break:break-word;">'+esc(r.text)+'</div>' +
+          (tstr ? '<div style="font-size:10px;color:#bbb;margin-top:3px;">'+tstr+'</div>' : '') +
+        '</div>';
+      });
+      msgsEl.innerHTML = html;
       msgsEl.scrollTop = msgsEl.scrollHeight;
     });
     var send = function(){

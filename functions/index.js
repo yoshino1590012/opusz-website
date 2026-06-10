@@ -183,6 +183,83 @@ exports.notifyMusicianOnInquiry = onDocumentCreated(
   }
 );
 
+// ── New direct message → email the recipient ─────────────────────────────────
+// Fires when a message lands in conversations/{convId}/messages/{msgId}.
+// Emails the OTHER participant (musician↔musician peer chats and customer↔musician
+// threads both). Reuses the musician "新詢問 / 訊息" email pref (email_inquiry);
+// customers have no musicians doc → default to send. A 5-minute per-recipient
+// throttle prevents an active back-and-forth from spamming the inbox.
+exports.notifyOnNewMessage = onDocumentCreated(
+  { document: "conversations/{convId}/messages/{msgId}", secrets: [ZEPTO_TOKEN] },
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+    const m = snap.data() || {};
+    if (m.type === "sys") return;                       // skip system lines
+
+    const convId = event.params.convId;
+    const convRef = admin.firestore().doc("conversations/" + convId);
+    let conv;
+    try {
+      const c = await convRef.get();
+      if (!c.exists) return;
+      conv = c.data() || {};
+    } catch (e) { logger.warn("notifyOnNewMessage: conv read failed", { convId }); return; }
+
+    const parts = conv.participants || [];
+    const recipientUid = parts.find((p) => p !== m.senderUid);
+    if (!recipientUid) { logger.warn("notifyOnNewMessage: no recipient", { convId }); return; }
+
+    // Throttle: at most one email per recipient per thread every 5 minutes.
+    const now = Date.now();
+    const lastAt = (conv.lastNotifiedAt && conv.lastNotifiedAt.toMillis) ? conv.lastNotifiedAt.toMillis() : 0;
+    if (conv.lastNotifiedUid === recipientUid && (now - lastAt) < 5 * 60 * 1000) {
+      logger.info("notifyOnNewMessage: throttled", { convId, recipientUid });
+      return;
+    }
+
+    // Recipient preference (only musicians have notifPrefs; customers default to send).
+    try {
+      const rSnap = await admin.firestore().doc("musicians/" + recipientUid).get();
+      const prefs = (rSnap.exists && rSnap.data() && rSnap.data().notifPrefs) || {};
+      if (prefs.email_inquiry === false) {
+        logger.info("recipient opted out of message emails", { recipientUid });
+        return;
+      }
+    } catch (e) { /* default to send */ }
+
+    const email = await musicianEmail(recipientUid);
+    if (!email) { logger.warn("notifyOnNewMessage: no email", { recipientUid }); return; }
+
+    const senderName = (m.senderRole === "customer")
+      ? (conv.customerName || "對方")
+      : (conv.musicianName || "對方");
+    const recipientName = (m.senderRole === "customer")
+      ? (conv.musicianName || "")
+      : (conv.customerName || "");
+    const snippet = m.text ? String(m.text).slice(0, 300) : (m.file ? "📎 附件" : "");
+
+    const greet = recipientName ? ('<p style="margin:0 0 16px;">' + esc(recipientName) + " 您好，</p>") : "";
+    const html = emailShell(
+      '<h1 style="margin:0 0 6px;font-size:21px;color:#111;">💬 你有一則新訊息</h1>' +
+      '<p style="color:#777;margin:0 0 22px;font-size:14px;">' + esc(senderName) + " 在 OPUS.Z 傳了訊息給你</p>" +
+      greet +
+      '<div style="white-space:pre-wrap;background:#f6f6f6;border:1px solid #eee;padding:16px 18px;border-radius:10px;margin:0 0 24px;color:#222;">' +
+        esc(snippet) + "</div>" +
+      '<p style="margin:0;">' + btn(DASH_URL, "前往後台查看與回覆 →") + "</p>"
+    );
+
+    await sendZepto(ZEPTO_TOKEN.value(), email, recipientName, "【OPUS.Z】" + senderName + " 傳了一則訊息給你", html);
+    try {
+      await convRef.update({
+        lastNotifiedUid: recipientUid,
+        lastNotifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    } catch (e) { /* throttle bookkeeping is best-effort */ }
+    logger.info("notifyOnNewMessage sent", { convId, recipientUid });
+  }
+);
+
 // ── Musician application review: email the applicant on approve / reject ──────
 // Fires when a musician doc's `status` changes. Approve → welcome + dashboard
 // link; reject → notice + the admin's reason. Reuses the same ZeptoMail sender.
