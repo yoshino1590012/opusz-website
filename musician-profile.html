@@ -641,11 +641,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   overflow:hidden;
   max-width:68%;
   margin:0 auto;
-  /* Wide, gentle fade (18% each side). A blocky CJK glyph straddling a gentle
-     gradient fades almost uniformly across its width → reads as "fading away",
-     not "left side sliced off" (which a steep gradient causes). */
-  -webkit-mask-image:linear-gradient(to right,transparent 0,black 18%,black 82%,transparent 100%);
-  mask-image:linear-gradient(to right,transparent 0,black 18%,black 82%,transparent 100%);
+  /* No CSS mask: a gradient mask fades each GLYPH unevenly across its own width,
+     which slices blocky CJK chars. Instead JS fades each whole logo as a unit
+     (var(--edge)) and zeroes it out BEFORE the clip edge → never a half-char. */
 }
 .marquee-track{
   display:flex;align-items:center;
@@ -661,12 +659,12 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .marquee-logo{
   display:flex;align-items:center;justify-content:center;
   padding:0 52px;
-  opacity:.22;
-  transition:opacity .3s;
+  /* --edge (0→1) is driven per-frame by JS; the whole logo fades as one unit */
+  opacity:calc(.22 * var(--edge, 1));
   white-space:nowrap;
   flex-shrink:0;
 }
-.marquee-logo:hover{ opacity:.65; }
+.marquee-logo:hover{ opacity:calc(.55 * var(--edge, 1)); }
 .marquee-logo svg{
   display:block;
   height:28px;width:auto;
@@ -678,11 +676,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 }
 /* mobile: tighter gap + faster scroll + wider visible area */
 @media(max-width:700px){
-  .marquee-track-wrap{
-    max-width:90%;
-    -webkit-mask-image:linear-gradient(to right,transparent 0,black 14%,black 86%,transparent 100%);
-    mask-image:linear-gradient(to right,transparent 0,black 14%,black 86%,transparent 100%);
-  }
+  .marquee-track-wrap{ max-width:90%; }
   .marquee-track{ animation-duration:13s; }
   .marquee-logo{ padding:0 22px; }
 }
@@ -5878,6 +5872,33 @@ window.addEventListener('pageshow', function(e) {
       }
     }
 
+    // Whole-logo edge fade: every frame, fade each logo as ONE unit by its X
+    // position, hitting opacity 0 BEFORE it reaches the clip edge — so a half
+    // glyph is never shown (the real cause of "中文被切"). Throttled to ~30fps.
+    if(!window.__startMarqueeEdgeFade){
+      window.__startMarqueeEdgeFade = function(track, wrap){
+        if(!track || !wrap) return;
+        if(track.__fadeRAF) cancelAnimationFrame(track.__fadeRAF);
+        var logos = [].slice.call(track.children), flip = false;
+        var tick = function(){
+          flip = !flip;
+          if(flip){   // run the math every other frame (~30fps) to stay light
+            var ww = wrap.clientWidth, fade = Math.min(160, ww * 0.18);
+            var wr = wrap.getBoundingClientRect();
+            var rects = logos.map(function(el){ return el.getBoundingClientRect(); });
+            for(var i=0;i<logos.length;i++){
+              var L = rects[i].left - wr.left, R = rects[i].right - wr.left;
+              var fl = Math.max(0, Math.min(1, L / fade));        // fade out toward left edge
+              var fr = Math.max(0, Math.min(1, (ww - R) / fade));  // fade in from right edge
+              logos[i].style.setProperty('--edge', Math.min(fl, fr).toFixed(3));
+            }
+          }
+          track.__fadeRAF = requestAnimationFrame(tick);
+        };
+        track.__fadeRAF = requestAnimationFrame(tick);
+      };
+    }
+
     // ── PARTNERS / BRAND MARQUEE ──────────────────────────
     if(Array.isArray(cfg.partners)){
       var marqueeTrack = document.getElementById('marqueeTrack');
@@ -5896,10 +5917,18 @@ window.addEventListener('pageshow', function(e) {
             if(svg){ return '<div class="marquee-logo marquee-logo--svg">' + svg + '</div>'; }
             return '<div class="marquee-logo"><span class="logo-text">' + esc(name) + '</span></div>';
           }).join('');
-          // Six identical sets — ensures track is always wider than the container
-          // even with very few partners (2 sets was too narrow → gap at loop point)
-          marqueeTrack.innerHTML = oneSet + oneSet + oneSet + oneSet + oneSet + oneSet;
+          var wrap = marqueeTrack.parentElement;
+          // Measure one set, then repeat it K times so a single "block" is at least
+          // as wide as the visible area. Two identical blocks total → the -50%
+          // keyframe loops seamlessly for ANY partner count (no gap, no 中斷).
+          marqueeTrack.innerHTML = oneSet;
+          var setW = marqueeTrack.scrollWidth || 1;
+          var wrapW = (wrap && wrap.clientWidth) || setW;
+          var K = Math.max(2, Math.ceil(wrapW / setW) + 1);
+          var block = ''; for(var bi=0; bi<K; bi++) block += oneSet;
+          marqueeTrack.innerHTML = block + block;
           marqueeTrack.style.animation = ''; // re-enable scroll loop (template empty-state disables it)
+          window.__startMarqueeEdgeFade(marqueeTrack, wrap);
         }
       }
     }
