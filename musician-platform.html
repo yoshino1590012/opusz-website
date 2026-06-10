@@ -2344,7 +2344,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     <li><a href="#home"        data-i18n="nav.home">Home</a></li>
     <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>
     <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>
-    <li><a href="recent-jobs.html">Recent Jobs</a></li>
+    <li><a href="recent-jobs.html" data-i18n="nav.jobs">Recent Jobs</a></li>
     <li><a href="shows.html"   data-i18n="nav.news">Shows</a></li>
     <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>
   </ul>
@@ -2359,7 +2359,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     <button class="nav-login-btn" id="navLoginBtn" aria-label="Log in">
       <!-- person icon: shown on mobile so the button isn't an empty box -->
       <svg class="login-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.6 3.5-5.6 7-5.6s7 2 7 5.6"/></svg>
-      <span class="login-label">Log in</span>
+      <span class="login-label" data-i18n="nav.login">Log in</span>
       <svg class="login-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
     </button>
     <!-- My Account Button (shown when logged in) -->
@@ -2788,9 +2788,9 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 
     <!-- Left: sticky label panel -->
     <div class="work-left">
-      <div style="font-size:12px;color:#999;margin-bottom:16px;">(Concert Posters©)</div>
+      <div style="font-size:12px;color:#999;margin-bottom:16px;" data-i18n="work.posters_label">(Concert Posters©)</div>
       <div class="work-h">
-        <span class="work-title" data-tid="shows-title">What's On</span>
+        <span class="work-title" data-tid="shows-title" data-i18n="work.whatson">What's On</span>
         <span class="work-count">(3)</span>
       </div>
       <div class="work-dots" id="work-dots">
@@ -2798,7 +2798,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
         <div class="work-dot-item" data-idx="1"></div>
         <div class="work-dot-item" data-idx="2"></div>
       </div>
-      <a href="shows.html" class="work-cta lg-glass" style="align-self:flex-start;">View all shows</a>
+      <a href="shows.html" class="work-cta lg-glass" style="align-self:flex-start;" data-i18n="work.viewshows">View all shows</a>
     </div>
 
     <!-- Right: scroll-stacked poster cards -->
@@ -3165,6 +3165,8 @@ const I18N = {
   en: {
     'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
     'nav.artists_short':'Musicians','nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
+    'nav.jobs':'Recent Jobs','nav.login':'Log in',
+    'work.posters_label':'(Concert Posters©)','work.whatson':"What's On",'work.viewshows':'View all shows',
     'login.customer':'Customer login','login.musician':'Musician login',
     'login.email':'Email','login.password':'Password',
     'login.btn':'Log in','login.noAccount':'No account?','login.signup':'Sign up →',
@@ -3267,8 +3269,10 @@ const I18N = {
     'bn.footer':'Footer',
   },
   zh: {
-    'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家 (12)',
+    'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家',
     'nav.artists_short':'音樂家','nav.news':'近期演出','nav.contact':'聯絡我們','nav.lessons':'音樂老師',
+    'nav.jobs':'近期委託','nav.login':'登入',
+    'work.posters_label':'（音樂會海報）','work.whatson':'近期節目','work.viewshows':'查看所有演出',
     'login.customer':'客戶登入','login.musician':'樂手登入',
     'login.email':'電郵地址','login.password':'密碼',
     'login.btn':'登入','login.noAccount':'還沒有帳號？','login.signup':'立即註冊 →',
