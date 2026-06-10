@@ -1504,8 +1504,23 @@
                 <input type="range" id="pbNameSizeMob" min="40" max="100" step="5" value="100" oninput="document.getElementById('pbNameSizeMobVal').textContent=this.value+'%'; pbOnInput();" style="width:100%;margin-top:6px;">
               </div>
               <div class="pb-field"><label>頭銜 / Title</label><input type="text" id="pbHeroTitle" oninput="pbOnInput()" placeholder="你的頭銜（如：小提琴家）/ Your title (e.g. Violinist)"></div>
-              <div class="pb-field"><label>主要地點 / Primary location</label><input type="text" id="pbHeroLocation" list="opzRegionList" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
-              <div class="pb-field"><label>次要地點 / Secondary location（選填 / optional）</label><input type="text" id="pbHeroLocation2" list="opzRegionList" oninput="pbOnInput()" placeholder="第二個服務地點（可留空）"></div>
+              <div class="pb-field"><label>樂器 / Instruments（可多選 · 決定你出現在哪些樂器頁與前台篩選）</label>
+                <select id="pbInstAdd" onchange="pbInstPick()" style="width:100%;padding:9px 10px;border:1px solid #d8d8d8;border-radius:8px;font-size:13px;background:#fff;"></select>
+                <div class="pb-inst-chips" id="pbInstChips"></div>
+                <input type="hidden" id="pbCardInstrument">
+              </div>
+              <div class="pb-field"><label>主要地點 / Primary location（決定你出現在前台哪個地區篩選）</label>
+                <div style="display:flex;gap:8px;">
+                  <select id="pbHeroCountry" onchange="pbCityFill('pbHeroCountry','pbHeroCity');pbOnInput()" style="flex:0 0 42%;padding:9px 10px;border:1px solid #d8d8d8;border-radius:8px;font-size:13px;background:#fff;"></select>
+                  <select id="pbHeroCity" onchange="pbOnInput()" style="flex:1;padding:9px 10px;border:1px solid #d8d8d8;border-radius:8px;font-size:13px;background:#fff;"></select>
+                </div>
+              </div>
+              <div class="pb-field"><label>次要地點 / Secondary location（選填 / optional）</label>
+                <div style="display:flex;gap:8px;">
+                  <select id="pbHeroCountry2" onchange="pbCityFill('pbHeroCountry2','pbHeroCity2');pbOnInput()" style="flex:0 0 42%;padding:9px 10px;border:1px solid #d8d8d8;border-radius:8px;font-size:13px;background:#fff;"></select>
+                  <select id="pbHeroCity2" onchange="pbOnInput()" style="flex:1;padding:9px 10px;border:1px solid #d8d8d8;border-radius:8px;font-size:13px;background:#fff;"></select>
+                </div>
+              </div>
               <datalist id="opzRegionList">
                 <option value="Taipei, Taiwan"></option>
                 <option value="New Taipei, Taiwan"></option>
@@ -1561,11 +1576,7 @@
               <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">這是你在 Musicians 列表那張卡片顯示的照片與文字（留空會自動沿用主頁設定）。照片請貼網址。</p>
               <div class="pb-field"><label>卡片照片網址 / Card photo URL</label><input type="text" id="pbCardPhotoUrl" placeholder="https://… 圖片網址" oninput="pbOnInput()"></div>
               <div class="pb-field"><label>顯示名稱 / Display name</label><input type="text" id="pbCardName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name"></div>
-              <div class="pb-field"><label>樂器 / Instruments（可多選 · 決定你出現在哪些樂器頁）</label>
-                <select id="pbInstAdd" onchange="pbInstPick()" style="width:100%;padding:9px 10px;border:1px solid #d8d8d8;border-radius:8px;font-size:13px;background:#fff;"></select>
-                <div class="pb-inst-chips" id="pbInstChips"></div>
-                <input type="hidden" id="pbCardInstrument">
-              </div>
+              <div class="pb-field"><label>樂器 / Instruments</label><div style="font-size:12px;color:var(--mid);line-height:1.5;">樂器選擇已移到「<b>主視覺</b>」分頁的頭銜下方（可多選、連動前台篩選）。</div></div>
               <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbCardLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
               <div class="pb-field"><label>簡短介紹 / Short bio</label><textarea id="pbCardBio" oninput="pbOnInput()" placeholder="一句話介紹你自己 / A one-line intro"></textarea></div>
               <div class="pb-field"><label>卡片音樂 / Card music (MP3)</label><input type="text" id="pbCardAudioUrl" oninput="pbOnInput()" placeholder="https://….mp3（或拖曳音檔上傳）"><div style="font-size:11px;color:var(--text-muted,#888);margin-top:4px;line-height:1.5;">在「音樂家列表」卡片左下角按播放鍵時會播放這首。</div></div>
@@ -2932,6 +2943,29 @@
     sel.innerHTML = html;
   }
 
+  // ── Location dropdowns (Country + City). Canonical English values that match
+  //    the public Musicians directory filter; shown bilingually in the picker. ──
+  var PB_REGIONS = {
+    'Taiwan': ['Taipei','New Taipei','Taoyuan','Taichung','Tainan','Kaohsiung','Hsinchu','Keelung','Chiayi','Yilan','Hualien','Taitung'],
+    'USA': ['New York','Los Angeles','San Francisco','Boston','Chicago','Seattle','Houston','Washington','Philadelphia','Austin','San Diego','Dallas','Miami','Atlanta','Denver','Portland','Nashville','San Jose','Las Vegas','Phoenix']
+  };
+  var PB_COUNTRY_ZH = { 'Taiwan':'台灣','USA':'美國' };
+  var PB_CITY_ZH = { 'Taipei':'台北','New Taipei':'新北','Taoyuan':'桃園','Taichung':'台中','Tainan':'台南','Kaohsiung':'高雄','Hsinchu':'新竹','Keelung':'基隆','Chiayi':'嘉義','Yilan':'宜蘭','Hualien':'花蓮','Taitung':'台東','New York':'紐約','Los Angeles':'洛杉磯','San Francisco':'舊金山','Boston':'波士頓','Chicago':'芝加哥','Seattle':'西雅圖','Houston':'休士頓','Washington':'華盛頓','Philadelphia':'費城','Austin':'奧斯汀','San Diego':'聖地牙哥','Dallas':'達拉斯','Miami':'邁阿密','Atlanta':'亞特蘭大','Denver':'丹佛','Portland':'波特蘭','Nashville':'納許維爾','San Jose':'聖荷西','Las Vegas':'拉斯維加斯','Phoenix':'鳳凰城' };
+  function pbCountryFill(selId){
+    var sel = document.getElementById(selId); if(!sel) return;
+    var html = '<option value="">國家 / Country</option>';
+    Object.keys(PB_REGIONS).forEach(function(c){ html += '<option value="'+c+'">'+(PB_COUNTRY_ZH[c]||c)+' / '+c+'</option>'; });
+    sel.innerHTML = html;
+  }
+  window.pbCityFill = function(countrySelId, citySelId, keep){
+    var cs = document.getElementById(countrySelId), ci = document.getElementById(citySelId);
+    if(!cs || !ci) return;
+    var html = '<option value="">城市 / City</option>';
+    (PB_REGIONS[cs.value] || []).forEach(function(c){ html += '<option value="'+c+'">'+(PB_CITY_ZH[c]||c)+' / '+c+'</option>'; });
+    ci.innerHTML = html;
+    if(keep) ci.value = keep;
+  };
+
   function pbInstRender(){
     var box = document.getElementById('pbInstChips');
     if(box){
@@ -3628,8 +3662,17 @@
     const c = (id,val)=>{ const el=document.getElementById(id); if(el) el.checked = !!val; };
     v('pbHeroName',     pbConfig.hero.name);
     v('pbHeroTitle',    pbConfig.hero.title);
-    v('pbHeroLocation', pbConfig.hero.location);
-    v('pbHeroLocation2', pbConfig.hero.location2);
+    pbCountryFill('pbHeroCountry'); pbCountryFill('pbHeroCountry2');
+    (function(){
+      var p1 = String(pbConfig.hero.location || '').split(',');
+      var city1 = (p1[0] || '').trim(), c1 = (p1.length > 1 ? p1[p1.length-1] : '').trim();
+      var cs1 = document.getElementById('pbHeroCountry'); if(cs1) cs1.value = c1;
+      pbCityFill('pbHeroCountry', 'pbHeroCity', city1);
+      var p2 = String(pbConfig.hero.location2 || '').split(',');
+      var city2 = (p2[0] || '').trim(), c2 = (p2.length > 1 ? p2[p2.length-1] : '').trim();
+      var cs2 = document.getElementById('pbHeroCountry2'); if(cs2) cs2.value = c2;
+      pbCityFill('pbHeroCountry2', 'pbHeroCity2', city2);
+    })();
     var nsd = pbConfig.hero.nameSizeDesk || 100;
     var nsm = pbConfig.hero.nameSizeMob  || 100;
     var nsdEl = document.getElementById('pbNameSizeDesk');
@@ -4042,8 +4085,8 @@
       hero: {
         name:         txt('pbHeroName').trim(),
         title:        txt('pbHeroTitle').trim(),
-        location:     txt('pbHeroLocation').trim(),
-        location2:    txt('pbHeroLocation2').trim(),
+        location:     (function(){ var c=(document.getElementById('pbHeroCountry')||{}).value||'', ci=(document.getElementById('pbHeroCity')||{}).value||''; return ci ? (ci+', '+c) : ''; })(),
+        location2:    (function(){ var c=(document.getElementById('pbHeroCountry2')||{}).value||'', ci=(document.getElementById('pbHeroCity2')||{}).value||''; return ci ? (ci+', '+c) : ''; })(),
         nameSizeDesk: parseInt((document.getElementById('pbNameSizeDesk')||{value:'100'}).value) || 100,
         nameSizeMob:  parseInt((document.getElementById('pbNameSizeMob') ||{value:'100'}).value) || 100,
         media:        heroMedia,
