@@ -1720,6 +1720,26 @@
                 <div class="pb-field"><label>標籤・中文(每行一項)</label><textarea id="pbSvc1Tags" oninput="pbOnInput()" placeholder="每行一個標籤"></textarea></div>
                 <div class="pb-field"><label>🌐 標籤・English (one per line)</label><textarea id="pbSvc1TagsEn" oninput="pbOnInput()" placeholder="One tag per line (English)"></textarea></div>
               </div>
+              <div class="pb-subgroup" data-pbsvc="2">
+                <div class="pb-subgroup-title">Card 3 — 其他專長（自訂）</div>
+                <label class="pb-check" style="margin-bottom:10px;"><input type="checkbox" id="pbSvc2Visible" onchange="pbOnInput()"> 顯示此專長卡片 / Show this card</label>
+                <div class="pb-field"><label>標題（中文）</label><input type="text" id="pbSvc2Title" oninput="pbOnInput()" placeholder="服務名稱"></div>
+                <div class="pb-field"><label>🌐 標題（English）</label><input type="text" id="pbSvc2TitleEn" oninput="pbOnInput()" placeholder="Service name (English)"></div>
+                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc2Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務"></textarea></div>
+                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc2DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="Describe this service (English)"></textarea></div>
+                <div class="pb-field"><label>標籤・中文(每行一項)</label><textarea id="pbSvc2Tags" oninput="pbOnInput()" placeholder="每行一個標籤"></textarea></div>
+                <div class="pb-field"><label>🌐 標籤・English (one per line)</label><textarea id="pbSvc2TagsEn" oninput="pbOnInput()" placeholder="One tag per line (English)"></textarea></div>
+              </div>
+              <div class="pb-subgroup" data-pbsvc="3">
+                <div class="pb-subgroup-title">Card 4 — 其他專長（自訂）</div>
+                <label class="pb-check" style="margin-bottom:10px;"><input type="checkbox" id="pbSvc3Visible" onchange="pbOnInput()"> 顯示此專長卡片 / Show this card</label>
+                <div class="pb-field"><label>標題（中文）</label><input type="text" id="pbSvc3Title" oninput="pbOnInput()" placeholder="服務名稱"></div>
+                <div class="pb-field"><label>🌐 標題（English）</label><input type="text" id="pbSvc3TitleEn" oninput="pbOnInput()" placeholder="Service name (English)"></div>
+                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc3Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務"></textarea></div>
+                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc3DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="Describe this service (English)"></textarea></div>
+                <div class="pb-field"><label>標籤・中文(每行一項)</label><textarea id="pbSvc3Tags" oninput="pbOnInput()" placeholder="每行一個標籤"></textarea></div>
+                <div class="pb-field"><label>🌐 標籤・English (one per line)</label><textarea id="pbSvc3TagsEn" oninput="pbOnInput()" placeholder="One tag per line (English)"></textarea></div>
+              </div>
             </div>
 
             <!-- Reviews -->
@@ -3649,6 +3669,7 @@
       v('pbSvc'+i+'TitleEn', svc.titleEn);
       v('pbSvc'+i+'DescEn',  svc.descriptionEn);
       v('pbSvc'+i+'TagsEn',  Array.isArray(svc.tagsEn) ? svc.tagsEn.join('\n') : '');
+      if(i >= 2) c('pbSvc'+i+'Visible', svc.visible === true);  // custom cards' own switch
     });
 
     // Reviews
@@ -3870,8 +3891,8 @@
       };
     });
 
-    const services = [0,1].map(function(i){
-      return {
+    const services = [0,1,2,3].map(function(i){
+      var o = {
         title:        txt('pbSvc'+i+'Title').trim(),
         description:  txt('pbSvc'+i+'Desc').trim(),
         tags:         lines('pbSvc'+i+'Tags'),
@@ -3879,6 +3900,10 @@
         descriptionEn: txt('pbSvc'+i+'DescEn').trim(),
         tagsEn:        lines('pbSvc'+i+'TagsEn')
       };
+      // Cards 0/1 are the Performance/Lessons cards (visibility handled by their
+      // own toggles). Cards 2/3 are custom extra specialties with their own switch.
+      if(i >= 2) o.visible = chk('pbSvc'+i+'Visible');
+      return o;
     });
     const reviews = [0,1,2,3,4].map(function(i){
       const colEl = document.getElementById('pbReview'+i+'Color');

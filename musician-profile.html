@@ -2087,6 +2087,18 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
           </div>
         </div>
 
+        <!-- Custom extra specialties (cards 3 & 4) — hidden until the musician fills + enables them -->
+        <div class="serv-card" style="display:none">
+          <p class="serv-card-title">Your service</p>
+          <p class="serv-card-desc">Describe a service you offer.</p>
+          <div class="serv-tags"><span class="serv-tag pf-placeholder" data-i18n="serv.addtags">Add tags</span></div>
+        </div>
+        <div class="serv-card" style="display:none">
+          <p class="serv-card-title">Your service</p>
+          <p class="serv-card-desc">Describe a service you offer.</p>
+          <div class="serv-tags"><span class="serv-tag pf-placeholder" data-i18n="serv.addtags">Add tags</span></div>
+        </div>
+
       </div>
     </div>
   </div>
@@ -5862,6 +5874,14 @@ window.addEventListener('pageshow', function(e) {
     if(_allServ[0]) _allServ[0].style.display = _perfOn  ? '' : 'none';
     if(_allServ[1]) _allServ[1].style.display = _teachOn ? '' : 'none';
     var _visCount = (_perfOn ? 1 : 0) + (_teachOn ? 1 : 0);
+    // Custom extra specialty cards (index 2,3): shown only when the musician
+    // ticked their own switch (svc.visible).
+    var _svcArr = Array.isArray(cfg.services) ? cfg.services : [];
+    [2,3].forEach(function(idx){
+      var on = !!(_svcArr[idx] && _svcArr[idx].visible === true);
+      if(_allServ[idx]) _allServ[idx].style.display = on ? '' : 'none';
+      if(on) _visCount++;
+    });
     if(_servGrid) _servGrid.classList.toggle('serv-solo', _visCount === 1);
     var _servBlock = document.querySelector('.serv-block');
     if(_servBlock) _servBlock.style.display = (_visCount === 0) ? 'none' : '';
