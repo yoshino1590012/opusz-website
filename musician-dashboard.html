@@ -1155,64 +1155,80 @@
 
         <!-- ─── Tab 2: 通知設定 ─── -->
         <div id="profile-tab-notif" class="profile-tabs-wrap" style="display:none;">
+
+          <!-- Email 通知 -->
           <div class="setting-section">
-            <div class="setting-head">通知設定</div>
+            <div class="setting-head">📧 Email 通知</div>
+            <p style="font-size:12.5px;color:var(--mid);margin:0 0 14px;">以下開啟後，有新活動時會寄信到你的註冊信箱。</p>
+
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title">新詢問通知</div>
-                <div class="sr-desc">客戶直接傳訊給你時通知</div>
+                <div class="sr-title">新詢問 / 訊息</div>
+                <div class="sr-desc">客戶傳訊、檔期詢問、課程預約時寄 email 通知你</div>
               </div>
               <label class="toggle">
-                <input type="checkbox" checked>
+                <input type="checkbox" id="notif-email-inquiry" checked onchange="saveNotifPrefs()">
                 <div class="toggle-track"></div>
                 <div class="toggle-thumb"></div>
               </label>
             </div>
+
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title">新訊息</div>
-                <div class="sr-desc">收到聊天訊息時通知你</div>
+                <div class="sr-title">新公開委托</div>
+                <div class="sr-desc">有新演出 / 錄音 / 活動案子發布時寄 email 通知你</div>
               </div>
               <label class="toggle">
-                <input type="checkbox" checked>
-                <div class="toggle-track"></div>
-                <div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="setting-row">
-              <div class="setting-info">
-                <div class="sr-title">新演出機會</div>
-                <div class="sr-desc">有符合你樂器的新案子發布時通知你</div>
-              </div>
-              <label class="toggle">
-                <input type="checkbox" checked>
-                <div class="toggle-track"></div>
-                <div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="setting-row">
-              <div class="setting-info">
-                <div class="sr-title">收款通知</div>
-                <div class="sr-desc">付款撥款完成時通知你</div>
-              </div>
-              <label class="toggle">
-                <input type="checkbox" checked>
-                <div class="toggle-track"></div>
-                <div class="toggle-thumb"></div>
-              </label>
-            </div>
-            <div class="setting-row">
-              <div class="setting-info">
-                <div class="sr-title">平台公告</div>
-                <div class="sr-desc">OPUS.Z 的最新消息與功能更新</div>
-              </div>
-              <label class="toggle">
-                <input type="checkbox">
+                <input type="checkbox" id="notif-email-job" checked onchange="saveNotifPrefs()">
                 <div class="toggle-track"></div>
                 <div class="toggle-thumb"></div>
               </label>
             </div>
           </div>
+
+          <!-- 站內提示 -->
+          <div class="setting-section">
+            <div class="setting-head">🔔 站內提示</div>
+            <p style="font-size:12.5px;color:var(--mid);margin:0 0 14px;">以下開啟後，在後台時會顯示紅點 / 橫幅提示。</p>
+
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">新訊息紅點</div>
+                <div class="sr-desc">收到新詢問或聊天訊息時，訊息圖示顯示紅點</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-app-inquiry" checked onchange="saveNotifPrefs()">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">新公開委托徽章</div>
+                <div class="sr-desc">有新案子發布時，「公開接案」顯示紅點徽章</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-app-job" checked onchange="saveNotifPrefs()">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-info">
+                <div class="sr-title">平台公告</div>
+                <div class="sr-desc">OPUS.Z 發布最新消息或功能更新時顯示橫幅</div>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="notif-app-announce" checked onchange="saveNotifPrefs()">
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+          </div>
+
+          <p id="notif-save-msg" style="font-size:13px;color:#16a34a;display:none;margin:0 0 16px;">✓ 已儲存</p>
         </div>
 
         <!-- ─── Tab 3: 帳號 ─── -->
@@ -2008,6 +2024,9 @@
       var DAY = 24*60*60*1000, now = Date.now();
       var seenAt = function(id){ try{ var v=localStorage.getItem('opusz_ann_seen_'+id); return v==null?null:Number(v); }catch(e){ return null; } };
       var dismissed = function(id){ try{ return localStorage.getItem('opusz_ann_dismiss_'+id)==='1'; }catch(e){ return false; } };
+      // 如果樂手關閉「平台公告」站內提示，直接不顯示
+      var appAnnOn = !_currentProfile || !_currentProfile.notifPrefs || _currentProfile.notifPrefs.app_announce !== false;
+      if(!appAnnOn){ wrap.style.display='none'; wrap.innerHTML=''; return; }
       var live = items.filter(function(a){ if(!a||!a.id) return true; if(dismissed(a.id)) return false; var s=seenAt(a.id); return s==null || (now - s) < DAY; });
       var show = live.slice(0,5);
       if(!show.length){ wrap.style.display='none'; wrap.innerHTML=''; return; }
@@ -2199,6 +2218,9 @@
 
       // Membership tier: render banner + lock/unlock lesson editor
       try{ pbRenderMembership(); }catch(e){ console.warn('[membership] render failed:', e); }
+
+      // 通知偏好設定
+      try{ loadNotifPrefs(); }catch(e){ console.warn('[notif] loadNotifPrefs failed:', e); }
     } catch(e) {
       console.log('Profile load error:', e);
       _currentProfile = _currentProfile || {};   // keep the safe fallback identity already applied
@@ -2373,6 +2395,33 @@
       { title:'隱私與資料',        body:'（草擬中，細節後續討論調整）' }
     ]
   };
+  // ── 通知偏好設定（存/讀 musicians/{uid}.notifPrefs）──────────────────────
+  var NOTIF_KEYS = ['email-inquiry','email-job','app-inquiry','app-job','app-announce'];
+  async function loadNotifPrefs(){
+    if(!_currentUser) return;
+    var prefs = (_currentProfile && _currentProfile.notifPrefs) || {};
+    NOTIF_KEYS.forEach(function(k){
+      var el = document.getElementById('notif-'+k);
+      if(!el) return;
+      // 未設定時預設全開（true）
+      el.checked = prefs[k.replace(/-/g,'_')] !== false;
+    });
+  }
+  window.saveNotifPrefs = async function(){
+    if(!_currentUser) return;
+    var prefs = {};
+    NOTIF_KEYS.forEach(function(k){
+      var el = document.getElementById('notif-'+k);
+      if(el) prefs[k.replace(/-/g,'_')] = el.checked;
+    });
+    try{
+      await setDoc(doc(db,'musicians',_currentUser.uid), { notifPrefs: prefs }, { merge:true });
+      if(_currentProfile) _currentProfile.notifPrefs = prefs;
+      var msg = document.getElementById('notif-save-msg');
+      if(msg){ msg.style.display='block'; setTimeout(function(){ msg.style.display='none'; }, 2000); }
+    }catch(e){ console.warn('[notif] save failed', e && e.code); showNotif('儲存失敗，請重試'); }
+  };
+
   async function loadPolicy(){
     var wrap = document.getElementById('policySections');
     if(wrap) wrap.innerHTML = '<div style="padding:24px;color:#999;">載入中…</div>';
@@ -2543,9 +2592,10 @@
     var lastSeen = jobsLastSeen();
     var newCount = list.filter(function(j){ return !lastSeen || (j.createdAt || '') > lastSeen; }).length;
     var jb = document.getElementById('sbJobsBadge');
-    if (jb){ jb.textContent = newCount; jb.style.display = newCount ? '' : 'none'; }
+    var appJobOn = !_currentProfile || !_currentProfile.notifPrefs || _currentProfile.notifPrefs.app_job !== false;
+    if (jb){ jb.textContent = newCount; jb.style.display = (newCount && appJobOn) ? '' : 'none'; }
     // Toast only when fresh jobs arrive AFTER the first load (not on initial paint).
-    if (_jobsInitialLoaded && newCount > (window.__jobsPrevNew || 0) && typeof showNotif === 'function') {
+    if (_jobsInitialLoaded && newCount > (window.__jobsPrevNew || 0) && appJobOn && typeof showNotif === 'function') {
       showNotif('🔔 有新的公開委托！');
     }
     window.__jobsPrevNew = newCount;
@@ -4714,9 +4764,10 @@
     var unread=convos.reduce(function(s,c){ return s + (((c.musicianUnread||0)>0)?1:0); },0);
     var lessons=[]; try { lessons=JSON.parse(localStorage.getItem('opusz_lesson_requests')||'[]'); } catch(e){}
     var lessonUnread=lessons.filter(function(r){ return !r.read; }).length;
-    var mb=document.getElementById('sbMsgBadge'); if(mb){ mb.textContent=unread; mb.style.display=unread?'':'none'; }
+    var appInqOn = !_currentProfile || !_currentProfile.notifPrefs || _currentProfile.notifPrefs.app_inquiry !== false;
+    var mb=document.getElementById('sbMsgBadge'); if(mb){ mb.textContent=unread; mb.style.display=(unread&&appInqOn)?'':'none'; }
     var jb=document.getElementById('sbJobsBadge'); if(jb){ jb.textContent=convos.length; jb.style.display=convos.length?'':'none'; }
-    var dot=document.querySelector('.topbar-btn .notif-dot'); if(dot) dot.style.display=(unread+lessonUnread)?'':'none';
+    var dot=document.querySelector('.topbar-btn .notif-dot'); if(dot) dot.style.display=((unread+lessonUnread)&&appInqOn)?'':'none';
   }
 
   window.showInboxNotif = function(){

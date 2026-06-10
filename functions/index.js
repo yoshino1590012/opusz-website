@@ -148,6 +148,16 @@ exports.notifyMusicianOnInquiry = onDocumentCreated(
     const uid = d.musicianUid;
     if (!uid) { logger.warn("inquiry has no musicianUid", { id: event.params.id }); return; }
 
+    // 檢查樂手是否關閉了「新詢問 email」偏好
+    try {
+      const musSnap = await admin.firestore().doc("musicians/" + uid).get();
+      const prefs = (musSnap.exists && musSnap.data() && musSnap.data().notifPrefs) || {};
+      if (prefs.email_inquiry === false) {
+        logger.info("musician opted out of inquiry emails", { uid });
+        return;
+      }
+    } catch (e) { /* 讀不到就預設寄出 */ }
+
     const email = await musicianEmail(uid);
     if (!email) { logger.warn("no email for musician", { uid }); return; }
 
@@ -294,5 +304,79 @@ exports.notifyPosterApproved = onCall(
     await sendZepto(ZEPTO_TOKEN.value(), email, name, "🎉 您投稿的海報已在 OPUS.Z 上線", html);
     logger.info("poster-approved email sent", { email });
     return { ok: true };
+  }
+);
+
+// ── New public job → email all active musicians ───────────────────────────────
+// Fires when a new job doc is created in `jobs/{jobId}`.
+// Emails every published, non-suspended musician who hasn't opted out.
+exports.notifyOnNewJob = onDocumentCreated(
+  { document: "jobs/{jobId}", secrets: [ZEPTO_TOKEN] },
+  async (event) => {
+    const snap = event.data;
+    if (!snap) return;
+    const job = snap.data() || {};
+    if (job.status !== "open") return;   // 只通知公開案子
+
+    const musSnap = await admin.firestore()
+      .collection("musicians")
+      .where("published", "==", true)
+      .get();
+
+    if (musSnap.empty) { logger.info("notifyOnNewJob: no published musicians"); return; }
+
+    const token = ZEPTO_TOKEN.value();
+    const jobId  = event.params.jobId;
+    const jobUrl = SITE_URL + "/musician-dashboard";   // 後台「公開接案」分頁
+
+    // 案子摘要文字
+    const typeLabel  = esc(job.type || "演出 / 錄音 / 活動");
+    const locLabel   = job.location ? esc(job.location) : "";
+    const dateLabel  = job.eventDate ? esc(job.eventDate) : "";
+    const custLabel  = job.customerName ? esc(job.customerName) : "";
+    const descLabel  = job.desc ? esc(String(job.desc).slice(0, 200)) : "";
+
+    const detailRows = [
+      typeLabel  ? ('<tr><td style="color:#888;padding:3px 12px 3px 0;white-space:nowrap;">類型</td><td style="color:#111;">' + typeLabel  + "</td></tr>") : "",
+      locLabel   ? ('<tr><td style="color:#888;padding:3px 12px 3px 0;white-space:nowrap;">地點</td><td style="color:#111;">' + locLabel   + "</td></tr>") : "",
+      dateLabel  ? ('<tr><td style="color:#888;padding:3px 12px 3px 0;white-space:nowrap;">日期</td><td style="color:#111;">' + dateLabel  + "</td></tr>") : "",
+      custLabel  ? ('<tr><td style="color:#888;padding:3px 12px 3px 0;white-space:nowrap;">委托人</td><td style="color:#111;">' + custLabel  + "</td></tr>") : "",
+    ].join("");
+
+    const promises = [];
+
+    for (const mDoc of musSnap.docs) {
+      const mData = mDoc.data();
+      const mUid  = mDoc.id;
+      const st    = mData.status || "";
+      if (st === "suspended" || st === "rejected") continue;
+
+      // 樂手偏好：email_job === false 代表關閉，其他（true 或未設定）都寄
+      const prefs = mData.notifPrefs || {};
+      if (prefs.email_job === false) continue;
+
+      const mEmail = mData.email || (await musicianEmail(mUid));
+      if (!mEmail) continue;
+
+      const mName = mData.name || "";
+      const greet = mName ? ('<p style="margin:0 0 16px;">' + esc(mName) + " 您好，</p>") : "";
+
+      const html = emailShell(
+        '<h1 style="margin:0 0 6px;font-size:21px;color:#111;">🎯 有新的公開演出委托</h1>' +
+        '<p style="color:#777;margin:0 0 22px;font-size:14px;">有人在 OPUS.Z 發布了新的演出案子，可能適合你！</p>' +
+        greet +
+        (detailRows ? ('<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 14px;font-size:15px;">' + detailRows + "</table>") : "") +
+        (descLabel ? ('<div style="white-space:pre-wrap;background:#f6f6f6;border:1px solid #eee;padding:14px 16px;border-radius:10px;margin:0 0 22px;color:#444;font-size:14px;">' + descLabel + (job.desc && job.desc.length > 200 ? "…" : "") + "</div>") : "") +
+        '<p style="margin:0;">' + btn(jobUrl, "前往後台查看完整委托 →") + "</p>"
+      );
+
+      promises.push(
+        sendZepto(token, mEmail, mName, "【OPUS.Z】有新的演出委托，快去看看", html)
+          .catch(err => logger.warn("notifyOnNewJob: send failed", { mUid, err: err.message }))
+      );
+    }
+
+    await Promise.allSettled(promises);
+    logger.info("notifyOnNewJob done", { jobId, sent: promises.length });
   }
 );
