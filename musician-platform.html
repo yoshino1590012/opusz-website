@@ -1215,6 +1215,11 @@ nav.mega-open .nav-links a::before {
 }
 .work-cta.lg-glass:hover::before { transform: scaleX(1.05) scaleY(1.08); }
 .work-cta.lg-glass::after { content: '\203A'; margin-left: 7px; font-size: 18px; font-weight: 600; line-height: 1; }
+/* Phone only (≤700px): smaller "View all shows" button. Desktop & tablet unaffected. */
+@media (max-width: 700px) {
+  .work-cta { font-size: 13px; padding: 9px 18px; margin-top: 28px; }
+  .work-cta.lg-glass::after { font-size: 15px; margin-left: 5px; }
+}
 
 /* Right photo stack */
 .work-photos {
