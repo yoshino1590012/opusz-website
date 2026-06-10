@@ -2023,35 +2023,63 @@
       window.location.href = 'musician-login.html';
       return;
     }
+    // ── Admin edit mode ─────────────────────────────────────────────────
+    // The platform admin can open ?adminEdit=<musicianUid> to edit THAT
+    // musician's public page with this exact page builder. Detected before the
+    // gate so the admin (who has no musician doc of their own) isn't bounced.
+    const ADMIN_EMAIL = 'tzutung.liao@gmail.com';
+    const _adminEditUid = new URLSearchParams(location.search).get('adminEdit');
+    const _isAdminEditing = !!_adminEditUid && user.email === ADMIN_EMAIL;
+    window.__adminEditing = _isAdminEditing;
+    window.__adminEditUid = _isAdminEditing ? _adminEditUid : null;
+
     // ── Access gate ────────────────────────────────────────────────────
     // A musician doc must EXIST, and must not be in a blocked state, to enter.
     // Closes the hole where ANY Firebase-authenticated account (e.g. a customer
     // Gmail, which has no musician doc) could reach the dashboard just by being
     // logged in. We block only the explicit not-yet-allowed states; legacy
     // musicians and the owner may have NO status field → grandfathered in.
-    try {
-      const _gateSnap = await getDoc(doc(db, 'musicians', user.uid));
-      const _st = _gateSnap.exists() ? (_gateSnap.data().status || '') : null;
-      const _blocked = ['pending', 'rejected', 'suspended'];
-      const _allowed = _gateSnap.exists() && _blocked.indexOf(_st) === -1;
-      if (!_allowed) {
-        const _reason = !_gateSnap.exists() ? 'notmusician' : (_st || 'blocked');
-        await signOut(auth);
-        window.location.href = 'musician-login.html?reason=' + _reason;
+    if (_isAdminEditing) {
+      // Admin editing someone else: only verify the TARGET musician exists.
+      try {
+        const _tgt = await getDoc(doc(db, 'musicians', _adminEditUid));
+        if (!_tgt.exists()) {
+          alert('找不到這位音樂家（uid: ' + _adminEditUid + '）');
+          window.location.href = 'admin-panel.html';
+          return;
+        }
+      } catch (e) {
+        console.warn('[admin-edit] target lookup failed:', e && e.code);
+        window.location.href = 'admin-panel.html';
         return;
       }
-    } catch (e) {
-      // Fail safe: on a read error, sign out and show the login form rather
-      // than expose the dashboard (and avoid a redirect loop with the gate).
-      console.warn('[gate] musician status check failed:', e && e.code);
-      try { await signOut(auth); } catch(_e){}
-      window.location.href = 'musician-login.html';
-      return;
+    } else {
+      try {
+        const _gateSnap = await getDoc(doc(db, 'musicians', user.uid));
+        const _st = _gateSnap.exists() ? (_gateSnap.data().status || '') : null;
+        const _blocked = ['pending', 'rejected', 'suspended'];
+        const _allowed = _gateSnap.exists() && _blocked.indexOf(_st) === -1;
+        if (!_allowed) {
+          const _reason = !_gateSnap.exists() ? 'notmusician' : (_st || 'blocked');
+          await signOut(auth);
+          window.location.href = 'musician-login.html?reason=' + _reason;
+          return;
+        }
+      } catch (e) {
+        // Fail safe: on a read error, sign out and show the login form rather
+        // than expose the dashboard (and avoid a redirect loop with the gate).
+        console.warn('[gate] musician status check failed:', e && e.code);
+        try { await signOut(auth); } catch(_e){}
+        window.location.href = 'musician-login.html';
+        return;
+      }
     }
     _currentUser = user;
+    // uid whose PAGE we are editing: the admin's target, or the musician's own.
+    const _editUid = _isAdminEditing ? _adminEditUid : user.uid;
     loadAnnouncements();   // show platform announcements on the dashboard
     window._tourUid = user.uid;   // per-user key for the onboarding tour
-    window.__pbUid = user.uid;    // used by the live-preview iframe + snap-back
+    window.__pbUid = _editUid;    // page builder + live-preview iframe edit THIS uid
 
     // ── Private inbox: customer inquiries (message / booking / lesson) for THIS musician ──
     // Live Firestore feed; populates window._fsInbox which the (non-module) inbox UI reads.
@@ -2122,7 +2150,7 @@
     // page redirects on load, which fought the snap-back guard → infinite reload.
     try{
       var _pf = document.getElementById('pbPreview');
-      if(_pf){ _pf.__pbSnapped = false; _pf.src = 'musician-profile.html?edit=1&uid=' + encodeURIComponent(user.uid) + '&_=' + Date.now(); }
+      if(_pf){ _pf.__pbSnapped = false; _pf.src = 'musician-profile.html?edit=1&uid=' + encodeURIComponent(_editUid) + '&_=' + Date.now(); }
     }catch(e){}
 
     // Apply the signed-in identity to every name/avatar slot in the chrome.
@@ -2158,11 +2186,15 @@
     }
     applyAccountIdentity();   // immediate, safe fallback (this account's own email)
 
-    // Load profile from Firestore
+    // Load profile from Firestore (the EDIT target — admin's chosen musician or self)
     try {
-      const snap = await getDoc(doc(db, 'musicians', user.uid));
+      const snap = await getDoc(doc(db, 'musicians', _editUid));
       _currentProfile = snap.exists() ? snap.data() : {};
       applyAccountIdentity(_currentProfile.name);   // override with the real display name
+      if (_isAdminEditing) {
+        showAdminEditBanner(_currentProfile.name || _editUid);
+        try { window.navigate('pagebuilder', document.querySelector('[data-page=pagebuilder]')); } catch(e){}
+      }
 
       // Populate profile tab fields
       loadProfileFields();
@@ -2257,7 +2289,7 @@
     if (!name) { showNotif('請輸入顯示名稱'); return; }
 
     try {
-      const ref = doc(db, 'musicians', _currentUser.uid);
+      const ref = doc(db, 'musicians', pbEditUid());
       await updateDoc(ref, { name, phone, website });
       _currentProfile = { ..._currentProfile, name, phone, website };
 
@@ -2610,7 +2642,7 @@
       (async function(){
         try{
           var ext = file.type==='image/png' ? 'png' : (file.type==='image/webp' ? 'webp' : 'jpg');
-          var path = 'musicians/' + _currentUser.uid + '/poster_' + Date.now() + '.' + ext;
+          var path = 'musicians/' + pbEditUid() + '/poster_' + Date.now() + '.' + ext;
           var r = storageRef(storage, path);
           await uploadBytes(r, file, { contentType: file.type, contentDisposition: 'attachment; filename="poster.' + ext + '"' });
           var url = await getDownloadURL(r);
@@ -2658,7 +2690,7 @@
     try{
       var current = (_currentProfile && _currentProfile.posterSubmissions) ? _currentProfile.posterSubmissions.slice() : [];
       current.push(submission);
-      await setDoc(doc(db,'musicians',_currentUser.uid), { posterSubmissions: current }, { merge:true });
+      await setDoc(doc(db,'musicians',pbEditUid()), { posterSubmissions: current }, { merge:true });
       if(!_currentProfile) _currentProfile = {};
       _currentProfile.posterSubmissions = current;
       renderPostersList(current);
@@ -2704,7 +2736,24 @@
   // Invite codes → free Premium months. Add/rename as you like.
   const PB_COUPONS = { 'OPUSZ-FOUNDER': 6, 'OPUSZ-INVITE6': 6 };
 
-  function pbMembershipLSKey(){ return 'opusz-membership-' + (_currentUser ? _currentUser.uid : 'anon'); }
+  // The uid whose PAGE is being edited: admin's target override, else self.
+  // All page-builder reads/writes/uploads use this so an admin edits the right doc.
+  function pbEditUid(){ return window.__adminEditUid || (_currentUser && _currentUser.uid) || null; }
+  // Sticky banner so the admin always knows they're editing someone else's page.
+  function showAdminEditBanner(name){
+    if (document.getElementById('adminEditBanner')) return;
+    var bar = document.createElement('div');
+    bar.id = 'adminEditBanner';
+    bar.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#b45309;color:#fff;'
+      + 'font-size:13px;font-weight:700;text-align:center;padding:8px 16px;letter-spacing:.02em;'
+      + 'box-shadow:0 2px 12px rgba(0,0,0,.2);';
+    bar.innerHTML = '🛠️ 管理者模式：你正在編輯「' + (name || '') + '」的頁面　'
+      + '<a href="admin-panel.html" style="color:#fff;text-decoration:underline;margin-left:8px;">← 返回後台</a>';
+    document.body.appendChild(bar);
+    // Push the page down so the banner doesn't cover the top chrome.
+    document.body.style.paddingTop = '36px';
+  }
+  function pbMembershipLSKey(){ return 'opusz-membership-' + (pbEditUid() || 'anon'); }
   function pbGetMembership(){
     // Firestore is source of truth; fall back to localStorage so the editor
     // remembers across reloads even if the Firestore write is blocked by rules.
@@ -2889,7 +2938,7 @@
      ════════════════════════════════════════════════════════════════ */
   // Draft is PER-ACCOUNT (keyed by uid) so a different musician logging in on the
   // same browser never sees the previous account's draft.
-  function pbLSKey(){ return 'opusz-profile-config:' + (_currentUser && _currentUser.uid ? _currentUser.uid : 'anon'); }
+  function pbLSKey(){ return 'opusz-profile-config:' + (pbEditUid() || 'anon'); }
   // Schema defaults — mirror the current hardcoded profile values.
   const PB_DEFAULTS = {
     hero:    { name:'', title:'', location:'', nameSizeDesk:100, nameSizeMob:100,
@@ -3189,7 +3238,7 @@
       pbCompressImage(file, maxDim || 800, 0.82, async function(blob){
         if(!blob){ reject(new Error('compress-failed')); return; }
         try{
-          const path = 'musicians/' + _currentUser.uid + '/' + fieldKey + '_' + Date.now() + '.jpg';
+          const path = 'musicians/' + pbEditUid() + '/' + fieldKey + '_' + Date.now() + '.jpg';
           const r = storageRef(storage, path);
           await uploadBytes(r, blob);
           const url = await getDownloadURL(r);
@@ -3289,7 +3338,7 @@
       (async function(){
         try{
           const ext = (file.name.split('.').pop() || 'mp3').toLowerCase().replace(/[^a-z0-9]/g,'') || 'mp3';
-          const path = 'musicians/' + _currentUser.uid + '/audio_' + fieldKey + '_' + Date.now() + '.' + ext;
+          const path = 'musicians/' + pbEditUid() + '/audio_' + fieldKey + '_' + Date.now() + '.' + ext;
           const r = storageRef(storage, path);
           await uploadBytes(r, file, { contentType: file.type || 'audio/mpeg' });
           const url = await getDownloadURL(r);
@@ -3468,9 +3517,9 @@
   function pbUpdatePublicUrl(){
     const span = document.getElementById('pbPublicUrl');
     const link = document.getElementById('pbViewPublicLink');
-    if(_currentUser && _currentUser.uid){
+    if(pbEditUid()){
       const url = new URL('musician-profile.html', location.href);
-      url.searchParams.set('uid', _currentUser.uid);
+      url.searchParams.set('uid', pbEditUid());
       const href = url.href;
       if(span) span.textContent = href;
       if(link){ link.href = href; link.style.display = 'inline-block'; }
@@ -4316,7 +4365,7 @@
       pbSyncProfileAvatar(_amUrl, _amX, _amY, _amS);
       if(_currentUser && db){
         try{
-          await setDoc(doc(db,'musicians',_currentUser.uid), { config:{ about:{ avatarUrl:_amUrl, avatarX:_amX, avatarY:_amY, avatarScale:_amS } } }, { merge:true });
+          await setDoc(doc(db,'musicians',pbEditUid()), { config:{ about:{ avatarUrl:_amUrl, avatarX:_amX, avatarY:_amY, avatarScale:_amS } } }, { merge:true });
         }
         catch(e){
           console.error('[avatar] save failed:', e);
@@ -4490,8 +4539,8 @@
     showNotif('已儲存 ✓');
     // 2) best-effort Firestore (must not break the save)
     try{
-      if(_currentUser && db){
-        await setDoc(doc(db, 'musicians', _currentUser.uid), { config: pbConfig }, { merge:true });
+      if(_currentUser && db && pbEditUid()){
+        await setDoc(doc(db, 'musicians', pbEditUid()), { config: pbConfig }, { merge:true });
       }
     }catch(e){ console.warn('[pagebuilder] Firestore save failed (localStorage still saved):', e); }
   };
@@ -4512,7 +4561,8 @@
         updatedAt: new Date().toISOString(),
         // Backfill the login email onto the doc so the admin musician list can show it.
         // (Profiles created by directly publishing — not via the apply form — had no email.)
-        email: _currentUser.email || '',
+        // In admin-edit mode keep the TARGET's existing email, not the admin's.
+        email: (window.__adminEditing ? (_currentProfile && _currentProfile.email) : _currentUser.email) || (_currentProfile && _currentProfile.email) || '',
         // Premium gate: drives teaching visibility + inclusion in the Lessons teachers list
         lessonsEnabled: pbIsPremiumActive(),
         tier: pbIsPremiumActive() ? 'premium' : 'basic'
@@ -4539,7 +4589,7 @@
         pubFields.instruments = pbConfig.card.instruments;
       // Styles drive the directory style filter (any match shows the musician).
       if (Array.isArray(pbConfig.styles)) pubFields.styles = pbConfig.styles;
-      await setDoc(doc(db, 'musicians', _currentUser.uid), pubFields, { merge:true });
+      await setDoc(doc(db, 'musicians', pbEditUid()), pubFields, { merge:true });
 
       // ── 通知後台：記錄此次發布的改動 ──
       try {
@@ -4566,14 +4616,15 @@
         if(pm !== cm) changes.push({ field:'主頁媒體（照片/影片）', from: pm?'（有）':'（無）', to: cm?'（有）':'（無）' });
 
         var editRecord = {
-          uid: _currentUser.uid,
-          name: (curr.hero && curr.hero.name) || _currentUser.displayName || _currentUser.email || '未知',
-          email: _currentUser.email || '',
+          uid: pbEditUid(),
+          name: (curr.hero && curr.hero.name) || (_currentProfile && _currentProfile.name) || '未知',
+          email: (_currentProfile && _currentProfile.email) || (window.__adminEditing ? '' : (_currentUser.email || '')),
           publishedAt: new Date().toISOString(),
           changes: changes,
-          status: 'pending'
+          status: 'pending',
+          editedByAdmin: !!window.__adminEditing
         };
-        await setDoc(doc(db, 'profileEdits', _currentUser.uid), editRecord, { merge: false });
+        await setDoc(doc(db, 'profileEdits', pbEditUid()), editRecord, { merge: false });
       } catch(editErr){ console.warn('[profileEdits] log failed:', editErr); }
 
       // 更新本地快取，讓下次發布可以比對
@@ -4592,7 +4643,7 @@
     if(!_currentUser){ showNotif('請先登入 / Please log in'); return; }
     var doUnpub = async function(){
       try{
-        await setDoc(doc(db, 'musicians', _currentUser.uid), { published:false, updatedAt:new Date().toISOString() }, { merge:true });
+        await setDoc(doc(db, 'musicians', pbEditUid()), { published:false, updatedAt:new Date().toISOString() }, { merge:true });
         if(_currentProfile) _currentProfile.published = false;
         showNotif('已下架 ✓ 你的頁面已從公開目錄移除');
       }catch(e){

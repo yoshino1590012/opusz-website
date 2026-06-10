@@ -3344,7 +3344,8 @@
         '<td>'+(STATUS_BADGES[m.status]||'')+'</td>' +
         '<td style="font-weight:600;">'+m.gigs+'</td>' +
         '<td><div style="display:flex;gap:6px;flex-wrap:wrap;">' +
-          '<button class="btn btn-outline btn-xs" onclick="showNotif(\'Viewing '+m.name+'\\\'s profile\')">View</button>' +
+          '<button class="btn btn-outline btn-xs" onclick="window.open(\'musician-profile.html?uid='+m.uid+'\',\'_blank\')">View</button>' +
+          '<button class="btn btn-xs" title="以管理者身分編輯這位樂手的頁面" onclick="location.href=\'musician-dashboard.html?adminEdit='+m.uid+'\'" style="border:1px solid #c7d2fe;color:#4338ca;background:#fff;">編輯頁面</button>' +
           (m.status==='suspended'
             ? '<button class="btn btn-green btn-xs" onclick="toggleStatus('+i+',\'active\')">Reinstate</button>'
             : '<button class="btn btn-red btn-xs" onclick="toggleStatus('+i+',\'suspended\')">Suspend</button>') +
