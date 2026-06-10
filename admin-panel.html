@@ -733,9 +733,9 @@
             </div>
 
             <div style="display:flex;gap:10px;">
-              <button class="btn btn-primary" onclick="sendAnnouncement()" style="flex:1;justify-content:center;padding:12px;">
+              <button class="btn btn-primary" id="announceSendBtn" onclick="sendAnnouncement()" style="flex:1;justify-content:center;padding:12px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-                Send to All Musicians
+                <span id="announceSendLabel">Send to All Musicians</span>
               </button>
               <button class="btn btn-outline" onclick="clearAnnouncement()">Clear</button>
             </div>
@@ -3551,7 +3551,10 @@
       return '<div style="padding:12px 14px;border-bottom:1px solid var(--border);">'
         + '<div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">'
         +   '<div style="font-weight:700;font-size:13px;color:var(--black);">'+_annIcon(a.urgency)+' '+_esc(a.title)+'</div>'
-        +   '<button onclick="deleteAnnouncement(\''+a.id+'\')" title="刪除" style="border:none;background:none;color:#c0392b;cursor:pointer;font-size:13px;flex:none;">✕</button>'
+        +   '<div style="display:flex;gap:10px;flex:none;align-items:center;">'
+        +     '<button onclick="editAnnouncement(\''+a.id+'\')" title="編輯" style="border:none;background:none;color:#2563eb;cursor:pointer;font-size:13px;">✎ 編輯</button>'
+        +     '<button onclick="deleteAnnouncement(\''+a.id+'\')" title="刪除" style="border:none;background:none;color:#c0392b;cursor:pointer;font-size:13px;">✕</button>'
+        +   '</div>'
         + '</div>'
         + '<div style="font-size:12px;color:#666;margin-top:4px;white-space:pre-wrap;">'+_esc(a.body)+'</div>'
         + '<div style="font-size:11px;color:#aaa;margin-top:4px;">'+_annDate(a.ts)+'</div>'
@@ -3564,6 +3567,25 @@
     catch(e){ return []; }
   }
   async function loadPastAnnouncements(){ renderPastAnnouncements(await _annLoad()); }
+  // Editing state: when set, sendAnnouncement() updates that item in place instead
+  // of creating a new one. The send button's label flips to "更新公告 / Update".
+  var _annEditingId = null;
+  function _annSetEditing(on){
+    _annEditingId = on || null;
+    var lbl = document.getElementById('announceSendLabel');
+    if(lbl) lbl.textContent = on ? '更新公告 / Update' : 'Send to All Musicians';
+  }
+  window.editAnnouncement = async function(id){
+    var a = (await _annLoad()).find(function(x){ return x.id === id; });
+    if(!a){ showNotif('找不到這則公告'); return; }
+    document.getElementById('announceTitle').value = a.title || '';
+    document.getElementById('announceBody').value  = a.body  || '';
+    var sel = document.getElementById('announceUrgency'); if(sel) sel.value = a.urgency || 'normal';
+    _annSetEditing(id);
+    updatePreview(); updateCharCount();
+    var t = document.getElementById('announceTitle');
+    if(t){ t.scrollIntoView({behavior:'smooth', block:'center'}); t.focus(); }
+  };
   window.sendAnnouncement = async function() {
     var title = document.getElementById('announceTitle').value.trim();
     var body  = document.getElementById('announceBody').value.trim();
@@ -3572,10 +3594,19 @@
     try {
       var ref = doc(db,'siteContent','announcements');
       var items = await _annLoad();
-      items.unshift({ id:String(Date.now()), title:title, body:body, urgency:urgency, ts:Date.now() });
-      items = items.slice(0, 30);
-      await setDoc(ref, { items: items }, { merge:true });
-      showNotif('📣 公告已發布給所有樂手！');
+      if (_annEditingId) {
+        // Edit in place — keep the original id, position and send-date.
+        var idx = items.findIndex(function(x){ return x.id === _annEditingId; });
+        if (idx >= 0) { items[idx].title = title; items[idx].body = body; items[idx].urgency = urgency; items[idx].editedTs = Date.now(); }
+        await setDoc(ref, { items: items }, { merge:true });
+        showNotif('✓ 公告已更新');
+      } else {
+        items.unshift({ id:String(Date.now()), title:title, body:body, urgency:urgency, ts:Date.now() });
+        items = items.slice(0, 30);
+        await setDoc(ref, { items: items }, { merge:true });
+        showNotif('📣 公告已發布給所有樂手！');
+      }
+      _annSetEditing(null);
       document.getElementById('announceTitle').value = '';
       document.getElementById('announceBody').value = '';
       updatePreview(); updateCharCount();
@@ -3595,6 +3626,7 @@
   }
 
   window.clearAnnouncement = function() {
+    _annSetEditing(null);   // also cancels an in-progress edit
     document.getElementById('announceTitle').value = '';
     document.getElementById('announceBody').value = '';
     updatePreview(); updateCharCount();
