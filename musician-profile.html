@@ -641,12 +641,12 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   overflow:hidden;
   max-width:68%;
   margin:0 auto;
-  /* mask-image fades the edges to fully TRANSPARENT — there is no hard clip line,
-     so a CJK glyph can never be sliced; it dissolves. The fade band is wide and
-     the logos are already very faint (opacity .22), so any per-glyph unevenness
-     within the band is imperceptible. Robust: pure CSS, no JS/rAF/layout timing. */
-  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 130px,#000 calc(100% - 130px),transparent 100%);
-          mask-image:linear-gradient(to right,transparent 0,#000 130px,#000 calc(100% - 130px),transparent 100%);
+  /* Thin mask = pure-CSS INSURANCE: if the JS whole-item fade ever doesn't run,
+     edges still dissolve instead of hard-clipping. When the JS runs (normal case)
+     it sets each logo's --edge so whole logos vanish before the edge → no half
+     glyph at all. The two compose safely (both push edge opacity toward 0). */
+  -webkit-mask-image:linear-gradient(to right,transparent 0,#000 64px,#000 calc(100% - 64px),transparent 100%);
+          mask-image:linear-gradient(to right,transparent 0,#000 64px,#000 calc(100% - 64px),transparent 100%);
 }
 .marquee-track{
   display:flex;align-items:center;
@@ -662,12 +662,13 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .marquee-logo{
   display:flex;align-items:center;justify-content:center;
   padding:0 52px;
-  opacity:.22;
-  transition:opacity .3s;
+  /* --edge (0→1) set per-frame by JS: the WHOLE logo fades as one unit and hits 0
+     before the clip edge → a half glyph is never shown. Defaults to 1 if JS idle. */
+  opacity:calc(.22 * var(--edge, 1));
   white-space:nowrap;
   flex-shrink:0;
 }
-.marquee-logo:hover{ opacity:.55; }
+.marquee-logo:hover{ opacity:calc(.55 * var(--edge, 1)); }
 .marquee-logo svg{
   display:block;
   height:28px;width:auto;
@@ -681,8 +682,8 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 @media(max-width:700px){
   .marquee-track-wrap{
     max-width:90%;
-    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 56px,#000 calc(100% - 56px),transparent 100%);
-            mask-image:linear-gradient(to right,transparent 0,#000 56px,#000 calc(100% - 56px),transparent 100%);
+    -webkit-mask-image:linear-gradient(to right,transparent 0,#000 32px,#000 calc(100% - 32px),transparent 100%);
+            mask-image:linear-gradient(to right,transparent 0,#000 32px,#000 calc(100% - 32px),transparent 100%);
   }
   .marquee-track{ animation-duration:13s; }
   .marquee-logo{ padding:0 22px; }
@@ -5915,6 +5916,50 @@ window.addEventListener('pageshow', function(e) {
       }
     }
 
+    // Whole-logo edge fade — SELF-HEALING. Fades each logo as ONE unit (so a CJK
+    // glyph is never partially shown) and drives the motion in JS (CSS-animation
+    // transforms run on the GPU compositor where positions can't be read). The
+    // earlier version measured once at start; in the dashboard's edit-preview the
+    // iframe loads while hidden (size 0, rAF paused) so that single measure was
+    // garbage and it broke. This re-measures whenever the container first gets a
+    // real width (becomes visible) or resizes, and idles while hidden.
+    if(!window.__startMarqueeEdgeFade){
+      window.__startMarqueeEdgeFade = function(track, wrap){
+        if(!track || !wrap) return;
+        if(track.__raf) cancelAnimationFrame(track.__raf);
+        var logos = [].slice.call(track.children);
+        var geo = null, half = 0, measuredW = -1, tookOver = false;
+        var SPEED = 55, tx = 0, last = null, paused = false;
+        wrap.onmouseenter = function(){ paused = true; };
+        wrap.onmouseleave = function(){ paused = false; };
+        function measure(){
+          geo = logos.map(function(el){ return { el: el, left: el.offsetLeft, w: el.offsetWidth }; });
+          half = track.scrollWidth / 2;
+          measuredW = wrap.clientWidth;
+        }
+        function tick(ts){
+          track.__raf = requestAnimationFrame(tick);
+          var ww = wrap.clientWidth;
+          if(ww < 20 || track.scrollWidth < 20){ last = null; return; }  // hidden / not laid out → wait
+          if(geo === null || ww !== measuredW){ measure(); if(half <= 0){ last = null; return; } }
+          // Until the first VALID (visible) frame, leave the CSS animation running as
+          // a fallback. Take over here so a never-visible track is never frozen blank.
+          if(!tookOver){ tookOver = true; track.style.animation = 'none'; tx = 0; }
+          if(last === null){ last = ts; return; }
+          var dt = Math.min(0.05, (ts - last) / 1000); last = ts;
+          if(!paused){ tx -= SPEED * dt; if(tx <= -half) tx += half; track.style.transform = 'translateX(' + tx + 'px)'; }
+          var fade = Math.min(160, ww * 0.2);
+          for(var i=0;i<geo.length;i++){
+            var L = geo[i].left + tx, R = L + geo[i].w;
+            var fl = Math.max(0, Math.min(1, L / fade));         // fade out toward left edge
+            var fr = Math.max(0, Math.min(1, (ww - R) / fade));   // fade in from right edge
+            geo[i].el.style.setProperty('--edge', Math.min(fl, fr).toFixed(3));
+          }
+        }
+        track.__raf = requestAnimationFrame(tick);
+      };
+    }
+
     // ── PARTNERS / BRAND MARQUEE ──────────────────────────
     if(Array.isArray(cfg.partners)){
       var marqueeTrack = document.getElementById('marqueeTrack');
@@ -5943,7 +5988,8 @@ window.addEventListener('pageshow', function(e) {
           var K = Math.max(2, Math.ceil(wrapW / setW) + 1);
           var block = ''; for(var bi=0; bi<K; bi++) block += oneSet;
           marqueeTrack.innerHTML = block + block;
-          marqueeTrack.style.animation = ''; // re-enable CSS scroll loop (template empty-state disables it)
+          marqueeTrack.style.animation = ''; // clear template's inline animation:none
+          window.__startMarqueeEdgeFade(marqueeTrack, wrap);
         }
       }
     }
