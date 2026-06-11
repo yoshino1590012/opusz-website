@@ -4135,6 +4135,71 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   // All attempts failed. If we already painted from the localStorage cache the
   // real data is on screen; otherwise reveal so the page isn't stuck hidden.
   if (!applied) reveal();
+
+  // ── "People also viewed" — replace the static demo cards with REAL published
+  //    musicians (REST list, same no-SDK path). Same-instrument shown first.
+  //    Any failure / zero results → hide the section (never show demo people). ──
+  (async function loadPeopleAlsoViewed(){
+    var track = document.getElementById('pawTrack');
+    var section = document.getElementById('pawSection');
+    if (!track) return;
+    if (section) section.style.display = 'none';   // hide demo cards until real data arrives
+    var GRADS = ['linear-gradient(135deg,#1a1a2e,#3a3a4a)','linear-gradient(135deg,#2a1a1a,#5a3a3a)','linear-gradient(135deg,#1a2a1a,#3a5a3a)','linear-gradient(135deg,#2a2a1a,#5a5a3a)','linear-gradient(135deg,#1a1a2a,#3a3a5a)','linear-gradient(135deg,#2a1a2a,#5a3a5a)','linear-gradient(135deg,#1a2a2a,#3a5a5a)'];
+    var esc = function(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+    var priceOf = function(cfg){
+      var bk = (cfg && cfg.booking) || {}, min = null;
+      if (Array.isArray(bk.hourly)) bk.hourly.forEach(function(h){ var n=Number(h&&h.price); if(!isNaN(n)&&n>0&&(min===null||n<min)) min=n; });
+      if (min===null && bk.priceFrom!=null){ var pf=Number(bk.priceFrom); if(!isNaN(pf)&&pf>0) min=pf; }
+      return min;
+    };
+    try {
+      var listUrl = 'https://firestore.googleapis.com/v1/projects/opusz-45280/databases/(default)/documents/musicians?pageSize=300&key=' + API_KEY;
+      var r = await fetch(listUrl);
+      if (!r.ok) return;
+      var j = await r.json(), docs = (j && j.documents) || [];
+      var mine = null, others = [];
+      docs.forEach(function(d){
+        var p = fsDoc(d); if(!p) return;
+        p._uid = (d.name || '').split('/').pop();
+        if (p._uid === uid){ mine = p; return; }                                  // exclude self
+        if (p.status==='pending'||p.status==='rejected'||p.status==='suspended') return;
+        if (p.published !== true) return;                                          // published only
+        others.push(p);
+      });
+      if (!others.length) return;   // nothing real to show → keep section hidden
+      // Relevance: musicians who share one of my instruments come first.
+      var myInsts = (mine && Array.isArray(mine.instruments)) ? mine.instruments : [];
+      others.sort(function(a,b){
+        var am = (Array.isArray(a.instruments) && a.instruments.some(function(i){ return myInsts.indexOf(i)>=0; })) ? 0 : 1;
+        var bm = (Array.isArray(b.instruments) && b.instruments.some(function(i){ return myInsts.indexOf(i)>=0; })) ? 0 : 1;
+        return am - bm;
+      });
+      var html = others.slice(0,8).map(function(p, idx){
+        var cfg = p.config || {}, card = cfg.card || {}, hero = (cfg.hero && cfg.hero.media) || {};
+        var name = card.name || (cfg.hero && cfg.hero.name) || p.name || (p.email ? p.email.split('@')[0] : 'Musician');
+        var insts = Array.isArray(p.instruments) ? p.instruments : (p.instrument ? [p.instrument] : []);
+        var inst = card.instrument || insts[0] || '';
+        var city = p.region || ((p.primaryRegion||'').split(',')[0]||'').trim() || card.location || '';
+        var photo = card.photoUrl || ((hero.type==='photo' && hero.url) ? hero.url : '') || (cfg.about && cfg.about.avatarUrl) || '';
+        var px = (typeof card.photoX==='number')?card.photoX:50, py=(typeof card.photoY==='number')?card.photoY:50, ps=(typeof card.photoScale==='number')?card.photoScale:1;
+        var price = priceOf(cfg);
+        var imgInner = photo ? '<img src="'+esc(photo)+'" alt="'+esc(name)+'" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+px+'% '+py+'%;transform:scale('+ps+');transform-origin:'+px+'% '+py+'%;">' : '';
+        var bg = photo ? '#222' : GRADS[idx % GRADS.length];
+        return '<a class="paw-card" href="musician-profile.html?uid='+encodeURIComponent(p._uid)+'">'
+          + '<div class="paw-card-img" style="background:'+bg+';">' + imgInner
+          + '<button class="paw-card-heart" aria-label="Favourite" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle(\'active\');">'
+          + '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></button>'
+          + '</div>'
+          + (inst ? '<div class="paw-card-label">'+esc(inst)+'</div>' : '')
+          + '<div class="paw-card-name">'+esc(name)+'</div>'
+          + (price ? '<div class="paw-card-price"><span class="paw-from">From</span>NT$'+price.toLocaleString()+'</div>' : '')
+          + (city ? '<div class="paw-card-meta"><span class="paw-card-meta-item">'+esc(city)+'</span></div>' : '')
+          + '</a>';
+      }).join('');
+      track.innerHTML = html;
+      if (section) section.style.display = '';   // real cards ready → show
+    } catch(e){ /* network/parse failure → section stays hidden, no demo people */ }
+  })();
   })();
 </script>
 
