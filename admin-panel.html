@@ -712,11 +712,15 @@
           <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 20px;border-bottom:1px solid var(--border);">
             <div>
               <div style="font-weight:700;font-size:15px;color:var(--black);">邀請函 / Invitation</div>
-              <div style="font-size:12.5px;color:var(--mid);margin-top:3px;">複製後可直接貼到 LINE、Email，邀請朋友加入（已含邀請碼）。</div>
+              <div style="font-size:12.5px;color:var(--mid);margin-top:3px;">可直接在下方修改內容，改完按「儲存」。複製後可貼到 LINE、Email 邀請朋友（含邀請碼）。</div>
             </div>
-            <button id="copyInviteBtn" onclick="copyInvite()" class="btn btn-primary" style="flex-shrink:0;padding:10px 22px;font-size:13.5px;">複製邀請函</button>
+            <div style="flex-shrink:0;display:flex;gap:8px;align-items:center;">
+              <span id="inviteSaveMsg" style="font-size:12px;color:#16a34a;display:none;">✓ 已儲存</span>
+              <button id="saveInviteBtn" onclick="saveInvite()" class="btn btn-outline" style="padding:10px 18px;font-size:13.5px;">儲存</button>
+              <button id="copyInviteBtn" onclick="copyInvite()" class="btn btn-primary" style="padding:10px 22px;font-size:13.5px;">複製邀請函</button>
+            </div>
           </div>
-          <pre id="inviteText" style="margin:0;padding:24px 26px;font-family:inherit;font-size:14.5px;line-height:2;color:#2a2a2a;white-space:pre-wrap;word-break:break-word;letter-spacing:.01em;background:#fbfbfa;">親愛的朋友，
+          <textarea id="inviteText" style="display:block;width:100%;box-sizing:border-box;margin:0;border:none;outline:none;resize:vertical;padding:24px 26px;font-family:inherit;font-size:14.5px;line-height:2;color:#2a2a2a;letter-spacing:.01em;background:#fbfbfa;min-height:360px;">親愛的朋友，
 
 我想邀請你，成為 OPUS.Z 的創始音樂家之一。
 
@@ -731,7 +735,7 @@ OPUS.Z 是一個專為台灣頂尖音樂家打造的平台——讓你的演出�
 
 期待在 OPUS.Z 與你同行。
 
-Martin</pre>
+Martin</textarea>
         </div>
 
         <div class="grid-2">
@@ -1093,6 +1097,7 @@ Martin</pre>
 
   loadMusicians();
   loadPastAnnouncements();   // populate the Announcements page history
+  loadInvite();              // restore the saved (editable) invitation text
   loadAppReview();           // populate the 申請審核 pending badge on load
 
   // ── Site Editor (Phase 1: homepage hero text) ─────────────────────────────
@@ -3680,9 +3685,29 @@ Martin</pre>
     try{ var ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.top='-9999px'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); cb&&cb(true); }
     catch(e){ cb&&cb(false); }
   }
+  // Load the saved (editable) invitation text from Firebase; keep the built-in
+  // default if nothing has been saved yet.
+  async function loadInvite(){
+    try{
+      var s = await getDoc(doc(db,'siteContent','invite'));
+      if(s.exists() && s.data() && typeof s.data().text==='string' && s.data().text.trim()){
+        var t=document.getElementById('inviteText'); if(t) t.value = s.data().text;
+      }
+    }catch(e){}
+  }
+  window.saveInvite = async function(){
+    var t = document.getElementById('inviteText'); if(!t) return;
+    var btn = document.getElementById('saveInviteBtn');
+    if(btn){ btn.disabled=true; btn.textContent='儲存中…'; }
+    try{
+      await setDoc(doc(db,'siteContent','invite'), { text:t.value, updatedAt:new Date().toISOString() }, { merge:true });
+      var m=document.getElementById('inviteSaveMsg'); if(m){ m.style.display='inline'; setTimeout(function(){ m.style.display='none'; }, 2500); }
+    }catch(e){ showNotif('儲存失敗：'+(e.code||e.message)+'（需管理者登入）'); }
+    if(btn){ btn.disabled=false; btn.textContent='儲存'; }
+  };
   window.copyInvite = function(){
     var t = document.getElementById('inviteText'); if(!t) return;
-    var txt = t.textContent;
+    var txt = (t.value != null ? t.value : t.textContent);
     var done = function(ok){
       var b = document.getElementById('copyInviteBtn'); if(!b) return;
       if(!b.getAttribute('data-label')) b.setAttribute('data-label', b.textContent);
