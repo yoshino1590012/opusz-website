@@ -5050,7 +5050,49 @@
     if(f && f.contentWindow) f.contentWindow.postMessage({ type:'pb-highlight', section: sec }, '*');
   };
 
-  // sync FROM the iframe: a click in the preview selects the section here
+  // ── Click-in-preview → jump to + flash the exact editor field ────────────
+  // Sub-item key (sent by the preview) → CSS selector of its editor control.
+  var PB_ITEM_TARGET = {
+    name:'#pbHeroName', instruments:'#pbInstAdd', location:'#pbHeroCountry',
+    banner:'#pbBannerList', avatar:'#pbAvatarUrl', bio:'#pbAboutBio', credentials:'#pbAboutCreds'
+  };
+  function pbItemSelector(item){
+    if(!item) return null;
+    if(PB_ITEM_TARGET[item]) return PB_ITEM_TARGET[item];
+    var m = /^([a-z]+):(\d+)$/.exec(item); if(!m) return null;
+    var base = m[1], n = parseInt(m[2], 10);
+    if(base === 'svc')    return '[data-pbsvc="'  + n + '"]';
+    if(base === 'plan')   return '[data-pbplan="' + n + '"]';
+    if(base === 'stat')   return '[data-pbstat="' + n + '"]';
+    if(base === 'audio')  return '[data-pbaudio="'+ n + '"]';
+    if(base === 'banner') return '#pbBannerList .pb-banner-row:nth-of-type(' + (n+1) + ')';
+    if(base === 'hl')     return '#pbHighlightsList > *:nth-of-type(' + (n+1) + ')';
+    return null;
+  }
+  // Inject the flash style once.
+  if(!document.getElementById('pbItemFlashStyle')){
+    var _fs = document.createElement('style'); _fs.id = 'pbItemFlashStyle';
+    _fs.textContent =
+      '@keyframes pbItemFlash{0%{box-shadow:0 0 0 0 rgba(47,107,255,0)}' +
+      '12%{box-shadow:0 0 0 4px rgba(47,107,255,.30)}100%{box-shadow:0 0 0 0 rgba(47,107,255,0)}}' +
+      '.pb-item-flash{outline:2px solid #2f6bff!important;outline-offset:3px;border-radius:8px;' +
+      'animation:pbItemFlash 1.3s ease-out;}';
+    document.head.appendChild(_fs);
+  }
+  window.pbFlashItem = function(item){
+    var sel = pbItemSelector(item); if(!sel) return;
+    // Wait a tick so the target section/group is switched to active (visible) first.
+    setTimeout(function(){
+      var el; try{ el = document.querySelector(sel); }catch(e){ el = null; }
+      if(!el) return;
+      try{ el.scrollIntoView({ behavior:'smooth', block:'center' }); }catch(e){ try{ el.scrollIntoView(); }catch(_){} }
+      el.classList.remove('pb-item-flash'); void el.offsetWidth;   // restart animation
+      el.classList.add('pb-item-flash');
+      setTimeout(function(){ el.classList.remove('pb-item-flash'); }, 1500);
+    }, 70);
+  };
+
+  // sync FROM the iframe: a click in the preview selects the section + sub-item here
   if(!window.__pbSelectListenerAdded){
     window.__pbSelectListenerAdded = true;
     window.addEventListener('message', function(e){
@@ -5058,6 +5100,7 @@
       var sec = e.data.section;
       var btn = document.querySelector('.pb-sec-item[data-pbsec="' + sec + '"]');
       if(btn) window.pbSelectSection(sec, btn);
+      if(e.data.item && window.pbFlashItem) window.pbFlashItem(e.data.item);
     });
   }
 

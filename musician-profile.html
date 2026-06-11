@@ -6454,28 +6454,73 @@ window.addEventListener('pageshow', function(e) {
     return best;
   }
 
+  // ── Granular sub-item targeting ────────────────────────────────────────
+  // Maps a clickable element on the page → which editor section + sub-item it
+  // belongs to. Indexed entries (cards/stats) resolve to "base:N" where N is the
+  // element's position among its same-class siblings = its editor row index.
+  var SUBITEMS = [
+    { sel:'.serv-card',                  section:'services',   base:'svc',  cls:'serv-card' },
+    { sel:'.lesson-card',                section:'lessons',    base:'plan', cls:'lesson-card' },
+    { sel:'.stats-row .stat',            section:'stats',      base:'stat', cls:'stat' },
+    { sel:'.hl-item',                    section:'highlights', base:'hl',   attr:'data-hl' },
+    { sel:'.about-avatar',               section:'about',      item:'avatar' },
+    { sel:'.about-creds',                section:'about',      item:'credentials' },
+    { sel:'.bio-text',                   section:'about',      item:'bio' },
+    { sel:'.hero-photo-wrap',            section:'hero',       item:'banner' },
+    { sel:'.info-title',                 section:'hero',       item:'instruments' },
+    { sel:'.info-location',              section:'hero',       item:'location' },
+    { sel:'.hero-name, .info-hero-name', section:'hero',       item:'name' }
+  ];
+  function depthOf(el){ var d=0; while(el){ d++; el=el.parentElement; } return d; }
+  // Resolve a target → { el, section, item } (item null = whole section).
+  function resolveTarget(target){
+    if(!target || !target.closest) return null;
+    var best=null, bestDepth=-1;
+    SUBITEMS.forEach(function(s){
+      var el = target.closest(s.sel); if(!el) return;
+      var d = depthOf(el);
+      if(d <= bestDepth) return;
+      bestDepth = d;
+      var item = s.item || null;
+      if(!item && s.attr){ item = s.base + ':' + (el.getAttribute(s.attr) || '0'); }
+      else if(!item && s.cls){
+        var sibs = el.parentNode ? Array.prototype.slice.call(el.parentNode.children) : [];
+        var only = sibs.filter(function(c){ return c.classList && c.classList.contains(s.cls); });
+        var i = only.indexOf(el); item = s.base + ':' + (i<0?0:i);
+      }
+      best = { el:el, section:s.section, item:item };
+    });
+    if(best) return best;
+    // fall back to whole-section detection
+    var sec = sectionForTarget(target);
+    if(!sec) return null;
+    var sel = SECTION_MAP[sec];
+    return { el: sel ? document.querySelector(sel) : null, section:sec, item:null };
+  }
+
+  var hoverEl = null;
+
   // EMIT on click (capture phase, single delegated listener)
   document.addEventListener('click', function(e){
-    var sec = sectionForTarget(e.target);
-    if(!sec) return;
-    // prevent anchors inside a mapped section from navigating the iframe away
+    var r = resolveTarget(e.target);
+    if(!r) return;
     var a = e.target.closest('a');
-    if(a) e.preventDefault();
-    window.parent.postMessage({ type:'pb-select', section: sec }, '*');
+    if(a) e.preventDefault();   // don't navigate the iframe away
+    // Lock the solid highlight onto the exact element clicked.
+    clearHighlight();
+    if(r.el){ r.el.classList.add('pb-edit-highlight'); r.el.classList.remove('pb-edit-hover'); currentHL = r.el; }
+    window.parent.postMessage({ type:'pb-select', section:r.section, item:r.item }, '*');
   }, true);
 
-  // HOVER affordance
+  // HOVER affordance — dashed outline hugs the exact sub-element
   document.addEventListener('mouseover', function(e){
-    var sec = sectionForTarget(e.target);
-    if(!sec) return;
-    var el = document.querySelector(SECTION_MAP[sec]);
-    if(el && el !== currentHL) el.classList.add('pb-edit-hover');
+    var r = resolveTarget(e.target);
+    if(!r || !r.el || r.el === currentHL) return;
+    if(hoverEl && hoverEl !== r.el) hoverEl.classList.remove('pb-edit-hover');
+    hoverEl = r.el; r.el.classList.add('pb-edit-hover');
   });
-  document.addEventListener('mouseout', function(e){
-    var sec = sectionForTarget(e.target);
-    if(!sec) return;
-    var el = document.querySelector(SECTION_MAP[sec]);
-    if(el) el.classList.remove('pb-edit-hover');
+  document.addEventListener('mouseout', function(){
+    if(hoverEl){ hoverEl.classList.remove('pb-edit-hover'); hoverEl = null; }
   });
 })();
 </script>
