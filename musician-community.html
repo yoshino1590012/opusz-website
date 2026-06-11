@@ -1142,7 +1142,7 @@ body {
 
     <a class="sidebar-back" href="musician-dashboard.html">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-      返回後台
+      <span data-ci18n="back">返回後台</span>
     </a>
 
     <div class="sidebar-divider"></div>
@@ -1150,15 +1150,15 @@ body {
     <ul class="sidebar-nav" id="channelNav">
       <li><a href="#" class="active" data-channel="all">
         <span class="channel-emoji">📰</span>
-        <span class="channel-name">全部動態</span>
+        <span class="channel-name" data-ci18n="ch_all">全部動態</span>
       </a></li>
       <li><a href="#" id="myProfileNav">
         <span class="channel-emoji">🙋</span>
-        <span class="channel-name">我的主頁</span>
+        <span class="channel-name" data-ci18n="ch_mypage">我的主頁</span>
       </a></li>
       <li><a href="#" id="myMessagesNav">
         <span class="channel-emoji">💬</span>
-        <span class="channel-name">訊息</span>
+        <span class="channel-name" data-ci18n="ch_messages">訊息</span>
         <span class="channel-badge" id="dmBadge" style="display:none;margin-left:auto;background:#ef4444;color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:1px 7px;">0</span>
       </a></li>
     </ul>
@@ -1168,15 +1168,15 @@ body {
     <ul class="sidebar-nav">
       <li><a href="#" data-channel="announcements">
         <span class="channel-emoji">📢</span>
-        <span class="channel-name">公告 &amp; 須知</span>
+        <span class="channel-name" data-ci18n="ch_announce">公告 &amp; 須知</span>
       </a></li>
       <li><a href="#" data-channel="opportunities">
         <span class="channel-emoji">🎯</span>
-        <span class="channel-name">機會 &amp; 活動</span>
+        <span class="channel-name" data-ci18n="ch_opps">機會 &amp; 活動</span>
       </a></li>
       <li><a href="#" data-channel="music">
         <span class="channel-emoji">🎵</span>
-        <span class="channel-name">宣傳你的音樂</span>
+        <span class="channel-name" data-ci18n="ch_music">宣傳你的音樂</span>
       </a></li>
     </ul>
 
@@ -1203,7 +1203,8 @@ body {
       </div>
       <div class="topbar-right">
         <div class="topbar-stats">總共 <strong>—</strong> 位成員</div>
-        <button class="btn-post" id="openComposerBtn"><span>＋ 發文</span></button>
+        <button id="commLangBtn" onclick="window.setCommLang(window._lang==='zh'?'en':'zh')" style="height:30px;padding:0 12px;border-radius:15px;border:1px solid #d4d4d8;background:#fff;font-size:12px;font-weight:700;cursor:pointer;color:#555;letter-spacing:.04em;transition:all .15s;font-family:inherit;" onmouseover="this.style.background='#f4f4f5'" onmouseout="this.style.background='#fff'">EN</button>
+        <button class="btn-post" id="openComposerBtn"><span data-ci18n="post_btn">＋ 發文</span></button>
       </div>
     </header>
 
@@ -1223,14 +1224,14 @@ body {
               </svg>
             </div>
             <div class="composer-input">
-              <textarea class="composer-textarea" id="composerTextarea" rows="2" placeholder="分享你的想法..."></textarea>
+              <textarea class="composer-textarea" id="composerTextarea" rows="2" placeholder="分享你的想法..." data-ci18n-ph="composer_ph"></textarea>
               <div class="composer-actions" id="composerActions">
                 <div class="composer-attach-btns">
-                  <button class="btn-attach">📷 照片</button>
-                  <button class="btn-attach">🎬 影片</button>
-                  <button class="btn-attach">🔗 連結</button>
+                  <button class="btn-attach" data-ci18n="attach_photo">📷 照片</button>
+                  <button class="btn-attach" data-ci18n="attach_video">🎬 影片</button>
+                  <button class="btn-attach" data-ci18n="attach_link">🔗 連結</button>
                 </div>
-                <button class="btn-publish" id="publishBtn">發布</button>
+                <button class="btn-publish" id="publishBtn" data-ci18n="publish_btn">發布</button>
               </div>
             </div>
           </div>
@@ -1246,31 +1247,31 @@ body {
 
         <!-- Members -->
         <div class="right-card">
-          <div class="right-card-title">👥 社群成員</div>
+          <div class="right-card-title" data-ci18n="members_panel">👥 社群成員</div>
           <div id="membersList"></div>
           <a href="#" class="view-all-members">查看所有 — 位成員 →</a>
         </div>
 
         <!-- Install Guide (compact) -->
         <div class="install-card">
-          <div class="install-card-title">📱 把 OPUS.Z 社群加到手機！</div>
-          <div class="install-card-subtitle">像 App 一樣使用，隨時查看社群動態</div>
+          <div class="install-card-title" data-ci18n="install_title">📱 把 OPUS.Z 社群加到手機！</div>
+          <div class="install-card-subtitle" data-ci18n="install_subtitle">像 App 一樣使用，隨時查看社群動態</div>
 
           <div class="install-platform">
-            <div class="install-platform-label"> iOS · Safari</div>
+            <div class="install-platform-label" data-ci18n="ios_label"> iOS · Safari</div>
             <ol class="install-steps">
-              <li><div class="install-step-num">1</div><span>用 Safari 開啟此頁面</span></li>
-              <li><div class="install-step-num">2</div><span>點下方 □↑ 分享按鈕</span></li>
-              <li><div class="install-step-num">3</div><span>選「加入主畫面」</span></li>
+              <li><div class="install-step-num">1</div><span data-ci18n="ios_s1">用 Safari 開啟此頁面</span></li>
+              <li><div class="install-step-num">2</div><span data-ci18n="ios_s2">點下方 □↑ 分享按鈕</span></li>
+              <li><div class="install-step-num">3</div><span data-ci18n="ios_s3">選「加入主畫面」</span></li>
             </ol>
           </div>
 
           <div class="install-platform">
-            <div class="install-platform-label"> Android · Chrome</div>
+            <div class="install-platform-label" data-ci18n="android_label"> Android · Chrome</div>
             <ol class="install-steps">
-              <li><div class="install-step-num">1</div><span>用 Chrome 開啟此頁面</span></li>
-              <li><div class="install-step-num">2</div><span>點右上角 ⋮ 選單</span></li>
-              <li><div class="install-step-num">3</div><span>選「新增至主螢幕」</span></li>
+              <li><div class="install-step-num">1</div><span data-ci18n="android_s1">用 Chrome 開啟此頁面</span></li>
+              <li><div class="install-step-num">2</div><span data-ci18n="android_s2">點右上角 ⋮ 選單</span></li>
+              <li><div class="install-step-num">3</div><span data-ci18n="android_s3">選「新增至主螢幕」</span></li>
             </ol>
           </div>
         </div>
@@ -1286,8 +1287,8 @@ body {
 
           <div class="install-page-hero">
             <div class="install-page-icon"></div>
-            <h1>安裝 OPUS.Z 社群</h1>
-            <p>將社群加到手機主畫面，享受原生 App 般的使用體驗，隨時隨地與樂手夥伴保持聯繫。</p>
+            <h1 data-ci18n="install_page_title">安裝 OPUS.Z 社群</h1>
+            <p data-ci18n="install_page_desc">將社群加到手機主畫面，享受原生 App 般的使用體驗，隨時隨地與樂手夥伴保持聯繫。</p>
           </div>
 
           <!-- iOS -->
@@ -1295,37 +1296,37 @@ body {
             <div class="install-section-header">
               <div class="install-section-platform-icon ios">🍎</div>
               <div>
-                <div class="install-section-title">iPhone / iPad</div>
-                <div class="install-section-browser">需使用 Safari 瀏覽器</div>
+                <div class="install-section-title" data-ci18n="ios_device">iPhone / iPad</div>
+                <div class="install-section-browser" data-ci18n="ios_browser">需使用 Safari 瀏覽器</div>
               </div>
             </div>
             <ol class="install-steps-large">
               <li>
                 <div class="install-step-num-large">1</div>
                 <div class="install-step-content">
-                  <div class="install-step-title">用 Safari 開啟此頁面</div>
-                  <div class="install-step-desc">請確認您使用的是 Apple 內建的 Safari 瀏覽器，其他瀏覽器（Chrome、Firefox）無法加入主畫面。</div>
+                  <div class="install-step-title" data-ci18n="ios_step1_t">用 Safari 開啟此頁面</div>
+                  <div class="install-step-desc" data-ci18n="ios_step1_d">請確認您使用的是 Apple 內建的 Safari 瀏覽器，其他瀏覽器（Chrome、Firefox）無法加入主畫面。</div>
                 </div>
               </li>
               <li>
                 <div class="install-step-num-large">2</div>
                 <div class="install-step-content">
-                  <div class="install-step-title">點擊底部的分享按鈕</div>
-                  <div class="install-step-desc">點擊畫面下方工具列中的 <span class="install-step-icon-inline">□↑</span> 分享圖示（看起來像一個方框加上向上的箭頭）。</div>
+                  <div class="install-step-title" data-ci18n="ios_step2_t">點擊底部的分享按鈕</div>
+                  <div class="install-step-desc" data-ci18n="ios_step2_d">點擊畫面下方工具列中的 <span class="install-step-icon-inline">□↑</span> 分享圖示（看起來像一個方框加上向上的箭頭）。</div>
                 </div>
               </li>
               <li>
                 <div class="install-step-num-large">3</div>
                 <div class="install-step-content">
-                  <div class="install-step-title">選擇「加入主畫面」</div>
-                  <div class="install-step-desc">在分享選單中向下滾動，找到並點擊「加入主畫面（Add to Home Screen）」選項。</div>
+                  <div class="install-step-title" data-ci18n="ios_step3_t">選擇「加入主畫面」</div>
+                  <div class="install-step-desc" data-ci18n="ios_step3_d">在分享選單中向下滾動，找到並點擊「加入主畫面（Add to Home Screen）」選項。</div>
                 </div>
               </li>
               <li>
                 <div class="install-step-num-large">4</div>
                 <div class="install-step-content">
-                  <div class="install-step-title">確認名稱並點「新增」</div>
-                  <div class="install-step-desc">您可以自訂圖示名稱，建議保持「OPUS.Z 社群」，然後點擊右上角「新增」完成安裝。</div>
+                  <div class="install-step-title" data-ci18n="ios_step4_t">確認名稱並點「新增」</div>
+                  <div class="install-step-desc" data-ci18n="ios_step4_d">您可以自訂圖示名稱，建議保持「OPUS.Z 社群」，然後點擊右上角「新增」完成安裝。</div>
                 </div>
               </li>
             </ol>
@@ -1336,37 +1337,37 @@ body {
             <div class="install-section-header">
               <div class="install-section-platform-icon android">🤖</div>
               <div>
-                <div class="install-section-title">Android 手機 / 平板</div>
-                <div class="install-section-browser">需使用 Chrome 瀏覽器</div>
+                <div class="install-section-title" data-ci18n="android_device">Android 手機 / 平板</div>
+                <div class="install-section-browser" data-ci18n="android_browser">需使用 Chrome 瀏覽器</div>
               </div>
             </div>
             <ol class="install-steps-large">
               <li>
                 <div class="install-step-num-large">1</div>
                 <div class="install-step-content">
-                  <div class="install-step-title">用 Chrome 開啟此頁面</div>
-                  <div class="install-step-desc">請使用 Google Chrome 瀏覽器瀏覽此頁面以獲得最佳安裝體驗。</div>
+                  <div class="install-step-title" data-ci18n="android_step1_t">用 Chrome 開啟此頁面</div>
+                  <div class="install-step-desc" data-ci18n="android_step1_d">請使用 Google Chrome 瀏覽器瀏覽此頁面以獲得最佳安裝體驗。</div>
                 </div>
               </li>
               <li>
                 <div class="install-step-num-large">2</div>
                 <div class="install-step-content">
-                  <div class="install-step-title">點擊右上角選單</div>
-                  <div class="install-step-desc">點擊 Chrome 瀏覽器右上角的 <span class="install-step-icon-inline">⋮</span> 三點選單圖示。</div>
+                  <div class="install-step-title" data-ci18n="android_step2_t">點擊右上角選單</div>
+                  <div class="install-step-desc" data-ci18n="android_step2_d">點擊 Chrome 瀏覽器右上角的 <span class="install-step-icon-inline">⋮</span> 三點選單圖示。</div>
                 </div>
               </li>
               <li>
                 <div class="install-step-num-large">3</div>
                 <div class="install-step-content">
-                  <div class="install-step-title">選擇「新增至主螢幕」</div>
-                  <div class="install-step-desc">在下拉選單中找到「新增至主螢幕（Add to Home screen）」並點擊。部分裝置會顯示「安裝應用程式」。</div>
+                  <div class="install-step-title" data-ci18n="android_step3_t">選擇「新增至主螢幕」</div>
+                  <div class="install-step-desc" data-ci18n="android_step3_d">在下拉選單中找到「新增至主螢幕（Add to Home screen）」並點擊。部分裝置會顯示「安裝應用程式」。</div>
                 </div>
               </li>
               <li>
                 <div class="install-step-num-large">4</div>
                 <div class="install-step-content">
-                  <div class="install-step-title">確認安裝</div>
-                  <div class="install-step-desc">系統會顯示確認對話框，點擊「新增」即完成安裝。圖示將出現在您的主畫面上。</div>
+                  <div class="install-step-title" data-ci18n="android_step4_t">確認安裝</div>
+                  <div class="install-step-desc" data-ci18n="android_step4_d">系統會顯示確認對話框，點擊「新增」即完成安裝。圖示將出現在您的主畫面上。</div>
                 </div>
               </li>
             </ol>
@@ -1374,7 +1375,7 @@ body {
 
           <div class="install-tip">
             <span class="install-tip-icon">💡</span>
-            <span>安裝後，OPUS.Z 社群將以全螢幕模式開啟，並支援離線瀏覽已載入的內容，使用體驗和原生 App 幾乎一樣！</span>
+            <span data-ci18n="install_tip">安裝後，OPUS.Z 社群將以全螢幕模式開啟，並支援離線瀏覽已載入的內容，使用體驗和原生 App 幾乎一樣！</span>
           </div>
 
         </div>
@@ -1385,12 +1386,12 @@ body {
     <div class="content-wrap comm-page" id="messagesPage" style="display:none;">
       <div class="dm-wrap">
         <div class="dm-list" id="dmList">
-          <div class="dm-list-empty">載入中…</div>
+          <div class="dm-list-empty" data-ci18n="dm_loading">載入中…</div>
         </div>
         <div class="dm-chat" id="dmChat">
           <div class="dm-chat-empty" id="dmChatEmpty">
             <div style="font-size:34px;margin-bottom:8px;">💬</div>
-            選擇一個對話開始聊天
+            <span data-ci18n="dm_select">選擇一個對話開始聊天</span>
           </div>
           <div class="dm-thread" id="dmThread" style="display:none;">
             <div class="dm-thread-head">
@@ -1400,8 +1401,8 @@ body {
             </div>
             <div class="dm-msgs" id="dmMsgs"></div>
             <div class="dm-input-row">
-              <input class="dm-input" id="dmInput" placeholder="輸入訊息…" autocomplete="off">
-              <button class="dm-send" id="dmSend">送出</button>
+              <input class="dm-input" id="dmInput" placeholder="輸入訊息…" data-ci18n-ph="dm_input_ph" autocomplete="off">
+              <button class="dm-send" id="dmSend" data-ci18n="dm_send">送出</button>
             </div>
           </div>
         </div>
@@ -1419,6 +1420,112 @@ body {
 
 <script src="assets/js/nav-auth.js?v=1" defer></script>
 <script>
+// ── i18n ─────────────────────────────────────────────────────────────────────
+var COMM_LANG = {
+  zh: {
+    back:'返回後台',
+    ch_all:'全部動態', ch_mypage:'我的主頁', ch_messages:'訊息',
+    ch_announce:'公告 & 須知', ch_opps:'機會 & 活動', ch_music:'宣傳你的音樂',
+    members_suffix:'位成員',
+    post_btn:'＋ 發文',
+    composer_ph:'分享你的想法...',
+    attach_photo:'📷 照片', attach_video:'🎬 影片', attach_link:'🔗 連結',
+    publish_btn:'發布',
+    members_panel:'👥 社群成員',
+    view_all_pre:'查看所有', view_all_suf:'位成員 →',
+    install_title:'📱 把 OPUS.Z 社群加到手機！',
+    install_subtitle:'像 App 一樣使用，隨時查看社群動態',
+    ios_label:'iOS · Safari',
+    ios_s1:'用 Safari 開啟此頁面', ios_s2:'點下方 □↑ 分享按鈕', ios_s3:'選「加入主畫面」',
+    android_label:'Android · Chrome',
+    android_s1:'用 Chrome 開啟此頁面', android_s2:'點右上角 ⋮ 選單', android_s3:'選「新增至主螢幕」',
+    install_page_title:'安裝 OPUS.Z 社群',
+    install_page_desc:'將社群加到手機主畫面，享受原生 App 般的使用體驗，隨時隨地與樂手夥伴保持聯繫。',
+    ios_device:'iPhone / iPad', ios_browser:'需使用 Safari 瀏覽器',
+    ios_step1_t:'用 Safari 開啟此頁面', ios_step1_d:'請確認您使用的是 Apple 內建的 Safari 瀏覽器，其他瀏覽器（Chrome、Firefox）無法加入主畫面。',
+    ios_step2_t:'點擊底部的分享按鈕', ios_step2_d:'點擊畫面下方工具列中的 □↑ 分享圖示（看起來像一個方框加上向上的箭頭）。',
+    ios_step3_t:'選擇「加入主畫面」', ios_step3_d:'在分享選單中向下滾動，找到並點擊「加入主畫面（Add to Home Screen）」選項。',
+    ios_step4_t:'確認名稱並點「新增」', ios_step4_d:'您可以自訂圖示名稱，建議保持「OPUS.Z 社群」，然後點擊右上角「新增」完成安裝。',
+    android_device:'Android 手機 / 平板', android_browser:'需使用 Chrome 瀏覽器',
+    android_step1_t:'用 Chrome 開啟此頁面', android_step1_d:'請使用 Google Chrome 瀏覽器瀏覽此頁面以獲得最佳安裝體驗。',
+    android_step2_t:'點擊右上角選單', android_step2_d:'點擊 Chrome 瀏覽器右上角的 ⋮ 三點選單圖示。',
+    android_step3_t:'選擇「新增至主螢幕」', android_step3_d:'在下拉選單中找到「新增至主螢幕（Add to Home screen）」並點擊。部分裝置會顯示「安裝應用程式」。',
+    android_step4_t:'確認安裝', android_step4_d:'系統會顯示確認對話框，點擊「新增」即完成安裝。圖示將出現在您的主畫面上。',
+    install_tip:'安裝後，OPUS.Z 社群將以全螢幕模式開啟，並支援離線瀏覽已載入的內容，使用體驗和原生 App 幾乎一樣！',
+    dm_loading:'載入中…', dm_select:'選擇一個對話開始聊天',
+    dm_input_ph:'輸入訊息…', dm_send:'送出',
+    share_label:'分享',
+  },
+  en: {
+    back:'Back to Dashboard',
+    ch_all:'All Feed', ch_mypage:'My Page', ch_messages:'Messages',
+    ch_announce:'Announcements', ch_opps:'Opportunities', ch_music:'Promote Your Music',
+    members_suffix:'members',
+    post_btn:'+ Post',
+    composer_ph:'Share your thoughts...',
+    attach_photo:'📷 Photo', attach_video:'🎬 Video', attach_link:'🔗 Link',
+    publish_btn:'Post',
+    members_panel:'👥 Community Members',
+    view_all_pre:'View all', view_all_suf:'members →',
+    install_title:'📱 Add OPUS.Z Community to your phone!',
+    install_subtitle:'Use it like an app — stay connected anytime',
+    ios_label:'iOS · Safari',
+    ios_s1:'Open this page in Safari', ios_s2:'Tap the □↑ Share button at the bottom', ios_s3:'Select "Add to Home Screen"',
+    android_label:'Android · Chrome',
+    android_s1:'Open this page in Chrome', android_s2:'Tap the ⋮ menu (top-right)', android_s3:'Select "Add to Home screen"',
+    install_page_title:'Install OPUS.Z Community',
+    install_page_desc:'Add the community to your phone home screen for a native app-like experience — stay connected with fellow musicians anywhere.',
+    ios_device:'iPhone / iPad', ios_browser:'Requires Safari browser',
+    ios_step1_t:'Open this page in Safari', ios_step1_d:'Make sure you are using Apple\'s built-in Safari. Chrome and Firefox cannot add pages to the home screen.',
+    ios_step2_t:'Tap the Share button at the bottom', ios_step2_d:'Tap the □↑ share icon in the bottom toolbar (a box with an arrow pointing up).',
+    ios_step3_t:'Select "Add to Home Screen"', ios_step3_d:'Scroll down in the Share sheet and tap "Add to Home Screen".',
+    ios_step4_t:'Confirm and tap "Add"', ios_step4_d:'You can customise the icon name. We recommend keeping "OPUS.Z Community". Tap "Add" in the top-right to finish.',
+    android_device:'Android Phone / Tablet', android_browser:'Requires Chrome browser',
+    android_step1_t:'Open this page in Chrome', android_step1_d:'Use Google Chrome for the best installation experience.',
+    android_step2_t:'Tap the top-right menu', android_step2_d:'Tap the ⋮ three-dot menu icon in the top-right corner of Chrome.',
+    android_step3_t:'Select "Add to Home screen"', android_step3_d:'Find "Add to Home screen" in the dropdown. Some devices show "Install app".',
+    android_step4_t:'Confirm installation', android_step4_d:'A confirmation dialog will appear. Tap "Add" to complete. The icon will appear on your home screen.',
+    install_tip:'After installing, OPUS.Z Community opens in full-screen mode with offline support — almost identical to a native app!',
+    dm_loading:'Loading…', dm_select:'Select a conversation to start chatting',
+    dm_input_ph:'Type a message…', dm_send:'Send',
+    share_label:'Share',
+  }
+};
+window._lang = localStorage.getItem('opusz_dash_lang') || 'zh';
+window.tc = function(key){ return (COMM_LANG[window._lang]||COMM_LANG.zh)[key] || (COMM_LANG.zh[key] || key); };
+function applyCommI18n(){
+  document.querySelectorAll('[data-ci18n]').forEach(function(el){
+    var k=el.getAttribute('data-ci18n'); var v=window.tc(k); if(v) el.textContent=v;
+  });
+  document.querySelectorAll('[data-ci18n-ph]').forEach(function(el){
+    var k=el.getAttribute('data-ci18n-ph'); var v=window.tc(k); if(v) el.placeholder=v;
+  });
+  var btn=document.getElementById('commLangBtn');
+  if(btn) btn.textContent = window._lang==='zh' ? 'EN' : '中';
+  // Re-apply dynamic member count
+  if(window._lastMemberCount !== undefined) updateCommMemberCount(window._lastMemberCount);
+}
+function updateCommMemberCount(n){
+  window._lastMemberCount = n;
+  document.querySelectorAll('.topbar-stats').forEach(function(el){
+    el.innerHTML = (window._lang==='en' ? 'Total ' : '總共 ')+'<strong>'+n+'</strong> '+(window._lang==='en' ? 'members' : '位成員');
+  });
+  document.querySelectorAll('.view-all-members').forEach(function(el){
+    el.textContent = window.tc('view_all_pre')+' '+n+' '+window.tc('view_all_suf');
+  });
+  var fc=document.getElementById('footerMemberCount');
+  if(fc) fc.textContent = n+' '+window.tc('members_suffix');
+}
+window.setCommLang = function(lang){
+  window._lang = lang;
+  localStorage.setItem('opusz_dash_lang', lang);
+  applyCommI18n();
+  // Re-sync CHANNEL_TITLES after lang change
+  CHANNEL_TITLES = window._lang==='en' ? CHANNEL_TITLES_EN : CHANNEL_TITLES_ZH;
+  var tt = CHANNEL_TITLES[currentChannel];
+  if(tt){ var el=document.getElementById('topbarTitle'); if(el) el.textContent=tt; }
+};
+applyCommI18n();
 // ── AUTH CHECK ──────────────────────────────────────────────────────────────
 (function() {
   var user = localStorage.getItem('opusz_user');
@@ -1650,15 +1757,25 @@ var POSTS = [
   },
 ];
 
-var CHANNEL_TITLES = {
+var CHANNEL_TITLES_ZH = {
   all: '全部動態',
   announcements: '📢 公告 & 須知',
   hello: '👋 說哈囉',
   discuss: '💬 討論 & 建議',
   opportunities: '🎯 機會 & 活動',
   music: '🎵 宣傳你的音樂',
-  install: '📱 安裝手機App',
+  install: '📱 安裝手機 App',
 };
+var CHANNEL_TITLES_EN = {
+  all: 'All Feed',
+  announcements: '📢 Announcements',
+  hello: '👋 Say Hello',
+  discuss: '💬 Discussion',
+  opportunities: '🎯 Opportunities',
+  music: '🎵 Promote Your Music',
+  install: '📱 Install App',
+};
+var CHANNEL_TITLES = window._lang === 'en' ? CHANNEL_TITLES_EN : CHANNEL_TITLES_ZH;
 
 // ── STATE ────────────────────────────────────────────────────────────────────
 var currentChannel = 'all';
@@ -2086,11 +2203,7 @@ document.addEventListener('click', function(e){
   let me = null;
   let membersByUid = {};
 
-  function updateMemberCount(n){
-    document.querySelectorAll('.topbar-stats').forEach(el => el.innerHTML = '總共 <strong>'+n+'</strong> 位成員');
-    document.querySelectorAll('.view-all-members').forEach(el => el.textContent = '查看所有 '+n+' 位成員 →');
-    var fc=document.getElementById('footerMemberCount'); if(fc) fc.textContent = n+' 位成員';
-  }
+  function updateMemberCount(n){ updateCommMemberCount(n); }
 
   async function loadMembers(){
     try{

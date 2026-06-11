@@ -1535,11 +1535,11 @@
                 <input type="text" id="pbHeroName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name" autocomplete="off">
               </div>
               <div class="pb-field">
-                <label>🖥 名字大小（桌機）&nbsp;<span id="pbNameSizeDeskVal" style="font-weight:700;color:#333;">100%</span></label>
+                <label><span data-i18n="pb_name_desk">🖥 名字大小（桌機）</span>&nbsp;<span id="pbNameSizeDeskVal" style="font-weight:700;color:#333;">100%</span></label>
                 <input type="range" id="pbNameSizeDesk" min="40" max="100" step="5" value="100" oninput="document.getElementById('pbNameSizeDeskVal').textContent=this.value+'%'; pbOnInput();" style="width:100%;margin-top:6px;">
               </div>
               <div class="pb-field">
-                <label>📱 名字大小（手機）&nbsp;<span id="pbNameSizeMobVal" style="font-weight:700;color:#333;">100%</span></label>
+                <label><span data-i18n="pb_name_mob">📱 名字大小（手機）</span>&nbsp;<span id="pbNameSizeMobVal" style="font-weight:700;color:#333;">100%</span></label>
                 <input type="range" id="pbNameSizeMob" min="40" max="100" step="5" value="100" oninput="document.getElementById('pbNameSizeMobVal').textContent=this.value+'%'; pbOnInput();" style="width:100%;margin-top:6px;">
               </div>
               <div class="pb-field"><label>頭銜 / Title</label><div style="font-size:12px;color:var(--mid);line-height:1.5;">頭銜會依你下面選的<b>主要樂器（第一個）</b>自動顯示在 Banner 上，例如選「小提琴」→ 顯示「Violinist / 小提琴家」。</div></div>
@@ -2072,6 +2072,20 @@
       pb_hero:'主視覺', pb_booking:'預約', pb_about:'關於',
       pb_highlights:'亮點', pb_partners:'合作夥伴', pb_lessons:'課程方案',
       pb_stats:'數據', pb_desktop:'桌機', pb_mobile:'手機',
+      pb_name_desk:'🖥 名字大小（桌機）', pb_name_mob:'📱 名字大小（手機）',
+      pb_photo_note:'桌機與手機的照片位置各自獨立，互不影響',
+      pb_desk_x:'桌機 水平 X (%)', pb_desk_y:'桌機 垂直 Y (%)',
+      pb_mob_x:'📱 手機 水平 X (%)', pb_mob_y:'📱 手機 垂直 Y (%)',
+      pb_zoom_shared:'縮放 / Zoom (%)（桌機手機共用）',
+      pb_video_pos_note:'畫面位置（影片放大裁切時，決定顯示哪一塊；50% = 置中。YouTube 也適用）',
+      pb_video_zoom_desc:'縮放 / Zoom（YouTube 有黑邊時拉大來填滿；100% = 完整顯示+置中，越大從中心裁越多）',
+      pb_video_zoom_label:'🔍 縮放 (%)', pb_subtitle_label:'副標題（大字下方小字）',
+      pb_video_url_label:'影片網址', pb_video_poster_label:'封面圖網址(選填)',
+      policy_loading:'載入中…', policy_updated_prefix:'最後更新：', policy_version_prefix:'版本 ',
+      policy_ack_read:'請確認你已閱讀並同意以上平台政策。', policy_ack_required:'確認後才能開始編輯你的公開主頁。',
+      policy_ack_check:'我已詳閱並同意以上平台政策', policy_ack_btn:'確認同意',
+      policy_ack_err:'請先勾選上方核取方塊。', policy_ack_saving:'儲存中…',
+      policy_ack_done:'✓ 你已', policy_ack_on:'於 ', policy_ack_confirmed:'閱讀並同意本平台政策。',
       policy_title:'平台政策', policy_subtitle:'OPUS.Z 與樂手之間的合作政策。請花一點時間閱讀。',
       tour_welcome_title:'歡迎來到 OPUS.Z 樂手後台',
       tour_welcome_body:'這裡是你經營音樂事業的基地 —— 編輯公開主頁、接演出與課程邀約、管理收入。花 1 分鐘帶你認識各個功能與平台規則！',
@@ -2172,6 +2186,20 @@
       pb_hero:'Hero', pb_booking:'Booking', pb_about:'About',
       pb_highlights:'Highlights', pb_partners:'Partners', pb_lessons:'Lessons',
       pb_stats:'Stats', pb_desktop:'Desktop', pb_mobile:'Mobile',
+      pb_name_desk:'🖥 Name Size (Desktop)', pb_name_mob:'📱 Name Size (Mobile)',
+      pb_photo_note:'Desktop & mobile positions are independent',
+      pb_desk_x:'Desktop X (%)', pb_desk_y:'Desktop Y (%)',
+      pb_mob_x:'📱 Mobile X (%)', pb_mob_y:'📱 Mobile Y (%)',
+      pb_zoom_shared:'Zoom (%) (shared for desktop & mobile)',
+      pb_video_pos_note:'Position (where to show when zoomed; 50% = centered; applies to YouTube too)',
+      pb_video_zoom_desc:'Zoom (enlarge to fill black bars; 100% = full view+centered, higher = crop more)',
+      pb_video_zoom_label:'🔍 Zoom (%)', pb_subtitle_label:'Subtitle (text below main)',
+      pb_video_url_label:'Video URL', pb_video_poster_label:'Cover image URL (optional)',
+      policy_loading:'Loading…', policy_updated_prefix:'Last updated: ', policy_version_prefix:'Version ',
+      policy_ack_read:'Please confirm that you have read and agreed to the platform policy above.', policy_ack_required:'You must confirm before editing your public page.',
+      policy_ack_check:'I have read and agreed to the platform policy', policy_ack_btn:'Confirm & Agree',
+      policy_ack_err:'Please check the checkbox above.', policy_ack_saving:'Saving…',
+      policy_ack_done:'✓ You confirmed', policy_ack_on:'on ', policy_ack_confirmed:'having read and agreed to this platform policy.',
       policy_title:'Platform Policy', policy_subtitle:'Collaboration policies between OPUS.Z and musicians. Please take a moment to read.',
       tour_welcome_title:'Welcome to the OPUS.Z Musician Dashboard',
       tour_welcome_body:'This is your base for building your music career — edit your public page, take on performance and lesson bookings, and manage your earnings. Let us walk you through the features in 1 minute!',
@@ -2212,6 +2240,12 @@
     }
     var btn = document.getElementById('langToggleBtn');
     if(btn) btn.textContent = window._lang === 'zh' ? 'EN' : '中';
+    if(window.loadPolicy && document.getElementById('page-policy') && document.getElementById('page-policy').classList.contains('active')){
+      window.loadPolicy();
+    }
+    if(window.renderPolicyAck && document.getElementById('policyAck')){
+      window.renderPolicyAck();
+    }
   }
   window.setLang = function(lang){
     window._lang = lang;
@@ -2690,7 +2724,7 @@
     if (id === 'pagebuilder') { pbInit(); setTimeout(function(){ if(window.pbApplyCurrentDevice) window.pbApplyCurrentDevice(); }, 80); if(window.pbMaybeOfferTour) window.pbMaybeOfferTour(); }
     if (id === 'membership') pbRenderMembership();
     if (id === 'posters') posterInit();
-    if (id === 'policy') loadPolicy();
+    if (id === 'policy') window.loadPolicy();
     if (id === 'jobs') { jobsMarkSeen(); renderJobs(); }   // opening the board = "seen"
     closeSidebar();   // mobile: collapse the drawer after picking a page
   };
@@ -2738,9 +2772,9 @@
     }catch(e){ console.warn('[notif] save failed', e && e.code); showNotif('儲存失敗，請重試'); }
   };
 
-  async function loadPolicy(){
+  window.loadPolicy = async function(){
     var wrap = document.getElementById('policySections');
-    if(wrap) wrap.innerHTML = '<div style="padding:24px;color:#999;">載入中…</div>';
+    if(wrap) wrap.innerHTML = '<div style="padding:24px;color:#999;">'+t('policy_loading')+'</div>';
     var data = window.POLICY_DEFAULT;
     try{
       var snap = await getDoc(doc(db, 'siteContent', 'policy'));
@@ -2753,46 +2787,49 @@
     var banner = document.getElementById('policyDraftBanner');
     if(banner){ if(data.draftNote){ banner.textContent = '⚠️ ' + data.draftNote; banner.style.display='block'; } else banner.style.display='none'; }
     if(wrap){
+      var isEn = window._lang === 'en';
       wrap.innerHTML = (data.sections||[]).map(function(s){
+        var title = isEn ? (s.titleEn || s.title) : s.title;
+        var body  = isEn ? (s.bodyEn  || s.body)  : s.body;
         return '<div style="background:#fff;border:1px solid #eee;border-radius:14px;padding:20px 22px;margin-bottom:14px;">'
-          + '<div style="font-weight:800;font-size:16px;margin-bottom:8px;">'+esc(s.title)+'</div>'
-          + '<div style="font-size:14px;color:#444;line-height:1.7;white-space:pre-wrap;">'+esc(s.body)+'</div>'
+          + '<div style="font-weight:800;font-size:16px;margin-bottom:8px;">'+esc(title)+'</div>'
+          + '<div style="font-size:14px;color:#444;line-height:1.7;white-space:pre-wrap;">'+esc(body)+'</div>'
           + '</div>';
       }).join('');
     }
     var up = document.getElementById('policyUpdated');
-    if(up) up.textContent = data.updatedAt ? ('最後更新：'+String(data.updatedAt).slice(0,10)+'　·　版本 '+(data.version||1)) : '';
-    renderPolicyAck();
-  }
+    if(up) up.textContent = data.updatedAt ? (t('policy_updated_prefix')+String(data.updatedAt).slice(0,10)+'　·　'+t('policy_version_prefix')+(data.version||1)) : '';
+    window.renderPolicyAck();
+  };
   // The musician must confirm they've read the policy before editing their page.
-  function renderPolicyAck(){
+  window.renderPolicyAck = function(){
     var el = document.getElementById('policyAck'); if(!el) return;
     var acked = _currentProfile && _currentProfile.policyAcknowledged;
     if(acked){
       var when = String(_currentProfile.policyAckAt||'').slice(0,10);
-      el.innerHTML = '<div style="background:#ecfdf3;border:1px solid #bbf7d0;color:#166534;border-radius:12px;padding:14px 16px;font-size:14px;font-weight:600;">✓ 你已'+(when?('於 '+when+' '):'')+'閱讀並同意本平台政策。</div>';
+      el.innerHTML = '<div style="background:#ecfdf3;border:1px solid #bbf7d0;color:#166534;border-radius:12px;padding:14px 16px;font-size:14px;font-weight:600;">'+t('policy_ack_done')+(when?(' '+t('policy_ack_on')+when+' '):' ')+t('policy_ack_confirmed')+'</div>';
     } else {
       el.innerHTML =
         '<div style="background:#fff;border:2px solid #111;border-radius:14px;padding:18px 20px;">'
-        + '<div style="font-size:14px;color:#333;line-height:1.6;margin-bottom:14px;">請確認你已閱讀並同意以上平台政策。<b>確認後才能開始編輯你的公開主頁。</b></div>'
-        + '<label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;margin-bottom:14px;"><input type="checkbox" id="policyAckChk" style="width:17px;height:17px;"> 我已詳閱並同意以上平台政策</label>'
-        + '<button id="policyAckBtn" onclick="acknowledgePolicy()" style="font-size:14px;font-weight:700;color:#fff;background:#111;border:none;border-radius:9px;padding:11px 22px;cursor:pointer;">確認同意</button>'
-        + '<div id="policyAckErr" style="display:none;color:#c0392b;font-size:13px;margin-top:8px;">請先勾選上方核取方塊。</div>'
+        + '<div style="font-size:14px;color:#333;line-height:1.6;margin-bottom:14px;">'+t('policy_ack_read')+'<b>'+t('policy_ack_required')+'</b></div>'
+        + '<label style="display:flex;align-items:center;gap:9px;font-size:14px;cursor:pointer;margin-bottom:14px;"><input type="checkbox" id="policyAckChk" style="width:17px;height:17px;"> '+t('policy_ack_check')+'</label>'
+        + '<button id="policyAckBtn" onclick="acknowledgePolicy()" style="font-size:14px;font-weight:700;color:#fff;background:#111;border:none;border-radius:9px;padding:11px 22px;cursor:pointer;">'+t('policy_ack_btn')+'</button>'
+        + '<div id="policyAckErr" style="display:none;color:#c0392b;font-size:13px;margin-top:8px;">'+t('policy_ack_err')+'</div>'
         + '</div>';
     }
-  }
+  };
   window.acknowledgePolicy = async function(){
     var chk = document.getElementById('policyAckChk');
     if(!chk || !chk.checked){ var e=document.getElementById('policyAckErr'); if(e) e.style.display='block'; return; }
     if(!_currentUser){ showNotif('請先登入'); return; }
-    var btn = document.getElementById('policyAckBtn'); if(btn){ btn.disabled=true; btn.textContent='儲存中…'; }
+    var btn = document.getElementById('policyAckBtn'); if(btn){ btn.disabled=true; btn.textContent=t('policy_ack_saving'); }
     try{
       var fields = { policyAcknowledged:true, policyAckAt:new Date().toISOString(), policyAckVersion:(window.__policyVersion||1) };
       await setDoc(doc(db,'musicians',_currentUser.uid), fields, { merge:true });
       _currentProfile = Object.assign({}, _currentProfile, fields);
-      renderPolicyAck();
-      showNotif('✓ 已確認，現在可以編輯主頁了');
-    }catch(e){ if(btn){ btn.disabled=false; btn.textContent='確認同意'; } showNotif('儲存失敗：'+(e.code||e.message)); }
+      window.renderPolicyAck();
+      showNotif(window._lang==='en' ? '✓ Confirmed. You can now edit your page.' : '✓ 已確認，現在可以編輯主頁了');
+    }catch(e){ if(btn){ btn.disabled=false; btn.textContent=t('policy_ack_btn'); } showNotif('儲存失敗：'+(e.code||e.message)); }
   };
 
   // ── Mobile sidebar drawer ──
@@ -4042,12 +4079,12 @@
         + '<button type="button" class="pb-row-del pb-banner-del" title="Remove" style="margin-top:0;">✕</button>'
       + '</div>'
       + '<div class="pb-field" style="margin-bottom:8px;"><label>媒體網址 / Media URL</label><input type="text" class="pbBannerUrl" id="'+imgId+'" value="'+pbEsc(data.url)+'" placeholder="https://..."></div>'
-      + '<div style="font-size:11px;font-weight:700;color:var(--mid);margin:4px 0 4px;">桌機與手機的照片位置各自獨立，互不影響</div>'
-      + '<div class="pb-field" style="margin-bottom:6px;"><label>桌機 水平 X (%)</label><input type="range" class="pbBannerX" min="0" max="100" step="1" value="'+x+'" style="width:100%;"></div>'
-      + '<div class="pb-field" style="margin-bottom:8px;"><label>桌機 垂直 Y (%)</label><input type="range" class="pbBannerY" min="0" max="100" step="1" value="'+y+'" style="width:100%;"></div>'
-      + '<div class="pb-field" style="margin-bottom:6px;"><label>📱 手機 水平 X (%)</label><input type="range" class="pbBannerXM" min="0" max="100" step="1" value="'+xm+'" style="width:100%;"></div>'
-      + '<div class="pb-field" style="margin-bottom:8px;"><label>📱 手機 垂直 Y (%)</label><input type="range" class="pbBannerYM" min="0" max="100" step="1" value="'+ym+'" style="width:100%;"></div>'
-      + '<div class="pb-field" style="margin-bottom:0;"><label>縮放 / Zoom (%)（桌機手機共用）</label><input type="range" class="pbBannerZoom" min="-30" max="150" step="1" value="'+zoom+'" style="width:100%;"></div>';
+      + '<div style="font-size:11px;font-weight:700;color:var(--mid);margin:4px 0 4px;">'+t('pb_photo_note')+'</div>'
+      + '<div class="pb-field" style="margin-bottom:6px;"><label>'+t('pb_desk_x')+'</label><input type="range" class="pbBannerX" min="0" max="100" step="1" value="'+x+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>'+t('pb_desk_y')+'</label><input type="range" class="pbBannerY" min="0" max="100" step="1" value="'+y+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:6px;"><label>'+t('pb_mob_x')+'</label><input type="range" class="pbBannerXM" min="0" max="100" step="1" value="'+xm+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>'+t('pb_mob_y')+'</label><input type="range" class="pbBannerYM" min="0" max="100" step="1" value="'+ym+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:0;"><label>'+t('pb_zoom_shared')+'</label><input type="range" class="pbBannerZoom" min="-30" max="150" step="1" value="'+zoom+'" style="width:100%;"></div>';
     row.querySelector('.pb-banner-del').onclick = function(){
       row.remove();
       pbRelabelBannerRows();
@@ -4103,16 +4140,16 @@
         + '<button type="button" class="pb-row-del pb-video-del" title="刪除此影片 / Remove" style="margin-top:0;margin-left:auto;">✕</button>'
       + '</div>'
       + '<div class="pb-field" style="margin-bottom:8px;"><label>標題（顯示在影片上的大字）</label><input type="text" class="pbVideoTitle" value="'+pbEsc(data.title)+'" placeholder="例如 巴哈無伴奏"></div>'
-      + '<div class="pb-field" style="margin-bottom:8px;"><label>副標題（大字下方小字）</label><input type="text" class="pbVideoSub" value="'+pbEsc(data.subtitle)+'" placeholder="例如 SHOWREEL"></div>'
-      + '<div class="pb-field" style="margin-bottom:8px;"><label>影片網址</label><input type="text" class="pbVideoUrl" value="'+pbEsc(data.url)+'" placeholder="https://www.youtube.com/embed/..."></div>'
-      + '<div class="pb-field" style="margin-bottom:8px;"><label>封面圖網址(選填)</label><input type="text" class="pbVideoPoster" value="'+pbEsc(data.poster)+'" placeholder="https://..."></div>'
-      + '<div style="font-size:11px;font-weight:700;color:var(--mid);margin:4px 0 4px;">畫面位置（影片放大裁切時，決定顯示哪一塊；50% = 置中。YouTube 也適用）</div>'
-      + '<div class="pb-field" style="margin-bottom:4px;"><label>桌機 水平 X (%)</label><input type="range" class="pbVideoX"  min="0" max="100" step="1" value="'+dx+'"  style="width:100%;"></div>'
-      + '<div class="pb-field" style="margin-bottom:8px;"><label>桌機 垂直 Y (%)</label><input type="range" class="pbVideoY"  min="0" max="100" step="1" value="'+dy+'"  style="width:100%;"></div>'
-      + '<div class="pb-field" style="margin-bottom:4px;"><label>📱 手機 水平 X (%)</label><input type="range" class="pbVideoXM" min="0" max="100" step="1" value="'+dxm+'" style="width:100%;"></div>'
-      + '<div class="pb-field" style="margin-bottom:8px;"><label>📱 手機 垂直 Y (%)</label><input type="range" class="pbVideoYM" min="0" max="100" step="1" value="'+dym+'" style="width:100%;"></div>'
-      + '<div style="font-size:11px;font-weight:700;color:var(--mid);margin:6px 0 4px;">縮放 / Zoom（YouTube 有黑邊時拉大來填滿；100% = 完整顯示+置中，越大從中心裁越多）</div>'
-      + '<div class="pb-field" style="margin-bottom:0;"><label>🔍 縮放 (%)</label><input type="range" class="pbVideoZoom" min="100" max="300" step="5" value="'+dz+'" style="width:100%;"></div>';
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>'+t('pb_subtitle_label')+'</label><input type="text" class="pbVideoSub" value="'+pbEsc(data.subtitle)+'" placeholder="例如 SHOWREEL"></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>'+t('pb_video_url_label')+'</label><input type="text" class="pbVideoUrl" value="'+pbEsc(data.url)+'" placeholder="https://www.youtube.com/embed/..."></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>'+t('pb_video_poster_label')+'</label><input type="text" class="pbVideoPoster" value="'+pbEsc(data.poster)+'" placeholder="https://..."></div>'
+      + '<div style="font-size:11px;font-weight:700;color:var(--mid);margin:4px 0 4px;">'+t('pb_video_pos_note')+'</div>'
+      + '<div class="pb-field" style="margin-bottom:4px;"><label>'+t('pb_desk_x')+'</label><input type="range" class="pbVideoX"  min="0" max="100" step="1" value="'+dx+'"  style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>'+t('pb_desk_y')+'</label><input type="range" class="pbVideoY"  min="0" max="100" step="1" value="'+dy+'"  style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:4px;"><label>'+t('pb_mob_x')+'</label><input type="range" class="pbVideoXM" min="0" max="100" step="1" value="'+dxm+'" style="width:100%;"></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>'+t('pb_mob_y')+'</label><input type="range" class="pbVideoYM" min="0" max="100" step="1" value="'+dym+'" style="width:100%;"></div>'
+      + '<div style="font-size:11px;font-weight:700;color:var(--mid);margin:6px 0 4px;">'+t('pb_video_zoom_desc')+'</div>'
+      + '<div class="pb-field" style="margin-bottom:0;"><label>'+t('pb_video_zoom_label')+'</label><input type="range" class="pbVideoZoom" min="100" max="300" step="5" value="'+dz+'" style="width:100%;"></div>';
     row.querySelector('.pb-video-del').onclick = function(){
       if(pbVideoRows().length <= 1) return;   // keep at least one
       row.remove();
