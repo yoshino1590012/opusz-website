@@ -758,9 +758,23 @@
   }
   window.__applyNavBlendColors = applyNavBlendColors;
 
+  /* ── Global notification toasts (loaded on every page that has nav.js) ────
+     Injects the shared notifications.js module once. It self-guards against a
+     double-load (the homepage embeds it directly), so this is always safe. */
+  function injectNotifications() {
+    if (document.getElementById('opuszNotifyScript')) return;
+    if (window.__opuszNotifyLoaded) return;
+    var s = document.createElement('script');
+    s.id   = 'opuszNotifyScript';
+    s.type = 'module';
+    s.src  = 'notifications.js?v=1';
+    (document.head || document.documentElement).appendChild(s);
+  }
+
   function boot() {
     injectNavUnderlineCSS();   // global CSS → safe even on pages with their own inline nav
     inject();
+    injectNotifications();     // global in-page notification toasts
     // Wire behaviours against the freshly injected elements.
     wireFavourites();
     wireLangToggle();
