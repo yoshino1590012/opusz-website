@@ -1304,10 +1304,16 @@ Martin</textarea>
     if(window.seHeroPosMacbook && typeof window.seHeroPosMacbook==='object') cfg.heroPosMacbook = window.seHeroPosMacbook;
     if(window.seHeroPosIpad && typeof window.seHeroPosIpad==='object') cfg.heroPosIpad = window.seHeroPosIpad;
     if(window.seHeroPosPhone && typeof window.seHeroPosPhone==='object') cfg.heroPosPhone = window.seHeroPosPhone;
-    cfg.heroBrandColor = (typeof window.seHeroBrandColor==='string' && window.seHeroBrandColor) ? window.seHeroBrandColor : 'auto';
-    if(window.seHeroBtn && typeof window.seHeroBtn==='object') cfg.heroBtn = window.seHeroBtn;
-    if(window.seHeroBtnShape && typeof window.seHeroBtnShape==='object') cfg.heroBtnShape = window.seHeroBtnShape;
-    cfg.heroBtnGlass = !!window.seHeroBtnGlass;
+    // Brand colour + button styling are now per-device (inside the heroPos* maps,
+    // saved above). These flat keys are kept as a DESKTOP mirror so any older /
+    // cached site-content.js still renders the desktop look; the live engine prefers
+    // the per-device map values.
+    var _dk = window.seHeroPos || {};
+    cfg.heroBrandColor = (_dk._brandColor!=null) ? _dk._brandColor
+      : ((typeof window.seHeroBrandColor==='string' && window.seHeroBrandColor) ? window.seHeroBrandColor : 'auto');
+    cfg.heroBtn      = (_dk._btn && typeof _dk._btn==='object') ? _dk._btn : (window.seHeroBtn || {});
+    cfg.heroBtnShape = (_dk._btnShape && typeof _dk._btnShape==='object') ? _dk._btnShape : (window.seHeroBtnShape || {});
+    cfg.heroBtnGlass = (_dk._btnGlass!=null) ? !!_dk._btnGlass : !!window.seHeroBtnGlass;
     if(window.seHeroType && typeof window.seHeroType==='object') cfg.heroType = window.seHeroType;
     if(window.seHeroPhrase && typeof window.seHeroPhrase==='object') cfg.heroPhrase = window.seHeroPhrase;
     return cfg;
@@ -2600,8 +2606,17 @@ Martin</textarea>
 
   // Brand OPUS.Z colour mode toggle: auto black/white (default) vs solid white.
   // Brand OPUS.Z colour: "自動黑白" (blend) OR pick any colour from the palette.
+  // Resolve a per-device hero-style value: prefer the CURRENT device's own value,
+  // else fall back to the desktop (標準螢幕) map, else the legacy global default.
+  function seResolveStyle(prop, legacy){
+    var a = (typeof window.seActiveHeroPos==='function') ? window.seActiveHeroPos() : (window.seHeroPos||{});
+    if(a && a[prop]!=null) return a[prop];
+    var d = window.seHeroPos||{};
+    if(d[prop]!=null) return d[prop];
+    return legacy;
+  }
   function seHeroBrandColorRow(){
-    var v=(window.seHeroBrandColor||'auto');
+    var v=(seResolveStyle('_brandColor', window.seHeroBrandColor)||'auto');
     var isAuto=(v==='auto');
     var presets=['#000000','#ffffff','#e11d48','#f59e0b','#16a34a','#2563eb','#7c3aed','#db2777'];
     var autoBtn='<button onclick="seHeroSetBrandColor(\'auto\')" style="font-size:11px;border:1px solid '+(isAuto?'#0e7490':'#cbd5e1')+';background:'+(isAuto?'#0e7490':'#fff')+';color:'+(isAuto?'#fff':'#334155')+';border-radius:6px;padding:4px 11px;cursor:pointer;">自動黑白（隨背景）</button>';
@@ -2618,14 +2633,15 @@ Martin</textarea>
   // rebuild=true for discrete picks (swatch/auto → refresh highlight); false for the
   // continuous custom picker (rebuilding mid-drag would close the colour dialog).
   window.seHeroSetBrandColor = function(c, rebuild){
-    window.seHeroBrandColor = c || 'auto';
+    var m = window.seActiveHeroPos();
+    m._brandColor = c || 'auto';
     if(rebuild !== false) seBuildControls();
     sePreview();   // live-apply to preview
   };
 
   // Shared button shape: corner-radius presets + border width (fixes thin/aliased edges).
   function seHeroBtnShapeRow(){
-    var sh=window.seHeroBtnShape||{};
+    var sh=seResolveStyle('_btnShape', window.seHeroBtnShape)||{};
     var curR=(sh.radius!=null&&sh.radius!=='')?String(sh.radius):'9';
     var curW=(sh.bw!=null&&sh.bw!=='')?String(sh.bw):'1';
     var shapes=[['0','方角'],['5','微圓'],['9','圓角'],['16','大圓角'],['pill','膠囊']];
@@ -2645,14 +2661,15 @@ Martin</textarea>
       +'<div style="display:flex;align-items:center;gap:6px;"><span style="font-size:11px;color:#155e75;white-space:nowrap;">邊框粗細</span>'+wbtns+'</div>';
   }
   window.seHeroSetBtnShape = function(prop, val){
-    window.seHeroBtnShape = window.seHeroBtnShape || {};
-    window.seHeroBtnShape[prop] = val;
+    var m = window.seActiveHeroPos();
+    m._btnShape = m._btnShape || {};
+    m._btnShape[prop] = val;
     seBuildControls(); sePreview();
   };
 
   // Per-button styling: background colour, text colour, opacity.
   function seHeroBtnRows(){
-    var b=window.seHeroBtn||{};
+    var b=seResolveStyle('_btn', window.seHeroBtn)||{};
     var defs=[['find','按鈕 · Find Artists','#0a0a0a','#ffffff','#0a0a0a'],['project','按鈕 · Create a Project','#ffffff','#111111','#e4e4e7']];
     function row(key,lbl,dbg,dfg,dbd){
       var s=b[key]||{};
@@ -2672,7 +2689,7 @@ Martin</textarea>
           +'<span id="seBtnOp_'+key+'" style="font-size:11px;color:#0e7490;width:36px;text-align:right;">'+op+'%</span>'
         +'</div></div>';
     }
-    var glassOn=!!window.seHeroBtnGlass;
+    var glassOn=!!seResolveStyle('_btnGlass', window.seHeroBtnGlass);
     var glassRow='<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">按鈕樣式</div>'
       +'<label style="display:flex;align-items:center;gap:7px;font-size:12px;color:#334155;margin-bottom:'+(glassOn?'6':'8')+'px;cursor:pointer;">'
         +'<input type="checkbox" '+(glassOn?'checked':'')+' onchange="seHeroSetBtnGlass(this.checked)" style="width:15px;height:15px;cursor:pointer;"> 液態玻璃 Liquid Glass 效果</label>'
@@ -2681,18 +2698,21 @@ Martin</textarea>
     return glassRow + defs.map(function(d){ return row(d[0],d[1],d[2],d[3],d[4]); }).join('');
   }
   window.seHeroSetBtnGlass = function(on){
-    window.seHeroBtnGlass = !!on;
+    var m = window.seActiveHeroPos();
+    m._btnGlass = !!on;
     seBuildControls(); sePreview();
   };
   window.seHeroBtnSet = function(key, prop, val){
-    window.seHeroBtn = window.seHeroBtn || {};
-    var s = window.seHeroBtn[key] = window.seHeroBtn[key] || {};
+    var m = window.seActiveHeroPos();
+    m._btn = m._btn || {};
+    var s = m._btn[key] = m._btn[key] || {};
     if(prop==='op'){ s.op=(parseInt(val,10)||100)/100; var l=document.getElementById('seBtnOp_'+key); if(l) l.textContent=val+'%'; }
     else s[prop]=val;
     sePreview();   // no panel rebuild → colour dialog stays open while dragging
   };
   window.seHeroBtnReset = function(key){
-    if(window.seHeroBtn) delete window.seHeroBtn[key];
+    var m = window.seActiveHeroPos();
+    if(m._btn) delete m._btn[key];
     seBuildControls(); sePreview();
   };
   // The position/size set for the CURRENT preview device. Each of the four
@@ -2920,6 +2940,17 @@ Martin</textarea>
     window.seHeroBtnGlass = !!seCurrentConfig.heroBtnGlass;
     window.seHeroType = (seCurrentConfig.heroType && typeof seCurrentConfig.heroType==='object') ? seCurrentConfig.heroType : {};
     window.seHeroPhrase = (seCurrentConfig.heroPhrase && typeof seCurrentConfig.heroPhrase==='object') ? seCurrentConfig.heroPhrase : {};
+    // MIGRATION: brand colour + button styling used to be ONE global value shared by
+    // every device. They're now per-device (stored inside each hero-pos map). Seed
+    // the DESKTOP map from the legacy globals so the existing look is unchanged;
+    // phone/iPad/MacBook fall back to desktop until they're edited on their own tab.
+    (function(){
+      var d = window.seHeroPos = window.seHeroPos || {};
+      if(d._brandColor == null && typeof window.seHeroBrandColor === 'string') d._brandColor = window.seHeroBrandColor;
+      if(d._btn == null && window.seHeroBtn && Object.keys(window.seHeroBtn).length) d._btn = window.seHeroBtn;
+      if(d._btnShape == null && window.seHeroBtnShape && Object.keys(window.seHeroBtnShape).length) d._btnShape = window.seHeroBtnShape;
+      if(d._btnGlass == null && window.seHeroBtnGlass) d._btnGlass = true;
+    })();
     seBuildPageList();
     seBuildSectionList();
     seBuildControls();

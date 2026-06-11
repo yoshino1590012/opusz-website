@@ -155,6 +155,25 @@ function applyHeroPosResponsive(cfg){
   for (var _bi = 0; _bi < _btns.length; _bi++){
     _btns[_bi].style.minWidth = _bw ? ('calc(var(--k) * ' + _bw + 'px)') : '';
   }
+  // Brand wordmark colour + button styling (colours / shape / glass) are ALSO
+  // per-device now. Resolve from the picked map; if this device hasn't set its
+  // own, fall back to the desktop map, then to the legacy global cfg keys. This
+  // keeps existing designs identical while letting phone/iPad diverge on demand.
+  var _desk = cfg.heroPos || {};
+  function _pick(prop, legacy){
+    if (map && map[prop] != null) return map[prop];
+    if (_desk[prop] != null) return _desk[prop];
+    return legacy;
+  }
+  var _brand = _pick('_brandColor', cfg.heroBrandColor);
+  if (_brand != null) { try { applyBrandColor(_brand); } catch(e){} }
+  var _btnStyle = _pick('_btn', cfg.heroBtn);
+  if (_btnStyle != null) { try { applyHeroBtns(_btnStyle); } catch(e){} }
+  var _btnShape = _pick('_btnShape', cfg.heroBtnShape);
+  if (_btnShape != null) { try { applyHeroBtnShape(_btnShape); } catch(e){} }
+  // Glass last (it overrides the colour controls when on).
+  var _glass = _pick('_btnGlass', cfg.heroBtnGlass);
+  try { applyHeroBtnGlass(!!_glass); } catch(e){}
 }
 // Re-apply when crossing the phone breakpoint (debounced).
 (function(){
@@ -279,23 +298,15 @@ function applyConfig(cfg){
   // 1c) hero element drag-offsets (Canva-style positioning), PER DEVICE: phones
   // (<=700px) use cfg.heroPosPhone when present; otherwise fall back to the desktop
   // set cfg.heroPos. Re-applied on resize so it switches at the breakpoint.
-  if ('heroPos' in cfg || 'heroPosPhone' in cfg || 'heroPosMacbook' in cfg || 'heroPosIpad' in cfg || 'heroPhrase' in cfg || 'heroType' in cfg) {
+  // applyHeroPosResponsive now also applies the per-device brand colour + button
+  // styling (colour / shape / glass), so trigger it whenever ANY hero style key
+  // is present — not just the position/phrase/type keys.
+  if ('heroPos' in cfg || 'heroPosPhone' in cfg || 'heroPosMacbook' in cfg || 'heroPosIpad' in cfg || 'heroPhrase' in cfg || 'heroType' in cfg || 'heroBrandColor' in cfg || 'heroBtn' in cfg || 'heroBtnShape' in cfg || 'heroBtnGlass' in cfg) {
     window.__opzHeroCfg = cfg;
-    // applyHeroPosResponsive also applies the per-device phrase align + line-height.
+    // applyHeroPosResponsive also applies the per-device phrase align + line-height,
+    // brand wordmark colour, and button colour/shape/glass (with desktop fallback).
     try { applyHeroPosResponsive(cfg); } catch(e){}
   }
-
-  // 1d) brand wordmark colour ('auto' = blend, or a custom colour)
-  if ('heroBrandColor' in cfg) { try { applyBrandColor(cfg.heroBrandColor); } catch(e){} }
-
-  // 1e) hero button styling (bg / text colour / opacity)
-  if ('heroBtn' in cfg) { try { applyHeroBtns(cfg.heroBtn); } catch(e){} }
-
-  // 1f) hero button shape (corner radius + border width, shared by both buttons)
-  if ('heroBtnShape' in cfg) { try { applyHeroBtnShape(cfg.heroBtnShape); } catch(e){} }
-
-  // 1g) liquid-glass button look (on/off)
-  if ('heroBtnGlass' in cfg) { try { applyHeroBtnGlass(cfg.heroBtnGlass); } catch(e){} }
 
   // 1h) shows-page posters — count + per-poster frame (x/y/scale/blur/bgX/bgY) +
   //     image URLs. Drives the shows engine so add/remove/position done in the
