@@ -189,7 +189,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .hero-search-btn:hover{background:#333;}
 
 /* ── INSTRUMENT FILTER PILLS ── */
-.inst-filter{background:#fff;border-bottom:1px solid #eee;padding:16px 48px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;position:sticky;top:64px;z-index:99;}
+.inst-filter{background:#fff;border-bottom:1px solid #eee;padding:16px 48px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.fdrop-fam{font-weight:700;}
+.fdrop-fam:hover{background:#eef6f8;}
 .inst-pill{padding:7px 16px;border:1.5px solid #e0e0e0;border-radius:20px;font-size:13px;font-weight:600;color:#555;background:#fff;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit;}
 .inst-pill:hover{border-color:#999;color:#000;}
 .inst-pill.active{background:#0a0a0a;border-color:#0a0a0a;color:#fff;}
@@ -426,16 +428,11 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 
 <!-- INSTRUMENT FILTER PILLS -->
 <div class="inst-filter" id="instFilter">
-  <button class="inst-pill active" data-inst="" onclick="setInst(this,'')" data-i18n="page.inst.all">All</button>
-  <button class="inst-pill" data-inst="Violin" onclick="setInst(this,'Violin')" data-i18n="menu.violin">Violin</button>
-  <button class="inst-pill" data-inst="Viola" onclick="setInst(this,'Viola')" data-i18n="menu.viola">Viola</button>
-  <button class="inst-pill" data-inst="Cello" onclick="setInst(this,'Cello')" data-i18n="menu.cello">Cello</button>
-  <button class="inst-pill" data-inst="Piano" onclick="setInst(this,'Piano')" data-i18n="menu.piano">Piano</button>
-  <button class="inst-pill" data-inst="Flute" onclick="setInst(this,'Flute')" data-i18n="menu.flute">Flute</button>
-  <button class="inst-pill" data-inst="Saxophone" onclick="setInst(this,'Saxophone')" data-i18n="menu.saxophone">Saxophone</button>
-  <button class="inst-pill" data-inst="Trumpet" onclick="setInst(this,'Trumpet')" data-i18n="menu.trumpet">Trumpet</button>
-  <button class="inst-pill" data-inst="Guitar" onclick="setInst(this,'Guitar')" data-i18n="page.inst.guitar">Guitar</button>
-  <button class="inst-pill" data-inst="Voice" onclick="setInst(this,'Voice')" data-i18n="menu.voice">Voice</button>
+  <!-- Instrument filter: categorized dropdown (families → instruments) -->
+  <div class="fdrop" data-filter="inst" id="instDrop">
+    <button class="fdrop-btn" type="button"><span class="fdrop-lbl" data-ql="f_inst">Instrument</span><span class="fdrop-caret">▼</span></button>
+    <div class="fdrop-menu" id="instDropMenu" style="min-width:210px;max-height:62vh;overflow-y:auto;"></div>
+  </div>
   <div class="inst-divider"></div>
 
   <!-- Advanced filters (mirror the quiz; also editable directly) -->
@@ -568,15 +565,21 @@ function doSearch(){
 }
 
 // ── Advanced filter dropdowns (mirror quiz, editable directly) ──────────────
-var FILTER_DEFAULT_KEY = {level:'f_level', budget:'f_budget', format:'f_format', time:'f_time'};
+var FILTER_DEFAULT_KEY = {inst:'f_inst', level:'f_level', budget:'f_budget', format:'f_format', time:'f_time'};
 
 function filterValOf(type){
+  if(type==='inst') return currentCat ? ('cat:'+currentCat) : (currentInst||'');
   return type==='level' ? currentLevel : type==='budget' ? currentBudget :
          type==='format' ? currentFormat : type==='time' ? currentDay : '';
 }
 
 function setFilter(type, val){
-  if(type==='level') currentLevel = val;
+  if(type==='inst'){
+    if(!val){ currentInst=''; currentCat=''; }
+    else if(val.indexOf('cat:')===0){ currentCat=val.slice(4); currentInst=''; }
+    else { currentInst=val; currentCat=''; }
+  }
+  else if(type==='level') currentLevel = val;
   else if(type==='budget') currentBudget = val;
   else if(type==='format') currentFormat = val;
   else if(type==='time') currentDay = val;
@@ -646,6 +649,7 @@ var QUIZ_T = {
   online:{zh:'線上', en:'Online'}, inperson:{zh:'實體', en:'In-person'},
   weekday:{zh:'平日', en:'Weekday'}, weekend:{zh:'週末', en:'Weekend'},
   b1:{zh:'NT$1,800 以下', en:'Under NT$1,800'}, b2:{zh:'NT$1,800–2,000', en:'NT$1,800–2,000'}, b3:{zh:'NT$2,000 以上', en:'NT$2,000+'},
+  f_inst:{zh:'樂器', en:'Instrument'}, allInst:{zh:'全部樂器', en:'All instruments'}, famAll:{zh:'（全部）', en:'(all)'},
   f_level:{zh:'程度', en:'Level'}, f_budget:{zh:'預算', en:'Budget'}, f_format:{zh:'上課方式', en:'Format'}, f_time:{zh:'上課時間', en:'Time'},
   reopen:{zh:'🎯 重做問卷', en:'🎯 Redo survey'}
 };
@@ -656,7 +660,7 @@ var CATEGORIES = [
   {v:'strings',    zh:'弦樂', en:'Strings',    insts:[['Violin','小提琴'],['Viola','中提琴'],['Cello','大提琴'],['Double Bass','低音提琴'],['Harp','豎琴']]},
   {v:'woodwind',   zh:'木管', en:'Woodwinds',  insts:[['Flute','長笛'],['Piccolo','短笛'],['Oboe','雙簧管'],['Clarinet','單簧管'],['Saxophone','薩克斯風'],['Bassoon','低音管']]},
   {v:'brass',      zh:'銅管', en:'Brass',      insts:[['French Horn','法國號'],['Trumpet','小號'],['Trombone','長號'],['Euphonium','次中音號'],['Tuba','低音號']]},
-  {v:'percussion', zh:'擊樂', en:'Percussion', insts:[['Timpani','定音鼓'],['Marimba','馬林巴'],['Vibraphone','顫音琴'],['Drums','爵士鼓']]},
+  {v:'percussion', zh:'擊樂', en:'Percussion', insts:[['Orchestral Percussion','管弦打擊樂'],['Timpani','定音鼓'],['Marimba','馬林巴'],['Vibraphone','顫音琴'],['Drums','爵士鼓']]},
   {v:'keyboard',   zh:'鍵盤', en:'Keyboard',   insts:[['Piano','鋼琴'],['Pipe Organ','管風琴']]},
   {v:'guitar',     zh:'吉他', en:'Guitar',     insts:[['Guitar','古典吉他'],['Electric Guitar','電吉他'],['Bass','貝斯']]},
   {v:'voice',      zh:'聲樂', en:'Voice',      insts:[['Soprano','女高音'],['Mezzo-soprano','次女高音'],['Tenor','男高音'],['Baritone','男中音'],['Choral','合唱']]}
@@ -767,8 +771,32 @@ function skipQuiz(){     // skip / close without applying
 }
 
 // Translate the filter-bar dropdowns + reopen button; refresh open quiz
+// Build the categorized instrument dropdown (families → instruments) from CATEGORIES.
+// Re-run on language change so labels follow the current language.
+function buildInstDropdown(){
+  var menu = document.getElementById('instDropMenu'); if(!menu) return;
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+  var html = '<div class="fdrop-opt" data-val="">'+esc(t('allInst'))+'</div>';
+  CATEGORIES.forEach(function(c){
+    html += '<div class="fdrop-opt fdrop-fam" data-val="cat:'+esc(c.v)+'" style="margin-top:4px;">'+esc(catLabel(c))+' <span style="font-weight:400;color:#888;">'+esc(t('famAll'))+'</span></div>';
+    c.insts.forEach(function(p){
+      html += '<div class="fdrop-opt" data-val="'+esc(p[0])+'" style="padding-left:24px;color:#555;">'+esc(instLabel(p))+'</div>';
+    });
+  });
+  menu.innerHTML = html;
+  if(!menu.__wired){
+    menu.__wired = true;
+    menu.addEventListener('click', function(e){
+      var opt = e.target.closest('.fdrop-opt'); if(!opt) return;
+      setFilter('inst', opt.getAttribute('data-val')||'');
+      var drop = document.getElementById('instDrop'); if(drop) drop.classList.remove('open');
+    });
+  }
+}
+
 function updateQuizI18n(){
   document.querySelectorAll('[data-ql]').forEach(function(el){ el.textContent = t(el.getAttribute('data-ql')); });
+  buildInstDropdown();
   syncFilterUI();
   if(document.getElementById('quizOverlay').classList.contains('open')) renderQuizStep();
   // Re-render JS-generated, language-aware content (cards, counts, fav modal)
