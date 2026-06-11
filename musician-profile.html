@@ -5625,6 +5625,48 @@ window.addEventListener('pageshow', function(e) {
       }
     }
 
+    // LESSON PLANS (bilingual content; FIXED auto-translated CTA; 1–3 plans)
+    var _lz = cfg.lessons || {};
+    if(Array.isArray(_lz.plans)){
+      // Prefer the current language; fall back to the other if that field is blank
+      // (plan labels like "Trial" read fine either way — never show an empty card).
+      var _fb = function(zh, en){
+        var a = isEn ? en : zh, b = isEn ? zh : en;
+        a = (a != null) ? String(a) : ''; b = (b != null) ? String(b) : '';
+        return a.trim() !== '' ? a : b;
+      };
+      var _fbList = function(zh, en){
+        var clean = function(x){ return (Array.isArray(x) ? x : []).map(function(s){ return String(s == null ? '' : s).trim(); }).filter(function(s){ return s !== ''; }); };
+        var cur = clean(isEn ? en : zh); return cur.length ? cur : clean(isEn ? zh : en);
+      };
+      var _ctaTxt = isEn ? 'Book a lesson' : '預約課程';
+      var _pc = Number(_lz.planCount); if(_pc !== 1 && _pc !== 2 && _pc !== 3) _pc = 3;
+      var _cards = document.querySelectorAll('#lessonSection .lesson-card');
+      var _shown = 0;
+      for(var _pi = 0; _pi < _cards.length; _pi++){
+        var _card = _cards[_pi];
+        var _plan = _lz.plans[_pi];
+        if(_pi >= _pc || !_plan || typeof _plan !== 'object'){ _card.style.display = 'none'; continue; }
+        _card.style.display = ''; _shown++;
+        var _nm = _card.querySelector('.lesson-plan-name'); if(_nm) _nm.textContent = _fb(_plan.name, _plan.nameEn);
+        var _sb = _card.querySelector('.lesson-plan-sub');  if(_sb) _sb.innerHTML = _escHtml(_fb(_plan.sub, _plan.subEn)).replace(/\n/g,'<br>');
+        var _pr = _card.querySelector('.lesson-price');     if(_pr && has(_plan.price)){ var _pn = Number(_plan.price); _pr.textContent = 'NT$' + (isNaN(_pn) ? _plan.price : _pn.toLocaleString()); }
+        var _un = _card.querySelector('.lesson-price-unit'); if(_un) _un.textContent = _fb(_plan.unit, _plan.unitEn);
+        var _sv = _card.querySelector('.lesson-save');       if(_sv) _sv.textContent = _fb(_plan.save, _plan.saveEn);
+        var _ft = _card.querySelector('.lesson-features');   if(_ft){ var _feats = _fbList(_plan.features, _plan.featuresEn); if(_feats.length) _ft.innerHTML = _feats.map(function(s){ return '<li>' + _escHtml(s) + '</li>'; }).join(''); }
+        var _tl = _card.querySelector('.lesson-timeline');   if(_tl){ var _strong = _tl.querySelector('strong'); var _label = _strong ? _strong.outerHTML : '<strong>Timeline:</strong>'; _tl.innerHTML = _label + _escHtml(_fb(_plan.timeline, _plan.timelineEn)); }
+        var _ct = _card.querySelector('.lesson-cta');        if(_ct) _ct.textContent = _ctaTxt;   // FIXED, auto-translated
+      }
+      // 1–2 plans: shrink + centre the grid so cards don't stretch oddly.
+      var _grid = document.querySelector('#lessonSection .lesson-plans');
+      if(_grid){
+        var _n = Math.max(1, _shown);
+        _grid.style.gridTemplateColumns = 'repeat(' + _n + ',minmax(0,1fr))';
+        if(_n < 3){ _grid.style.maxWidth = (_n * 360) + 'px'; _grid.style.marginLeft = 'auto'; _grid.style.marginRight = 'auto'; }
+        else { _grid.style.maxWidth = ''; }
+      }
+    }
+
     // SERVICES (title / description / tags per card)
     if(Array.isArray(cfg.services)){
       var servCards = document.querySelectorAll('.serv-card');
@@ -5840,68 +5882,9 @@ window.addEventListener('pageshow', function(e) {
         if(typeof window !== 'undefined') window.lessonFormat = lessons.mode;
       }
     }
-    if(Array.isArray(lessons.plans)){
-      var lessonCards = document.querySelectorAll('#lessonSection .lesson-card');
-      lessons.plans.forEach(function(plan, i){
-        if(!plan || typeof plan !== 'object') return;
-        var card = lessonCards[i];
-        if(!card) return;
-        if(has(plan.name)){
-          var nm = card.querySelector('.lesson-plan-name');
-          if(nm) nm.textContent = plan.name;
-        }
-        if(has(plan.sub)){
-          var sb = card.querySelector('.lesson-plan-sub');
-          if(sb){
-            sb.innerHTML = String(plan.sub)
-              .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
-              .replace(/\n/g,'<br>');
-          }
-        }
-        if(has(plan.price)){
-          var pr = card.querySelector('.lesson-price');
-          if(pr){
-            var pn = Number(plan.price);
-            pr.textContent = 'NT$' + (isNaN(pn) ? plan.price : pn.toLocaleString());
-          }
-        }
-        if(has(plan.unit)){
-          var un = card.querySelector('.lesson-price-unit');
-          if(un) un.textContent = plan.unit;
-        }
-        if(has(plan.save)){
-          var sv2 = card.querySelector('.lesson-save');
-          if(sv2) sv2.textContent = plan.save;
-        }
-        if(Array.isArray(plan.features)){
-          var ft = card.querySelector('.lesson-features');
-          var feats = plan.features
-            .map(function(s){ return String(s == null ? '' : s).trim(); })
-            .filter(function(s){ return s !== ''; });
-          if(ft && feats.length){
-            ft.innerHTML = feats.map(function(s){
-              return '<li>' +
-                s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;') +
-                '</li>';
-            }).join('');
-          }
-        }
-        if(has(plan.timeline)){
-          var tl = card.querySelector('.lesson-timeline');
-          if(tl){
-            // Preserve the <strong>Timeline:</strong> label prefix
-            var strong = tl.querySelector('strong');
-            var label = strong ? strong.outerHTML : '<strong>Timeline:</strong>';
-            tl.innerHTML = label + String(plan.timeline)
-              .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-          }
-        }
-        if(has(plan.cta)){
-          var ct = card.querySelector('.lesson-cta');
-          if(ct) ct.textContent = plan.cta;
-        }
-      });
-    }
+    // Lesson plan CONTENT (bilingual, variable count, fixed CTA) is rendered by
+    // applyLocalizedSections() — called at the end of applyProfileConfig and on
+    // every language toggle — so it stays in sync with 中/EN. Nothing to do here.
 
     // ── STATS ─────────────────────────────────────────────
     if(Array.isArray(cfg.stats)){
