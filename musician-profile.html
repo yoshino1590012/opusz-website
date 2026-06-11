@@ -754,7 +754,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 }
 
 /* ── Lesson Plans ── */
-.lesson-section {  max-width:1100px;  margin:0 auto;  padding:80px 48px;  box-sizing:border-box;  transform:translateX(-12%);}@media(max-width:1132px){ .lesson-section{ width:100%; margin:0 auto; padding:60px 24px; transform:none; } }
+.lesson-section {  max-width:1100px;  margin:0 auto;  padding:80px 48px;  box-sizing:border-box; }@media(max-width:1132px){ .lesson-section{ width:100%; margin:0 auto; padding:60px 24px; } }
 .lesson-section-divider { grid-column:1 / -1; border:none; border-top:1px solid #f0f0f0; width:100%; margin:80px 0 0; }
 @media(max-width:1132px){ .lesson-section-divider{ margin:60px 0 0; } }
 .lesson-top-label { font-size:13px; color:#888; margin-bottom:10px; }
@@ -784,23 +784,16 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .lesson-cta { padding:12px 26px; border-radius:50px; border:none; font-size:14px; font-weight:700; cursor:pointer; font-family:inherit; background:#111; color:#fff; white-space:nowrap; transition:opacity .15s,transform .15s; }
 .lesson-cta:hover { opacity:.75; transform:translateY(-1px); }
 
-/* ── Lesson Plans · MacBook 版專屬覆寫 (901–1600px) — 不影響手機與 1920px+ 桌機 ── */
+/* ── Lesson Plans · MacBook 版 (901–1600px) — 置中、維持大尺寸,只防溢出 ── */
 @media (min-width:901px) and (max-width:1600px){
   .lesson-section{
-    transform:none;          /* 取消往左推 12% → 整體往右、置中 */
-    max-width:980px;         /* 縮小整體寬度 */
-    padding:64px 60px;       /* 加大左右留白,不要貼邊 */
+    max-width:1080px;        /* 接近寬螢幕版,不再大幅縮小 */
+    padding:64px 40px;       /* 給卡片更多寬度 */
   }
-  .lesson-title{ font-size:clamp(32px,3.6vw,46px); }   /* 標題縮小一點 */
-  .lesson-subtitle{ margin-bottom:40px; }
-  .lesson-plans{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; } /* 欄位強制收進容器,杜絕溢出 */
-  .lesson-card{ padding:30px 24px 24px; }              /* 卡片縮小 */
-  .lesson-plan-name{ font-size:17px; }
-  .lesson-plan-sub{ margin-bottom:24px; }
-  .lesson-price{ font-size:clamp(28px,2.7vw,38px); }   /* 價格縮小,避免溢出 */
-  .lesson-price-unit{ font-size:13px; }
-  .lesson-features li{ font-size:13px; }
-  .lesson-cta{ padding:11px 20px; font-size:13px; }
+  /* minmax(0,1fr) 讓欄位可收進容器 → 杜絕水平溢出,同時保持大卡片 */
+  .lesson-plans{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+  /* 價格用較保守的 clamp,避免「NT$19,200」在窄欄溢出,但仍比舊版大 */
+  .lesson-price{ font-size:clamp(34px,3.4vw,52px); }
 }
 
 /* ── Career Highlights ── */
