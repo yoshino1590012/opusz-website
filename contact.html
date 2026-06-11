@@ -501,7 +501,13 @@
 
 
 <script>
-var _currentLang = window._currentLang || 'en';
+// Resolve from nav.js's choice / saved / device language (zh* → 中文).
+var _currentLang = (function(){
+  if (window._currentLang === 'en' || window._currentLang === 'zh') return window._currentLang;
+  try { var s = localStorage.getItem('opusz_lang'); if (s === 'en' || s === 'zh') return s; } catch (e) {}
+  var nl = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  return nl.indexOf('zh') === 0 ? 'zh' : 'en';
+})();
 var I18N = {
   en: {
     'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians','nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
@@ -604,6 +610,8 @@ function switchLang(lang) {
 }
 
 document.addEventListener('opusz:langchange', function(e){ if (typeof switchLang === 'function') switchLang(e.detail.lang); });
+// Apply the resolved language on load (nav.js doesn't carry this page's contact.* keys).
+switchLang(_currentLang);
 
 document.addEventListener('DOMContentLoaded', function() {
   /* Form: show success banner (client-side only for demo) */

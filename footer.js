@@ -171,10 +171,46 @@
     });
   })();
 
-  // Translate the footer if the page already ran its i18n engine.
-  try {
-    if (window.I18N && typeof window.switchLang === 'function') window.switchLang(window._currentLang || 'en');
-  } catch (e) {}
+  // ── Footer i18n: SELF-CONTAINED EN/中文 dictionary so the footer translates on
+  //    every page — content pages' own dictionaries don't carry footer.* keys,
+  //    so we must not rely on them. Applies on inject + on every language toggle. ──
+  var FOOTER_I18N = {
+    en: {
+      'newsletter.label':'Newsletter',
+      'newsletter.title':'Stay close to the music.',
+      'newsletter.body':'Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.',
+      'newsletter.email_ph':'Enter email','newsletter.btn':'SUBSCRIBE','newsletter.note':'No spam. Unsubscribe anytime.',
+      'footer.link.home':'Home','footer.link.discover':'Discover','footer.link.allmusicians':'All Musicians','footer.link.recentjobs':'Recent Jobs',
+      'footer.link.strings':'Strings','footer.link.piano':'Piano','footer.link.woodwinds':'Woodwinds','footer.link.chamber':'Chamber Music',
+      'footer.link.contact':'Contact','footer.link.about':'About','footer.link.blog':'Blog','footer.link.musicians':'Musicians',
+      'footer.link.instagram':'Instagram','footer.link.youtube':'YouTube','footer.link.tiktok':'TikTok','footer.link.facebook':'Facebook',
+      'footer.copy':'© 2026 OPUS.Z. All rights reserved.','footer.privacy':'Privacy Policy','footer.terms':'Terms of Service'
+    },
+    zh: {
+      'newsletter.label':'電子報',
+      'newsletter.title':'與音樂保持連結。',
+      'newsletter.body':'訂閱 OPUS.Z，獲得最新音樂家、近期演出與產業洞察，直接送到你的信箱。',
+      'newsletter.email_ph':'輸入電子郵件','newsletter.btn':'訂閱','newsletter.note':'不寄垃圾信，隨時可取消訂閱。',
+      'footer.link.home':'首頁','footer.link.discover':'探索','footer.link.allmusicians':'所有音樂家','footer.link.recentjobs':'近期委託',
+      'footer.link.strings':'弦樂','footer.link.piano':'鋼琴','footer.link.woodwinds':'木管','footer.link.chamber':'室內樂',
+      'footer.link.contact':'聯絡','footer.link.about':'關於','footer.link.blog':'部落格','footer.link.musicians':'音樂家',
+      'footer.link.instagram':'Instagram','footer.link.youtube':'YouTube','footer.link.tiktok':'TikTok','footer.link.facebook':'Facebook',
+      'footer.copy':'© 2026 OPUS.Z. 版權所有。','footer.privacy':'隱私權政策','footer.terms':'服務條款'
+    }
+  };
+  function footerLang(){
+    var l = window._currentLang;
+    if (l !== 'en' && l !== 'zh') { try { var s = localStorage.getItem('opusz_lang'); if (s === 'en' || s === 'zh') l = s; } catch (e) {} }
+    if (l !== 'en' && l !== 'zh') { var nl = (navigator.language || navigator.userLanguage || 'en').toLowerCase(); l = nl.indexOf('zh') === 0 ? 'zh' : 'en'; }
+    return l;
+  }
+  function footerApplyLang(lang){
+    var d = FOOTER_I18N[lang] || FOOTER_I18N.en;
+    footer.querySelectorAll('[data-i18n]').forEach(function(el){ var v = d[el.getAttribute('data-i18n')]; if (v !== undefined) el.textContent = v; });
+    footer.querySelectorAll('[data-i18n-ph]').forEach(function(el){ var v = d[el.getAttribute('data-i18n-ph')]; if (v !== undefined) el.placeholder = v; });
+  }
+  footerApplyLang(footerLang());
+  document.addEventListener('opusz:langchange', function(e){ footerApplyLang((e.detail && e.detail.lang) || footerLang()); });
 
   // Wire the newsletter form (subscribe → Firestore). newsletter.js auto-wires
   // any form[name=newsletter] on import; importing it now finds our injected form.
