@@ -1863,8 +1863,13 @@ function buildPostHTML(post) {
 
   // Header
   var _uid = post.authorUid || '';
+  // Avatar: show the author's real photo (same one as their profile / member list)
+  // if we have it; otherwise fall back to the coloured initials circle.
+  var _avInner = post.avatarUrl
+    ? '<img src="' + escHtml(post.avatarUrl) + '" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:' + (post.avatarX!=null?post.avatarX:50) + '% ' + (post.avatarY!=null?post.avatarY:50) + '%;transform:scale(' + (post.avatarScale||1) + ');transform-origin:' + (post.avatarX!=null?post.avatarX:50) + '% ' + (post.avatarY!=null?post.avatarY:50) + '%;">'
+    : post.initials;
   html += '<div class="post-header">';
-  html += '<div class="post-avatar comm-profile-link" data-uid="' + _uid + '" style="background:' + post.avatarColor + ';cursor:pointer">' + post.initials + '</div>';
+  html += '<div class="post-avatar comm-profile-link" data-uid="' + _uid + '" style="background:' + post.avatarColor + ';cursor:pointer;overflow:hidden;position:relative">' + _avInner + '</div>';
   html += '<div class="post-meta">';
   html += '<div class="post-name comm-profile-link" data-uid="' + _uid + '" style="cursor:pointer">' + escHtml(post.author);
   if (post.isOfficial) html += '<span class="official-badge">✦ 官方</span>';
@@ -2406,20 +2411,38 @@ document.addEventListener('click', function(e){
         const entry = { uid:d.id, name, instrument:instrumentLabel(m), color:colorFor(name), initials:initialsFor(name), online:false,
           bio: m.bio || ab.bio || '', region: m.primaryRegion || '', region2: m.secondaryRegion || '',
           email: m.email || '', website: m.website || '',
+          instagram: m.instagram || '', facebook: m.facebook || '', youtube: m.youtube || '',
           avatarUrl: ab.avatarUrl || '', avatarX: ab.avatarX, avatarY: ab.avatarY, avatarScale: ab.avatarScale };
         arr.push(entry); membersByUid[d.id] = entry;
       });
       window.MEMBERS = arr;
       if (window.renderMembers) window.renderMembers();
       updateMemberCount(arr.length);
+      // Members now loaded → re-render the feed so post avatars (resolved live
+      // from membersByUid) appear even if posts rendered before members arrived.
+      if (window.POSTS && window.renderFeed) {
+        window.POSTS = window.POSTS.map(function(p){ var mem = membersByUid[p.authorUid||'']||{};
+          if(mem.avatarUrl){ p.avatarUrl=mem.avatarUrl; p.avatarX=mem.avatarX; p.avatarY=mem.avatarY; p.avatarScale=mem.avatarScale; } return p; });
+        window.renderFeed(window.currentChannel || 'all');
+      }
     }catch(e){ console.warn('[community] members load failed:', e); }
   }
 
   function mapPost(id, p){
     const nm = p.authorName || '樂手';
+    // Resolve the author's avatar LIVE from the member list (the single source:
+    // musicians/{uid}.config.about) so it stays in sync and even old posts —
+    // which never stored an avatar — show the right photo. Fall back to any
+    // snapshot saved on the post, then to the coloured-initials circle.
+    const mem = membersByUid[p.authorUid||''] || {};
+    const avUrl = mem.avatarUrl || p.authorAvatarUrl || '';
+    const avX = (mem.avatarX!=null) ? mem.avatarX : (p.authorAvatarX!=null ? p.authorAvatarX : 50);
+    const avY = (mem.avatarY!=null) ? mem.avatarY : (p.authorAvatarY!=null ? p.authorAvatarY : 50);
+    const avS = (mem.avatarScale!=null) ? mem.avatarScale : (p.authorAvatarScale!=null ? p.authorAvatarScale : 1);
     return { id, authorUid:p.authorUid||'', channel:p.channel||'discuss', author:nm,
       isOfficial:!!p.isOfficial, isPinned:!!p.isPinned, role:p.authorTitle||'樂手',
       avatarColor:p.authorColor||colorFor(nm), initials:p.authorInitials||initialsFor(nm),
+      avatarUrl:avUrl, avatarX:avX, avatarY:avY, avatarScale:avS,
       timestamp:relTime(p.ts), type:(p.isPinned?'pinned':'normal'), content:p.content||'', likes:p.likes||0, comments:0, commentList:[],
       photoUrl:p.photoUrl||'', linkUrl:p.linkUrl||'' };
   }
@@ -2444,6 +2467,11 @@ document.addEventListener('click', function(e){
       const postData = {
         authorUid: me.uid, authorName: me.name, authorTitle: me.instrument,
         authorInitials: initialsFor(me.name), authorColor: colorFor(me.name),
+        // Snapshot the author's avatar too, so the post shows a photo even if the
+        // author isn't in the loaded member list (rendering still prefers the live
+        // member-list avatar when available, so changes stay in sync).
+        authorAvatarUrl: me.avatarUrl || '',
+        authorAvatarX: (me.avatarX!=null?me.avatarX:50), authorAvatarY: (me.avatarY!=null?me.avatarY:50), authorAvatarScale: (me.avatarScale||1),
         channel: channel || 'discuss', content: text, likes: 0, ts: serverTimestamp()
       };
       if(extras && extras.photoUrl) postData.photoUrl = extras.photoUrl;
@@ -2750,7 +2778,9 @@ document.addEventListener('click', function(e){
       try{
         const snap = await getDoc(doc(db,'musicians',user.uid));
         const m = snap.exists() ? snap.data() : {};
-        me = { uid:user.uid, name: m.name || user.email.split('@')[0], instrument: instrumentLabel(m) };
+        const _ab = (m.config && m.config.about) || {};
+        me = { uid:user.uid, name: m.name || user.email.split('@')[0], instrument: instrumentLabel(m),
+          avatarUrl:_ab.avatarUrl||'', avatarX:_ab.avatarX, avatarY:_ab.avatarY, avatarScale:_ab.avatarScale };
       }catch(e){ me = { uid:user.uid, name:(user.email||'樂手').split('@')[0], instrument:'樂手' }; }
       window.opuszMyUid = user.uid;   // lets "我的主頁" open my own profile
       // live unread badge on the 訊息 sidebar item
