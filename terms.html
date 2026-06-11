@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Terms of Service — OPUS.Z</title>
+  <meta name="description" content="The terms that govern your use of the OPUS.Z platform — connecting Taiwan's top classical musicians with performance and teaching opportunities." />
+  <link rel="canonical" href="https://opuszmusic.com/terms.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Terms of Service — OPUS.Z" />
+  <meta property="og:url" content="https://opuszmusic.com/terms.html" />
+  <meta property="og:site_name" content="OPUS.Z" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:    #f0efec;
+      --dark:  #0f0f0f;
+      --black: #000;
+      --white: #fff;
+      --mid:   #888;
+      --line:  rgba(0,0,0,0.10);
+      --font:  'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--dark);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 40px;
+      min-height: 76px;
+      background: transparent;
+      mix-blend-mode: difference;
+    }
+    nav.mega-open {
+      mix-blend-mode: normal;
+      background: #fff;
+      transition: background 0.22s ease;
+      --nav-fg: #000;
+    }
+    nav, nav.nav-on-dark { --nav-fg: #fff; }
+    nav.nav-on-light { --nav-fg: #000; }
+
+    /* ─── LEGAL PAGE ─── */
+    .legal-page { max-width: 820px; margin: 0 auto; padding: 170px 28px 110px; }
+    .legal-eyebrow {
+      font-size: 12px; letter-spacing: .22em; text-transform: uppercase;
+      color: var(--mid); margin-bottom: 18px;
+    }
+    .legal-title {
+      font-size: clamp(34px, 6vw, 56px); font-weight: 700; line-height: 1.04;
+      letter-spacing: -0.02em; margin-bottom: 16px;
+    }
+    .legal-updated { font-size: 13px; color: var(--mid); margin-bottom: 52px; }
+    .legal-body h2 {
+      font-size: 21px; font-weight: 700; letter-spacing: -0.01em;
+      margin: 46px 0 14px; padding-top: 26px; border-top: 1px solid var(--line);
+    }
+    .legal-body h2:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+    .legal-body h3 { font-size: 16px; font-weight: 700; margin: 24px 0 8px; }
+    .legal-body p { font-size: 15.5px; line-height: 1.78; color: #2b2b2b; margin-bottom: 14px; }
+    .legal-body ul { margin: 0 0 16px; padding-left: 22px; }
+    .legal-body li { font-size: 15.5px; line-height: 1.74; color: #2b2b2b; margin-bottom: 8px; }
+    .legal-body a { color: #1a1a1a; text-decoration: underline; text-underline-offset: 3px; }
+    .legal-body strong { font-weight: 700; }
+    .legal-note {
+      background: rgba(0,0,0,0.035); border: 1px solid var(--line);
+      border-radius: 12px; padding: 18px 20px; margin: 18px 0 8px;
+      font-size: 14.5px; line-height: 1.7; color: #444;
+    }
+    .legal-toc {
+      background: #fff; border: 1px solid var(--line); border-radius: 14px;
+      padding: 22px 24px; margin-bottom: 50px;
+    }
+    .legal-toc__label { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--mid); margin-bottom: 12px; }
+    .legal-toc ol { margin: 0; padding-left: 18px; columns: 2; column-gap: 30px; }
+    .legal-toc li { font-size: 14px; line-height: 1.7; margin-bottom: 4px; break-inside: avoid; }
+    .legal-toc a { text-decoration: none; color: #333; }
+    .legal-toc a:hover { text-decoration: underline; }
+    @media (max-width: 640px) { .legal-toc ol { columns: 1; } .legal-page { padding-top: 130px; } }
+
+    .lang-hide { display: none !important; }
+
+    html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;}
+  </style>
+  <link rel="stylesheet" href="nav.css?v=4">
+  <script src="assets/js/analytics.js"></script>
+  <style id="opz-no-scrollbar">*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}</style>
+</head>
+<body>
+<script src="nav.js?v=15"></script>
+
+<!-- ─── PAGE CONTENT ─── -->
+<div class="legal-page">
+  <p class="legal-eyebrow" data-i18n="legal.eyebrow">(Legal)</p>
+  <h1 class="legal-title" data-i18n="legal.terms.title">Terms of Service</h1>
+  <p class="legal-updated" data-i18n="legal.updated">Last updated: 11 June 2026</p>
+
+  <!-- ===================== ENGLISH ===================== -->
+  <div class="legal-body legal-en">
+    <div class="legal-toc">
+      <div class="legal-toc__label">Contents</div>
+      <ol>
+        <li><a href="#t-about">Who we are &amp; what OPUS.Z does</a></li>
+        <li><a href="#t-role">Our role — a marketplace, not a party</a></li>
+        <li><a href="#t-accounts">Accounts &amp; eligibility</a></li>
+        <li><a href="#t-musicians">If you are a musician</a></li>
+        <li><a href="#t-clients">If you are a client</a></li>
+        <li><a href="#t-bookings">Bookings &amp; engagements</a></li>
+        <li><a href="#t-payments">Fees &amp; payments</a></li>
+        <li><a href="#t-content">Your content &amp; intellectual property</a></li>
+        <li><a href="#t-conduct">Acceptable use</a></li>
+        <li><a href="#t-disclaimer">Disclaimers &amp; liability</a></li>
+        <li><a href="#t-termination">Suspension &amp; termination</a></li>
+        <li><a href="#t-law">Governing law</a></li>
+        <li><a href="#t-changes">Changes to these terms</a></li>
+        <li><a href="#t-contact">Contact us</a></li>
+      </ol>
+    </div>
+
+    <p>Welcome to OPUS.Z. These Terms of Service ("Terms") govern your access to and use of the OPUS.Z website, platform and related services (together, the "Platform"). By creating an account, browsing, or otherwise using the Platform, you agree to these Terms. If you do not agree, please do not use the Platform.</p>
+
+    <h2 id="t-about">1. Who we are &amp; what OPUS.Z does</h2>
+    <p>OPUS.Z is a platform that connects Taiwan's top classical musicians with people and organisations looking to hire them — for live performances, events, and teaching. We are operated from Taiwan. Our mission is to help outstanding performers build their reputation and find performance and teaching opportunities, and to help clients discover and engage the right musician with confidence.</p>
+    <p>The Platform is available in both English and Chinese, and may be accessed from Taiwan, the United States, and elsewhere. Many of the musicians featured live and work internationally.</p>
+
+    <h2 id="t-role">2. Our role — a marketplace, not a party to your agreement</h2>
+    <p><strong>OPUS.Z is an intermediary.</strong> We provide the tools that let musicians present themselves and let clients find and contact them. When a client and a musician agree to work together, that engagement — including the performance or lessons, the schedule, the artistic content, and the conduct of both sides — is an agreement <strong>between the client and the musician</strong>.</p>
+    <p>OPUS.Z is not the employer, agent, or representative of any musician, and is not itself a party to the agreement between a client and a musician unless we expressly say so in writing. We do not control, and are not responsible for, the quality, safety, legality, or outcome of any engagement arranged through the Platform.</p>
+
+    <h2 id="t-accounts">3. Accounts &amp; eligibility</h2>
+    <ul>
+      <li>You must be at least 18 years old (or have the consent of a parent or guardian) to create an account.</li>
+      <li>You agree to provide accurate, current information and to keep it up to date.</li>
+      <li>You are responsible for keeping your login credentials secure and for all activity under your account.</li>
+      <li>Each member should maintain a single active account. Accounts may not be transferred or sold.</li>
+    </ul>
+
+    <h2 id="t-musicians">4. If you are a musician</h2>
+    <ul>
+      <li>You confirm that the information on your profile — your name, biography, qualifications, repertoire, media and availability — is truthful and yours to share.</li>
+      <li>You are responsible for the engagements you accept and for delivering them professionally.</li>
+      <li>You are responsible for your own tax, insurance, work authorisation, and any licences required for your activity, in Taiwan or abroad.</li>
+      <li>Listing on OPUS.Z does not guarantee any particular number of bookings or level of income.</li>
+    </ul>
+
+    <h2 id="t-clients">5. If you are a client</h2>
+    <ul>
+      <li>You agree to provide accurate details about your event, venue, and requirements.</li>
+      <li>You are responsible for the safety and suitability of the venue and for treating musicians with respect.</li>
+      <li>You agree to honour the terms you arrange with a musician, including agreed dates, fees, and conditions.</li>
+    </ul>
+
+    <h2 id="t-bookings">6. Bookings &amp; engagements</h2>
+    <p>The Platform may let clients send enquiries, request quotes, exchange messages, and arrange engagements with musicians. The specific terms of each engagement — repertoire, duration, location, cancellation, and similar matters — are agreed directly between the client and the musician.</p>
+    <p>You agree to communicate honestly and not to use the Platform to deceive, harass, or take advantage of other users.</p>
+
+    <h2 id="t-payments">7. Fees &amp; payments</h2>
+    <p>Where OPUS.Z facilitates payment between a client and a musician, or charges a service fee or commission, the applicable amounts, payment timing, and any handling of funds will be communicated to you and/or set out in a separate agreement before they apply.</p>
+    <div class="legal-note">
+      Detailed payment, commission, and settlement terms are still being finalised and will be published or provided separately. Until then, fees and payment arrangements for any engagement are as agreed directly between the client and the musician (or as separately agreed with OPUS.Z in writing).
+    </div>
+
+    <h2 id="t-content">8. Your content &amp; intellectual property</h2>
+    <p>You keep ownership of the content you upload — your photos, recordings, biography, and other materials ("Your Content"). By uploading Your Content, you grant OPUS.Z a non-exclusive, worldwide, royalty-free licence to host, display, and use it for the purpose of operating, presenting, and promoting the Platform and your presence on it. You can remove Your Content at any time, though copies may remain in backups for a reasonable period.</p>
+    <p>You confirm that you have the rights to everything you upload and that it does not infringe anyone else's rights. The OPUS.Z name, logo, design, and software belong to OPUS.Z and may not be copied or used without our permission.</p>
+
+    <h2 id="t-conduct">9. Acceptable use</h2>
+    <p>You agree not to:</p>
+    <ul>
+      <li>post false, misleading, unlawful, or infringing content;</li>
+      <li>harass, threaten, or discriminate against other users;</li>
+      <li>attempt to bypass the Platform to avoid applicable fees where such fees apply;</li>
+      <li>scrape, copy, or misuse other users' data;</li>
+      <li>interfere with the security or proper working of the Platform.</li>
+    </ul>
+
+    <h2 id="t-disclaimer">10. Disclaimers &amp; limitation of liability</h2>
+    <p>The Platform is provided "as is" and "as available." To the fullest extent permitted by law, OPUS.Z disclaims responsibility for the conduct, content, or performance of any user, and for the outcome of any engagement arranged through the Platform.</p>
+    <p>To the fullest extent permitted by applicable law, OPUS.Z will not be liable for indirect, incidental, or consequential losses, and our total liability relating to the Platform is limited to the amount of fees you paid to OPUS.Z in the twelve months before the event giving rise to the claim. Nothing in these Terms excludes liability that cannot be excluded by law.</p>
+
+    <h2 id="t-termination">11. Suspension &amp; termination</h2>
+    <p>You may stop using the Platform and close your account at any time. We may suspend or terminate access if you breach these Terms, misuse the Platform, or where we are required to do so by law. Provisions that by their nature should survive (such as content licences, disclaimers, and governing law) will continue to apply.</p>
+
+    <h2 id="t-law">12. Governing law</h2>
+    <p>These Terms are governed by the laws of the Republic of China (Taiwan), without regard to conflict-of-law rules. Any dispute arising out of or relating to these Terms or the Platform shall be subject to the jurisdiction of the Taiwan Taipei District Court as the court of first instance, unless mandatory consumer-protection laws of your place of residence provide otherwise.</p>
+
+    <h2 id="t-changes">13. Changes to these terms</h2>
+    <p>We may update these Terms from time to time. When we make material changes, we will update the "Last updated" date above and, where appropriate, notify you. Your continued use of the Platform after changes take effect means you accept the updated Terms.</p>
+
+    <h2 id="t-contact">14. Contact us</h2>
+    <p>Questions about these Terms? Email us at <a href="mailto:info@opuszmusic.com">info@opuszmusic.com</a> or visit our <a href="contact.html">contact page</a>.</p>
+  </div>
+
+  <!-- ===================== 中文 ===================== -->
+  <div class="legal-body legal-zh lang-hide">
+    <div class="legal-toc">
+      <div class="legal-toc__label">目錄</div>
+      <ol>
+        <li><a href="#tz-about">我們是誰、OPUS.Z 在做什麼</a></li>
+        <li><a href="#tz-role">我們的角色——媒合平台，而非合約當事人</a></li>
+        <li><a href="#tz-accounts">帳號與資格</a></li>
+        <li><a href="#tz-musicians">如果您是音樂家</a></li>
+        <li><a href="#tz-clients">如果您是業者／客戶</a></li>
+        <li><a href="#tz-bookings">預約與委託</a></li>
+        <li><a href="#tz-payments">費用與付款</a></li>
+        <li><a href="#tz-content">您的內容與智慧財產權</a></li>
+        <li><a href="#tz-conduct">使用規範</a></li>
+        <li><a href="#tz-disclaimer">免責聲明與責任限制</a></li>
+        <li><a href="#tz-termination">停權與終止</a></li>
+        <li><a href="#tz-law">準據法與管轄</a></li>
+        <li><a href="#tz-changes">條款修改</a></li>
+        <li><a href="#tz-contact">聯絡我們</a></li>
+      </ol>
+    </div>
+
+    <p>歡迎使用 OPUS.Z。本服務條款（以下稱「本條款」）規範您對 OPUS.Z 網站、平台及相關服務（合稱「本平台」）的存取與使用。當您註冊帳號、瀏覽或以其他方式使用本平台，即表示您同意本條款；若您不同意，請勿使用本平台。</p>
+
+    <h2 id="tz-about">1. 我們是誰、OPUS.Z 在做什麼</h2>
+    <p>OPUS.Z 是一個媒合平台，連結台灣頂尖古典音樂家與想要聘請他們的個人或單位——用於現場演出、活動以及教學。本平台由台灣營運。我們的使命，是協助優秀演奏者建立知名度、找到演出與教學機會，並讓業者能安心地找到並邀請合適的音樂家。</p>
+    <p>本平台提供中英文版本，可於台灣、美國及其他地區使用。平台上許多音樂家在國際間生活與工作。</p>
+
+    <h2 id="tz-role">2. 我們的角色——媒合平台，而非您合約的當事人</h2>
+    <p><strong>OPUS.Z 是中介者。</strong>我們提供工具，讓音樂家呈現自己，也讓業者找到並聯繫他們。當業者與音樂家談定合作，該項委託——包括演出或教學內容、時程、藝術內容，以及雙方的行為——是<strong>業者與音樂家之間</strong>的約定。</p>
+    <p>除非我們以書面明確表示，否則 OPUS.Z 並非任何音樂家的雇主、經紀人或代表，也不是業者與音樂家之間合約的當事人。對於透過本平台促成之委託的品質、安全、合法性或結果，我們不加以控制，亦不承擔責任。</p>
+
+    <h2 id="tz-accounts">3. 帳號與資格</h2>
+    <ul>
+      <li>您須年滿 18 歲（或已取得父母／監護人同意）方可註冊帳號。</li>
+      <li>您同意提供正確、最新的資料，並隨時保持更新。</li>
+      <li>您須妥善保管登入憑證，並對帳號下的所有活動負責。</li>
+      <li>每位會員應維持單一有效帳號，帳號不得轉讓或出售。</li>
+    </ul>
+
+    <h2 id="tz-musicians">4. 如果您是音樂家</h2>
+    <ul>
+      <li>您確認個人檔案上的資訊——姓名、簡介、學經歷、曲目、影音與檔期——皆屬真實且為您有權分享者。</li>
+      <li>您須為自己接受的委託負責，並以專業態度完成。</li>
+      <li>無論在台灣或海外，您須自行處理稅務、保險、工作許可，以及活動所需的任何執照。</li>
+      <li>登錄於 OPUS.Z 並不保證任何特定數量的接案或收入水準。</li>
+    </ul>
+
+    <h2 id="tz-clients">5. 如果您是業者／客戶</h2>
+    <ul>
+      <li>您同意提供關於活動、場地與需求的正確資訊。</li>
+      <li>您須確保場地的安全與適切，並以尊重的態度對待音樂家。</li>
+      <li>您同意履行與音樂家談定的條件，包括約定的日期、費用與條件。</li>
+    </ul>
+
+    <h2 id="tz-bookings">6. 預約與委託</h2>
+    <p>本平台可讓業者發送詢問、索取報價、互相傳訊，並與音樂家安排委託。每項委託的具體條件——曲目、時長、地點、取消方式等——由業者與音樂家直接約定。</p>
+    <p>您同意誠實溝通，不得利用本平台欺騙、騷擾或佔其他使用者便宜。</p>
+
+    <h2 id="tz-payments">7. 費用與付款</h2>
+    <p>若 OPUS.Z 協助業者與音樂家之間的款項收付，或收取服務費、佣金，則相關金額、付款時間及任何資金處理方式，將於適用前向您說明，並／或於個別協議中載明。</p>
+    <div class="legal-note">
+      詳細的付款、佣金與結算條款仍在確認中，將另行公告或提供。在此之前，任何委託的費用與付款安排，以業者與音樂家直接約定者為準（或以與 OPUS.Z 另行書面約定者為準）。
+    </div>
+
+    <h2 id="tz-content">8. 您的內容與智慧財產權</h2>
+    <p>您上傳的內容——照片、錄音、簡介及其他素材（以下稱「您的內容」）——所有權仍屬於您。當您上傳您的內容，即授予 OPUS.Z 一項非專屬、全球、免權利金的授權，得為營運、呈現及推廣本平台與您在平台上的呈現之目的，而代管、顯示及使用該內容。您可隨時移除您的內容，惟備份中的副本可能於合理期間內仍會保留。</p>
+    <p>您確認對上傳的所有內容擁有相關權利，且未侵害他人權利。OPUS.Z 的名稱、標誌、設計與軟體均屬 OPUS.Z 所有，未經我們同意不得複製或使用。</p>
+
+    <h2 id="tz-conduct">9. 使用規範</h2>
+    <p>您同意不從事下列行為：</p>
+    <ul>
+      <li>張貼不實、誤導、違法或侵權的內容；</li>
+      <li>騷擾、威脅或歧視其他使用者；</li>
+      <li>於應付費用之情形下，試圖繞過平台以規避費用；</li>
+      <li>抓取、複製或濫用其他使用者的資料；</li>
+      <li>干擾本平台的安全或正常運作。</li>
+    </ul>
+
+    <h2 id="tz-disclaimer">10. 免責聲明與責任限制</h2>
+    <p>本平台以「現狀」及「現有」方式提供。在法律允許的最大範圍內，OPUS.Z 對任何使用者的行為、內容或表現，以及透過本平台促成之委託的結果，均不負責。</p>
+    <p>在適用法律允許的最大範圍內，OPUS.Z 不就間接、附隨或衍生之損失負責；我們就本平台之總責任，以您在請求事由發生前十二個月內向 OPUS.Z 支付之費用金額為上限。本條款不排除依法不得排除之責任。</p>
+
+    <h2 id="tz-termination">11. 停權與終止</h2>
+    <p>您可隨時停止使用本平台並關閉帳號。若您違反本條款、濫用本平台，或在法律要求之情形下，我們得暫停或終止您的存取權。依其性質應繼續有效的條款（例如內容授權、免責聲明與準據法）將持續適用。</p>
+
+    <h2 id="tz-law">12. 準據法與管轄</h2>
+    <p>本條款受中華民國（台灣）法律規範，不適用其法律衝突規則。因本條款或本平台所生或與之相關的任何爭議，除您居住地的強制性消費者保護法另有規定外，均以台灣台北地方法院為第一審管轄法院。</p>
+
+    <h2 id="tz-changes">13. 條款修改</h2>
+    <p>我們可能不時更新本條款。當有重大變更時，我們會更新上方的「最後更新」日期，並於適當情形下通知您。變更生效後您繼續使用本平台，即視為接受更新後的條款。</p>
+
+    <h2 id="tz-contact">14. 聯絡我們</h2>
+    <p>對本條款有任何疑問嗎？歡迎來信 <a href="mailto:info@opuszmusic.com">info@opuszmusic.com</a>，或前往我們的<a href="contact.html">聯絡頁面</a>。</p>
+  </div>
+</div>
+
+<!-- ─── FOOTER ─── -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-col__label">Contact</div>
+      <div class="footer-col__body">
+        Taipei, Taiwan<br>
+        <a href="mailto:info@opuszmusic.com">info@opuszmusic.com</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__label" data-i18n="footer.follow">Follow</div>
+      <div class="footer-col__links">
+        <a href="https://www.instagram.com/opus.zmusic/" target="_blank" rel="noopener">@opus.zmusic</a>
+        <a href="https://www.instagram.com/opus.zmusic/" target="_blank" rel="noopener">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">YouTube</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__label" data-i18n="footer.legal">Legal</div>
+      <div class="footer-col__links">
+        <a href="terms.html" data-i18n="footer.terms">Terms of Service</a>
+        <a href="privacy.html" data-i18n="footer.privacy">Privacy Policy</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>OPUS.Z</span>
+    <span data-i18n="footer.copy">© 2026 OPUS.Z. All rights reserved.</span>
+  </div>
+</footer>
+
+<script>
+// Resolve from nav.js's choice / saved / device language (zh* → 中文).
+var _currentLang = (function(){
+  if (window._currentLang === 'en' || window._currentLang === 'zh') return window._currentLang;
+  try { var s = localStorage.getItem('opusz_lang'); if (s === 'en' || s === 'zh') return s; } catch (e) {}
+  var nl = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  return nl.indexOf('zh') === 0 ? 'zh' : 'en';
+})();
+var I18N = {
+  en: {
+    'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians','nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
+    'login.customer':'Customer login','login.musician':'Musician login',
+    'legal.eyebrow':'(Legal)',
+    'legal.terms.title':'Terms of Service',
+    'legal.updated':'Last updated: 11 June 2026',
+    'footer.copy':'© 2026 OPUS.Z. All rights reserved.',
+    'footer.follow':'Follow',
+    'footer.legal':'Legal',
+    'footer.terms':'Terms of Service',
+    'footer.privacy':'Privacy Policy'
+  },
+  zh: {
+    'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家','nav.news':'演出','nav.contact':'聯絡','nav.lessons':'音樂老師',
+    'login.customer':'客戶登入','login.musician':'音樂家登入',
+    'legal.eyebrow':'（法律條款）',
+    'legal.terms.title':'服務條款',
+    'legal.updated':'最後更新：2026 年 6 月 11 日',
+    'footer.copy':'© 2026 OPUS.Z 版權所有。',
+    'footer.follow':'追蹤我們',
+    'footer.legal':'法律',
+    'footer.terms':'服務條款',
+    'footer.privacy':'隱私政策'
+  }
+};
+function switchLang(lang) {
+  _currentLang = lang;
+  var dict = I18N[lang] || I18N.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n')];
+    if (v !== undefined) el.textContent = v;
+  });
+  // Toggle the bilingual legal body
+  var en = document.querySelector('.legal-en'), zh = document.querySelector('.legal-zh');
+  if (en && zh) {
+    en.classList.toggle('lang-hide', lang === 'zh');
+    zh.classList.toggle('lang-hide', lang !== 'zh');
+  }
+  document.querySelectorAll('#langToggle .lt-opt').forEach(function(o) {
+    o.classList.toggle('active', o.dataset.l === lang);
+  });
+  document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+  if (typeof window.__navResplit === 'function') window.__navResplit();
+}
+
+document.addEventListener('opusz:langchange', function(e){ if (typeof switchLang === 'function') switchLang(e.detail.lang); });
+switchLang(_currentLang);
+
+/* ── Nav: scroll hide/show with lerp ── */
+(function() {
+  var navEl = document.querySelector('nav');
+  var navH = navEl ? navEl.offsetHeight : 64;
+  var navTarget = 0, navCurrent = 0, lastY = 0, raf = null;
+  function tick() {
+    navCurrent += (navTarget - navCurrent) * 0.1;
+    if (navEl) navEl.style.top = navCurrent + 'px';
+    if (Math.abs(navTarget - navCurrent) < 0.05) {
+      if (navEl) navEl.style.top = navTarget + 'px';
+      navCurrent = navTarget; raf = null;
+    } else { raf = requestAnimationFrame(tick); }
+  }
+  window.addEventListener('scroll', function() {
+    var y = window.scrollY;
+    navTarget = y < 80 ? 0 : (y > lastY ? -navH : 0);
+    lastY = y;
+    if (!raf) raf = requestAnimationFrame(tick);
+  }, { passive: true });
+})();
+
+/* ── Nav: mix-blend-mode difference + underline + char split ── */
+(function() {
+  var nav = document.querySelector('nav');
+  if (!nav) return;
+  function _splitToChars(el) {
+    var text = el.textContent;
+    el.innerHTML = [...text].map(function(ch) {
+      return ch === ' ' ? '<span class="nc-char nc-sp"> </span>' : '<span class="nc-char">' + ch + '</span>';
+    }).join('');
+  }
+  var navLogoFixed = document.getElementById('navLogoFixed');
+  function _resplitNav() {
+    nav.querySelectorAll('.nav-links a').forEach(function(a) { _splitToChars(a); });
+    var ln = nav.querySelector('.nav-logo-name');
+    var ls = nav.querySelector('.nav-logo-sub');
+    if (ln) _splitToChars(ln);
+    if (ls) _splitToChars(ls);
+    if (navLogoFixed) {
+      var fln = navLogoFixed.querySelector('.nav-logo-name');
+      var fls = navLogoFixed.querySelector('.nav-logo-sub');
+      if (fln) _splitToChars(fln);
+      if (fls) _splitToChars(fls);
+      navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    }
+  }
+  _resplitNav();
+  window.__navResplit = _resplitNav;
+
+  function updateColors() {
+    var megaOpen = nav.classList.contains('mega-open');
+    if (megaOpen) {
+      nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#000'; });
+      ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+        var el = nav.querySelector(sel); if (!el) return;
+        el.style.color = '#000'; el.style.borderColor = 'rgba(0,0,0,.35)';
+      });
+      nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#000'; });
+      nav.classList.remove('nav-on-dark'); nav.classList.add('nav-on-light');
+      return;
+    }
+    nav.querySelectorAll('.nc-char').forEach(function(s) { s.style.color = '#fff'; });
+    if (navLogoFixed) navLogoFixed.querySelectorAll('.nc-char').forEach(function(s){ s.style.color = '#fff'; });
+    ['.nav-fav-btn','.lang-toggle','.nav-login-btn','.hamburger'].forEach(function(sel) {
+      var el = nav.querySelector(sel); if (!el) return;
+      el.style.color = '#fff'; el.style.borderColor = 'rgba(255,255,255,.5)';
+    });
+    nav.querySelectorAll('.hamburger span').forEach(function(s) { s.style.background = '#fff'; });
+  }
+
+  nav.querySelectorAll('.nav-links a').forEach(function(a) {
+    if (!a.querySelector('.nav-ul')) {
+      var ul = document.createElement('span');
+      ul.className = 'nav-ul';
+      a.appendChild(ul);
+    }
+  });
+
+  updateColors();
+  window.addEventListener('scroll', updateColors, { passive: true });
+  window.addEventListener('resize', updateColors);
+  setTimeout(updateColors, 300);
+})();
+
+/* ── Page transition + bfcache fix ── */
+document.addEventListener('click', function(e) {
+  var a = e.target.closest('a[href]');
+  if (!a || a.target || e.metaKey || e.ctrlKey) return;
+  var url; try { url = new URL(a.href, location.href); } catch(err) { return; }
+  if (url.origin !== location.origin) return;
+  if (url.pathname === location.pathname && url.hash) {
+    e.preventDefault();
+    history.replaceState(null, '', url.hash);
+    var t = document.getElementById(url.hash.slice(1));
+    if (t) t.scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  if (url.pathname === location.pathname && !url.hash) return;
+  e.preventDefault();
+  document.documentElement.style.transition = 'opacity .22s ease';
+  document.documentElement.style.opacity = '0';
+  setTimeout(function() { location.href = a.href; }, 230);
+});
+window.addEventListener('pageshow', function(e) {
+  if (e.persisted) {
+    document.documentElement.style.transition = 'opacity .22s ease';
+    document.documentElement.style.opacity = '1';
+  }
+});
+</script>
+  <script type="module" src="media-sync.js?v=2"></script>
+</body>
+</html>
