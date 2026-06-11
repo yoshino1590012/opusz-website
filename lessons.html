@@ -920,7 +920,7 @@ function renderGrid(){
         '<div class="mcard-top"><div class="mcard-rating"><span class="mcard-reviews">💬 '+m.reviews+' &nbsp;🤍 '+(m.saves||Math.round(m.reviews*0.22))+'</span></div></div>' +
         '<div class="mcard-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+m.region+'</div>' +
         '<div class="mcard-name">'+m.name+'</div>' +
-        '<div class="mcard-instrument">'+m.instrument+'</div>' +
+        '<div class="mcard-instrument">'+((_currentLang==='zh' && window.OPUSZ_INST && OPUSZ_INST.resolve(m.instrument)) ? OPUSZ_INST.resolve(m.instrument).zh : m.instrument)+'</div>' +
         '<div class="mcard-bio">'+m.bio+'</div>' +
         '<div class="mcard-lesson-price">'+(_currentLang==='zh'
             ? ('<span class="from">每堂 </span>NT$'+m.lessonFrom.toLocaleString()+' 起')
@@ -1004,7 +1004,16 @@ function stopAudio(){
 
 <script>
 // ── Nav i18n ──
-var _currentLang = 'en';
+// Resolve the initial language from a saved choice or the visitor's device
+// language (zh* → 中文, else English). This is a GLOBAL (= window._currentLang),
+// so a plain `= 'en'` here would CLOBBER the language nav.js already set on boot
+// (and site-content.js would then render everything in English). Resolve it
+// properly instead so every surface — nav, page text, teacher cards — matches.
+var _currentLang = (function(){
+  try { var s = localStorage.getItem('opusz_lang'); if (s === 'en' || s === 'zh') return s; } catch (e) {}
+  var nl = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  return nl.indexOf('zh') === 0 ? 'zh' : 'en';
+})();
 var I18N = {
   en: {
     'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
@@ -1092,6 +1101,8 @@ function switchLang(lang) {
   document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
   if (typeof window.__navResplit === 'function') window.__navResplit();
   if (typeof updateQuizI18n === 'function') updateQuizI18n();
+  // Re-render the teacher cards so their instrument label + price switch language too.
+  if (typeof renderGrid === 'function') { try { renderGrid(); } catch(e){} }
 }
 function setLang(l){ switchLang(l); }
 
