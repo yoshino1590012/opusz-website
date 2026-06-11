@@ -103,5 +103,19 @@
 - **curl 測線上 HTML 加 `-L`**（Cloudflare 會 308 轉址）。
 - **平台規範英文**：要在 Firestore `siteContent/policy` 每個 section 手動加 `titleEn`/`bodyEn` 欄位，否則英文版仍顯示中文（fallback 設計，不會爆錯）。
 
+## 10. 本次更新（2026-06-11 下午）
+
+**新功能（都已上線）**
+- 鍵盤分類新增「合作鋼琴 / Collaborative Piano」。
+- 課程方案：可選 1～3 個、名稱/副標/單位/特色/時程中英分版、按鈕固定「預約課程 / Book a lesson」自動翻譯。
+- 「我的資料」可直接改樂器與地區（存檔同時寫**頂層＋config**，公開頁/列表/社群卡片全同步）。
+- 申請填的簡介/學歷/經歷會自動帶進公開檔案「關於」；舊樂手用後台 **申請審核 →「把申請資料補進個人檔案」** 按鈕一鍵補搬。
+- 演出頁「People also viewed」改成真實已發佈音樂家。
+
+**新雷區（一定要記住）**
+- **前台語言** = 已存選擇 > 裝置語言（`navigator.language`），且跨頁固定。**頁面頂部別寫死 `var _currentLang='en'`**（全域變數會洗掉 nav.js 設好的語言→鎖英文）；新內頁要解析 saved/device。`switchLang` 要 persist `opusz_lang`。
+- **footer 翻譯**靠 `footer.js` 自帶中英字典；**改 footer.js 要 bump `footer.js?v`**（目前 v=3，用在 lessons/musicians/recent-jobs 三頁）。
+- **Retina 圖變糊**：被 `clip-path`/`transform` 父層包住的高解析圖，瀏覽器會點陣化成 1x→放大變糊。圖要加 `translate3d(x,y,0)＋backface-visibility:hidden＋will-change:transform`（見 shows.html 海報）。
+
 ---
 最後更新：2026-06-11
