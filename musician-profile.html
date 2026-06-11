@@ -4224,14 +4224,15 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 
 </textarea>
         </div>
-        <div class="enq-field">
+        <div class="enq-field" id="enqNameField">
           <label class="enq-label" data-i18n="enq.name">Your name</label>
-          <input class="enq-input" type="text" name="client-name" placeholder="Your name" required />
+          <input class="enq-input" id="enqNameInput" type="text" name="client-name" placeholder="Your name" required />
         </div>
-        <div class="enq-field">
+        <div class="enq-field" id="enqEmailField">
           <label class="enq-label" data-i18n="enq.email">Your email</label>
-          <input class="enq-input" type="email" name="client-email" placeholder="you@example.com" required />
+          <input class="enq-input" id="enqEmailInput" type="email" name="client-email" placeholder="you@example.com" required />
         </div>
+        <div id="enqAcctHint" style="display:none;font-size:13px;color:#5b6b7a;background:#f4f7fa;border:1px solid #e2e8f0;border-radius:10px;padding:10px 12px;margin-bottom:14px;line-height:1.5;"></div>
         <button type="submit" class="enq-submit" data-i18n="enq.send">SEND ENQUIRY</button>
       </form>
     </div>
@@ -5045,8 +5046,37 @@ document.addEventListener('keydown', function(e){
   updateButtons();
 })();
 
+// A logged-in customer never needs to re-type their name / email — we already
+// have an account to attach the enquiry to, and the reply lands in their Messages.
+window.opzLoggedInCustomer = function(){
+  try{
+    return localStorage.getItem('opusz_role') === 'customer'
+        && !!(localStorage.getItem('opusz_user') || localStorage.getItem('opusz_user_email'));
+  }catch(e){ return false; }
+};
 window.openEnquiry = function(type){
   if(type === 'avail') { window.openAvail(); return; }
+  var isCust = window.opzLoggedInCustomer();
+  var nameField  = document.getElementById('enqNameField');
+  var emailField = document.getElementById('enqEmailField');
+  var nameInput  = document.getElementById('enqNameInput');
+  var emailInput = document.getElementById('enqEmailInput');
+  var hint       = document.getElementById('enqAcctHint');
+  if(isCust){
+    // hide + un-require the contact fields; reply happens inside Messages
+    nameField.style.display = 'none';  emailField.style.display = 'none';
+    nameInput.required = false;        emailInput.required = false;
+    var who = (localStorage.getItem('opusz_user') || localStorage.getItem('opusz_user_email') || '').trim();
+    var isZh = (document.documentElement.lang||'').toLowerCase().indexOf('zh') === 0;
+    hint.style.display = 'block';
+    hint.innerHTML = isZh
+      ? ('將以您的帳號' + (who ? '（<b>'+who.replace(/</g,'&lt;')+'</b>）' : '') + '送出，樂手會直接在您的<b>「訊息」</b>回覆，免填電話與信箱。')
+      : ('Sending as your account' + (who ? ' (<b>'+who.replace(/</g,'&lt;')+'</b>)' : '') + '. The musician will reply in your <b>Messages</b> — no phone or email needed.');
+  }else{
+    nameField.style.display = '';  emailField.style.display = '';
+    nameInput.required = true;     emailInput.required = true;
+    hint.style.display = 'none';
+  }
   document.getElementById('enqFormView').style.display = 'block';
   document.getElementById('enqSuccess').classList.remove('show');
   document.getElementById('enqOverlay').classList.add('open');
@@ -5060,27 +5090,46 @@ window.submitEnquiryModal = function(e){
   e.preventDefault();
   var form = e.target;
   var data = new FormData(form);
+  var isCust = window.opzLoggedInCustomer();
   var payload = {
     kind:         'message',
-    name:         (data.get('client-name')||'').trim(),
-    email:        (data.get('client-email')||'').trim(),
+    name:         (data.get('client-name')||'').trim() || (isCust ? (localStorage.getItem('opusz_user')||'').trim() : ''),
+    email:        (data.get('client-email')||'').trim() || (isCust ? (localStorage.getItem('opusz_user_email')||'').trim() : ''),
     subject:      (data.get('subject')||'').trim(),
     message:      (data.get('message')||'').trim(),
     musicianName: (data.get('musician')||'').trim() || (window.MUSICIAN_NAME||'')
   };
-  function done(){
+  function showSuccess(){
     if (window.opuszTrack) opuszTrack('enquiry_sent', { musician: payload.musicianName });
     document.getElementById('enqFormView').style.display = 'none';
     document.getElementById('enqSuccess').classList.add('show');
   }
-  // Deliver to the musician's dashboard inbox via Firestore (opzSendInquiry, defined
-  // in the module script below). Falls back to just showing success if unavailable.
-  if(typeof window.opzMirrorToConversation==='function'){ window.opzMirrorToConversation(payload); }  // → customer's Messages
-  if (typeof window.opzSendInquiry === 'function') {
-    window.opzSendInquiry(payload).then(done).catch(function(err){ console.warn('[enquiry] send failed:', err); done(); });
-  } else {
-    done();
+  // ── Anonymous visitor: keep the email-notification flow + success screen. ──
+  if(!isCust){
+    if (typeof window.opzSendInquiry === 'function') {
+      window.opzSendInquiry(payload).then(showSuccess).catch(function(err){ console.warn('[enquiry] send failed:', err); showSuccess(); });
+    } else { showSuccess(); }
+    return;
   }
+  // ── Logged-in customer: create the real conversation FIRST (so identity is the
+  //    customer's, not an anonymous fallback), then notify the musician's inbox,
+  //    then take the customer straight to that thread in their Messages. ──
+  var btn = form.querySelector('.enq-submit');
+  var btnTxt = btn ? btn.textContent : '';
+  var isZh = (document.documentElement.lang||'').toLowerCase().indexOf('zh') === 0;
+  if(btn){ btn.disabled = true; btn.style.opacity = '.6'; btn.textContent = isZh ? '送出中…' : 'Sending…'; }
+  (async function(){
+    var convId = null;
+    try{ if(typeof window.opzMirrorToConversation==='function'){ convId = await window.opzMirrorToConversation(payload); } }
+    catch(err){ console.warn('[enquiry] mirror failed:', err); }
+    try{ if(typeof window.opzSendInquiry==='function'){ await window.opzSendInquiry(payload); } }
+    catch(err){ console.warn('[enquiry] inbox notify failed:', err); }
+    if (window.opuszTrack) opuszTrack('enquiry_sent', { musician: payload.musicianName });
+    // Go to the customer's Messages — to the exact thread when we have its id.
+    location.href = convId
+      ? ('customer-profile.html#msg=' + encodeURIComponent(convId))
+      : 'customer-profile.html#messages';
+  })();
 };
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closeEnquiry();
@@ -6498,7 +6547,8 @@ window.addEventListener('pageshow', function(e) {
           brief: brief
         });
         await OPUSZ_MSG.sendMessage(convId, { text: payload.message || payload.subject || '（詢問）', senderRole: 'customer' });
-      }catch(e){ console.warn('[mirror-conv] failed:', e && (e.code||e.message)); }
+        return convId;   // ← let callers deep-link the customer straight to this thread
+      }catch(e){ console.warn('[mirror-conv] failed:', e && (e.code||e.message)); return null; }
     };
 
     window.opzStartMessage = function(){
