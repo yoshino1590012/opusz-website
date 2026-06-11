@@ -1704,6 +1704,7 @@ Martin</textarea>
     if(seCurrentPage==='shows' && seCurrentSection==='sh-hero'){ seBuildShowsHero(box); return; }
     // Musicians page → dedicated hero (text/video/position) + filter-label editors.
     if(seCurrentPage==='musicians' && seCurrentSection==='mus-hero'){ seBuildMusiciansHero(box); return; }
+    if(seCurrentPage==='lessons' && seCurrentSection==='les-hero'){ seBuildLessonsHero(box); return; }
     if(seCurrentPage==='musicians' && seCurrentSection==='mus-list'){ seBuildMusiciansFilters(box); return; }
     // Blog page → engine-backed image editing via opzBlogEdit (banner + article covers).
     if(seCurrentPage==='blog'){
@@ -2233,6 +2234,101 @@ Martin</textarea>
       +slider('y','垂直 Y', -600, 600, 1, y, 'px')
       +slider('s','縮放 S', 0.1, 5, 0.05, s, '×')
       +'<button onclick="seMusReset()" style="margin-top:8px;font-size:11px;border:1px solid #67e8f9;background:#fff;border-radius:6px;padding:5px 10px;cursor:pointer;">↺ 重置位置</button>';
+  };
+
+  // ── Lessons page hero editor (background video/photo + position) ─────────────
+  // Same pattern as the Musicians hero: edits write into seCurrentConfig.lesHero,
+  // seSave() persists to siteContent/lessons, the live page (lessons.html) applies
+  // them via window.opzLesApply (→ its applyHeroMedia).
+  function seLesHero(){ seCurrentConfig = seCurrentConfig || {}; return (seCurrentConfig.lesHero = seCurrentConfig.lesHero || {}); }
+  window.seLesSet = function(key, val){ seLesHero()[key] = val; sePreview(); };
+  window.seLesNum = function(key, val, lblId, suffix){
+    seLesHero()[key] = parseFloat(val);
+    var l=document.getElementById(lblId); if(l) l.textContent = val + (suffix||'');
+    sePreview();
+  };
+  window.seLesReset = function(){ var h=seLesHero(); h.x=0; h.y=0; h.s=1; seBuildControls(); sePreview(); };
+  window.seLesClearMedia = function(kind){ seLesHero()[kind]=''; seBuildControls(); sePreview(); };
+  window.seLesUpload = async function(kind, file){
+    if(!file) return;
+    var note=document.getElementById('seLes_up_'+kind);
+    var maxMb = kind==='video' ? 60 : 8;
+    if(file.size > maxMb*1024*1024){ if(note){ note.textContent='檔案過大（上限 '+maxMb+'MB）'; note.style.color='#c00'; } return; }
+    if(note){ note.textContent='上傳中…'; note.style.color='#888'; }
+    try{
+      var safe=file.name.replace(/[^\w.\-]/g,'_');
+      var path='siteContent/lessons/hero_'+kind+'_'+Date.now()+'_'+safe;
+      var r=storageRef(storage, path);
+      await uploadBytes(r, file);
+      var url=await getDownloadURL(r);
+      seLesHero()[kind]=url;
+      seBuildControls(); sePreview();
+      if(note){ note.textContent='✓ 已上傳（記得按發布）'; note.style.color='#16a34a'; }
+    }catch(e){
+      console.warn('[siteeditor] les hero upload failed:', e);
+      if(note){ note.textContent='⚠ 上傳失敗：'+(e.code||e.message); note.style.color='#c00'; }
+    }
+  };
+  window.seBuildLessonsHero = function(box){
+    function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+    var h = seLesHero();
+    // Migrate legacy localStorage media into the CMS config so it pre-fills and a
+    // single publish syncs it to the live site (which has no localStorage).
+    try {
+      if (h.video == null && h.photo == null) {
+        var _lv = localStorage.getItem('lessons-hero-video');
+        var _lp = localStorage.getItem('lessons-hero-photo');
+        if (_lv) h.video = _lv;
+        else if (_lp && _lp.indexOf('data:') !== 0) h.photo = _lp;
+        var _lx = localStorage.getItem('lhero-x-lhero'), _ly = localStorage.getItem('lhero-y-lhero'), _ls = localStorage.getItem('lhero-s-lhero');
+        if (h.x == null && _lx != null) h.x = parseFloat(_lx);
+        if (h.y == null && _ly != null) h.y = parseFloat(_ly);
+        if (h.s == null && _ls != null) h.s = parseFloat(_ls);
+      }
+    } catch(e){}
+    var x=(h.x!=null)?h.x:0, y=(h.y!=null)?h.y:0, s=(h.s!=null)?h.s:1;
+    var inp='width:100%;padding:8px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;';
+    var lbl='font-size:12px;font-weight:600;color:#555;margin:0 0 5px;';
+    var grp='font-size:11px;font-weight:800;color:#0e7490;margin:16px 0 8px;border-top:1px solid #eee;padding-top:12px;';
+    function media(kind, label, ph){
+      var v=h[kind]||'';
+      var thumb = v
+        ? (kind==='video'
+            ? '<video src="'+esc(v).replace(/"/g,'%22')+'" muted loop autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video>'
+            : '<div style="position:absolute;inset:0;background:#111 center/cover no-repeat;background-image:url(\''+String(v).replace(/'/g,'%27')+'\');"></div>')
+        : '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#999;">尚未設定</div>';
+      var accept = kind==='video' ? 'video/*' : 'image/*';
+      return '<div style="margin-bottom:6px;"><div style="'+lbl+'">'+label+'</div>'
+        +'<div style="position:relative;height:96px;border-radius:9px;overflow:hidden;background:#f1f1f3;border:1px solid #e2e2e6;margin-bottom:7px;">'+thumb+'</div>'
+        +'<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">'
+          +'<label style="display:inline-flex;align-items:center;font-size:12px;color:#fff;background:#111;border-radius:6px;padding:6px 11px;cursor:pointer;white-space:nowrap;">⬆ 上傳'
+            +'<input type="file" accept="'+accept+'" style="display:none;" onchange="seLesUpload(\''+kind+'\',this.files[0])"></label>'
+          + (v ? '<button onclick="seLesClearMedia(\''+kind+'\')" style="font-size:11px;border:1px solid #ddd;background:#fff;border-radius:6px;padding:5px 9px;cursor:pointer;">清除</button>' : '')
+          +'<span id="seLes_up_'+kind+'" style="font-size:11px;color:#888;"></span>'
+        +'</div>'
+        +'<input value="'+esc(v)+'" placeholder="'+ph+'" oninput="seLesSet(\''+kind+'\',this.value)" '
+          +'onchange="seBuildControls()" style="'+inp+'font-size:11px;color:#777;">'
+        +'</div>';
+    }
+    function slider(key, label, min, max, step, val, suffix){
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:7px;">'
+        +'<span style="font-size:11px;color:#155e75;width:70px;flex-shrink:0;">'+label+'</span>'
+        +'<input type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'" '
+          +'oninput="seLesNum(\''+key+'\',this.value,\'seLes_'+key+'v\',\''+(suffix||'')+'\')" style="flex:1;">'
+        +'<span id="seLes_'+key+'v" style="font-size:11px;color:#0e7490;width:48px;text-align:right;">'+val+(suffix||'')+'</span>'
+        +'</div>';
+    }
+    box.innerHTML =
+      '<div style="font-size:12px;color:#155e75;background:#ecfeff;border:1px solid #a5f3fc;border-radius:8px;padding:9px 11px;margin-bottom:12px;line-height:1.6;">'
+        +'編輯<b>課程頁最上方的主視覺背景</b>：背景影片／圖片、位置。<br>改完按上方「🚀 儲存並發布到網站」即同步到線上。</div>'
+      +'<div style="'+grp+'">背景 影片 / 圖片</div>'
+      +media('video','背景影片（會自動播放、靜音、循環）','或貼影片網址 https://…/video.mp4')
+      +media('photo','背景圖片（若同時有影片，優先用影片）','或貼圖片網址 https://…/image.jpg')
+      +'<div style="'+grp+'">位置 / Position（背景媒體）</div>'
+      +slider('x','水平 X', -600, 600, 1, x, 'px')
+      +slider('y','垂直 Y', -600, 600, 1, y, 'px')
+      +slider('s','縮放 S', 0.1, 5, 0.05, s, '×')
+      +'<button onclick="seLesReset()" style="margin-top:8px;font-size:11px;border:1px solid #67e8f9;background:#fff;border-radius:6px;padding:5px 10px;cursor:pointer;">↺ 重置位置</button>';
   };
 
   // Filter-bar label editor (text only — never changes option values / filter logic).

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-cms-page="lessons">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -372,6 +372,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 </head>
 <body>
 <script src="nav.js?v=13"></script>
+<script type="module" src="site-content.js?v=5"></script>
 
 <!-- Login Modal (nav customer login) -->
 <div class="login-modal-overlay" id="loginModalOverlay">
@@ -389,7 +390,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 </div>
 
 <!-- HERO -->
-<section class="hero-section">
+<section class="hero-section" data-cms-section="les-hero">
   <div id="heroBg"></div>
   <div id="heroBgMedia" style="position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none;"></div>
   <div class="hero-overlay"></div>
@@ -1248,15 +1249,19 @@ function saveXYS(prefix, id){
 }
 
 function applyHeroMedia(){
-  var photo = localStorage.getItem('lessons-hero-photo')||'';
-  var video = localStorage.getItem('lessons-hero-video')||'';
+  // Cloud config (siteContent/lessons → window.__lesCms.hero, set by opzLesApply)
+  // takes priority over the legacy localStorage editor, so admin edits show on the
+  // LIVE site. Falls back to localStorage when there is no cloud value.
+  var lc = (window.__lesCms && window.__lesCms.hero) || {};
+  var photo = (lc.photo!=null && lc.photo!=='') ? lc.photo : (localStorage.getItem('lessons-hero-photo')||'');
+  var video = (lc.video!=null && lc.video!=='') ? lc.video : (localStorage.getItem('lessons-hero-video')||'');
   var bgm = document.getElementById('heroBgMedia');
   if(!bgm) return;
   bgm.innerHTML = '';
   bgm.style.backgroundImage = '';
-  var hx = localStorage.getItem('lhero-x-lhero')||'0';
-  var hy = localStorage.getItem('lhero-y-lhero')||'0';
-  var hs = localStorage.getItem('lhero-s-lhero')||'1';
+  var hx = (lc.x!=null) ? lc.x : (localStorage.getItem('lhero-x-lhero')||'0');
+  var hy = (lc.y!=null) ? lc.y : (localStorage.getItem('lhero-y-lhero')||'0');
+  var hs = (lc.s!=null) ? lc.s : (localStorage.getItem('lhero-s-lhero')||'1');
   var savedT = 'translate('+hx+'px,'+hy+'px) scale('+hs+')';
   var mediaStyle = 'position:absolute;inset:0;width:100%;height:100%;object-fit:contain;transform-origin:center center;transform:'+savedT+';';
   if(photo){
@@ -1274,6 +1279,16 @@ function applyHeroMedia(){
     vid.play().catch(function(){});
   }
 }
+
+// CMS hook — site-content.js calls this with the siteContent/lessons config so the
+// admin Site Editor (and the live site) can set the hero video/photo + position.
+window.opzLesApply = function(cfg){
+  if(!cfg || typeof cfg!=='object') return;
+  window.__lesCms = window.__lesCms || { hero:{} };
+  if(cfg.lesHero && typeof cfg.lesHero==='object')
+    window.__lesCms.hero = Object.assign({}, window.__lesCms.hero, cfg.lesHero);
+  try{ applyHeroMedia(); }catch(e){}
+};
 
 // ── Editor ──
 function openEditor(){

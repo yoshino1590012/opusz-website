@@ -255,6 +255,11 @@ function applyConfig(cfg){
   if ((cfg.musHero || cfg.musFilters) && typeof window.opzMusApply === 'function') {
     try { window.opzMusApply(cfg); } catch(e){}
   }
+  // 0b) Lessons page: hero background video/photo + position, same pattern as
+  // Musicians — the page exposes window.opzLesApply to apply its own hero media.
+  if (cfg.lesHero && typeof window.opzLesApply === 'function') {
+    try { window.opzLesApply(cfg); } catch(e){}
+  }
 
   // 1) i18n dictionary overrides → re-render in the current language
   if (cfg.i18n && window.I18N) {
