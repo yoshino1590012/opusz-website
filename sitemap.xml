@@ -26,6 +26,16 @@
     <changefreq>daily</changefreq>
   </url>
   <url>
+    <loc>https://opuszmusic.com/lessons.html</loc>
+    <priority>0.8</priority>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://opuszmusic.com/contact.html</loc>
+    <priority>0.6</priority>
+    <changefreq>monthly</changefreq>
+  </url>
+  <url>
     <loc>https://opuszmusic.com/blog-opusz-intro.html</loc>
     <priority>0.7</priority>
     <lastmod>2026-05-28</lastmod>
