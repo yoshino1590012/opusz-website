@@ -491,7 +491,7 @@
 
       <!-- Profile photo -->
       <div class="form-group">
-        <label class="form-label">大頭照 / Profile photo<span class="invite-opt" style="display:none;color:#2563eb;font-weight:600;"> · 邀請碼可免填</span></label>
+        <label class="form-label">大頭照 / Profile photo</label>
         <div style="display:flex;align-items:center;gap:14px;margin-top:6px;">
           <!-- 圓形預覽（overflow:hidden 裁切，object-fit:cover 填滿） -->
           <div id="setupPhotoPreview" style="width:72px;height:72px;border-radius:50%;background:#eee;flex-shrink:0;border:1px solid #e2e2e2;overflow:hidden;position:relative;">
@@ -1146,9 +1146,9 @@
     if (!code) { msg.style.display = 'none'; return; }
     msg.style.display = 'block';
     if (_inviteValid) {
-      msg.innerHTML = '✓ 邀請碼有效：將<b>直接通過審核</b>，照片／簡介／學歷／經驗皆可留空。';
+      msg.innerHTML = '✓ 邀請碼有效：將<b>直接通過審核</b>，簡介／學歷／經驗可留空（照片仍需上傳）。';
       msg.style.color = '#16a34a';
-      ['setupPhotoErr','setupBioErr','setupEduErr','setupExpErr'].forEach(function(id){
+      ['setupBioErr','setupEduErr','setupExpErr'].forEach(function(id){
         var e = document.getElementById(id); if (e) e.classList.remove('show');
       });
     } else {
@@ -1187,8 +1187,8 @@
     if (!name)                           show('setupNameErr');
     if (selectedInsts.size === 0)        show('setupInstErr');
     if (!primaryCountry || !primaryCity) show('setupRegionErr');
+    if (!_setupPhotoFile)                show('setupPhotoErr');   // photo always required
     if (!_inviteValid) {                 // a valid invite code makes these optional
-      if (!_setupPhotoFile)              show('setupPhotoErr');
       if (!bio)                          show('setupBioErr');
       if (!education)                    show('setupEduErr');
       if (!experience)                   show('setupExpErr');
