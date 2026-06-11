@@ -1469,6 +1469,47 @@ nav.mega-open .nav-links a::before {
 .chat-bubble-r { background: #fff; color: #111; border-bottom-right-radius: 4px; }
 .chat-bubble-r-dark { background: rgba(0,0,0,.3); backdrop-filter: blur(8px); color: #fff; border-bottom-right-radius: 4px; }
 
+/* ── HOW OPUS.Z WORKS (scroll-driven 3-step walkthrough; replaces old About) ── */
+.hiw { background: var(--white); border-top: 1px solid rgba(0,0,0,.10); position: relative; }
+.hiw-sticky { padding: 96px clamp(28px,6vw,96px); }
+.hiw-inner { display: grid; grid-template-columns: .92fr 1.08fr; gap: clamp(28px,5vw,80px); width: 100%; align-items: center; }
+.hiw-label { font-size: 12px; opacity: .55; }
+.hiw-title { font-size: clamp(30px,3.3vw,48px); font-weight: 900; line-height: 1.1; letter-spacing: -1.3px; max-width: 460px; margin: 14px 0 34px; }
+.hiw-steps { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+.hiw-step { display: grid; grid-template-columns: auto 1fr; gap: 16px; padding: 17px 20px; border-radius: 16px; cursor: pointer; transition: background .3s, opacity .35s; opacity: .4; }
+.hiw-step.active { background: #f5f4f2; opacity: 1; }
+.hiw-num { width: 38px; height: 38px; border-radius: 50%; border: 1.6px solid #d0d0d0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; color: #aaa; flex-shrink: 0; transition: background .3s, color .3s, border-color .3s; }
+.hiw-step.active .hiw-num { background: var(--black); border-color: var(--black); color: #fff; }
+.hiw-st { font-size: 18px; font-weight: 800; letter-spacing: -.3px; color: var(--black); }
+.hiw-sd { font-size: 13.5px; color: var(--gray); line-height: 1.6; margin-top: 5px; }
+.hiw-right { position: relative; min-height: 440px; }
+.hiw-visual { position: absolute; inset: 0; background: #fff; border: 1px solid #ededed; border-radius: 20px; box-shadow: 0 26px 64px rgba(0,0,0,.10); padding: 26px 28px; opacity: 0; transform: translateY(18px) scale(.985); transition: opacity .5s ease, transform .5s ease; pointer-events: none; }
+.hiw-visual.show { opacity: 1; transform: none; pointer-events: auto; }
+.hiw-vlabel { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 14px; }
+.hiw-brief-box { background: #f5f4f2; border-radius: 12px; padding: 18px 20px; font-size: 15.5px; color: #444; line-height: 1.65; min-height: 132px; }
+.hiw-brief-foot { display: flex; justify-content: flex-end; margin-top: 18px; }
+.hiw-brief-btn { background: var(--black); color: #fff; border-radius: 50px; padding: 12px 24px; font-size: 13px; font-weight: 700; }
+.hiw-prop { display: grid; grid-template-columns: auto 1fr; gap: 14px; padding: 15px 0; border-top: 1px solid #f0f0f0; }
+.hiw-prop:first-of-type { border-top: none; }
+.hiw-prop-av { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.hiw-prop-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.hiw-prop-name { font-size: 14.5px; font-weight: 700; color: #111; }
+.hiw-prop-price { font-size: 14.5px; font-weight: 800; color: #111; white-space: nowrap; }
+.hiw-prop-stars { color: #f5a623; font-size: 11px; letter-spacing: 1.5px; margin: 3px 0; }
+.hiw-prop-msg { font-size: 13px; color: #666; line-height: 1.5; }
+.hiw-visual--chat { background: linear-gradient(135deg,#0d1520 0%,#1a2d47 55%,#1e3555 100%); border-color: transparent; }
+.hiw-visual--chat .hiw-vlabel { color: rgba(255,255,255,.7); }
+@media(min-width:861px){
+  .hiw { height: 230vh; }
+  .hiw-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; }
+}
+@media(max-width:860px){
+  .hiw-inner { grid-template-columns: 1fr; gap: 30px; }
+  .hiw-step { opacity: 1; }
+  .hiw-right { min-height: 0; display: flex; flex-direction: column; gap: 16px; }
+  .hiw-visual { position: static; opacity: 1; transform: none; pointer-events: auto; }
+}
+
 /* ── TESTIMONIALS ── */
 .testimonials { position: relative; height: 100vh; overflow: hidden; display: flex; align-items: center; justify-content: center; }
 .test-bg { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr 1fr; }
@@ -2944,40 +2985,95 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 </section>
 
 
-<!-- ABOUT -->
-<section class="about" id="about" data-cms-section="about">
-  <div class="about-hd">
-    <h2 class="about-hl reveal" data-i18n="about.hl">We connect musicians with focus, intention, and impact.</h2>
-  </div>
-  <div class="about-cards">
-    <div class="card-dark reveal">
-      <div class="cl" data-i18n="about.card1.label">(Our musicians)</div>
-      <div class="cs">+30</div>
-      <div class="cd" data-i18n-html="about.card1.desc">elite classical musicians<br>across Taiwan &amp; the USA</div>
-      <div class="cavs">
-        <div class="av av1">C</div><div class="av av2">Y</div><div class="av av3">L</div><div class="av av4">W</div><div class="av avm">+26</div>
+<!-- HOW OPUS.Z WORKS (scroll-driven 3-step walkthrough) -->
+<section class="hiw" id="about" data-cms-section="about">
+  <div class="hiw-sticky">
+    <div class="hiw-inner">
+      <div class="hiw-left">
+        <span class="hiw-label" data-i18n="hiw.label">(How it works)</span>
+        <h2 class="hiw-title reveal" data-i18n="hiw.title">Work with top musicians in three steps.</h2>
+        <ol class="hiw-steps" id="hiwSteps">
+          <li class="hiw-step active" data-step="0">
+            <div class="hiw-num">1</div>
+            <div>
+              <div class="hiw-st" data-i18n="hiw.s1.t">Post a project — or browse musicians</div>
+              <div class="hiw-sd" data-i18n="hiw.s1.d">Describe your need in seconds — a performance, a lesson, an event — or browse our roster and pick exactly who you want.</div>
+            </div>
+          </li>
+          <li class="hiw-step" data-step="1">
+            <div class="hiw-num">2</div>
+            <div>
+              <div class="hiw-st" data-i18n="hiw.s2.t">Get free quotes &amp; proposals</div>
+              <div class="hiw-sd" data-i18n="hiw.s2.d">Top musicians reply with quotes and proposals — completely free, with no obligation.</div>
+            </div>
+          </li>
+          <li class="hiw-step" data-step="2">
+            <div class="hiw-num">3</div>
+            <div>
+              <div class="hiw-st" data-i18n="hiw.s3.t">Message, agree, and book</div>
+              <div class="hiw-sd" data-i18n="hiw.s3.d">Chat directly on OPUS.Z, settle the details, and book with confidence.</div>
+            </div>
+          </li>
+        </ol>
       </div>
-    </div>
-    <div class="card-purple reveal" style="transition-delay:.15s;">
-      <div class="cl" data-i18n="about.card2.label">(Instant matching)</div>
-      <div class="chat-ui">
-        <div class="chat-time">Today 19:14</div>
-        <div class="chat-row chat-right">
-          <div class="chat-bubble chat-bubble-r-dark" data-i18n="hp.chat1">Hi! We're looking for a string quartet for March 3rd in Taipei.</div>
-          <div class="chat-ava" style="background:linear-gradient(135deg,#f39c12,#e67e22);">V</div>
+      <div class="hiw-right" id="hiwVisuals">
+        <!-- v0 — project brief -->
+        <div class="hiw-visual show" data-v="0">
+          <div class="hiw-vlabel" data-i18n="hiw.v1.title">Tell us about your project</div>
+          <div class="hiw-brief-box" data-i18n="hiw.v1.body">We're looking for a string quartet for March 3rd in Taipei — a formal evening event, about 2 hours.</div>
+          <div class="hiw-brief-foot"><span class="hiw-brief-btn" data-i18n="hiw.v1.btn">Post project →</span></div>
         </div>
-        <div class="chat-row chat-right">
-          <div class="chat-bubble chat-bubble-r-dark" data-i18n="hp.chat2">Formal evening event, about 2 hours. Are you available?</div>
-          <div class="chat-ava" style="background:linear-gradient(135deg,#f39c12,#e67e22);">V</div>
+        <!-- v1 — free proposals -->
+        <div class="hiw-visual" data-v="1">
+          <div class="hiw-vlabel" data-i18n="hiw.v2.title">3 quotes received</div>
+          <div class="hiw-prop">
+            <div class="hiw-prop-av" style="background:linear-gradient(135deg,#c0392b,#e67e22);">W</div>
+            <div>
+              <div class="hiw-prop-top"><span class="hiw-prop-name">Joy Wei · Violin</span><span class="hiw-prop-price">NT$8,000</span></div>
+              <div class="hiw-prop-stars">★★★★★</div>
+              <div class="hiw-prop-msg" data-i18n="hiw.v2.msg1">"Hi! We're available and would love to play for you."</div>
+            </div>
+          </div>
+          <div class="hiw-prop">
+            <div class="hiw-prop-av" style="background:linear-gradient(135deg,#2980b9,#6dd5fa);">K</div>
+            <div>
+              <div class="hiw-prop-top"><span class="hiw-prop-name">Tzu-Wei Kang · Piano</span><span class="hiw-prop-price">NT$6,500</span></div>
+              <div class="hiw-prop-stars">★★★★★</div>
+              <div class="hiw-prop-msg" data-i18n="hiw.v2.msg2">"March 3rd works — classical &amp; contemporary repertoire."</div>
+            </div>
+          </div>
+          <div class="hiw-prop">
+            <div class="hiw-prop-av" style="background:linear-gradient(135deg,#8e44ad,#3498db);">L</div>
+            <div>
+              <div class="hiw-prop-top"><span class="hiw-prop-name">Julia Liu · Violin</span><span class="hiw-prop-price">NT$7,500</span></div>
+              <div class="hiw-prop-stars">★★★★★</div>
+              <div class="hiw-prop-msg" data-i18n="hiw.v2.msg3">"Happy to help — I'll send a short demo too."</div>
+            </div>
+          </div>
         </div>
-        <div class="chat-time" style="margin-top:10px;">Today 19:21</div>
-        <div class="chat-row chat-left">
-          <div class="chat-ava" style="background:linear-gradient(135deg,#9b59b6,#3498db);">M</div>
-          <div class="chat-bubble chat-bubble-l" data-i18n="hp.chat3">March 3rd works! We play classical &amp; contemporary repertoire.</div>
-        </div>
-        <div class="chat-row chat-left">
-          <div class="chat-ava" style="background:linear-gradient(135deg,#9b59b6,#3498db);">M</div>
-          <div class="chat-bubble chat-bubble-l" data-i18n="hp.chat4">2 hours is no problem — send us the venue details 🎻</div>
+        <!-- v2 — message & book (dark chat) -->
+        <div class="hiw-visual hiw-visual--chat" data-v="2">
+          <div class="hiw-vlabel" data-i18n="hiw.v3.label">(Messaging)</div>
+          <div class="chat-ui">
+            <div class="chat-time">Today 19:14</div>
+            <div class="chat-row chat-right">
+              <div class="chat-bubble chat-bubble-r-dark" data-i18n="hp.chat1">Hi! We're looking for a string quartet for March 3rd in Taipei.</div>
+              <div class="chat-ava" style="background:linear-gradient(135deg,#f39c12,#e67e22);">V</div>
+            </div>
+            <div class="chat-row chat-right">
+              <div class="chat-bubble chat-bubble-r-dark" data-i18n="hp.chat2">Formal evening event, about 2 hours. Are you available?</div>
+              <div class="chat-ava" style="background:linear-gradient(135deg,#f39c12,#e67e22);">V</div>
+            </div>
+            <div class="chat-time" style="margin-top:10px;">Today 19:21</div>
+            <div class="chat-row chat-left">
+              <div class="chat-ava" style="background:linear-gradient(135deg,#9b59b6,#3498db);">M</div>
+              <div class="chat-bubble chat-bubble-l" data-i18n="hp.chat3">March 3rd works! We play classical &amp; contemporary repertoire.</div>
+            </div>
+            <div class="chat-row chat-left">
+              <div class="chat-ava" style="background:linear-gradient(135deg,#9b59b6,#3498db);">M</div>
+              <div class="chat-bubble chat-bubble-l" data-i18n="hp.chat4">2 hours is no problem — send us the venue details 🎻</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -3307,6 +3403,22 @@ const I18N = {
     'about.card1.label':'(Our musicians)',
     'about.card1.desc':'elite classical musicians<br>across Taiwan &amp; the USA',
     'about.card2.label':'(Instant matching)',
+    'hiw.label':'(How it works)',
+    'hiw.title':'Work with top musicians in three steps.',
+    'hiw.s1.t':'Post a project — or browse musicians',
+    'hiw.s1.d':'Describe your need in seconds — a performance, a lesson, an event — or browse our roster and pick exactly who you want.',
+    'hiw.s2.t':'Get free quotes & proposals',
+    'hiw.s2.d':'Top musicians reply with quotes and proposals — completely free, with no obligation.',
+    'hiw.s3.t':'Message, agree, and book',
+    'hiw.s3.d':'Chat directly on OPUS.Z, settle the details, and book with confidence.',
+    'hiw.v1.title':'Tell us about your project',
+    'hiw.v1.body':"We're looking for a string quartet for March 3rd in Taipei — a formal evening event, about 2 hours.",
+    'hiw.v1.btn':'Post project →',
+    'hiw.v2.title':'3 quotes received',
+    'hiw.v2.msg1':"\"Hi! We're available and would love to play for you.\"",
+    'hiw.v2.msg2':'"March 3rd works — classical & contemporary repertoire."',
+    'hiw.v2.msg3':"\"Happy to help — I'll send a short demo too.\"",
+    'hiw.v3.label':'(Messaging)',
     'newsletter.label':'Newsletter',
     'newsletter.title':'Stay close to the music.',
     'newsletter.body':'Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.',
@@ -3419,6 +3531,22 @@ const I18N = {
     'about.card1.label':'（我們的音樂家）',
     'about.card1.desc':'位頂尖古典音樂家<br>橫跨台灣與美國',
     'about.card2.label':'（即時配對）',
+    'hiw.label':'（運作方式）',
+    'hiw.title':'三步驟，與頂尖音樂家合作。',
+    'hiw.s1.t':'公開委託，或直接瀏覽樂手',
+    'hiw.s1.d':'幾秒鐘說明你的需求——演出、教學或活動——也可以直接從名單挑選想合作的樂手。',
+    'hiw.s2.t':'免費收到報價與提案',
+    'hiw.s2.d':'頂尖樂手主動回覆報價與提案，完全免費、沒有任何義務。',
+    'hiw.s3.t':'輕鬆溝通，敲定合作',
+    'hiw.s3.d':'直接在 OPUS.Z 上溝通細節，談定就放心開始合作。',
+    'hiw.v1.title':'告訴我們你的需求',
+    'hiw.v1.body':'我們想找 3 月 3 日在台北的弦樂四重奏，正式晚間活動，約 2 小時。',
+    'hiw.v1.btn':'發布委託 →',
+    'hiw.v2.title':'收到 3 則報價',
+    'hiw.v2.msg1':'「嗨！我們有空，很樂意為你演出。」',
+    'hiw.v2.msg2':'「3 月 3 日沒問題——古典與當代曲目都行。」',
+    'hiw.v2.msg3':'「很樂意協助，我再附上一段試聽。」',
+    'hiw.v3.label':'（溝通中）',
     'newsletter.label':'電子報',
     'newsletter.title':'與音樂保持連結。',
     'newsletter.body':'獲取 OPUS.Z 獨家資訊——新音樂家、即將到來的演出及產業洞察，直送您的信箱。',
@@ -4226,6 +4354,54 @@ const ro = new IntersectionObserver(entries => {
   entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('in'); });
 }, { threshold: 0.1 });
 document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
+
+/* ── HOW OPUS.Z WORKS — scroll-driven step activation ──────────────────────────
+   Desktop: the .hiw section is 230vh tall with a sticky inner panel; scroll
+   progress through it picks which of the 3 steps is active and swaps the right-
+   side visual. Mobile (≤860px): CSS shows all steps + visuals stacked, so this
+   just no-ops on the swap and only handles tap-to-highlight. */
+(function(){
+  var sec = document.querySelector('.hiw');
+  if(!sec) return;
+  var steps   = Array.prototype.slice.call(sec.querySelectorAll('.hiw-step'));
+  var visuals = Array.prototype.slice.call(sec.querySelectorAll('.hiw-visual'));
+  if(!steps.length) return;
+  var cur = -1;
+  function isDesktop(){ return window.matchMedia('(min-width:861px)').matches; }
+  function setActive(i){
+    if(i === cur) return; cur = i;
+    steps.forEach(function(s, idx){ s.classList.toggle('active', idx === i); });
+    visuals.forEach(function(v, idx){ v.classList.toggle('show', idx === i); });
+  }
+  function onScroll(){
+    if(!isDesktop()) return;            // mobile: everything shown via CSS
+    var rect  = sec.getBoundingClientRect();
+    var total = sec.offsetHeight - window.innerHeight;
+    var p = total > 0 ? (-rect.top / total) : 0;
+    p = Math.max(0, Math.min(0.9999, p));
+    setActive(Math.min(steps.length - 1, Math.floor(p * steps.length)));
+  }
+  // Tap a step to jump to it (smooth-scroll on desktop, instant swap on mobile)
+  steps.forEach(function(s, idx){
+    s.addEventListener('click', function(){
+      if(isDesktop()){
+        var total = sec.offsetHeight - window.innerHeight;
+        var top = sec.offsetTop + ((idx + 0.5) / steps.length) * total;
+        window.scrollTo({ top: top, behavior: 'smooth' });
+      } else {
+        setActive(idx);
+      }
+    });
+  });
+  setActive(0);
+  var ticking = false;
+  window.addEventListener('scroll', function(){
+    if(ticking) return; ticking = true;
+    requestAnimationFrame(function(){ onScroll(); ticking = false; });
+  }, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+})();
 
 // Vision section removed — no-op
 
