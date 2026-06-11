@@ -1124,6 +1124,22 @@
                   <input class="form-input" type="url" id="pfWebsite" placeholder="https://…">
                 </div>
               </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Instagram 網址</label>
+                  <input class="form-input" type="url" id="pfInstagram" placeholder="https://instagram.com/yourhandle">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Facebook 網址</label>
+                  <input class="form-input" type="url" id="pfFacebook" placeholder="https://facebook.com/yourpage">
+                </div>
+              </div>
+              <div class="form-row full">
+                <div class="form-group">
+                  <label class="form-label">YouTube 頻道網址</label>
+                  <input class="form-input" type="url" id="pfYoutube" placeholder="https://youtube.com/@yourchannel">
+                </div>
+              </div>
             </div>
 
             <!-- Instruments & region (EDITABLE — saved both to top-level and config,
@@ -2559,9 +2575,12 @@
 
     // Form inputs
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
-    set('pfName',    p.name    || name);
-    set('pfPhone',   p.phone   || '');
-    set('pfWebsite', p.website || '');
+    set('pfName',      p.name      || name);
+    set('pfPhone',     p.phone     || '');
+    set('pfWebsite',   p.website   || '');
+    set('pfInstagram', p.instagram || '');
+    set('pfFacebook',  p.facebook  || '');
+    set('pfYoutube',   p.youtube   || '');
 
     // Instruments (editable) — prefer top-level, fall back to config.card.
     var _cd = (p.config && p.config.card) || {};
@@ -2591,9 +2610,12 @@
   // ── Save profile to Firestore ──
   window.saveProfile = async function() {
     if (!_currentUser) return;
-    const name    = document.getElementById('pfName').value.trim();
-    const phone   = document.getElementById('pfPhone').value.trim();
-    const website = document.getElementById('pfWebsite').value.trim();
+    const name      = document.getElementById('pfName').value.trim();
+    const phone     = document.getElementById('pfPhone').value.trim();
+    const website   = document.getElementById('pfWebsite').value.trim();
+    const instagram = (document.getElementById('pfInstagram') || {value:''}).value.trim();
+    const facebook  = (document.getElementById('pfFacebook')  || {value:''}).value.trim();
+    const youtube   = (document.getElementById('pfYoutube')   || {value:''}).value.trim();
 
     if (!name) { showNotif('請輸入顯示名稱'); return; }
 
@@ -2617,7 +2639,7 @@
       // dotted paths so the rest of config — hero photos, about, booking — is untouched.
       // Keeping them in lock-step means a later 編輯主頁 "發佈" won't revert this.
       await updateDoc(ref, {
-        name: name, phone: phone, website: website,
+        name: name, phone: phone, website: website, instagram: instagram, facebook: facebook, youtube: youtube,
         instruments:     insts,
         primaryRegion:   primaryRegion,
         region:          s1.city,  country:  s1.country,
