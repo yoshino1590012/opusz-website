@@ -707,6 +707,33 @@
       <div class="page" id="page-announce">
         <div class="page-header"><h1>Announcements</h1><p>Send a message to all musicians on the platform.</p></div>
 
+        <!-- Ready-to-copy invitation (with invite code) for recruiting friends -->
+        <div style="border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:28px;background:#fff;">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:16px;padding:16px 20px;border-bottom:1px solid var(--border);">
+            <div>
+              <div style="font-weight:700;font-size:15px;color:var(--black);">邀請函 / Invitation</div>
+              <div style="font-size:12.5px;color:var(--mid);margin-top:3px;">複製後可直接貼到 LINE、Email，邀請朋友加入（已含邀請碼）。</div>
+            </div>
+            <button id="copyInviteBtn" onclick="copyInvite()" class="btn btn-primary" style="flex-shrink:0;padding:10px 22px;font-size:13.5px;">複製邀請函</button>
+          </div>
+          <pre id="inviteText" style="margin:0;padding:24px 26px;font-family:inherit;font-size:14.5px;line-height:2;color:#2a2a2a;white-space:pre-wrap;word-break:break-word;letter-spacing:.01em;background:#fbfbfa;">親愛的朋友，
+
+我想邀請你，成為 OPUS.Z 的創始音樂家之一。
+
+OPUS.Z 是一個專為台灣頂尖音樂家打造的平台——讓你的演出與教學，被真正需要的人看見。我們嚴選每一位成員，而我，希望你是其中之一。
+
+作為受邀的夥伴，你可以使用專屬邀請碼直接完成註冊，免去審核：
+
+　　邀請碼：OPUSZ2026
+　　註冊網址：https://opuszmusic.com/musician-login
+
+只需填寫基本資料即可上線，其餘檔案內容，日後都能在後台從容完善。
+
+期待在 OPUS.Z 與你同行。
+
+Martin</pre>
+        </div>
+
         <div class="grid-2">
           <div class="announce-wrap" style="max-width:100%;">
             <div class="sent-count">
@@ -3647,6 +3674,25 @@
     document.getElementById('announceBody').value = '';
     updatePreview(); updateCharCount();
   }
+
+  // ── Copy the ready-made invitation (with invite code) to the clipboard ──
+  function _fallbackCopy(txt, cb){
+    try{ var ta=document.createElement('textarea'); ta.value=txt; ta.style.position='fixed'; ta.style.top='-9999px'; document.body.appendChild(ta); ta.focus(); ta.select(); document.execCommand('copy'); document.body.removeChild(ta); cb&&cb(true); }
+    catch(e){ cb&&cb(false); }
+  }
+  window.copyInvite = function(){
+    var t = document.getElementById('inviteText'); if(!t) return;
+    var txt = t.textContent;
+    var done = function(ok){
+      var b = document.getElementById('copyInviteBtn'); if(!b) return;
+      if(!b.getAttribute('data-label')) b.setAttribute('data-label', b.textContent);
+      b.textContent = ok===false ? '複製失敗' : '已複製';
+      setTimeout(function(){ b.textContent = b.getAttribute('data-label') || '複製邀請函'; }, 1800);
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(function(){ done(true); }).catch(function(){ _fallbackCopy(txt, done); });
+    } else { _fallbackCopy(txt, done); }
+  };
 
   // ── Support inbox: no data source — empty state rendered in markup ──
 
