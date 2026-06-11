@@ -782,9 +782,15 @@
     wireDrawer();
     wireMegaMenu();
     wireAuth();
-    // Apply persisted language (translates injected nav + any page content).
-    var saved = 'en';
-    try { saved = localStorage.getItem('opusz_lang') || 'en'; } catch (e) {}
+    // Language: a saved choice always wins. With NO saved choice, default to the
+    // visitor's own device/browser language (zh* → 中文, otherwise English) — no
+    // hardcoded default. applyLang() persists it, so it stays put across pages.
+    var saved = null;
+    try { saved = localStorage.getItem('opusz_lang'); } catch (e) {}
+    if (saved !== 'en' && saved !== 'zh') {
+      var _nl = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+      saved = (_nl.indexOf('zh') === 0) ? 'zh' : 'en';
+    }
     applyLang(saved);
     // Make the nav visible (white) on mix-blend pages — consistent with homepage.
     applyNavBlendColors();

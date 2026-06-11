@@ -3171,7 +3171,14 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 (function(){ try { if(window !== window.top) document.documentElement.classList.add('in-macbook-iframe'); } catch(e){} })();
 
 // ── i18n ──────────────────────────────────────────────────────────────────
-let _currentLang = 'en';
+// Initial language is resolved SYNCHRONOUSLY here (before any deferred module —
+// e.g. site-content.js — reads window._currentLang): a saved choice wins,
+// otherwise the visitor's own device/browser language (zh* → 中文, else English).
+let _currentLang = (function(){
+  try { var s = localStorage.getItem('opusz_lang'); if (s === 'en' || s === 'zh') return s; } catch (e) {}
+  var nl = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  return nl.indexOf('zh') === 0 ? 'zh' : 'en';
+})();
 const I18N = {
   en: {
     'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians',
@@ -3394,6 +3401,7 @@ window.I18N = I18N;
 try { Object.defineProperty(window, "_currentLang", { configurable:true, get:function(){ return _currentLang; }, set:function(v){ _currentLang = v; } }); } catch(e){}
 function switchLang(lang) {
   _currentLang = lang;
+  try { localStorage.setItem('opusz_lang', lang); } catch (e) {}   // persist across pages
   const dict = I18N[lang] || I18N.en;
   // Text nodes
   document.querySelectorAll('[data-i18n]').forEach(el => {
@@ -3467,6 +3475,9 @@ function switchLang(lang) {
 
 document.addEventListener('DOMContentLoaded', () => {
   window.switchLang = switchLang;
+  // Apply the language resolved at page top (saved choice or device language).
+  // switchLang() persists it, so it stays consistent across every page.
+  switchLang(_currentLang);
   document.getElementById('langToggle').addEventListener('click', e => {
     const opt = e.target.closest('[data-l]');
     switchLang(opt ? opt.dataset.l : (_currentLang === 'en' ? 'zh' : 'en'));
