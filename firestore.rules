@@ -91,9 +91,12 @@ service cloud.firestore {
     match /posts/{id} {
       allow read:           if request.auth != null;
       allow create:         if request.auth != null;
+      // Posts are stored with the author's UID in `authorUid` (see opuszPublishPost),
+      // so the owner check must read authorUid — the old `uid` field never existed,
+      // which silently blocked every musician from editing/deleting their own posts.
       allow update, delete: if isAdmin()
                             || (request.auth != null
-                                && request.auth.uid == resource.data.uid);
+                                && request.auth.uid == resource.data.authorUid);
     }
   }
 }

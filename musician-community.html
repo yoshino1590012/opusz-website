@@ -1839,6 +1839,21 @@ function getCurrentUserInfo() {
   return { name: name, initials: initials, color: '#555' };
 }
 
+// Turn a YouTube / Vimeo URL into a responsive 16:9 embedded player (or null
+// for any other link, which is shown as a plain pill instead).
+function commVideoEmbed(url){
+  var u = String(url || '');
+  var yt = u.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|live\/|shorts\/)|youtu\.be\/)([\w-]{11})/);
+  var id = yt ? yt[1] : null;
+  var src = null;
+  if (id) src = 'https://www.youtube.com/embed/' + id;
+  else { var vm = u.match(/vimeo\.com\/(?:video\/)?(\d+)/); if (vm) src = 'https://player.vimeo.com/video/' + vm[1]; }
+  if (!src) return null;
+  return '<div style="position:relative;width:100%;aspect-ratio:16/9;margin-top:10px;border-radius:12px;overflow:hidden;background:#000;">'
+    + '<iframe src="' + src + '" title="video" loading="lazy" style="position:absolute;inset:0;width:100%;height:100%;border:0;" '
+    + 'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>';
+}
+
 // ── BUILD POST HTML ──────────────────────────────────────────────────────────
 function buildPostHTML(post) {
   var liked = !!likedPosts[post.id];
@@ -1936,11 +1951,17 @@ function buildPostHTML(post) {
     }
     // Photo attachment
     if (post.photoUrl) {
-      html += '<img class="post-image" src="' + esc(post.photoUrl) + '" alt="" loading="lazy" style="margin-top:10px;">';
+      html += '<img class="post-image" src="' + escHtml(post.photoUrl) + '" alt="" loading="lazy" style="margin-top:10px;">';
     }
-    // Link attachment
+    // Link attachment — YouTube/Vimeo render as an embedded player; any other
+    // link shows as a clickable pill.
     if (post.linkUrl) {
-      html += '<a href="' + esc(post.linkUrl) + '" target="_blank" rel="noopener" class="post-link-pill">' + esc(post.linkUrl) + '</a>';
+      var _embed = commVideoEmbed(post.linkUrl);
+      if (_embed) {
+        html += _embed;
+      } else {
+        html += '<a href="' + escHtml(post.linkUrl) + '" target="_blank" rel="noopener" class="post-link-pill">' + escHtml(post.linkUrl) + '</a>';
+      }
     }
   }
 
@@ -2494,10 +2515,11 @@ document.addEventListener('click', function(e){
   window.opuszDeletePost = async function(postId){
     const lang = window._lang || 'zh';
     const confirmMsg = lang === 'en' ? 'Delete this post?' : '確定要刪除這則貼文嗎？';
-    if(!confirm(confirmMsg)) return;
+    if(!confirm(confirmMsg)) return false;
     try{
       await deleteDoc(doc(db, 'posts', postId));
-    }catch(e){ alert((lang==='en'?'Delete failed: ':'刪除失敗：')+(e.code||e.message)); }
+      return true;
+    }catch(e){ alert((lang==='en'?'Delete failed: ':'刪除失敗：')+(e.code||e.message)); return false; }
   };
 
   // Edit own post (inline — called after Save clicked)
@@ -2533,11 +2555,30 @@ document.addEventListener('click', function(e){
     const m = membersByUid[uid];
     if (!m) return;
     const isMe = (uid === window.opuszMyUid);
+    window.__commProfileUid = uid;   // so the post list can refresh after edit/delete
     const myPosts = (window.POSTS || []).filter(p => p.authorUid === uid);
     const host = document.getElementById('profInline');
     if (!host) return;
     const postsHtml = myPosts.length
-      ? myPosts.map(p => '<div style="border-top:1px solid #f0f0f0;padding:16px 0;"><div style="font-size:12px;color:#999;margin-bottom:6px;">'+esc(p.timestamp)+'</div><div style="font-size:14.5px;color:#222;line-height:1.65;white-space:pre-wrap;">'+esc(p.content)+'</div></div>').join('')
+      ? myPosts.map(function(p){
+          var media = '';
+          if (p.photoUrl) media += '<img src="'+esc(p.photoUrl)+'" alt="" loading="lazy" style="margin-top:10px;max-width:100%;border-radius:10px;display:block;">';
+          if (p.linkUrl) {
+            var emb = (typeof commVideoEmbed==='function') ? commVideoEmbed(p.linkUrl) : null;
+            media += emb ? emb
+              : '<a href="'+esc(p.linkUrl)+'" target="_blank" rel="noopener" style="display:inline-block;margin-top:10px;padding:8px 14px;background:#f4f4f5;border:1px solid #e4e4e7;border-radius:8px;font-size:12px;color:#555;word-break:break-all;text-decoration:none;">'+esc(p.linkUrl)+'</a>';
+          }
+          var controls = isMe
+            ? '<div style="margin-top:10px;display:flex;gap:16px;">'
+              + '<button class="prof-post-edit" data-pid="'+esc(p.id)+'" style="background:none;border:none;padding:0;font-size:12.5px;font-weight:700;color:#2563eb;cursor:pointer;">編輯</button>'
+              + '<button class="prof-post-del" data-pid="'+esc(p.id)+'" style="background:none;border:none;padding:0;font-size:12.5px;font-weight:700;color:#dc2626;cursor:pointer;">刪除</button>'
+              + '</div>'
+            : '';
+          return '<div data-pid="'+esc(p.id)+'" style="border-top:1px solid #f0f0f0;padding:16px 0;">'
+            + '<div style="font-size:12px;color:#999;margin-bottom:6px;">'+esc(p.timestamp)+'</div>'
+            + '<div class="prof-post-body" style="font-size:14.5px;color:#222;line-height:1.65;white-space:pre-wrap;">'+esc(p.content)+'</div>'
+            + media + controls + '</div>';
+        }).join('')
       : '<div style="padding:30px 0;text-align:center;color:#aaa;font-size:13.5px;">還沒有發過貼文</div>';
     host.innerHTML =
       '<div style="height:96px;background:linear-gradient(135deg,'+m.color+',#111);"></div>' +
@@ -2573,6 +2614,57 @@ document.addEventListener('click', function(e){
     setNavActive(isMe ? 'myProfileNav' : '');
     var ma=document.querySelector('.main-area'); if(ma) ma.scrollTop=0;
   };
+
+  // Edit / delete a post directly from "我的主頁" (own posts only). Delegated once
+  // on #profInline since its innerHTML is rebuilt on every open.
+  (function(){
+    var host = document.getElementById('profInline');
+    if (!host || host.__commPostWired) return;
+    host.__commPostWired = true;
+    host.addEventListener('click', async function(e){
+      var delBtn = e.target.closest('.prof-post-del');
+      if (delBtn){
+        var pid = delBtn.getAttribute('data-pid');
+        var ok = await window.opuszDeletePost(pid);
+        if (ok){
+          window.POSTS = (window.POSTS || []).filter(function(p){ return p.id !== pid; });
+          if (window.__commProfileUid) window.opuszOpenProfile(window.__commProfileUid);
+        }
+        return;
+      }
+      var edBtn = e.target.closest('.prof-post-edit');
+      if (edBtn){
+        var pid2 = edBtn.getAttribute('data-pid');
+        var wrap = edBtn.closest('[data-pid]');
+        var bodyEl = wrap && wrap.querySelector('.prof-post-body');
+        if (!bodyEl) return;
+        var cur = bodyEl.textContent;
+        var ta = document.createElement('textarea');
+        ta.value = cur;
+        ta.style.cssText = 'width:100%;box-sizing:border-box;border:1.5px solid #ddd;border-radius:10px;padding:10px;font-family:inherit;font-size:14px;line-height:1.6;resize:vertical;';
+        ta.rows = 4;
+        var bar = document.createElement('div');
+        bar.style.cssText = 'display:flex;gap:8px;margin-top:8px;';
+        bar.innerHTML = '<button class="prof-edit-save" style="background:#111;color:#fff;border:none;border-radius:50px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;">儲存</button>'
+          + '<button class="prof-edit-cancel" style="background:#f1f1f1;color:#555;border:none;border-radius:50px;padding:8px 18px;font-size:13px;font-weight:700;cursor:pointer;">取消</button>';
+        bodyEl.replaceWith(ta);
+        ta.after(bar);
+        ta.focus();
+        bar.querySelector('.prof-edit-cancel').onclick = function(){ if(window.__commProfileUid) window.opuszOpenProfile(window.__commProfileUid); };
+        bar.querySelector('.prof-edit-save').onclick = async function(){
+          var btn=this; btn.textContent='儲存中…'; btn.disabled=true;
+          var val=(ta.value||'').trim();
+          var ok = await window.opuszSavePostEdit(pid2, val);
+          if (ok){
+            var hit=(window.POSTS||[]).find(function(p){ return p.id===pid2; });
+            if (hit) hit.content = val;
+          } else { btn.textContent='儲存'; btn.disabled=false; return; }
+          if (window.__commProfileUid) window.opuszOpenProfile(window.__commProfileUid);
+        };
+        return;
+      }
+    });
+  })();
 
   // Inline-edit my own community intro (writes to musicians/{uid}.bio).
   window.opuszEditBio = function(uid){
