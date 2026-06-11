@@ -329,18 +329,43 @@ body {
   gap: 4px;
 }
 .btn-attach {
-  background: none;
-  border: none;
+  background: #fff;
+  border: 1px solid #d4d4d8;
   cursor: pointer;
-  padding: 7px 10px;
-  font-size: 13px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
   color: var(--mid);
-  border-radius: 8px;
+  border-radius: 50px;
   font-family: inherit;
-  transition: background 0.12s;
-  display: flex; align-items: center; gap: 5px;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
 }
-.btn-attach:hover { background: var(--light); }
+.btn-attach:hover { background: var(--light); border-color: #a1a1aa; color: var(--black); }
+.btn-attach.active { background: #f4f4f5; border-color: #71717a; color: var(--black); }
+/* Composer photo preview */
+.composer-preview { display:flex; gap:8px; flex-wrap:wrap; padding:8px 0 4px; }
+.composer-preview-item { position:relative; }
+.composer-preview-item img { width:80px; height:80px; object-fit:cover; border-radius:8px; display:block; }
+.composer-preview-item .preview-del { position:absolute; top:-6px; right:-6px; width:18px; height:18px; border-radius:50%; background:#111; color:#fff; border:none; font-size:10px; cursor:pointer; display:flex; align-items:center; justify-content:center; line-height:1; }
+/* Composer link row */
+.composer-link-row { display:flex; gap:6px; padding:6px 0 2px; align-items:center; }
+.composer-link-row input { flex:1; border:1px solid #d4d4d8; border-radius:8px; padding:7px 10px; font-size:13px; font-family:inherit; outline:none; }
+.composer-link-row input:focus { border-color:#a1a1aa; }
+.composer-link-row button { background:#111; color:#fff; border:none; border-radius:8px; padding:7px 14px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; }
+/* Post action dropdown */
+.post-dropdown { position:fixed; background:#fff; border:1px solid #e4e4e7; border-radius:10px; box-shadow:0 4px 16px rgba(0,0,0,.12); z-index:9999; min-width:130px; overflow:hidden; }
+.post-dropdown button { display:block; width:100%; text-align:left; padding:10px 16px; font-size:13px; font-weight:600; background:none; border:none; cursor:pointer; font-family:inherit; color:#111; transition:background .1s; }
+.post-dropdown button:hover { background:#f4f4f5; }
+.post-dropdown .drop-delete { color:#c0392b; }
+/* Inline post edit */
+.post-edit-area { width:100%; border:1px solid #d4d4d8; border-radius:10px; padding:10px 12px; font-size:14px; font-family:inherit; line-height:1.65; resize:vertical; outline:none; box-sizing:border-box; margin-bottom:8px; }
+.post-edit-area:focus { border-color:#a1a1aa; }
+.post-edit-btns { display:flex; gap:8px; }
+.post-edit-btns button { padding:7px 16px; border-radius:8px; font-size:13px; font-weight:700; cursor:pointer; font-family:inherit; border:none; }
+.post-edit-save { background:#111; color:#fff; }
+.post-edit-cancel { background:none; border:1px solid #d4d4d8 !important; color:#555; }
+.post-link-pill { display:inline-block; margin-top:10px; padding:8px 14px; background:#f4f4f5; border:1px solid #e4e4e7; border-radius:8px; font-size:12px; color:#555; text-decoration:none; word-break:break-all; line-height:1.4; }
+.post-link-pill:hover { background:#e9e9eb; color:#111; }
 .btn-publish {
   background: var(--black);
   color: var(--white);
@@ -1225,11 +1250,15 @@ body {
             </div>
             <div class="composer-input">
               <textarea class="composer-textarea" id="composerTextarea" rows="2" placeholder="分享你的想法..." data-ci18n-ph="composer_ph"></textarea>
+              <div id="composerPreview" class="composer-preview" style="display:none;"></div>
+              <div id="composerLinkRow" class="composer-link-row" style="display:none;">
+                <input type="url" id="composerLinkUrl" placeholder="貼上連結網址…" data-ci18n-ph="link_placeholder">
+                <button id="composerLinkOk" data-ci18n="link_ok">確認</button>
+              </div>
               <div class="composer-actions" id="composerActions">
                 <div class="composer-attach-btns">
-                  <button class="btn-attach" data-ci18n="attach_photo">📷 照片</button>
-                  <button class="btn-attach" data-ci18n="attach_video">🎬 影片</button>
-                  <button class="btn-attach" data-ci18n="attach_link">🔗 連結</button>
+                  <button class="btn-attach" id="attachPhotoBtn" data-ci18n="attach_photo">照片</button>
+                  <button class="btn-attach" id="attachLinkBtn" data-ci18n="attach_link">連結</button>
                 </div>
                 <button class="btn-publish" id="publishBtn" data-ci18n="publish_btn">發布</button>
               </div>
@@ -1418,6 +1447,13 @@ body {
 
 </div><!-- /app-shell -->
 
+<!-- Hidden photo file input + global post dropdown -->
+<input type="file" id="communityPhotoInput" accept="image/*" style="display:none;">
+<div id="postDropdown" class="post-dropdown" style="display:none;">
+  <button id="postDropEdit" data-ci18n="post_edit">編輯</button>
+  <button id="postDropDelete" class="drop-delete" data-ci18n="post_delete">刪除</button>
+</div>
+
 <script src="assets/js/nav-auth.js?v=1" defer></script>
 <script>
 // ── i18n ─────────────────────────────────────────────────────────────────────
@@ -1429,7 +1465,10 @@ var COMM_LANG = {
     members_suffix:'位成員',
     post_btn:'＋ 發文',
     composer_ph:'分享你的想法...',
-    attach_photo:'📷 照片', attach_video:'🎬 影片', attach_link:'🔗 連結',
+    attach_photo:'照片', attach_video:'影片', attach_link:'連結',
+    attach_uploading:'上傳中…',
+    post_edit:'編輯', post_delete:'刪除', post_edit_save:'儲存', post_edit_cancel:'取消',
+    link_placeholder:'貼上連結網址…', link_ok:'確認',
     publish_btn:'發布',
     members_panel:'👥 社群成員',
     view_all_pre:'查看所有', view_all_suf:'位成員 →',
@@ -1463,7 +1502,10 @@ var COMM_LANG = {
     members_suffix:'members',
     post_btn:'+ Post',
     composer_ph:'Share your thoughts...',
-    attach_photo:'📷 Photo', attach_video:'🎬 Video', attach_link:'🔗 Link',
+    attach_photo:'Photo', attach_video:'Video', attach_link:'Link',
+    attach_uploading:'Uploading…',
+    post_edit:'Edit', post_delete:'Delete', post_edit_save:'Save', post_edit_cancel:'Cancel',
+    link_placeholder:'Paste a link URL…', link_ok:'Done',
     publish_btn:'Post',
     members_panel:'👥 Community Members',
     view_all_pre:'View all', view_all_suf:'members →',
@@ -1814,8 +1856,10 @@ function buildPostHTML(post) {
     html += '<div class="post-pin-badge"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg> 置頂</div>';
   }
 
-  // More btn
-  html += '<button class="post-more-btn">···</button>';
+  // More btn — only render for own posts
+  if (post.authorUid && post.authorUid === window.opuszMyUid) {
+    html += '<button class="post-more-btn" data-post-id="' + post.id + '">···</button>';
+  }
 
   // Header
   var _uid = post.authorUid || '';
@@ -1877,13 +1921,21 @@ function buildPostHTML(post) {
     html += '<div style="height:0">';
   } else {
     // normal or pinned
-    html += escHtml(post.content);
+    html += '<span class="post-body-text">' + escHtml(post.content) + '</span>';
     if (post.rules && post.rules.length) {
       html += '<ul class="rules-list">';
       post.rules.forEach(function(r) {
         html += '<li><span class="rule-num">' + r.num + '</span><span>' + escHtml(r.text) + '</span></li>';
       });
       html += '</ul>';
+    }
+    // Photo attachment
+    if (post.photoUrl) {
+      html += '<img class="post-image" src="' + esc(post.photoUrl) + '" alt="" loading="lazy" style="margin-top:10px;">';
+    }
+    // Link attachment
+    if (post.linkUrl) {
+      html += '<a href="' + esc(post.linkUrl) + '" target="_blank" rel="noopener" class="post-link-pill">' + esc(post.linkUrl) + '</a>';
     }
   }
 
@@ -2087,20 +2139,154 @@ document.getElementById('openComposerBtn').addEventListener('click', function() 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
+// ── COMPOSER PHOTO ATTACH ────────────────────────────────────────────────────
+var _attachedPhotoFile = null, _attachedPhotoUrl = null;
+var _attachedLinkUrl = null;
+
+document.getElementById('attachPhotoBtn').addEventListener('click', function(){
+  document.getElementById('communityPhotoInput').click();
+});
+document.getElementById('communityPhotoInput').addEventListener('change', async function(){
+  var file = this.files && this.files[0];
+  if(!file) return;
+  _attachedPhotoFile = file;
+  // Show local preview immediately
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var prev = document.getElementById('composerPreview');
+    prev.style.display = 'flex';
+    prev.innerHTML = '<div class="composer-preview-item">'
+      + '<img src="' + ev.target.result + '" alt="">'
+      + '<button class="preview-del" id="previewDelBtn">✕</button>'
+      + '</div>';
+    document.getElementById('previewDelBtn').onclick = function(){
+      _attachedPhotoFile = null; _attachedPhotoUrl = null;
+      prev.style.display = 'none'; prev.innerHTML = '';
+      document.getElementById('attachPhotoBtn').classList.remove('active');
+    };
+  };
+  reader.readAsDataURL(file);
+  document.getElementById('attachPhotoBtn').classList.add('active');
+  this.value = '';
+});
+
+// ── COMPOSER LINK ATTACH ────────────────────────────────────────────────────
+document.getElementById('attachLinkBtn').addEventListener('click', function(){
+  var row = document.getElementById('composerLinkRow');
+  var isOpen = row.style.display !== 'none';
+  row.style.display = isOpen ? 'none' : 'flex';
+  this.classList.toggle('active', !isOpen);
+  if(!isOpen) document.getElementById('composerLinkUrl').focus();
+  if(isOpen){ _attachedLinkUrl = null; document.getElementById('composerLinkUrl').value = ''; }
+});
+document.getElementById('composerLinkOk').addEventListener('click', function(){
+  var val = document.getElementById('composerLinkUrl').value.trim();
+  if(val && !val.startsWith('http')) val = 'https://' + val;
+  _attachedLinkUrl = val || null;
+  if(!_attachedLinkUrl){
+    document.getElementById('composerLinkRow').style.display = 'none';
+    document.getElementById('attachLinkBtn').classList.remove('active');
+  }
+});
+
+// ── PUBLISH ─────────────────────────────────────────────────────────────────
 document.getElementById('publishBtn').addEventListener('click', async function() {
   var text = composerTextarea.value.trim();
-  if (!text) return;
+  if (!text && !_attachedPhotoFile && !_attachedLinkUrl) return;
   var ch = currentChannel === 'all' ? 'discuss' : currentChannel;
-  var btn = this;
-  btn.disabled = true;
-  // Write the post to Firestore (real, shared). The realtime listener re-renders the feed.
-  var ok = window.opuszPublishPost ? await window.opuszPublishPost(text, ch) : false;
-  btn.disabled = false;
+  var btn = this; btn.disabled = true;
+
+  // Upload photo first if attached
+  var photoUrl = null;
+  if(_attachedPhotoFile && window.opuszUploadCommunityPhoto && window.opuszMyUid){
+    try{
+      btn.textContent = window.tc ? window.tc('attach_uploading') : '上傳中…';
+      photoUrl = await window.opuszUploadCommunityPhoto(_attachedPhotoFile, window.opuszMyUid);
+    }catch(e){ alert('照片上傳失敗：'+(e.code||e.message)); btn.disabled=false; btn.textContent=window.tc?window.tc('publish_btn'):'發布'; return; }
+  }
+
+  var ok = window.opuszPublishPost
+    ? await window.opuszPublishPost(text || '', ch, { photoUrl: photoUrl || undefined, linkUrl: _attachedLinkUrl || undefined })
+    : false;
+  btn.disabled = false; btn.textContent = window.tc ? window.tc('publish_btn') : '發布';
   if (!ok) return;
+
+  // Reset composer
   composerTextarea.value = '';
+  _attachedPhotoFile = null; _attachedPhotoUrl = null; _attachedLinkUrl = null;
+  document.getElementById('composerPreview').style.display = 'none';
+  document.getElementById('composerPreview').innerHTML = '';
+  document.getElementById('composerLinkRow').style.display = 'none';
+  document.getElementById('composerLinkUrl').value = '';
+  document.getElementById('attachPhotoBtn').classList.remove('active');
+  document.getElementById('attachLinkBtn').classList.remove('active');
   composerActions.classList.remove('visible');
   composerTextarea.style.minHeight = '44px';
   document.getElementById('postsContainer').scrollIntoView({ behavior: 'smooth', block: 'start' });
+});
+
+// ── POST DROPDOWN (delete / edit for own posts) ─────────────────────────────
+var _dropPostId = null;
+var dropdown = document.getElementById('postDropdown');
+function closeDropdown(){ dropdown.style.display = 'none'; _dropPostId = null; }
+document.addEventListener('click', function(e){
+  // ··· button
+  var moreBtn = e.target.closest('.post-more-btn');
+  if(moreBtn){
+    e.stopPropagation();
+    var pid = moreBtn.getAttribute('data-post-id');
+    if(_dropPostId === pid){ closeDropdown(); return; }
+    _dropPostId = pid;
+    var rect = moreBtn.getBoundingClientRect();
+    dropdown.style.display = 'block';
+    // Apply i18n to dropdown buttons
+    if(window.tc){
+      document.getElementById('postDropEdit').textContent = window.tc('post_edit');
+      document.getElementById('postDropDelete').textContent = window.tc('post_delete');
+    }
+    var left = Math.min(rect.left, window.innerWidth - 160);
+    dropdown.style.top  = (rect.bottom + 6) + 'px';
+    dropdown.style.left = left + 'px';
+    return;
+  }
+  // Close dropdown on outside click
+  if(!dropdown.contains(e.target)) closeDropdown();
+});
+document.getElementById('postDropEdit').addEventListener('click', function(){
+  var pid = _dropPostId; closeDropdown();
+  if(!pid) return;
+  // Find the post card and make body editable
+  var card = document.querySelector('.post-card[data-post-id="'+pid+'"]');
+  if(!card) return;
+  var bodyEl = card.querySelector('.post-body-text');
+  if(!bodyEl) return;
+  var origText = bodyEl.textContent;
+  var textarea = document.createElement('textarea');
+  textarea.className = 'post-edit-area';
+  textarea.value = origText;
+  textarea.rows = Math.max(3, origText.split('\n').length);
+  var saveBtn = document.createElement('button');
+  saveBtn.className = 'post-edit-btns post-edit-save';
+  saveBtn.textContent = window.tc ? window.tc('post_edit_save') : '儲存';
+  var cancelBtn = document.createElement('button');
+  cancelBtn.className = 'post-edit-btns post-edit-cancel';
+  cancelBtn.textContent = window.tc ? window.tc('post_edit_cancel') : '取消';
+  var btnsDiv = document.createElement('div');
+  btnsDiv.className = 'post-edit-btns'; btnsDiv.style.cssText = 'display:flex;gap:8px;margin-top:4px;';
+  btnsDiv.appendChild(saveBtn); btnsDiv.appendChild(cancelBtn);
+  bodyEl.replaceWith(textarea); textarea.after(btnsDiv); textarea.focus();
+  cancelBtn.onclick = function(){ textarea.replaceWith(bodyEl); btnsDiv.remove(); };
+  saveBtn.onclick = async function(){
+    var newText = textarea.value.trim(); if(!newText) return;
+    saveBtn.disabled = true;
+    var ok = window.opuszSavePostEdit ? await window.opuszSavePostEdit(pid, newText) : false;
+    if(ok){ bodyEl.textContent = newText; textarea.replaceWith(bodyEl); btnsDiv.remove(); }
+    else saveBtn.disabled = false;
+  };
+});
+document.getElementById('postDropDelete').addEventListener('click', function(){
+  var pid = _dropPostId; closeDropdown();
+  if(pid && window.opuszDeletePost) window.opuszDeletePost(pid);
 });
 
 // Click outside composer to collapse
@@ -2179,7 +2365,8 @@ document.addEventListener('click', function(e){
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-  import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFirestore, collection, addDoc, getDocs, query, orderBy, onSnapshot, serverTimestamp, doc, getDoc, updateDoc, deleteDoc, arrayUnion } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
@@ -2190,8 +2377,9 @@ document.addEventListener('click', function(e){
     appId: "1:304745430147:web:e2900cb48d5726e5c12fb6"
   };
   const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  const db   = getFirestore(app);
+  const auth    = getAuth(app);
+  const db      = getFirestore(app);
+  const storage = getStorage(app);
 
   const PALETTE = ['#7c3aed','#0891b2','#059669','#d97706','#db2777','#2563eb','#dc2626','#0d9488','#9333ea','#0284c7'];
   function colorFor(s){ let h=0; s=s||''; for(let i=0;i<s.length;i++) h=(h*31+s.charCodeAt(i))>>>0; return PALETTE[h%PALETTE.length]; }
@@ -2232,7 +2420,8 @@ document.addEventListener('click', function(e){
     return { id, authorUid:p.authorUid||'', channel:p.channel||'discuss', author:nm,
       isOfficial:!!p.isOfficial, isPinned:!!p.isPinned, role:p.authorTitle||'樂手',
       avatarColor:p.authorColor||colorFor(nm), initials:p.authorInitials||initialsFor(nm),
-      timestamp:relTime(p.ts), type:(p.isPinned?'pinned':'normal'), content:p.content||'', likes:p.likes||0, comments:0, commentList:[] };
+      timestamp:relTime(p.ts), type:(p.isPinned?'pinned':'normal'), content:p.content||'', likes:p.likes||0, comments:0, commentList:[],
+      photoUrl:p.photoUrl||'', linkUrl:p.linkUrl||'' };
   }
 
   function subscribePosts(){
@@ -2249,16 +2438,46 @@ document.addEventListener('click', function(e){
   }
 
   // Publish a real post (called by the composer's publish button)
-  window.opuszPublishPost = async function(text, channel){
+  window.opuszPublishPost = async function(text, channel, extras){
     if (!me){ alert('請先用樂手帳號登入後台,才能在社群發文。'); return false; }
     try{
-      await addDoc(collection(db,'posts'), {
+      const postData = {
         authorUid: me.uid, authorName: me.name, authorTitle: me.instrument,
         authorInitials: initialsFor(me.name), authorColor: colorFor(me.name),
         channel: channel || 'discuss', content: text, likes: 0, ts: serverTimestamp()
-      });
+      };
+      if(extras && extras.photoUrl) postData.photoUrl = extras.photoUrl;
+      if(extras && extras.linkUrl)  postData.linkUrl  = extras.linkUrl;
+      await addDoc(collection(db,'posts'), postData);
       return true;
-    }catch(e){ console.warn('[community] publish failed:', e); alert('發文失敗:'+(e.code||e.message)+'(可能是 Firestore 權限規則尚未設定)'); return false; }
+    }catch(e){ console.warn('[community] publish failed:', e); alert('發文失敗:'+(e.code||e.message)); return false; }
+  };
+
+  // Upload a photo to musicians/{uid}/community/ and return the download URL
+  window.opuszUploadCommunityPhoto = async function(file, uid){
+    const ext = file.name.split('.').pop() || 'jpg';
+    const path = 'musicians/' + uid + '/community/' + Date.now() + '.' + ext;
+    const storageRef = ref(storage, path);
+    await uploadBytes(storageRef, file);
+    return await getDownloadURL(storageRef);
+  };
+
+  // Delete own post
+  window.opuszDeletePost = async function(postId){
+    const lang = window._lang || 'zh';
+    const confirmMsg = lang === 'en' ? 'Delete this post?' : '確定要刪除這則貼文嗎？';
+    if(!confirm(confirmMsg)) return;
+    try{
+      await deleteDoc(doc(db, 'posts', postId));
+    }catch(e){ alert((lang==='en'?'Delete failed: ':'刪除失敗：')+(e.code||e.message)); }
+  };
+
+  // Edit own post (inline — called after Save clicked)
+  window.opuszSavePostEdit = async function(postId, newContent){
+    try{
+      await updateDoc(doc(db, 'posts', postId), { content: newContent, editedAt: serverTimestamp() });
+      return true;
+    }catch(e){ alert('儲存失敗：'+(e.code||e.message)); return false; }
   };
 
   // ── Profile page (Threads-style): info + this member's posts ──
