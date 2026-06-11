@@ -190,8 +190,19 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 
 /* ── INSTRUMENT FILTER PILLS ── */
 .inst-filter{background:#fff;border-bottom:1px solid #eee;padding:16px 48px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.fdrop-fam{font-weight:700;}
-.fdrop-fam:hover{background:#eef6f8;}
+/* Instrument dropdown: multi-column panel (like the Musicians mega-menu) */
+.idd-all{font-weight:600;padding:9px 12px;border-radius:8px;cursor:pointer;border-bottom:1px solid #eee;margin-bottom:6px;}
+.idd-all:hover{background:#f4f4f4;}
+.idd-all.active{background:#0a0a0a;color:#fff;}
+.idd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:2px 10px;}
+.idd-col{min-width:0;}
+.idd-fam{font-weight:800;color:#0a0a0a;font-size:11px;letter-spacing:.04em;text-transform:uppercase;padding:8px 10px 4px;cursor:pointer;border-radius:7px;}
+.idd-fam:hover{background:#eef6f8;color:#0e7490;}
+.idd-fam.active{color:#0e7490;}
+.idd-fam .idd-famall{font-weight:400;text-transform:none;letter-spacing:0;color:#aab;font-size:11px;}
+.idd-inst{padding:6px 10px;border-radius:7px;font-size:13px;color:#444;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.idd-inst:hover{background:#f4f4f4;color:#000;}
+.idd-inst.active{background:#0a0a0a;color:#fff;}
 .inst-pill{padding:7px 16px;border:1.5px solid #e0e0e0;border-radius:20px;font-size:13px;font-weight:600;color:#555;background:#fff;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit;}
 .inst-pill:hover{border-color:#999;color:#000;}
 .inst-pill.active{background:#0a0a0a;border-color:#0a0a0a;color:#fff;}
@@ -373,7 +384,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
 #medOverlay, .med-overlay, #medPanel, #medToast { display: none !important; }</style>
 </head>
 <body>
-<script src="nav.js?v=14"></script>
+<script src="nav.js?v=15"></script>
 <script src="instruments.js?v=3"></script>
 <script type="module" src="site-content.js?v=5"></script>
 
@@ -432,7 +443,7 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
   <!-- Instrument filter: categorized dropdown (families → instruments) -->
   <div class="fdrop" data-filter="inst" id="instDrop">
     <button class="fdrop-btn" type="button"><span class="fdrop-lbl" data-ql="f_inst">Instrument</span><span class="fdrop-caret">▼</span></button>
-    <div class="fdrop-menu" id="instDropMenu" style="min-width:210px;max-height:62vh;overflow-y:auto;"></div>
+    <div class="fdrop-menu" id="instDropMenu" style="width:min(720px,calc(100vw - 76px));max-width:calc(100vw - 76px);max-height:70vh;overflow-y:auto;overscroll-behavior:contain;padding:10px;"></div>
   </div>
   <div class="inst-divider"></div>
 
@@ -656,14 +667,19 @@ var QUIZ_T = {
 };
 function t(k){ var e = QUIZ_T[k]; return e ? (e[_currentLang]||e.en) : k; }
 
-// Instrument taxonomy: category {v, zh, en, insts:[[value(en), zh]]}
-var CATEGORIES = [
-  {v:'strings',    zh:'弦樂', en:'Strings',    insts:[['Violin','小提琴'],['Viola','中提琴'],['Cello','大提琴'],['Double Bass','低音提琴'],['Harp','豎琴']]},
-  {v:'woodwind',   zh:'木管', en:'Woodwinds',  insts:[['Flute','長笛'],['Piccolo','短笛'],['Oboe','雙簧管'],['Clarinet','單簧管'],['Saxophone','薩克斯風'],['Bassoon','低音管']]},
+// Instrument taxonomy: derived from the SHARED instruments.js (single source of
+// truth — identical families/instruments to the Musicians mega-menu). Falls back
+// to a built-in list only if instruments.js hasn't loaded. {v, zh, en, insts:[[en,zh]]}.
+var CATEGORIES = (window.OPUSZ_FAMILIES && window.OPUSZ_FAMILIES.length)
+  ? window.OPUSZ_FAMILIES.map(function(f){
+      return { v:f.slug, zh:f.zh, en:f.en, insts:f.items.map(function(it){ return [it.en, it.zh]; }) };
+    })
+  : [
+  {v:'strings',    zh:'弦樂', en:'Strings',    insts:[['Violin','小提琴'],['Viola','中提琴'],['Cello','大提琴'],['Double Bass','低音提琴'],['Harp','豎琴'],['Classical Guitar','古典吉他']]},
+  {v:'woodwinds',  zh:'木管', en:'Woodwinds',  insts:[['Flute','長笛'],['Piccolo','短笛'],['Oboe','雙簧管'],['Clarinet','單簧管'],['Saxophone','薩克斯風'],['Bassoon','低音管']]},
   {v:'brass',      zh:'銅管', en:'Brass',      insts:[['French Horn','法國號'],['Trumpet','小號'],['Trombone','長號'],['Euphonium','次中音號'],['Tuba','低音號']]},
-  {v:'percussion', zh:'擊樂', en:'Percussion', insts:[['Orchestral Percussion','管弦打擊樂'],['Timpani','定音鼓'],['Marimba','馬林巴'],['Vibraphone','顫音琴'],['Drums','爵士鼓']]},
-  {v:'keyboard',   zh:'鍵盤', en:'Keyboard',   insts:[['Piano','鋼琴'],['Pipe Organ','管風琴']]},
-  {v:'guitar',     zh:'吉他', en:'Guitar',     insts:[['Guitar','古典吉他'],['Electric Guitar','電吉他'],['Bass','貝斯']]},
+  {v:'percussion', zh:'擊樂', en:'Percussion', insts:[['Drummers','鼓手'],['Orchestral Percussion','管弦打擊樂'],['World Percussion','世界打擊樂'],['Marching Corps Percussion','行進打擊樂'],['Mallet Percussion','鍵盤打擊樂']]},
+  {v:'keyboard',   zh:'鍵盤', en:'Keyboard',   insts:[['Piano','鋼琴'],['Collaborative Piano','合作鋼琴'],['Pipe Organ','管風琴']]},
   {v:'voice',      zh:'聲樂', en:'Voice',      insts:[['Soprano','女高音'],['Mezzo-soprano','次女高音'],['Tenor','男高音'],['Baritone','男中音'],['Choral','合唱']]}
 ];
 var CAT_OF = {};
@@ -777,13 +793,19 @@ function skipQuiz(){     // skip / close without applying
 function buildInstDropdown(){
   var menu = document.getElementById('instDropMenu'); if(!menu) return;
   function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
-  var html = '<div class="fdrop-opt" data-val="">'+esc(t('allInst'))+'</div>';
+  // Multi-column panel (like the Musicians mega-menu): every family is a column,
+  // so all instruments are visible at once with little or no scrolling.
+  var html = '<div class="fdrop-opt idd-all" data-val="">'+esc(t('allInst'))+'</div>';
+  html += '<div class="idd-grid">';
   CATEGORIES.forEach(function(c){
-    html += '<div class="fdrop-opt fdrop-fam" data-val="cat:'+esc(c.v)+'" style="margin-top:4px;">'+esc(catLabel(c))+' <span style="font-weight:400;color:#888;">'+esc(t('famAll'))+'</span></div>';
+    html += '<div class="idd-col">';
+    html += '<div class="fdrop-opt idd-fam" data-val="cat:'+esc(c.v)+'">'+esc(catLabel(c))+' <span class="idd-famall">'+esc(t('famAll'))+'</span></div>';
     c.insts.forEach(function(p){
-      html += '<div class="fdrop-opt" data-val="'+esc(p[0])+'" style="padding-left:24px;color:#555;">'+esc(instLabel(p))+'</div>';
+      html += '<div class="fdrop-opt idd-inst" data-val="'+esc(p[0])+'">'+esc(instLabel(p))+'</div>';
     });
+    html += '</div>';
   });
+  html += '</div>';
   menu.innerHTML = html;
   if(!menu.__wired){
     menu.__wired = true;
