@@ -607,6 +607,8 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
         <button class="pj-pill" data-type="private" data-i18n="pj.type.private">Private Event</button>
         <button class="pj-pill" data-type="other" data-i18n="pj.type.other">Other</button>
       </div>
+      <!-- Custom occasion text — shown only when "Other" is selected -->
+      <input id="pjTypeOther" class="pj-input" type="text" placeholder="請輸入您的場合…" data-i18n-ph="pj.ph.other" style="display:none;margin-top:10px;" />
 
       <!-- Fields -->
       <div class="pj-fields">
@@ -642,16 +644,11 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
           <div class="pj-label" data-i18n="pj.desc">Tell us about the project</div>
           <textarea id="pjDesc" class="pj-textarea" placeholder="Describe the event, repertoire style, atmosphere, or any special requirements…" data-i18n-ph="pj.ph.desc"></textarea>
         </div>
-        <!-- Row 3: Name + Email -->
-        <div class="pj-row">
-          <div class="pj-field">
-            <div class="pj-label" data-i18n="pj.yourname">Your Name</div>
-            <input id="pjName" class="pj-input" type="text" placeholder="Full name" data-i18n-ph="pj.ph.fullname" />
-          </div>
-          <div class="pj-field">
-            <div class="pj-label" data-i18n="auth.email">Email</div>
-            <input id="pjEmail" class="pj-input" type="email" placeholder="your@email.com" />
-          </div>
+        <!-- Contact name (email comes from the logged-in account; musicians reach
+             out via the in-app chat, so no email field is needed) -->
+        <div class="pj-field">
+          <div class="pj-label" data-i18n="pj.yourname">Your Name</div>
+          <input id="pjName" class="pj-input" type="text" placeholder="Full name" data-i18n-ph="pj.ph.fullname" />
         </div>
       </div>
 
@@ -770,6 +767,13 @@ document.querySelectorAll('.pj-pill').forEach(function(pill) {
   pill.addEventListener('click', function() {
     document.querySelectorAll('.pj-pill').forEach(function(p) { p.classList.remove('active'); });
     pill.classList.add('active');
+    // "Other" → reveal a free-text box so they can type their own occasion.
+    var other = document.getElementById('pjTypeOther');
+    if (other) {
+      var isOther = pill.getAttribute('data-type') === 'other';
+      other.style.display = isOther ? 'block' : 'none';
+      if (isOther) other.focus();
+    }
   });
 });
 
@@ -789,8 +793,19 @@ if (pjSubmit) pjSubmit.addEventListener('click', async function() {
   var sess = {}; try { sess = JSON.parse(localStorage.getItem(SESSION_KEY) || '{}'); } catch(e){}
   var pill = document.querySelector('.pj-pill.active');
   var val  = function(id){ var el = document.getElementById(id); return el ? el.value.trim() : ''; };
+  var pType = pill ? pill.getAttribute('data-type') : '';
+  var pTypeOther = (pType === 'other') ? val('pjTypeOther') : '';
+  // If "Other" is chosen, require the custom occasion text.
+  if (pType === 'other' && !pTypeOther) {
+    var prevO = pjSubmit.textContent;
+    pjSubmit.textContent = (_currentLang === 'zh') ? '請輸入「其他」的場合' : 'Please type your occasion';
+    var o = document.getElementById('pjTypeOther'); if (o) o.focus();
+    setTimeout(function(){ pjSubmit.textContent = prevO; }, 2200);
+    return;
+  }
   var data = {
-    type:          pill ? pill.getAttribute('data-type') : '',
+    type:          pType,
+    typeOther:     pTypeOther,            // free-text occasion when type === 'other'
     ensemble:      val('pjEnsemble'),
     location:      val('pjLocation'),
     duration:      val('pjDuration'),
@@ -798,7 +813,7 @@ if (pjSubmit) pjSubmit.addEventListener('click', async function() {
     eventDate:     date,                 // yyyy-mm-dd
     eventTime:     time,                 // HH:MM (24h)
     customerName:  val('pjName')  || sess.name  || '',
-    customerEmail: val('pjEmail') || sess.email || ''
+    customerEmail: sess.email || ''      // from the logged-in account (no manual field)
   };
   pjSubmit.disabled = true;
   pjSubmit.textContent = (_currentLang === 'zh') ? '送出中…' : 'Sending…';
@@ -807,8 +822,9 @@ if (pjSubmit) pjSubmit.addEventListener('click', async function() {
     await window.pjSaveJob(data);
     pjSubmit.textContent = (_currentLang === 'zh') ? '已送出 ✓' : 'Inquiry Sent ✓';
     pjSubmit.style.background = '#2d6a4f';
-    ['pjDate','pjTime','pjLocation','pjDuration','pjEnsemble','pjDesc','pjName','pjEmail']
+    ['pjDate','pjTime','pjLocation','pjDuration','pjEnsemble','pjDesc','pjName','pjTypeOther']
       .forEach(function(id){ var el = document.getElementById(id); if (el) el.value = ''; });
+    var _o = document.getElementById('pjTypeOther'); if (_o) _o.style.display = 'none';
     document.querySelectorAll('.pj-pill').forEach(function(p){ p.classList.remove('active'); });
     setTimeout(function() {
       closePjModal();
@@ -891,7 +907,7 @@ var I18N = {
     'pj.ph.location':'e.g. Taipei, Grand Ballroom','pj.ph.duration':'e.g. 2 hours, half day',
     'pj.ph.ensemble':'e.g. String Quartet, Solo Piano',
     'pj.ph.desc':'Describe the event, repertoire style, atmosphere, or any special requirements…',
-    'pj.ph.fullname':'Full name',
+    'pj.ph.fullname':'Full name','pj.ph.other':'Type your occasion…',
     'pj.submit':'Find Musicians →','pj.note':'We’ll match you with available musicians within 24 hours.'
   },
   zh: {
@@ -958,7 +974,7 @@ var I18N = {
     'pj.ph.location':'例如：台北、宴會大廳','pj.ph.duration':'例如：2 小時、半天',
     'pj.ph.ensemble':'例如：弦樂四重奏、鋼琴獨奏',
     'pj.ph.desc':'描述活動內容、曲目風格、氛圍或任何特殊需求…',
-    'pj.ph.fullname':'全名',
+    'pj.ph.fullname':'全名','pj.ph.other':'請輸入您的場合…',
     'pj.submit':'尋找音樂家 →','pj.note':'我們會在 24 小時內為您媒合可接案的音樂家。'
   }
 };
@@ -1164,7 +1180,7 @@ document.querySelectorAll('[data-google]').forEach(function(btn){
       const ago = timeAgo(j.createdAt);
       if(ago) rows.push('<div class="rj-meta-row" style="opacity:.55;">'+esc(ago)+'</div>');
       return '<div class="rj-card rj-real" data-type="'+esc(j.type||'')+'">'
-        + '<span class="rj-type-badge">'+esc(j.type||(window._currentLang==='zh'?'委託':'Job'))+'</span>'
+        + '<span class="rj-type-badge">'+esc(j.typeOther||j.type||(window._currentLang==='zh'?'委託':'Job'))+'</span>'
         + '<div class="rj-instr-pill">'+esc(j.ensemble||'—')+'</div>'
         + (j.desc ? '<div class="rj-card-title">'+esc(j.desc)+'</div>' : '')
         + '<div class="rj-card-meta">'+rows.join('')+'</div>'
