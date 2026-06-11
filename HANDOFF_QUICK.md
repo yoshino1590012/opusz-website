@@ -53,17 +53,55 @@
 - `musician-platform.html` 首頁（含自己的 inline nav、首頁照片引擎 `opzEdit`）
 - `shows.html` 演出頁（海報引擎 `opzShows`）
 - `admin-panel.html` 管理者後台（Site Editor）
-- `musician-dashboard.html` / `musician-profile.html` 音樂家後台/公開檔
+- `musician-dashboard.html` 音樂家後台（含 i18n、pagebuilder、平台規範頁）
+- `musician-community.html` 音樂家社群（含 i18n、貼文 CRUD）
+- `musician-profile.html` 公開檔案頁
 - `site-content.js` 公開頁渲染器（讀 Firebase 套用）
 - `messaging.js` 雙向訊息（`conversations`）
 - `firestore.rules` / `storage.rules` 安全規則可貼版
 - `functions/index.js` Cloud Functions（自動寄信通知，走 ZeptoMail）
 - `server.py` 本機編輯伺服器
 
-## 8. 常踩的雷（快速版）
+## 8. 音樂家後台 & 社群 — EN/中 語言切換（2026-06-11）
+
+### 共用機制
+- 語言狀態：`localStorage('opusz_dash_lang')` 值 `'zh'`（預設）或 `'en'`
+- 兩個頁面共用同一個 key → 切語言會同步到兩頁
+
+### musician-dashboard.html
+| 東西 | 說明 |
+|---|---|
+| 翻譯物件 | `DASH_LANG = { zh:{...}, en:{...} }` |
+| 讀翻譯 | `t('key')` |
+| 套用靜態 HTML | `applyI18n()` — 處理 `data-i18n`（text）與 `data-i18n-ph`（placeholder）|
+| 切換按鈕 | `langToggleBtn`（右上角）→ 呼叫 `window.setLang(lang)` |
+| 動態 JS 字串 | pagebuilder `pbBuildBannerRow()`/`pbBuildVideoRow()` 裡直接用 `t('key')` |
+| 平台規範 | `window.loadPolicy()` / `window.renderPolicyAck()`（**必須是 window global** — 從另一個 script block 的 `applyI18n()` 叫它）|
+| Firestore 英文規範 | 每個 section 加 `titleEn` / `bodyEn` 欄位，沒加就 fallback 中文 |
+
+### musician-community.html
+| 東西 | 說明 |
+|---|---|
+| 翻譯物件 | `COMM_LANG = { zh:{...}, en:{...} }` |
+| 讀翻譯 | `window.tc('key')` |
+| 套用靜態 HTML | `applyCommI18n()` — 處理 `data-ci18n`（**注意是 ci18n，不是 i18n**）|
+| 切換按鈕 | `commLangBtn`（頂列）→ 呼叫 `window.setCommLang(lang)` |
+| 頻道標題 | `CHANNEL_TITLES_ZH` / `CHANNEL_TITLES_EN` 分開定義；`setCommLang()` 切換時重新指派 `CHANNEL_TITLES` |
+| 成員人數 | `updateCommMemberCount(n)` — 中文「N 位成員」/ 英文「N members」|
+
+### 社群貼文 CRUD（musician-community.html）
+- **發文**：`opuszPublishPost(content, extras)` — extras 可帶 `{photoUrl, linkUrl}`
+- **圖片上傳**：`opuszUploadCommunityPhoto(file, uid)` → 上傳到 `musicians/{uid}/community/{timestamp}.ext`（在現有 Storage rules 範圍內，不需改規則）
+- **刪除**：`opuszDeletePost(postId)` — `deleteDoc`，`onSnapshot` 即時更新
+- **編輯**：`opuszSavePostEdit(postId, newContent)` — `updateDoc`
+- **···選單**：只對 `window.opuszMyUid === post.authorUid` 的貼文顯示
+- **儲存模組** import：`deleteDoc`（Firestore）、`getStorage/ref/uploadBytes/getDownloadURL`（Storage）
+
+## 9. 常踩的雷（快速版）
 - **後台「Failed to load customers」**＝Firebase 登入過期 → 清 `opusz_admin_loggedIn` → 去 `admin-login.html` 重新登入。
 - **訊息查詢**：列對話一定用 `where('participants','array-contains',uid)`，用 `musicianUid==` 會被規則整個拒絕。
 - **curl 測線上 HTML 加 `-L`**（Cloudflare 會 308 轉址）。
+- **平台規範英文**：要在 Firestore `siteContent/policy` 每個 section 手動加 `titleEn`/`bodyEn` 欄位，否則英文版仍顯示中文（fallback 設計，不會爆錯）。
 
 ---
-最後更新：2026-06-10
+最後更新：2026-06-11
