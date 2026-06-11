@@ -1,54 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://opuszmusic.com/musician-platform.html</loc>
+    <loc>https://opuszmusic.com/musician-platform</loc>
     <priority>1.0</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://opuszmusic.com/musicians.html</loc>
+    <loc>https://opuszmusic.com/musicians</loc>
     <priority>0.9</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://opuszmusic.com/blog.html</loc>
+    <loc>https://opuszmusic.com/blog</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://opuszmusic.com/shows.html</loc>
+    <loc>https://opuszmusic.com/shows</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://opuszmusic.com/recent-jobs.html</loc>
+    <loc>https://opuszmusic.com/recent-jobs</loc>
     <priority>0.7</priority>
     <changefreq>daily</changefreq>
   </url>
   <url>
-    <loc>https://opuszmusic.com/lessons.html</loc>
+    <loc>https://opuszmusic.com/lessons</loc>
     <priority>0.8</priority>
     <changefreq>weekly</changefreq>
   </url>
   <url>
-    <loc>https://opuszmusic.com/contact.html</loc>
+    <loc>https://opuszmusic.com/contact</loc>
     <priority>0.6</priority>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://opuszmusic.com/blog-opusz-intro.html</loc>
+    <loc>https://opuszmusic.com/blog-opusz-intro</loc>
     <priority>0.7</priority>
     <lastmod>2026-05-28</lastmod>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://opuszmusic.com/blog-wedding-quartet.html</loc>
+    <loc>https://opuszmusic.com/blog-wedding-quartet</loc>
     <priority>0.7</priority>
     <lastmod>2026-04-22</lastmod>
     <changefreq>monthly</changefreq>
   </url>
   <url>
-    <loc>https://opuszmusic.com/blog-violinist-career.html</loc>
+    <loc>https://opuszmusic.com/blog-violinist-career</loc>
     <priority>0.7</priority>
     <lastmod>2026-05-15</lastmod>
     <changefreq>monthly</changefreq>
