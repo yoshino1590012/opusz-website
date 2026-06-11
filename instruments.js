@@ -19,7 +19,8 @@
       { slug: 'viola',      en: 'Viola',       zh: '中提琴' },
       { slug: 'cello',      en: 'Cello',       zh: '大提琴' },
       { slug: 'doublebass', en: 'Double Bass', zh: '低音大提琴' },
-      { slug: 'harp',       en: 'Harp',        zh: '豎琴' }
+      { slug: 'harp',       en: 'Harp',        zh: '豎琴' },
+      { slug: 'classicalguitar', en: 'Classical Guitar', zh: '古典吉他' }
     ]},
     { slug: 'woodwinds', en: 'Woodwinds', zh: '木管樂器', items: [
       { slug: 'flute',     en: 'Flute',     zh: '長笛' },
