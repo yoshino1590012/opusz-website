@@ -1506,17 +1506,17 @@
           <!-- LEFT: section list -->
           <div class="pb-left" id="pbSecList">
             <button class="pb-sec-item active" data-pbsec="hero"       onclick="pbSelectSection('hero',this)" data-i18n="pb_hero">主視覺</button>
-            <button class="pb-sec-item"        data-pbsec="card"       onclick="pbSelectSection('card',this)">列表卡片 / Card</button>
+            <button class="pb-sec-item"        data-pbsec="card"       onclick="pbSelectSection('card',this)" data-i18n="pb_card">列表卡片 / Card</button>
             <button class="pb-sec-item"        data-pbsec="booking"    onclick="pbSelectSection('booking',this)" data-i18n="pb_booking">預約</button>
             <button class="pb-sec-item"        data-pbsec="about"      onclick="pbSelectSection('about',this)" data-i18n="pb_about">關於</button>
-            <button class="pb-sec-item"        data-pbsec="audio"      onclick="pbSelectSection('audio',this)">Audio 音檔</button>
-            <button class="pb-sec-item"        data-pbsec="services"   onclick="pbSelectSection('services',this)">Specialties / 專長</button>
+            <button class="pb-sec-item"        data-pbsec="audio"      onclick="pbSelectSection('audio',this)" data-i18n="pb_audio">Audio 音檔</button>
+            <button class="pb-sec-item"        data-pbsec="services"   onclick="pbSelectSection('services',this)" data-i18n="pb_services">Specialties / 專長</button>
             <button class="pb-sec-item"        data-pbsec="highlights" onclick="pbSelectSection('highlights',this)" data-i18n="pb_highlights">亮點</button>
             <button class="pb-sec-item"        data-pbsec="partners"   onclick="pbSelectSection('partners',this)" data-i18n="pb_partners">合作夥伴</button>
-            <button class="pb-sec-item"        data-pbsec="videos"     onclick="pbSelectSection('videos',this)">Showreel 影片</button>
+            <button class="pb-sec-item"        data-pbsec="videos"     onclick="pbSelectSection('videos',this)" data-i18n="pb_videos">Showreel 影片</button>
             <button class="pb-sec-item"        data-pbsec="lessons"    onclick="pbSelectSection('lessons',this)" data-i18n="pb_lessons">課程方案</button>
             <button class="pb-sec-item"        data-pbsec="stats"      onclick="pbSelectSection('stats',this)" data-i18n="pb_stats">數據</button>
-            <button class="pb-sec-item"        data-pbsec="theme"      onclick="pbSelectSection('theme',this)">Theme 顏色</button>
+            <button class="pb-sec-item"        data-pbsec="theme"      onclick="pbSelectSection('theme',this)" data-i18n="pb_theme">Theme 顏色</button>
           </div>
 
           <!-- CENTER: live iframe preview -->
@@ -1558,7 +1558,7 @@
                 <label><span data-i18n="pb_name_mob">📱 名字大小（手機）</span>&nbsp;<span id="pbNameSizeMobVal" style="font-weight:700;color:#333;">100%</span></label>
                 <input type="range" id="pbNameSizeMob" min="40" max="100" step="5" value="100" oninput="document.getElementById('pbNameSizeMobVal').textContent=this.value+'%'; pbOnInput();" style="width:100%;margin-top:6px;">
               </div>
-              <div class="pb-field"><label>頭銜 / Title</label><div style="font-size:12px;color:var(--mid);line-height:1.5;">頭銜會依你下面選的<b>主要樂器（第一個）</b>自動顯示在 Banner 上，例如選「小提琴」→ 顯示「Violinist / 小提琴家」。</div></div>
+              <div class="pb-field"><label>頭銜 / Title</label><div style="font-size:12px;color:var(--mid);line-height:1.5;" data-i18n-html="pbh_title_hint">頭銜會依你下面選的<b>主要樂器（第一個）</b>自動顯示在 Banner 上，例如選「小提琴」→ 顯示「Violinist / 小提琴家」。</div></div>
               <div class="pb-field"><label>樂器 / Instruments（可多選 · 決定你出現在哪些樂器頁與前台篩選）</label>
                 <select id="pbInstAdd" onchange="pbInstPick()" style="width:100%;padding:9px 10px;border:1px solid #d8d8d8;border-radius:8px;font-size:13px;background:#fff;"></select>
                 <div class="pb-inst-chips" id="pbInstChips"></div>
@@ -1631,10 +1631,10 @@
               <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">這是你在 Musicians 列表那張卡片顯示的照片與文字（留空會自動沿用主頁設定）。照片請貼網址。</p>
               <div class="pb-field"><label>卡片照片網址 / Card photo URL</label><input type="text" id="pbCardPhotoUrl" placeholder="https://… 圖片網址" oninput="pbOnInput()"></div>
               <div class="pb-field"><label>顯示名稱 / Display name</label><input type="text" id="pbCardName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name"></div>
-              <div class="pb-field"><label>樂器 / Instruments</label><div style="font-size:12px;color:var(--mid);line-height:1.5;">樂器選擇已移到「<b>主視覺</b>」分頁的頭銜下方（可多選、連動前台篩選）。</div></div>
+              <div class="pb-field"><label>樂器 / Instruments</label><div style="font-size:12px;color:var(--mid);line-height:1.5;" data-i18n-html="pbh_card_inst">樂器選擇已移到「<b>主視覺</b>」分頁的頭銜下方（可多選、連動前台篩選）。</div></div>
               <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbCardLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
               <div class="pb-field"><label>簡短介紹 / Short bio</label><textarea id="pbCardBio" oninput="pbOnInput()" placeholder="一句話介紹你自己 / A one-line intro"></textarea></div>
-              <div class="pb-field"><label>卡片音樂 / Card music (MP3)</label><input type="text" id="pbCardAudioUrl" oninput="pbOnInput()" placeholder="https://….mp3（或拖曳音檔上傳）"><div style="font-size:11px;color:var(--text-muted,#888);margin-top:4px;line-height:1.5;">在「音樂家列表」卡片左下角按播放鍵時會播放這首。<br>影片想轉成 MP3？可用<a href="https://www.freeconvert.com/convert/video-to-mp3" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">這個免費影片轉 MP3 工具</a>。</div></div>
+              <div class="pb-field"><label>卡片音樂 / Card music (MP3)</label><input type="text" id="pbCardAudioUrl" oninput="pbOnInput()" placeholder="https://….mp3（或拖曳音檔上傳）"><div style="font-size:11px;color:var(--text-muted,#888);margin-top:4px;line-height:1.5;" data-i18n-html="pbh_card_music">在「音樂家列表」卡片左下角按播放鍵時會播放這首。<br>影片想轉成 MP3？可用<a href="https://www.freeconvert.com/convert/video-to-mp3" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">這個免費影片轉 MP3 工具</a>。</div></div>
 
               <div class="pb-subgroup-title" style="margin-top:18px;">預覽 / Card preview</div>
               <div class="pbcard">
@@ -1672,7 +1672,7 @@
                 <div id="pbAvatarPrevWrap" style="width:72px;height:72px;border-radius:50%;overflow:hidden;position:relative;background:#e0e0e0;flex-shrink:0;border:2px solid #f0f0f0;">
                   <img id="pbAvatarPrevImg" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
                 </div>
-                <div style="font-size:11px;color:var(--mid);line-height:1.5;">調整大頭照的<b>位置與大小</b>。<br>照片永遠填滿圓框，拖滑桿選要露出的部位。</div>
+                <div style="font-size:11px;color:var(--mid);line-height:1.5;" data-i18n-html="pbh_avatar">調整大頭照的<b>位置與大小</b>。<br>照片永遠填滿圓框，拖滑桿選要露出的部位。</div>
               </div>
               <div class="pb-field"><label>水平 / X (%)</label><input type="range" id="pbAvatarX" min="0" max="100" step="1" value="50" oninput="pbOnInput()" style="width:100%;"></div>
               <div class="pb-field"><label>垂直 / Y (%)</label><input type="range" id="pbAvatarY" min="0" max="100" step="1" value="50" oninput="pbOnInput()" style="width:100%;"></div>
@@ -1901,7 +1901,7 @@
             <!-- Audio tracks (Phase 2-C) -->
             <div class="pb-field-group" data-pbgroup="audio">
               <div class="pb-group-title">音檔 / Audio tracks（拖曳 MP3 上傳，或貼網址）</div>
-              <div style="font-size:11px;color:var(--text-muted,#888);margin:-2px 0 10px;line-height:1.5;">影片想轉成 MP3？可用<a href="https://www.freeconvert.com/convert/video-to-mp3" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">這個免費影片轉 MP3 工具</a>。</div>
+              <div style="font-size:11px;color:var(--text-muted,#888);margin:-2px 0 10px;line-height:1.5;" data-i18n-html="pbh_mp3_tool">影片想轉成 MP3？可用<a href="https://www.freeconvert.com/convert/video-to-mp3" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">這個免費影片轉 MP3 工具</a>。</div>
               <div class="pb-subgroup" data-pbaudio="0">
                 <div class="pb-subgroup-title">曲目 1</div>
                 <div class="pb-field"><label>標題</label><input type="text" id="pbAudio0Title" oninput="pbOnInput()"></div>
@@ -2086,6 +2086,7 @@
       poster_submit_btn:'投稿海報', poster_clear_btn:'清除', poster_my:'我的海報投稿',
       pb_title:'編輯主頁', pb_subtitle:'即時編輯你的公開檔案頁面，右側修改、中間預覽，按「儲存」發佈。',
       pb_hero:'主視覺', pb_booking:'預約', pb_about:'關於',
+      pb_card:'列表卡片', pb_audio:'音檔', pb_services:'專長', pb_videos:'影片', pb_theme:'主題',
       pb_highlights:'亮點', pb_partners:'合作夥伴', pb_lessons:'課程方案',
       pb_stats:'數據', pb_desktop:'桌機', pb_mobile:'手機',
       pb_name_desk:'🖥 名字大小（桌機）', pb_name_mob:'📱 名字大小（手機）',
@@ -2097,6 +2098,11 @@
       pb_video_zoom_desc:'縮放 / Zoom（YouTube 有黑邊時拉大來填滿；100% = 完整顯示+置中，越大從中心裁越多）',
       pb_video_zoom_label:'🔍 縮放 (%)', pb_subtitle_label:'副標題（大字下方小字）',
       pb_video_url_label:'影片網址', pb_video_poster_label:'封面圖網址(選填)',
+      pbh_title_hint:'頭銜會依你下面選的<b>主要樂器（第一個）</b>自動顯示在 Banner 上，例如選「小提琴」→ 顯示「Violinist / 小提琴家」。',
+      pbh_card_inst:'樂器選擇已移到「<b>主視覺</b>」分頁的頭銜下方（可多選、連動前台篩選）。',
+      pbh_card_music:'在「音樂家列表」卡片左下角按播放鍵時會播放這首。<br>影片想轉成 MP3？可用<a href="https://www.freeconvert.com/convert/video-to-mp3" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">這個免費影片轉 MP3 工具</a>。',
+      pbh_avatar:'調整大頭照的<b>位置與大小</b>。<br>照片永遠填滿圓框，拖滑桿選要露出的部位。',
+      pbh_mp3_tool:'影片想轉成 MP3？可用<a href="https://www.freeconvert.com/convert/video-to-mp3" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">這個免費影片轉 MP3 工具</a>。',
       policy_loading:'載入中…', policy_updated_prefix:'最後更新：', policy_version_prefix:'版本 ',
       policy_ack_read:'請確認你已閱讀並同意以上平台政策。', policy_ack_required:'確認後才能開始編輯你的公開主頁。',
       policy_ack_check:'我已詳閱並同意以上平台政策', policy_ack_btn:'確認同意',
@@ -2200,6 +2206,7 @@
       poster_submit_btn:'Submit Poster', poster_clear_btn:'Clear', poster_my:'My Submitted Posters',
       pb_title:'Edit Page', pb_subtitle:'Edit your public profile in real time — make changes on the right, preview in the center, then publish.',
       pb_hero:'Hero', pb_booking:'Booking', pb_about:'About',
+      pb_card:'List Card', pb_audio:'Audio', pb_services:'Specialties', pb_videos:'Showreel', pb_theme:'Theme',
       pb_highlights:'Highlights', pb_partners:'Partners', pb_lessons:'Lessons',
       pb_stats:'Stats', pb_desktop:'Desktop', pb_mobile:'Mobile',
       pb_name_desk:'🖥 Name Size (Desktop)', pb_name_mob:'📱 Name Size (Mobile)',
@@ -2211,6 +2218,11 @@
       pb_video_zoom_desc:'Zoom (enlarge to fill black bars; 100% = full view+centered, higher = crop more)',
       pb_video_zoom_label:'🔍 Zoom (%)', pb_subtitle_label:'Subtitle (text below main)',
       pb_video_url_label:'Video URL', pb_video_poster_label:'Cover image URL (optional)',
+      pbh_title_hint:'Your title is generated automatically from your <b>primary instrument (the first one)</b> and shown on the banner — e.g. choosing Violin shows “Violinist”.',
+      pbh_card_inst:'Instrument selection has moved to the <b>Hero</b> tab, under Title (multiple allowed, linked to front-end filters).',
+      pbh_card_music:'Plays when the play button on your Musicians-list card is tapped.<br>Need to convert a video to MP3? Use <a href="https://www.freeconvert.com/convert/video-to-mp3" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">this free video-to-MP3 tool</a>.',
+      pbh_avatar:'Adjust the <b>position and size</b> of your avatar.<br>The photo always fills the circle — drag the sliders to choose what shows.',
+      pbh_mp3_tool:'Need to convert a video to MP3? Use <a href="https://www.freeconvert.com/convert/video-to-mp3" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">this free video-to-MP3 tool</a>.',
       policy_loading:'Loading…', policy_updated_prefix:'Last updated: ', policy_version_prefix:'Version ',
       policy_ack_read:'Please confirm that you have read and agreed to the platform policy above.', policy_ack_required:'You must confirm before editing your public page.',
       policy_ack_check:'I have read and agreed to the platform policy', policy_ack_btn:'Confirm & Agree',
@@ -2225,6 +2237,158 @@
       tour_pb_yes:'Yes, show me →', tour_pb_no:'Not now', tour_pb_never:"Don't show this again",
       tour_overlay_skip:'Skip', tour_back:'Back', tour_next:'Next', tour_done:'Done ✓',
     }
+  };
+
+  // ── Page-builder editor-chrome i18n ───────────────────────────────────────
+  // The page editor's right-hand panel uses hardcoded bilingual labels that were
+  // NOT wired to data-i18n, so they stayed Chinese in EN mode. PB_EN maps each
+  // original (Chinese/bilingual) string to its English. applyPbLang() swaps text
+  // for ONLY the strings listed here, scoped to the page-builder panel — anything
+  // not in the map (musician data, URLs, etc.) is never touched.
+  var PB_EN = {
+    // section / group titles
+    '主視覺':'Hero','列表卡片 / Card':'List Card','關於':'About','預約':'Booking',
+    '課程方案':'Lesson Plans','數據':'Stats','Partners / 合作品牌':'Partners',
+    'Specialties / 專長':'Specialties','Career Highlights / 亮點':'Career Highlights',
+    '音檔 / Audio tracks（拖曳 MP3 上傳，或貼網址）':'Audio Tracks (drag & drop MP3, or paste a URL)',
+    'Showreel 影片 (YouTube / Vimeo / .mp4)':'Showreel Videos (YouTube / Vimeo / .mp4)',
+    '主題顏色 / Theme colors':'Theme Colors',
+    // subgroup titles
+    'Banner 照片（最多 4 張）/ Banner photos (up to 4)':'Banner Photos (up to 4)',
+    '預覽 / Card preview':'Card Preview','照片位置 / Photo position':'Photo Position',
+    '學經歷 / Credentials':'Credentials','大頭照 / Avatar':'Avatar',
+    '按小時方案 / Per-hour options':'Per-hour Options','組合包 / Packages':'Packages',
+    '加購 / Add-ons':'Add-ons','方案 1':'Plan 1','方案 2':'Plan 2','方案 3':'Plan 3',
+    '數據 1':'Stat 1','數據 2':'Stat 2','數據 3':'Stat 3',
+    '曲目 1':'Track 1','曲目 2':'Track 2','曲目 3':'Track 3','曲目 4':'Track 4','曲目 5':'Track 5','曲目 6':'Track 6',
+    'Card 2 — Lessons（教學專長）':'Card 2 — Lessons',
+    'Card 3 — 其他專長（自訂）':'Card 3 — Other (custom)','Card 4 — 其他專長（自訂）':'Card 4 — Other (custom)',
+    '音樂風格 / Styles（可複選；用於前台篩選，並自動成為演出標籤）':'Music Styles (multiple; used for front-end filters and shown as performance tags)',
+    // labels
+    '名稱 / Name':'Name','頭銜 / Title':'Title',
+    '樂器 / Instruments（可多選 · 決定你出現在哪些樂器頁與前台篩選）':'Instruments (multiple · controls which instrument pages and filters you appear in)',
+    '主要地點 / Primary location（決定你出現在前台哪個地區篩選）':'Primary Location (controls which region filter you appear in)',
+    '次要地點 / Secondary location（選填 / optional）':'Secondary Location (optional)',
+    '卡片照片網址 / Card photo URL':'Card Photo URL','顯示名稱 / Display name':'Display Name',
+    '樂器 / Instruments':'Instruments','地點 / Location':'Location','簡短介紹 / Short bio':'Short Bio',
+    '卡片音樂 / Card music (MP3)':'Card Music (MP3)',
+    '水平 / X (%)':'Horizontal X (%)','垂直 / Y (%)':'Vertical Y (%)','水平 X (%)':'Horizontal X (%)','垂直 Y (%)':'Vertical Y (%)',
+    '縮放 / Scale（最小＝填滿相框）':'Scale (min = fill frame)',
+    '簡介（中文）/ Bio':'Bio (Chinese)','🌐 簡介（English）/ Bio (English)':'🌐 Bio (English)',
+    '學經歷（中文）/ Credentials (one per line)':'Credentials (Chinese, one per line)',
+    '🌐 學經歷（English）/ Credentials, English (one per line)':'🌐 Credentials (English, one per line)',
+    '頭像網址 / Avatar image URL':'Avatar Image URL','大小 / Scale（最小＝填滿）':'Size (min = fill)',
+    '大小 / Zoom (%)':'Size / Zoom (%)','模式 / Mode':'Mode','招生條件 / Matching':'Matching',
+    '教學程度 / Levels':'Levels','上課形式 / Format':'Format','可上課時段 / Time':'Availability',
+    '方案數量 / Number of plans（1～3）':'Number of Plans (1–3)',
+    '名稱（中文）':'Name (Chinese)','🌐 名稱（English）':'🌐 Name (English)',
+    '副標（中文，每行一句）':'Subtitle (Chinese, one line each)','🌐 副標（English）':'🌐 Subtitle (English)',
+    '單位（中文）':'Unit (Chinese)','🌐 單位（English）':'🌐 Unit (English)',
+    '優惠說明（中文）':'Discount Note (Chinese)','🌐 優惠說明（English）':'🌐 Discount Note (English)',
+    '特色（中文，每行一項）':'Features (Chinese, one per line)','🌐 特色（English, one per line）':'🌐 Features (English, one per line)',
+    '時程（中文）':'Timeline (Chinese)','🌐 時程（English）':'🌐 Timeline (English)',
+    '標題（中文）':'Title (Chinese)','🌐 標題（English）':'🌐 Title (English)',
+    '描述（中文）':'Description (Chinese)','🌐 描述（English）':'🌐 Description (English)',
+    '標籤・中文(每行一項)':'Tags (Chinese, one per line)','🌐 標籤・English (one per line)':'🌐 Tags (English, one per line)',
+    '標題':'Title','數值':'Value','後綴':'Suffix','標籤':'Label','Value（自動）':'Value (auto)',
+    '品牌名稱 / Brand names (one per line)':'Brand Names (one per line)',
+    '主色 / Accent (CTA buttons)':'Accent (CTA buttons)','頁面背景 / Page background':'Page Background',
+    '文字顏色 / Text color':'Text Color','年份':'Year','影片 1':'Video 1',
+    '標題（顯示在影片上的大字）':'Title (large text shown over the video)',
+    '說明 / Description':'Description','起價 / From (NT$)':'From (NT$)',
+    '備註 / Note':'Note','價格 / Price':'Price','價格 / Price (NT$)':'Price (NT$)',
+    '小時 / Hours':'Hours','時長 / Duration':'Duration','圖片網址 / Image URL':'Image URL',
+    '媒體網址 / Media URL':'Media URL','類型 / Type':'Type','主圖 / Main':'Main',
+    '國家 / Country':'Country','城市 / City':'City',
+    // buttons
+    '➕ 新增照片 / Add photo':'➕ Add Photo','➕ 新增時段 / Add option':'➕ Add Option',
+    '➕ 新增組合包 / Add package':'➕ Add Package','➕ 新增加購 / Add add-on':'➕ Add Add-on',
+    '➕ 新增亮點 / Add highlight':'➕ Add Highlight','➕ 新增影片 / Add video（最多 3 個）':'➕ Add Video (up to 3)',
+    '查看方案 / View plans':'View Plans','重置顏色 / Reset to default':'Reset to Default',
+    '發布我的頁面 / Publish':'Publish My Page','下架我的頁面 / Unpublish':'Unpublish My Page',
+    '↺ 恢復空白模板 / Reset to template':'↺ Reset to Blank Template',
+    '查看我的公開頁面 / View my public page →':'View My Public Page →',
+    '儲存 / Save':'Save','⬆ 上傳照片 / Upload':'⬆ Upload','⬆ 上傳圖片 / Upload':'⬆ Upload',
+    '編輯大頭照 / Edit avatar':'Edit avatar','＋ 新增樂器 / Add instrument…':'+ Add instrument…',
+    // lock card
+    '教學功能為 Premium 專屬':'Teaching is a Premium Feature',
+    '升級或輸入邀請碼後，即可開放課程方案、公開招收學生，並出現在 Lessons 老師列表。':'Upgrade or enter an invite code to unlock lesson plans, recruit students publicly, and appear in the Lessons teacher directory.',
+    // checkboxes (trailing text)
+    '提供組合包 / Offer packages':'Offer packages','顯示課程方案 / Show lesson plans':'Show lesson plans',
+    'Beginner 初學':'Beginner','Intermediate 中階':'Intermediate','Advanced 進階':'Advanced',
+    'In-person 實體':'In-person','Online 線上':'Online','Weekday 平日':'Weekday','Weekend 週末':'Weekend',
+    '顯示演出專長卡片 / Show this card':'Show this card','顯示此專長卡片 / Show this card':'Show this card',
+    '顯示教學專長卡片（＝開啟課程方案）':'Show teaching card (enables lesson plans)',
+    // select options
+    '實體':'In-person','線上':'Online','1 個方案':'1 plan','2 個方案':'2 plans','3 個方案':'3 plans',
+    'Photo 照片':'Photo','Video 影片':'Video',
+    // plain-text hints
+    '第 1 張是主照片；最多 4 張會自動輪播，留空的不顯示。每張可單獨調整位置與縮放。':'The first photo is the main one; up to 4 rotate automatically and empty ones are hidden. Each can be positioned and zoomed individually.',
+    '這是你在 Musicians 列表那張卡片顯示的照片與文字（留空會自動沿用主頁設定）。照片請貼網址。':'This is the photo and text shown on your card in the Musicians directory (leave blank to reuse your main page settings). Paste an image URL.',
+    '對應 Lessons 頁的篩選器。學生用程度／形式／時段篩選時,只會看到與你勾選相符的老師。':'Mirrors the filters on the Lessons page. When students filter by level / format / time, they only see teachers matching what you check.',
+    '名稱、副標、單位、特色、時程都有中／英兩欄，訪客切換 EN 時自動顯示英文（留空則沿用中文）。按鈕文字固定為「預約課程 / Book a lesson」，會自動隨語言切換，無需編輯。':'Name, subtitle, unit, features and timeline each have Chinese & English fields — visitors switching to EN see the English (blank falls back to Chinese). The button text is fixed as “Book a lesson” and switches language automatically.',
+    '🔒 此數字會依你實際收到的客戶評論自動跳動,無法手動修改。':'🔒 This number updates automatically from the client reviews you receive and cannot be edited manually.',
+    '輸入你合作過的單位／品牌（每行一個）。公開頁會自動把每個名稱排成統一風格的文字標誌（wordmark）。':'Enter organizations / brands you have worked with (one per line). Your public page renders each as a uniform text wordmark.',
+    '勾選後會自動開啟「課程方案」，並讓你出現在 Lessons 老師頁。':'Checking this enables “Lesson Plans” and lists you on the Lessons teacher page.',
+    '按小時方案會自動帶到預約列下拉與「From 起價」（取最低價）；組合包勾選後才會在 Check availability 顯示 Packages 分頁。':'Per-hour options feed the booking dropdown and the “From” starting price (lowest). Packages appear as a Packages tab in Check availability only when enabled.',
+    // placeholders
+    '你的藝名 / Your stage name':'Your stage name','https://… 圖片網址':'https://… image URL',
+    '你的城市，國家 / Your city, country':'Your city, country','一句話介紹你自己 / A one-line intro':'A one-line intro',
+    'https://….mp3（或拖曳音檔上傳）':'https://….mp3 (or drag & drop an audio file)',
+    '介紹你自己 — 你的背景、訓練與演出特色':'Introduce yourself — your background, training, and performance style',
+    'English version — shown when visitors switch to EN（留空＝英文版此段空白）':'English version — shown when visitors switch to EN (leave blank = empty)',
+    '每行一項：樂團、獎項、學歷':'One per line: orchestras, awards, education',
+    'One per line: orchestras, awards, education（留空＝英文版此段空白）':'One per line: orchestras, awards, education (leave blank = empty)',
+    '服務名稱':'Service name','描述這項服務':'Describe this service','每行一個標籤':'One tag per line',
+    '每行一個品牌 / One brand per line':'One brand per line'
+  };
+  var _pbApplying = false;
+  function _pbLastTextNode(el){
+    for(var i=el.childNodes.length-1;i>=0;i--){ var n=el.childNodes[i]; if(n.nodeType===3 && n.textContent.trim()) return n; }
+    return null;
+  }
+  window.applyPbLang = function(){
+    var root = document.querySelector('#page-pagebuilder .pb-right');
+    if(!root) return;
+    _pbApplying = true;
+    var en = (window._lang === 'en');
+    // 1) checkbox labels — translate only the trailing text node
+    root.querySelectorAll('label.pb-check').forEach(function(lb){
+      var n = _pbLastTextNode(lb); if(!n) return;
+      if(lb.__pbk === undefined){ var cur = n.textContent.trim(); if(PB_EN[cur] === undefined) return; lb.__pbk = cur; }
+      var val = ' ' + (en ? PB_EN[lb.__pbk] : lb.__pbk);
+      if(n.textContent !== val) n.textContent = val;
+    });
+    // 2) placeholders
+    root.querySelectorAll('input[placeholder],textarea[placeholder]').forEach(function(el){
+      if(el.__pbph === undefined){ var cur = (el.getAttribute('placeholder')||'').trim(); if(PB_EN[cur] === undefined) return; el.__pbph = cur; }
+      var val = en ? PB_EN[el.__pbph] : el.__pbph;
+      if(el.placeholder !== val) el.placeholder = val;
+    });
+    // 3) leaf text elements (labels, titles, buttons, options, plain hints)
+    root.querySelectorAll('*').forEach(function(el){
+      if(el.children.length) return;                                   // leaf only
+      if(el.closest('[data-i18n],[data-i18n-html],label.pb-check')) return; // handled elsewhere
+      if(el.__pbk === undefined){
+        var raw = el.textContent; if(!raw || !raw.trim()) return;
+        if(PB_EN[raw.trim()] === undefined) return;                    // not a managed string
+        el.__pbk = raw.trim();
+      }
+      var val = en ? PB_EN[el.__pbk] : el.__pbk;
+      if(el.textContent !== val) el.textContent = val;
+    });
+    _pbApplying = false;
+  };
+  var _pbLangTimer = null, _pbObserver = null;
+  window.startPbLangObserver = function(){
+    if(_pbObserver) return;
+    var root = document.getElementById('page-pagebuilder'); if(!root) return;
+    _pbObserver = new MutationObserver(function(){
+      if(_pbApplying) return;                                          // ignore our own edits
+      clearTimeout(_pbLangTimer);
+      _pbLangTimer = setTimeout(function(){ if(window.applyPbLang) window.applyPbLang(); }, 60);
+    });
+    _pbObserver.observe(root, { childList:true, subtree:true });
   };
 
   window._lang = localStorage.getItem('opusz_dash_lang') || 'zh';
@@ -2242,6 +2406,10 @@
     document.querySelectorAll('[data-i18n-label]').forEach(function(el){
       var k = el.getAttribute('data-i18n-label'); var v = t(k); if(v) el.setAttribute('aria-label', v);
     });
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el){
+      var k = el.getAttribute('data-i18n-html'); var v = t(k); if(v) el.innerHTML = v;
+    });
+    if(window.applyPbLang) window.applyPbLang();   // page-builder editor chrome
     var activePage = document.querySelector('.page.active');
     if(activePage){
       var pid = activePage.id.replace('page-','');
@@ -2271,6 +2439,7 @@
 
   // Apply saved language immediately on page load
   applyI18n();
+  if(window.startPbLangObserver) window.startPbLangObserver();   // keep dynamic editor rows translated
 
   const firebaseConfig = {
     apiKey: "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s",
