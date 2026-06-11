@@ -791,6 +791,19 @@ function buildInstDropdown(){
       setFilter('inst', opt.getAttribute('data-val')||'');
       var drop = document.getElementById('instDrop'); if(drop) drop.classList.remove('open');
     });
+    // When the dropdown opens, cap its height to the space left below the button so
+    // the WHOLE list (incl. its scrollbar) stays on-screen → the wheel can scroll it.
+    var btnEl = document.querySelector('#instDrop .fdrop-btn');
+    if(btnEl) btnEl.addEventListener('click', function(){
+      requestAnimationFrame(function(){
+        var drop = document.getElementById('instDrop');
+        if(drop && drop.classList.contains('open')){
+          var br = btnEl.getBoundingClientRect();
+          menu.style.maxHeight = Math.max(200, window.innerHeight - br.bottom - 16) + 'px';
+          menu.scrollTop = 0;
+        }
+      });
+    });
   }
 }
 
