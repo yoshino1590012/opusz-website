@@ -59,7 +59,23 @@
       background: #fafafa;
       display: flex; align-items: center; justify-content: center;
       padding: 40px 24px;
+      position: relative;
     }
+    .lang-toggle {
+      position: absolute; top: 18px; right: 20px;
+      display: flex; align-items: center; gap: 0;
+      border: 1.5px solid #ddd; border-radius: 8px;
+      overflow: hidden; background: #fff;
+      font-family: inherit; font-size: 12.5px;
+      user-select: none;
+    }
+    .lang-toggle button {
+      padding: 5px 12px; border: none; background: transparent;
+      cursor: pointer; font-family: inherit; font-size: 12.5px;
+      color: var(--mid); font-weight: 500; transition: background .15s, color .15s;
+    }
+    .lang-toggle button.active { background: var(--black); color: #fff; font-weight: 700; }
+    .lang-toggle button:not(.active):hover { background: #f0f0f0; }
     .form-box {
       width: 100%; max-width: 420px;
     }
@@ -244,34 +260,38 @@
   </a>
 
   <div class="lp-body">
-    <div class="lp-headline">
+    <div class="lp-headline" data-i18n-html="lpHeadline">
       Your music.<br>
       <span>Your stage.</span><br>
       Your platform.
     </div>
-    <div class="lp-desc">
-      Join Taiwan's premier classical musician platform. Connect with clients, manage bookings, and build your career — all in one place.
+    <div class="lp-desc" data-i18n="lpDesc">
+      Join world-class classical musician platform. Connect with clients, manage bookings, and build your career — all in one place.
     </div>
   </div>
 
   <div class="lp-stats">
     <div>
       <div class="lp-stat-val">500+</div>
-      <div class="lp-stat-label">Musicians</div>
+      <div class="lp-stat-label" data-i18n="lpMusicians">Musicians</div>
     </div>
     <div>
       <div class="lp-stat-val">2,400+</div>
-      <div class="lp-stat-label">Bookings</div>
+      <div class="lp-stat-label" data-i18n="lpBookings">Bookings</div>
     </div>
     <div>
       <div class="lp-stat-val">4.9★</div>
-      <div class="lp-stat-label">Avg. Rating</div>
+      <div class="lp-stat-label" data-i18n="lpRating">Avg. Rating</div>
     </div>
   </div>
 </div>
 
 <!-- ── RIGHT PANEL ── -->
 <div class="right-panel">
+  <div class="lang-toggle">
+    <button id="langBtnEN" class="active" onclick="setLang('en')">EN</button>
+    <button id="langBtnZH" onclick="setLang('zh')">中文</button>
+  </div>
   <div class="form-box">
 
     <a href="musician-platform.html" class="mobile-logo">
@@ -281,24 +301,20 @@
 
     <!-- ═══════════ STEP 0: LOGIN ═══════════ -->
     <div class="step active" id="step-login">
-      <div class="step-title">Welcome back</div>
-      <div class="step-sub">Sign in to your OPUS.Z musician account.</div>
+      <div class="step-title" data-i18n="loginTitle">Welcome back</div>
+      <div class="step-sub" data-i18n="loginSub">Sign in to your OPUS.Z musician account.</div>
 
-      <div class="alert alert-error" id="loginError">Email or password is incorrect.</div>
+      <div class="alert alert-error" id="loginError" data-i18n="loginErrDefault">Email or password is incorrect.</div>
 
-      <!-- Real <form> so the browser / iOS Keychain offers to SAVE the password
-           and later auto-fills it with Face ID / Touch ID / fingerprint. The
-           email uses autocomplete="username" (the canonical login pairing with
-           current-password) so password managers reliably pair the two. -->
       <form id="loginForm" autocomplete="on" onsubmit="doLogin();return false;">
       <div class="form-group">
-        <label class="form-label">Email</label>
+        <label class="form-label" data-i18n="loginLabelEmail">Email</label>
         <input class="form-input" type="email" id="loginEmail" name="username" placeholder="your@email.com" autocomplete="username" inputmode="email" autocapitalize="none">
       </div>
       <div class="form-group">
-        <label class="form-label">Password</label>
+        <label class="form-label" data-i18n="loginLabelPw">Password</label>
         <div class="pw-wrap">
-          <input class="form-input" type="password" id="loginPw" name="password" placeholder="Enter your password" autocomplete="current-password">
+          <input class="form-input" type="password" id="loginPw" name="password" data-i18n-placeholder="loginPwPlaceholder" placeholder="Enter your password" autocomplete="current-password">
           <button type="button" class="pw-toggle" onclick="togglePw('loginPw',this)" tabindex="-1">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
@@ -307,20 +323,20 @@
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;gap:12px;">
         <label style="display:flex;align-items:center;gap:7px;font-size:12.5px;color:var(--mid);cursor:pointer;user-select:none;">
           <input type="checkbox" id="rememberMe" checked style="width:15px;height:15px;accent-color:#000;cursor:pointer;">
-          保持登入 / Remember me
+          <span data-i18n="loginRemember">Remember me</span>
         </label>
-        <a href="#" style="font-size:12.5px;color:var(--mid);text-decoration:none;white-space:nowrap;" onclick="goStep('forgot');return false;">Forgot password?</a>
+        <a href="#" id="loginForgotLink" style="font-size:12.5px;color:var(--mid);text-decoration:none;white-space:nowrap;" onclick="goStep('forgot');return false;" data-i18n="loginForgot">Forgot password?</a>
       </div>
 
-      <button type="submit" class="btn-main">Sign In</button>
+      <button type="submit" class="btn-main" id="loginBtn" data-i18n="loginBtn">Sign In</button>
       </form>
 
-      <div class="divider"><span>or</span></div>
+      <div class="divider"><span data-i18n="loginOr">or</span></div>
 
-      <button class="btn-sec" onclick="goStep('register-email')">Create a musician account</button>
+      <button class="btn-sec" id="loginCreateBtn" onclick="goStep('register-email')" data-i18n="loginCreate">Create a musician account</button>
 
       <div class="switch-link" style="margin-top:16px;">
-        <a href="musician-platform.html">← Back to OPUS.Z</a>
+        <a href="musician-platform.html" data-i18n="loginBackHome">← Back to OPUS.Z</a>
       </div>
     </div>
 
@@ -328,23 +344,23 @@
     <div class="step" id="step-forgot">
       <button class="back-btn" onclick="goStep('login')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        Back
+        <span data-i18n="forgotBack">Back</span>
       </button>
-      <div class="step-title">Reset password</div>
-      <div class="step-sub">Enter your email and we'll send you a reset link.</div>
-      <div class="alert alert-success" id="forgotSuccess">Reset link sent! Check your inbox.</div>
+      <div class="step-title" data-i18n="forgotTitle">Reset password</div>
+      <div class="step-sub" data-i18n="forgotSub">Enter your email and we'll send you a reset link.</div>
+      <div class="alert alert-success" id="forgotSuccess" data-i18n="forgotSuccess">Reset link sent! Check your inbox.</div>
       <div class="form-group">
-        <label class="form-label">Email</label>
+        <label class="form-label" data-i18n="forgotLabelEmail">Email</label>
         <input class="form-input" type="email" id="forgotEmail" placeholder="your@email.com">
       </div>
-      <button class="btn-main" onclick="doForgot()">Send Reset Link</button>
+      <button class="btn-main" id="forgotBtn" onclick="doForgot()" data-i18n="forgotBtn">Send Reset Link</button>
     </div>
 
     <!-- ═══════════ STEP 1: REGISTER EMAIL ═══════════ -->
     <div class="step" id="step-register-email">
       <button class="back-btn" onclick="goStep('login')">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-        Back to sign in
+        <span data-i18n="regBack">Back to sign in</span>
       </button>
 
       <div class="progress-dots">
@@ -353,20 +369,20 @@
         <div class="pd"></div>
       </div>
 
-      <div class="step-title">Create your account</div>
-      <div class="step-sub">Just your email and a password to get started.</div>
+      <div class="step-title" data-i18n="regTitle">Create your account</div>
+      <div class="step-sub" data-i18n="regSub">Just your email and a password to get started.</div>
 
       <div class="alert alert-error" id="regError"></div>
 
       <div class="form-group">
-        <label class="form-label">Email address</label>
+        <label class="form-label" data-i18n="regLabelEmail">Email address</label>
         <input class="form-input" type="email" id="regEmail" placeholder="your@email.com" autocomplete="email">
-        <div class="form-error" id="regEmailErr">Please enter a valid email.</div>
+        <div class="form-error" id="regEmailErr" data-i18n="regErrEmail">Please enter a valid email.</div>
       </div>
       <div class="form-group">
-        <label class="form-label">Password</label>
+        <label class="form-label" data-i18n="regLabelPw">Password</label>
         <div class="pw-wrap">
-          <input class="form-input" type="password" id="regPw" placeholder="At least 8 characters" oninput="checkStrength(this.value)" autocomplete="new-password">
+          <input class="form-input" type="password" id="regPw" data-i18n-placeholder="regPwPlaceholder" placeholder="At least 8 characters" oninput="checkStrength(this.value)" autocomplete="new-password">
           <button class="pw-toggle" onclick="togglePw('regPw',this)" tabindex="-1">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
@@ -376,22 +392,22 @@
           <div class="pws-bar"></div><div class="pws-bar"></div>
         </div>
         <div class="pws-label" id="pwStrLabel"></div>
-        <div class="form-error" id="regPwErr">Password must be at least 8 characters.</div>
+        <div class="form-error" id="regPwErr" data-i18n="regErrPw">Password must be at least 8 characters.</div>
       </div>
       <div class="form-group">
-        <label class="form-label">Confirm password</label>
+        <label class="form-label" data-i18n="regLabelConfirm">Confirm password</label>
         <div class="pw-wrap">
-          <input class="form-input" type="password" id="regPwConfirm" placeholder="Re-enter password" autocomplete="new-password">
+          <input class="form-input" type="password" id="regPwConfirm" data-i18n-placeholder="regConfirmPlaceholder" placeholder="Re-enter password" autocomplete="new-password">
           <button class="pw-toggle" onclick="togglePw('regPwConfirm',this)" tabindex="-1">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
           </button>
         </div>
-        <div class="form-error" id="regPwMatchErr">Passwords do not match.</div>
+        <div class="form-error" id="regPwMatchErr" data-i18n="regErrMatch">Passwords do not match.</div>
       </div>
 
-      <button class="btn-main" id="regBtn" onclick="doRegister()">Continue</button>
+      <button class="btn-main" id="regBtn" onclick="doRegister()" data-i18n="regBtn">Continue</button>
 
-      <div class="terms">
+      <div class="terms" id="regTerms" data-i18n-html="regTerms">
         By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
       </div>
     </div>
@@ -408,24 +424,24 @@
         <div style="width:56px;height:56px;background:#f0f9ff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0ea5e9" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
         </div>
-        <div class="step-title" style="margin-bottom:8px;">Check your inbox</div>
-        <div class="step-sub">We sent a verification link to<br><strong id="verifyEmail" style="color:#0f0f0f;"></strong></div>
+        <div class="step-title" style="margin-bottom:8px;" data-i18n="verifyTitle">Check your inbox</div>
+        <div class="step-sub"><span data-i18n="verifySub1">We sent a verification link to</span><br><strong id="verifyEmail" style="color:#0f0f0f;"></strong></div>
       </div>
 
       <div class="alert alert-error" id="otpError" style="display:none;"></div>
-      <div class="alert alert-success" id="verifySuccess" style="display:none;">✓ Email verified! Continuing to profile setup…</div>
+      <div class="alert alert-success" id="verifySuccess" style="display:none;" data-i18n="verifySuccessMsg">✓ Email verified! Continuing to profile setup…</div>
 
-      <div style="background:#f8f8f8;border-radius:10px;padding:16px;margin-bottom:20px;font-size:13px;color:#555;line-height:1.6;">
+      <div id="verifyInstructions" style="background:#f8f8f8;border-radius:10px;padding:16px;margin-bottom:20px;font-size:13px;color:#555;line-height:1.6;" data-i18n-html="verifyInstructions">
         1. Open the email from OPUS.Z<br>
         2. Click the <strong>verification link</strong><br>
         3. Come back here and click the button below
       </div>
 
-      <button class="btn-main" onclick="checkVerified()">I've verified my email ✓</button>
+      <button class="btn-main" id="verifyBtn" onclick="checkVerified()" data-i18n="verifyBtn">I've verified my email ✓</button>
 
       <div style="margin-top:16px;text-align:center;">
-        <span style="font-size:12.5px;color:var(--mid);">Didn't receive it? </span>
-        <span class="resend-link" onclick="resendVerification()" style="font-size:12.5px;cursor:pointer;color:#0f0f0f;font-weight:600;text-decoration:underline;">Resend email</span>
+        <span style="font-size:12.5px;color:var(--mid);" data-i18n="verifyResendQ">Didn't receive it? </span>
+        <span class="resend-link" onclick="resendVerification()" style="font-size:12.5px;cursor:pointer;color:#0f0f0f;font-weight:600;text-decoration:underline;" data-i18n="verifyResend">Resend email</span>
       </div>
     </div>
 
@@ -437,34 +453,31 @@
         <div class="pd active"></div>
       </div>
 
-      <div class="step-title">樂手申請資料</div>
-      <div class="step-sub">請完整填寫您的基本資料與經歷，送出後將由管理者審核。</div>
+      <div class="step-title" data-i18n="setupTitle">樂手申請資料</div>
+      <div class="step-sub" data-i18n="setupSub">請完整填寫您的基本資料與經歷，送出後將由管理者審核。</div>
 
-      <!-- Invite code (optional). A valid code skips review and makes the heavier
-           fields (photo / bio / education / experience) optional. Placed at the TOP
-           so applicants see it before filling everything in. -->
       <div class="form-group" style="background:#f0f7ff;border:1px solid #cfe3ff;border-radius:10px;padding:12px 14px;">
-        <label class="form-label" style="margin-bottom:4px;">邀請碼 / Invite code <span style="font-weight:400;color:var(--mid);">— 有就填，沒有可直接略過</span></label>
-        <input class="form-input" type="text" id="setupInvite" placeholder="有邀請碼可直接通過、部分欄位免填" oninput="checkInvite()" autocomplete="off" style="background:#fff;">
+        <label class="form-label" style="margin-bottom:4px;"><span data-i18n="setupInviteLabel">邀請碼 / Invite code</span> <span style="font-weight:400;color:var(--mid);" data-i18n="setupInviteSpan">— 有就填，沒有可直接略過</span></label>
+        <input class="form-input" type="text" id="setupInvite" data-i18n-placeholder="setupInvitePlaceholder" placeholder="有邀請碼可直接通過、部分欄位免填" oninput="checkInvite()" autocomplete="off" style="background:#fff;">
         <div id="setupInviteMsg" style="display:none;font-size:13px;margin-top:7px;line-height:1.5;"></div>
       </div>
 
       <div class="form-group">
-        <label class="form-label">Your name (display name)</label>
+        <label class="form-label" data-i18n="setupNameLabel">Your name (display name)</label>
         <input class="form-input" type="text" id="setupName" placeholder="e.g. Martin Chen">
-        <div class="form-error" id="setupNameErr">Please enter your name.</div>
+        <div class="form-error" id="setupNameErr" data-i18n="setupNameErr">Please enter your name.</div>
       </div>
 
       <!-- Instruments -->
       <div class="form-group">
-        <label class="form-label">Instruments <span style="font-weight:400;color:var(--mid);">— select all that apply</span></label>
+        <label class="form-label"><span data-i18n="setupInstLabel">Instruments</span> <span style="font-weight:400;color:var(--mid);" data-i18n="setupInstSpan">— select all that apply</span></label>
         <div id="instGrid" style="display:flex;flex-direction:column;gap:12px;margin-top:6px;"></div>
-        <div class="form-error" id="setupInstErr">Please select at least one instrument.</div>
+        <div class="form-error" id="setupInstErr" data-i18n="setupInstErr">Please select at least one instrument.</div>
       </div>
 
       <!-- Primary Region -->
       <div class="form-group">
-        <label class="form-label">Primary Region</label>
+        <label class="form-label" data-i18n="setupPrimaryLabel">Primary Region</label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <select class="form-select" id="primaryCountry" onchange="updateCities('primary')">
             <option value="">Country</option>
@@ -473,12 +486,12 @@
             <option value="">City / Region</option>
           </select>
         </div>
-        <div class="form-error" id="setupRegionErr">Please select your primary region.</div>
+        <div class="form-error" id="setupRegionErr" data-i18n="setupRegionErr">Please select your primary region.</div>
       </div>
 
       <!-- Secondary Region -->
       <div class="form-group">
-        <label class="form-label">Secondary Region <span style="font-weight:400;color:var(--mid);">— optional</span></label>
+        <label class="form-label"><span data-i18n="setupSecondaryLabel">Secondary Region</span> <span style="font-weight:400;color:var(--mid);" data-i18n="setupSecondarySpan">— optional</span></label>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           <select class="form-select" id="secondaryCountry" onchange="updateCities('secondary')">
             <option value="">Country</option>
@@ -491,33 +504,31 @@
 
       <!-- Profile photo -->
       <div class="form-group">
-        <label class="form-label">大頭照 / Profile photo</label>
+        <label class="form-label" data-i18n="setupPhotoLabel">大頭照 / Profile photo</label>
         <div style="display:flex;align-items:center;gap:14px;margin-top:6px;">
-          <!-- 圓形預覽（overflow:hidden 裁切，object-fit:cover 填滿） -->
           <div id="setupPhotoPreview" style="width:72px;height:72px;border-radius:50%;background:#eee;flex-shrink:0;border:1px solid #e2e2e2;overflow:hidden;position:relative;">
             <img id="setupPhotoImg" src="" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
           </div>
           <label style="cursor:pointer;padding:9px 16px;font-size:14px;border:1px solid #d8d8d8;border-radius:8px;display:inline-flex;align-items:center;background:#fff;">
-            上傳照片 / Upload
+            <span id="setupPhotoUploadLabel" data-i18n="setupPhotoUpload">上傳照片 / Upload</span>
             <input type="file" id="setupPhoto" accept="image/jpeg,image/png,image/webp" style="display:none;" onchange="previewSetupPhoto(this)">
           </label>
         </div>
-        <!-- 調整滑桿：上傳後才顯示 -->
         <div id="setupPhotoSliders" style="display:none;margin-top:12px;background:#f8f8f8;border:1px solid #eee;border-radius:10px;padding:12px 14px;">
-          <div style="font-size:12px;color:#888;margin-bottom:8px;">調整大頭照位置與大小</div>
-          <div style="font-size:12.5px;color:#555;margin-bottom:3px;">水平位置</div>
+          <div style="font-size:12px;color:#888;margin-bottom:8px;" data-i18n="setupPhotoAdjust">調整大頭照位置與大小</div>
+          <div style="font-size:12.5px;color:#555;margin-bottom:3px;" data-i18n="setupPhotoX">水平位置</div>
           <input type="range" id="setupAvatarX" min="0" max="100" step="1" value="50" style="width:100%;margin-bottom:8px;" oninput="updateSetupAvatarPreview()">
-          <div style="font-size:12.5px;color:#555;margin-bottom:3px;">垂直位置</div>
+          <div style="font-size:12.5px;color:#555;margin-bottom:3px;" data-i18n="setupPhotoY">垂直位置</div>
           <input type="range" id="setupAvatarY" min="0" max="100" step="1" value="50" style="width:100%;margin-bottom:8px;" oninput="updateSetupAvatarPreview()">
-          <div style="font-size:12.5px;color:#555;margin-bottom:3px;">大小</div>
+          <div style="font-size:12.5px;color:#555;margin-bottom:3px;" data-i18n="setupPhotoScale">大小</div>
           <input type="range" id="setupAvatarScale" min="1" max="3" step="0.05" value="1" style="width:100%;" oninput="updateSetupAvatarPreview()">
         </div>
-        <div class="form-error" id="setupPhotoErr">請上傳一張照片。</div>
+        <div class="form-error" id="setupPhotoErr" data-i18n="setupPhotoErrRequired">請上傳一張照片。</div>
       </div>
 
-      <!-- Review-only note: the self-intro fields below are for admin vetting, not the public profile -->
+      <!-- Review-only note -->
       <div class="form-group" style="margin-bottom:6px;">
-        <div style="background:#f5f7ff;border:1px solid #e0e6ff;border-left:3px solid #2563eb;border-radius:10px;padding:11px 13px;font-size:12.5px;line-height:1.6;color:#444;">
+        <div id="setupReviewNote" style="background:#f5f7ff;border:1px solid #e0e6ff;border-left:3px solid #2563eb;border-radius:10px;padding:11px 13px;font-size:12.5px;line-height:1.6;color:#444;" data-i18n-html="setupReviewNote">
           ℹ️ 以下資料（簡介、學歷、經歷）<strong>僅供管理者審核使用</strong>，不會直接公開在你日後的個人主頁；<strong>中文或英文皆可</strong>，請放心填寫。<br>
           <span style="color:#8a8a8a;">For our review only — it won't appear on your public profile. Chinese or English are both fine.</span>
         </div>
@@ -525,36 +536,36 @@
 
       <!-- Bio -->
       <div class="form-group">
-        <label class="form-label">簡介 Bio <span style="font-weight:400;color:var(--mid);">— 一段自我介紹</span><span class="invite-opt" style="display:none;color:#2563eb;font-weight:600;"> · 邀請碼可免填</span></label>
-        <textarea class="form-input" id="setupBio" rows="3" placeholder="例如：台北小提琴家，擅長獨奏與室內樂演出…"></textarea>
-        <div class="form-error" id="setupBioErr">請填寫簡介。</div>
+        <label class="form-label"><span data-i18n="setupBioLabel">簡介 Bio</span> <span style="font-weight:400;color:var(--mid);" data-i18n="setupBioSpan">— 一段自我介紹</span><span class="invite-opt" style="display:none;color:#2563eb;font-weight:600;" data-i18n="setupInviteOpt"> · 邀請碼可免填</span></label>
+        <textarea class="form-input" id="setupBio" rows="3" data-i18n-placeholder="setupBioPlaceholder" placeholder="例如：台北小提琴家，擅長獨奏與室內樂演出…"></textarea>
+        <div class="form-error" id="setupBioErr" data-i18n="setupBioErr">請填寫簡介。</div>
       </div>
 
       <!-- Education -->
       <div class="form-group">
-        <label class="form-label">學歷 / Education<span class="invite-opt" style="display:none;color:#2563eb;font-weight:600;"> · 邀請碼可免填</span></label>
-        <textarea class="form-input" id="setupEducation" rows="2" placeholder="例如：國立臺北藝術大學 音樂學系 小提琴演奏 碩士"></textarea>
-        <div class="form-error" id="setupEduErr">請填寫學歷。</div>
+        <label class="form-label"><span data-i18n="setupEduLabel">學歷 / Education</span><span class="invite-opt" style="display:none;color:#2563eb;font-weight:600;" data-i18n="setupInviteOpt"> · 邀請碼可免填</span></label>
+        <textarea class="form-input" id="setupEducation" rows="2" data-i18n-placeholder="setupEduPlaceholder" placeholder="例如：國立臺北藝術大學 音樂學系 小提琴演奏 碩士"></textarea>
+        <div class="form-error" id="setupEduErr" data-i18n="setupEduErr">請填寫學歷。</div>
       </div>
 
       <!-- Work / performance experience -->
       <div class="form-group">
-        <label class="form-label">工作 / 演出經歷 <span style="font-weight:400;color:var(--mid);">— Experience</span><span class="invite-opt" style="display:none;color:#2563eb;font-weight:600;"> · 邀請碼可免填</span></label>
-        <textarea class="form-input" id="setupExperience" rows="3" placeholder="例如：曾任○○交響樂團小提琴團員、○○國際音樂大賽首獎…"></textarea>
-        <div class="form-error" id="setupExpErr">請填寫工作或演出經歷。</div>
+        <label class="form-label"><span data-i18n="setupExpLabel">工作 / 演出經歷</span> <span style="font-weight:400;color:var(--mid);" data-i18n="setupExpSpan">— Experience</span><span class="invite-opt" style="display:none;color:#2563eb;font-weight:600;" data-i18n="setupInviteOpt"> · 邀請碼可免填</span></label>
+        <textarea class="form-input" id="setupExperience" rows="3" data-i18n-placeholder="setupExpPlaceholder" placeholder="例如：曾任○○交響樂團小提琴團員、○○國際音樂大賽首獎…"></textarea>
+        <div class="form-error" id="setupExpErr" data-i18n="setupExpErr">請填寫工作或演出經歷。</div>
       </div>
 
       <!-- Work links (optional) -->
       <div class="form-group">
-        <label class="form-label">作品連結 <span style="font-weight:400;color:var(--mid);">— optional</span></label>
-        <input class="form-input" type="url" id="setupLinkYoutube"   placeholder="YouTube 影片網址" style="margin-bottom:8px;">
-        <input class="form-input" type="url" id="setupLinkWebsite"   placeholder="個人網站" style="margin-bottom:8px;">
+        <label class="form-label"><span data-i18n="setupLinksLabel">作品連結</span> <span style="font-weight:400;color:var(--mid);" data-i18n="setupLinksSpan">— optional</span></label>
+        <input class="form-input" type="url" id="setupLinkYoutube"   data-i18n-placeholder="setupYtPlaceholder"   placeholder="YouTube 影片網址" style="margin-bottom:8px;">
+        <input class="form-input" type="url" id="setupLinkWebsite"   data-i18n-placeholder="setupSitePlaceholder" placeholder="個人網站" style="margin-bottom:8px;">
         <input class="form-input" type="url" id="setupLinkInstagram" placeholder="Instagram">
       </div>
 
       <!-- Phone -->
       <div class="form-group">
-        <label class="form-label">聯絡電話 / Phone</label>
+        <label class="form-label" data-i18n="setupPhoneLabel">聯絡電話 / Phone</label>
         <div style="display:flex;gap:8px;">
           <select id="setupPhoneCode" style="flex-shrink:0;padding:10px 8px;font-size:14px;border:1px solid #d8d8d8;border-radius:8px;background:#fff;color:#111;cursor:pointer;font-family:inherit;">
             <option value="+886">🇹🇼 +886</option>
@@ -571,36 +582,36 @@
           </select>
           <input class="form-input" type="tel" id="setupPhone" placeholder="0912-345-678" style="flex:1;">
         </div>
-        <div class="form-error" id="setupPhoneErr">請填寫聯絡電話。</div>
+        <div class="form-error" id="setupPhoneErr" data-i18n="setupPhoneErr">請填寫聯絡電話。</div>
       </div>
 
-      <!-- Consent: must agree to the (shared) platform policy before submitting -->
+      <!-- Consent -->
       <div class="form-group" style="margin-top:4px;">
         <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;color:#333;line-height:1.5;cursor:pointer;">
           <input type="checkbox" id="setupAgree" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;">
-          <span>我已閱讀並同意 OPUS.Z 的 <a href="#" onclick="openPolicyModal();return false;" style="font-weight:600;text-decoration:underline;">樂手條款與平台政策</a>。</span>
+          <span id="setupAgreeLabel" data-i18n-html="setupAgreeLabel">我已閱讀並同意 OPUS.Z 的 <a href="#" onclick="openPolicyModal();return false;" style="font-weight:600;text-decoration:underline;">樂手條款與平台政策</a>。</span>
         </label>
-        <div class="form-error" id="setupAgreeErr">請先閱讀並勾選同意樂手條款。</div>
+        <div class="form-error" id="setupAgreeErr" data-i18n="setupAgreeErr">請先閱讀並勾選同意樂手條款。</div>
       </div>
 
-      <div id="setupGenErr" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13.5px;color:#b91c1c;">
+      <div id="setupGenErr" style="display:none;background:#fef2f2;border:1px solid #fca5a5;border-radius:10px;padding:12px 14px;margin-bottom:12px;font-size:13.5px;color:#b91c1c;" data-i18n="setupGenErr">
         ⚠️ 有必填欄位未填寫，已自動捲動到需要補填的地方，請向上查看。
       </div>
 
       <button class="btn-main btn-primary" id="setupBtn" onclick="doSetup()">
-        送出申請 / Submit application
+        <span data-i18n="setupBtn">送出申請 / Submit application</span>
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
 
-      <div class="terms" style="margin-top:16px;">送出後將由管理者審核，通過後我們會以 Email 通知您，屆時即可登入您的樂手後台。</div>
+      <div class="terms" style="margin-top:16px;" data-i18n="setupTermsNote">送出後將由管理者審核，通過後我們會以 Email 通知您，屆時即可登入您的樂手後台。</div>
     </div>
 
     <!-- ═══════════ STEP: SUCCESS ═══════════ -->
     <div class="step" id="step-success">
       <div class="success-check">
         <div class="success-icon">🎉</div>
-        <div class="step-title" style="text-align:center;">You're all set!</div>
-        <div class="step-sub" style="text-align:center;">Welcome to OPUS.Z. Redirecting to your dashboard...</div>
+        <div class="step-title" style="text-align:center;" data-i18n="successTitle">You're all set!</div>
+        <div class="step-sub" style="text-align:center;" data-i18n="successSub">Welcome to OPUS.Z. Redirecting to your dashboard...</div>
         <div style="display:flex;justify-content:center;margin-top:20px;">
           <div class="spinner" style="border-color:rgba(0,0,0,.15);border-top-color:var(--black);"></div>
         </div>
@@ -614,11 +625,10 @@
         <div class="step-title" id="statusTitle" style="text-align:center;">審核中</div>
         <div class="step-sub" id="statusSub" style="text-align:center;">您的樂手申請已送出，正在審核中。通過後我們會以 Email 通知您。</div>
         <div id="statusReason" style="display:none;margin-top:14px;padding:12px 14px;background:#fdf2f2;border:1px solid #f3c9c9;border-radius:10px;color:#a13a3a;font-size:14px;text-align:left;"></div>
-        <!-- 只有「申請未完成」狀態才顯示這顆鈕 -->
-        <button id="statusContinueBtn" class="btn-main" style="margin-top:22px;display:none;" onclick="continueIncompleteApplication()">繼續完成申請 →</button>
-        <button id="statusHomeBtn" class="btn-main" style="margin-top:22px;" onclick="window.location.href='musician-platform.html'">返回首頁</button>
+        <button id="statusContinueBtn" class="btn-main" style="margin-top:22px;display:none;" onclick="continueIncompleteApplication()" data-i18n="statusContinueBtn">繼續完成申請 →</button>
+        <button id="statusHomeBtn" class="btn-main" style="margin-top:22px;" onclick="window.location.href='musician-platform.html'" data-i18n="statusHomeBtn">返回首頁</button>
         <div class="terms" style="margin-top:14px;">
-          <a href="#" id="statusBackLogin" style="color:var(--mid);">使用其他帳號登入</a>
+          <a href="#" id="statusBackLogin" style="color:var(--mid);" data-i18n="statusBackLogin">使用其他帳號登入</a>
         </div>
       </div>
     </div>
@@ -1321,11 +1331,489 @@
   // ── Enter key submit ──
   document.addEventListener('keydown', function(e) {
     if (e.key !== 'Enter') return;
-    // 'login' is handled by the <form> submit (so the browser's save-password
-    // prompt fires) — don't also call doLogin() here or it submits twice.
     if (currentStep === 'register-email') doRegister();
     else if (currentStep === 'forgot') doForgot();
   });
+
+  // ══════════════════════════════════════════════
+  // BILINGUAL SYSTEM — EN / 中文
+  // ══════════════════════════════════════════════
+  var _lang = localStorage.getItem('opusz_lang') || (navigator.language.startsWith('zh') ? 'zh' : 'en');
+
+  var T = {
+    en: {
+      lpHeadline: 'Your music.<br><span>Your stage.</span><br>Your platform.',
+      lpDesc: 'Join world-class classical musician platform. Connect with clients, manage bookings, and build your career — all in one place.',
+      lpMusicians: 'Musicians', lpBookings: 'Bookings', lpRating: 'Avg. Rating',
+      loginTitle: 'Welcome back', loginSub: 'Sign in to your OPUS.Z musician account.',
+      loginErrDefault: 'Email or password is incorrect.',
+      loginLabelEmail: 'Email', loginLabelPw: 'Password',
+      loginPwPlaceholder: 'Enter your password',
+      loginRemember: 'Remember me', loginForgot: 'Forgot password?',
+      loginBtn: 'Sign In', loginOr: 'or',
+      loginCreate: 'Create a musician account', loginBackHome: '← Back to OPUS.Z',
+      forgotBack: 'Back', forgotTitle: 'Reset password',
+      forgotSub: "Enter your email and we'll send you a reset link.",
+      forgotSuccess: 'Reset link sent! Check your inbox.',
+      forgotLabelEmail: 'Email', forgotBtn: 'Send Reset Link',
+      regBack: 'Back to sign in', regTitle: 'Create your account',
+      regSub: 'Just your email and a password to get started.',
+      regLabelEmail: 'Email address', regErrEmail: 'Please enter a valid email.',
+      regLabelPw: 'Password', regPwPlaceholder: 'At least 8 characters',
+      regErrPw: 'Password must be at least 8 characters.',
+      regLabelConfirm: 'Confirm password', regConfirmPlaceholder: 'Re-enter password',
+      regErrMatch: 'Passwords do not match.', regBtn: 'Continue',
+      regTerms: 'By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.',
+      verifyTitle: 'Check your inbox', verifySub1: 'We sent a verification link to',
+      verifyInstructions: '1. Open the email from OPUS.Z<br>2. Click the <strong>verification link</strong><br>3. Come back here and click the button below',
+      verifyBtn: "I've verified my email ✓",
+      verifyResendQ: "Didn't receive it?", verifyResend: 'Resend email',
+      verifySuccessMsg: '✓ Email verified! Continuing to profile setup…',
+      verifyErrNotVerified: 'Email not verified yet. Please click the link in your inbox first.',
+      setupTitle: 'Musician Application',
+      setupSub: 'Please fill in your profile and background. Our team will review your application.',
+      setupInviteLabel: 'Invite code', setupInviteSpan: '— optional, skip if none',
+      setupInvitePlaceholder: 'Enter code to skip review (optional)',
+      setupInviteValid: '✓ Valid code: you will be <b>approved immediately</b>. Bio / education / experience can be left blank (photo still required).',
+      setupInviteInvalid: 'Invalid code (you can still apply without one — our team will review).',
+      setupNameLabel: 'Your name (display name)', setupNameErr: 'Please enter your name.',
+      setupInstLabel: 'Instruments', setupInstSpan: '— select all that apply',
+      setupInstErr: 'Please select at least one instrument.',
+      setupPrimaryLabel: 'Primary Region', setupSecondaryLabel: 'Secondary Region',
+      setupSecondarySpan: '— optional', setupRegionErr: 'Please select your primary region.',
+      setupPhotoLabel: 'Profile photo', setupPhotoUpload: 'Upload',
+      setupPhotoAdjust: 'Adjust photo position and size',
+      setupPhotoX: 'Horizontal', setupPhotoY: 'Vertical', setupPhotoScale: 'Scale',
+      setupPhotoErrRequired: 'Please upload a profile photo.',
+      setupPhotoErrFormat: 'Unsupported format. Please use JPG / PNG / WebP.',
+      setupPhotoErrUpload: 'Upload failed. Please try again with JPG / PNG / WebP.',
+      setupReviewNote: 'ℹ️ The fields below (bio, education, experience) are <strong>for admin review only</strong> and will not appear on your public profile. <span style="color:#8a8a8a;">Chinese or English are both fine.</span>',
+      setupBioLabel: 'Bio', setupBioSpan: '— a brief self-introduction',
+      setupBioPlaceholder: 'e.g. Taipei-based violinist specializing in solo and chamber music…',
+      setupBioErr: 'Please enter a bio.',
+      setupInviteOpt: ' · Optional with invite code',
+      setupEduLabel: 'Education',
+      setupEduPlaceholder: 'e.g. M.M. Violin Performance, Taipei National University of the Arts',
+      setupEduErr: 'Please enter your education.',
+      setupExpLabel: 'Experience', setupExpSpan: '— Work / Performance',
+      setupExpPlaceholder: 'e.g. Former violinist with ○○ Symphony Orchestra; 1st Prize, ○○ International Competition…',
+      setupExpErr: 'Please enter your experience.',
+      setupLinksLabel: 'Portfolio links', setupLinksSpan: '— optional',
+      setupYtPlaceholder: 'YouTube video URL', setupSitePlaceholder: 'Personal website',
+      setupPhoneLabel: 'Phone', setupPhoneErr: 'Please enter your phone number.',
+      setupAgreeLabel: 'I have read and agree to OPUS.Z\'s <a href="#" onclick="openPolicyModal();return false;" style="font-weight:600;text-decoration:underline;">Musician Terms & Platform Policy</a>.',
+      setupAgreeErr: 'Please read and accept the terms.',
+      setupGenErr: '⚠️ Some required fields are empty. Please scroll up to complete them.',
+      setupBtn: 'Submit application',
+      setupTermsNote: 'After submission, our team will review your application and notify you by email when approved.',
+      setupSubmitting: 'Uploading… Submitting…',
+      statusPendingTitle: 'Under Review',
+      statusPendingSub: 'Your application has been submitted and is under review. We will notify you by email when approved.',
+      statusRejectedTitle: 'Application Not Approved',
+      statusRejectedSub: 'We\'re sorry, your musician application was not approved.',
+      statusRejectedReason: 'Review note: ',
+      statusIncompleteTitle: 'Application Incomplete',
+      statusIncompleteSub: 'Your account is created but the application hasn\'t been submitted. Continue to complete it!',
+      statusNotMusicianTitle: 'Not a Musician Account',
+      statusNotMusicianSub: 'This account does not have musician access. If you\'re a client, please use the client login. To become a musician, please submit an application.',
+      statusSuspendedTitle: 'Account Suspended',
+      statusSuspendedSub: 'Your musician account is currently suspended. Please contact us if you have questions.',
+      statusContinueBtn: 'Continue Application →', statusHomeBtn: 'Back to Home',
+      statusBackLogin: 'Sign in with a different account',
+      successTitle: "You're all set!",
+      successSub: 'Welcome to OPUS.Z. Redirecting to your dashboard...',
+    },
+    zh: {
+      lpHeadline: '你的音樂。<br><span>你的舞台。</span><br>你的平台。',
+      lpDesc: '加入頂尖古典音樂家平台，媒合客戶、管理演出，在同一個地方建立你的音樂事業。',
+      lpMusicians: '音樂家', lpBookings: '演出委託', lpRating: '平均評分',
+      loginTitle: '歡迎回來', loginSub: '登入你的 OPUS.Z 樂手帳號。',
+      loginErrDefault: '電子郵件或密碼錯誤。',
+      loginLabelEmail: '電子郵件', loginLabelPw: '密碼',
+      loginPwPlaceholder: '輸入你的密碼',
+      loginRemember: '保持登入', loginForgot: '忘記密碼？',
+      loginBtn: '登入', loginOr: '或',
+      loginCreate: '建立樂手帳號', loginBackHome: '← 回到 OPUS.Z',
+      forgotBack: '返回', forgotTitle: '重設密碼',
+      forgotSub: '輸入你的電子郵件，我們將寄送重設連結。',
+      forgotSuccess: '重設連結已寄出！請查看信箱。',
+      forgotLabelEmail: '電子郵件', forgotBtn: '傳送重設連結',
+      regBack: '返回登入', regTitle: '建立帳號',
+      regSub: '只需電子郵件和密碼即可開始。',
+      regLabelEmail: '電子郵件', regErrEmail: '請輸入有效的電子郵件。',
+      regLabelPw: '密碼', regPwPlaceholder: '至少 8 個字元',
+      regErrPw: '密碼至少需要 8 個字元。',
+      regLabelConfirm: '確認密碼', regConfirmPlaceholder: '再次輸入密碼',
+      regErrMatch: '兩次輸入的密碼不一致。', regBtn: '繼續',
+      regTerms: '註冊即表示你同意我們的 <a href="#">服務條款</a> 與 <a href="#">隱私政策</a>。',
+      verifyTitle: '查看信箱', verifySub1: '我們已傳送驗證連結至',
+      verifyInstructions: '1. 開啟 OPUS.Z 寄送的信件<br>2. 點擊信中的 <strong>驗證連結</strong><br>3. 回到這裡點擊下方按鈕',
+      verifyBtn: '我已驗證電子郵件 ✓',
+      verifyResendQ: '沒收到？', verifyResend: '重新寄送',
+      verifySuccessMsg: '✓ 電子郵件已驗證！正在前往資料填寫…',
+      verifyErrNotVerified: '尚未驗證。請先點擊信箱中的驗證連結。',
+      setupTitle: '樂手申請資料',
+      setupSub: '請完整填寫您的基本資料與經歷，送出後將由管理者審核。',
+      setupInviteLabel: '邀請碼 / Invite code', setupInviteSpan: '— 有就填，沒有可直接略過',
+      setupInvitePlaceholder: '有邀請碼可直接通過、部分欄位免填',
+      setupInviteValid: '✓ 邀請碼有效：將<b>直接通過審核</b>，簡介／學歷／經驗可留空（照片仍需上傳）。',
+      setupInviteInvalid: '邀請碼不正確（沒有邀請碼也能正常申請，由管理者審核）。',
+      setupNameLabel: 'Your name (display name)', setupNameErr: '請填寫姓名。',
+      setupInstLabel: 'Instruments', setupInstSpan: '— select all that apply',
+      setupInstErr: '請至少選擇一項樂器。',
+      setupPrimaryLabel: 'Primary Region', setupSecondaryLabel: 'Secondary Region',
+      setupSecondarySpan: '— optional', setupRegionErr: '請選擇你的主要地區。',
+      setupPhotoLabel: '大頭照 / Profile photo', setupPhotoUpload: '上傳照片 / Upload',
+      setupPhotoAdjust: '調整大頭照位置與大小',
+      setupPhotoX: '水平位置', setupPhotoY: '垂直位置', setupPhotoScale: '大小',
+      setupPhotoErrRequired: '請上傳一張照片。',
+      setupPhotoErrFormat: '圖片格式不支援，請改用 JPG／PNG／WebP。',
+      setupPhotoErrUpload: '照片上傳失敗，請改用 JPG／PNG／WebP 再試一次。',
+      setupReviewNote: 'ℹ️ 以下資料（簡介、學歷、經歷）<strong>僅供管理者審核使用</strong>，不會直接公開在你日後的個人主頁；<strong>中文或英文皆可</strong>，請放心填寫。<br><span style="color:#8a8a8a;">For our review only — it won\'t appear on your public profile. Chinese or English are both fine.</span>',
+      setupBioLabel: '簡介 Bio', setupBioSpan: '— 一段自我介紹',
+      setupBioPlaceholder: '例如：台北小提琴家，擅長獨奏與室內樂演出…',
+      setupBioErr: '請填寫簡介。',
+      setupInviteOpt: ' · 邀請碼可免填',
+      setupEduLabel: '學歷 / Education',
+      setupEduPlaceholder: '例如：國立臺北藝術大學 音樂學系 小提琴演奏 碩士',
+      setupEduErr: '請填寫學歷。',
+      setupExpLabel: '工作 / 演出經歷', setupExpSpan: '— Experience',
+      setupExpPlaceholder: '例如：曾任○○交響樂團小提琴團員、○○國際音樂大賽首獎…',
+      setupExpErr: '請填寫工作或演出經歷。',
+      setupLinksLabel: '作品連結', setupLinksSpan: '— optional',
+      setupYtPlaceholder: 'YouTube 影片網址', setupSitePlaceholder: '個人網站',
+      setupPhoneLabel: '聯絡電話 / Phone', setupPhoneErr: '請填寫聯絡電話。',
+      setupAgreeLabel: '我已閱讀並同意 OPUS.Z 的 <a href="#" onclick="openPolicyModal();return false;" style="font-weight:600;text-decoration:underline;">樂手條款與平台政策</a>。',
+      setupAgreeErr: '請先閱讀並勾選同意樂手條款。',
+      setupGenErr: '⚠️ 有必填欄位未填寫，已自動捲動到需要補填的地方，請向上查看。',
+      setupBtn: '送出申請 / Submit application',
+      setupTermsNote: '送出後將由管理者審核，通過後我們會以 Email 通知您，屆時即可登入您的樂手後台。',
+      setupSubmitting: '上傳中… / Submitting…',
+      statusPendingTitle: '審核中',
+      statusPendingSub: '您的樂手申請已送出，正在審核中。通過後我們會以 Email 通知您。',
+      statusRejectedTitle: '申請未通過',
+      statusRejectedSub: '很抱歉，您的樂手申請尚未通過審核。',
+      statusRejectedReason: '審核意見：',
+      statusIncompleteTitle: '申請未完成',
+      statusIncompleteSub: '你的帳號已建立，但申請資料尚未送出。繼續填寫資料並送出申請吧！',
+      statusNotMusicianTitle: '這不是樂手帳號',
+      statusNotMusicianSub: '此帳號沒有樂手資格。若您是客戶請改用客戶登入；想成為樂手，請先送出申請。',
+      statusSuspendedTitle: '帳號已停用',
+      statusSuspendedSub: '您的樂手帳號目前已停用。如有疑問請與我們聯繫。',
+      statusContinueBtn: '繼續完成申請 →', statusHomeBtn: '返回首頁',
+      statusBackLogin: '使用其他帳號登入',
+      successTitle: 'You\'re all set!',
+      successSub: 'Welcome to OPUS.Z. Redirecting to your dashboard...',
+    }
+  };
+
+  function applyLang(lang) {
+    document.querySelectorAll('[data-i18n]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n');
+      if (T[lang] && T[lang][key] != null) el.textContent = T[lang][key];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n-html');
+      if (T[lang] && T[lang][key] != null) el.innerHTML = T[lang][key];
+    });
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
+      var key = el.getAttribute('data-i18n-placeholder');
+      if (T[lang] && T[lang][key] != null) el.placeholder = T[lang][key];
+    });
+    var btnEN = document.getElementById('langBtnEN');
+    var btnZH = document.getElementById('langBtnZH');
+    if (btnEN) btnEN.classList.toggle('active', lang === 'en');
+    if (btnZH) btnZH.classList.toggle('active', lang === 'zh');
+  }
+
+  window.setLang = function(lang) {
+    _lang = lang;
+    localStorage.setItem('opusz_lang', lang);
+    applyLang(lang);
+  };
+
+  // Patch showStatus to use current lang
+  var _origShowStatus = window.showStatus;
+  window.showStatus = function(kind, reason) {
+    var L = T[_lang] || T.en;
+    var icon  = document.getElementById('statusIcon');
+    var title = document.getElementById('statusTitle');
+    var sub   = document.getElementById('statusSub');
+    var rsn   = document.getElementById('statusReason');
+    var contBtn = document.getElementById('statusContinueBtn');
+    var homeBtn = document.getElementById('statusHomeBtn');
+    if (contBtn) contBtn.style.display = 'none';
+    if (homeBtn) homeBtn.style.display = 'block';
+    if (kind === 'rejected') {
+      if (icon)  icon.textContent  = '🚫';
+      if (title) title.textContent = L.statusRejectedTitle;
+      if (sub)   sub.textContent   = L.statusRejectedSub;
+      if (rsn) { if (reason) { rsn.textContent = L.statusRejectedReason + reason; rsn.style.display = 'block'; } else rsn.style.display = 'none'; }
+    } else if (kind === 'incomplete') {
+      if (icon)  icon.textContent  = '📝';
+      if (title) title.textContent = L.statusIncompleteTitle;
+      if (sub)   sub.textContent   = L.statusIncompleteSub;
+      if (rsn)   rsn.style.display = 'none';
+      if (contBtn) contBtn.style.display = 'block';
+      if (homeBtn) homeBtn.style.display = 'none';
+    } else if (kind === 'notmusician') {
+      if (icon)  icon.textContent  = '🔑';
+      if (title) title.textContent = L.statusNotMusicianTitle;
+      if (sub)   sub.textContent   = L.statusNotMusicianSub;
+      if (rsn)   rsn.style.display = 'none';
+    } else if (kind === 'suspended') {
+      if (icon)  icon.textContent  = '⛔';
+      if (title) title.textContent = L.statusSuspendedTitle;
+      if (sub)   sub.textContent   = L.statusSuspendedSub;
+      if (rsn)   rsn.style.display = 'none';
+    } else {
+      if (icon)  icon.textContent  = '⏳';
+      if (title) title.textContent = L.statusPendingTitle;
+      if (sub)   sub.textContent   = L.statusPendingSub;
+      if (rsn)   rsn.style.display = 'none';
+    }
+    goStep('status');
+  };
+
+  // Patch checkInvite to use current lang
+  window.checkInvite = function(){
+    var el  = document.getElementById('setupInvite');
+    var msg = document.getElementById('setupInviteMsg');
+    var code = (el ? el.value : '').trim();
+    var L = T[_lang] || T.en;
+    _inviteValid = !!code && APP_INVITE_CODES.some(function(c){ return c.toLowerCase() === code.toLowerCase(); });
+    Array.prototype.forEach.call(document.querySelectorAll('.invite-opt'), function(s){
+      s.style.display = _inviteValid ? 'inline' : 'none';
+    });
+    if (!msg) return;
+    if (!code) { msg.style.display = 'none'; return; }
+    msg.style.display = 'block';
+    if (_inviteValid) {
+      msg.innerHTML = L.setupInviteValid;
+      msg.style.color = '#16a34a';
+      ['setupBioErr','setupEduErr','setupExpErr'].forEach(function(id){
+        var e = document.getElementById(id); if (e) e.classList.remove('show');
+      });
+    } else {
+      msg.innerHTML = L.setupInviteInvalid;
+      msg.style.color = '#b45309';
+    }
+  };
+
+  // Patch doSetup button/error text to use current lang
+  var _origDoSetup = window.doSetup;
+  window.doSetup = async function() {
+    var L = T[_lang] || T.en;
+    // photo format error uses current lang
+    var origPreview = window.previewSetupPhoto;
+    var name           = document.getElementById('setupName').value.trim();
+    var primaryCountry = document.getElementById('primaryCountry').value;
+    var primaryCity    = document.getElementById('primaryCity').value;
+    var secondaryCountry = document.getElementById('secondaryCountry').value;
+    var secondaryCity  = document.getElementById('secondaryCity').value;
+    var bio        = document.getElementById('setupBio').value.trim();
+    var education  = document.getElementById('setupEducation').value.trim();
+    var experience = document.getElementById('setupExperience').value.trim();
+    var phoneCode  = (document.getElementById('setupPhoneCode') || {value:'+886'}).value;
+    var phoneRaw   = document.getElementById('setupPhone').value.trim();
+    var phone      = phoneRaw ? (phoneCode + ' ' + phoneRaw) : '';
+    var links = {
+      youtube:   document.getElementById('setupLinkYoutube').value.trim(),
+      website:   document.getElementById('setupLinkWebsite').value.trim(),
+      instagram: document.getElementById('setupLinkInstagram').value.trim()
+    };
+    var ok = true; var firstErrEl = null;
+    var show = function(id){ var el = document.getElementById(id); if(el){ el.classList.add('show'); if(!firstErrEl) firstErrEl = el; } ok = false; };
+    if (!name)                           show('setupNameErr');
+    if (selectedInsts.size === 0)        show('setupInstErr');
+    if (!primaryCountry || !primaryCity) show('setupRegionErr');
+    if (!_setupPhotoFile)                show('setupPhotoErr');
+    if (!_inviteValid) {
+      if (!bio)        show('setupBioErr');
+      if (!education)  show('setupEduErr');
+      if (!experience) show('setupExpErr');
+    }
+    if (!phone) show('setupPhoneErr');
+    var agreeEl = document.getElementById('setupAgree');
+    if (!agreeEl || !agreeEl.checked) show('setupAgreeErr');
+    if (!ok) {
+      if (firstErrEl) firstErrEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      var genErr = document.getElementById('setupGenErr');
+      if (genErr) { genErr.style.display = 'block'; setTimeout(function(){ genErr.style.display='none'; }, 4000); }
+      return;
+    }
+    var primaryRegion   = primaryCity + ', ' + primaryCountry;
+    var secondaryRegion = (secondaryCountry && secondaryCity) ? secondaryCity + ', ' + secondaryCountry : '';
+    var btn = document.querySelector('#step-setup .btn-primary');
+    var btnSpan = btn ? btn.querySelector('[data-i18n="setupBtn"]') : null;
+    if (btnSpan) btnSpan.textContent = L.setupSubmitting;
+    if (btn) btn.disabled = true;
+    try {
+      var user = regData._user || auth.currentUser;
+      var uid  = user.uid;
+      var photoURL = '';
+      if (_setupPhotoFile) {
+        try { photoURL = await uploadPhoto(_setupPhotoFile, uid); }
+        catch(pe){
+          if (btnSpan) btnSpan.textContent = L.setupBtn;
+          if (btn) btn.disabled = false;
+          var ep = document.getElementById('setupPhotoErr');
+          ep.textContent = L.setupPhotoErrUpload || '照片上傳失敗'; ep.classList.add('show');
+          return;
+        }
+      }
+      var _credLines = (education + '\n' + experience).split('\n').map(function(s){ return s.trim(); }).filter(Boolean);
+      await setDoc(doc(db, 'musicians', uid), {
+        uid:             uid,
+        email:           regData.email,
+        name:            name,
+        instruments:     Array.from(selectedInsts),
+        primaryRegion:   primaryRegion,
+        secondaryRegion: secondaryRegion,
+        bio:             bio,
+        education:       education,
+        experience:      experience,
+        phone:           phone,
+        links:           links,
+        photoURL:        photoURL,
+        config: {
+          about: {
+            avatarUrl:   photoURL,
+            avatarX:     parseFloat((document.getElementById('setupAvatarX')||{value:50}).value) || 50,
+            avatarY:     parseFloat((document.getElementById('setupAvatarY')||{value:50}).value) || 50,
+            avatarScale: parseFloat((document.getElementById('setupAvatarScale')||{value:1}).value) || 1,
+            bio:         bio,
+            credentials: _credLines,
+          }
+        },
+        status:          _inviteValid ? 'approved' : 'pending',
+        inviteCode:      _inviteValid ? ((document.getElementById('setupInvite')||{value:''}).value.trim()) : '',
+        published:       false,
+        verified:        false,
+        agreedToTerms:   true,
+        agreedAt:        new Date().toISOString(),
+        termsVersion:    (window._policyVersion || 1),
+        joinedAt:        new Date().toISOString(),
+        appliedAt:       new Date().toISOString(),
+        profileComplete: 60
+      });
+      if (_inviteValid) { window.location.href = 'musician-dashboard.html'; return; }
+      try { await signOut(auth); } catch(_e){}
+      showStatus('pending');
+    } catch(e) {
+      if (btnSpan) btnSpan.textContent = L.setupBtn;
+      if (btn) btn.disabled = false;
+      var ne = document.getElementById('setupNameErr');
+      ne.textContent = '送出失敗，請稍後再試。'; ne.classList.add('show');
+      console.warn('[apply] submit failed:', e && (e.code || e.message));
+    }
+  };
+
+  // Patch verifySuccess / verifyError messages
+  var _origCheckVerified = window.checkVerified;
+  window.checkVerified = async function() {
+    var L = T[_lang] || T.en;
+    var btn = document.querySelector('#step-verify .btn-main');
+    if (btn) { btn.textContent = _lang === 'zh' ? '確認中…' : 'Checking…'; btn.disabled = true; }
+    try {
+      await reload(regData._user);
+      if (regData._user.emailVerified) {
+        var successEl = document.getElementById('verifySuccess');
+        if (successEl) { successEl.textContent = L.verifySuccessMsg; successEl.style.display = 'block'; }
+        setTimeout(() => goStep('setup'), 1200);
+      } else {
+        var errEl = document.getElementById('otpError');
+        if (errEl) { errEl.textContent = L.verifyErrNotVerified; errEl.style.display = 'block'; }
+        if (btn) { btn.textContent = L.verifyBtn; btn.disabled = false; }
+      }
+    } catch(e) {
+      if (btn) { btn.textContent = L.verifyBtn; btn.disabled = false; }
+    }
+  };
+
+  // Patch previewSetupPhoto format error to use current lang
+  var _origPreviewSetupPhoto = window.previewSetupPhoto;
+  window.previewSetupPhoto = function(input) {
+    var f = input.files && input.files[0];
+    if (!f) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(f.type)) {
+      var pe = document.getElementById('setupPhotoErr');
+      pe.textContent = (T[_lang] || T.en).setupPhotoErrFormat;
+      pe.classList.add('show');
+      input.value = ''; return;
+    }
+    _origPreviewSetupPhoto.call(this, input);
+  };
+
+  // Patch doLogin loading text
+  var _origDoLogin = window.doLogin;
+  window.doLogin = async function() {
+    var L = T[_lang] || T.en;
+    var btn = document.querySelector('#step-login .btn-main');
+    if (btn && btn.disabled) return;
+    var email = document.getElementById('loginEmail').value.trim();
+    var pw    = document.getElementById('loginPw').value;
+    var err   = document.getElementById('loginError');
+    if (!email || !pw) { err.textContent = L.loginErrDefault; err.classList.add('show'); return; }
+    if (btn) { btn.textContent = _lang === 'zh' ? '登入中…' : 'Signing in…'; btn.disabled = true; }
+    try {
+      var remember = document.getElementById('rememberMe');
+      remember = !remember || remember.checked;
+      try { await setPersistence(auth, remember ? browserLocalPersistence : browserSessionPersistence); } catch(_) {}
+      var cred = await signInWithEmailAndPassword(auth, email, pw);
+      await routeAfterAuth(cred.user);
+      if (btn) { btn.textContent = L.loginBtn; btn.disabled = false; }
+    } catch(e) {
+      if (btn) { btn.textContent = L.loginBtn; btn.disabled = false; }
+      err.textContent = L.loginErrDefault; err.classList.add('show');
+    }
+  };
+
+  // Patch doRegister loading text
+  var _origDoRegister = window.doRegister;
+  window.doRegister = async function() {
+    var L = T[_lang] || T.en;
+    var email   = document.getElementById('regEmail').value.trim();
+    var pw      = document.getElementById('regPw').value;
+    var pwConf  = document.getElementById('regPwConfirm').value;
+    var ok = true;
+    if (!email || !email.includes('@')) { document.getElementById('regEmailErr').classList.add('show'); document.getElementById('regEmail').classList.add('error'); ok = false; }
+    if (pw.length < 8) { document.getElementById('regPwErr').classList.add('show'); document.getElementById('regPw').classList.add('error'); ok = false; }
+    if (pw !== pwConf) { document.getElementById('regPwMatchErr').classList.add('show'); document.getElementById('regPwConfirm').classList.add('error'); ok = false; }
+    if (!ok) return;
+    regData.email = email; regData._pw = pw;
+    var btn = document.getElementById('regBtn');
+    if (btn) { btn.textContent = _lang === 'zh' ? '傳送中…' : 'Sending…'; btn.disabled = true; }
+    try {
+      var cred = await createUserWithEmailAndPassword(auth, email, pw);
+      regData._user = cred.user;
+      await sendBrandedVerify(cred.user, email, regData.name);
+      document.getElementById('verifyEmail').textContent = email;
+      goStep('verify');
+    } catch(e) {
+      if (btn) { btn.textContent = L.regBtn; btn.disabled = false; }
+      var errEl = document.getElementById('regError');
+      if (e.code === 'auth/email-already-in-use') {
+        if (btn) { btn.textContent = _lang === 'zh' ? '確認中…' : 'Checking…'; btn.disabled = true; }
+        try {
+          var cred2 = await signInWithEmailAndPassword(auth, email, pw);
+          var snap2 = await getDoc(doc(db, 'musicians', cred2.user.uid));
+          if (!snap2.exists()) { regData._user = cred2.user; regData.email = email; showStatus('incomplete'); }
+          else { await routeAfterAuth(cred2.user); }
+        } catch(e2) {
+          if (btn) { btn.textContent = L.regBtn; btn.disabled = false; }
+          errEl.textContent = _lang === 'zh' ? '此電子郵件已被註冊，請直接登入。' : 'This email is already registered. Please sign in instead.';
+          errEl.classList.add('show');
+        }
+      } else {
+        errEl.textContent = _lang === 'zh' ? '發生錯誤，請稍後再試。' : 'Something went wrong. Please try again.';
+        errEl.classList.add('show');
+      }
+    }
+  };
+
+  // Init on load
+  applyLang(_lang);
 </script>
 </body>
 </html>
