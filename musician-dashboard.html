@@ -1140,6 +1140,26 @@
                   <input class="form-input" type="url" id="pfYoutube" placeholder="https://youtube.com/@yourchannel">
                 </div>
               </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">TikTok 網址</label>
+                  <input class="form-input" type="url" id="pfTiktok" placeholder="https://tiktok.com/@yourhandle">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Threads 網址</label>
+                  <input class="form-input" type="url" id="pfThreads" placeholder="https://threads.net/@yourhandle">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">WhatsApp</label>
+                  <input class="form-input" type="text" id="pfWhatsapp" placeholder="+886 912 345 678">
+                </div>
+                <div class="form-group">
+                  <label class="form-label">LINE ID</label>
+                  <input class="form-input" type="text" id="pfLine" placeholder="LINE ID 或 https://line.me/ti/p/~yourID">
+                </div>
+              </div>
             </div>
 
             <!-- Instruments & region (EDITABLE — saved both to top-level and config,
@@ -2750,6 +2770,10 @@
     set('pfInstagram', p.instagram || '');
     set('pfFacebook',  p.facebook  || '');
     set('pfYoutube',   p.youtube   || '');
+    set('pfTiktok',    p.tiktok    || '');
+    set('pfThreads',   p.threads   || '');
+    set('pfWhatsapp',  p.whatsapp  || '');
+    set('pfLine',      p.line      || '');
 
     // Instruments (editable) — prefer top-level, fall back to config.card.
     var _cd = (p.config && p.config.card) || {};
@@ -2785,6 +2809,10 @@
     const instagram = (document.getElementById('pfInstagram') || {value:''}).value.trim();
     const facebook  = (document.getElementById('pfFacebook')  || {value:''}).value.trim();
     const youtube   = (document.getElementById('pfYoutube')   || {value:''}).value.trim();
+    const tiktok    = (document.getElementById('pfTiktok')    || {value:''}).value.trim();
+    const threads   = (document.getElementById('pfThreads')   || {value:''}).value.trim();
+    const whatsapp  = (document.getElementById('pfWhatsapp')  || {value:''}).value.trim();
+    const line      = (document.getElementById('pfLine')      || {value:''}).value.trim();
 
     if (!name) { showNotif('請輸入顯示名稱'); return; }
 
@@ -2808,7 +2836,7 @@
       // dotted paths so the rest of config — hero photos, about, booking — is untouched.
       // Keeping them in lock-step means a later 編輯主頁 "發佈" won't revert this.
       await updateDoc(ref, {
-        name: name, phone: phone, website: website, instagram: instagram, facebook: facebook, youtube: youtube,
+        name: name, phone: phone, website: website, instagram: instagram, facebook: facebook, youtube: youtube, tiktok: tiktok, threads: threads, whatsapp: whatsapp, line: line,
         instruments:     insts,
         primaryRegion:   primaryRegion,
         region:          s1.city,  country:  s1.country,
@@ -2825,7 +2853,7 @@
       // Keep in-memory state consistent so an already-open 編輯主頁 editor (and its
       // next 發佈) reflects these edits instead of overwriting them.
       _currentProfile = Object.assign({}, _currentProfile, {
-        name: name, phone: phone, website: website,
+        name: name, phone: phone, website: website, instagram: instagram, facebook: facebook, youtube: youtube, tiktok: tiktok, threads: threads, whatsapp: whatsapp, line: line,
         instruments: insts, primaryRegion: primaryRegion, secondaryRegion: secondaryRegion,
         region: s1.city, country: s1.country, region2: s2.city, country2: s2.country
       });
