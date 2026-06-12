@@ -2575,6 +2575,16 @@
     if(wrap && !wrap.querySelector('button[onclick^="__dismissAnn"]')){ wrap.style.display='none'; wrap.innerHTML=''; }
   };
 
+  // ── Pagebuilder tour dismiss (Firestore, cross-device) ──
+  window.pbTourDismissFirestore = async function() {
+    const uid = pbEditUid();
+    if (!uid) return;
+    try {
+      await updateDoc(doc(db, 'musicians', uid), { pbTourDismissed: true });
+      if (_currentProfile) _currentProfile.pbTourDismissed = true;
+    } catch(e) { console.warn('[tour] dismiss save failed', e); }
+  };
+
   // ── PWA Install Prompt ──
   function showPwaPrompt(editUid) {
     const isPWA = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
@@ -2776,6 +2786,10 @@
       const snap = await getDoc(doc(db, 'musicians', _editUid));
       _currentProfile = snap.exists() ? snap.data() : {};
       applyAccountIdentity(_currentProfile.name);   // override with the real display name
+      // Sync Firestore pbTourDismissed → localStorage so the tour IIFE picks it up fast
+      if (_currentProfile.pbTourDismissed) {
+        try { localStorage.setItem('opusz-pbtour-skip-' + _editUid, '1'); } catch(e) {}
+      }
       if (_isAdminEditing) {
         showAdminEditBanner(_currentProfile.name || _editUid);
         try { window.navigate('pagebuilder', document.querySelector('[data-page=pagebuilder]')); } catch(e){}
@@ -5912,7 +5926,7 @@
   // Buttons on the intro modal.
   window.pbTourYes   = function(){ window.startPbTour(); };
   window.pbTourNo    = function(){ if(pbIntro) pbIntro.classList.remove('show'); };   // ask again next time
-  window.pbTourNever = function(){ try{ localStorage.setItem(pbTourKey(), '1'); }catch(e){} if(pbIntro) pbIntro.classList.remove('show'); };
+  window.pbTourNever = function(){ try{ localStorage.setItem(pbTourKey(), '1'); }catch(e){} if(pbIntro) pbIntro.classList.remove('show'); if(window.pbTourDismissFirestore) window.pbTourDismissFirestore(); };
 
   // Called from navigate() each time the editable page-builder is opened.
   // Shows the offer unless the welcome tour is running, a tour is already active,
