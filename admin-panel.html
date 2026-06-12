@@ -843,6 +843,7 @@ Martin</textarea>
           <div id="polSections"></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
             <button onclick="polAddSection()" style="font-size:13px;font-weight:600;border:1px dashed #bbb;background:#fafafa;border-radius:8px;padding:9px 16px;cursor:pointer;">＋ 新增段落</button>
+            <button onclick="polLoadDefaults()" style="font-size:13px;font-weight:600;border:1px solid #f59e0b;color:#92400e;background:#fffbeb;border-radius:8px;padding:9px 16px;cursor:pointer;">↺ 載入預設值</button>
             <button onclick="polSave()" style="font-size:13px;font-weight:700;color:#fff;background:#111;border:none;border-radius:8px;padding:9px 20px;cursor:pointer;">💾 儲存政策</button>
           </div>
           <div id="polSaveMsg" style="margin-top:10px;font-size:12.5px;color:#16a34a;display:none;"></div>
@@ -3497,6 +3498,7 @@ Martin</textarea>
     }).join('');
   }
   window.polSet = function(i,k,v){ if(POL&&POL.sections&&POL.sections[i]) POL.sections[i][k]=v; };
+  window.polLoadDefaults = function(){ if(!confirm('確定要載入內建預設值？目前欄位內容會被覆蓋（尚未儲存到 Firebase）。')) return; POL=JSON.parse(JSON.stringify(POLICY_DEFAULT)); var n=document.getElementById('polDraftNote'); if(n) n.value=POL.draftNote||''; polRender(); };
   window.polAddSection = function(){ if(!POL) POL=JSON.parse(JSON.stringify(POLICY_DEFAULT)); POL.sections.push({title:'新段落',body:'（草擬中）'}); polRender(); };
   window.polRemove = function(i){ if(POL&&POL.sections){ POL.sections.splice(i,1); polRender(); } };
   window.polSave = async function(){
