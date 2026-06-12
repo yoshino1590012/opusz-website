@@ -1498,6 +1498,20 @@ nav.mega-open .nav-links a::before {
 .hiw-prop-price { font-size: 14.5px; font-weight: 800; color: #111; white-space: nowrap; }
 .hiw-prop-stars { color: #f5a623; font-size: 11px; letter-spacing: 1.5px; margin: 3px 0; }
 .hiw-prop-msg { font-size: 13px; color: #666; line-height: 1.5; }
+/* step-2 visual: three fanned quote cards (real avatars, no ratings) */
+.hiw-visual--fan { background: transparent; border: none; box-shadow: none; padding: 0; }
+.hiw-fan { position: relative; height: 360px; display: flex; align-items: center; justify-content: center; }
+.hiw-qcard { position: absolute; width: 212px; background: #fff; border-radius: 16px; box-shadow: 0 18px 46px rgba(0,0,0,.16); padding: 22px 20px; }
+.hiw-qcard--mid { z-index: 3; }
+.hiw-qcard--right { z-index: 2; transform: translateX(150px) translateY(22px) rotate(9deg); }
+.hiw-qcard--left { z-index: 1; transform: translateX(-150px) translateY(22px) rotate(-9deg); }
+.hiw-qav { width: 58px; height: 58px; border-radius: 50%; margin: 0 auto 12px; overflow: hidden; background: #eee; }
+.hiw-qav img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hiw-qname { font-size: 13.5px; font-weight: 800; text-align: center; color: #111; }
+.hiw-qrole { font-size: 11.5px; color: #888; text-align: center; margin-top: 3px; }
+.hiw-qprice { font-size: 16px; font-weight: 800; text-align: center; color: #111; margin: 12px 0; }
+.hiw-qdiv { height: 1px; background: #eee; margin: 0 -20px 12px; }
+.hiw-qmsg { font-size: 12px; color: #555; line-height: 1.45; }
 .hiw-visual--chat { background: linear-gradient(135deg,#0d1520 0%,#1a2d47 55%,#1e3555 100%); border-color: transparent; }
 .hiw-visual--chat .hiw-vlabel { color: rgba(255,255,255,.7); }
 /* step-1 visual: two entry-path cards */
@@ -1553,6 +1567,9 @@ nav.mega-open .nav-links a::before {
   .hiw-path { width: 100%; max-width: 380px; }
   .hiw-frow { grid-template-columns: 1fr; gap: 0; }
   .hiw-frow .hiw-fld { margin-top: 14px; }
+  /* fan → clean vertical stack on phones (no overflow from rotation/offset) */
+  .hiw-fan { flex-direction: column; height: auto; gap: 12px; }
+  .hiw-qcard { position: static; transform: none !important; width: 100%; max-width: 300px; }
 }
 
 /* ── TESTIMONIALS ── */
@@ -3112,31 +3129,35 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
             </div>
           </div>
         </div>
-        <!-- v1 — free proposals -->
-        <div class="hiw-visual" data-v="1">
-          <div class="hiw-vlabel" data-i18n="hiw.v2.title">3 quotes received</div>
-          <div class="hiw-prop">
-            <div class="hiw-prop-av" style="background:linear-gradient(135deg,#c0392b,#e67e22);">W</div>
-            <div>
-              <div class="hiw-prop-top"><span class="hiw-prop-name">Joy Wei · Violin</span><span class="hiw-prop-price">NT$8,000</span></div>
-              <div class="hiw-prop-stars">★★★★★</div>
-              <div class="hiw-prop-msg" data-i18n="hiw.v2.msg1">"Hi! We're available and would love to play for you."</div>
+        <!-- v1 — free proposals: three fanned quote cards, real musician avatars, no ratings -->
+        <div class="hiw-visual hiw-visual--fan" data-v="1">
+          <div class="hiw-fan">
+            <!-- left (behind) — 康慈崴 -->
+            <div class="hiw-qcard hiw-qcard--left">
+              <div class="hiw-qav"><img src="https://firebasestorage.googleapis.com/v0/b/opusz-45280.firebasestorage.app/o/musicians%2FOpZc8pG2IDcwc0EX2anaOIbYjHb2%2Favatar_1781004669610.jpg?alt=media&amp;token=c4a821e2-bddb-4826-9ac1-53eb05092d3c" alt="" loading="lazy"></div>
+              <div class="hiw-qname" data-i18n="hiw.q2.name">Tzu-Wei Kang</div>
+              <div class="hiw-qrole" data-i18n="hiw.q2.role">Piano</div>
+              <div class="hiw-qprice">NT$6,500</div>
+              <div class="hiw-qdiv"></div>
+              <div class="hiw-qmsg" data-i18n="hiw.v2.msg2">"March 3rd works — classical &amp; contemporary repertoire."</div>
             </div>
-          </div>
-          <div class="hiw-prop">
-            <div class="hiw-prop-av" style="background:linear-gradient(135deg,#2980b9,#6dd5fa);">K</div>
-            <div>
-              <div class="hiw-prop-top"><span class="hiw-prop-name">Tzu-Wei Kang · Piano</span><span class="hiw-prop-price">NT$6,500</span></div>
-              <div class="hiw-prop-stars">★★★★★</div>
-              <div class="hiw-prop-msg" data-i18n="hiw.v2.msg2">"March 3rd works — classical &amp; contemporary repertoire."</div>
+            <!-- right (behind) — Julia Liu -->
+            <div class="hiw-qcard hiw-qcard--right">
+              <div class="hiw-qav"><img src="https://firebasestorage.googleapis.com/v0/b/opusz-45280.firebasestorage.app/o/musicians%2FhNknHnfAc4ZxVScioWRfEhhFfaq1%2Fphoto_1781101585349.jpg?alt=media&amp;token=ff9cb7f0-6fc2-42c8-b30c-9ac7aba014dc" alt="" loading="lazy"></div>
+              <div class="hiw-qname" data-i18n="hiw.q3.name">Julia Liu</div>
+              <div class="hiw-qrole" data-i18n="hiw.q3.role">Violin</div>
+              <div class="hiw-qprice">NT$7,500</div>
+              <div class="hiw-qdiv"></div>
+              <div class="hiw-qmsg" data-i18n="hiw.v2.msg3">"Happy to help — I'll send a short demo too."</div>
             </div>
-          </div>
-          <div class="hiw-prop">
-            <div class="hiw-prop-av" style="background:linear-gradient(135deg,#8e44ad,#3498db);">L</div>
-            <div>
-              <div class="hiw-prop-top"><span class="hiw-prop-name">Julia Liu · Violin</span><span class="hiw-prop-price">NT$7,500</span></div>
-              <div class="hiw-prop-stars">★★★★★</div>
-              <div class="hiw-prop-msg" data-i18n="hiw.v2.msg3">"Happy to help — I'll send a short demo too."</div>
+            <!-- middle (front) — 林孟樺 -->
+            <div class="hiw-qcard hiw-qcard--mid">
+              <div class="hiw-qav"><img src="https://firebasestorage.googleapis.com/v0/b/opusz-45280.firebasestorage.app/o/musicians%2Fk66GEYuTqmZy0lNEv2SAUT4xyzC2%2Favatar_1781109768944.jpg?alt=media&amp;token=3358da6c-4dc0-4c3c-a380-fea5c92a7e5f" alt="" loading="lazy"></div>
+              <div class="hiw-qname" data-i18n="hiw.q1.name">Meng Hua Lin</div>
+              <div class="hiw-qrole" data-i18n="hiw.q1.role">Percussion</div>
+              <div class="hiw-qprice">NT$8,000</div>
+              <div class="hiw-qdiv"></div>
+              <div class="hiw-qmsg" data-i18n="hiw.v2.msg1">"Hi! We're available and would love to play for you."</div>
             </div>
           </div>
         </div>
@@ -3544,6 +3565,9 @@ const I18N = {
     'hiw.v2.msg1':"\"Hi! We're available and would love to play for you.\"",
     'hiw.v2.msg2':'"March 3rd works — classical & contemporary repertoire."',
     'hiw.v2.msg3':"\"Happy to help — I'll send a short demo too.\"",
+    'hiw.q1.name':'Meng Hua Lin','hiw.q1.role':'Percussion',
+    'hiw.q2.name':'Tzu-Wei Kang','hiw.q2.role':'Piano',
+    'hiw.q3.name':'Julia Liu','hiw.q3.role':'Violin',
     'hiw.v3.label':'(Messaging)',
     'newsletter.label':'Newsletter',
     'newsletter.title':'Stay close to the music.',
@@ -3709,6 +3733,9 @@ const I18N = {
     'hiw.v2.msg1':'「嗨！我們有空，很樂意為你演出。」',
     'hiw.v2.msg2':'「3 月 3 日沒問題——古典與當代曲目都行。」',
     'hiw.v2.msg3':'「很樂意協助，我再附上一段試聽。」',
+    'hiw.q1.name':'林孟樺','hiw.q1.role':'打擊樂',
+    'hiw.q2.name':'康慈崴','hiw.q2.role':'鋼琴',
+    'hiw.q3.name':'Julia Liu','hiw.q3.role':'小提琴',
     'hiw.v3.label':'（溝通中）',
     'newsletter.label':'電子報',
     'newsletter.title':'與音樂保持連結。',
