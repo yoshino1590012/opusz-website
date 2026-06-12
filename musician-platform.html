@@ -1562,13 +1562,26 @@ nav.mega-open .nav-links a::before {
   .hiw-path { min-height: 600px; }
 }
 @media(max-width:860px){
-  .hiw-inner { grid-template-columns: 1fr; gap: 30px; }
-  .hiw-step { opacity: 1; }
-  .hiw-right { min-height: 0; display: flex; flex-direction: column; gap: 16px; }
-  .hiw-visual { position: static; opacity: 1; transform: none; pointer-events: auto; }
+  /* Tab-style on phones: compact step list up top, ONE visual shown at a time
+     (the active step's). No more scrolling past all three stacked visuals. */
+  .hiw-sticky { padding: 56px clamp(20px,5vw,40px); }
+  .hiw-inner { grid-template-columns: 1fr; gap: 22px; }
+  .hiw-title { font-size: 26px; margin: 12px 0 20px; }
+  .hiw-steps { gap: 8px; }
+  .hiw-step { padding: 12px 15px; opacity: .5; }
+  .hiw-step.active { opacity: 1; }
+  .hiw-num { width: 30px; height: 30px; font-size: 13px; }
+  .hiw-st { font-size: 15.5px; }
+  .hiw-sd { font-size: 12.5px; margin-top: 4px; }
+  /* Collapse the description on inactive steps → very compact, like SoundBetter */
+  .hiw-step:not(.active) .hiw-sd { display: none; }
+  /* Right column: only the active visual is shown (tab swap, not stacked) */
+  .hiw-right { min-height: 0; display: block; position: relative; }
+  .hiw-visual { position: static; transform: none; pointer-events: auto; opacity: 1; display: none; }
+  .hiw-visual.show { display: block; }
   .hiw-paths { flex-direction: column; align-items: center; }
-  .hiw-path { width: 100%; max-width: 380px; }
-  .hiw-frow { grid-template-columns: 1fr; gap: 0; }
+  .hiw-path { width: 100%; max-width: 380px; min-height: 0; }
+  .hiw-frow { grid-template-columns: 1fr 1fr; gap: 14px; }
   .hiw-frow .hiw-fld { margin-top: 14px; }
   /* fan → clean vertical stack on phones (no overflow from rotation/offset) */
   .hiw-fan { flex-direction: column; height: auto; gap: 12px; }
