@@ -763,8 +763,9 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .lesson-toggle-row { display:flex; align-items:center; gap:0; background:#ebebeb; border-radius:50px; padding:4px; width:fit-content; margin-bottom:40px; }
 .lesson-toggle-btn { padding:8px 22px; border-radius:50px; border:none; font-size:13px; font-weight:600; cursor:pointer; transition:background .18s,color .18s; background:transparent; color:#666; font-family:inherit; }
 .lesson-toggle-btn.active { background:#111; color:#fff; }
-.lesson-plans { display:grid; grid-template-columns:repeat(3,1fr); gap:16px; }
-@media(max-width:768px){ .lesson-plans{ grid-template-columns:1fr; } }
+.lesson-plans { display:grid; grid-template-columns:var(--plan-cols, repeat(3,1fr)); gap:16px; }
+/* 手機強制單欄堆疊（直接設值,不讀 --plan-cols → 蓋過 JS 設的桌機欄數,杜絕逐字斷行/價格截斷）*/
+@media(max-width:768px){ .lesson-plans{ grid-template-columns:1fr; max-width:420px; margin-left:auto; margin-right:auto; } }
 .lesson-card { background:#f7f7f7; border-radius:20px; padding:40px 32px 32px; display:flex; flex-direction:column; }
 .lesson-card.card-white { background:#fff; box-shadow:0 2px 24px rgba(0,0,0,.09),0 0 0 1px rgba(0,0,0,.06); border-radius:20px; }
 .lesson-plan-name { font-size:18px; font-weight:700; color:#111; margin-bottom:6px; }
@@ -791,7 +792,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
     padding:64px 40px;
   }
   /* minmax(0,1fr) 讓欄位可收進容器 → 杜絕水平溢出 */
-  .lesson-plans{ grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+  .lesson-plans{ grid-template-columns:var(--plan-cols, repeat(3,minmax(0,1fr))); gap:16px; }
   /* 價格再保守一點,確保「NT$19,200 / quarter」整行進得了卡片 */
   .lesson-price{ font-size:clamp(28px,2.7vw,42px); }
 }
@@ -5733,7 +5734,9 @@ window.addEventListener('pageshow', function(e) {
       var _grid = document.querySelector('#lessonSection .lesson-plans');
       if(_grid){
         var _n = Math.max(1, _shown);
-        _grid.style.gridTemplateColumns = 'repeat(' + _n + ',minmax(0,1fr))';
+        // 只設 CSS 變數,不直接設 grid-template-columns → 手機 media query (1fr) 才能蓋過,避免被擠成三欄
+        _grid.style.removeProperty('grid-template-columns');   // 清掉舊版可能殘留的 inline 值
+        _grid.style.setProperty('--plan-cols', 'repeat(' + _n + ',minmax(0,1fr))');
         if(_n < 3){ _grid.style.maxWidth = (_n * 360) + 'px'; _grid.style.marginLeft = 'auto'; _grid.style.marginRight = 'auto'; }
         else { _grid.style.maxWidth = ''; }
       }
