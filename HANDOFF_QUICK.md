@@ -30,7 +30,19 @@
 
 ---
 
-## 5. 🔴 改東西的鐵則（每次都要遵守）
+## 5. 🔁 交接規則（業主第二次貼上這份守則卡 = 交接信號）
+
+當業主在同一個視窗**第二次貼上這份守則卡**，代表要交接給下一個視窗。
+當前視窗**立刻用條列式、最簡短**的方式回覆：
+- 本次改了哪些檔（檔名 + 一句話說改了什麼）
+- 有沒有未完成或要注意的事（安全規則、待 bump 版本、未解問題）
+- 沒有特別事項就回「本次無遺留事項」
+
+> 不要長篇大論，讓下一個視窗 30 秒內掌握即可。守則卡本身**不要**因為交接而新增內容。
+
+---
+
+## 6. 🔴 改東西的鐵則（每次都要遵守）
 
 1. **多視窗協作**：業主同時開多個 Claude 視窗。動工前 `git fetch && git status`，確認沒人在改同一個檔。改好直接 push（已授權），但**同一個檔一次只給一個視窗改**。
 2. **commit 只 `git add <你改的特定檔>`，絕不 `git add -A`**（會把別人未提交的工作一起蓋掉）。push 前先 `git -c rebase.autoStash=true pull --rebase`。
@@ -40,7 +52,7 @@
 6. **驗證**：沒有 node；用 `jsc` 做語法檢查。動畫/拖曳/版面類自己測不準 → **請業主在真站確認**。
 7. 回業主一律中文白話＋可執行步驟。
 
-## 6. 🔒 安全守則（最重要，踩過大雷）
+## 7. 🔒 安全守則（最重要，踩過大雷）
 
 1. **規則發布＝業主保留批准權**：Firestore/Storage 規則不在 repo、push 不會更新。流程＝Claude 改 `firestore.rules`/`storage.rules` 兩個檔 → 跟業主說「準備好了，要發布嗎」→ **業主口頭說「好」** → Claude 才跑 `firebase deploy --only firestore:rules,storage`。**沒拿到當次口頭同意，絕不代發。**
 2. **個資別存「全域 localStorage key」**：`media-sync.js` 會把沒有 uid 區隔的 key 散佈到**所有帳號**（曾兩度把某人頭貼/城市漏給全站）。顯示在公開/他人頁的資料，只存「該帳號自己的 Firestore config（含 uid）」。
@@ -49,7 +61,7 @@
 
 ---
 
-## 7. 關鍵檔案速查
+## 8. 關鍵檔案速查
 - `musician-platform.html` 首頁（含自己的 inline nav、首頁照片引擎 `opzEdit`）
 - `shows.html` 演出頁（海報引擎 `opzShows`）
 - `admin-panel.html` 管理者後台（Site Editor）
@@ -62,7 +74,7 @@
 - `functions/index.js` Cloud Functions（自動寄信通知，走 ZeptoMail）
 - `server.py` 本機編輯伺服器
 
-## 8. 音樂家後台 & 社群 — EN/中 語言切換（2026-06-11）
+## 9. 音樂家後台 & 社群 — EN/中 語言切換（2026-06-11）
 
 ### 共用機制
 - 語言狀態：`localStorage('opusz_dash_lang')` 值 `'zh'`（預設）或 `'en'`
@@ -97,13 +109,13 @@
 - **···選單**：只對 `window.opuszMyUid === post.authorUid` 的貼文顯示
 - **儲存模組** import：`deleteDoc`（Firestore）、`getStorage/ref/uploadBytes/getDownloadURL`（Storage）
 
-## 9. 常踩的雷（快速版）
+## 10. 常踩的雷（快速版）
 - **後台「Failed to load customers」**＝Firebase 登入過期 → 清 `opusz_admin_loggedIn` → 去 `admin-login.html` 重新登入。
 - **訊息查詢**：列對話一定用 `where('participants','array-contains',uid)`，用 `musicianUid==` 會被規則整個拒絕。
 - **curl 測線上 HTML 加 `-L`**（Cloudflare 會 308 轉址）。
 - **平台規範英文**：要在 Firestore `siteContent/policy` 每個 section 手動加 `titleEn`/`bodyEn` 欄位，否則英文版仍顯示中文（fallback 設計，不會爆錯）。
 
-## 10. 本次更新（2026-06-11 下午）
+## 11. 本次更新（2026-06-11 下午）
 
 **新功能（都已上線）**
 - 鍵盤分類新增「合作鋼琴 / Collaborative Piano」。
