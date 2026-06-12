@@ -1500,18 +1500,18 @@ nav.mega-open .nav-links a::before {
 .hiw-prop-msg { font-size: 13px; color: #666; line-height: 1.5; }
 /* step-2 visual: three fanned quote cards (real avatars, no ratings) */
 .hiw-visual--fan { background: transparent; border: none; box-shadow: none; padding: 0; }
-.hiw-fan { position: relative; height: 360px; display: flex; align-items: center; justify-content: center; }
-.hiw-qcard { position: absolute; width: 212px; background: #fff; border-radius: 16px; box-shadow: 0 18px 46px rgba(0,0,0,.16); padding: 22px 20px; }
+.hiw-fan { position: relative; height: 520px; display: flex; align-items: center; justify-content: center; }
+.hiw-qcard { position: absolute; width: 380px; background: #fff; border-radius: 22px; box-shadow: 0 22px 56px rgba(0,0,0,.17); padding: 30px 28px; }
 .hiw-qcard--mid { z-index: 3; }
-.hiw-qcard--right { z-index: 2; transform: translateX(150px) translateY(22px) rotate(9deg); }
-.hiw-qcard--left { z-index: 1; transform: translateX(-150px) translateY(22px) rotate(-9deg); }
-.hiw-qav { width: 58px; height: 58px; border-radius: 50%; margin: 0 auto 12px; overflow: hidden; background: #eee; }
+.hiw-qcard--right { z-index: 2; transform: translateX(210px) translateY(28px) rotate(8deg); }
+.hiw-qcard--left { z-index: 1; transform: translateX(-210px) translateY(28px) rotate(-8deg); }
+.hiw-qav { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 16px; overflow: hidden; background: #eee; }
 .hiw-qav img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hiw-qname { font-size: 13.5px; font-weight: 800; text-align: center; color: #111; }
-.hiw-qrole { font-size: 11.5px; color: #888; text-align: center; margin-top: 3px; }
-.hiw-qprice { font-size: 16px; font-weight: 800; text-align: center; color: #111; margin: 12px 0; }
-.hiw-qdiv { height: 1px; background: #eee; margin: 0 -20px 12px; }
-.hiw-qmsg { font-size: 12px; color: #555; line-height: 1.45; }
+.hiw-qname { font-size: 20px; font-weight: 800; text-align: center; color: #111; }
+.hiw-qrole { font-size: 14px; color: #888; text-align: center; margin-top: 4px; }
+.hiw-qprice { font-size: 26px; font-weight: 800; text-align: center; color: #111; margin: 16px 0; }
+.hiw-qdiv { height: 1px; background: #eee; margin: 0 -28px 16px; }
+.hiw-qmsg { font-size: 14.5px; color: #555; line-height: 1.5; }
 .hiw-visual--chat { background: linear-gradient(135deg,#0d1520 0%,#1a2d47 55%,#1e3555 100%); border-color: transparent; }
 .hiw-visual--chat .hiw-vlabel { color: rgba(255,255,255,.7); }
 /* step-1 visual: two entry-path cards */
@@ -3132,8 +3132,8 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
         <!-- v1 — free proposals: three fanned quote cards, real musician avatars, no ratings -->
         <div class="hiw-visual hiw-visual--fan" data-v="1">
           <div class="hiw-fan">
-            <!-- left (behind) — 康慈崴 -->
-            <div class="hiw-qcard hiw-qcard--left">
+            <!-- middle (front) — 康慈崴 -->
+            <div class="hiw-qcard hiw-qcard--mid">
               <div class="hiw-qav"><img src="https://firebasestorage.googleapis.com/v0/b/opusz-45280.firebasestorage.app/o/musicians%2FOpZc8pG2IDcwc0EX2anaOIbYjHb2%2Favatar_1781004669610.jpg?alt=media&amp;token=c4a821e2-bddb-4826-9ac1-53eb05092d3c" alt="" loading="lazy"></div>
               <div class="hiw-qname" data-i18n="hiw.q2.name">Tzu-Wei Kang</div>
               <div class="hiw-qrole" data-i18n="hiw.q2.role">Piano</div>
@@ -3150,8 +3150,8 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
               <div class="hiw-qdiv"></div>
               <div class="hiw-qmsg" data-i18n="hiw.v2.msg3">"Happy to help — I'll send a short demo too."</div>
             </div>
-            <!-- middle (front) — 林孟樺 -->
-            <div class="hiw-qcard hiw-qcard--mid">
+            <!-- left (behind) — 林孟樺 -->
+            <div class="hiw-qcard hiw-qcard--left">
               <div class="hiw-qav"><img src="https://firebasestorage.googleapis.com/v0/b/opusz-45280.firebasestorage.app/o/musicians%2Fk66GEYuTqmZy0lNEv2SAUT4xyzC2%2Favatar_1781109768944.jpg?alt=media&amp;token=3358da6c-4dc0-4c3c-a380-fea5c92a7e5f" alt="" loading="lazy"></div>
               <div class="hiw-qname" data-i18n="hiw.q1.name">Meng Hua Lin</div>
               <div class="hiw-qrole" data-i18n="hiw.q1.role">Percussion</div>
