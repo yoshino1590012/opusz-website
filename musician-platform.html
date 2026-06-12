@@ -1557,9 +1557,11 @@ nav.mega-open .nav-links a::before {
 @media(min-width:861px){
   .hiw { height: 230vh; }
   .hiw-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; }
-  /* both entry cards share one fixed box so they're identical in size (the form
-     card is the tallest; the lesson card fills the rest, footer pinned bottom) */
-  .hiw-path { min-height: 600px; }
+  /* Both entry cards sit side by side in the right column — never wrap. They flex
+     to share the available width (min-width:0 lets them shrink below 430px), so on
+     narrower desktops both stay fully visible instead of stacking + overflowing. */
+  .hiw-paths { flex-wrap: nowrap; gap: 16px; }
+  .hiw-path { width: auto; flex: 1 1 0; min-width: 0; max-width: 360px; min-height: 560px; }
 }
 @media(max-width:860px){
   /* Tab-style on phones: compact step list up top, ONE visual shown at a time
