@@ -616,11 +616,11 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
         <div class="pj-row">
           <div class="pj-field">
             <div class="pj-label" data-i18n="pj.eventdate">Event Date</div>
-            <input id="pjDate" class="pj-input" type="date" />
+            <input id="pjDate" class="pj-input" type="date" lang="en" />
           </div>
           <div class="pj-field">
             <div class="pj-label" data-i18n="pj.eventtime">Event Time</div>
-            <input id="pjTime" class="pj-input" type="time" />
+            <input id="pjTime" class="pj-input" type="time" lang="en" />
           </div>
         </div>
         <!-- Row 2: Location + Duration -->
@@ -994,6 +994,10 @@ function switchLang(lang) {
     o.classList.toggle('active', o.dataset.l === lang);
   });
   document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+  // Native date/time pickers show their format text (年/月/日 vs yyyy/mm/dd) by the
+  // input's lang, not the page — force it to follow the chosen language.
+  var _dtLang = lang === 'zh' ? 'zh-TW' : 'en';
+  ['pjDate','pjTime'].forEach(function(id){ var el = document.getElementById(id); if (el) el.setAttribute('lang', _dtLang); });
   if (typeof window.__navResplit === 'function') window.__navResplit();
 }
 
