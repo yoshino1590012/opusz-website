@@ -1499,6 +1499,29 @@ nav.mega-open .nav-links a::before {
 .hiw-prop-msg { font-size: 13px; color: #666; line-height: 1.5; }
 .hiw-visual--chat { background: linear-gradient(135deg,#0d1520 0%,#1a2d47 55%,#1e3555 100%); border-color: transparent; }
 .hiw-visual--chat .hiw-vlabel { color: rgba(255,255,255,.7); }
+/* step-1 visual: two entry-path cards */
+.hiw-visual--paths { padding: 18px; }
+.hiw-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; height: 100%; }
+.hiw-path { display: flex; flex-direction: column; background: #fff; border: 1px solid #ececec; border-radius: 14px; padding: 18px; }
+.hiw-path--alt { background: #fafafa; }
+.hiw-path-tag { font-size: 9px; font-weight: 700; letter-spacing: .12em; color: #aaa; margin-bottom: 8px; }
+.hiw-path-title { font-size: 18px; font-weight: 800; letter-spacing: -.4px; color: #111; }
+.hiw-path-sub { font-size: 12px; color: #888; margin-top: 5px; line-height: 1.45; }
+.hiw-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 13px 0 4px; }
+.hiw-chip { font-size: 10.5px; padding: 4px 9px; border: 1px solid #e2e2e2; border-radius: 50px; color: #555; }
+.hiw-chip.on { background: #111; border-color: #111; color: #fff; }
+.hiw-field { display: flex; justify-content: space-between; gap: 8px; font-size: 11px; padding: 7px 0; border-bottom: 1px solid #f3f3f3; }
+.hiw-field-l { color: #aaa; }
+.hiw-field-v { color: #333; font-weight: 600; text-align: right; }
+.hiw-price { font-size: 30px; font-weight: 900; color: #111; letter-spacing: -1px; margin: 14px 0 0; }
+.hiw-price span { font-size: 12px; font-weight: 500; color: #aaa; letter-spacing: 0; }
+.hiw-incl { list-style: none; padding: 0; margin: 10px 0 0; }
+.hiw-incl li { font-size: 11.5px; color: #555; padding: 4px 0 4px 15px; position: relative; line-height: 1.35; }
+.hiw-incl li::before { content: '•'; position: absolute; left: 3px; color: #bbb; }
+.hiw-path-btn { margin-top: auto; padding: 11px; background: #111; color: #fff; border-radius: 50px; text-align: center; font-size: 12px; font-weight: 700; }
+.hiw-path-btn + .hiw-path-btn { margin-top: 14px; }
+.hiw-path .hiw-chips + .hiw-field { margin-top: 4px; }
+.hiw-path-title + .hiw-path-btn, .hiw-incl + .hiw-path-btn { margin-top: 16px; }
 @media(min-width:861px){
   .hiw { height: 230vh; }
   .hiw-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; }
@@ -1508,6 +1531,7 @@ nav.mega-open .nav-links a::before {
   .hiw-step { opacity: 1; }
   .hiw-right { min-height: 0; display: flex; flex-direction: column; gap: 16px; }
   .hiw-visual { position: static; opacity: 1; transform: none; pointer-events: auto; }
+  .hiw-paths { grid-template-columns: 1fr; }
 }
 
 /* ── TESTIMONIALS ── */
@@ -3016,11 +3040,35 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
         </ol>
       </div>
       <div class="hiw-right" id="hiwVisuals">
-        <!-- v0 — project brief -->
-        <div class="hiw-visual show" data-v="0">
-          <div class="hiw-vlabel" data-i18n="hiw.v1.title">Tell us about your project</div>
-          <div class="hiw-brief-box" data-i18n="hiw.v1.body">We're looking for a string quartet for March 3rd in Taipei — a formal evening event, about 2 hours.</div>
-          <div class="hiw-brief-foot"><span class="hiw-brief-btn" data-i18n="hiw.v1.btn">Post project →</span></div>
+        <!-- v0 — two entry paths: post a project  OR  book a musician directly -->
+        <div class="hiw-visual hiw-visual--paths show" data-v="0">
+          <div class="hiw-paths">
+            <!-- Path A: public commission -->
+            <div class="hiw-path">
+              <div class="hiw-path-tag" data-i18n="hiw.p1.tag">OPUS.Z — JOB BOARD</div>
+              <div class="hiw-path-title" data-i18n="hiw.p1.title">Post a Project</div>
+              <div class="hiw-chips">
+                <span class="hiw-chip on" data-i18n="hiw.p1.c1">Wedding</span>
+                <span class="hiw-chip" data-i18n="hiw.p1.c2">Corporate</span>
+                <span class="hiw-chip" data-i18n="hiw.p1.c3">Recording</span>
+              </div>
+              <div class="hiw-field"><span class="hiw-field-l" data-i18n="hiw.p1.loc">Location</span><span class="hiw-field-v" data-i18n="hiw.p1.locv">Taipei, Grand Ballroom</span></div>
+              <div class="hiw-field"><span class="hiw-field-l" data-i18n="hiw.p1.ens">Ensemble</span><span class="hiw-field-v" data-i18n="hiw.p1.ensv">String Quartet</span></div>
+              <div class="hiw-path-btn" data-i18n="hiw.p1.btn">Find Musicians →</div>
+            </div>
+            <!-- Path B: book a musician / lesson directly -->
+            <div class="hiw-path hiw-path--alt">
+              <div class="hiw-path-title" data-i18n="hiw.p2.title">Trial Lesson</div>
+              <div class="hiw-path-sub" data-i18n="hiw.p2.sub">Single session. No commitment.</div>
+              <div class="hiw-price">NT$2,000<span data-i18n="hiw.p2.unit"> / session</span></div>
+              <ul class="hiw-incl">
+                <li data-i18n="hiw.p2.i1">60-min one-on-one lesson</li>
+                <li data-i18n="hiw.p2.i2">Level assessment &amp; plan</li>
+                <li data-i18n="hiw.p2.i3">Post-lesson practice notes</li>
+              </ul>
+              <div class="hiw-path-btn" data-i18n="hiw.p2.btn">Book directly</div>
+            </div>
+          </div>
         </div>
         <!-- v1 — free proposals -->
         <div class="hiw-visual" data-v="1">
@@ -3413,6 +3461,23 @@ const I18N = {
     'hiw.v1.title':'Tell us about your project',
     'hiw.v1.body':"We're looking for a string quartet for March 3rd in Taipei — a formal evening event, about 2 hours.",
     'hiw.v1.btn':'Post project →',
+    'hiw.p1.tag':'OPUS.Z — JOB BOARD',
+    'hiw.p1.title':'Post a Project',
+    'hiw.p1.c1':'Wedding',
+    'hiw.p1.c2':'Corporate',
+    'hiw.p1.c3':'Recording',
+    'hiw.p1.loc':'Location',
+    'hiw.p1.locv':'Taipei, Grand Ballroom',
+    'hiw.p1.ens':'Ensemble',
+    'hiw.p1.ensv':'String Quartet',
+    'hiw.p1.btn':'Find Musicians →',
+    'hiw.p2.title':'Trial Lesson',
+    'hiw.p2.sub':'Single session. No commitment.',
+    'hiw.p2.unit':' / session',
+    'hiw.p2.i1':'60-min one-on-one lesson',
+    'hiw.p2.i2':'Level assessment & plan',
+    'hiw.p2.i3':'Post-lesson practice notes',
+    'hiw.p2.btn':'Book directly',
     'hiw.v2.title':'3 quotes received',
     'hiw.v2.msg1':"\"Hi! We're available and would love to play for you.\"",
     'hiw.v2.msg2':'"March 3rd works — classical & contemporary repertoire."',
@@ -3541,6 +3606,23 @@ const I18N = {
     'hiw.v1.title':'告訴我們你的需求',
     'hiw.v1.body':'我們想找 3 月 3 日在台北的弦樂四重奏，正式晚間活動，約 2 小時。',
     'hiw.v1.btn':'發布委託 →',
+    'hiw.p1.tag':'OPUS.Z — 委託專區',
+    'hiw.p1.title':'公開委託',
+    'hiw.p1.c1':'婚禮',
+    'hiw.p1.c2':'企業活動',
+    'hiw.p1.c3':'錄音',
+    'hiw.p1.loc':'地點',
+    'hiw.p1.locv':'台北・大宴會廳',
+    'hiw.p1.ens':'編制',
+    'hiw.p1.ensv':'弦樂四重奏',
+    'hiw.p1.btn':'尋找音樂家 →',
+    'hiw.p2.title':'體驗課',
+    'hiw.p2.sub':'單堂體驗，無需綁約。',
+    'hiw.p2.unit':' / 堂',
+    'hiw.p2.i1':'60 分鐘一對一教學',
+    'hiw.p2.i2':'程度評估與學習規劃',
+    'hiw.p2.i3':'課後練習筆記',
+    'hiw.p2.btn':'直接預約',
     'hiw.v2.title':'收到 3 則報價',
     'hiw.v2.msg1':'「嗨！我們有空，很樂意為你演出。」',
     'hiw.v2.msg2':'「3 月 3 日沒問題——古典與當代曲目都行。」',
