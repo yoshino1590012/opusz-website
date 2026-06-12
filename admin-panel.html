@@ -3421,7 +3421,7 @@ Martin</textarea>
 
   // ── 平台政策 editor (single source siteContent/policy → musician dashboard +
   //    registration consent all read the same doc) ──
-  var POLICY_DEFAULT = { draftNote:'本政策仍在研擬中，內容可能隨時調整；正式版本將另行公告。', version:1, sections:[
+  var POLICY_DEFAULT = { draftNote:'本政策仍在研擬中，內容可能隨時調整；正式版本將另行公告。', version:2, sections:[
     {
       title:'收費與抽成（演出）',
       titleEn:'Performance Pricing & Service Fee',
@@ -3474,9 +3474,25 @@ Martin</textarea>
   var POL = null;
   async function loadPolicyAdmin(){
     POL = JSON.parse(JSON.stringify(POLICY_DEFAULT));
-    try{ var s = await getDoc(doc(db,'siteContent','policy')); if(s.exists() && s.data() && Array.isArray(s.data().sections) && s.data().sections.length){ POL = s.data(); } }catch(e){ console.warn('[policy] load:', e&&e.code); }
+    var needMigrate = false;
+    try{
+      var s = await getDoc(doc(db,'siteContent','policy'));
+      if(s.exists() && s.data() && Array.isArray(s.data().sections) && s.data().sections.length){
+        var fb = s.data();
+        // 若 Firebase 仍是舊版（version 較低或沒有 version），自動以最新內建內容覆蓋並寫回
+        if((fb.version||1) < POLICY_DEFAULT.version){ needMigrate = true; }
+        else { POL = fb; }
+      } else { needMigrate = true; }
+    }catch(e){ console.warn('[policy] load:', e&&e.code); }
     var n=document.getElementById('polDraftNote'); if(n) n.value = POL.draftNote || '';
     polRender();
+    if(needMigrate){
+      try{
+        POL.updatedAt = new Date().toISOString();
+        await setDoc(doc(db,'siteContent','policy'), POL, { merge:false });
+        var m = document.getElementById('polSaveMsg'); if(m){ m.textContent='✓ 已自動更新為最新政策內容（中英文），並同步至音樂家後台與註冊同意書。'; m.style.display='block'; setTimeout(function(){ m.style.display='none'; }, 6000); }
+      }catch(e){ console.warn('[policy] auto-migrate:', e&&e.code); }
+    }
   }
   function polRender(){
     var el = document.getElementById('polSections'); if(!el) return;
