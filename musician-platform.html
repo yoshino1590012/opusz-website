@@ -4485,12 +4485,18 @@ setTimeout(syncHero, 600);
     if (_vidRafId) { cancelAnimationFrame(_vidRafId); _vidRafId = null; }
     drawScrubFrame(0, _VID_INIT_OBJ_Y);
   }
-  window.addEventListener('pageshow', function() { hardReset(); });
-  window.addEventListener('load', function() {
-    // Only reset if user hasn't started scrolling — prevents interrupting animation
-    // when video takes time to download (e.g. hard refresh with cleared cache)
-    if (targetY === 0 && currentY < 1) hardReset();
-  });
+  // Has the user already scrolled away from the top? Check the REAL scroll
+  // position (covers native mobile touch scroll, which never updates the desktop
+  // wheel-lerp's targetY/currentY) as well as the lerp state. If they have, we
+  // must NOT yank them back to the top — that was the "refresh, scroll down, snap
+  // back to top" bug: pageshow/load fire late (video download) and reset scroll
+  // after the user already scrolled.
+  function userHasScrolled() {
+    var y = window.scrollY || window.pageYOffset || 0;
+    return y > 2 || targetY > 2 || currentY > 2;
+  }
+  window.addEventListener('pageshow', function() { if (!userHasScrolled()) hardReset(); });
+  window.addEventListener('load', function() { if (!userHasScrolled()) hardReset(); });
 
   // ── Nav lerp ──
   const navEl      = document.querySelector('nav');
