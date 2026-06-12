@@ -1500,18 +1500,21 @@ nav.mega-open .nav-links a::before {
 .hiw-prop-msg { font-size: 13px; color: #666; line-height: 1.5; }
 /* step-2 visual: three fanned quote cards (real avatars, no ratings) */
 .hiw-visual--fan { background: transparent; border: none; box-shadow: none; padding: 0; }
-.hiw-fan { position: relative; height: 520px; display: flex; align-items: center; justify-content: center; }
-.hiw-qcard { position: absolute; width: 380px; background: #fff; border-radius: 22px; box-shadow: 0 22px 56px rgba(0,0,0,.17); padding: 30px 28px; }
+.hiw-fan { position: relative; height: 540px; display: flex; align-items: center; justify-content: center; }
+.hiw-qcard { position: absolute; width: 300px; background: #fff; border-radius: 22px; box-shadow: 0 22px 56px rgba(0,0,0,.17); padding: 30px 26px; }
 .hiw-qcard--mid { z-index: 3; }
-.hiw-qcard--right { z-index: 2; transform: translateX(210px) translateY(28px) rotate(8deg); }
-.hiw-qcard--left { z-index: 1; transform: translateX(-210px) translateY(28px) rotate(-8deg); }
-.hiw-qav { width: 100px; height: 100px; border-radius: 50%; margin: 0 auto 16px; overflow: hidden; background: #eee; }
+.hiw-qcard--right { z-index: 2; transform: translateX(206px) translateY(30px) rotate(8deg); }
+.hiw-qcard--left { z-index: 1; transform: translateX(-206px) translateY(30px) rotate(-8deg); }
+.hiw-qav { width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 16px; overflow: hidden; background: #eee; }
 .hiw-qav img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.hiw-qname { font-size: 20px; font-weight: 800; text-align: center; color: #111; }
-.hiw-qrole { font-size: 14px; color: #888; text-align: center; margin-top: 4px; }
-.hiw-qprice { font-size: 26px; font-weight: 800; text-align: center; color: #111; margin: 16px 0; }
-.hiw-qdiv { height: 1px; background: #eee; margin: 0 -28px 16px; }
-.hiw-qmsg { font-size: 14.5px; color: #555; line-height: 1.5; }
+.hiw-qname { font-size: 19px; font-weight: 800; text-align: center; color: #111; }
+.hiw-qrole { font-size: 13.5px; color: #888; text-align: center; margin-top: 4px; }
+.hiw-qrate { text-align: center; margin-top: 8px; }
+.hiw-qstars { color: #6b6b6b; font-size: 13px; letter-spacing: 2px; }
+.hiw-qcount { color: #b0b0b0; font-size: 12px; margin-left: 7px; }
+.hiw-qprice { font-size: 25px; font-weight: 800; text-align: center; color: #111; margin: 14px 0; }
+.hiw-qdiv { height: 1px; background: #eee; margin: 0 -26px 14px; }
+.hiw-qmsg { font-size: 13.5px; color: #555; line-height: 1.55; }
 .hiw-visual--chat { background: linear-gradient(135deg,#0d1520 0%,#1a2d47 55%,#1e3555 100%); border-color: transparent; }
 .hiw-visual--chat .hiw-vlabel { color: rgba(255,255,255,.7); }
 /* step-1 visual: two entry-path cards */
@@ -3137,6 +3140,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
               <div class="hiw-qav"><img src="https://firebasestorage.googleapis.com/v0/b/opusz-45280.firebasestorage.app/o/musicians%2FOpZc8pG2IDcwc0EX2anaOIbYjHb2%2Favatar_1781004669610.jpg?alt=media&amp;token=c4a821e2-bddb-4826-9ac1-53eb05092d3c" alt="" loading="lazy"></div>
               <div class="hiw-qname" data-i18n="hiw.q2.name">Tzu-Wei Kang</div>
               <div class="hiw-qrole" data-i18n="hiw.q2.role">Piano</div>
+              <div class="hiw-qrate"><span class="hiw-qstars">★★★★★</span><span class="hiw-qcount">5.0 (24)</span></div>
               <div class="hiw-qprice">NT$6,500</div>
               <div class="hiw-qdiv"></div>
               <div class="hiw-qmsg" data-i18n="hiw.v2.msg2">"March 3rd works — classical &amp; contemporary repertoire."</div>
@@ -3146,6 +3150,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
               <div class="hiw-qav"><img src="https://firebasestorage.googleapis.com/v0/b/opusz-45280.firebasestorage.app/o/musicians%2FhNknHnfAc4ZxVScioWRfEhhFfaq1%2Fphoto_1781101585349.jpg?alt=media&amp;token=ff9cb7f0-6fc2-42c8-b30c-9ac7aba014dc" alt="" loading="lazy"></div>
               <div class="hiw-qname" data-i18n="hiw.q3.name">Julia Liu</div>
               <div class="hiw-qrole" data-i18n="hiw.q3.role">Violin</div>
+              <div class="hiw-qrate"><span class="hiw-qstars">★★★★★</span><span class="hiw-qcount">4.8 (18)</span></div>
               <div class="hiw-qprice">NT$7,500</div>
               <div class="hiw-qdiv"></div>
               <div class="hiw-qmsg" data-i18n="hiw.v2.msg3">"Happy to help — I'll send a short demo too."</div>
@@ -3155,6 +3160,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
               <div class="hiw-qav"><img src="https://firebasestorage.googleapis.com/v0/b/opusz-45280.firebasestorage.app/o/musicians%2Fk66GEYuTqmZy0lNEv2SAUT4xyzC2%2Favatar_1781109768944.jpg?alt=media&amp;token=3358da6c-4dc0-4c3c-a380-fea5c92a7e5f" alt="" loading="lazy"></div>
               <div class="hiw-qname" data-i18n="hiw.q1.name">Meng Hua Lin</div>
               <div class="hiw-qrole" data-i18n="hiw.q1.role">Percussion</div>
+              <div class="hiw-qrate"><span class="hiw-qstars">★★★★★</span><span class="hiw-qcount">4.9 (31)</span></div>
               <div class="hiw-qprice">NT$8,000</div>
               <div class="hiw-qdiv"></div>
               <div class="hiw-qmsg" data-i18n="hiw.v2.msg1">"Hi! We're available and would love to play for you."</div>
@@ -3562,9 +3568,9 @@ const I18N = {
     'hiw.p2.tlv':'Flexible scheduling',
     'hiw.p2.btn':'Book a lesson',
     'hiw.v2.title':'3 quotes received',
-    'hiw.v2.msg1':"\"Hi! We're available and would love to play for you.\"",
-    'hiw.v2.msg2':'"March 3rd works — classical & contemporary repertoire."',
-    'hiw.v2.msg3':"\"Happy to help — I'll send a short demo too.\"",
+    'hiw.v2.msg1':"Hey! Got your message about March 3rd — I'm free that evening, and for the repertoire we could…",
+    'hiw.v2.msg2':"Hi there! Thanks for reaching out — yes, we're available. I'd suggest opening with…",
+    'hiw.v2.msg3':"Hi! Saw your request and I'd love to help. I'll send over a short demo so you can…",
     'hiw.q1.name':'Meng Hua Lin','hiw.q1.role':'Percussion',
     'hiw.q2.name':'Tzu-Wei Kang','hiw.q2.role':'Piano',
     'hiw.q3.name':'Julia Liu','hiw.q3.role':'Violin',
@@ -3730,9 +3736,9 @@ const I18N = {
     'hiw.p2.tlv':'時間彈性安排',
     'hiw.p2.btn':'預約課程',
     'hiw.v2.title':'收到 3 則報價',
-    'hiw.v2.msg1':'「嗨！我們有空，很樂意為你演出。」',
-    'hiw.v2.msg2':'「3 月 3 日沒問題——古典與當代曲目都行。」',
-    'hiw.v2.msg3':'「很樂意協助，我再附上一段試聽。」',
+    'hiw.v2.msg1':'嗨，收到你 3 月 3 日的訊息了！那天晚上我有空，曲目的話我們可以先…',
+    'hiw.v2.msg2':'你好，謝謝來訊！那天我們有空，我建議開場可以先安排…',
+    'hiw.v2.msg3':'嗨！看到你的需求了，很樂意幫忙，我再附上一段試聽讓你…',
     'hiw.q1.name':'林孟樺','hiw.q1.role':'打擊樂',
     'hiw.q2.name':'康慈崴','hiw.q2.role':'鋼琴',
     'hiw.q3.name':'Julia Liu','hiw.q3.role':'小提琴',
@@ -4582,7 +4588,12 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
         setActive(idx);
       }
     });
+    // Hover also switches the active step + visual (no click needed)
+    s.addEventListener('mouseenter', function(){ if(isDesktop()) setActive(idx); });
   });
+  // When the cursor leaves the steps, snap back to whatever the scroll position says
+  var stepsWrap = document.getElementById('hiwSteps');
+  if(stepsWrap) stepsWrap.addEventListener('mouseleave', function(){ if(isDesktop()) onScroll(); });
   setActive(0);
   var ticking = false;
   window.addEventListener('scroll', function(){
