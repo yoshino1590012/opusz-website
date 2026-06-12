@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
-:root{--black:#000;--white:#fff;--gray:#f0f0f0;
+:root{--black:#000;--white:#fff;--gray:#ffffff;
   /* Theme tokens (Phase 2-C) — overridable via cfg.theme; defaults match current design */
   --pf-accent:#1ab864; --pf-accent-hover:#149954; --pf-page-bg:#ffffff; --pf-text:#000000;}
 /* Hero media video (URL-based, injected by applyProfileConfig) */
@@ -716,7 +716,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
    reads as a distinct section against the white page — like the homepage bands.
    The ::before paints a 100vw strip behind the (still centred) content. */
 .serv-block{ position:relative; isolation:isolate; margin-top:clamp(44px,6vw,68px); padding-top:clamp(48px,6vw,72px); padding-bottom:clamp(48px,6vw,72px); }
-.serv-block::before{ content:''; position:absolute; z-index:-1; top:0; bottom:0; left:calc(50% - 50vw); width:100vw; background:#eee7da; }
+.serv-block::before{ content:''; position:absolute; z-index:-1; top:0; bottom:0; left:calc(50% - 50vw); width:100vw; background:#f0efec; }
 .serv-grid{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:28px; }
 @media(max-width:760px){ .serv-grid{ grid-template-columns:1fr; } }
 .serv-card{ background:#f7f7f7; border-radius:22px; padding:clamp(28px,3vw,40px); display:flex; flex-direction:column; }
