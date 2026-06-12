@@ -3254,6 +3254,36 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     if(currentStep===5) renderLocation();
     if(currentStep===6) renderVenueDetails();
     if(currentStep===7) renderNotes();
+    if(currentStep===8) renderContactStep();
+  }
+
+  // Step 8 (contact): a logged-in customer already has name + email on file and
+  // the musician sees who they are in Messages — so hide those fields and just
+  // keep an optional phone, mirroring the "Message" enquiry modal.
+  function renderContactStep(){
+    var isCust = window.opzLoggedInCustomer && window.opzLoggedInCustomer();
+    var cn = document.getElementById('contactName'), ce = document.getElementById('contactEmail');
+    var nameField  = cn ? cn.closest('.avail-field')  : null;
+    var emailField = ce ? ce.closest('.avail-field') : null;
+    var subQ = document.querySelector('#avStep8 .avail-sub-q2');
+    var hint = document.querySelector('#avStep8 .avail-hint');
+    var isZh = (document.documentElement.lang||'').toLowerCase().indexOf('zh') === 0;
+    if(isCust){
+      var nm = (localStorage.getItem('opusz_user')||'').trim();
+      var em = (localStorage.getItem('opusz_user_email')||'').trim();
+      if(cn) cn.value = nm; if(ce) ce.value = em;
+      if(nameField)  nameField.style.display  = 'none';
+      if(emailField) emailField.style.display = 'none';
+      if(subQ) subQ.textContent = isZh ? '就快完成了！' : "You're all set!";
+      if(hint) hint.innerHTML = isZh
+        ? ('將以您的帳號' + (nm ? '（<b>'+nm.replace(/</g,'&lt;')+'</b>）' : '') + '送出，樂手會直接在您的<b>「訊息」</b>回覆。電話為選填。')
+        : ('Sending as your account' + (nm ? ' (<b>'+nm.replace(/</g,'&lt;')+'</b>)' : '') + '. The musician replies in your <b>Messages</b>. Phone is optional.');
+    } else {
+      if(nameField)  nameField.style.display  = '';
+      if(emailField) emailField.style.display = '';
+      if(subQ) subQ.textContent = 'Where shall we send their reply?';
+      if(hint) hint.textContent = "We need your contact details to send you the musician's response.";
+    }
   }
 
   function nextStep(){
@@ -3526,9 +3556,11 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 
   // ── Submit ────────────────────────────────────────────────────────────────
   function submitAvail(){
-    var name=document.getElementById('contactName').value.trim();
-    var email=document.getElementById('contactEmail').value.trim();
-    if(!name||!email){ alert('Please fill in your name and email.'); return; }
+    var isCust = window.opzLoggedInCustomer && window.opzLoggedInCustomer();
+    var name=document.getElementById('contactName').value.trim()  || (isCust ? (localStorage.getItem('opusz_user')||'').trim() : '');
+    var email=document.getElementById('contactEmail').value.trim() || (isCust ? (localStorage.getItem('opusz_user_email')||'').trim() : '');
+    // Logged-in customers reply inside Messages — only anonymous visitors must fill contact details.
+    if(!isCust && (!name||!email)){ alert('Please fill in your name and email.'); return; }
     var phoneEl=document.getElementById('contactPhone');
     var phone=phoneEl?phoneEl.value.trim():'';
     // Build a readable summary of the booking request for the musician's inbox.
@@ -5608,12 +5640,21 @@ window.addEventListener('pageshow', function(e) {
   // the owner's choice. Runs after applyProfileConfig and on every language
   // toggle, so switching 中/EN re-localises these four sections' content.
   var _profileCfg = null;
+  // Effective CONTENT language. A single-language profile (langMode 'zh' | 'en')
+  // locks ALL its content to that language regardless of the visitor's toggle;
+  // a bilingual profile ('both' or unset → backward-compatible) follows the
+  // visitor's chosen language as before.
+  function _effLang(){
+    var lm = _profileCfg && _profileCfg.langMode;
+    if(lm === 'zh' || lm === 'en') return lm;
+    return _profileLang;
+  }
   function _locText(zh, en){
-    if(_profileLang === 'en') return (en != null && String(en).trim() !== '') ? String(en) : '';
+    if(_effLang() === 'en') return (en != null && String(en).trim() !== '') ? String(en) : '';
     return (zh != null) ? String(zh) : '';
   }
   function _locList(zh, en){
-    var src = (_profileLang === 'en') ? (Array.isArray(en) ? en : []) : (Array.isArray(zh) ? zh : []);
+    var src = (_effLang() === 'en') ? (Array.isArray(en) ? en : []) : (Array.isArray(zh) ? zh : []);
     return src.map(function(s){ return String(s == null ? '' : s).trim(); }).filter(function(s){ return s !== ''; });
   }
   function _escHtml(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
@@ -5659,14 +5700,14 @@ window.addEventListener('pageshow', function(e) {
     if(!val) return val;
     var s = String(val).trim();
     for(var i=0;i<pairs.length;i++){
-      if(pairs[i][0] === s || pairs[i][1] === s) return (_profileLang === 'zh') ? pairs[i][1] : pairs[i][0];
+      if(pairs[i][0] === s || pairs[i][1] === s) return (_effLang() === 'zh') ? pairs[i][1] : pairs[i][0];
     }
     return val;  // custom entry → unchanged
   }
 
   function applyLocalizedSections(){
     var cfg = _profileCfg; if(!cfg) return;
-    var isEn = (_profileLang === 'en');
+    var isEn = (_effLang() === 'en');
     var about = cfg.about || {};
 
     // HERO title (instrument role) + location — translate known values on toggle
