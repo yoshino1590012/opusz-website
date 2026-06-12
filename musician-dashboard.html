@@ -2741,6 +2741,19 @@
       }); } catch(e){}
     };
     window.__markConvRead = function(convId){ try { updateDoc(doc(db,'conversations',convId), { musicianUnread: 0 }); } catch(e){} };
+    // Musician writes/updates the deal (proposal). Posts a system message + bumps
+    // the customer's unread so they re-confirm the new quote.
+    window.__setConvDeal = async function(convId, deal, sysText){
+      try { await updateDoc(doc(db,'conversations',convId), { deal: deal, updatedAt: serverTimestamp() }); }
+      catch(e){ console.warn('[deal] set failed:', e && e.code); return false; }
+      if(sysText){
+        try {
+          await addDoc(collection(db,'conversations',convId,'messages'), { senderUid:user.uid, senderRole:'musician', type:'sys', text:sysText, file:null, createdAt: serverTimestamp() });
+          await updateDoc(doc(db,'conversations',convId), { lastMessage:sysText, lastSenderRole:'musician', updatedAt: serverTimestamp(), customerUnread: increment(1) });
+        } catch(e){}
+      }
+      return true;
+    };
     window.__hideConversation = function(convId){ try { updateDoc(doc(db,'conversations',convId), { musicianHidden: true }); } catch(e){} };
 
     // Helpers the (non-module) inbox UI calls to persist read-state / replies to Firestore.
@@ -5546,7 +5559,7 @@
   function fmtNTd(n){ n = Number(n)||0; return 'NT$' + Math.round(n).toLocaleString('en-US'); }
   var DASH_DEAL_ZH = { pending:'待客戶確認', active:'進行中（款項託管中）', completed:'已完成', released:'已放款', cancelled:'已取消' };
   // Proposal / escrow card from the musician's point of view (read-only this phase).
-  function dealCardHtml(deal){
+  function dealCardHtml(deal, convId){
     if(!deal) return '';
     var st = deal.status || 'pending';
     var stZh = DASH_DEAL_ZH[st] || st;
@@ -5556,6 +5569,8 @@
     var color = st==='pending' ? '#2f54eb' : (st==='active' ? '#d48806' : ((st==='released'||st==='completed') ? '#1a9c54' : '#999'));
     var bg = st==='pending' ? '#eef3ff' : (st==='active' ? '#fff7e6' : ((st==='released'||st==='completed') ? '#e9f7ef' : '#f5f5f5'));
     var row = function(k,v,vc){ return '<div style="display:flex;justify-content:space-between;gap:10px;"><span style="color:#888;">'+k+'</span><span style="font-weight:600;'+(vc?('color:'+vc+';'):'')+'">'+v+'</span></div>'; };
+    // 樂手可改報價：尚未放款前都能改（改完客戶需重新確認）
+    var canRequote = (st !== 'released' && st !== 'cancelled');
     return '<div style="background:#fff;border:1px solid #e8e8ee;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12.5px;line-height:1.8;">'
       + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
         + '<b>報價單 / Proposal</b>'
@@ -5565,11 +5580,74 @@
       + row('客戶付', price ? fmtNTd(price) : '待報價')
       + (price ? row('你實拿', fmtNTd(take)+'（平台 '+fee+'%）', '#16a34a') : '')
       + row('款項', '入金 '+(Number(deal.funded)?fmtNTd(deal.funded):'—')+'｜放款 '+(Number(deal.released)?fmtNTd(deal.released):'—'))
-      + (st==='pending' ? '<div style="font-size:11px;color:#999;margin-top:8px;">等待客戶確認並付款。（下一階段：可在此「改報價／換方案」）</div>' : '')
       + (st==='active' ? '<div style="font-size:11px;color:#999;margin-top:8px;">款項已進入平台託管，課程／演出完成後客戶確認即放款。</div>' : '')
       + (st==='released' ? '<div style="font-size:11px;color:#1a9c54;margin-top:8px;">款項已放款，交易完成。</div>' : '')
+      + (canRequote ? '<button onclick="openRequote(\''+esc(convId||'')+'\')" style="width:100%;margin-top:10px;background:#fff;color:#111;border:1px solid #111;border-radius:8px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;">改報價 / 客製報價</button>'
+                       + (st==='active' ? '<div style="font-size:11px;color:#d48806;margin-top:6px;">注意：改價後客戶需重新確認並付款。</div>' : '') : '')
       + '</div>';
   }
+
+  // ── 改報價 / 客製報價 modal（樂手）──
+  window.openRequote = function(convId){
+    var cs = loadConvos(), conv = null;
+    for(var i=0;i<cs.length;i++){ if(cs[i].id===convId){ conv = cs[i]; break; } }
+    var deal = (conv && conv.deal) || { kind:'lesson', plan:'', price:0, feePct:10, status:'pending', terms:'確認後款項進入託管，完成後放款', funded:0, released:0 };
+    var fee = Number(deal.feePct) || (deal.kind==='perf' ? 15 : 10);
+    var kindLabel = deal.kind==='perf' ? '演出' : '教學';
+
+    var old = document.getElementById('rqOverlay'); if(old) old.remove();
+    var ov = document.createElement('div');
+    ov.id = 'rqOverlay';
+    ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
+    ov.innerHTML =
+      '<div style="background:#fff;border-radius:16px;max-width:380px;width:100%;padding:22px 22px 20px;font-family:inherit;box-shadow:0 20px 60px rgba(0,0,0,.3);">'
+      + '<div style="font-size:17px;font-weight:800;margin-bottom:4px;">改報價 / 客製報價</div>'
+      + '<div style="font-size:12px;color:#888;margin-bottom:16px;">'+kindLabel+'方案 · 平台服務費 '+fee+'%（內含）</div>'
+      + '<label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px;">方案名稱</label>'
+      + '<input id="rqPlan" type="text" value="'+esc(deal.plan||'')+'" placeholder="例如：月方案 Monthly / 客製 4 堂" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:14px;font-family:inherit;margin-bottom:14px;">'
+      + '<label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px;">客戶付的價格（全包價 NT$）</label>'
+      + '<input id="rqPrice" type="number" value="'+(Number(deal.price)||'')+'" placeholder="例如：8000" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:14px;font-family:inherit;">'
+      + '<div id="rqCalc" style="background:#f7f9ff;border:1px solid #e3ebff;border-radius:10px;padding:11px 13px;margin-top:12px;font-size:13px;line-height:1.7;color:#333;"></div>'
+      + '<div style="display:flex;gap:10px;margin-top:18px;">'
+        + '<button id="rqCancel" style="flex:1;background:#fff;color:#666;border:1px solid #ddd;border-radius:9px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">取消</button>'
+        + '<button id="rqSend" style="flex:2;background:#111;color:#fff;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;">送出新報價給客戶</button>'
+      + '</div>'
+      + '</div>';
+    document.body.appendChild(ov);
+
+    var planI = document.getElementById('rqPlan');
+    var priceI = document.getElementById('rqPrice');
+    var calc = document.getElementById('rqCalc');
+    function rqUpdate(){
+      var p = parseFloat(priceI.value) || 0;
+      if(p > 0){
+        var take = p * (1 - fee/100);
+        calc.innerHTML = '客戶付 <b>'+fmtNTd(p)+'</b>　·　平台抽 '+fee+'%　·　你實拿 <b style="color:#16a34a;">'+fmtNTd(take)+'</b>';
+      } else {
+        calc.innerHTML = '<span style="color:#999;">輸入金額後，這裡顯示你的實拿金額。</span>';
+      }
+    }
+    priceI.addEventListener('input', rqUpdate); rqUpdate();
+    function close(){ ov.remove(); }
+    document.getElementById('rqCancel').addEventListener('click', close);
+    ov.addEventListener('click', function(e){ if(e.target===ov) close(); });
+    document.getElementById('rqSend').addEventListener('click', function(){
+      var p = parseFloat(priceI.value) || 0;
+      var nm = (planI.value||'').trim();
+      if(p <= 0){ priceI.focus(); priceI.style.borderColor = '#e74c3c'; return; }
+      var newDeal = Object.assign({}, deal, {
+        plan: nm || deal.plan || (kindLabel+'方案'),
+        price: p, feePct: fee,
+        status: 'pending',   // 改價後退回待客戶確認
+        funded: 0,           // 重新報價→入金歸零，客戶需重新付
+        updatedAt: new Date().toISOString()
+      });
+      var btn = document.getElementById('rqSend'); btn.disabled = true; btn.textContent = '送出中…';
+      window.__setConvDeal(convId, newDeal, '樂手已更新報價：'+newDeal.plan+'　'+fmtNTd(p)+'，請在右側確認並付款。')
+        .then(function(){ close(); })
+        .catch(function(){ btn.disabled = false; btn.textContent = '送出新報價給客戶'; });
+    });
+  };
 
   window.openEnquiryThread = function(id){
     var list = loadConvos(), conv=null;
@@ -5599,7 +5677,7 @@
           var fresh = null, cs = loadConvos();
           for(var k=0;k<cs.length;k++){ if(cs[k].id===id){ fresh = cs[k]; break; } }
           var deal = fresh ? fresh.deal : conv.deal;
-          var html = headerHtml + dealCardHtml(deal);
+          var html = headerHtml + dealCardHtml(deal, id);
           (msgs||[]).forEach(function(m){
             var t = m.text || (m.file?'📎 附件':'');
             if(m.type==='sys'){
