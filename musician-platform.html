@@ -2996,33 +2996,33 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     <div class="sv-grid">
       <div class="sv-cell sv-c1" data-sv-idx="1">
         <div class="sv-bg sv-bg-1"></div>
-        <video class="sv-vid" data-cms="home.showreel.1" data-cms-attr="src" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.1" data-cms-attr="src" autoplay muted loop playsinline webkit-playsinline></video>
       </div>
       <div class="sv-cell sv-c2" data-sv-idx="2">
         <div class="sv-bg sv-bg-2"></div>
-        <video class="sv-vid" data-cms="home.showreel.2" data-cms-attr="src" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.2" data-cms-attr="src" autoplay muted loop playsinline webkit-playsinline></video>
       </div>
       <div class="sv-cell sv-c3" data-sv-idx="3">
         <div class="sv-bg sv-bg-3"></div>
-        <video class="sv-vid" data-cms="home.showreel.3" data-cms-attr="src" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.3" data-cms-attr="src" autoplay muted loop playsinline webkit-playsinline></video>
       </div>
       <div class="sv-cell sv-c4" data-sv-idx="4">
         <div class="sv-bg sv-bg-4"></div>
-        <video class="sv-vid" data-cms="home.showreel.4" data-cms-attr="src" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.4" data-cms-attr="src" autoplay muted loop playsinline webkit-playsinline></video>
         <div class="sv-overlay"></div>
         <div class="sv-label" data-tid="showreel-label">The Finest</div>
       </div>
       <div class="sv-cell sv-c5" data-sv-idx="5">
         <div class="sv-bg sv-bg-5"></div>
-        <video class="sv-vid" data-cms="home.showreel.5" data-cms-attr="src" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.5" data-cms-attr="src" autoplay muted loop playsinline webkit-playsinline></video>
       </div>
       <div class="sv-cell sv-c6" data-sv-idx="6">
         <div class="sv-bg sv-bg-6"></div>
-        <video class="sv-vid" data-cms="home.showreel.6" data-cms-attr="src" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.6" data-cms-attr="src" autoplay muted loop playsinline webkit-playsinline></video>
       </div>
       <div class="sv-cell sv-c7" data-sv-idx="7">
         <div class="sv-bg sv-bg-7"></div>
-        <video class="sv-vid" data-cms="home.showreel.7" data-cms-attr="src" autoplay muted loop playsinline></video>
+        <video class="sv-vid" data-cms="home.showreel.7" data-cms-attr="src" autoplay muted loop playsinline webkit-playsinline></video>
       </div>
     </div>
   </div>
@@ -7384,6 +7384,36 @@ window.addEventListener('keydown', function(e){
   }
   window._svOptimiseUrl=optimiseUrl;
 
+  // ── iOS-safe muted autoplay ───────────────────────────────────────────────
+  // iOS Safari refuses to autoplay a <video> (and shows a big play button)
+  // unless the muted state is set as a JS *property* — the HTML `muted`
+  // attribute alone isn't enough when the src is assigned dynamically. We force
+  // muted/playsinline every time, then play(). In iOS Low Power Mode autoplay
+  // is blocked outright, so we also retry every queued video on the user's first
+  // touch/scroll (a gesture context Safari does allow play() in).
+  var _svGestureQueued = [];
+  function _svKickOnGesture(){
+    _svGestureQueued.forEach(function(v){ try{ v.muted=true; v.play().catch(function(){}); }catch(e){} });
+  }
+  ['touchstart','scroll','click'].forEach(function(ev){
+    window.addEventListener(ev, _svKickOnGesture, { once:true, passive:true });
+  });
+  window._svPlayMuted = function(vid){
+    if(!vid) return;
+    try{
+      vid.muted = true; vid.defaultMuted = true;
+      vid.setAttribute('muted','');
+      vid.setAttribute('playsinline','');
+      vid.setAttribute('webkit-playsinline','');
+      vid.load();
+      var p = vid.play();
+      if(p && p.catch) p.catch(function(){
+        // Autoplay blocked (e.g. Low Power Mode) — retry on first user gesture.
+        if(_svGestureQueued.indexOf(vid)===-1) _svGestureQueued.push(vid);
+      });
+    }catch(e){}
+  };
+
   // ── Load videos: HTML config → cookie → localStorage ──
   cells.forEach(function(cell){
     var idx=cell.dataset.svIdx;
@@ -7391,7 +7421,7 @@ window.addEventListener('keydown', function(e){
     if(url){
       var vid=cell.querySelector('.sv-vid');
       if(vid){
-        vid.src=optimiseUrl(url); vid.load(); vid.play().catch(function(){});
+        vid.src=optimiseUrl(url); window._svPlayMuted(vid);
         // Ensure seamless loop — force restart on end in case 'loop' attr stutters
         vid.addEventListener('ended',function(){ this.currentTime=0; this.play().catch(function(){}); });
       }
@@ -7559,13 +7589,13 @@ window.addEventListener('keydown', function(e){
         setTimeout(function () {
           var url = self.value.trim();
           var vid = document.querySelector('.sv-c' + idx + ' .sv-vid');
-          if (vid && url) { vid.src = _opt(url); vid.load(); vid.play().catch(function(){}); }
+          if (vid && url) { vid.src = _opt(url); window._svPlayMuted(vid); }
         }, 50);
       });
       urlInput.addEventListener('change', function () {
         var url = this.value.trim();
         var vid = document.querySelector('.sv-c' + idx + ' .sv-vid');
-        if (vid && url) { vid.src = _opt(url); vid.load(); vid.play().catch(function(){}); }
+        if (vid && url) { vid.src = _opt(url); window._svPlayMuted(vid); }
       });
     }
 
@@ -7594,7 +7624,7 @@ window.addEventListener('keydown', function(e){
           localStorage.setItem('mono-vid-' + i, url);
           _sc('mono-vid-' + i, url);
           if (window._vidConfig) window._vidConfig[i] = url;
-          if (vid) { vid.src = _opt(url); vid.load(); vid.play().catch(function(){}); }
+          if (vid) { vid.src = _opt(url); window._svPlayMuted(vid); }
         } else {
           localStorage.removeItem('mono-vid-' + i);
           _sc('mono-vid-' + i, '');
@@ -8062,7 +8092,7 @@ window.addEventListener('keydown', function(e){
 <!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
-<script type="module" src="site-content.js?v=6"></script>
+<script type="module" src="site-content.js?v=7"></script>
   <script type="module" src="media-sync.js?v=2"></script>
 <script type="module" src="newsletter.js?v=2"></script>
 <!-- Global in-page notification toasts (messages / announcements / community / jobs) -->

@@ -366,7 +366,7 @@ function applyConfig(cfg){
             el.src = v;
             // <video> needs an explicit reload to pick up a new src and resume playback
             if (el.tagName === 'VIDEO') {
-              try { el.load(); var p = el.play(); if (p && p.catch) p.catch(function(){}); } catch(e){}
+              try { if (window._svPlayMuted) { window._svPlayMuted(el); } else { el.muted = true; el.setAttribute('playsinline',''); el.setAttribute('webkit-playsinline',''); el.load(); var p = el.play(); if (p && p.catch) p.catch(function(){}); } } catch(e){}
             }
           }
           applyFraming(el, 'media', pos, zoom);
@@ -395,7 +395,7 @@ function applyConfig(cfg){
       // img / video src
       if (o.v != null && el.getAttribute('src') !== o.v) {
         el.src = o.v;
-        if (el.tagName === 'VIDEO') { try { el.load(); var p = el.play(); if (p && p.catch) p.catch(function(){}); } catch(e){} }
+        if (el.tagName === 'VIDEO') { try { if (window._svPlayMuted) { window._svPlayMuted(el); } else { el.muted = true; el.setAttribute('playsinline',''); el.setAttribute('webkit-playsinline',''); el.load(); var p = el.play(); if (p && p.catch) p.catch(function(){}); } } catch(e){} }
       }
       applyFraming(el, 'media', o.pos, o.zoom);
     });
