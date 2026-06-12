@@ -483,6 +483,16 @@
     .pb-check { display: flex; align-items: center; gap: 10px; padding: 9px 0; font-size: 13.5px; cursor: pointer; }
     .pb-check input { width: 16px; height: 16px; cursor: pointer; }
     .pb-group-title { font-size: 13px; font-weight: 700; color: var(--black); margin-bottom: 14px; }
+    /* Language-mode selector (hero tab top-right): decides which languages the
+       public profile shows, and which editor fields stay visible. */
+    .pb-hero-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 6px; }
+    .pb-hero-head .pb-group-title { margin-bottom: 0; padding-top: 3px; }
+    .pb-langmode { display: inline-flex; background: #f0f0f0; border-radius: 8px; padding: 2px; gap: 2px; flex-shrink: 0; }
+    .pb-langmode button { border: none; background: transparent; font-family: inherit; font-size: 11px; font-weight: 700; color: #888; padding: 5px 8px; border-radius: 6px; cursor: pointer; white-space: nowrap; transition: background .15s, color .15s; }
+    .pb-langmode button.active { background: #fff; color: #111; box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+    .pb-langmode-hint { font-size: 10.5px; color: var(--mid); margin: 0 0 16px; line-height: 1.45; }
+    /* When a single language is chosen, the opposite-language fields are hidden. */
+    .pb-field.pb-lang-hidden { display: none !important; }
     /* Scoped mirror of musicians.html directory card, for live card preview */
     .pbcard { border-radius: 12px; overflow: hidden; background: #fff; border: 1.5px solid #efefef; }
     .pbcard-photo { position: relative; aspect-ratio: 4/3; overflow: hidden; background: #f0f0f0; }
@@ -1569,7 +1579,15 @@
 
             <!-- Hero -->
             <div class="pb-field-group active" data-pbgroup="hero">
-              <div class="pb-group-title">主視覺</div>
+              <div class="pb-hero-head">
+                <div class="pb-group-title" data-i18n="pb_hero">主視覺</div>
+                <div class="pb-langmode" id="pbLangMode">
+                  <button type="button" data-lm="zh"   onclick="pbSetLangMode('zh')"   data-i18n="pb_lm_zh">中文</button>
+                  <button type="button" data-lm="en"   onclick="pbSetLangMode('en')"   data-i18n="pb_lm_en">English</button>
+                  <button type="button" data-lm="both" class="active" onclick="pbSetLangMode('both')" data-i18n="pb_lm_both">雙語</button>
+                </div>
+              </div>
+              <div class="pb-langmode-hint" data-i18n="pb_lm_hint">選擇你的公開頁語言：單選一種＝訪客只會看到該語言；雙語＝中英都要填，訪客可切換。</div>
               <div class="pb-field">
                 <label>名稱 / Name</label>
                 <input type="text" id="pbHeroName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name" autocomplete="off">
@@ -2151,6 +2169,8 @@
       poster_submit_btn:'投稿海報', poster_clear_btn:'清除', poster_my:'我的海報投稿',
       pb_title:'編輯主頁', pb_subtitle:'即時編輯你的公開檔案頁面，右側修改、中間預覽，按「儲存」發佈。',
       pb_hero:'主視覺', pb_booking:'預約', pb_about:'關於',
+      pb_lm_zh:'中文', pb_lm_en:'English', pb_lm_both:'雙語',
+      pb_lm_hint:'選擇你的公開頁語言：單選一種＝訪客只會看到該語言；雙語＝中英都要填，訪客可切換。',
       pb_card:'列表卡片', pb_audio:'音檔', pb_services:'專長', pb_videos:'影片', pb_theme:'主題',
       pb_highlights:'亮點', pb_partners:'合作夥伴', pb_lessons:'課程方案',
       pb_stats:'數據', pb_desktop:'桌機', pb_mobile:'手機',
@@ -2271,6 +2291,8 @@
       poster_submit_btn:'Submit Poster', poster_clear_btn:'Clear', poster_my:'My Submitted Posters',
       pb_title:'Edit Page', pb_subtitle:'Edit your public profile in real time — make changes on the right, preview in the center, then publish.',
       pb_hero:'Hero', pb_booking:'Booking', pb_about:'About',
+      pb_lm_zh:'中文', pb_lm_en:'English', pb_lm_both:'Both',
+      pb_lm_hint:'Choose your public-profile language. Pick one → visitors only see that language. Both → fill in Chinese + English; visitors can switch.',
       pb_card:'List Card', pb_audio:'Audio', pb_services:'Specialties', pb_videos:'Showreel', pb_theme:'Theme',
       pb_highlights:'Highlights', pb_partners:'Partners', pb_lessons:'Lessons',
       pb_stats:'Stats', pb_desktop:'Desktop', pb_mobile:'Mobile',
@@ -4377,7 +4399,7 @@
     // Attach drag/click uploader to this row's image input.
     pbAttachUploader(imgId, 'hl' + n, 800);
   }
-  window.pbAddHighlightRow=function(){ pbAddHighlightRow(); pbOnInput(); };
+  window.pbAddHighlightRow=function(){ pbAddHighlightRow(); if(window.pbApplyLangMode) pbApplyLangMode(); pbOnInput(); };
 
   // ── Hero banner photos — dynamic rows (up to 4) ──
   // Row 1 = main (cfg.hero.media, supports photo|video). Rows 2-4 = cfg.hero.extraSlides (photos).
@@ -4727,6 +4749,10 @@
     colv('pbThemeText',   th.text,   '#000000');
 
     pbRenderCardPreview();
+
+    // Language mode — set the selector + hide opposite-language fields on load.
+    window.pbLangMode = (pbConfig.langMode === 'zh' || pbConfig.langMode === 'en') ? pbConfig.langMode : 'both';
+    pbApplyLangMode();
   }
 
   /* ── Partners: curated logo picker ───────────────────────────────────────── */
@@ -4970,6 +4996,7 @@
     }
 
     pbConfig = {
+      langMode:       (window.pbLangMode || 'both'),   // 'zh' | 'en' | 'both'
       hero: {
         name:         txt('pbHeroName').trim(),
         title:        pbRoleFromInst((typeof pbInsts !== 'undefined' && pbInsts[0]) || ''),
@@ -5199,6 +5226,35 @@
     const cardGrp = document.querySelector('.pb-field-group[data-pbgroup="card"]');
     if(cardGrp && cardGrp.classList.contains('active')) pbRenderCardPreview();
     pbRenderAvatarPreview();
+  };
+
+  // ── Language mode (zh / en / both) ─────────────────────────────────────────
+  // Decides which languages the public profile shows. In a single-language mode
+  // the opposite-language editor fields are hidden so the musician only fills one
+  // language. Detection is by label marker (🌐 = English field; 中文/Chinese =
+  // Chinese field), which survives the dashboard's own EN/中 UI translation.
+  function pbApplyLangMode(){
+    var mode = window.pbLangMode || 'both';
+    document.querySelectorAll('#pbLangMode button').forEach(function(b){
+      b.classList.toggle('active', b.getAttribute('data-lm') === mode);
+    });
+    document.querySelectorAll('.pb-right label').forEach(function(lb){
+      var t = lb.textContent || '';
+      var isEn = t.indexOf('🌐') !== -1;
+      var isZh = !isEn && (t.indexOf('中文') !== -1 || t.indexOf('Chinese') !== -1);
+      if(!isEn && !isZh) return;
+      var wrap = lb.closest('.pb-field') || lb.parentElement;
+      if(!wrap) return;
+      var hide = (mode === 'zh' && isEn) || (mode === 'en' && isZh);
+      wrap.classList.toggle('pb-lang-hidden', hide);
+    });
+  }
+  window.pbApplyLangMode = pbApplyLangMode;
+  window.pbSetLangMode = function(mode){
+    if(mode !== 'zh' && mode !== 'en' && mode !== 'both') return;
+    window.pbLangMode = mode;
+    pbApplyLangMode();
+    pbOnInput();   // writes pbConfig.langMode + pushes live preview
   };
 
   window.pbSelectSection = function(sec, btn){
