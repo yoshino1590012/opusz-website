@@ -3989,6 +3989,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     // .fonts-ready class flips its opacity to 1 — so the name can never lag behind
     // the photo (which previously left the photo showing with the name missing).
     var _nm = document.getElementById('heroNameBig'); if (_nm) _nm.classList.add('fonts-ready');
+    if (window.fitHeroName) window.fitHeroName();             // real font is in → re-measure to fit
     document.documentElement.classList.remove('prof-pending');
     if (window.__startHeroIntro) window.__startHeroIntro();   // play the intro now that photo + name are ready
   };
@@ -4049,6 +4050,35 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     if (heroNameBig) heroNameBig.querySelectorAll('span').forEach(s => s.textContent = name);
     const heroNameLeft = document.getElementById('heroNameLeft');
     if (heroNameLeft) heroNameLeft.textContent = name;
+
+    // Stop the big hero name from overflowing/clipping on narrower screens:
+    // measure its rendered width and shrink the font just enough to fit the
+    // viewport (handles any name length + any width; recalcs on resize/fonts).
+    window.fitHeroName = function(){
+      var box = document.getElementById('heroNameBig');
+      if (!box) return;
+      var spans = box.querySelectorAll('span');
+      if (!spans.length) return;
+      // reset to the musician's nsd-controlled size (an injected !important rule),
+      // so we measure the natural width before deciding whether to shrink
+      spans.forEach(function(s){ s.style.removeProperty('font-size'); });
+      var cw = box.clientWidth;                               // real layout width (left:0/right:0 → = viewport)
+      if (cw <= 700) return;                                  // mobile keeps its own CSS rules
+      var avail = cw - 96;                                    // minus the corner offsets + buffer
+      var natural = 0;
+      spans.forEach(function(s){ natural = Math.max(natural, s.scrollWidth); });
+      if (natural > avail && natural > 0) {
+        var base = parseFloat(getComputedStyle(spans[0]).fontSize) || 200;
+        var scaled = Math.max(40, base * avail / natural);
+        // inline + !important is the only thing that can beat the nsd !important rule
+        spans.forEach(function(s){ s.style.setProperty('font-size', scaled + 'px', 'important'); });
+      }
+    };
+    window.fitHeroName();
+    if (!window._heroNameFitBound) {
+      window._heroNameFitBound = true;
+      window.addEventListener('resize', function(){ if (window.fitHeroName) window.fitHeroName(); });
+    }
     const aboutName = document.getElementById('aboutMusicianName');
     if (aboutName) { aboutName.textContent = name; aboutName.classList.remove('pf-placeholder'); }
 
@@ -4758,7 +4788,7 @@ document.addEventListener('keydown', function(e){
 (function revealNameWhenFontLoaded(){
   var nameEl = document.getElementById('heroNameBig');
   if(!nameEl) return;
-  function show(){ nameEl.classList.add('fonts-ready'); }
+  function show(){ nameEl.classList.add('fonts-ready'); if (window.fitHeroName) window.fitHeroName(); }
   if(document.fonts && document.fonts.ready){
     // Most reliable: wait for ALL declared fonts to be ready
     document.fonts.ready.then(show);
@@ -5790,6 +5820,8 @@ window.addEventListener('pageshow', function(e) {
             '.hero-name span{font-size:calc(clamp(44px,15vw,60px)*'  + (nsm/100).toFixed(2) + ')!important}' +
             '.hero-info{bottom:calc(clamp(44px,15vw,60px)*'  + (nsm/100*0.94).toFixed(3) + ' + 6px)!important}' +
           '}';
+        // the nsd size just changed → re-fit so a long name still can't clip
+        if (window.fitHeroName) window.fitHeroName();
       }
       var heroNameLeft = document.getElementById('heroNameLeft');
       if(heroNameLeft) heroNameLeft.textContent = hero.name;
