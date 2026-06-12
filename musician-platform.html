@@ -1482,7 +1482,7 @@ nav.mega-open .nav-links a::before {
 .hiw-step.active .hiw-num { background: var(--black); border-color: var(--black); color: #fff; }
 .hiw-st { font-size: 18px; font-weight: 800; letter-spacing: -.3px; color: var(--black); }
 .hiw-sd { font-size: 13.5px; color: var(--gray); line-height: 1.6; margin-top: 5px; }
-.hiw-right { position: relative; min-height: 470px; }
+.hiw-right { position: relative; min-height: 580px; }
 .hiw-visual { position: absolute; top: 0; left: 0; right: 0; background: #fff; border: 1px solid #ededed; border-radius: 20px; box-shadow: 0 26px 64px rgba(0,0,0,.10); padding: 26px 28px; opacity: 0; transform: translateY(18px) scale(.985); transition: opacity .5s ease, transform .5s ease; pointer-events: none; }
 .hiw-visual--paths { box-shadow: none; border: none; background: transparent; }
 .hiw-visual.show { opacity: 1; transform: none; pointer-events: auto; }
@@ -1506,7 +1506,13 @@ nav.mega-open .nav-links a::before {
 /* keep each card a fixed PORTRAIT width (taller than wide) and centre the pair,
    so a wide right column never stretches them back into landscape boxes */
 .hiw-paths { display: flex; justify-content: center; align-items: stretch; gap: 18px; flex-wrap: wrap; }
-.hiw-path { width: 290px; max-width: 100%; flex: 0 0 auto; display: flex; flex-direction: column; background: #fff; border: 1px solid #ececec; border-radius: 18px; padding: 22px 20px 18px; box-shadow: 0 18px 44px rgba(0,0,0,.07); }
+.hiw-path { width: 430px; max-width: 100%; flex: 0 0 auto; display: flex; flex-direction: column; background: #fff; border: 1px solid #ececec; border-radius: 18px; padding: 26px 26px 22px; box-shadow: 0 18px 44px rgba(0,0,0,.07); }
+/* two-column field rows (Event Date | Event Time, Location | Duration) */
+.hiw-frow { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+.hiw-frow .hiw-fld { margin-top: 0; }
+.hiw-fld-ph { color: #b3b3b3; font-weight: 400; }
+.hiw-fld-area { min-height: 40px; line-height: 1.5; }
+.hiw-pj-note { font-size: 11px; color: #b0b0b0; text-align: center; margin-top: 12px; line-height: 1.5; }
 .hiw-path--alt { background: #fbfbfa; }
 .hiw-path-tag { font-size: 9px; font-weight: 700; letter-spacing: .14em; color: #b0b0b0; margin-bottom: 9px; }
 .hiw-path-title { font-size: 19px; font-weight: 800; letter-spacing: -.4px; color: #111; }
@@ -1534,6 +1540,9 @@ nav.mega-open .nav-links a::before {
 @media(min-width:861px){
   .hiw { height: 230vh; }
   .hiw-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; }
+  /* both entry cards share one fixed box so they're identical in size (the form
+     card is the tallest; the lesson card fills the rest, footer pinned bottom) */
+  .hiw-path { min-height: 600px; }
 }
 @media(max-width:860px){
   .hiw-inner { grid-template-columns: 1fr; gap: 30px; }
@@ -1541,7 +1550,9 @@ nav.mega-open .nav-links a::before {
   .hiw-right { min-height: 0; display: flex; flex-direction: column; gap: 16px; }
   .hiw-visual { position: static; opacity: 1; transform: none; pointer-events: auto; }
   .hiw-paths { flex-direction: column; align-items: center; }
-  .hiw-path { width: 100%; max-width: 340px; }
+  .hiw-path { width: 100%; max-width: 380px; }
+  .hiw-frow { grid-template-columns: 1fr; gap: 0; }
+  .hiw-frow .hiw-fld { margin-top: 14px; }
 }
 
 /* ── TESTIMONIALS ── */
@@ -3054,20 +3065,33 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
              a "Post a Project" job-board form  +  a "Trial" lesson pricing card -->
         <div class="hiw-visual hiw-visual--paths show" data-v="0">
           <div class="hiw-paths">
-            <!-- Path A: public commission (job-board form) -->
+            <!-- Path A: public commission — faithful copy of the recent-jobs "Post a Project" modal -->
             <div class="hiw-path">
               <div class="hiw-path-tag" data-i18n="hiw.p1.tag">OPUS.Z — JOB BOARD</div>
               <div class="hiw-path-title" data-i18n="hiw.p1.title">Post a Project</div>
               <div class="hiw-foccasion" data-i18n="hiw.p1.occ">What's the occasion?</div>
               <div class="hiw-chips">
                 <span class="hiw-chip on" data-i18n="hiw.p1.c1">Wedding</span>
-                <span class="hiw-chip" data-i18n="hiw.p1.c2">Corporate</span>
-                <span class="hiw-chip" data-i18n="hiw.p1.c3">Recording</span>
+                <span class="hiw-chip" data-i18n="hiw.p1.c2">Corporate Event</span>
+                <span class="hiw-chip" data-i18n="hiw.p1.c3">Recording Session</span>
+                <span class="hiw-chip" data-i18n="hiw.p1.c4">Concert / Performance</span>
+                <span class="hiw-chip" data-i18n="hiw.p1.c5">Masterclass</span>
+                <span class="hiw-chip" data-i18n="hiw.p1.c6">Private Event</span>
+                <span class="hiw-chip" data-i18n="hiw.p1.c7">Other</span>
               </div>
-              <div class="hiw-fld"><div class="hiw-fld-l" data-i18n="hiw.p1.dl">Event date</div><div class="hiw-fld-v" data-i18n="hiw.p1.dv">Select date</div></div>
-              <div class="hiw-fld"><div class="hiw-fld-l" data-i18n="hiw.p1.loc">Location</div><div class="hiw-fld-v filled" data-i18n="hiw.p1.locv">Taipei, Grand Ballroom</div></div>
-              <div class="hiw-fld"><div class="hiw-fld-l" data-i18n="hiw.p1.ens">Ensemble</div><div class="hiw-fld-v filled" data-i18n="hiw.p1.ensv">String Quartet</div></div>
+              <div class="hiw-frow">
+                <div class="hiw-fld"><div class="hiw-fld-l" data-i18n="hiw.p1.dl">Event Date</div><div class="hiw-fld-v hiw-fld-ph" data-i18n="hiw.p1.dv">Select date</div></div>
+                <div class="hiw-fld"><div class="hiw-fld-l" data-i18n="hiw.p1.tl">Event Time</div><div class="hiw-fld-v hiw-fld-ph" data-i18n="hiw.p1.tv">Select time</div></div>
+              </div>
+              <div class="hiw-frow">
+                <div class="hiw-fld"><div class="hiw-fld-l" data-i18n="hiw.p1.ll">Location</div><div class="hiw-fld-v hiw-fld-ph" data-i18n="hiw.p1.lv">e.g. Taipei, Grand Ballroom</div></div>
+                <div class="hiw-fld"><div class="hiw-fld-l" data-i18n="hiw.p1.url">Duration</div><div class="hiw-fld-v hiw-fld-ph" data-i18n="hiw.p1.uv">e.g. 2 hours, half day</div></div>
+              </div>
+              <div class="hiw-fld"><div class="hiw-fld-l" data-i18n="hiw.p1.el">Desired Ensemble / Instrumentation</div><div class="hiw-fld-v hiw-fld-ph" data-i18n="hiw.p1.ev">e.g. String Quartet, Solo Piano</div></div>
+              <div class="hiw-fld"><div class="hiw-fld-l" data-i18n="hiw.p1.dscl">Tell us about the project</div><div class="hiw-fld-v hiw-fld-ph hiw-fld-area" data-i18n="hiw.p1.dscv">Describe the event, repertoire style, atmosphere, or any special requirements…</div></div>
+              <div class="hiw-fld"><div class="hiw-fld-l" data-i18n="hiw.p1.nml">Your Name</div><div class="hiw-fld-v hiw-fld-ph" data-i18n="hiw.p1.nmv">Full name</div></div>
               <div class="hiw-path-btn" data-i18n="hiw.p1.btn">Find Musicians →</div>
+              <div class="hiw-pj-note" data-i18n="hiw.p1.note">We'll match you with available musicians within 24 hours.</div>
             </div>
             <!-- Path B: book directly (lesson pricing card) -->
             <div class="hiw-path hiw-path--alt">
@@ -3483,15 +3507,28 @@ const I18N = {
     'hiw.p1.title':'Post a Project',
     'hiw.p1.occ':"What's the occasion?",
     'hiw.p1.c1':'Wedding',
-    'hiw.p1.c2':'Corporate',
-    'hiw.p1.c3':'Recording',
-    'hiw.p1.dl':'Event date',
+    'hiw.p1.c2':'Corporate Event',
+    'hiw.p1.c3':'Recording Session',
+    'hiw.p1.c4':'Concert / Performance',
+    'hiw.p1.c5':'Masterclass',
+    'hiw.p1.c6':'Private Event',
+    'hiw.p1.c7':'Other',
+    'hiw.p1.dl':'Event Date',
     'hiw.p1.dv':'Select date',
-    'hiw.p1.loc':'Location',
-    'hiw.p1.locv':'Taipei, Grand Ballroom',
-    'hiw.p1.ens':'Ensemble',
-    'hiw.p1.ensv':'String Quartet',
+    'hiw.p1.tl':'Event Time',
+    'hiw.p1.tv':'Select time',
+    'hiw.p1.ll':'Location',
+    'hiw.p1.lv':'e.g. Taipei, Grand Ballroom',
+    'hiw.p1.url':'Duration',
+    'hiw.p1.uv':'e.g. 2 hours, half day',
+    'hiw.p1.el':'Desired Ensemble / Instrumentation',
+    'hiw.p1.ev':'e.g. String Quartet, Solo Piano',
+    'hiw.p1.dscl':'Tell us about the project',
+    'hiw.p1.dscv':'Describe the event, repertoire style, atmosphere, or any special requirements…',
+    'hiw.p1.nml':'Your Name',
+    'hiw.p1.nmv':'Full name',
     'hiw.p1.btn':'Find Musicians →',
+    'hiw.p1.note':"We'll match you with available musicians within 24 hours.",
     'hiw.p2.title':'Trial',
     'hiw.p2.sub':'Single lesson. No commitment required.',
     'hiw.p2.unit':' / session',
@@ -3637,13 +3674,26 @@ const I18N = {
     'hiw.p1.c1':'婚禮',
     'hiw.p1.c2':'企業活動',
     'hiw.p1.c3':'錄音',
+    'hiw.p1.c4':'音樂會 / 演出',
+    'hiw.p1.c5':'大師班',
+    'hiw.p1.c6':'私人活動',
+    'hiw.p1.c7':'其他',
     'hiw.p1.dl':'活動日期',
     'hiw.p1.dv':'選擇日期',
-    'hiw.p1.loc':'地點',
-    'hiw.p1.locv':'台北・大宴會廳',
-    'hiw.p1.ens':'編制',
-    'hiw.p1.ensv':'弦樂四重奏',
+    'hiw.p1.tl':'活動時間',
+    'hiw.p1.tv':'選擇時間',
+    'hiw.p1.ll':'地點',
+    'hiw.p1.lv':'例如：台北・大宴會廳',
+    'hiw.p1.url':'時長',
+    'hiw.p1.uv':'例如：2 小時、半天',
+    'hiw.p1.el':'編制 / 樂器需求',
+    'hiw.p1.ev':'例如：弦樂四重奏、鋼琴獨奏',
+    'hiw.p1.dscl':'專案說明',
+    'hiw.p1.dscv':'描述活動、曲風、氛圍或任何特殊需求…',
+    'hiw.p1.nml':'您的姓名',
+    'hiw.p1.nmv':'全名',
     'hiw.p1.btn':'尋找音樂家 →',
+    'hiw.p1.note':'我們會在 24 小時內為你媒合可接案的音樂家。',
     'hiw.p2.title':'體驗課',
     'hiw.p2.sub':'單堂體驗，無需綁約。',
     'hiw.p2.unit':' / 堂',
