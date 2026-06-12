@@ -129,5 +129,18 @@
 - **footer 翻譯**靠 `footer.js` 自帶中英字典；**改 footer.js 要 bump `footer.js?v`**（目前 v=3，用在 lessons/musicians/recent-jobs 三頁）。
 - **Retina 圖變糊**：被 `clip-path`/`transform` 父層包住的高解析圖，瀏覽器會點陣化成 1x→放大變糊。圖要加 `translate3d(x,y,0)＋backface-visibility:hidden＋will-change:transform`（見 shows.html 海報）。
 
+## 12. SEO / Google 搜尋（2026-06-12）
+
+業主在意「Google 搜尋看起來不專業」（地球 icon、沒品牌卡、沒子連結）。已做的＋觀念：
+
+- **已設定 Google Search Console**：資源 `https://opuszmusic.com/`（URL 前置字元），用 HTML 檔驗證通過。
+  - ⚠️ 驗證檔 `googlee6c6f6d0a72e3f4f.html`（repo 根目錄）**絕對不能刪**，刪了就失去擁有權。
+- 已提交 `sitemap.xml`、已對首頁要求建立索引（首頁其實早就被收錄）。
+- **首頁 `<head>` 已補**：完整 title、meta description、OG/Twitter、favicon（移進 head）、Organization + WebSite JSON-LD（品牌卡養分）。
+- **網址真相**：根 `/` 會 308 轉址到 `/musician-platform`，`*.html` 也會轉址到無副檔名版 → canonical / og:url / sitemap 已全部對齊**乾淨網址（無 .html）**。curl 測線上記得加 `-L`。
+- **觀念（要跟業主講清楚）**：地球換 Logo、品牌資訊卡、SoundBetter 那種子連結（sitelinks）都是 **Google 自動給的**，沒網站能強制 → 靠**時間＋流量**；網站端能做的技術底子都做好了，favicon 會在 Google 重爬後（幾天～兩週）換成真 Logo。
+
+**收費模式討論（純策略，未動程式）**：演出→成交抽成、主要向業主收服務費(12–15%)、走平台金流才抽；教學→老師訂閱/Premium 換曝光，**不抽每堂課**（會被私下跳過）。漏洞「沒付費也能私訊招生」的解法＝賣「**被找到（出現在 Lessons 列表）**」而非「准你教」，再用金流/排程/評價把交易留線上。
+
 ---
-最後更新：2026-06-11
+最後更新：2026-06-12
