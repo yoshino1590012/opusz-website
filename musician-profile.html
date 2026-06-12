@@ -2237,7 +2237,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
         </ul>
         <div class="lesson-footer">
           <div class="lesson-timeline"><strong>Timeline:</strong>Flexible scheduling</div>
-          <button class="lesson-cta" onclick="openLesson('Trial')">Book a lesson</button>
+          <button class="lesson-cta" onclick="openLesson('Trial', this)">Book a lesson</button>
         </div>
       </div>
 
@@ -2260,7 +2260,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
         </ul>
         <div class="lesson-footer">
           <div class="lesson-timeline"><strong>Timeline:</strong>Monthly, renews anytime</div>
-          <button class="lesson-cta" onclick="openLesson('Monthly')">Book a lesson</button>
+          <button class="lesson-cta" onclick="openLesson('Monthly', this)">Book a lesson</button>
         </div>
       </div>
 
@@ -2283,7 +2283,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
         </ul>
         <div class="lesson-footer">
           <div class="lesson-timeline"><strong>Timeline:</strong>3-month commitment</div>
-          <button class="lesson-cta" onclick="openLesson('Quarterly')">Book a lesson</button>
+          <button class="lesson-cta" onclick="openLesson('Quarterly', this)">Book a lesson</button>
         </div>
       </div>
 
@@ -3626,8 +3626,16 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 
   function close(){ overlay.classList.remove('open'); document.body.style.overflow=''; }
 
-  window.openLesson = function(plan){
-    state = { plan: plan||'Trial', level:null, goals:[], format:null, times:[], notes:'' };
+  window.openLesson = function(plan, btn){
+    // Use the card's ACTUAL displayed title (the musician may have renamed e.g.
+    // "Monthly" → "Yearly") for the modal badge, instead of the fixed plan key.
+    var planTitle = '';
+    try {
+      var card = btn && btn.closest ? btn.closest('.lesson-card') : null;
+      var nm = card ? card.querySelector('.lesson-plan-name') : null;
+      if (nm && nm.textContent.trim()) planTitle = nm.textContent.trim();
+    } catch(e){}
+    state = { plan: plan||'Trial', planTitle: planTitle, level:null, goals:[], format:null, times:[], notes:'' };
     // Prefill format from the In-Person / Online toggle on the cards
     if(window.lessonFormat === 'online') state.format = 'Online';
     else if(window.lessonFormat === 'inperson') state.format = 'In-Person';
@@ -3649,7 +3657,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       var el=document.getElementById('lsStep'+i);
       if(el) el.classList.toggle('active', i===n);
     }
-    var badge = state.plan + ' plan';
+    var badge = (state.planTitle || state.plan) + ' plan';
     ['lsBadge1','lsBadge2','lsBadge3','lsBadge4'].forEach(function(id){
       var b=document.getElementById(id); if(b) b.textContent=badge;
     });
