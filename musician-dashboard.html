@@ -5543,6 +5543,34 @@
     });
   }
 
+  function fmtNTd(n){ n = Number(n)||0; return 'NT$' + Math.round(n).toLocaleString('en-US'); }
+  var DASH_DEAL_ZH = { pending:'待客戶確認', active:'進行中（款項託管中）', completed:'已完成', released:'已放款', cancelled:'已取消' };
+  // Proposal / escrow card from the musician's point of view (read-only this phase).
+  function dealCardHtml(deal){
+    if(!deal) return '';
+    var st = deal.status || 'pending';
+    var stZh = DASH_DEAL_ZH[st] || st;
+    var price = Number(deal.price) || 0;
+    var fee = Number(deal.feePct) || 0;
+    var take = price * (1 - fee/100);
+    var color = st==='pending' ? '#2f54eb' : (st==='active' ? '#d48806' : ((st==='released'||st==='completed') ? '#1a9c54' : '#999'));
+    var bg = st==='pending' ? '#eef3ff' : (st==='active' ? '#fff7e6' : ((st==='released'||st==='completed') ? '#e9f7ef' : '#f5f5f5'));
+    var row = function(k,v,vc){ return '<div style="display:flex;justify-content:space-between;gap:10px;"><span style="color:#888;">'+k+'</span><span style="font-weight:600;'+(vc?('color:'+vc+';'):'')+'">'+v+'</span></div>'; };
+    return '<div style="background:#fff;border:1px solid #e8e8ee;border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12.5px;line-height:1.8;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">'
+        + '<b>報價單 / Proposal</b>'
+        + '<span style="font-size:11px;font-weight:700;padding:2px 9px;border-radius:50px;background:'+bg+';color:'+color+';">'+esc(stZh)+'</span>'
+      + '</div>'
+      + row('方案', esc(deal.plan||'—'))
+      + row('客戶付', price ? fmtNTd(price) : '待報價')
+      + (price ? row('你實拿', fmtNTd(take)+'（平台 '+fee+'%）', '#16a34a') : '')
+      + row('款項', '入金 '+(Number(deal.funded)?fmtNTd(deal.funded):'—')+'｜放款 '+(Number(deal.released)?fmtNTd(deal.released):'—'))
+      + (st==='pending' ? '<div style="font-size:11px;color:#999;margin-top:8px;">等待客戶確認並付款。（下一階段：可在此「改報價／換方案」）</div>' : '')
+      + (st==='active' ? '<div style="font-size:11px;color:#999;margin-top:8px;">款項已進入平台託管，課程／演出完成後客戶確認即放款。</div>' : '')
+      + (st==='released' ? '<div style="font-size:11px;color:#1a9c54;margin-top:8px;">款項已放款，交易完成。</div>' : '')
+      + '</div>';
+  }
+
   window.openEnquiryThread = function(id){
     var list = loadConvos(), conv=null;
     for(var i=0;i<list.length;i++){ if(list[i].id===id){ conv=list[i]; break; } }
@@ -5567,10 +5595,18 @@
       bubbles.innerHTML = headerHtml + '<div style="color:#aaa;font-size:12px;text-align:center;padding:12px;">載入中…</div>';
       if(window.__listenConvMessages){
         _convUnsub = window.__listenConvMessages(id, function(msgs){
-          var html = headerHtml;
+          // pull the freshest deal (customer may have just confirmed/paid) so the card stays live
+          var fresh = null, cs = loadConvos();
+          for(var k=0;k<cs.length;k++){ if(cs[k].id===id){ fresh = cs[k]; break; } }
+          var deal = fresh ? fresh.deal : conv.deal;
+          var html = headerHtml + dealCardHtml(deal);
           (msgs||[]).forEach(function(m){
-            var mine = (m.senderRole==='musician');
             var t = m.text || (m.file?'📎 附件':'');
+            if(m.type==='sys'){
+              html += '<div style="text-align:center;font-size:11.5px;color:#999;margin:10px 0;">'+esc(t)+'</div>';
+              return;
+            }
+            var mine = (m.senderRole==='musician');
             if(mine){
               html += '<div class="bubble-wrap mine"><div><div class="bubble mine">'+esc(t)+'</div></div><div class="bubble-avatar" style="background:#1a1a2e;color:#fff;">M</div></div>';
             } else {

@@ -3633,13 +3633,15 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   window.openLesson = function(plan, btn){
     // Use the card's ACTUAL displayed title (the musician may have renamed e.g.
     // "Monthly" → "Yearly") for the modal badge, instead of the fixed plan key.
-    var planTitle = '';
+    var planTitle = '', planPrice = 0;
     try {
       var card = btn && btn.closest ? btn.closest('.lesson-card') : null;
       var nm = card ? card.querySelector('.lesson-plan-name') : null;
       if (nm && nm.textContent.trim()) planTitle = nm.textContent.trim();
+      var pr = card ? card.querySelector('.lesson-price') : null;   // e.g. "NT$2,000" → 2000
+      if (pr) planPrice = parseInt(pr.textContent.replace(/[^0-9]/g,''), 10) || 0;
     } catch(e){}
-    state = { plan: plan||'Trial', planTitle: planTitle, level:null, goals:[], format:null, times:[], notes:'' };
+    state = { plan: plan||'Trial', planTitle: planTitle, planPrice: planPrice, level:null, goals:[], format:null, times:[], notes:'' };
     // Prefill format from the In-Person / Online toggle on the cards
     if(window.lessonFormat === 'online') state.format = 'Online';
     else if(window.lessonFormat === 'inperson') state.format = 'In-Person';
@@ -3763,7 +3765,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       email: custEmail,
       subject:'課程預約 / Lesson – '+(state.plan||''),
       message: lines.join('\n'),
-      details:{ plan:state.plan, level:state.level, goals:(state.goals||[]).slice(), format:state.format, times:(state.times||[]).slice(), notes:(state.notes||'').trim() },
+      details:{ plan:state.plan, planTitle:state.planTitle||'', price:state.planPrice||0, level:state.level, goals:(state.goals||[]).slice(), format:state.format, times:(state.times||[]).slice(), notes:(state.notes||'').trim() },
       musicianName: fullName
     };
     if(typeof window.opzMirrorToConversation==='function'){ window.opzMirrorToConversation(lessonPayload); }  // → customer's Messages
@@ -6601,7 +6603,7 @@ window.addEventListener('pageshow', function(e) {
   </script>
 
   <!-- Real messaging: "Message" starts a conversation with this musician -->
-  <script type="module" src="messaging.js?v=4"></script>
+  <script type="module" src="messaging.js?v=5"></script>
   <script>
     // Mirror a booking/enquiry into the customer's Messages workroom, so a
     // logged-in customer sees everything they send (the musician still gets the
@@ -6624,11 +6626,30 @@ window.addEventListener('pageshow', function(e) {
           });
         }
         if(!customerUid){ console.warn('[mirror-conv] no customer identity — not mirrored'); return; }
-        var brief = null;
+        var brief = null, deal = null;
         if(payload.kind === 'booking' && payload.details){
           var s = payload.details;
           var dt = [s.date, (s.hour!=null ? (s.hour+':'+String(s.min||0).padStart(2,'0')+' '+(s.ampm||'')) : '')].filter(Boolean).join(' ');
           brief = { type: s.eventType||'檔期預約', date: dt||'—', location: s.location||'—', budget:'—', notes: s.notes||'' };
+          // 演出：草稿報價先空價,等樂手報價（階段2）。平台抽 15%。
+          deal = { kind:'perf', plan:'演出委托 / Performance', planKey:'', price:0, feePct:15,
+                   status:'pending', terms:'樂手報價後，款項進入託管，演出完成後放款', funded:0, released:0 };
+        }
+        if(payload.kind === 'lesson' && payload.details){
+          var ld = payload.details;
+          var planName = ld.planTitle || ld.plan || '課程';
+          var priceN = Number(ld.price) || 0;
+          // 客戶點的方案＝草稿報價（待客戶確認並付款）。教學平台抽 10%。
+          deal = { kind:'lesson', plan: planName, planKey: ld.plan||'', price: priceN, feePct:10,
+                   status:'pending', terms:'確認後款項進入託管，課程完成後放款', funded:0, released:0 };
+          // 課程原本不建 brief → 補上,讓樂手後台看得到程度/目標/形式/時段
+          brief = { type:'課程 ' + planName,
+                    date: (ld.times && ld.times.length) ? ld.times.join('、') : '—',
+                    location: ld.format || '—',
+                    budget: priceN ? ('NT$' + priceN.toLocaleString('en-US')) : '—',
+                    notes: [ ld.level ? ('程度：'+ld.level) : '',
+                             (ld.goals && ld.goals.length) ? ('目標：'+ld.goals.join('、')) : '',
+                             ld.notes ? ('備註：'+ld.notes) : '' ].filter(Boolean).join('　') };
         }
         var convId = await OPUSZ_MSG.startConversation({
           customerUid: customerUid,
@@ -6636,7 +6657,8 @@ window.addEventListener('pageshow', function(e) {
           musicianUid: musicianUid,
           musicianName: payload.musicianName || (window.MUSICIAN_NAME||'樂手'),
           subject: payload.subject || '詢問',
-          brief: brief
+          brief: brief,
+          deal: deal
         });
         await OPUSZ_MSG.sendMessage(convId, { text: payload.message || payload.subject || '（詢問）', senderRole: 'customer' });
         return convId;   // ← let callers deep-link the customer straight to this thread

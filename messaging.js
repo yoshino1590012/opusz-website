@@ -11,6 +11,16 @@
        customerName, musicianName
        subject                                     // topic / first point of contact
        brief: {type,date,location,budget,notes}    // optional commission brief
+       deal:  {kind,plan,planKey,price,feePct,     // the live "proposal" / escrow contract
+               status,terms,funded,released,updatedAt}
+              // kind: 'lesson'|'perf' ; price = the all-in public price the client pays
+              // feePct: platform cut (lesson 10, perf 15) ; musician keeps price*(1-feePct/100)
+              // status: 'pending'  → client quote draft, awaiting client confirm+pay
+              //         'active'   → confirmed & funded into escrow, work in progress
+              //         'completed'→ work done, awaiting release
+              //         'released' → paid out to the musician
+              //         'cancelled'
+              // funded/released: amounts (numbers) — manually marked for now, money rail later
        lastMessage, lastSenderRole, updatedAt
        customerUnread, musicianUnread              // simple per-side unread counts
      conversations/{convId}/messages/{msgId}
@@ -66,8 +76,8 @@ const OPUSZ_MSG = {
     // resource == null, so `uid in resource.data.participants` errors → permission
     // denied. That used to block creation entirely. Treat a failed/empty read as
     // "doesn't exist yet" and proceed to create.
-    let exists = false;
-    try { const snap = await getDoc(ref); exists = snap.exists(); } catch (e) { exists = false; }
+    let exists = false, snap = null;
+    try { snap = await getDoc(ref); exists = snap.exists(); } catch (e) { exists = false; }
     if (!exists) {
       await setDoc(ref, {
         participants:   [opts.customerUid, opts.musicianUid],
@@ -77,17 +87,25 @@ const OPUSZ_MSG = {
         musicianName:   opts.musicianName || '',
         subject:        opts.subject || '直接訊息',
         brief:          opts.brief || null,
+        deal:           opts.deal  || null,
         lastMessage:    '',
         lastSenderRole: '',
         customerUnread: 0,
         musicianUnread: 0,
         updatedAt:      serverTimestamp()
       });
-    } else if (opts.subject || opts.brief) {
+    } else if (opts.subject || opts.brief || opts.deal) {
       // refresh subject/brief if a richer context was provided
       const patch = {};
       if (opts.subject) patch.subject = opts.subject;
       if (opts.brief)   patch.brief   = opts.brief;
+      if (opts.deal) {
+        // Re-sending a booking refreshes the DRAFT quote, but never clobbers a deal
+        // that's already been confirmed/paid/finished.
+        const curDeal = (snap && snap.exists()) ? snap.data().deal : null;
+        const locked  = curDeal && ['active','completed','released'].indexOf(curDeal.status) > -1;
+        if (!locked) patch.deal = opts.deal;
+      }
       if (Object.keys(patch).length) { try { await updateDoc(ref, patch); } catch (e) {} }
     }
     return id;
@@ -162,6 +180,23 @@ const OPUSZ_MSG = {
     const field = role === 'customer' ? 'customerUnread' : 'musicianUnread';
     const patch = {}; patch[field] = 0;
     try { await updateDoc(doc(db, 'conversations', convId), patch); } catch (e) {}
+  },
+
+  // ── update the deal / proposal on a conversation (merge patch into deal) ──
+  // patch: partial deal fields, e.g. {status:'active'} or {plan,planKey,price,feePct}
+  // opts:  {sysText?, fromRole?}  — when sysText is given, also posts a system message
+  //        (which bumps the other side's unread + updatedAt) so both ends get notified.
+  async setDeal(convId, patch, opts) {
+    opts = opts || {};
+    const ref = doc(db, 'conversations', convId);
+    let cur = {};
+    try { const s = await getDoc(ref); const dd = s.exists() && s.data().deal; if (dd) cur = dd; } catch (e) {}
+    const deal = Object.assign({}, cur, patch, { updatedAt: new Date().toISOString() });
+    try { await updateDoc(ref, { deal: deal, updatedAt: serverTimestamp() }); }
+    catch (e) { console.warn('[messaging] setDeal:', e); return; }
+    if (opts.sysText) {
+      try { await this.sendMessage(convId, { text: opts.sysText, senderRole: opts.fromRole || 'customer', type: 'sys' }); } catch (e) {}
+    }
   }
 };
 

@@ -375,6 +375,13 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .wr-deal h4:first-child{margin-top:0;}
 .wr-deal-val{font-size:13px;color:#222;font-weight:600;line-height:1.6;}
 .wr-deal-status{display:inline-block;font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px;background:#e9f7ef;color:#1a9c54;}
+.wr-deal-status.st-pending{background:#eef3ff;color:#2f54eb;}
+.wr-deal-status.st-active{background:#fff7e6;color:#d48806;}
+.wr-deal-status.st-released,.wr-deal-status.st-completed{background:#e9f7ef;color:#1a9c54;}
+.wr-deal-status.st-cancelled{background:#f5f5f5;color:#999;}
+.wr-deal-btn{width:100%;margin-top:4px;background:#111;color:#fff;border:none;border-radius:9px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;}
+.wr-deal-btn:hover{opacity:.8;}
+.wr-deal-btn:disabled{opacity:.5;cursor:default;}
 .wr-empty{margin:auto;color:#bbb;font-size:14px;}
 @media(max-width:760px){
   #panel-messages.active{width:auto;left:auto;transform:none;}
@@ -1164,6 +1171,7 @@ window.addEventListener('pageshow', function(e) {
   var activeThread = null;
   var msgUnsub = null;
   var myUid = null;
+  var lastEvents = [];    // cache so a deal change (conversation snapshot) can re-render the rail
   // Deep link from a musician page: customer-profile.html#msg=<convId>
   var pendingOpen = (location.hash.indexOf('#msg=') === 0) ? decodeURIComponent(location.hash.slice(5)) : null;
 
@@ -1182,7 +1190,7 @@ window.addEventListener('pageshow', function(e) {
       ts: (c.updatedAt && c.updatedAt.seconds) ? c.updatedAt.seconds : 0,
       brief: b,
       lastMessage: c.lastMessage || '',
-      deal: { status:'洽談中', price:(b&&b.budget)||'—', date:(b&&b.date)||'—', terms:'—', funded:'—', released:'—' }
+      deal: c.deal || null   // real proposal/escrow contract (null = none yet)
     };
   }
   function displayThreads(){ return liveThreads.length ? liveThreads : [DEMO_THREAD]; }
@@ -1214,6 +1222,44 @@ window.addEventListener('pageshow', function(e) {
         + '<div class="wr-time">'+esc(ev.time||'')+'</div></div>';
     }).join('');
   }
+  function fmtNT(n){ n = Number(n)||0; return 'NT$' + Math.round(n).toLocaleString('en-US'); }
+  var DEAL_STATUS_ZH = { pending:'待確認', active:'進行中', completed:'已完成', released:'已放款', cancelled:'已取消' };
+  // Right rail = the live proposal / escrow contract, from the customer's point of view.
+  function dealRailHtml(t){
+    var d = t.deal;
+    if(!d){
+      return '<div class="wr-deal">'
+        + '<h4>狀態 / Status</h4><span class="wr-deal-status">洽談中</span>'
+        + '<h4>動作 / Actions</h4><div class="wr-deal-val" style="color:#999;font-weight:500;font-size:12px;">尚無報價。與樂手討論方案後，這裡就會出現可確認、付款的報價單。</div>'
+      + '</div>';
+    }
+    var st = d.status || 'pending';
+    var statusZh = DEAL_STATUS_ZH[st] || st;
+    var price = Number(d.price) || 0;
+    var html = '<div class="wr-deal">'
+      + '<h4>狀態 / Status</h4><span class="wr-deal-status st-'+esc(st)+'">'+esc(statusZh)+'</span>'
+      + '<h4>方案 / Plan</h4><div class="wr-deal-val">'+esc(d.plan||'—')+'</div>'
+      + '<h4>價格 / Price</h4><div class="wr-deal-val">'+(price ? fmtNT(price) : '待樂手報價')+'</div>'
+      + (price ? '<div style="font-size:11px;color:#16a34a;font-weight:600;margin-top:2px;">平台服務費已內含，無額外加價</div>' : '')
+      + '<h4>付款條件 / Terms</h4><div class="wr-deal-val" style="font-weight:500;">'+esc(d.terms||'—')+'</div>'
+      + '<h4>款項 / Payment</h4><div class="wr-deal-val">已入金 '+(Number(d.funded)?fmtNT(d.funded):'—')+'<br>已放款 '+(Number(d.released)?fmtNT(d.released):'—')+'</div>'
+      + '<h4>動作 / Actions</h4>';
+    if(st==='pending' && price>0){
+      html += '<button id="wrDealPay" class="wr-deal-btn">確認並付款 '+fmtNT(price)+'</button>'
+            + '<div style="font-size:11px;color:#999;font-weight:500;margin-top:6px;">款項先進入平台託管，課程／演出完成後才撥付給樂手。</div>';
+    } else if(st==='pending'){
+      html += '<div class="wr-deal-val" style="color:#999;font-weight:500;font-size:12px;">等待樂手提供報價，報價後即可在此確認付款。</div>';
+    } else if(st==='active'){
+      html += '<button id="wrDealRelease" class="wr-deal-btn">確認完成，放款給樂手</button>'
+            + '<div style="font-size:11px;color:#999;font-weight:500;margin-top:6px;">確認課程／演出已順利完成後再放款。</div>';
+    } else if(st==='released' || st==='completed'){
+      html += '<div class="wr-deal-val" style="color:#1a9c54;font-weight:600;font-size:12px;">交易完成，款項已放款給樂手。</div>';
+    } else {
+      html += '<div class="wr-deal-val" style="color:#999;font-weight:500;font-size:12px;">—</div>';
+    }
+    return html + '</div>';
+  }
+
   function renderConversation(t, events){
     var main = document.getElementById('wrMain'); if(!main) return;
     var b = t.brief || {};
@@ -1226,21 +1272,13 @@ window.addEventListener('pageshow', function(e) {
         + '<div class="wr-brief-item"><span class="k">預算 / Budget</span><span class="v">'+esc(b.budget||'—')+'</span></div>'
         + (b.notes ? '<div class="wr-brief-item wr-brief-notes"><span class="k">備註 / Notes</span><span class="v" style="font-weight:500;">'+esc(b.notes)+'</span></div>' : '')
       + '</div></div>') : '';
-    var d = t.deal || {};
     main.innerHTML =
       '<div class="wr-conv">'
         + '<div class="wr-conv-head"><span>'+esc(t.subject)+'　·　'+esc(t.musician)+'</span></div>'
         + '<div class="wr-conv-body" id="wrBody">'+briefCard+bubblesHtml(events)+'</div>'
         + '<div class="wr-compose"><input id="wrInput" placeholder="輸入訊息… / Type a message"'+(t.demo?' disabled':'')+'><button id="wrSend"'+(t.demo?' disabled style="opacity:.4;cursor:default;"':'')+'>送出</button></div>'
       + '</div>'
-      + '<div class="wr-deal">'
-        + '<h4>狀態 / Status</h4><span class="wr-deal-status">'+esc(d.status||'洽談中')+'</span>'
-        + '<h4>價格 / Price</h4><div class="wr-deal-val">'+esc(d.price||'—')+'</div>'
-        + '<h4>日期 / Date</h4><div class="wr-deal-val">'+esc(d.date||'—')+'</div>'
-        + '<h4>付款條件 / Terms</h4><div class="wr-deal-val">'+esc(d.terms||'—')+'</div>'
-        + '<h4>款項 / Payment</h4><div class="wr-deal-val">已入金 '+esc(d.funded||'—')+'<br>已放款 '+esc(d.released||'—')+'</div>'
-        + '<h4>動作 / Actions</h4><div class="wr-deal-val" style="color:#999;font-weight:500;font-size:12px;">付款 / 放款（後端完成後啟用）</div>'
-      + '</div>';
+      + dealRailHtml(t);
     var body = document.getElementById('wrBody'); if(body) body.scrollTop = body.scrollHeight;
     // compose
     var send = document.getElementById('wrSend'), input = document.getElementById('wrInput');
@@ -1252,6 +1290,28 @@ window.addEventListener('pageshow', function(e) {
       };
       send.addEventListener('click', doSend);
       input.addEventListener('keydown', function(e){ if(e.isComposing||e.keyCode===229) return; if(e.key==='Enter') doSend(); });
+    }
+    // deal actions (customer side)
+    if(!t.demo && window.OPUSZ_MSG && t.deal){
+      var payBtn = document.getElementById('wrDealPay');
+      if(payBtn) payBtn.addEventListener('click', function(){
+        if(payBtn.disabled) return; payBtn.disabled = true; payBtn.textContent = '處理中…';
+        var p = Number(t.deal.price)||0;
+        OPUSZ_MSG.setDeal(t.id, { status:'active', funded:p }, {
+          fromRole:'customer',
+          sysText:'客戶已確認方案「'+(t.deal.plan||'')+'」，款項 '+fmtNT(p)+' 進入平台託管，方案啟動。'
+        });
+      });
+      var relBtn = document.getElementById('wrDealRelease');
+      if(relBtn) relBtn.addEventListener('click', function(){
+        if(!confirm('確認課程／演出已順利完成，將款項放款給樂手？')) return;
+        relBtn.disabled = true; relBtn.textContent = '處理中…';
+        var p = Number(t.deal.price)||0;
+        OPUSZ_MSG.setDeal(t.id, { status:'released', released:p }, {
+          fromRole:'customer',
+          sysText:'客戶已確認完成，款項放款給樂手。'
+        });
+      });
     }
   }
 
@@ -1268,7 +1328,9 @@ window.addEventListener('pageshow', function(e) {
         if(m.type==='sys') return { type:'sys', text:m.text, time:fmtFull(m.createdAt) };
         return { type:'msg', who: m.senderRole==='customer'?'me':'them', text:m.text, file:(m.file&&m.file.name)||'', time:fmtFull(m.createdAt) };
       });
-      if(activeThread===id) renderConversation(t, events);
+      lastEvents = events;
+      // pull the freshest thread so a just-changed deal shows in the rail
+      if(activeThread===id) renderConversation(findThread(id)||t, events);
     });
   }
 
@@ -1290,13 +1352,17 @@ window.addEventListener('pageshow', function(e) {
         renderThreads();
         if(pendingOpen && findThread(pendingOpen)){ openThread(pendingOpen); pendingOpen = null; }
         else if(activeThread && activeThread!=='demo' && !findThread(activeThread)){ activeThread = null; }
+        else if(activeThread && activeThread!=='demo'){
+          // a deal/status change on the open thread → refresh the rail in place
+          var ft = findThread(activeThread); if(ft) renderConversation(ft, lastEvents);
+        }
       });
     });
   }
   bootWorkroom();
 })();
 </script>
-<script type="module" src="messaging.js?v=4"></script>
+<script type="module" src="messaging.js?v=5"></script>
 <script src="assets/js/smooth-scroll.js" defer></script>
   <script type="module" src="media-sync.js?v=2"></script>
 </body>
