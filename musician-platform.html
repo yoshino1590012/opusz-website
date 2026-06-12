@@ -2970,11 +2970,10 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
       <span class="svc-label" data-i18n="svc.label">(Services)</span>
     </div>
     <ul class="svc-list" id="svcList">
-      <li class="svc-item" data-i="0"><span class="svc-num">(001)</span><span class="svc-name" data-i18n="svc.name.0">Live Performance</span></li>
-      <li class="svc-item active" data-i="1"><span class="svc-num">(002)</span><span class="svc-name" data-i18n="svc.name.1">Session Work</span></li>
-      <li class="svc-item" data-i="2"><span class="svc-num">(003)</span><span class="svc-name" data-i18n="svc.name.2">Music Lesson</span></li>
-      <li class="svc-item" data-i="3"><span class="svc-num">(004)</span><span class="svc-name" data-i18n="svc.name.3">Corporate Event</span></li>
-      <li class="svc-item" data-i="4"><span class="svc-num">(005)</span><span class="svc-name" data-i18n="svc.name.4">Artist Branding</span></li>
+      <li class="svc-item active" data-i="0"><span class="svc-num">(001)</span><span class="svc-name" data-i18n="svc.name.0">Performance Booking</span></li>
+      <li class="svc-item" data-i="1"><span class="svc-num">(002)</span><span class="svc-name" data-i18n="svc.name.1">Music Lessons</span></li>
+      <li class="svc-item" data-i="2"><span class="svc-num">(003)</span><span class="svc-name" data-i18n="svc.name.2">Talent Discovery</span></li>
+      <li class="svc-item" data-i="3"><span class="svc-num">(004)</span><span class="svc-name" data-i18n="svc.name.3">Artist Promotion</span></li>
     </ul>
   </div>
   <div class="svc-right">
@@ -3338,8 +3337,8 @@ const I18N = {
     'cat.strings':'Strings','cat.piano':'Piano','cat.winds':'Wind & Brass',
     'cat.compose':'Composition','cat.chamber':'Chamber','cat.perc':'Percussion',
     'cat.more':'More categories',
-    'svc.label':'(Services)','svc.name.0':'Live Performance','svc.name.1':'Session Work',
-    'svc.name.2':'Music Lesson','svc.name.3':'Corporate Event','svc.name.4':'Artist Branding','svc.btn':'Get Started',
+    'svc.label':'(Services)','svc.name.0':'Performance Booking','svc.name.1':'Music Lessons',
+    'svc.name.2':'Talent Discovery','svc.name.3':'Artist Promotion','svc.btn':'Get Started',
     'work.artists':'Musicians','work.cta':'View all musicians',
     'about.team':'(Team of experts)','about.desc':'musicians registered<br>across the platform',
     'about.collab':'(Live collaboration)','about.booking':'Booking request received',
@@ -4407,11 +4406,10 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
 
 // Services
 const svcData = [
-  { bg: 'linear-gradient(135deg,#f0a060,#e87030)', text: 'Connect with top-tier venues and event planners. We match you to the right stage.' },
-  { bg: 'linear-gradient(135deg,#e8c84a,#f0a060)', text: 'Find session musicians for studio recordings. Fast, professional, hassle-free.' },
-  { bg: 'linear-gradient(135deg,#5a8fe8,#3a6fd8)', text: 'Collaborate with producers to create something extraordinary.' },
-  { bg: 'linear-gradient(135deg,#6b3fff,#9b59b6)', text: 'Build your brand as an artist. Stand out in a crowded industry.' },
-  { bg: 'linear-gradient(135deg,#1a1a2e,#16213e)',  text: 'Build your brand as an artist. Stand out in a crowded industry.' }
+  { bg: 'linear-gradient(135deg,#f0a060,#e87030)', text: 'We match musicians with concerts, recitals, and live performance opportunities across Taiwan.' },
+  { bg: 'linear-gradient(135deg,#5a8fe8,#3a6fd8)', text: 'Connect students with elite musicians for private, professional instruction.' },
+  { bg: 'linear-gradient(135deg,#6b3fff,#9b59b6)', text: 'Browse our hand-picked roster of Taiwan\'s finest musicians. Hire with confidence.' },
+  { bg: 'linear-gradient(135deg,#1a1a2e,#16213e)',  text: 'We help musicians build their brand, grow visibility, and reach new audiences.' }
 ];
 function applySvcImg(i) {
   var pos = JSON.parse(localStorage.getItem('mono-photo-pos-v3')||'{}');
@@ -4441,8 +4439,8 @@ document.querySelectorAll('.svc-item').forEach((item, i) => {
     document.getElementById('svcDesc').textContent = svcData[i].text;
   });
 });
-// Init with active item (index 1 = Session Work default active)
-applySvcImg(1);
+// Init with active item (index 0 = Performance Booking default active)
+applySvcImg(0);
 
 
 // ── Bottom nav: show/hide + sliding active-section indicator ──
@@ -5039,11 +5037,10 @@ try {
     { cls:'wc3', label:'Show 3 · Chamber Music'   },
   ];
   const svcSlots = [
-    { cls:'svc0', label:'Live Performance'          },
-    { cls:'svc1', label:'Session Work'              },
-    { cls:'svc2', label:'Music Lesson'              },
-    { cls:'svc3', label:'Corporate Event'           },
-    { cls:'svc4', label:'Artist Branding'           },
+    { cls:'svc0', label:'Performance Booking'  },
+    { cls:'svc1', label:'Music Lessons'        },
+    { cls:'svc2', label:'Talent Discovery'     },
+    { cls:'svc3', label:'Artist Promotion'     },
   ];
   const blogSlots = [
     { cls:'bi1', label:'Blog 1 · About'    },
