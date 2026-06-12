@@ -53,7 +53,15 @@
     + '#site-footer .sf-brand{display:flex;justify-content:center;align-items:flex-end;gap:clamp(2px,1.2vw,20px);height:clamp(80px,32vw,640px);overflow:visible;user-select:none;margin-top:-2px;width:100%;}'
     + '#site-footer .sf-letter{display:block;font-family:"Roboto Flex","Inter",sans-serif;font-size:clamp(30px,27vw,560px);font-weight:220;line-height:.86;color:' + t.word + ';will-change:font-variation-settings;}'
     + '#site-footer .sf-dot{font-size:clamp(26px,23vw,480px);line-height:1;align-self:flex-end;}'
-    + '@media(max-width:760px){#site-footer{padding:48px 24px 0;}#site-footer .sf-top{gap:40px;}}';
+    // Mobile: lay the four link columns out as a 2×2 grid of groups. Tight
+    // spacing *within* each group + generous gaps *between* groups makes the
+    // categories read as distinct blocks — no divider lines, just whitespace.
+    + '@media(max-width:760px){'
+    +   '#site-footer{padding:48px 24px 0;}'
+    +   '#site-footer .sf-top{gap:40px;}'
+    +   '#site-footer .sf-links{display:grid;grid-template-columns:1fr 1fr;gap:36px 20px;justify-content:initial;flex:none;min-width:0;}'
+    +   '#site-footer .sf-col a{margin-bottom:14px;}'
+    + '}';
 
   var style = document.createElement('style');
   style.id = 'site-footer-css';
