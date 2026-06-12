@@ -1052,18 +1052,16 @@ body {
 .empty-state p { font-size: 14px; }
 
 /* ── RESPONSIVE ── */
+/* Members block that lives inside the left drawer — hidden on desktop (the
+   right rail shows members there); revealed on smaller screens below. */
+.sidebar-members-mobile { display: none; padding: 0 16px 8px; }
+.sidebar-members-mobile .member-item { padding: 7px 0; }
+
 @media (max-width: 1100px) {
-  /* Don't hide the members panel on smaller screens — stack it under the feed
-     so mobile users can still see and reach the community members. */
-  .content-wrap { flex-direction: column; align-items: center; }
-  .sidebar-right {
-    position: static;
-    width: 100%;
-    min-width: 0;
-    max-width: 680px;
-    max-height: none;
-    overflow: visible;
-  }
+  /* Desktop keeps the right rail unchanged; on smaller screens the members list
+     moves into the left drawer instead (see .sidebar-members-mobile). */
+  .sidebar-right { display: none; }
+  .sidebar-members-mobile { display: block; }
 }
 @media (max-width: 768px) {
   .sidebar-left {
@@ -1216,6 +1214,13 @@ body {
         <span class="channel-name" data-ci18n="ch_music">宣傳你的音樂</span>
       </a></li>
     </ul>
+
+    <!-- Community members — shown in this drawer on mobile only; desktop uses the right rail -->
+    <div class="sidebar-members-mobile">
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section-label" data-ci18n="members_panel">👥 社群成員</div>
+      <div id="membersListMobile"></div>
+    </div>
 
     <div class="sidebar-footer">
       OPUS.Z Community<br>
@@ -2364,7 +2369,8 @@ function renderMembers() {
     html += '<div class="member-instrument">' + escHtml(m.instrument) + '</div></div>';
     html += '</div>';
   });
-  document.getElementById('membersList').innerHTML = html;
+  var _ml = document.getElementById('membersList'); if(_ml) _ml.innerHTML = html;
+  var _mlm = document.getElementById('membersListMobile'); if(_mlm) _mlm.innerHTML = html;  // left-drawer copy (mobile)
 }
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
