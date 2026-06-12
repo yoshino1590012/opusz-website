@@ -242,11 +242,48 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .pj-textarea { min-height: 80px; line-height: 1.55; }
 .pj-select { cursor: pointer; appearance: none; -webkit-appearance: none; color: #111; }
 .pj-select option { color: #111; }
-/* Native date/time pickers — keep the modal's clean, borderless look */
-.pj-input[type="date"], .pj-input[type="time"] { cursor: pointer; color: #111; }
-.pj-input[type="date"]:invalid, .pj-input[type="time"]:invalid { color: #ccc; }
-.pj-input[type="date"]::-webkit-calendar-picker-indicator,
-.pj-input[type="time"]::-webkit-calendar-picker-indicator { cursor: pointer; opacity: .5; }
+/* ── Custom date/time picker (replaces native pickers so language is fully
+      under our control — native macOS/Chrome pickers ignore lang) ── */
+.pjdt { position: relative; }
+.pjdt-display {
+  background: transparent; border: none; outline: none; cursor: pointer;
+  font-size: 15px; color: #111; font-family: inherit; text-align: left;
+  padding: 4px 22px 6px 0; width: 100%; line-height: 1.4;
+  background-repeat: no-repeat; background-position: right 2px center; background-size: 15px;
+}
+#pjDateDisplay { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Crect x='3' y='4' width='18' height='18' rx='2'/%3E%3Cpath d='M16 2v4M8 2v4M3 10h18'/%3E%3C/svg%3E"); }
+#pjTimeDisplay { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7v5l3 2'/%3E%3C/svg%3E"); }
+.pjdt-display.is-empty { color: #ccc; }
+.pjdt-pop {
+  position: absolute; top: calc(100% + 6px); left: 0; z-index: 50;
+  background: #fff; border: 1px solid rgba(0,0,0,.12); border-radius: 12px;
+  box-shadow: 0 12px 32px rgba(0,0,0,.16); padding: 12px;
+  display: none; user-select: none;
+}
+.pjdt-pop.open { display: block; }
+#pjTimeField .pjdt-pop { left: auto; right: 0; }
+/* calendar */
+.pjcal-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.pjcal-title { font-size: 14px; font-weight: 700; color: #111; }
+.pjcal-nav { background: transparent; border: none; cursor: pointer; padding: 4px 8px; font-size: 16px; color: #555; border-radius: 6px; line-height: 1; }
+.pjcal-nav:hover { background: #f0f0f0; }
+.pjcal-grid { display: grid; grid-template-columns: repeat(7, 32px); gap: 2px; }
+.pjcal-dow { font-size: 11px; font-weight: 700; color: #aaa; text-align: center; height: 24px; line-height: 24px; }
+.pjcal-day { height: 30px; border: none; background: transparent; cursor: pointer; font-size: 13px; color: #222; border-radius: 7px; font-family: inherit; }
+.pjcal-day:hover { background: #f0f0f0; }
+.pjcal-day.muted { color: #ccc; }
+.pjcal-day.today { font-weight: 700; box-shadow: inset 0 0 0 1px #ddd; }
+.pjcal-day.sel { background: #111; color: #fff; }
+.pjcal-day.sel:hover { background: #111; }
+.pjcal-foot { display: flex; justify-content: space-between; margin-top: 8px; }
+.pjcal-foot button { background: transparent; border: none; cursor: pointer; font-size: 12px; color: #2563eb; font-family: inherit; padding: 4px; }
+/* time picker */
+.pjtime-wrap { display: flex; gap: 8px; align-items: stretch; }
+.pjtime-col { width: 56px; height: 180px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; scrollbar-width: thin; }
+.pjtime-opt { padding: 7px 0; text-align: center; font-size: 14px; cursor: pointer; color: #222; }
+.pjtime-opt:hover { background: #f0f0f0; }
+.pjtime-opt.sel { background: #111; color: #fff; }
+.pjtime-colon { align-self: center; font-weight: 700; color: #888; }
 
 .pj-submit {
   margin-top: 28px;
@@ -614,13 +651,17 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
       <div class="pj-fields">
         <!-- Row 1: Event Date + Event Time (native pickers) -->
         <div class="pj-row">
-          <div class="pj-field">
+          <div class="pj-field pjdt" id="pjDateField">
             <div class="pj-label" data-i18n="pj.eventdate">Event Date</div>
-            <input id="pjDate" class="pj-input" type="date" lang="en" />
+            <button type="button" class="pjdt-display" id="pjDateDisplay" data-i18n-dt="date"></button>
+            <input id="pjDate" type="hidden" value="" />
+            <div class="pjdt-pop" id="pjDatePop"></div>
           </div>
-          <div class="pj-field">
+          <div class="pj-field pjdt" id="pjTimeField">
             <div class="pj-label" data-i18n="pj.eventtime">Event Time</div>
-            <input id="pjTime" class="pj-input" type="time" lang="en" />
+            <button type="button" class="pjdt-display" id="pjTimeDisplay" data-i18n-dt="time"></button>
+            <input id="pjTime" type="hidden" value="" />
+            <div class="pjdt-pop" id="pjTimePop"></div>
           </div>
         </div>
         <!-- Row 2: Location + Duration -->
@@ -824,6 +865,7 @@ if (pjSubmit) pjSubmit.addEventListener('click', async function() {
     pjSubmit.style.background = '#2d6a4f';
     ['pjDate','pjTime','pjLocation','pjDuration','pjEnsemble','pjDesc','pjName','pjTypeOther']
       .forEach(function(id){ var el = document.getElementById(id); if (el) el.value = ''; });
+    if (typeof window.pjRefreshDT === 'function') window.pjRefreshDT();
     var _o = document.getElementById('pjTypeOther'); if (_o) _o.style.display = 'none';
     document.querySelectorAll('.pj-pill').forEach(function(p){ p.classList.remove('active'); });
     setTimeout(function() {
@@ -994,15 +1036,137 @@ function switchLang(lang) {
     o.classList.toggle('active', o.dataset.l === lang);
   });
   document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
-  // Native date/time pickers show their format text (年/月/日 vs yyyy/mm/dd) by the
-  // input's lang, not the page — force it to follow the chosen language.
-  var _dtLang = lang === 'zh' ? 'zh-TW' : 'en';
-  ['pjDate','pjTime'].forEach(function(id){ var el = document.getElementById(id); if (el) el.setAttribute('lang', _dtLang); });
+  // Re-render our custom date/time picker labels in the chosen language.
+  if (typeof window.pjRefreshDT === 'function') window.pjRefreshDT();
   if (typeof window.__navResplit === 'function') window.__navResplit();
 }
 
 // nav.js owns the language toggle; re-run page-content translation on change
 document.addEventListener('opusz:langchange', function(e){ if (typeof switchLang === 'function') switchLang(e.detail.lang); });
+
+/* ──────────────────────────────────────────────────────────────────
+   Custom date & time picker for the "Post a Project" modal.
+   Native <input type=date/time> ignore the page language on macOS/Chrome
+   (the calendar/clock UI follows the OS), so we render our own and keep
+   the canonical values in the hidden #pjDate (yyyy-mm-dd) / #pjTime (HH:MM).
+   ────────────────────────────────────────────────────────────────── */
+(function(){
+  var DT = {
+    en: { months:['January','February','March','April','May','June','July','August','September','October','November','December'],
+          dow:['Su','Mo','Tu','We','Th','Fr','Sa'], today:'Today', clear:'Clear',
+          dph:'Select date', tph:'Select time', title:function(y,m){ return DT.en.months[m]+' '+y; } },
+    zh: { months:['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'],
+          dow:['日','一','二','三','四','五','六'], today:'今天', clear:'清除',
+          dph:'選擇日期', tph:'選擇時間', title:function(y,m){ return y+'年'+DT.zh.months[m]; } }
+  };
+  function L(){ return (window._currentLang === 'zh') ? DT.zh : DT.en; }
+  function pad(n){ return (n<10?'0':'')+n; }
+
+  var dateInput = document.getElementById('pjDate');
+  var timeInput = document.getElementById('pjTime');
+  var dateDisp  = document.getElementById('pjDateDisplay');
+  var timeDisp  = document.getElementById('pjTimeDisplay');
+  var datePop   = document.getElementById('pjDatePop');
+  var timePop   = document.getElementById('pjTimePop');
+  if (!dateInput || !timeInput) return;
+
+  // ── Date display + calendar ──
+  var viewY, viewM; // currently shown month
+  function fmtDate(v){ // v = yyyy-mm-dd
+    if (!v) return '';
+    var p = v.split('-'), y=+p[0], m=+p[1]-1, d=+p[2];
+    return (window._currentLang === 'zh') ? (y+'年'+(m+1)+'月'+d+'日') : (DT.en.months[m]+' '+d+', '+y);
+  }
+  function fmtTime(v){ // v = HH:MM  → keep 24h, language-neutral
+    return v || '';
+  }
+  function refreshDisplays(){
+    var dv = dateInput.value, tv = timeInput.value;
+    dateDisp.textContent = dv ? fmtDate(dv) : L().dph;
+    dateDisp.classList.toggle('is-empty', !dv);
+    timeDisp.textContent = tv ? fmtTime(tv) : L().tph;
+    timeDisp.classList.toggle('is-empty', !tv);
+  }
+  window.pjRefreshDT = refreshDisplays;
+
+  function buildCal(){
+    var l = L();
+    var sel = dateInput.value ? dateInput.value.split('-').map(Number) : null;
+    var now = new Date();
+    var tY = now.getFullYear(), tM = now.getMonth(), tD = now.getDate();
+    var first = new Date(viewY, viewM, 1).getDay();
+    var dim = new Date(viewY, viewM+1, 0).getDate();
+    var h = '<div class="pjcal-head">'
+      + '<button type="button" class="pjcal-nav" data-nav="-1">‹</button>'
+      + '<span class="pjcal-title">'+l.title(viewY, viewM)+'</span>'
+      + '<button type="button" class="pjcal-nav" data-nav="1">›</button></div>';
+    h += '<div class="pjcal-grid">';
+    for (var i=0;i<7;i++) h += '<div class="pjcal-dow">'+l.dow[i]+'</div>';
+    for (var b=0;b<first;b++) h += '<span></span>';
+    for (var d=1;d<=dim;d++){
+      var cls='pjcal-day';
+      if (viewY===tY && viewM===tM && d===tD) cls+=' today';
+      if (sel && sel[0]===viewY && sel[1]-1===viewM && sel[2]===d) cls+=' sel';
+      h += '<button type="button" class="'+cls+'" data-day="'+d+'">'+d+'</button>';
+    }
+    h += '</div>';
+    h += '<div class="pjcal-foot"><button type="button" data-act="today">'+l.today+'</button>'
+       + '<button type="button" data-act="clear">'+l.clear+'</button></div>';
+    datePop.innerHTML = h;
+  }
+  function openDate(){
+    closeAll();
+    var base = dateInput.value ? dateInput.value.split('-').map(Number) : null;
+    var now = new Date();
+    viewY = base ? base[0] : now.getFullYear();
+    viewM = base ? base[1]-1 : now.getMonth();
+    buildCal(); datePop.classList.add('open');
+  }
+  dateDisp.addEventListener('click', function(e){ e.stopPropagation(); if (datePop.classList.contains('open')) closeAll(); else openDate(); });
+  datePop.addEventListener('click', function(e){
+    e.stopPropagation();
+    var nav = e.target.closest('[data-nav]');
+    if (nav){ viewM += (+nav.dataset.nav); if (viewM<0){viewM=11;viewY--;} if (viewM>11){viewM=0;viewY++;} buildCal(); return; }
+    var act = e.target.closest('[data-act]');
+    if (act){
+      if (act.dataset.act==='today'){ var n=new Date(); dateInput.value = n.getFullYear()+'-'+pad(n.getMonth()+1)+'-'+pad(n.getDate()); }
+      else { dateInput.value=''; }
+      refreshDisplays(); closeAll(); return;
+    }
+    var day = e.target.closest('[data-day]');
+    if (day){ dateInput.value = viewY+'-'+pad(viewM+1)+'-'+(+day.dataset.day<10?'0':'')+day.dataset.day; refreshDisplays(); closeAll(); }
+  });
+
+  // ── Time picker (hours 00-23, minutes in 5-min steps) ──
+  function buildTime(){
+    var cur = timeInput.value ? timeInput.value.split(':') : [null,null];
+    var hH='', mH='';
+    for (var h=0;h<24;h++) hH += '<div class="pjtime-opt'+(cur[0]==pad(h)?' sel':'')+'" data-h="'+pad(h)+'">'+pad(h)+'</div>';
+    for (var m=0;m<60;m+=5) mH += '<div class="pjtime-opt'+(cur[1]==pad(m)?' sel':'')+'" data-m="'+pad(m)+'">'+pad(m)+'</div>';
+    timePop.innerHTML = '<div class="pjtime-wrap"><div class="pjtime-col" id="pjtHours">'+hH+'</div>'
+      + '<span class="pjtime-colon">:</span><div class="pjtime-col" id="pjtMins">'+mH+'</div></div>';
+    // scroll selected into view
+    setTimeout(function(){ var s=timePop.querySelector('.pjtime-opt.sel'); if(s) s.scrollIntoView({block:'center'}); },0);
+  }
+  function commitTime(){
+    var h = timePop.querySelector('[data-h].sel'), m = timePop.querySelector('[data-m].sel');
+    if (h && m){ timeInput.value = h.dataset.h+':'+m.dataset.m; refreshDisplays(); }
+  }
+  timeDisp.addEventListener('click', function(e){ e.stopPropagation(); if (timePop.classList.contains('open')) closeAll(); else { closeAll(); buildTime(); timePop.classList.add('open'); } });
+  timePop.addEventListener('click', function(e){
+    e.stopPropagation();
+    var t = e.target.closest('.pjtime-opt'); if (!t) return;
+    var group = t.hasAttribute('data-h') ? '[data-h]' : '[data-m]';
+    timePop.querySelectorAll(group).forEach(function(o){ o.classList.remove('sel'); });
+    t.classList.add('sel');
+    commitTime();
+  });
+
+  function closeAll(){ datePop.classList.remove('open'); timePop.classList.remove('open'); }
+  document.addEventListener('click', closeAll);
+
+  refreshDisplays();
+})();
 
 // ── Demo job timing — posted-time + event date/time on every card ────────────
 // This page's jobs are SAMPLE data (a reference for how the live board will look).
