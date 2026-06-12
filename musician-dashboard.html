@@ -508,6 +508,10 @@
     .pb-row-add { border: 1.5px dashed var(--border); border-radius: 8px; background: #fff; color: var(--black); font-family: inherit; font-size: 12.5px; font-weight: 600; padding: 8px 14px; cursor: pointer; transition: all .15s; }
     .pb-row-add:hover { border-color: var(--black); background: #fafafa; }
     .pb-help-note { font-size: 12px; color: var(--mid); line-height: 1.6; margin: 4px 0 0; }
+    /* 價格旁即時換算：你填 X → 你實拿 Y（平台抽成已內含）*/
+    .pb-net-hint { font-size: 11.5px; color: #16a34a; font-weight: 600; margin-top: 5px; line-height: 1.45; }
+    .pb-net-hint:empty { display: none; }
+    .pb-net-hint b { font-weight: 800; }
 
     /* ── Profile tab page ── */
     .profile-tabs-wrap { max-width: 680px; }
@@ -1775,7 +1779,7 @@
                 <div class="pb-field"><label>🌐 名稱（English）</label><input type="text" id="pbPlan0NameEn" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>副標（中文，每行一句）</label><textarea id="pbPlan0Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
                 <div class="pb-field"><label>🌐 副標（English）</label><textarea id="pbPlan0SubEn" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
-                <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan0Price" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan0Price" data-net="lesson" oninput="pbOnInput()"><div class="pb-net-hint"></div></div>
                 <div class="pb-field"><label>單位（中文）</label><input type="text" id="pbPlan0Unit" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>🌐 單位（English）</label><input type="text" id="pbPlan0UnitEn" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>優惠說明（中文）</label><input type="text" id="pbPlan0Save" oninput="pbOnInput()"></div>
@@ -1791,7 +1795,7 @@
                 <div class="pb-field"><label>🌐 名稱（English）</label><input type="text" id="pbPlan1NameEn" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>副標（中文，每行一句）</label><textarea id="pbPlan1Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
                 <div class="pb-field"><label>🌐 副標（English）</label><textarea id="pbPlan1SubEn" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
-                <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan1Price" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan1Price" data-net="lesson" oninput="pbOnInput()"><div class="pb-net-hint"></div></div>
                 <div class="pb-field"><label>單位（中文）</label><input type="text" id="pbPlan1Unit" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>🌐 單位（English）</label><input type="text" id="pbPlan1UnitEn" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>優惠說明（中文）</label><input type="text" id="pbPlan1Save" oninput="pbOnInput()"></div>
@@ -1807,7 +1811,7 @@
                 <div class="pb-field"><label>🌐 名稱（English）</label><input type="text" id="pbPlan2NameEn" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>副標（中文，每行一句）</label><textarea id="pbPlan2Sub" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
                 <div class="pb-field"><label>🌐 副標（English）</label><textarea id="pbPlan2SubEn" oninput="pbOnInput()" style="min-height:60px;"></textarea></div>
-                <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan2Price" oninput="pbOnInput()"></div>
+                <div class="pb-field"><label>Price (NT$)</label><input type="number" id="pbPlan2Price" data-net="lesson" oninput="pbOnInput()"><div class="pb-net-hint"></div></div>
                 <div class="pb-field"><label>單位（中文）</label><input type="text" id="pbPlan2Unit" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>🌐 單位（English）</label><input type="text" id="pbPlan2UnitEn" oninput="pbOnInput()"></div>
                 <div class="pb-field"><label>優惠說明（中文）</label><input type="text" id="pbPlan2Save" oninput="pbOnInput()"></div>
@@ -2496,6 +2500,7 @@
     window._lang = lang;
     localStorage.setItem('opusz_dash_lang', lang);
     applyI18n();
+    if(window.pbRefreshNetHints) pbRefreshNetHints();   // 切語言時換算文字跟著中/英
   };
 
   // Apply saved language immediately on page load
@@ -4271,7 +4276,7 @@
     data=data||{};
     pbMakeRow('pbHourlyList',
       '<div style="max-width:90px;flex:0 0 90px;"><label>小時 / Hours</label><input type="number" class="pbHourlyHours" value="'+pbEsc(data.hours)+'"></div>'
-      +'<div><label>價格 / Price (NT$)</label><input type="number" class="pbHourlyPrice" placeholder="價格 / Price" value="'+pbEsc(data.price)+'"></div>'
+      +'<div><label>價格 / Price (NT$)</label><input type="number" class="pbHourlyPrice" data-net="perf" placeholder="價格 / Price" value="'+pbEsc(data.price)+'"><div class="pb-net-hint"></div></div>'
       +'<div><label>備註 / Note</label><input type="text" class="pbHourlyNote" value="'+pbEsc(data.note)+'"></div>');
   }
   function pbAddPackageRow(data){
@@ -4279,18 +4284,48 @@
     pbMakeRow('pbPackagesList',
       '<div><label>名稱 / Name</label><input type="text" class="pbPkgName" value="'+pbEsc(data.name)+'"></div>'
       +'<div><label>時長 / Duration</label><input type="text" class="pbPkgDuration" value="'+pbEsc(data.duration)+'"></div>'
-      +'<div style="max-width:110px;flex:0 0 110px;"><label>價格 / Price</label><input type="number" class="pbPkgPrice" value="'+pbEsc(data.price)+'"></div>');
+      +'<div style="max-width:160px;flex:0 0 160px;"><label>價格 / Price</label><input type="number" class="pbPkgPrice" data-net="perf" value="'+pbEsc(data.price)+'"><div class="pb-net-hint"></div></div>');
   }
   function pbAddAddonRow(data){
     data=data||{};
     pbMakeRow('pbAddonsList',
       '<div><label>名稱 / Name</label><input type="text" class="pbAddonName" value="'+pbEsc(data.name)+'"></div>'
       +'<div style="flex:2 1 160px;"><label>說明 / Description</label><input type="text" class="pbAddonDesc" value="'+pbEsc(data.desc)+'"></div>'
-      +'<div style="max-width:110px;flex:0 0 110px;"><label>起價 / From (NT$)</label><input type="number" class="pbAddonFrom" value="'+pbEsc(data.priceFrom)+'"></div>');
+      +'<div style="max-width:160px;flex:0 0 160px;"><label>起價 / From (NT$)</label><input type="number" class="pbAddonFrom" data-net="perf" value="'+pbEsc(data.priceFrom)+'"><div class="pb-net-hint"></div></div>');
   }
   window.pbAddHourlyRow=function(){ pbAddHourlyRow(); pbOnInput(); };
   window.pbAddPackageRow=function(){ pbAddPackageRow(); pbOnInput(); };
   window.pbAddAddonRow=function(){ pbAddAddonRow(); pbOnInput(); };
+
+  // ── 價格即時換算：樂手填的是「公開全包價」＝客戶付的價；平台服務費內含，樂手實拿剩餘 ──
+  // 演出（按小時／組合包／加購）抽 15% → 實拿 85%；課程抽 10% → 實拿 90%。
+  // 集中成常數,日後調費率只改這裡。每個價格 input 加 data-net="perf"|"lesson",
+  // 後面緊跟一個 <div class="pb-net-hint">,委派監聽自動更新。
+  var PB_FEE = { perf:0.15, lesson:0.10 };
+  function pbFmtNT(n){ return 'NT$' + Math.round(n).toLocaleString('en-US'); }
+  window.pbUpdateNetHint = function(inp){
+    if(!inp || !inp.getAttribute) return;
+    var net = inp.getAttribute('data-net'); if(!net || !(net in PB_FEE)) return;
+    var hint = inp.parentNode ? inp.parentNode.querySelector('.pb-net-hint') : null;
+    if(!hint) return;
+    var v = parseFloat(inp.value);
+    var fee = PB_FEE[net], pct = Math.round(fee*100);
+    var en = (localStorage.getItem('opusz_dash_lang') || 'zh') === 'en';
+    if(isNaN(v) || v <= 0){ hint.textContent = ''; return; }
+    var take = v * (1 - fee);
+    hint.innerHTML = en
+      ? 'Client pays ' + pbFmtNT(v) + ' · <b>you receive ' + pbFmtNT(take) + '</b> (platform fee ' + pct + '% included)'
+      : '客戶付 ' + pbFmtNT(v) + '　·　<b>你實拿 ' + pbFmtNT(take) + '</b>（平台服務費 ' + pct + '% 已內含）';
+  };
+  window.pbRefreshNetHints = function(){
+    var els = document.querySelectorAll('[data-net]');
+    for(var i=0;i<els.length;i++) pbUpdateNetHint(els[i]);
+  };
+  // 事件委派：任一 data-net 價格框輸入時即時更新它的提示（含動態新增的 row）
+  document.addEventListener('input', function(e){
+    var t = e.target;
+    if(t && t.getAttribute && t.getAttribute('data-net')) pbUpdateNetHint(t);
+  });
 
   // ── Career Highlights — dynamic rows (variable count) ──
   // Monotonic counter so each row's image input gets a unique id, letting
@@ -4580,6 +4615,7 @@
     });
     v('pbPlanCount', pbConfig.lessons.planCount || 3);
     if(typeof pbPlanCountApply === 'function') pbPlanCountApply();
+    if(window.pbRefreshNetHints) pbRefreshNetHints();   // 載入既有價格後,立即顯示實拿換算
 
     // Stats — Stat 3 (i===2) is the live client-review count, NOT manually editable
     var reviewCount = Array.isArray(pbConfig.reviews) ? pbConfig.reviews.length : 0;
