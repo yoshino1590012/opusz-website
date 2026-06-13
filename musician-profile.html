@@ -5693,8 +5693,14 @@ window.addEventListener('pageshow', function(e) {
     ['New Orleans, USA','紐奧良, 美國'],['Salt Lake City, USA','鹽湖城, 美國']
   ];
   var STYLE_PAIRS = [
-    ['Classical','古典'],['Jazz','爵士'],['Pop','流行'],['Pop / Commercial','流行 / 商業'],
-    ['Film','電影配樂'],['Film / TV Scoring','電影 / 影視配樂'],['Wedding','婚禮'],['Contemporary','當代']
+    // Genre keys (config.styles)
+    ['Classical','古典'],['Baroque','古樂・巴洛克'],['Contemporary','當代・現代'],['Crossover','跨界'],
+    ['Jazz','爵士'],['Pop','流行・商業'],['Film','電影・遊戲配樂'],['Musical','音樂劇'],['World','世界・民謠'],
+    // Occasion keys (config.occasions)
+    ['Wedding','婚禮'],['Corporate','商演・企業活動'],['Banquet','宴會・餐會'],['Ceremony','典禮・開幕'],
+    ['Sacred','宗教・聖樂'],['PrivateParty','私人派對'],
+    // Legacy labels kept for old data
+    ['Pop / Commercial','流行 / 商業'],['Film / TV Scoring','電影 / 影視配樂']
   ];
   function _biTrans(pairs, val){
     if(!val) return val;
@@ -6672,16 +6678,16 @@ window.addEventListener('pageshow', function(e) {
           var s = payload.details;
           var dt = [s.date, (s.hour!=null ? (s.hour+':'+String(s.min||0).padStart(2,'0')+' '+(s.ampm||'')) : '')].filter(Boolean).join(' ');
           brief = { type: s.eventType||'檔期預約', date: dt||'—', location: s.location||'—', budget:'—', notes: s.notes||'' };
-          // 演出：草稿報價先空價,等樂手報價（階段2）。平台抽 15%。
-          deal = { kind:'perf', plan:'演出委托 / Performance', planKey:'', price:0, feePct:15,
+          // 演出：草稿報價先空價,等樂手報價（階段2）。平台抽 10%,平台費上限 NT$8,000。
+          deal = { kind:'perf', plan:'演出委托 / Performance', planKey:'', price:0, feePct:10, feeCap:8000,
                    status:'pending', terms:'樂手報價後，款項進入託管，演出完成後放款', funded:0, released:0 };
         }
         if(payload.kind === 'lesson' && payload.details){
           var ld = payload.details;
           var planName = ld.planTitle || ld.plan || '課程';
           var priceN = Number(ld.price) || 0;
-          // 客戶點的方案＝草稿報價（待客戶確認並付款）。教學平台抽 10%。
-          deal = { kind:'lesson', plan: planName, planKey: ld.plan||'', price: priceN, feePct:10,
+          // 客戶點的方案＝草稿報價（待客戶確認並付款）。教學平台抽 8%（無上限）。
+          deal = { kind:'lesson', plan: planName, planKey: ld.plan||'', price: priceN, feePct:8, feeCap:0,
                    status:'pending', terms:'確認後款項進入託管，課程完成後放款', funded:0, released:0 };
           // 課程原本不建 brief → 補上,讓樂手後台看得到程度/目標/形式/時段
           brief = { type:'課程 ' + planName,

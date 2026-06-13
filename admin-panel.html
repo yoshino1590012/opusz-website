@@ -3421,18 +3421,18 @@ Martin</textarea>
 
   // ── 平台政策 editor (single source siteContent/policy → musician dashboard +
   //    registration consent all read the same doc) ──
-  var POLICY_DEFAULT = { draftNote:'本政策仍在研擬中，內容可能隨時調整；正式版本將另行公告。', version:2, sections:[
+  var POLICY_DEFAULT = { draftNote:'本政策仍在研擬中，內容可能隨時調整；正式版本將另行公告。', version:3, sections:[
     {
       title:'收費與抽成（演出）',
       titleEn:'Performance Pricing & Service Fee',
-      body:'音樂家自行設定顯示在個人頁與報價上的價格。這個公開價格就是業者最終支付的金額——不會在上面另外加收任何預約費或服務費。OPUS.Z 的服務費（目前為公開價格的 15%）已包含在這個價格之內，音樂家可獲得其餘金額（目前為公開價格的 85%）。每筆預約音樂家實際可得的金額，會在確認前於後台清楚顯示。\n\n服務費用於平台營運、確保預約成立、款項處理、客戶服務，以及在發生問題時提供協助。上述服務費比例為目前費率，未來可能不時調整；任何變更都會更新於此處，並於套用至新預約前向您顯示。',
-      bodyEn:'Musicians set the price shown on their profile and in their quotes. That published price is the full amount the client pays — no separate booking or service fee is added on top. The OPUS.Z service fee (currently 15% of the published price) is already included in that price, and the musician receives the remainder (currently 85% of the published price). The amount a musician will receive for each booking is shown clearly in their dashboard before they confirm.\n\nThe service fee supports running the platform, securing the booking, handling payments, customer support, and assistance if something goes wrong. The service-fee percentages stated above are current rates and may be updated from time to time; any change will be reflected here and shown before it applies to a new booking.'
+      body:'音樂家自行設定顯示在個人頁與報價上的價格。這個公開價格就是業者最終支付的金額——不會在上面另外加收任何預約費或服務費。OPUS.Z 的服務費（目前為公開價格的 10%）已包含在這個價格之內，音樂家可獲得其餘金額（目前為公開價格的 90%）。演出的平台服務費以每筆委託 NT$8,000 為上限，超過上限的部分不再加收，全數歸音樂家所有。每筆預約音樂家實際可得的金額，會在確認前於後台清楚顯示。\n\n服務費用於平台營運、確保預約成立、款項處理、客戶服務，以及在發生問題時提供協助。上述服務費比例為目前費率，未來可能不時調整；任何變更都會更新於此處，並於套用至新預約前向您顯示。',
+      bodyEn:'Musicians set the price shown on their profile and in their quotes. That published price is the full amount the client pays — no separate booking or service fee is added on top. The OPUS.Z service fee (currently 10% of the published price) is already included in that price, and the musician receives the remainder (currently 90% of the published price). The performance service fee is capped at NT$8,000 per booking — for any amount above that, no further fee is charged and the musician keeps the rest. The amount a musician will receive for each booking is shown clearly in their dashboard before they confirm.\n\nThe service fee supports running the platform, securing the booking, handling payments, customer support, and assistance if something goes wrong. The service-fee percentages stated above are current rates and may be updated from time to time; any change will be reflected here and shown before it applies to a new booking.'
     },
     {
       title:'教學收費',
       titleEn:'Lesson Pricing & Service Fee',
-      body:'課程透過 OPUS.Z 預約並付款，方式與演出相同：老師設定的課程價格即為學生支付的金額，OPUS.Z 服務費（目前為 10%）已包含在內，老師可獲得其餘金額（目前為 90%）。\n\n僅有透過 OPUS.Z 完成並付款的課程，才會計入老師在平台上的公開評價與評分。',
-      bodyEn:'Lessons are booked and paid through OPUS.Z, in the same way as performances: the teacher\'s published lesson price is the amount the student pays, the OPUS.Z service fee (currently 10%) is already included, and the teacher receives the remainder (currently 90%).\n\nOnly lessons completed and paid through OPUS.Z count towards a teacher\'s public reviews and rating on the platform.'
+      body:'課程透過 OPUS.Z 預約並付款，方式與演出相同：老師設定的課程價格即為學生支付的金額，OPUS.Z 服務費（目前為 8%）已包含在內，老師可獲得其餘金額（目前為 92%）。\n\n僅有透過 OPUS.Z 完成並付款的課程，才會計入老師在平台上的公開評價與評分。',
+      bodyEn:'Lessons are booked and paid through OPUS.Z, in the same way as performances: the teacher\'s published lesson price is the amount the student pays, the OPUS.Z service fee (currently 8%) is already included, and the teacher receives the remainder (currently 92%).\n\nOnly lessons completed and paid through OPUS.Z count towards a teacher\'s public reviews and rating on the platform.'
     },
     {
       title:'付款與結算',
