@@ -2480,6 +2480,7 @@
 
   window._lang = localStorage.getItem('opusz_dash_lang') || 'zh';
   function t(key){ return (DASH_LANG[window._lang]||DASH_LANG.zh)[key] || (DASH_LANG.zh[key] || key); }
+  window.__dashT = t;   // expose to the tour engine (a separate classic <script> scope)
   function applyI18n(){
     document.querySelectorAll('[data-i18n]').forEach(function(el){
       var k = el.getAttribute('data-i18n'); var v = t(k); if(v) el.textContent = v;
@@ -6062,8 +6063,16 @@
   function render(){
     var step = curSteps[idx];
     if(step.page && typeof window.navigate === 'function'){
-      var btn = document.querySelector('[data-page="' + step.page + '"]');
-      try{ window.navigate(step.page, btn); }catch(e){}
+      // Only navigate when we're NOT already on that page. Re-navigating to the
+      // page-builder re-runs pbInit() → pbPopulateForm(), which overwrites every
+      // field with the saved config and WIPES whatever the user just typed. Since
+      // all page-builder steps live on the same page, guard against re-entry so
+      // typing survives stepping through the tour.
+      var pgEl = document.getElementById('page-' + step.page);
+      if(!pgEl || !pgEl.classList.contains('active')){
+        var btn = document.querySelector('[data-page="' + step.page + '"]');
+        try{ window.navigate(step.page, btn); }catch(e){}
+      }
     }
     // Page-builder section steps: open the matching section so its edit panel +
     // live preview update while we explain it.
@@ -6075,7 +6084,8 @@
     document.getElementById('tourTitle').textContent = step.title;
     document.getElementById('tourBody').textContent = step.body;
     document.getElementById('tourBack').style.visibility = idx === 0 ? 'hidden' : 'visible';
-    document.getElementById('tourNext').textContent = idx === curSteps.length-1 ? t('tour_done') : t('tour_next');
+    var _T = window.__dashT || function(k){ return k === 'tour_done' ? '完成' : '下一步'; };
+    document.getElementById('tourNext').textContent = idx === curSteps.length-1 ? _T('tour_done') : _T('tour_next');
     var dots = document.getElementById('tourDots');
     dots.innerHTML = '';
     // With many steps a dot-per-step row won't fit; the "Step X / N" label covers it.
@@ -6089,9 +6099,12 @@
     // settled position.
     var tgt = step.sel ? document.querySelector(step.sel) : null;
     if(tgt && tgt.scrollIntoView){ try{ tgt.scrollIntoView({ block:'center', inline:'nearest' }); }catch(e){} }
-    // position now, then again after navigate()'s layout settles
+    // Position AFTER the section switch + scroll have settled, otherwise the
+    // spotlight box lands on the previous/mid-scroll position and the highlighted
+    // area doesn't match the text. Re-place across two frames + a safety timeout.
     place();
-    setTimeout(place, 70);
+    requestAnimationFrame(function(){ place(); requestAnimationFrame(place); });
+    setTimeout(place, 140);
   }
 
   window.startTour = function(){
