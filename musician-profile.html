@@ -1308,6 +1308,25 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
   z-index: 2;
   background: #fff;
 }
+/* Sticky overlap (video → Lesson Plans). Enabled by JS only when the musician
+   actually has lessons (.has-cover / .bigvid-cover added in applyProfileConfig),
+   and only on desktop — phones use the fullscreen-overlay flow instead. The
+   spacer grows to 200vh so the pinned video stays dead-centre for an extra 100vh
+   while the Lesson Plans section scrolls up and covers it 1:1. A full-bleed white
+   ::before hides the video across the whole viewport width (the section itself is
+   a centred 1280px column). Net page height is unchanged: +100vh spacer, -100vh
+   margin. Scrolling back up reverses the same animation. */
+@media(min-width:900px){
+  .bigvid-spacer.has-cover{ height:200vh; }
+  .lesson-section.bigvid-cover{
+    position:relative; z-index:2; margin-top:-100vh; min-height:100vh;
+    box-sizing:border-box; display:flex; flex-direction:column; justify-content:center;
+  }
+  .lesson-section.bigvid-cover::before{
+    content:''; position:absolute; top:0; left:50%; transform:translateX(-50%);
+    width:100vw; height:100%; background:#fff; z-index:-1;
+  }
+}
 .bigvid-poster{
   position: absolute; inset: 0;
   background-size: cover; background-position: center;
@@ -6041,6 +6060,11 @@ window.addEventListener('pageshow', function(e) {
       var lessonSec = document.getElementById('lessonSection');
       var lessonsOn = (lessons.visible !== false) && (cfg.lessonsEnabled !== false);
       if(lessonSec) lessonSec.style.display = lessonsOn ? '' : 'none';
+      // Sticky-overlap (video → lessons): only when lessons actually show, else the
+      // 200vh spacer would leave an empty pinned-video gap. CSS gates it to desktop.
+      var _vsp = document.getElementById('bigvidSpacer');
+      if(_vsp) _vsp.classList.toggle('has-cover', !!lessonsOn);
+      if(lessonSec) lessonSec.classList.toggle('bigvid-cover', !!lessonsOn);
     }
     // mode toggle: reflect active state onto the toggle buttons
     if(has(lessons.mode)){
