@@ -1700,6 +1700,19 @@ nav.mega-open .nav-links a::before {
 .bi3 .blog-arrow, .bi4 .blog-arrow { background: rgba(255,255,255,.15); color: white; }
 .blog-date { font-size: 12px; color: var(--gray); margin-bottom: 8px; }
 .blog-title { font-size: 15px; font-weight: 600; line-height: 1.4; color: var(--black); }
+/* Blog cards: staggered "cool" entrance — fade + rise + slight scale, left→right,
+   when the grid scrolls into view. The grid's existing .reveal is reused purely as
+   the trigger (the IntersectionObserver adds .in); the cards do the motion. */
+.blog-grid.reveal { opacity: 1; transform: none; }
+.blog-card { opacity: 0; transform: translateY(38px) scale(.96); transition: opacity .7s cubic-bezier(.2,.7,.3,1), transform .7s cubic-bezier(.2,.7,.3,1); }
+.blog-grid.in .blog-card { opacity: 1; transform: none; }
+.blog-grid.in .blog-card:nth-child(1){ transition-delay: .06s; }
+.blog-grid.in .blog-card:nth-child(2){ transition-delay: .17s; }
+.blog-grid.in .blog-card:nth-child(3){ transition-delay: .28s; }
+.blog-grid.in .blog-card:nth-child(4){ transition-delay: .39s; }
+@media (prefers-reduced-motion: reduce){
+  .blog-card { opacity: 1 !important; transform: none !important; transition: none !important; }
+}
 
 /* ── PRICING ── */
 .pricing { background: var(--white); padding: 100px 38px 120px; position: relative; }
@@ -3229,7 +3242,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
             </div>
             <div class="hiw-trio-card hiw-trio-card--c">
               <span class="hiw-trio-seal">
-                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/><path d="M8.6 12l2.2 2.2L15.4 9.6"/></svg>
+                <img src="assets/images/LOGO/opusz-logo-cropped.png?v=7" alt="OPUS.Z" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">
               </span>
               <span class="hiw-trio-brand">OPUS.Z</span>
               <span class="hiw-trio-line hiw-trio-line--gold" data-i18n="hiw.v3.opz">Secures the agreement</span>
@@ -3237,10 +3250,10 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
             <div class="hiw-trio-card hiw-trio-card--r">
               <span class="hiw-trio-ava" style="background:linear-gradient(135deg,#9b59b6,#3498db);">M</span>
               <span class="hiw-trio-role" data-i18n="hiw.v3.musician">Musician</span>
-              <span class="hiw-trio-line" data-i18n="hiw.v3.ml">Creates the art</span>
+              <span class="hiw-trio-line" data-i18n="hiw.v3.ml">Brings the music</span>
             </div>
           </div>
-          <div class="hiw-deal-headline" data-i18n="hiw.v3.title">You create the art. We protect the deal.</div>
+          <div class="hiw-deal-headline" data-i18n="hiw.v3.title">You make the music. We protect the deal.</div>
           <div class="hiw-deal-sub hiw-deal-sub--center" data-i18n="hiw.v3.sub">One agreement, signed on OPUS.Z and backed by us — both sides covered, so you can focus on the music.</div>
         </div>
       </div>
@@ -3513,7 +3526,7 @@ const I18N = {
     'about.collab':'(Live collaboration)','about.booking':'Booking request received',
     'about.realtime':'Real-time booking and<br>talent discovery',
     'blog.label':'(Blog)','blog.seeall':'See all',
-    'hp.smartinsights':'Smart insights.',
+    'hp.smartinsights':'Featured articles.',
     'hp.chat1':"Hi! We're looking for a string quartet for March 3rd in Taipei.",
     'hp.chat2':'Formal evening event, about 2 hours. Are you available?',
     'hp.chat3':'March 3rd works! We play classical & contemporary repertoire.',
@@ -3627,8 +3640,8 @@ const I18N = {
     'hiw.q2.name':'Tzu-Wei Kang','hiw.q2.role':'Piano',
     'hiw.q3.name':'Julia Liu','hiw.q3.role':'Violin',
     'hiw.v3.label':'(A protected agreement)',
-    'hiw.v3.title':'You create the art. We protect the deal.','hiw.v3.sub':'One agreement, signed on OPUS.Z and backed by us — both sides covered, so you can focus on the music.',
-    'hiw.v3.client':'Client','hiw.v3.musician':'Musician','hiw.v3.cl':'Brings the occasion','hiw.v3.opz':'Secures the agreement','hiw.v3.ml':'Creates the art',
+    'hiw.v3.title':'You make the music. We protect the deal.','hiw.v3.sub':'One agreement, signed on OPUS.Z and backed by us — both sides covered, so you can focus on the music.',
+    'hiw.v3.client':'Client','hiw.v3.musician':'Musician','hiw.v3.cl':'Brings the occasion','hiw.v3.opz':'Secures the agreement','hiw.v3.ml':'Brings the music',
     'newsletter.label':'Newsletter',
     'newsletter.title':'Stay close to the music.',
     'newsletter.body':'Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.',
@@ -3683,7 +3696,7 @@ const I18N = {
     'about.collab':'（即時協作）','about.booking':'已收到預約請求',
     'about.realtime':'即時預約與<br>人才探索',
     'blog.label':'（部落格）','blog.seeall':'查看全部',
-    'hp.smartinsights':'精選洞察。',
+    'hp.smartinsights':'精選文章。',
     'hp.chat1':'你好！我們想找 3 月 3 日在台北的弦樂四重奏。',
     'hp.chat2':'正式晚間活動，約 2 小時，請問有空檔嗎？',
     'hp.chat3':'3 月 3 日沒問題！我們演奏古典與當代曲目。',
@@ -3797,8 +3810,8 @@ const I18N = {
     'hiw.q2.name':'康慈崴','hiw.q2.role':'鋼琴',
     'hiw.q3.name':'Julia Liu','hiw.q3.role':'小提琴',
     'hiw.v3.label':'（一份受保障的合約）',
-    'hiw.v3.title':'你只管創作，保障交給我們。','hiw.v3.sub':'一份合約，在 OPUS.Z 上簽訂、由平台保障——買賣雙方都有保障，你只需專注音樂。',
-    'hiw.v3.client':'客戶','hiw.v3.musician':'音樂家','hiw.v3.cl':'提出需求','hiw.v3.opz':'保障合約','hiw.v3.ml':'專注創作',
+    'hiw.v3.title':'你只管音樂，保障交給我們。','hiw.v3.sub':'一份合約，在 OPUS.Z 上簽訂、由平台保障——買賣雙方都有保障，你只需專注音樂。',
+    'hiw.v3.client':'客戶','hiw.v3.musician':'音樂家','hiw.v3.cl':'提出需求','hiw.v3.opz':'保障合約','hiw.v3.ml':'帶來音樂',
     'newsletter.label':'電子報',
     'newsletter.title':'與音樂保持連結。',
     'newsletter.body':'獲取 OPUS.Z 獨家資訊——新音樂家、即將到來的演出及產業洞察，直送您的信箱。',
