@@ -855,6 +855,14 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 }
 .hl-photo-caption-title { font-size:14px; font-weight:700; line-height:1.35; }
 .hl-photo-caption-year  { font-size:12px; opacity:.55; margin-top:4px; }
+/* Optional per-highlight link, shown under the photo only when a URL is set. */
+.hl-link {
+  display:inline-flex; align-items:center; gap:6px; margin-top:16px;
+  font-size:13.5px; font-weight:700; color:var(--black,#111); text-decoration:none;
+  border-bottom:1.5px solid var(--black,#111); padding-bottom:2px;
+  transition:opacity .15s, gap .15s;
+}
+.hl-link:hover { opacity:.6; gap:9px; }
 .hl-frame-idle {
   position:absolute; inset:0; z-index:1;
   display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
@@ -2136,6 +2144,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
             <span data-i18n="hl.preview">Hover to preview</span>
           </div>
         </div>
+        <a id="hlLink" class="hl-link" target="_blank" rel="noopener" style="display:none;"></a>
       </div>
     </div>
   </div>
@@ -3896,22 +3905,43 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   var idle    = document.getElementById('hlIdle');
   var current = -1;
   var DEFAULT_IDX = -1;   // photo shown by default (first highlight WITH an image)
+  var _hlArr  = [];       // current highlights data (for the optional per-item link)
 
   function photos(){ return document.querySelectorAll('.hl-photo'); }
 
+  // Optional "查看更多 / Learn more" link under the photo — only if THIS highlight
+  // has a linkUrl; otherwise hidden.
+  function updateHlLink(idx){
+    var a = document.getElementById('hlLink');
+    if (!a) return;
+    var hl  = (idx != null && idx >= 0) ? _hlArr[idx] : null;
+    var url = hl && hl.linkUrl ? String(hl.linkUrl).trim() : '';
+    if (url){
+      a.href = url;
+      var zh = (document.documentElement.lang || '').toLowerCase().indexOf('zh') === 0;
+      a.textContent = (zh ? '查看更多 →' : 'Learn more →');
+      a.style.display = 'inline-flex';
+    } else {
+      a.style.display = 'none';
+      a.removeAttribute('href');
+    }
+  }
+
   function showPhoto(idx) {
-    if (idx === current) return;
+    if (idx === current) { updateHlLink(idx); return; }
     current = idx;
     if (idle) idle.classList.add('hidden');
     photos().forEach(function(p){
       p.classList.toggle('hl-ph-active', +p.dataset.ph === idx);
     });
+    updateHlLink(idx);
   }
 
   function clearPhoto() {
     current = -1;
     photos().forEach(function(p){ p.classList.remove('hl-ph-active'); });
     if (idle) idle.classList.remove('hidden');
+    updateHlLink(-1);
   }
 
   // (Re)bind the hover-preview interaction. Uses event delegation on the list
@@ -3942,6 +3972,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   // Rebuild the highlights list + frame from an array of {title, year, imageUrl}.
   window.__applyHighlights = function(arr){
     if (!Array.isArray(arr)) return;
+    _hlArr = arr;   // keep for the optional per-highlight link
     var list = document.getElementById('hlList');
     var frame = document.getElementById('hlFrameBox');
     if (!list || !frame) return;
@@ -5844,7 +5875,7 @@ window.addEventListener('pageshow', function(e) {
       window.__applyHighlights(cfg.highlights.map(function(h){
         h = h || {};
         return { title: _locText(h.title, h.titleEn), year: h.year, imageUrl: h.imageUrl,
-                 imageX: h.imageX, imageY: h.imageY, imageZoom: h.imageZoom };
+                 linkUrl: h.linkUrl, imageX: h.imageX, imageY: h.imageY, imageZoom: h.imageZoom };
       }));
     }
   }

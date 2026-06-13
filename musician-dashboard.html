@@ -4410,6 +4410,7 @@
         + '<div style="max-width:90px;flex:0 0 90px;"><label>年份</label><input type="text" class="pbHlYear" value="'+pbEsc(data.year)+'"></div>'
         + '<div style="flex:1 1 100%;"><label>🌐 標題（English）</label><input type="text" class="pbHlTitleEn" value="'+pbEsc(data.titleEn)+'" placeholder="Title (English) — 留空＝英文版此列標題空白"></div>'
         + '<div style="flex:1 1 100%;"><label>圖片網址 / Image URL</label><input type="text" class="pbHlImage" id="'+imgId+'" value="'+pbEsc(data.imageUrl)+'" placeholder="https://..."></div>'
+        + '<div style="flex:1 1 100%;"><label>連結網址（選填）/ Link URL (optional)</label><input type="text" class="pbHlLink" value="'+pbEsc(data.linkUrl)+'" placeholder="https://… 有填才會在照片下方顯示「查看更多」"></div>'
         + '<div style="flex:1 1 100%;"><label>水平 X (%)</label><input type="range" class="pbHlX" min="0" max="100" step="1" value="'+hx+'" style="width:100%;"></div>'
         + '<div style="flex:1 1 100%;"><label>垂直 Y (%)</label><input type="range" class="pbHlY" min="0" max="100" step="1" value="'+hy+'" style="width:100%;"></div>'
         + '<div style="flex:1 1 100%;"><label>大小 / Zoom (%)</label><input type="range" class="pbHlZoom" min="0" max="150" step="1" value="'+hz+'" style="width:100%;"></div>'
@@ -4975,6 +4976,7 @@
       const get = (cls)=>{ const el=r.querySelector('.'+cls); return el?el.value.trim():''; };
       const getN = (cls,def)=>{ const el=r.querySelector('.'+cls); const v=el?Number(el.value):def; return isFinite(v)?v:def; };
       return { title: get('pbHlTitle'), titleEn: get('pbHlTitleEn'), year: get('pbHlYear'), imageUrl: get('pbHlImage'),
+               linkUrl: get('pbHlLink'),
                imageX: getN('pbHlX',50), imageY: getN('pbHlY',50), imageZoom: getN('pbHlZoom',0) };
     }).filter(function(h){ return h.title !== '' || h.titleEn !== '' || h.year !== '' || h.imageUrl !== ''; });
     // Audio: up to 6 rows, drop rows with empty url
