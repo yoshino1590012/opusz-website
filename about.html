@@ -98,13 +98,47 @@
     .ab-row-title { font-size: clamp(22px, 2.6vw, 34px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
     .ab-row-body { margin-top: 14px; font-size: clamp(15px, 1.2vw, 17px); line-height: 1.65; color: #444; font-weight: 300; max-width: 56ch; }
 
-    /* ─── MISSION ─── */
-    .ab-mission { padding-block: clamp(90px, 13vh, 170px); border-top: 1px solid var(--line); }
-    .ab-mission p {
+    /* ─── MISSION (sticky-pinned, scroll-driven word reveal) ─── */
+    .ab-mission { position: relative; border-top: 1px solid var(--line); }
+    .ab-mission-track { height: 230vh; }
+    .ab-mission-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; }
+    .ab-mission-sticky p {
       font-size: clamp(28px, 4.6vw, 72px);
-      font-weight: 400; line-height: 1.12; letter-spacing: -.03em; max-width: 22ch;
+      font-weight: 400; line-height: 1.16; letter-spacing: -.03em; max-width: 20ch;
     }
-    .ab-mission .ab-em { font-style: italic; font-weight: 300; }
+
+    /* ─── scroll-driven word/char reveal (reversible) ─── */
+    .scroll-words .sw { display: inline-block; opacity: .14; will-change: opacity, transform; }
+
+    /* ─── FOUNDER ─── */
+    .ab-founder { padding-block: clamp(80px, 11vh, 150px); border-top: 1px solid var(--line); }
+    .ab-founder-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: clamp(32px, 5vw, 88px); align-items: center; }
+    .ab-founder-photo {
+      position: relative; aspect-ratio: 4/5; border-radius: 20px; overflow: hidden;
+      background: #16161a center/cover no-repeat;
+      box-shadow: 0 34px 90px rgba(0,0,0,.20);
+    }
+    .ab-fp-img {
+      position: absolute; left: 0; top: -7%; width: 100%; height: 114%;
+      object-fit: cover; object-position: center;
+      backface-visibility: hidden; -webkit-backface-visibility: hidden; will-change: transform;
+    }
+    .ab-founder-hint {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      text-align: center; padding: 28px; color: rgba(255,255,255,.5);
+      font-size: 13.5px; line-height: 1.6; letter-spacing: .03em;
+    }
+    .ab-founder-photo.has-photo .ab-founder-hint { display: none; }
+    .ab-founder-eyebrow { margin-bottom: 20px; }
+    .ab-founder-name { font-size: clamp(38px, 5vw, 76px); font-weight: 700; letter-spacing: -.035em; line-height: .98; }
+    .ab-founder-role { margin-top: 16px; font-size: clamp(15px, 1.3vw, 18px); color: var(--mid); font-weight: 300; }
+    .ab-founder-bio { margin-top: 30px; font-size: clamp(15px, 1.2vw, 18px); line-height: 1.75; color: #444; font-weight: 300; max-width: 48ch; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .scroll-words .sw { opacity: 1 !important; transform: none !important; }
+      .reveal { opacity: 1 !important; transform: none !important; }
+      .ab-fp-img { transform: none !important; }
+    }
 
     /* ─── APPROACH ─── */
     .ab-approach { padding-block: clamp(80px, 11vh, 150px); border-top: 1px solid var(--line); background: var(--dark); color: #f4f3f0; }
@@ -178,6 +212,8 @@
       .ab-story-head { position: static; }
       .ab-principles { grid-template-columns: 1fr 1fr; }
       .ab-stats-grid { grid-template-columns: 1fr; gap: 50px; }
+      .ab-founder-grid { grid-template-columns: 1fr; gap: 40px; }
+      .ab-founder-photo { max-width: 420px; }
       .footer-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 520px) {
@@ -246,9 +282,13 @@
   </div>
 </section>
 
-<!-- MISSION -->
-<section class="ab-mission ab-wrap">
-  <p class="reveal" data-i18n="about.mission">We exist to make sure exceptional musicians are <span class="ab-em">seen, heard, and hired</span> — with focus, intention, and impact.</p>
+<!-- MISSION (sticky-pinned, words light up as you scroll) -->
+<section class="ab-mission" id="abMission">
+  <div class="ab-mission-track">
+    <div class="ab-mission-sticky ab-wrap">
+      <p class="scroll-words" data-sticky="abMission" data-i18n="about.mission">We exist to make sure exceptional musicians are seen, heard, and hired — with focus, intention, and impact.</p>
+    </div>
+  </div>
 </section>
 
 <!-- APPROACH -->
@@ -305,6 +345,22 @@
   </div>
 </section>
 
+<!-- FOUNDER -->
+<section class="ab-founder ab-wrap">
+  <div class="ab-founder-grid">
+    <div class="ab-founder-photo reveal" id="abFounderPhoto">
+      <img class="ab-fp-img" id="abFounderImg" src="assets/images/founder/martin.jpg" alt="Founder of OPUS.Z" />
+      <span class="ab-founder-hint" data-i18n="about.founder.hint">Founder portrait — drop your photo at assets/images/founder/martin.jpg</span>
+    </div>
+    <div>
+      <div class="ab-eyebrow ab-founder-eyebrow reveal" data-i18n="about.founder.label">(Founder)</div>
+      <h2 class="ab-founder-name reveal" data-i18n="about.founder.name">Martin Liao</h2>
+      <div class="ab-founder-role reveal" data-i18n="about.founder.role">Founder & CEO, OPUS.Z</div>
+      <p class="ab-founder-bio scroll-words" data-i18n="about.founder.bio">Martin founded OPUS.Z on a simple conviction: Taiwan's classical musicians deserve a stage as serious as their craft. (Placeholder — your story goes here: your background, why you started OPUS.Z, and the future you're building for musicians.)</p>
+    </div>
+  </div>
+</section>
+
 <!-- QUOTE -->
 <section class="ab-quote ab-wrap">
   <blockquote class="reveal" data-i18n="about.quote.text">"OPUS.Z made finding the right musicians effortless — professional, fast, and exactly the calibre we hoped for."</blockquote>
@@ -315,7 +371,7 @@
 
 <!-- CLOSING CTA -->
 <section class="ab-end ab-wrap">
-  <h2 class="reveal" data-i18n="about.end.title">Let's make something unforgettable.</h2>
+  <h2 class="scroll-words" data-i18n="about.end.title">Let's make something unforgettable.</h2>
   <a class="ab-end-btn reveal" href="contact.html">
     <span data-i18n="about.end.btn">Get in touch</span>
     <span class="ab-arrow">→</span>
@@ -398,6 +454,11 @@ var I18N = {
     'about.stat1.label':'elite classical musicians across Taiwan & beyond',
     'about.stat2.label':'bookings & collaborations matched',
     'about.stat3.label':'instrument categories, from strings to chamber',
+    'about.founder.label':'(Founder)',
+    'about.founder.name':'Martin Liao',
+    'about.founder.role':'Founder & CEO, OPUS.Z',
+    'about.founder.bio':'Martin founded OPUS.Z on a simple conviction: Taiwan’s classical musicians deserve a stage as serious as their craft. (Placeholder — your story goes here: your background, why you started OPUS.Z, and the future you’re building for musicians.)',
+    'about.founder.hint':'Founder portrait — add your photo at assets/images/founder/martin.jpg',
     'about.quote.text':'“OPUS.Z made finding the right musicians effortless — professional, fast, and exactly the calibre we hoped for.”',
     'about.quote.name':'Event Partner',
     'about.quote.role':'Concert & Corporate Booking',
@@ -441,6 +502,11 @@ var I18N = {
     'about.stat1.label':'位頂尖古典音樂家，遍及台灣與海外',
     'about.stat2.label':'次演出與合作成功媒合',
     'about.stat3.label':'個樂器分類，從弦樂到室內樂',
+    'about.founder.label':'（創辦人）',
+    'about.founder.name':'Martin Liao',
+    'about.founder.role':'OPUS.Z 創辦人',
+    'about.founder.bio':'Martin 創立 OPUS.Z 的初衷很單純：台灣的古典音樂家，值得一個與他們的造詣同樣認真的舞台。〔範例文字——這裡放你的故事：你的背景、為什麼創立 OPUS.Z，以及你想為音樂家打造的未來。〕',
+    'about.founder.hint':'創辦人照片——把你的照片放到 assets/images/founder/martin.jpg',
     'about.quote.text':'「OPUS.Z 讓我們輕鬆找到合適的音樂家——專業、快速，水準正是我們期待的。」',
     'about.quote.name':'活動合作方',
     'about.quote.role':'音樂會與企業活動預約',
@@ -474,6 +540,7 @@ function switchLang(lang) {
   });
   document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
   if (typeof window.__navResplit === 'function') window.__navResplit();
+  if (typeof window.__refreshWords === 'function') window.__refreshWords();
 }
 document.addEventListener('opusz:langchange', function(e){ if (typeof switchLang === 'function') switchLang(e.detail.lang); });
 switchLang(_currentLang);
@@ -481,13 +548,87 @@ switchLang(_currentLang);
 // hero load-in
 requestAnimationFrame(function(){ requestAnimationFrame(function(){ document.body.classList.add('ab-ready'); }); });
 
-// scroll reveal
+// reversible scroll reveal (fades in on the way down, retracts on the way back up)
 var revObs = new IntersectionObserver(function(entries){
-  entries.forEach(function(e){
-    if (e.isIntersecting) { e.target.classList.add('visible'); revObs.unobserve(e.target); }
-  });
-}, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
+  entries.forEach(function(e){ e.target.classList.toggle('visible', e.isIntersecting); });
+}, { threshold: 0.16, rootMargin: '0px 0px -8% 0px' });
 document.querySelectorAll('.reveal').forEach(function(el){ revObs.observe(el); });
+
+// ── scroll-driven word/char reveal + founder parallax ──
+var MINO = 0.14, SPREAD = 7;
+var swItems = [];
+function tokenize(text){
+  var out = [], buf = '';
+  for (var i = 0; i < text.length; i++){
+    var ch = text[i];
+    if (/\s/.test(ch)) { if (buf){ out.push(buf); buf=''; } out.push(ch); }
+    else if (/[　-鿿＀-￯぀-ヿ]/.test(ch)) { if (buf){ out.push(buf); buf=''; } out.push(ch); }
+    else { buf += ch; }
+  }
+  if (buf) out.push(buf);
+  return out;
+}
+function buildWords(){
+  swItems = [];
+  document.querySelectorAll('.scroll-words').forEach(function(el){
+    var text = el.hasAttribute('data-i18n') ? el.textContent : (el.getAttribute('data-fulltext') || el.textContent);
+    el.setAttribute('data-fulltext', text);
+    el.innerHTML = '';
+    tokenize(text).forEach(function(tok){
+      if (/^\s+$/.test(tok)) { el.appendChild(document.createTextNode(tok)); }
+      else { var s = document.createElement('span'); s.className = 'sw'; s.textContent = tok; el.appendChild(s); }
+    });
+    var sid = el.getAttribute('data-sticky');
+    swItems.push({ el: el, spans: [].slice.call(el.querySelectorAll('.sw')), sticky: sid ? document.getElementById(sid) : null });
+  });
+}
+var founderWrap = document.getElementById('abFounderPhoto');
+var founderImg  = document.getElementById('abFounderImg');
+if (founderImg) {
+  if (founderImg.complete && founderImg.naturalWidth > 0) founderWrap.classList.add('has-photo');
+  founderImg.addEventListener('load',  function(){ if (founderImg.naturalWidth > 0) founderWrap.classList.add('has-photo'); });
+  founderImg.addEventListener('error', function(){ founderImg.style.display = 'none'; });
+}
+function renderFX(){
+  var vh = window.innerHeight;
+  for (var k = 0; k < swItems.length; k++){
+    var it = swItems[k], p;
+    if (it.sticky) {
+      var sr = it.sticky.getBoundingClientRect();
+      var total = it.sticky.offsetHeight - vh;
+      p = total > 0 ? (-sr.top) / total : 0;
+      p = p / 0.7;                       // finish the reveal in the first 70% of the pinned track
+    } else {
+      var r = it.el.getBoundingClientRect();
+      var s = vh * 0.86, e = vh * 0.32;
+      p = (s - r.top) / (s - e);
+    }
+    p = p < 0 ? 0 : (p > 1 ? 1 : p);
+    var n = it.spans.length, head = p * (n + SPREAD);
+    for (var i = 0; i < n; i++){
+      var a = (head - i) / SPREAD;
+      a = a < 0 ? 0 : (a > 1 ? 1 : a);
+      var sp = it.spans[i];
+      sp.style.opacity = (MINO + (1 - MINO) * a).toFixed(3);
+      sp.style.transform = 'translateY(' + ((1 - a) * 0.2).toFixed(3) + 'em)';
+    }
+  }
+  if (founderImg && founderWrap) {
+    var fr = founderWrap.getBoundingClientRect();
+    if (fr.bottom > 0 && fr.top < vh) {
+      var c = (fr.top + fr.height / 2) - vh / 2;
+      founderImg.style.transform = 'translate3d(0,' + (c * -0.06).toFixed(2) + 'px,0)';
+    }
+  }
+}
+function refreshWords(){ buildWords(); renderFX(); }
+window.__refreshWords = refreshWords;
+buildWords();
+var fxTick = false;
+function onFxScroll(){ if (!fxTick){ fxTick = true; requestAnimationFrame(function(){ renderFX(); fxTick = false; }); } }
+window.addEventListener('scroll', onFxScroll, { passive: true });
+window.addEventListener('resize', renderFX);
+renderFX();
 
 // count-up stats
 function runCount(el){
