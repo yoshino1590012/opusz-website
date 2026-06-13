@@ -892,7 +892,7 @@ function renderGrid(){
     var mediaHtml;
     if(m.photoUrl){
       var cpx=(typeof m.photoX==='number')?m.photoX:50, cpy=(typeof m.photoY==='number')?m.photoY:50, cps=(typeof m.photoScale==='number')?m.photoScale:1;
-      mediaHtml='<img src="'+m.photoUrl+'" alt="'+m.name+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+cpx+'% '+cpy+'%;transform:scale('+cps+');transform-origin:'+cpx+'% '+cpy+'%;">';
+      mediaHtml='<img src="'+m.photoUrl+'" alt="'+m.name+'" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+cpx+'% '+cpy+'%;transform:scale('+cps+');transform-origin:'+cpx+'% '+cpy+'%;opacity:0;transition:opacity .35s ease;">';
     }else if(savedPhoto){
       mediaHtml='<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'"><img src="'+savedPhoto+'" alt="'+m.name+'" style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;"></div>';
     }else if(savedVideo){
@@ -928,6 +928,11 @@ function renderGrid(){
       '</div>' +
     '</div>';
   }).join('');
+  // Cached images can be complete before their onload binds, leaving them stuck
+  // at opacity:0 — reveal any that are already loaded so they don't stay hidden.
+  grid.querySelectorAll('.mcard-photo img').forEach(function(im){
+    if(im.complete && im.naturalWidth) im.style.opacity = 1;
+  });
 }
 
 // ── Favourites ────────────────────────────────────────────────────────────────
