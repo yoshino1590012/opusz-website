@@ -4192,8 +4192,8 @@
   function pbAttachAllUploaders(){
     if(pbUploadersAttached) return;
     pbUploadersAttached = true;
-    pbAttachUploader('pbCardPhotoUrl', 'card',   800);
-    pbAttachUploader('pbAvatarUrl',    'avatar', 600);
+    pbAttachUploader('pbCardPhotoUrl', 'card',   1600);  // list-card photo: shown ~600px CSS → needs ~1200px on Retina; 800 was upscaled/pixelated
+    pbAttachUploader('pbAvatarUrl',    'avatar', 1000);  // also the card fallback + profile About avatar
     pbAttachAudioUploader('pbCardAudioUrl', 'cardaudio');   // MP3 played by the list-card play button
     // Hero banner photos: uploaders are attached per-row in pbAddBannerRow (dynamic count).
     // Highlights: uploaders are attached per-row in pbAddHighlightRow (dynamic count).
