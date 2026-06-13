@@ -774,10 +774,10 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .lesson-card.card-white { background:#fff; box-shadow:0 2px 24px rgba(0,0,0,.09),0 0 0 1px rgba(0,0,0,.06); border-radius:20px; }
 /* Entrance: cards glide in from the right + fade, one after another. */
 .lesson-plans:not(.lessons-in) .lesson-card { opacity:0; }
-.lesson-plans.lessons-in .lesson-card { animation:lessonCardIn .6s cubic-bezier(.2,.7,.3,1) backwards; }
-.lesson-plans.lessons-in .lesson-card:nth-child(1){ animation-delay:.06s; }
-.lesson-plans.lessons-in .lesson-card:nth-child(2){ animation-delay:.20s; }
-.lesson-plans.lessons-in .lesson-card:nth-child(3){ animation-delay:.34s; }
+.lesson-plans.lessons-in .lesson-card { animation:lessonCardIn 1.1s cubic-bezier(.2,.7,.3,1) backwards; }
+.lesson-plans.lessons-in .lesson-card:nth-child(1){ animation-delay:.08s; }
+.lesson-plans.lessons-in .lesson-card:nth-child(2){ animation-delay:.30s; }
+.lesson-plans.lessons-in .lesson-card:nth-child(3){ animation-delay:.52s; }
 @keyframes lessonCardIn { from{ opacity:0; transform:translateX(40px); } to{ opacity:1; transform:translateX(0); } }
 @media (prefers-reduced-motion: reduce){
   .lesson-card { animation:none !important; }
@@ -845,15 +845,15 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .hl-item.hl-active .hl-detail { color:#555; }
 /* Entrance reveal: items fade up in sequence the first time the list scrolls in. */
 .hl-list:not(.hl-revealed) .hl-item { opacity:0; }
-.hl-list.hl-revealed .hl-item { animation:hlReveal .6s cubic-bezier(.2,.7,.3,1) backwards; }
-.hl-list.hl-revealed .hl-item:nth-child(1){ animation-delay:.04s; }
-.hl-list.hl-revealed .hl-item:nth-child(2){ animation-delay:.11s; }
-.hl-list.hl-revealed .hl-item:nth-child(3){ animation-delay:.18s; }
-.hl-list.hl-revealed .hl-item:nth-child(4){ animation-delay:.25s; }
-.hl-list.hl-revealed .hl-item:nth-child(5){ animation-delay:.32s; }
-.hl-list.hl-revealed .hl-item:nth-child(6){ animation-delay:.39s; }
-.hl-list.hl-revealed .hl-item:nth-child(7){ animation-delay:.46s; }
-.hl-list.hl-revealed .hl-item:nth-child(8){ animation-delay:.53s; }
+.hl-list.hl-revealed .hl-item { animation:hlReveal 1.1s cubic-bezier(.2,.7,.3,1) backwards; }
+.hl-list.hl-revealed .hl-item:nth-child(1){ animation-delay:.05s; }
+.hl-list.hl-revealed .hl-item:nth-child(2){ animation-delay:.16s; }
+.hl-list.hl-revealed .hl-item:nth-child(3){ animation-delay:.27s; }
+.hl-list.hl-revealed .hl-item:nth-child(4){ animation-delay:.38s; }
+.hl-list.hl-revealed .hl-item:nth-child(5){ animation-delay:.49s; }
+.hl-list.hl-revealed .hl-item:nth-child(6){ animation-delay:.60s; }
+.hl-list.hl-revealed .hl-item:nth-child(7){ animation-delay:.71s; }
+.hl-list.hl-revealed .hl-item:nth-child(8){ animation-delay:.82s; }
 @keyframes hlReveal { from{ opacity:0; transform:translateY(20px); } to{ opacity:1; transform:translateY(0); } }
 @media (prefers-reduced-motion: reduce){
   .hl-item, .hl-item::before { animation:none !important; transition:none !important; }
@@ -3956,13 +3956,10 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   var sec  = document.querySelector('.highlights-section');
   if(!list || !sec) return;
   if('IntersectionObserver' in window){
-    // Trigger LATER — when the list itself has scrolled up to roughly the lower-
-    // middle of the screen (bottom 28% of the viewport doesn't count), so a slow
-    // scroll still catches the reveal instead of it firing off-screen too early.
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(e){ if(e.isIntersecting){ list.classList.add('hl-revealed'); io.disconnect(); } });
-    }, { threshold: 0, rootMargin: '0px 0px -28% 0px' });
-    io.observe(list);
+    }, { threshold: 0.18 });
+    io.observe(sec);
   } else {
     list.classList.add('hl-revealed');
   }
