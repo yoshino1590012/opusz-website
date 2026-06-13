@@ -6009,6 +6009,29 @@ window.addEventListener('pageshow', function(e) {
           '}';
         // the nsd size just changed → re-fit so a long name still can't clip
         if (window.fitHeroName) window.fitHeroName();
+
+        // MOBILE: the name can wrap to 2 lines, so the algebraic offset above can't
+        // know its real height (it assumes one line) → the title/location overlap a
+        // large/wrapped name. Fix: MEASURE the rendered name and pin the title/location
+        // a fixed gap above its actual TOP edge, so they always follow the name as it
+        // scales and never overlap. Desktop keeps the algebraic offset (name never wraps).
+        if(!window.__positionHeroInfo){
+          window.__positionHeroInfo = function(){
+            var heroEl = document.getElementById('heroSection');
+            var infoEl = document.querySelector('.hero-info');
+            if(!heroEl || !infoEl) return;
+            if((window.innerWidth||9999) > 480){ infoEl.style.removeProperty('bottom'); return; }
+            var span = document.querySelector('.hero-name .hn-new') || document.querySelector('.hero-name span');
+            if(!span) return;
+            var hr = heroEl.getBoundingClientRect(), sr = span.getBoundingClientRect();
+            if(!sr.height) return;
+            infoEl.style.setProperty('bottom', Math.round((hr.bottom - sr.top) + 12) + 'px', 'important');
+          };
+          window.addEventListener('resize', function(){ window.__positionHeroInfo(); });
+        }
+        window.__positionHeroInfo();
+        requestAnimationFrame(function(){ window.__positionHeroInfo(); requestAnimationFrame(window.__positionHeroInfo); });
+        setTimeout(window.__positionHeroInfo, 400);
       }
       var heroNameLeft = document.getElementById('heroNameLeft');
       if(heroNameLeft) heroNameLeft.textContent = hero.name;
