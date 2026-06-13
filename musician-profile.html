@@ -809,17 +809,45 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 /* Left list — matches "Recognized for Excellence" style */
 .highlights-list { flex:1; min-width:0; }
 .hl-item {
+  position:relative;
   display:flex; align-items:baseline; justify-content:space-between; gap:24px;
   padding:18px 0;
   border-bottom:1px solid #ebebeb;
   cursor:default;
-  transition:background .15s;
+  transition:transform .4s cubic-bezier(.2,.7,.3,1), background .15s;
   border-radius:0;
 }
 .hl-item:first-child { border-top:1px solid #ebebeb; }
 .hl-item:hover { background:transparent; }
+/* Hovered row: glides right, with an arrow fading in on its left pointing at it. */
+.hl-item::before {
+  content:'→';
+  position:absolute; left:-26px; top:50%;
+  transform:translate(-8px,-50%); opacity:0;
+  font-size:15px; font-weight:500; color:#000; line-height:1;
+  transition:opacity .3s ease, transform .4s cubic-bezier(.2,.7,.3,1);
+  pointer-events:none;
+}
+.hl-item.hl-active { transform:translateX(20px); }
+.hl-item.hl-active::before { opacity:1; transform:translate(0,-50%); }
 .hl-item.hl-active .hl-title { color:#000; }
 .hl-item.hl-active .hl-detail { color:#555; }
+/* Entrance reveal: items fade up in sequence the first time the list scrolls in. */
+.hl-list:not(.hl-revealed) .hl-item { opacity:0; }
+.hl-list.hl-revealed .hl-item { animation:hlReveal .6s cubic-bezier(.2,.7,.3,1) backwards; }
+.hl-list.hl-revealed .hl-item:nth-child(1){ animation-delay:.04s; }
+.hl-list.hl-revealed .hl-item:nth-child(2){ animation-delay:.11s; }
+.hl-list.hl-revealed .hl-item:nth-child(3){ animation-delay:.18s; }
+.hl-list.hl-revealed .hl-item:nth-child(4){ animation-delay:.25s; }
+.hl-list.hl-revealed .hl-item:nth-child(5){ animation-delay:.32s; }
+.hl-list.hl-revealed .hl-item:nth-child(6){ animation-delay:.39s; }
+.hl-list.hl-revealed .hl-item:nth-child(7){ animation-delay:.46s; }
+.hl-list.hl-revealed .hl-item:nth-child(8){ animation-delay:.53s; }
+@keyframes hlReveal { from{ opacity:0; transform:translateY(20px); } to{ opacity:1; transform:translateY(0); } }
+@media (prefers-reduced-motion: reduce){
+  .hl-item, .hl-item::before { animation:none !important; transition:none !important; }
+  .hl-list:not(.hl-revealed) .hl-item { opacity:1; }
+}
 .hl-title {
   font-size:15px; font-weight:400; color:#222;
   line-height:1.4; flex:1; min-width:0;
@@ -3908,6 +3936,21 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   } else {
     // Fallback: run immediately
     runCountUp();
+  }
+})();
+
+// ── Career Highlights — entrance reveal (fade + slide up, staggered) ────────
+(function(){
+  var list = document.getElementById('hlList');
+  var sec  = document.querySelector('.highlights-section');
+  if(!list || !sec) return;
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ list.classList.add('hl-revealed'); io.disconnect(); } });
+    }, { threshold: 0.18 });
+    io.observe(sec);
+  } else {
+    list.classList.add('hl-revealed');
   }
 })();
 
