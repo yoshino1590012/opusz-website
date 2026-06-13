@@ -3956,10 +3956,13 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   var sec  = document.querySelector('.highlights-section');
   if(!list || !sec) return;
   if('IntersectionObserver' in window){
+    // Trigger LATER — when the list itself has scrolled up to roughly the lower-
+    // middle of the screen (bottom 28% of the viewport doesn't count), so a slow
+    // scroll still catches the reveal instead of it firing off-screen too early.
     var io = new IntersectionObserver(function(entries){
       entries.forEach(function(e){ if(e.isIntersecting){ list.classList.add('hl-revealed'); io.disconnect(); } });
-    }, { threshold: 0.18 });
-    io.observe(sec);
+    }, { threshold: 0, rootMargin: '0px 0px -28% 0px' });
+    io.observe(list);
   } else {
     list.classList.add('hl-revealed');
   }
