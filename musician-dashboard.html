@@ -42,9 +42,15 @@
     /* Desktop collapse: hide the sidebar to give the preview more width. */
     .sidebar { transition: width .22s ease; }
     .app.sb-collapsed .sidebar { width: 0 !important; min-width: 0; overflow: hidden; }
-    .sb-collapse-btn { display:flex; width:38px; height:38px; border:none; background:transparent; cursor:pointer; align-items:center; justify-content:center; border-radius:8px; color:#222; margin-right:4px; flex-shrink:0; }
+    .sb-collapse-btn { display:flex; gap:7px; width:38px; height:38px; border:none; background:transparent; cursor:pointer; align-items:center; justify-content:center; border-radius:8px; color:#222; margin-right:4px; flex-shrink:0; transition:background .15s, width .15s, box-shadow .15s; }
     .sb-collapse-btn:hover { background:var(--bg); }
-    @media (max-width: 860px) { .sb-collapse-btn { display:none; } }  /* mobile uses the drawer hamburger */
+    .sb-collapse-label { display:none; font-size:13px; font-weight:700; white-space:nowrap; letter-spacing:.02em; }
+    /* When the sidebar is collapsed, turn the button into an obvious dark pill with
+       a "選單 / Menu" label so it's clear how to bring the sidebar back. */
+    .app.sb-collapsed .sb-collapse-btn { width:auto; padding:0 14px; background:#111; color:#fff; box-shadow:0 2px 10px rgba(0,0,0,.18); }
+    .app.sb-collapsed .sb-collapse-btn:hover { background:#000; }
+    .app.sb-collapsed .sb-collapse-label { display:inline; }
+    @media (max-width: 860px) { .sb-collapse-btn { display:none !important; } }  /* mobile uses the drawer hamburger */
 
     .sb-logo {
       padding: 24px 20px 20px;
@@ -838,6 +844,7 @@
       </button>
       <button class="sb-collapse-btn" id="sbCollapseBtn" data-i18n-title="sb_collapse_title" title="收合 / 展開選單（讓預覽更寬）" aria-label="收合選單" onclick="toggleSidebarCollapse()">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/></svg>
+        <span class="sb-collapse-label" data-i18n="sb_show_menu">選單</span>
       </button>
       <div class="topbar-title" id="topbarTitle" style="flex:1;">總覽</div>
       <div class="topbar-right">
@@ -2087,6 +2094,7 @@
       sb_posters:'海報投稿', sb_policy:'平台政策', sb_settings:'設定',
       sb_back:'返回前台', sb_logout:'登出',
       sb_collapse_title:'收合 / 展開選單（讓預覽更寬）',
+      sb_show_menu:'選單',
       topbar_help_title:'使用教學 / How to use',
       ov_welcome:'歡迎回來 👋', ov_subtitle:'以下是你今天的最新動態。',
       ov_stat_inquiries:'新詢問', ov_stat_inquiries_sub:'本週尚無新詢問',
@@ -2209,6 +2217,7 @@
       sb_posters:'Post a Poster', sb_policy:'Platform Policy', sb_settings:'Settings',
       sb_back:'Back to Site', sb_logout:'Log Out',
       sb_collapse_title:'Collapse / Expand sidebar',
+      sb_show_menu:'Menu',
       topbar_help_title:'Tutorial / How to use',
       ov_welcome:'Welcome back 👋', ov_subtitle:"Here's your latest activity.",
       ov_stat_inquiries:'New Inquiries', ov_stat_inquiries_sub:'No new inquiries this week',
@@ -3202,12 +3211,13 @@
   // Auto "fullscreen edit" on small screens: collapse the sidebar when opening the
   // page builder so the live preview is as wide as possible; restore it on leaving.
   // Skips big monitors (plenty of room) and phones (≤860 uses the drawer instead).
-  var SB_AUTO_MAXW = 1600;
   window.pbAutoFullscreen = function(pageId){
     var app = document.querySelector('.app'); if(!app) return;
-    var smallScreen = window.innerWidth > 860 && window.innerWidth <= SB_AUTO_MAXW;
+    // Always collapse the sidebar while editing the page (any laptop/desktop) so
+    // the live preview gets maximum width. Phones (≤860) use the drawer instead.
+    var deskOrLaptop = window.innerWidth > 860;
     if(pageId === 'pagebuilder'){
-      if(smallScreen && !app.classList.contains('sb-collapsed')){
+      if(deskOrLaptop && !app.classList.contains('sb-collapsed')){
         app.classList.add('sb-collapsed');
         window._sbAutoCollapsed = true;                 // remember WE did it
         if(window.pbApplyCurrentDevice) setTimeout(window.pbApplyCurrentDevice, 240);
