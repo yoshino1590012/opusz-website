@@ -1519,19 +1519,39 @@ nav.mega-open .nav-links a::before {
 .hiw-qmsg { font-size: 13.5px; color: #555; line-height: 1.55; }
 .hiw-visual--chat { background: linear-gradient(135deg,#0d1520 0%,#1a2d47 55%,#1e3555 100%); border-color: transparent; }
 .hiw-visual--chat .hiw-vlabel { color: rgba(255,255,255,.7); }
-/* step-3 visual: "Protected by OPUS.Z" — agreement secured, both sides covered */
-.hiw-deal-head { display: flex; gap: 14px; align-items: flex-start; margin-top: 8px; }
-.hiw-deal-shield { flex-shrink: 0; width: 48px; height: 48px; border-radius: 13px; background: rgba(255,255,255,.10); display: flex; align-items: center; justify-content: center; color: #fff; }
-.hiw-deal-title { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -.2px; }
-.hiw-deal-sub { font-size: 12.5px; color: rgba(255,255,255,.6); line-height: 1.55; margin-top: 5px; }
-.hiw-deal-parties { display: flex; gap: 12px; margin: 22px 0 18px; }
-.hiw-deal-party { flex: 1; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); border-radius: 14px; padding: 16px 12px; text-align: center; }
-.hiw-deal-ava { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 15px; margin-bottom: 9px; }
-.hiw-deal-role { display: block; font-size: 13px; font-weight: 700; color: #fff; }
-.hiw-deal-ok { display: inline-flex; align-items: center; gap: 4px; margin-top: 7px; font-size: 11.5px; font-weight: 700; color: #4ade80; letter-spacing: .02em; }
-.hiw-deal-list { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid rgba(255,255,255,.10); padding-top: 16px; }
-.hiw-deal-li { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: rgba(255,255,255,.85); line-height: 1.45; }
-.hiw-deal-li::before { content: '✓'; color: #4ade80; font-weight: 800; flex-shrink: 0; }
+/* step-3 visual: three interlocking white cards on the cream section (no dark box,
+   matching steps 1–2). Client · OPUS.Z (binds, raised) · Musician. Vertically
+   centred in the column so it doesn't sit too high. */
+.hiw-visual--deal { background: transparent; border: none; box-shadow: none; }
+.hiw-visual--deal .hiw-vlabel { text-align: center; color: #999; }
+@media(min-width:861px){
+  .hiw-visual--deal { top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; }
+}
+.hiw-trio { display: flex; justify-content: center; align-items: center; margin: 4px 0 28px; }
+.hiw-trio-card { flex: 1 1 0; max-width: 168px; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 9px; text-align: center; padding: 22px 14px; border-radius: 20px; background: #fff; }
+.hiw-trio-card--l, .hiw-trio-card--r { border: 1px solid #ececec; box-shadow: 0 14px 34px rgba(0,0,0,.08); }
+.hiw-trio-card--l { transform: translateX(20px) translateY(10px) rotate(-3.5deg); z-index: 1; }
+.hiw-trio-card--r { transform: translateX(-20px) translateY(10px) rotate(3.5deg); z-index: 1; }
+.hiw-trio-card--c { z-index: 3; transform: translateY(-8px); box-shadow: 0 24px 52px rgba(0,0,0,.16); padding: 26px 16px; }
+.hiw-trio-ava { width: 46px; height: 46px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 17px; }
+.hiw-trio-seal { width: 38px; height: 38px; border-radius: 50%; background: #7a1212; color: #fff; display: inline-flex; align-items: center; justify-content: center; }
+.hiw-trio-role { font-size: 13.5px; font-weight: 800; color: #1a1a1a; letter-spacing: -.1px; }
+.hiw-trio-brand { font-size: 18px; font-weight: 900; letter-spacing: -.02em; color: #171717; }
+.hiw-trio-line { font-size: 11.5px; color: #9a9a9a; line-height: 1.4; }
+.hiw-trio-line--gold { color: #a07c2c !important; font-weight: 800; letter-spacing: .02em; }
+.hiw-deal-headline { text-align: center; font-size: 21px; font-weight: 900; color: #111; letter-spacing: -.4px; line-height: 1.22; margin-top: 6px; }
+.hiw-deal-sub { font-size: 13px; color: #777; line-height: 1.6; margin-top: 10px; }
+.hiw-deal-sub--center { text-align: center; max-width: 400px; margin-left: auto; margin-right: auto; }
+@media(max-width:600px){
+  .hiw-trio-card--l { transform: translateX(8px) translateY(6px) rotate(-2deg); }
+  .hiw-trio-card--r { transform: translateX(-8px) translateY(6px) rotate(2deg); }
+  .hiw-trio-card { padding: 16px 8px; gap: 7px; }
+  .hiw-trio-card--c { padding: 18px 9px; }
+  .hiw-trio-brand { font-size: 15px; }
+  .hiw-trio-ava { width: 38px; height: 38px; font-size: 14px; }
+  .hiw-trio-seal { width: 32px; height: 32px; }
+  .hiw-deal-headline { font-size: 18px; }
+}
 /* step-1 visual: two entry-path cards */
 /* two PORTRAIT cards, side by side, each faithful to its source (a job-board
    form card + a lesson pricing card) — fields stacked vertically, not squished */
@@ -3198,34 +3218,30 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
           </div>
         </div>
         <!-- v2 — message & book (dark chat) -->
-        <div class="hiw-visual hiw-visual--chat hiw-visual--deal" data-v="2">
-          <div class="hiw-vlabel" data-i18n="hiw.v3.label">(Secured booking)</div>
-          <div class="hiw-deal-head">
-            <div class="hiw-deal-shield">
-              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/><path d="M8.6 12l2.2 2.2L15.4 9.6"/></svg>
+        <div class="hiw-visual hiw-visual--deal" data-v="2">
+          <div class="hiw-vlabel" data-i18n="hiw.v3.label">(A protected agreement)</div>
+          <!-- three interlocking cards: client · OPUS.Z (binds them) · musician -->
+          <div class="hiw-trio">
+            <div class="hiw-trio-card hiw-trio-card--l">
+              <span class="hiw-trio-ava" style="background:linear-gradient(135deg,#f39c12,#e67e22);">V</span>
+              <span class="hiw-trio-role" data-i18n="hiw.v3.client">Client</span>
+              <span class="hiw-trio-line" data-i18n="hiw.v3.cl">Brings the occasion</span>
             </div>
-            <div>
-              <div class="hiw-deal-title" data-i18n="hiw.v3.title">Protected by OPUS.Z</div>
-              <div class="hiw-deal-sub" data-i18n="hiw.v3.sub">Payment is held safely and only released once the performance is done.</div>
+            <div class="hiw-trio-card hiw-trio-card--c">
+              <span class="hiw-trio-seal">
+                <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/><path d="M8.6 12l2.2 2.2L15.4 9.6"/></svg>
+              </span>
+              <span class="hiw-trio-brand">OPUS.Z</span>
+              <span class="hiw-trio-line hiw-trio-line--gold" data-i18n="hiw.v3.opz">Secures the agreement</span>
+            </div>
+            <div class="hiw-trio-card hiw-trio-card--r">
+              <span class="hiw-trio-ava" style="background:linear-gradient(135deg,#9b59b6,#3498db);">M</span>
+              <span class="hiw-trio-role" data-i18n="hiw.v3.musician">Musician</span>
+              <span class="hiw-trio-line" data-i18n="hiw.v3.ml">Creates the art</span>
             </div>
           </div>
-          <div class="hiw-deal-parties">
-            <div class="hiw-deal-party">
-              <span class="hiw-deal-ava" style="background:linear-gradient(135deg,#f39c12,#e67e22);">V</span>
-              <span class="hiw-deal-role" data-i18n="hiw.v3.client">Client</span>
-              <span class="hiw-deal-ok">✓ <span data-i18n="hiw.v3.covered">Covered</span></span>
-            </div>
-            <div class="hiw-deal-party">
-              <span class="hiw-deal-ava" style="background:linear-gradient(135deg,#9b59b6,#3498db);">M</span>
-              <span class="hiw-deal-role" data-i18n="hiw.v3.musician">Musician</span>
-              <span class="hiw-deal-ok">✓ <span data-i18n="hiw.v3.covered2">Covered</span></span>
-            </div>
-          </div>
-          <div class="hiw-deal-list">
-            <div class="hiw-deal-li" data-i18n="hiw.v3.l1">Agreement secured on OPUS.Z</div>
-            <div class="hiw-deal-li" data-i18n="hiw.v3.l2">Payment released only when it's done</div>
-            <div class="hiw-deal-li" data-i18n="hiw.v3.l3">Both sides protected — a deal you can trust</div>
-          </div>
+          <div class="hiw-deal-headline" data-i18n="hiw.v3.title">You create the art. We protect the deal.</div>
+          <div class="hiw-deal-sub hiw-deal-sub--center" data-i18n="hiw.v3.sub">One agreement, signed on OPUS.Z and backed by us — both sides covered, so you can focus on the music.</div>
         </div>
       </div>
     </div>
@@ -3610,10 +3626,9 @@ const I18N = {
     'hiw.q1.name':'Meng Hua Lin','hiw.q1.role':'Percussion',
     'hiw.q2.name':'Tzu-Wei Kang','hiw.q2.role':'Piano',
     'hiw.q3.name':'Julia Liu','hiw.q3.role':'Violin',
-    'hiw.v3.label':'(Secured booking)',
-    'hiw.v3.title':'Protected by OPUS.Z','hiw.v3.sub':'Payment is held safely and only released once the performance is done.',
-    'hiw.v3.client':'Client','hiw.v3.musician':'Musician','hiw.v3.covered':'Covered','hiw.v3.covered2':'Covered',
-    'hiw.v3.l1':'Agreement secured on OPUS.Z','hiw.v3.l2':"Payment released only when it's done",'hiw.v3.l3':'Both sides protected — a deal you can trust',
+    'hiw.v3.label':'(A protected agreement)',
+    'hiw.v3.title':'You create the art. We protect the deal.','hiw.v3.sub':'One agreement, signed on OPUS.Z and backed by us — both sides covered, so you can focus on the music.',
+    'hiw.v3.client':'Client','hiw.v3.musician':'Musician','hiw.v3.cl':'Brings the occasion','hiw.v3.opz':'Secures the agreement','hiw.v3.ml':'Creates the art',
     'newsletter.label':'Newsletter',
     'newsletter.title':'Stay close to the music.',
     'newsletter.body':'Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.',
@@ -3781,10 +3796,9 @@ const I18N = {
     'hiw.q1.name':'林孟樺','hiw.q1.role':'打擊樂',
     'hiw.q2.name':'康慈崴','hiw.q2.role':'鋼琴',
     'hiw.q3.name':'Julia Liu','hiw.q3.role':'小提琴',
-    'hiw.v3.label':'（安心成交）',
-    'hiw.v3.title':'OPUS.Z 全程保障','hiw.v3.sub':'款項由平台代為保管，演出順利完成後才撥款。',
-    'hiw.v3.client':'客戶','hiw.v3.musician':'音樂家','hiw.v3.covered':'受保障','hiw.v3.covered2':'受保障',
-    'hiw.v3.l1':'合作在 OPUS.Z 上正式成立、留底','hiw.v3.l2':'演出完成才撥款，零風險','hiw.v3.l3':'買賣雙方都有保障，圓滿成交',
+    'hiw.v3.label':'（一份受保障的合約）',
+    'hiw.v3.title':'你只管創作，保障交給我們。','hiw.v3.sub':'一份合約，在 OPUS.Z 上簽訂、由平台保障——買賣雙方都有保障，你只需專注音樂。',
+    'hiw.v3.client':'客戶','hiw.v3.musician':'音樂家','hiw.v3.cl':'提出需求','hiw.v3.opz':'保障合約','hiw.v3.ml':'專注創作',
     'newsletter.label':'電子報',
     'newsletter.title':'與音樂保持連結。',
     'newsletter.body':'獲取 OPUS.Z 獨家資訊——新音樂家、即將到來的演出及產業洞察，直送您的信箱。',
