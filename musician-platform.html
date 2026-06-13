@@ -1519,6 +1519,19 @@ nav.mega-open .nav-links a::before {
 .hiw-qmsg { font-size: 13.5px; color: #555; line-height: 1.55; }
 .hiw-visual--chat { background: linear-gradient(135deg,#0d1520 0%,#1a2d47 55%,#1e3555 100%); border-color: transparent; }
 .hiw-visual--chat .hiw-vlabel { color: rgba(255,255,255,.7); }
+/* step-3 visual: "Protected by OPUS.Z" — agreement secured, both sides covered */
+.hiw-deal-head { display: flex; gap: 14px; align-items: flex-start; margin-top: 8px; }
+.hiw-deal-shield { flex-shrink: 0; width: 48px; height: 48px; border-radius: 13px; background: rgba(255,255,255,.10); display: flex; align-items: center; justify-content: center; color: #fff; }
+.hiw-deal-title { font-size: 18px; font-weight: 800; color: #fff; letter-spacing: -.2px; }
+.hiw-deal-sub { font-size: 12.5px; color: rgba(255,255,255,.6); line-height: 1.55; margin-top: 5px; }
+.hiw-deal-parties { display: flex; gap: 12px; margin: 22px 0 18px; }
+.hiw-deal-party { flex: 1; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.10); border-radius: 14px; padding: 16px 12px; text-align: center; }
+.hiw-deal-ava { width: 40px; height: 40px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 15px; margin-bottom: 9px; }
+.hiw-deal-role { display: block; font-size: 13px; font-weight: 700; color: #fff; }
+.hiw-deal-ok { display: inline-flex; align-items: center; gap: 4px; margin-top: 7px; font-size: 11.5px; font-weight: 700; color: #4ade80; letter-spacing: .02em; }
+.hiw-deal-list { display: flex; flex-direction: column; gap: 10px; border-top: 1px solid rgba(255,255,255,.10); padding-top: 16px; }
+.hiw-deal-li { display: flex; align-items: flex-start; gap: 9px; font-size: 13px; color: rgba(255,255,255,.85); line-height: 1.45; }
+.hiw-deal-li::before { content: '✓'; color: #4ade80; font-weight: 800; flex-shrink: 0; }
 /* step-1 visual: two entry-path cards */
 /* two PORTRAIT cards, side by side, each faithful to its source (a job-board
    form card + a lesson pricing card) — fields stacked vertically, not squished */
@@ -3185,27 +3198,33 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
           </div>
         </div>
         <!-- v2 — message & book (dark chat) -->
-        <div class="hiw-visual hiw-visual--chat" data-v="2">
-          <div class="hiw-vlabel" data-i18n="hiw.v3.label">(Messaging)</div>
-          <div class="chat-ui">
-            <div class="chat-time">Today 19:14</div>
-            <div class="chat-row chat-right">
-              <div class="chat-bubble chat-bubble-r-dark" data-i18n="hp.chat1">Hi! We're looking for a string quartet for March 3rd in Taipei.</div>
-              <div class="chat-ava" style="background:linear-gradient(135deg,#f39c12,#e67e22);">V</div>
+        <div class="hiw-visual hiw-visual--chat hiw-visual--deal" data-v="2">
+          <div class="hiw-vlabel" data-i18n="hiw.v3.label">(Secured booking)</div>
+          <div class="hiw-deal-head">
+            <div class="hiw-deal-shield">
+              <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 4.5-3 7.6-7 9-4-1.4-7-4.5-7-9V6l7-3z"/><path d="M8.6 12l2.2 2.2L15.4 9.6"/></svg>
             </div>
-            <div class="chat-row chat-right">
-              <div class="chat-bubble chat-bubble-r-dark" data-i18n="hp.chat2">Formal evening event, about 2 hours. Are you available?</div>
-              <div class="chat-ava" style="background:linear-gradient(135deg,#f39c12,#e67e22);">V</div>
+            <div>
+              <div class="hiw-deal-title" data-i18n="hiw.v3.title">Protected by OPUS.Z</div>
+              <div class="hiw-deal-sub" data-i18n="hiw.v3.sub">Payment is held safely and only released once the performance is done.</div>
             </div>
-            <div class="chat-time" style="margin-top:10px;">Today 19:21</div>
-            <div class="chat-row chat-left">
-              <div class="chat-ava" style="background:linear-gradient(135deg,#9b59b6,#3498db);">M</div>
-              <div class="chat-bubble chat-bubble-l" data-i18n="hp.chat3">March 3rd works! We play classical &amp; contemporary repertoire.</div>
+          </div>
+          <div class="hiw-deal-parties">
+            <div class="hiw-deal-party">
+              <span class="hiw-deal-ava" style="background:linear-gradient(135deg,#f39c12,#e67e22);">V</span>
+              <span class="hiw-deal-role" data-i18n="hiw.v3.client">Client</span>
+              <span class="hiw-deal-ok">✓ <span data-i18n="hiw.v3.covered">Covered</span></span>
             </div>
-            <div class="chat-row chat-left">
-              <div class="chat-ava" style="background:linear-gradient(135deg,#9b59b6,#3498db);">M</div>
-              <div class="chat-bubble chat-bubble-l" data-i18n="hp.chat4">2 hours is no problem — send us the venue details 🎻</div>
+            <div class="hiw-deal-party">
+              <span class="hiw-deal-ava" style="background:linear-gradient(135deg,#9b59b6,#3498db);">M</span>
+              <span class="hiw-deal-role" data-i18n="hiw.v3.musician">Musician</span>
+              <span class="hiw-deal-ok">✓ <span data-i18n="hiw.v3.covered2">Covered</span></span>
             </div>
+          </div>
+          <div class="hiw-deal-list">
+            <div class="hiw-deal-li" data-i18n="hiw.v3.l1">Agreement secured on OPUS.Z</div>
+            <div class="hiw-deal-li" data-i18n="hiw.v3.l2">Payment released only when it's done</div>
+            <div class="hiw-deal-li" data-i18n="hiw.v3.l3">Both sides protected — a deal you can trust</div>
           </div>
         </div>
       </div>
@@ -3542,8 +3561,8 @@ const I18N = {
     'hiw.s1.d':'Describe your need in seconds — a performance, a lesson, an event — or browse our roster and pick exactly who you want.',
     'hiw.s2.t':'Get free quotes & proposals',
     'hiw.s2.d':'Top musicians reply with quotes and proposals — completely free, with no obligation.',
-    'hiw.s3.t':'Message, agree, and book',
-    'hiw.s3.d':'Chat directly on OPUS.Z, settle the details, and book with confidence.',
+    'hiw.s3.t':'Agree, book, and stay protected',
+    'hiw.s3.d':'Settle the details and book on OPUS.Z — every agreement is backed by us, protecting both you and the musician.',
     'hiw.v1.title':'Tell us about your project',
     'hiw.v1.body':"We're looking for a string quartet for March 3rd in Taipei — a formal evening event, about 2 hours.",
     'hiw.v1.btn':'Post project →',
@@ -3591,7 +3610,10 @@ const I18N = {
     'hiw.q1.name':'Meng Hua Lin','hiw.q1.role':'Percussion',
     'hiw.q2.name':'Tzu-Wei Kang','hiw.q2.role':'Piano',
     'hiw.q3.name':'Julia Liu','hiw.q3.role':'Violin',
-    'hiw.v3.label':'(Messaging)',
+    'hiw.v3.label':'(Secured booking)',
+    'hiw.v3.title':'Protected by OPUS.Z','hiw.v3.sub':'Payment is held safely and only released once the performance is done.',
+    'hiw.v3.client':'Client','hiw.v3.musician':'Musician','hiw.v3.covered':'Covered','hiw.v3.covered2':'Covered',
+    'hiw.v3.l1':'Agreement secured on OPUS.Z','hiw.v3.l2':"Payment released only when it's done",'hiw.v3.l3':'Both sides protected — a deal you can trust',
     'newsletter.label':'Newsletter',
     'newsletter.title':'Stay close to the music.',
     'newsletter.body':'Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.',
@@ -3710,8 +3732,8 @@ const I18N = {
     'hiw.s1.d':'幾秒鐘說明你的需求——演出、教學或活動——也可以直接從名單挑選想合作的樂手。',
     'hiw.s2.t':'免費收到報價與提案',
     'hiw.s2.d':'頂尖樂手主動回覆報價與提案，完全免費、沒有任何義務。',
-    'hiw.s3.t':'輕鬆溝通，敲定合作',
-    'hiw.s3.d':'直接在 OPUS.Z 上溝通細節，談定就放心開始合作。',
+    'hiw.s3.t':'敲定合作，雙方保障',
+    'hiw.s3.d':'在 OPUS.Z 上談定細節、安心成交——每筆合作都由平台保障，買賣雙方都有保障。',
     'hiw.v1.title':'告訴我們你的需求',
     'hiw.v1.body':'我們想找 3 月 3 日在台北的弦樂四重奏，正式晚間活動，約 2 小時。',
     'hiw.v1.btn':'發布委託 →',
@@ -3759,7 +3781,10 @@ const I18N = {
     'hiw.q1.name':'林孟樺','hiw.q1.role':'打擊樂',
     'hiw.q2.name':'康慈崴','hiw.q2.role':'鋼琴',
     'hiw.q3.name':'Julia Liu','hiw.q3.role':'小提琴',
-    'hiw.v3.label':'（溝通中）',
+    'hiw.v3.label':'（安心成交）',
+    'hiw.v3.title':'OPUS.Z 全程保障','hiw.v3.sub':'款項由平台代為保管，演出順利完成後才撥款。',
+    'hiw.v3.client':'客戶','hiw.v3.musician':'音樂家','hiw.v3.covered':'受保障','hiw.v3.covered2':'受保障',
+    'hiw.v3.l1':'合作在 OPUS.Z 上正式成立、留底','hiw.v3.l2':'演出完成才撥款，零風險','hiw.v3.l3':'買賣雙方都有保障，圓滿成交',
     'newsletter.label':'電子報',
     'newsletter.title':'與音樂保持連結。',
     'newsletter.body':'獲取 OPUS.Z 獨家資訊——新音樂家、即將到來的演出及產業洞察，直送您的信箱。',
@@ -8115,7 +8140,7 @@ window.addEventListener('keydown', function(e){
 <!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
-<script type="module" src="site-content.js?v=8"></script>
+<script type="module" src="site-content.js?v=9"></script>
   <script type="module" src="media-sync.js?v=2"></script>
 <script type="module" src="newsletter.js?v=2"></script>
 <!-- Global in-page notification toasts (messages / announcements / community / jobs) -->

@@ -579,7 +579,8 @@ window.addEventListener('message', function(e){
       var s = cardScale() || 1;
       var nx = ox + (e.clientX - sx)/s, ny = oy + (e.clientY - sy)/s;
       el.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px';
-      if(Math.abs(e.clientX-sx)>2 || Math.abs(e.clientY-sy)>2) moved=true;
+      // 6px 容差：真人單點常有微小晃動,別把「點選」誤判成「拖曳」(否則 pick 不送、字型面板不開)
+      if(Math.abs(e.clientX-sx)>6 || Math.abs(e.clientY-sy)>6) moved=true;
       e.preventDefault(); e.stopPropagation();
     });
     function end(){

@@ -1265,7 +1265,7 @@ Martin</textarea>
       // the current edits + section highlight.
       if(ifr.__opzBootW !== devW){
         ifr.__opzBootW = devW;
-        ifr.src = seCurrentFile() + '?cmsedit=1';
+        ifr.src = seCurrentFile() + '?cmsedit=1&_=' + (window.__opzPvBust || (window.__opzPvBust = Date.now()));
       }
     }
     document.querySelectorAll('.se-dev-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-dev')===name); });
@@ -1430,7 +1430,7 @@ Martin</textarea>
     }
     if(!seCurrentConfig.i18n) seCurrentConfig.i18n={en:{},zh:{}};
     var ifr=document.getElementById('seFrame');
-    if(ifr){ ifr.src = p.file + '?cmsedit=1'; }   // onload (set in seInit) re-highlights + previews + rebuilds controls
+    if(ifr){ ifr.src = p.file + '?cmsedit=1&_=' + (window.__opzPvBust || (window.__opzPvBust = Date.now())); }   // onload (set in seInit) re-highlights + previews + rebuilds controls
     seBuildSectionList();
     seBuildControls();
   };
