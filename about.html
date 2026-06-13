@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About｜OPUS.Z — Where Taiwan's Finest Musicians Meet Opportunity</title>
+  <meta name="description" content="OPUS.Z connects Taiwan's elite classical musicians with the people and platforms that need them — bookings, lessons, and brand-building, all in one place." />
+  <link rel="canonical" href="https://opuszmusic.com/about.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="About OPUS.Z" />
+  <meta property="og:description" content="We connect Taiwan's elite musicians with focus, intention, and impact." />
+  <meta property="og:url" content="https://opuszmusic.com/about.html" />
+  <meta property="og:site_name" content="OPUS.Z" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,200;0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:    #f0efec;
+      --dark:  #0f0f0f;
+      --black: #000;
+      --white: #fff;
+      --mid:   #888;
+      --line:  rgba(0,0,0,0.10);
+      --accent:#e87030;
+      --font:  'DM Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--dark);
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* ─── shared layout ─── */
+    .ab-wrap { padding-inline: clamp(28px, 6vw, 96px); }
+    .ab-eyebrow { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; opacity: .5; }
+
+    /* ─── HERO ─── */
+    .ab-hero {
+      padding-top: clamp(150px, 20vh, 240px);
+      padding-bottom: clamp(70px, 10vh, 130px);
+      border-bottom: 1px solid var(--line);
+    }
+    .ab-hero-eyebrow { display: inline-block; margin-bottom: 26px; }
+    .ab-hero h1 {
+      font-size: clamp(52px, 10vw, 168px);
+      font-weight: 700;
+      line-height: .92;
+      letter-spacing: -.04em;
+      max-width: 14ch;
+    }
+    .ab-hero h1 .ab-mark {
+      font-weight: 300;
+      opacity: .35;
+    }
+    .ab-hero-lead {
+      margin-top: 40px;
+      max-width: 620px;
+      font-size: clamp(18px, 2vw, 23px);
+      line-height: 1.5;
+      font-weight: 300;
+      color: #333;
+    }
+    /* load-in stagger for hero */
+    .ab-rise { opacity: 0; transform: translateY(28px); }
+    body.ab-ready .ab-rise { opacity: 1; transform: none; transition: opacity .8s cubic-bezier(.16,1,.3,1), transform .8s cubic-bezier(.16,1,.3,1); }
+    body.ab-ready .ab-rise.d1 { transition-delay: .08s; }
+    body.ab-ready .ab-rise.d2 { transition-delay: .18s; }
+    body.ab-ready .ab-rise.d3 { transition-delay: .28s; }
+
+    /* ─── reveal on scroll ─── */
+    .reveal { opacity: 0; transform: translateY(34px); transition: opacity .7s cubic-bezier(.16,1,.3,1), transform .7s cubic-bezier(.16,1,.3,1); }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ─── STORY / TIMELINE ─── */
+    .ab-story { padding-block: clamp(80px, 11vh, 150px); }
+    .ab-story-grid { display: grid; grid-template-columns: .8fr 1.6fr; gap: clamp(30px, 6vw, 110px); align-items: start; }
+    .ab-story-head { position: sticky; top: 120px; }
+    .ab-story-head .ab-eyebrow { margin-bottom: 18px; }
+    .ab-story-head h2 { font-size: clamp(30px, 3.4vw, 50px); font-weight: 700; line-height: 1.05; letter-spacing: -.03em; }
+    .ab-rows { display: flex; flex-direction: column; }
+    .ab-row {
+      display: grid; grid-template-columns: auto 1fr; gap: clamp(20px, 4vw, 56px);
+      padding: clamp(30px, 4vh, 48px) 0;
+      border-top: 1px solid var(--line);
+      align-items: baseline;
+    }
+    .ab-row:last-child { border-bottom: 1px solid var(--line); }
+    .ab-row-mark {
+      font-size: clamp(20px, 2vw, 28px); font-weight: 300; letter-spacing: -.02em;
+      opacity: .4; white-space: nowrap; padding-top: 4px;
+    }
+    .ab-row-title { font-size: clamp(22px, 2.6vw, 34px); font-weight: 700; letter-spacing: -.02em; line-height: 1.1; }
+    .ab-row-body { margin-top: 14px; font-size: clamp(15px, 1.2vw, 17px); line-height: 1.65; color: #444; font-weight: 300; max-width: 56ch; }
+
+    /* ─── MISSION ─── */
+    .ab-mission { padding-block: clamp(90px, 13vh, 170px); border-top: 1px solid var(--line); }
+    .ab-mission p {
+      font-size: clamp(28px, 4.6vw, 72px);
+      font-weight: 400; line-height: 1.12; letter-spacing: -.03em; max-width: 22ch;
+    }
+    .ab-mission .ab-em { font-style: italic; font-weight: 300; }
+
+    /* ─── APPROACH ─── */
+    .ab-approach { padding-block: clamp(80px, 11vh, 150px); border-top: 1px solid var(--line); background: var(--dark); color: #f4f3f0; }
+    .ab-approach .ab-eyebrow { opacity: .55; }
+    .ab-approach-head { display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 28px; margin-bottom: clamp(46px, 6vh, 80px); }
+    .ab-approach-head h2 { font-size: clamp(30px, 3.6vw, 54px); font-weight: 700; letter-spacing: -.03em; line-height: 1.04; max-width: 16ch; }
+    .ab-principles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.12); }
+    .ab-principle { background: var(--dark); padding: clamp(26px, 3vw, 40px) clamp(22px, 2vw, 30px) clamp(40px, 5vh, 64px); display: flex; flex-direction: column; gap: 18px; min-height: 230px; }
+    .ab-principle-n { font-size: 13px; opacity: .4; letter-spacing: .1em; }
+    .ab-principle-t { font-size: clamp(20px, 1.7vw, 26px); font-weight: 700; letter-spacing: -.02em; margin-top: auto; }
+    .ab-principle-d { font-size: 14px; line-height: 1.6; color: #b9b8b4; font-weight: 300; }
+    .ab-cta-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      margin-top: clamp(46px, 6vh, 80px);
+      background: #f4f3f0; color: var(--dark);
+      padding: 17px 30px; border-radius: 50px;
+      font-size: 15px; font-weight: 500;
+      transition: transform .35s cubic-bezier(.16,1,.3,1), background .25s, color .25s;
+    }
+    .ab-cta-btn:hover { transform: translateY(-3px); background: var(--accent); color: #fff; }
+    .ab-cta-btn .ab-arrow { transition: transform .35s cubic-bezier(.16,1,.3,1); }
+    .ab-cta-btn:hover .ab-arrow { transform: translateX(5px); }
+
+    /* ─── STATS ─── */
+    .ab-stats { padding-block: clamp(90px, 13vh, 170px); border-top: 1px solid var(--line); }
+    .ab-stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(28px, 5vw, 70px); }
+    .ab-stat { border-top: 2px solid var(--dark); padding-top: 26px; }
+    .ab-stat-num { font-size: clamp(58px, 9vw, 132px); font-weight: 700; line-height: .9; letter-spacing: -.05em; }
+    .ab-stat-label { margin-top: 18px; font-size: clamp(14px, 1.1vw, 16px); line-height: 1.5; color: #555; font-weight: 300; max-width: 24ch; }
+
+    /* ─── QUOTE ─── */
+    .ab-quote { padding-block: clamp(80px, 11vh, 150px); border-top: 1px solid var(--line); }
+    .ab-quote blockquote { font-size: clamp(24px, 3.4vw, 50px); font-weight: 400; line-height: 1.2; letter-spacing: -.025em; max-width: 22ch; }
+    .ab-quote-by { margin-top: 40px; font-size: 15px; }
+    .ab-quote-by strong { font-weight: 700; }
+    .ab-quote-by span { color: var(--mid); }
+
+    /* ─── CLOSING CTA ─── */
+    .ab-end { padding-block: clamp(90px, 14vh, 180px); border-top: 1px solid var(--line); text-align: center; }
+    .ab-end h2 { font-size: clamp(36px, 6.5vw, 104px); font-weight: 700; line-height: .98; letter-spacing: -.04em; }
+    .ab-end-btn {
+      display: inline-flex; align-items: center; gap: 12px;
+      margin-top: clamp(38px, 5vh, 60px);
+      background: var(--dark); color: #fff;
+      padding: 18px 34px; border-radius: 50px;
+      font-size: 16px; font-weight: 500;
+      transition: transform .35s cubic-bezier(.16,1,.3,1), background .25s;
+    }
+    .ab-end-btn:hover { transform: translateY(-3px); background: var(--accent); }
+    .ab-end-btn .ab-arrow { transition: transform .35s cubic-bezier(.16,1,.3,1); }
+    .ab-end-btn:hover .ab-arrow { transform: translateX(5px); }
+
+    /* ─── FOOTER (matches contact.html) ─── */
+    .site-footer { background: var(--dark); color: #f4f3f0; padding: clamp(50px,8vh,90px) clamp(28px,6vw,96px) 40px; }
+    .footer-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(28px,4vw,60px); padding-bottom: 50px; border-bottom: 1px solid rgba(255,255,255,.14); }
+    .footer-col__label { font-size: 12px; letter-spacing: .12em; text-transform: uppercase; opacity: .5; margin-bottom: 16px; }
+    .footer-col__body { font-size: 15px; line-height: 1.7; color: #cfceca; font-weight: 300; }
+    .footer-col__body a:hover { color: #fff; }
+    .footer-col__links { display: flex; flex-direction: column; gap: 10px; font-size: 15px; color: #cfceca; font-weight: 300; }
+    .footer-col__links a:hover { color: #fff; }
+    .footer-subscribe { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+    .footer-subscribe input { flex: 1; min-width: 160px; background: transparent; border: 1px solid rgba(255,255,255,.25); border-radius: 50px; padding: 12px 18px; color: #fff; font-family: inherit; font-size: 14px; }
+    .footer-subscribe input::placeholder { color: rgba(255,255,255,.4); }
+    .footer-subscribe button { background: #f4f3f0; color: var(--dark); border: none; border-radius: 50px; padding: 12px 22px; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; transition: background .25s; }
+    .footer-subscribe button:hover { background: var(--accent); color: #fff; }
+    .footer-bottom { display: flex; justify-content: space-between; align-items: center; padding-top: 30px; font-size: 13px; color: #8c8b87; flex-wrap: wrap; gap: 10px; }
+
+    /* ─── responsive ─── */
+    @media (max-width: 880px) {
+      .ab-story-grid { grid-template-columns: 1fr; gap: 36px; }
+      .ab-story-head { position: static; }
+      .ab-principles { grid-template-columns: 1fr 1fr; }
+      .ab-stats-grid { grid-template-columns: 1fr; gap: 50px; }
+      .footer-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 520px) {
+      .ab-principles { grid-template-columns: 1fr; }
+      .ab-row { grid-template-columns: 1fr; gap: 8px; }
+    }
+
+    html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,body::-webkit-scrollbar{display:none;}
+  </style>
+  <link rel="stylesheet" href="nav.css?v=4">
+  <script src="assets/js/analytics.js"></script>
+  <style id="opz-no-scrollbar">*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}</style>
+</head>
+<body>
+<script src="nav.js?v=15"></script>
+
+<!-- ─── PAGE CONTENT ─── -->
+
+<!-- HERO -->
+<section class="ab-hero ab-wrap">
+  <span class="ab-eyebrow ab-hero-eyebrow ab-rise" data-i18n="about.eyebrow">(About)</span>
+  <h1 class="ab-rise d1">
+    <span data-i18n="about.title.l1">About</span><br>
+    <span class="ab-mark" data-i18n="about.title.l2">OPUS.Z</span>
+  </h1>
+  <p class="ab-hero-lead ab-rise d2" data-i18n="about.lead">We connect Taiwan's finest classical musicians with the people, stages, and students who need them — bookings, lessons, and brand-building, all under one roof.</p>
+</section>
+
+<!-- STORY / TIMELINE -->
+<section class="ab-story ab-wrap">
+  <div class="ab-story-grid">
+    <div class="ab-story-head reveal">
+      <div class="ab-eyebrow" data-i18n="about.story.label">(Our story)</div>
+      <h2 data-i18n="about.story.title">Built for musicians, by people who believe in them.</h2>
+    </div>
+    <div class="ab-rows">
+      <div class="ab-row reveal">
+        <div class="ab-row-mark">(©23)</div>
+        <div>
+          <div class="ab-row-title" data-i18n="about.m1.title">A simple frustration</div>
+          <p class="ab-row-body" data-i18n="about.m1.body">Taiwan is full of world-class classical talent — yet the best musicians and the people who want to hire them had no real place to find each other. OPUS.Z began as the answer to that gap.</p>
+        </div>
+      </div>
+      <div class="ab-row reveal">
+        <div class="ab-row-mark">(©24)</div>
+        <div>
+          <div class="ab-row-title" data-i18n="about.m2.title">A curated roster</div>
+          <p class="ab-row-body" data-i18n="about.m2.body">We opened applications and hand-selected musicians across strings, piano, winds, chamber, and more — building a roster defined by excellence, not volume.</p>
+        </div>
+      </div>
+      <div class="ab-row reveal">
+        <div class="ab-row-mark">(©25)</div>
+        <div>
+          <div class="ab-row-title" data-i18n="about.m3.title">A real platform</div>
+          <p class="ab-row-body" data-i18n="about.m3.body">Bookings, lessons, messaging, and musician profiles came together in one place — so clients can post a project, get proposals, and book with confidence, all online.</p>
+        </div>
+      </div>
+      <div class="ab-row reveal">
+        <div class="ab-row-mark">(©26)</div>
+        <div>
+          <div class="ab-row-title" data-i18n="about.m4.title">Beyond the booking</div>
+          <p class="ab-row-body" data-i18n="about.m4.body">Today we don't just match musicians to work — we help them build their brand, grow their audience, and stand out in a crowded industry. We're just getting started.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MISSION -->
+<section class="ab-mission ab-wrap">
+  <p class="reveal" data-i18n="about.mission">We exist to make sure exceptional musicians are <span class="ab-em">seen, heard, and hired</span> — with focus, intention, and impact.</p>
+</section>
+
+<!-- APPROACH -->
+<section class="ab-approach ab-wrap">
+  <div class="ab-approach-head">
+    <div>
+      <div class="ab-eyebrow reveal" data-i18n="about.approach.label">(How we work)</div>
+    </div>
+    <h2 class="reveal" data-i18n="about.approach.title">Curate rigorously. Match precisely. Promote relentlessly.</h2>
+  </div>
+  <div class="ab-principles reveal">
+    <div class="ab-principle">
+      <div class="ab-principle-n">01</div>
+      <div class="ab-principle-d" data-i18n="about.a1.body">Every musician on OPUS.Z is reviewed and approved. Quality over quantity, always.</div>
+      <div class="ab-principle-t" data-i18n="about.a1.title">Curate</div>
+    </div>
+    <div class="ab-principle">
+      <div class="ab-principle-n">02</div>
+      <div class="ab-principle-d" data-i18n="about.a2.body">Tell us your project; we match you with the right musician for the moment — fast.</div>
+      <div class="ab-principle-t" data-i18n="about.a2.title">Match</div>
+    </div>
+    <div class="ab-principle">
+      <div class="ab-principle-n">03</div>
+      <div class="ab-principle-d" data-i18n="about.a3.body">Profiles, shows, and social reach — we help our musicians build a brand that lasts.</div>
+      <div class="ab-principle-t" data-i18n="about.a3.title">Promote</div>
+    </div>
+    <div class="ab-principle">
+      <div class="ab-principle-n">04</div>
+      <div class="ab-principle-d" data-i18n="about.a4.body">We listen, refine, and keep raising the bar for both musicians and clients.</div>
+      <div class="ab-principle-t" data-i18n="about.a4.title">Elevate</div>
+    </div>
+  </div>
+  <a class="ab-cta-btn reveal" href="contact.html">
+    <span data-i18n="about.approach.cta">Start a project</span>
+    <span class="ab-arrow">→</span>
+  </a>
+</section>
+
+<!-- STATS -->
+<section class="ab-stats ab-wrap">
+  <div class="ab-stats-grid">
+    <div class="ab-stat reveal">
+      <div class="ab-stat-num" data-count="50" data-suffix="+">0</div>
+      <div class="ab-stat-label" data-i18n="about.stat1.label">elite classical musicians across Taiwan &amp; beyond</div>
+    </div>
+    <div class="ab-stat reveal">
+      <div class="ab-stat-num" data-count="100" data-suffix="+">0</div>
+      <div class="ab-stat-label" data-i18n="about.stat2.label">bookings &amp; collaborations matched</div>
+    </div>
+    <div class="ab-stat reveal">
+      <div class="ab-stat-num" data-count="8" data-suffix="">0</div>
+      <div class="ab-stat-label" data-i18n="about.stat3.label">instrument categories, from strings to chamber</div>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="ab-quote ab-wrap">
+  <blockquote class="reveal" data-i18n="about.quote.text">"OPUS.Z made finding the right musicians effortless — professional, fast, and exactly the calibre we hoped for."</blockquote>
+  <div class="ab-quote-by reveal">
+    <strong data-i18n="about.quote.name">Event Partner</strong> · <span data-i18n="about.quote.role">Concert &amp; Corporate Booking</span>
+  </div>
+</section>
+
+<!-- CLOSING CTA -->
+<section class="ab-end ab-wrap">
+  <h2 class="reveal" data-i18n="about.end.title">Let's make something unforgettable.</h2>
+  <a class="ab-end-btn reveal" href="contact.html">
+    <span data-i18n="about.end.btn">Get in touch</span>
+    <span class="ab-arrow">→</span>
+  </a>
+</section>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div class="footer-col">
+      <div class="footer-col__label">Contact</div>
+      <div class="footer-col__body">
+        Taipei, Taiwan<br>
+        <a href="mailto:info@opuszmusic.com">info@opuszmusic.com</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__label" data-i18n="footer.follow">Follow</div>
+      <div class="footer-col__links">
+        <a href="https://www.instagram.com/opus.zmusic/" target="_blank" rel="noopener">@opus.zmusic</a>
+        <a href="https://www.instagram.com/opus.zmusic/" target="_blank" rel="noopener">Instagram</a>
+        <a href="#">Facebook</a>
+        <a href="#">YouTube</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <div class="footer-col__label" data-i18n="footer.newsletter">Newsletter</div>
+      <div class="footer-col__body" data-i18n="footer.tagline">Stay close to the music.</div>
+      <form class="footer-subscribe" name="newsletter-footer" method="POST">
+        <input type="hidden" name="form-name" value="newsletter-footer" />
+        <input type="email" name="email" placeholder="Your email" data-i18n-ph="footer.ph.email" required />
+        <button type="submit" data-i18n="footer.subscribe">Subscribe</button>
+      </form>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>OPUS.Z</span>
+    <span data-i18n="footer.copy">© 2026 OPUS.Z. All rights reserved.</span>
+  </div>
+</footer>
+
+<script>
+// Resolve from nav.js's choice / saved / device language (zh* → 中文).
+var _currentLang = (function(){
+  if (window._currentLang === 'en' || window._currentLang === 'zh') return window._currentLang;
+  try { var s = localStorage.getItem('opusz_lang'); if (s === 'en' || s === 'zh') return s; } catch (e) {}
+  var nl = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+  return nl.indexOf('zh') === 0 ? 'zh' : 'en';
+})();
+var I18N = {
+  en: {
+    'nav.home':'Home','nav.discover':'Blog','nav.artists':'Musicians','nav.news':'Shows','nav.contact':'Contact','nav.lessons':'Lessons',
+    'login.customer':'Customer login','login.musician':'Musician login',
+    'about.eyebrow':'(About)',
+    'about.title.l1':'About',
+    'about.title.l2':'OPUS.Z',
+    'about.lead':'We connect Taiwan’s finest classical musicians with the people, stages, and students who need them — bookings, lessons, and brand-building, all under one roof.',
+    'about.story.label':'(Our story)',
+    'about.story.title':'Built for musicians, by people who believe in them.',
+    'about.m1.title':'A simple frustration',
+    'about.m1.body':'Taiwan is full of world-class classical talent — yet the best musicians and the people who want to hire them had no real place to find each other. OPUS.Z began as the answer to that gap.',
+    'about.m2.title':'A curated roster',
+    'about.m2.body':'We opened applications and hand-selected musicians across strings, piano, winds, chamber, and more — building a roster defined by excellence, not volume.',
+    'about.m3.title':'A real platform',
+    'about.m3.body':'Bookings, lessons, messaging, and musician profiles came together in one place — so clients can post a project, get proposals, and book with confidence, all online.',
+    'about.m4.title':'Beyond the booking',
+    'about.m4.body':'Today we don’t just match musicians to work — we help them build their brand, grow their audience, and stand out in a crowded industry. We’re just getting started.',
+    'about.mission':'We exist to make sure exceptional musicians are seen, heard, and hired — with focus, intention, and impact.',
+    'about.approach.label':'(How we work)',
+    'about.approach.title':'Curate rigorously. Match precisely. Promote relentlessly.',
+    'about.a1.title':'Curate',
+    'about.a1.body':'Every musician on OPUS.Z is reviewed and approved. Quality over quantity, always.',
+    'about.a2.title':'Match',
+    'about.a2.body':'Tell us your project; we match you with the right musician for the moment — fast.',
+    'about.a3.title':'Promote',
+    'about.a3.body':'Profiles, shows, and social reach — we help our musicians build a brand that lasts.',
+    'about.a4.title':'Elevate',
+    'about.a4.body':'We listen, refine, and keep raising the bar for both musicians and clients.',
+    'about.approach.cta':'Start a project',
+    'about.stat1.label':'elite classical musicians across Taiwan & beyond',
+    'about.stat2.label':'bookings & collaborations matched',
+    'about.stat3.label':'instrument categories, from strings to chamber',
+    'about.quote.text':'“OPUS.Z made finding the right musicians effortless — professional, fast, and exactly the calibre we hoped for.”',
+    'about.quote.name':'Event Partner',
+    'about.quote.role':'Concert & Corporate Booking',
+    'about.end.title':'Let’s make something unforgettable.',
+    'about.end.btn':'Get in touch',
+    'footer.copy':'© 2026 OPUS.Z. All rights reserved.',
+    'footer.follow':'Follow',
+    'footer.newsletter':'Newsletter',
+    'footer.tagline':'Stay close to the music.',
+    'footer.subscribe':'Subscribe'
+  },
+  zh: {
+    'nav.home':'首頁','nav.discover':'部落格','nav.artists':'音樂家','nav.news':'演出','nav.contact':'聯絡','nav.lessons':'音樂老師',
+    'login.customer':'客戶登入','login.musician':'音樂家登入',
+    'about.eyebrow':'（關於我們）',
+    'about.title.l1':'關於',
+    'about.title.l2':'OPUS.Z',
+    'about.lead':'我們讓台灣最頂尖的古典音樂家，與需要他們的人、舞台與學生相遇——演出預約、音樂教學、品牌經營，一站到位。',
+    'about.story.label':'（我們的故事）',
+    'about.story.title':'為音樂家而生，由相信他們的人打造。',
+    'about.m1.title':'一個單純的初衷',
+    'about.m1.body':'台灣有數不盡的世界級古典音樂人才，然而最優秀的音樂家與想聘請他們的人，卻沒有一個真正能彼此找到的地方。OPUS.Z 就是為了填補這個缺口而誕生。',
+    'about.m2.title':'一份嚴選名冊',
+    'about.m2.body':'我們開放申請，並親自嚴選弦樂、鋼琴、管樂、室內樂等各領域的音樂家——打造一份以卓越而非數量為標準的名冊。',
+    'about.m3.title':'一個真正的平台',
+    'about.m3.body':'演出預約、音樂教學、雙向訊息與音樂家檔案集於一處——業者可以發佈需求、收到提案，並安心完成預約，全程線上搞定。',
+    'about.m4.title':'不只是一次預約',
+    'about.m4.body':'如今我們不只幫音樂家媒合工作，更幫他們建立品牌、拓展觀眾，在競爭激烈的環境中脫穎而出。而這一切，才剛剛開始。',
+    'about.mission':'我們的存在，是為了讓出色的音樂家被看見、被聽見、被聘用——以專注、意圖與影響力。',
+    'about.approach.label':'（我們的做法）',
+    'about.approach.title':'嚴謹嚴選。精準媒合。全力推廣。',
+    'about.a1.title':'嚴選',
+    'about.a1.body':'OPUS.Z 上的每一位音樂家都經過審核與認證。我們始終重質不重量。',
+    'about.a2.title':'媒合',
+    'about.a2.body':'告訴我們您的需求，我們快速為您媒合最適合的音樂家。',
+    'about.a3.title':'推廣',
+    'about.a3.body':'個人檔案、演出與社群聲量——我們幫音樂家建立長久的品牌。',
+    'about.a4.title':'提升',
+    'about.a4.body':'我們聆聽、打磨，持續為音樂家與業者拉高標準。',
+    'about.approach.cta':'發佈需求',
+    'about.stat1.label':'位頂尖古典音樂家，遍及台灣與海外',
+    'about.stat2.label':'次演出與合作成功媒合',
+    'about.stat3.label':'個樂器分類，從弦樂到室內樂',
+    'about.quote.text':'「OPUS.Z 讓我們輕鬆找到合適的音樂家——專業、快速，水準正是我們期待的。」',
+    'about.quote.name':'活動合作方',
+    'about.quote.role':'音樂會與企業活動預約',
+    'about.end.title':'讓我們一起，打造難忘的現場。',
+    'about.end.btn':'與我們聯絡',
+    'footer.copy':'© 2026 OPUS.Z 版權所有。',
+    'footer.follow':'追蹤我們',
+    'footer.newsletter':'電子報',
+    'footer.tagline':'與音樂保持連結。',
+    'footer.subscribe':'訂閱'
+  }
+};
+var PH = {
+  en: { 'footer.ph.email':'Your email' },
+  zh: { 'footer.ph.email':'電子郵件' }
+};
+function switchLang(lang) {
+  _currentLang = lang;
+  var dict = I18N[lang] || I18N.en;
+  var phDict = PH[lang] || PH.en;
+  document.querySelectorAll('[data-i18n]').forEach(function(el) {
+    var v = dict[el.getAttribute('data-i18n')];
+    if (v !== undefined) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el) {
+    var v = phDict[el.getAttribute('data-i18n-ph')];
+    if (v !== undefined) el.placeholder = v;
+  });
+  document.querySelectorAll('#langToggle .lt-opt').forEach(function(o) {
+    o.classList.toggle('active', o.dataset.l === lang);
+  });
+  document.documentElement.lang = lang === 'zh' ? 'zh-TW' : 'en';
+  if (typeof window.__navResplit === 'function') window.__navResplit();
+}
+document.addEventListener('opusz:langchange', function(e){ if (typeof switchLang === 'function') switchLang(e.detail.lang); });
+switchLang(_currentLang);
+
+// hero load-in
+requestAnimationFrame(function(){ requestAnimationFrame(function(){ document.body.classList.add('ab-ready'); }); });
+
+// scroll reveal
+var revObs = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if (e.isIntersecting) { e.target.classList.add('visible'); revObs.unobserve(e.target); }
+  });
+}, { threshold: 0.14, rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach(function(el){ revObs.observe(el); });
+
+// count-up stats
+function runCount(el){
+  var target = parseFloat(el.getAttribute('data-count')) || 0;
+  var suffix = el.getAttribute('data-suffix') || '';
+  var dur = 1400, start = null;
+  function step(ts){
+    if (start === null) start = ts;
+    var p = Math.min((ts - start) / dur, 1);
+    var eased = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(eased * target) + suffix;
+    if (p < 1) requestAnimationFrame(step);
+    else el.textContent = target + suffix;
+  }
+  requestAnimationFrame(step);
+}
+var countObs = new IntersectionObserver(function(entries){
+  entries.forEach(function(e){
+    if (e.isIntersecting) { runCount(e.target); countObs.unobserve(e.target); }
+  });
+}, { threshold: 0.5 });
+document.querySelectorAll('[data-count]').forEach(function(el){ countObs.observe(el); });
+</script>
+
+<script type="module" src="media-sync.js?v=2"></script>
+<script type="module" src="newsletter.js?v=2"></script>
+</body>
+</html>
