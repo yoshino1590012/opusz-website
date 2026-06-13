@@ -772,6 +772,17 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 @media(max-width:768px){ .lesson-plans{ grid-template-columns:1fr; max-width:420px; margin-left:auto; margin-right:auto; } }
 .lesson-card { background:#f7f7f7; border-radius:20px; padding:40px 32px 32px; display:flex; flex-direction:column; }
 .lesson-card.card-white { background:#fff; box-shadow:0 2px 24px rgba(0,0,0,.09),0 0 0 1px rgba(0,0,0,.06); border-radius:20px; }
+/* Entrance: cards glide in from the right + fade, one after another. */
+.lesson-plans:not(.lessons-in) .lesson-card { opacity:0; }
+.lesson-plans.lessons-in .lesson-card { animation:lessonCardIn .6s cubic-bezier(.2,.7,.3,1) backwards; }
+.lesson-plans.lessons-in .lesson-card:nth-child(1){ animation-delay:.06s; }
+.lesson-plans.lessons-in .lesson-card:nth-child(2){ animation-delay:.20s; }
+.lesson-plans.lessons-in .lesson-card:nth-child(3){ animation-delay:.34s; }
+@keyframes lessonCardIn { from{ opacity:0; transform:translateX(40px); } to{ opacity:1; transform:translateX(0); } }
+@media (prefers-reduced-motion: reduce){
+  .lesson-card { animation:none !important; }
+  .lesson-plans:not(.lessons-in) .lesson-card { opacity:1; }
+}
 .lesson-plan-name { font-size:18px; font-weight:700; color:#111; margin-bottom:6px; }
 .lesson-plan-sub { font-size:13.5px; color:#888; margin-bottom:28px; line-height:1.5; }
 .lesson-price-row { display:flex; align-items:baseline; gap:8px; margin-bottom:6px; flex-wrap:wrap; min-width:0; }
@@ -3951,6 +3962,20 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     io.observe(sec);
   } else {
     list.classList.add('hl-revealed');
+  }
+})();
+
+// ── Lesson Plans — entrance reveal (cards glide in from the right, staggered) ──
+(function(){
+  var plans = document.querySelector('#lessonSection .lesson-plans');
+  if(!plans) return;
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ plans.classList.add('lessons-in'); io.disconnect(); } });
+    }, { threshold: 0.2 });
+    io.observe(plans);
+  } else {
+    plans.classList.add('lessons-in');
   }
 })();
 
