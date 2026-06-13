@@ -119,8 +119,8 @@
       box-shadow: 0 34px 90px rgba(0,0,0,.20);
     }
     .ab-fp-img {
-      position: absolute; left: 0; top: -7%; width: 100%; height: 114%;
-      object-fit: cover; object-position: center;
+      position: absolute; left: 0; top: -4%; width: 100%; height: 108%;
+      object-fit: cover; object-position: center 62%;
       backface-visibility: hidden; -webkit-backface-visibility: hidden; will-change: transform;
     }
     .ab-founder-hint {
@@ -617,7 +617,7 @@ function renderFX(){
     var fr = founderWrap.getBoundingClientRect();
     if (fr.bottom > 0 && fr.top < vh) {
       var c = (fr.top + fr.height / 2) - vh / 2;
-      founderImg.style.transform = 'translate3d(0,' + (c * -0.06).toFixed(2) + 'px,0)';
+      founderImg.style.transform = 'translate3d(0,' + (c * -0.035).toFixed(2) + 'px,0)';
     }
   }
 }
