@@ -95,7 +95,7 @@
     +     '</div>'
     +     '<div class="sf-col">'
     +       '<a href="contact.html" data-i18n="footer.link.contact">Contact</a>'
-    +       '<a href="musician-platform.html#about" data-i18n="footer.link.about">About</a>'
+    +       '<a href="about.html" data-i18n="footer.link.about">About</a>'
     +       '<a href="blog.html" data-i18n="footer.link.blog">Blog</a>'
     +       '<a href="musicians.html" data-i18n="footer.link.musicians">Musicians</a>'
     +     '</div>'
