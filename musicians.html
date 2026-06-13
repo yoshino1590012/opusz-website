@@ -456,13 +456,25 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
     <option value="">All Cities</option>
   </select>
   <select class="filter-select" id="filterStyle" onchange="applyFilters()">
-    <option value="">All Styles</option>
+    <option value="" data-i18n="style.all">All Genres</option>
     <option value="Classical" data-i18n="style.classical">Classical</option>
-    <option value="Jazz" data-i18n="style.jazz">Jazz</option>
-    <option value="Pop" data-i18n="style.pop">Pop / Commercial</option>
-    <option value="Film" data-i18n="style.film">Film / TV Scoring</option>
-    <option value="Wedding" data-i18n="style.wedding">Wedding</option>
+    <option value="Baroque" data-i18n="style.baroque">Early &amp; Baroque</option>
     <option value="Contemporary" data-i18n="style.contemporary">Contemporary</option>
+    <option value="Crossover" data-i18n="style.crossover">Crossover</option>
+    <option value="Jazz" data-i18n="style.jazz">Jazz</option>
+    <option value="Pop" data-i18n="style.pop">Pop &amp; Commercial</option>
+    <option value="Film" data-i18n="style.film">Film &amp; Game</option>
+    <option value="Musical" data-i18n="style.musical">Musical Theatre</option>
+    <option value="World" data-i18n="style.world">World &amp; Folk</option>
+  </select>
+  <select class="filter-select" id="filterOccasion" onchange="applyFilters()">
+    <option value="" data-i18n="occasion.all">All Occasions</option>
+    <option value="Wedding" data-i18n="occasion.wedding">Wedding</option>
+    <option value="Corporate" data-i18n="occasion.corporate">Corporate</option>
+    <option value="Banquet" data-i18n="occasion.banquet">Banquet</option>
+    <option value="Ceremony" data-i18n="occasion.ceremony">Ceremony</option>
+    <option value="Sacred" data-i18n="occasion.sacred">Sacred</option>
+    <option value="PrivateParty" data-i18n="occasion.privateparty">Private Party</option>
   </select>
   <div class="filter-sort">
     <select class="filter-select" id="filterSort" onchange="applyFilters()">
@@ -605,8 +617,8 @@ var MENU_I18N = {
     'menu.stringquartet':'String Quartet','menu.pianotrio':'Piano Trio','menu.stringtrio':'String Trio',
     'menu.windquintet':'Wind Quintet','menu.brassquintet':'Brass Quintet','menu.pianoquintet':'Piano Quintet',
     'crumb.home':'Home','crumb.musicians':'Musicians',
-    'style.classical':'Classical','style.jazz':'Jazz','style.pop':'Pop / Commercial',
-    'style.film':'Film / TV Scoring','style.wedding':'Wedding','style.contemporary':'Contemporary',
+    'style.all':'All Genres','style.classical':'Classical','style.baroque':'Early & Baroque','style.contemporary':'Contemporary','style.crossover':'Crossover','style.jazz':'Jazz','style.pop':'Pop & Commercial','style.film':'Film & Game','style.musical':'Musical Theatre','style.world':'World & Folk',
+    'occasion.all':'All Occasions','occasion.wedding':'Wedding','occasion.corporate':'Corporate','occasion.banquet':'Banquet','occasion.ceremony':'Ceremony','occasion.sacred':'Sacred','occasion.privateparty':'Private Party',
     'login.title':'Customer Login','login.email':'Email','login.password':'Password',
     'login.btn':'Log in','login.noaccount':'No account?','login.signup':'Sign up →',
     'enq.tagline':'Describe your project and the musician will reply with a proposal',
@@ -632,8 +644,8 @@ var MENU_I18N = {
     'menu.stringquartet':'弦樂四重奏','menu.pianotrio':'鋼琴三重奏','menu.stringtrio':'弦樂三重奏',
     'menu.windquintet':'木管五重奏','menu.brassquintet':'銅管五重奏','menu.pianoquintet':'鋼琴五重奏',
     'crumb.home':'首頁','crumb.musicians':'音樂家',
-    'style.classical':'古典','style.jazz':'爵士','style.pop':'流行 / 商業',
-    'style.film':'電影 / 影視配樂','style.wedding':'婚禮','style.contemporary':'當代',
+    'style.all':'所有曲風','style.classical':'古典','style.baroque':'古樂・巴洛克','style.contemporary':'當代・現代','style.crossover':'跨界','style.jazz':'爵士','style.pop':'流行・商業','style.film':'電影・遊戲配樂','style.musical':'音樂劇','style.world':'世界・民謠',
+    'occasion.all':'所有場合','occasion.wedding':'婚禮','occasion.corporate':'商演・企業活動','occasion.banquet':'宴會・餐會','occasion.ceremony':'典禮・開幕','occasion.sacred':'宗教・聖樂','occasion.privateparty':'私人派對',
     'login.title':'顧客登入','login.email':'電子郵件','login.password':'密碼',
     'login.btn':'登入','login.noaccount':'還沒有帳號？','login.signup':'註冊 →',
     'enq.tagline':'描述您的需求，音樂家將回覆專屬提案',
@@ -663,7 +675,8 @@ function setLang(l){
   document.getElementById('filterCountry').options[0].text = l==='zh' ? '所有地區' : 'All Regions';
   document.getElementById('filterCountry').options[1].text = l==='zh' ? '台灣' : 'Taiwan';
   document.getElementById('filterCountry').options[2].text = l==='zh' ? '美國' : 'USA';
-  document.getElementById('filterStyle').options[0].text  = l==='zh' ? '所有風格' : 'All Styles';
+  document.getElementById('filterStyle').options[0].text  = l==='zh' ? '所有曲風' : 'All Genres';
+  var _fo0=document.getElementById('filterOccasion'); if(_fo0) _fo0.options[0].text = l==='zh' ? '所有場合' : 'All Occasions';
   var fSort = document.getElementById('filterSort');
   fSort.options[0].text = l==='zh' ? '最受歡迎' : 'Most popular';
   fSort.options[1].text = l==='zh' ? '評價最高' : 'Top rated';
@@ -768,6 +781,7 @@ function getFiltered(){
   var country = document.getElementById('filterCountry').value;
   var city    = document.getElementById('filterCity').value;
   var style   = document.getElementById('filterStyle').value;
+  var occasion= (document.getElementById('filterOccasion')||{}).value || '';
   var sort    = document.getElementById('filterSort').value;
   var cat     = CAT_MAP[currentCat];
   var INST    = window.OPUSZ_INST || {FAMILY_OF:{},BY_SLUG:{}};
@@ -794,6 +808,8 @@ function getFiltered(){
     if(country && m.country !== country) return false;
     if(city    && m.region  !== city)    return false;
     if(style   && !((Array.isArray(m.styles) && m.styles.indexOf(style) !== -1) || m.style === style)) return false;
+    // Occasion: match config.occasions; legacy musicians stored 'Wedding' in styles → still match.
+    if(occasion && !((Array.isArray(m.occasions) && m.occasions.indexOf(occasion) !== -1) || (Array.isArray(m.styles) && m.styles.indexOf(occasion) !== -1))) return false;
     if(searchQuery && m.name.toLowerCase().indexOf(searchQuery)===-1 && m.instrument.toLowerCase().indexOf(searchQuery)===-1 && m.bio.toLowerCase().indexOf(searchQuery)===-1) return false;
     return true;
   });
@@ -1156,8 +1172,11 @@ function applyFilterLabels(){
   var fc=document.getElementById('filterCountry');
   setOpt(fc,0,f['region.all']); setOpt(fc,1,f['region.taiwan']); setOpt(fc,2,f['region.usa']);
   var fs=document.getElementById('filterStyle');
-  ['style.all','style.classical','style.jazz','style.pop','style.film','style.wedding','style.contemporary']
+  ['style.all','style.classical','style.baroque','style.contemporary','style.crossover','style.jazz','style.pop','style.film','style.musical','style.world']
     .forEach(function(k,i){ setOpt(fs,i,f[k]); });
+  var fo=document.getElementById('filterOccasion');
+  ['occasion.all','occasion.wedding','occasion.corporate','occasion.banquet','occasion.ceremony','occasion.sacred','occasion.privateparty']
+    .forEach(function(k,i){ setOpt(fo,i,f[k]); });
   var fso=document.getElementById('filterSort');
   ['sort.popular','sort.rating','sort.newest'].forEach(function(k,i){ setOpt(fso,i,f[k]); });
 }
@@ -1422,6 +1441,7 @@ window.addEventListener('load', applyAllSavedXYS);
         country:    p.country || ((p.primaryRegion || '').split(',').pop() || '').trim() || 'Taiwan',
         region:     p.region  || ((p.primaryRegion || '').split(',')[0] || '').trim() || card.location || '—',
         styles:     Array.isArray(p.styles) ? p.styles : [],
+        occasions:  Array.isArray(p.occasions) ? p.occasions : [],
         style:      (Array.isArray(p.styles) && p.styles[0]) ? p.styles[0] : 'Classical',
         level:      'Professional',
         rating:     0,

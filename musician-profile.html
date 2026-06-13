@@ -5821,15 +5821,16 @@ window.addEventListener('pageshow', function(e) {
       });
     }
 
-    // STYLE ↔ TAGS link: the musician's selected styles appear as tags on the
-    // Performance card (translated). Cleared + re-added each run so toggling
-    // language or re-applying config never duplicates them.
-    if(Array.isArray(cfg.styles) && cfg.styles.length){
+    // STYLE/OCCASION ↔ TAGS link: the musician's selected genres + occasions appear
+    // as tags on the Performance card (translated). Cleared + re-added each run so
+    // toggling language or re-applying config never duplicates them.
+    var _tagVals = (Array.isArray(cfg.styles)?cfg.styles:[]).concat(Array.isArray(cfg.occasions)?cfg.occasions:[]);
+    if(_tagVals.length){
       var _perfCard = document.querySelectorAll('.serv-card')[0];
       var _pw = _perfCard && _perfCard.querySelector('.serv-tags');
       if(_pw){
         Array.prototype.forEach.call(_pw.querySelectorAll('.serv-tag-style, .pf-placeholder'), function(n){ n.remove(); });
-        cfg.styles.forEach(function(s){
+        _tagVals.forEach(function(s){
           var span = document.createElement('span');
           span.className = 'serv-tag serv-tag-style';
           span.textContent = _biTrans(STYLE_PAIRS, s);
