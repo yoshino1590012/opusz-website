@@ -6009,6 +6009,9 @@
   // spotlights the specific control (sel).
   var P = function(pbsec, sel, title, body){ return { page:'pagebuilder', pbsec:pbsec, sel:sel, title:title, body:body }; };
   var PB_STEPS = [
+    // ── 開始前：語言 & 預覽裝置 ──
+    P('hero','#pbLangMode','一開始：公開頁語言','先決定你的公開頁要用什麼語言——中文、English、或雙語。選單一語言＝訪客只會看到那個語言；選「雙語」＝中英文都要填，訪客可以自由切換。這也會決定下面的欄位需不需要填英文。'),
+    P('hero','.pb-devbar','預覽：桌機 / 手機','上面這兩顆可以切換預覽「電腦版」和「手機版」的樣子。兩種版型各自獨立——像名字大小、照片位置，桌機和手機可以分開調、互不影響，所以記得兩邊都切過去檢查一下。'),
     // ── 主視覺 / Hero ──
     P('hero','#pbHeroName','主視覺 · 名稱','你的藝名／顯示名字。會大大地秀在主頁最上方的大圖上，也是客戶記住你的名字。'),
     P('hero','#pbNameSizeDesk','主視覺 · 名字大小（桌機）','拉這條調整名字在「電腦」上顯示的大小。名字比較長時就往左調小一點，才不會擠。'),
