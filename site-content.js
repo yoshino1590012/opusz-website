@@ -257,6 +257,29 @@ function applyHeroBtns(map){
   });
 }
 
+// Per-element Hero fonts (Canva-style font editor). cfg.heroFonts[key] =
+// { fontEn, fontZh, weight, color }. We build a font-family fallback CHAIN
+// ('English font', 'Chinese font', sans-serif) so Latin glyphs use the English
+// face and CJK glyphs automatically fall through to the Chinese face — no
+// language detection needed. brand colour stays owned by applyBrandColor.
+function applyHeroFonts(map){
+  if(!map || typeof map !== 'object') return;
+  Object.keys(HERO_DRAG).forEach(function(k){
+    var f = map[k]; if(!f || typeof f !== 'object') return;
+    var els = document.querySelectorAll(HERO_DRAG[k]);   // brand may be several copies
+    var fam = [];
+    if(f.fontEn) fam.push("'" + f.fontEn + "'");
+    if(f.fontZh) fam.push("'" + f.fontZh + "'");
+    var famStr = fam.length ? (fam.join(',') + ',sans-serif') : '';
+    for(var i=0;i<els.length;i++){
+      var el = els[i];
+      if(famStr) el.style.fontFamily = famStr;
+      if(f.weight) el.style.fontWeight = f.weight;
+      if(f.color && k !== 'brand') el.style.color = f.color;   // brand colour via applyBrandColor
+    }
+  });
+}
+
 function waitForI18N(cb){
   // Run cb once the page's i18n engine exists (or there are data-cms targets), with a cap.
   if (window.I18N || document.querySelector('[data-cms]')) { cb(); return; }
@@ -307,6 +330,11 @@ function applyConfig(cfg){
     // brand wordmark colour, and button colour/shape/glass (with desktop fallback).
     try { applyHeroPosResponsive(cfg); } catch(e){}
   }
+
+  // 1c-2) per-element Hero fonts (font-family / weight / colour). Runs AFTER the
+  // pos/colour block so the chosen font wins; font-family isn't touched by
+  // applyHeroPos, so a later resize re-apply won't clear it.
+  if ('heroFonts' in cfg) { try { applyHeroFonts(cfg.heroFonts); } catch(e){} }
 
   // 1h) shows-page posters — count + per-poster frame (x/y/scale/blur/bgX/bgY) +
   //     image URLs. Drives the shows engine so add/remove/position done in the
@@ -562,6 +590,12 @@ window.addEventListener('message', function(e){
       try{ parent.postMessage({__opuszHeroPos:true, key:key,
         x:Math.round(o.x), y:Math.round(o.y),
         xPct:+(o.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
+      // A click without drag = SELECT this element → editor opens its font panel.
+      // brand copies all share one font, so normalise brand2/3… → 'brand'.
+      if(!moved){
+        var pk = (key.indexOf('brand') === 0) ? 'brand' : key;
+        try{ parent.postMessage({__opuszPick:true, key:pk}, '*'); }catch(_){}
+      }
     }
     el.addEventListener('pointerup', end);
     el.addEventListener('pointercancel', end);

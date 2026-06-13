@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>OPUS.Z · Admin</title>
+  <!-- Hero 字型編輯器可選字型（讓右欄面板能顯示字型本身的樣子）-->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Cormorant+Garamond:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Marcellus&family=Inter:wght@400;500;600;700;800&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@400;500;600;700;900&family=LXGW+WenKai+TC&display=swap" rel="stylesheet">
   <!-- PWA: installable as a phone app (separate from the musician dashboard) -->
   <link rel="manifest" href="/manifest-admin.json">
   <meta name="theme-color" content="#1a1a1a">
@@ -915,6 +919,7 @@ Martin</textarea>
           </div>
           <div style="width:300px;flex-shrink:0;">
             <div id="seSectionTitle" style="font-size:12px;font-weight:800;color:#111;margin-bottom:10px;">主視覺 / Hero</div>
+            <div id="seFontPanel" style="display:none;"></div>
             <div id="seControls"></div>
             <!-- One button does everything: saves text to Firebase AND publishes photos. -->
             <button onclick="sePublishAll(this)" style="width:100%;padding:13px;border:none;border-radius:10px;background:#2ea44f;color:#fff;font-weight:800;cursor:pointer;font-size:15px;">🚀 儲存並發布到網站</button>
@@ -1317,8 +1322,75 @@ Martin</textarea>
     cfg.heroBtnGlass = (_dk._btnGlass!=null) ? !!_dk._btnGlass : !!window.seHeroBtnGlass;
     if(window.seHeroType && typeof window.seHeroType==='object') cfg.heroType = window.seHeroType;
     if(window.seHeroPhrase && typeof window.seHeroPhrase==='object') cfg.heroPhrase = window.seHeroPhrase;
+    if(window.seHeroFonts && typeof window.seHeroFonts==='object') cfg.heroFonts = window.seHeroFonts;
     return cfg;
   }
+
+  // ── Canva 式字型編輯器：點預覽裡的 Hero 元素 → 這個面板出現,改它的中英字型/粗細/顏色 ──
+  var SE_FONTS_EN = [
+    { v:'Inter', label:'Inter（無襯線）' },
+    { v:'Montserrat', label:'Montserrat（無襯線）' },
+    { v:'Playfair Display', label:'Playfair Display（襯線）' },
+    { v:'Cormorant Garamond', label:'Cormorant Garamond（襯線）' },
+    { v:'Cinzel', label:'Cinzel（古典展示）' },
+    { v:'Marcellus', label:'Marcellus（古典展示）' }
+  ];
+  var SE_FONTS_ZH = [
+    { v:'Noto Sans TC', label:'思源黑體' },
+    { v:'Noto Serif TC', label:'思源宋體' },
+    { v:'LXGW WenKai TC', label:'霞鶩文楷' }
+  ];
+  var SE_FONT_ELS = { headline:'標題', sub:'副標', btnFind:'按鈕 · Find Artists', btnProject:'按鈕 · Create a Project', brand:'品牌字 OPUS.Z' };
+  var SE_FONT_DEFAULTS = {
+    headline:{ fontEn:'Inter', fontZh:'Noto Sans TC', weight:800 },
+    sub:{ fontEn:'Inter', fontZh:'Noto Sans TC', weight:500 },
+    btnFind:{ fontEn:'Inter', fontZh:'Noto Sans TC', weight:700 },
+    btnProject:{ fontEn:'Inter', fontZh:'Noto Sans TC', weight:700 },
+    brand:{ fontEn:'Marcellus', fontZh:'Noto Serif TC', weight:700 }
+  };
+  window.seRenderFontPanel = function(el){
+    var panel = document.getElementById('seFontPanel'); if(!panel) return;
+    if(!SE_FONT_ELS[el]){ panel.style.display='none'; return; }
+    window.seHeroFonts = window.seHeroFonts || {};
+    var def = SE_FONT_DEFAULTS[el] || {};
+    var cur = window.seHeroFonts[el] || {};
+    var fEn = cur.fontEn || def.fontEn || 'Inter';
+    var fZh = cur.fontZh || def.fontZh || 'Noto Sans TC';
+    var wt  = cur.weight || def.weight || 400;
+    var col = cur.color || '';
+    function opts(list, sel){ return list.map(function(o){ return '<option value="'+o.v+'"'+(o.v===sel?' selected':'')+'>'+o.label+'</option>'; }).join(''); }
+    var weights=[300,400,500,600,700,800,900];
+    var wopts=weights.map(function(w){ return '<option value="'+w+'"'+(w==wt?' selected':'')+'>'+w+'</option>'; }).join('');
+    var sty='width:100%;box-sizing:border-box;border:1px solid #cdd9f0;border-radius:7px;padding:8px;font-size:13px;font-family:inherit;margin-bottom:10px;background:#fff;';
+    var lbl='font-size:11px;font-weight:700;color:#555;display:block;margin-bottom:4px;';
+    var html = '<div style="border:1px solid #2563eb;background:#f5f9ff;border-radius:12px;padding:13px 14px;margin-bottom:12px;">'
+      + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><b style="font-size:13px;color:#1d4ed8;">✏️ 編輯字型：'+SE_FONT_ELS[el]+'</b>'
+      + '<button onclick="seCloseFontPanel()" title="關閉" style="border:none;background:none;cursor:pointer;color:#888;font-size:16px;line-height:1;">✕</button></div>'
+      + '<label style="'+lbl+'">英文字型</label><select onchange="seFontSet(\''+el+'\',\'fontEn\',this.value)" style="'+sty+'">'+opts(SE_FONTS_EN,fEn)+'</select>'
+      + '<label style="'+lbl+'">中文字型</label><select onchange="seFontSet(\''+el+'\',\'fontZh\',this.value)" style="'+sty+'">'+opts(SE_FONTS_ZH,fZh)+'</select>'
+      + '<label style="'+lbl+'">粗細 / Weight</label><select onchange="seFontSet(\''+el+'\',\'weight\',this.value)" style="'+sty+'">'+wopts+'</select>'
+      + (el!=='brand'
+          ? ('<label style="'+lbl+'">顏色</label><div style="display:flex;gap:8px;align-items:center;"><input type="color" value="'+(col||'#000000')+'" onchange="seFontSet(\''+el+'\',\'color\',this.value)" style="width:44px;height:32px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:0;"><button onclick="seFontSet(\''+el+'\',\'color\',\'\')" style="font-size:11px;border:1px solid #ddd;background:#fff;border-radius:6px;padding:7px 11px;cursor:pointer;font-family:inherit;">清除顏色</button></div>')
+          : '<div style="font-size:11px;color:#888;line-height:1.5;">品牌字顏色請用下方「品牌字 OPUS.Z 顏色」那一區控制。</div>')
+      + '</div>';
+    panel.innerHTML = html; panel.style.display='block';
+  };
+  window.seCloseFontPanel = function(){ var p=document.getElementById('seFontPanel'); if(p){ p.style.display='none'; p.innerHTML=''; } };
+  window.seFontSet = function(el, prop, val){
+    if(!SE_FONT_ELS[el]) return;
+    window.seHeroFonts = window.seHeroFonts || {};
+    var def = SE_FONT_DEFAULTS[el] || {};
+    var base = window.seHeroFonts[el] || {};
+    // 首次編輯帶入完整預設,套用才不會缺欄
+    if(base.fontEn==null) base.fontEn = def.fontEn || 'Inter';
+    if(base.fontZh==null) base.fontZh = def.fontZh || 'Noto Sans TC';
+    if(base.weight==null) base.weight = def.weight || 400;
+    if(prop==='weight') val = parseInt(val,10) || 400;
+    base[prop] = val;
+    window.seHeroFonts[el] = base;
+    if(typeof sePreview==='function') sePreview();
+  };
+
   function seCfgForPreview(){
     if(seCurrentPage==='home') return seReadInputs();
     var c = seCurrentConfig || {i18n:{en:{},zh:{}}};
@@ -1673,6 +1745,8 @@ Martin</textarea>
 
   window.seBuildControls = function(){
     var box=document.getElementById('seControls'); if(!box) return;
+    // 離開 Hero 區就收起字型面板（在 Hero 區內重繪則保留,點元素才開）
+    if(seCurrentSection!=='hero'){ try{ seCloseFontPanel(); }catch(_){} }
     var cur=seCurrentConfig.i18n||{en:{},zh:{}};
     var curCms=seCurrentConfig.cms||{};
     // ── Preserve unsaved text/media the user typed but hasn't published yet ──
@@ -2939,6 +3013,7 @@ Martin</textarea>
     window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
     window.seHeroBtnShape = (seCurrentConfig.heroBtnShape && typeof seCurrentConfig.heroBtnShape==='object') ? seCurrentConfig.heroBtnShape : {};
     window.seHeroBtnGlass = !!seCurrentConfig.heroBtnGlass;
+    window.seHeroFonts = (seCurrentConfig.heroFonts && typeof seCurrentConfig.heroFonts==='object') ? seCurrentConfig.heroFonts : {};
     window.seHeroType = (seCurrentConfig.heroType && typeof seCurrentConfig.heroType==='object') ? seCurrentConfig.heroType : {};
     window.seHeroPhrase = (seCurrentConfig.heroPhrase && typeof seCurrentConfig.heroPhrase==='object') ? seCurrentConfig.heroPhrase : {};
     // MIGRATION: brand colour + button styling used to be ONE global value shared by
@@ -2975,6 +3050,11 @@ Martin</textarea>
           var m = (typeof window.seActiveHeroPos==='function') ? window.seActiveHeroPos() : (window.seHeroPos = window.seHeroPos || {});
           m[e.data.key] = Object.assign({}, m[e.data.key],
             { x:e.data.x|0, y:e.data.y|0, xPct:e.data.xPct, yPct:e.data.yPct });
+        }
+        // Clicked a Hero element in the preview → open its font panel (Canva-style).
+        if(e.data.__opuszPick && e.data.key && seCurrentPage==='home'){
+          if(seCurrentSection!=='hero'){ try{ seSelectSection('hero'); }catch(_){} }
+          try{ window.seRenderFontPanel(e.data.key); }catch(_){}
         }
       });
     }
