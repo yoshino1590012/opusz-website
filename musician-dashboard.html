@@ -5412,9 +5412,11 @@
     // iframe 用真實桌機尺寸渲染，再縮小
     ifr.style.width  = devW + 'px';
     ifr.style.height = Math.max(devH, Math.round(availH / scale)) + 'px';  // 至少填滿可視高度
-    ifr.style.transform = 'scale(' + scale + ')';
-    ifr.style.transformOrigin = 'top left';
-    // 外框取「縮放後的尺寸」→ 版面預留正確空間、能正確置中、不溢出
+    // 用 CSS zoom 取代 transform:scale。Chrome 會把「縮放的大 iframe」當成合成層,捲動時
+    // 下半部 tile 來不及重繪 → 變白 + 捲動卡(切裝置才修復)。zoom 不建合成層,捲動/重繪正常。
+    ifr.style.zoom = scale;
+    ifr.style.transform = ''; ifr.style.transformOrigin = '';
+    // zoom 已縮放佈局,外框直接包住縮放後的 iframe 尺寸 → 正確置中、不溢出
     inner.style.width    = Math.round(devW * scale) + 'px';
     inner.style.height   = Math.round(parseFloat(ifr.style.height) * scale) + 'px';
     inner.style.maxWidth = 'none';
@@ -5457,7 +5459,7 @@
     inner.classList.toggle('pb-phone', phone);   // phone bezel + notch (sizing via CSS class)
     if(phone){
       // 還原 iframe 原本的 width/height:100%（清掉桌機的縮放 transform），讓手機外框 CSS 乾淨接手
-      if(ifr){ ifr.style.width='100%'; ifr.style.height='100%'; ifr.style.transform=''; ifr.style.transformOrigin=''; }
+      if(ifr){ ifr.style.width='100%'; ifr.style.height='100%'; ifr.style.transform=''; ifr.style.transformOrigin=''; ifr.style.zoom=''; }
       inner.style.width=''; inner.style.height=''; inner.style.maxWidth='';
       pbFitPhone();   // 縮放整台手機以完整顯示
     }else{
