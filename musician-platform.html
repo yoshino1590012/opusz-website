@@ -1166,6 +1166,9 @@ nav.mega-open .nav-links a::before {
 .svc-right { position: sticky; top: 80px; align-self: start; padding: 60px 52px 40px 52px; display: flex; flex-direction: column; gap: 20px; }
 .svc-btn { background: var(--black); color: var(--white); padding: 14px 28px; border-radius: 50px; font-size: 15px; font-weight: 500; text-decoration: none; width: fit-content; align-self: flex-end; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
 .svc-img { display: none; width: 100%; aspect-ratio: 4/5; border-radius: 12px; overflow: hidden; transition: background .4s; }
+/* scroll-driven word reveal (告知感動畫) — words fade from faint to solid as you scroll */
+.scroll-words .sw { display: inline-block; opacity: .14; will-change: opacity, transform; }
+@media (prefers-reduced-motion: reduce) { .scroll-words .sw { opacity: 1 !important; transform: none !important; } }
 .svc-img-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transition: background .4s; }
 .svc-desc { font-size: 15px; line-height: 1.6; color: var(--mid); }
 
@@ -3102,7 +3105,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 </section>
 
 <!-- SERVICES -->
-<section class="services" id="services" data-cms-section="services">
+<section class="services" id="services" data-cms-section="services" style="display:none;">
   <div class="svc-left">
     <div class="svc-header">
       <span class="svc-label" data-i18n="svc.label">(Services)</span>
@@ -3276,25 +3279,10 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 <!-- TESTIMONIALS -->
 
 <!-- ABOUT BRIEF（關於精華，連到 about.html）-->
-<section class="hp-about" id="aboutbrief" data-cms-section="aboutbrief" style="background:#fff;padding:clamp(70px,11vh,140px) 24px;border-top:1px solid #eee;">
+<section class="hp-about" id="aboutbrief" data-cms-section="aboutbrief" style="background:#fff;padding:clamp(90px,15vh,190px) 24px;border-top:1px solid #eee;">
   <div style="max-width:1100px;margin:0 auto;">
-    <span data-i18n="hp.about.eyebrow" style="display:block;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#999;">(About OPUS.Z)</span>
-    <h2 data-i18n="hp.about.title" style="font-size:clamp(30px,4.4vw,52px);font-weight:800;letter-spacing:-.02em;line-height:1.12;margin:16px 0 18px;max-width:20ch;color:#111;">We make sure exceptional musicians are seen, heard, and hired.</h2>
-    <p data-i18n="hp.about.sub" style="font-size:clamp(16px,1.5vw,20px);color:#555;font-weight:500;margin:0 0 48px;">Curate rigorously. Match precisely. Promote relentlessly.</p>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:24px;max-width:760px;margin-bottom:44px;">
-      <div style="border-top:2px solid #111;padding-top:18px;">
-        <div style="font-size:clamp(40px,5.5vw,72px);font-weight:800;letter-spacing:-.04em;line-height:.9;color:#111;">50+</div>
-        <div data-i18n="hp.about.s1" style="margin-top:12px;font-size:14px;color:#666;line-height:1.5;">elite musicians across Taiwan &amp; beyond</div>
-      </div>
-      <div style="border-top:2px solid #111;padding-top:18px;">
-        <div style="font-size:clamp(40px,5.5vw,72px);font-weight:800;letter-spacing:-.04em;line-height:.9;color:#111;">100+</div>
-        <div data-i18n="hp.about.s2" style="margin-top:12px;font-size:14px;color:#666;line-height:1.5;">bookings &amp; collaborations matched</div>
-      </div>
-      <div style="border-top:2px solid #111;padding-top:18px;">
-        <div style="font-size:clamp(40px,5.5vw,72px);font-weight:800;letter-spacing:-.04em;line-height:.9;color:#111;">8</div>
-        <div data-i18n="hp.about.s3" style="margin-top:12px;font-size:14px;color:#666;line-height:1.5;">instrument categories</div>
-      </div>
-    </div>
+    <span data-i18n="hp.about.eyebrow" style="display:block;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#999;margin-bottom:30px;">(About OPUS.Z)</span>
+    <p class="scroll-words" data-i18n="hp.about.title" style="font-size:clamp(28px,4.4vw,64px);font-weight:400;line-height:1.16;letter-spacing:-.03em;max-width:20ch;margin:0 0 48px;color:#111;">We exist to make sure exceptional musicians are seen, heard, and hired — with focus, intention, and impact.</p>
     <a href="about.html" data-i18n="hp.about.link" style="display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:#111;border-bottom:2px solid #111;padding-bottom:3px;text-decoration:none;">More about us →</a>
   </div>
 </section>
@@ -3562,7 +3550,7 @@ const I18N = {
     'about.collab':'(Live collaboration)','about.booking':'Booking request received',
     'about.realtime':'Real-time booking and<br>talent discovery',
     'blog.label':'(Blog)','blog.seeall':'See all',
-    'hp.about.eyebrow':'(About OPUS.Z)','hp.about.title':'We make sure exceptional musicians are seen, heard, and hired.','hp.about.sub':'Curate rigorously. Match precisely. Promote relentlessly.','hp.about.s1':'elite musicians across Taiwan & beyond','hp.about.s2':'bookings & collaborations matched','hp.about.s3':'instrument categories','hp.about.link':'More about us →',
+    'hp.about.eyebrow':'(About OPUS.Z)','hp.about.title':'We exist to make sure exceptional musicians are seen, heard, and hired — with focus, intention, and impact.','hp.about.link':'More about us →',
     'hp.smartinsights':'Featured articles.',
     'hp.chat1':"Hi! We're looking for a string quartet for March 3rd in Taipei.",
     'hp.chat2':'Formal evening event, about 2 hours. Are you available?',
@@ -3733,7 +3721,7 @@ const I18N = {
     'about.collab':'（即時協作）','about.booking':'已收到預約請求',
     'about.realtime':'即時預約與<br>人才探索',
     'blog.label':'（部落格）','blog.seeall':'查看全部',
-    'hp.about.eyebrow':'（關於 OPUS.Z）','hp.about.title':'讓出色的音樂家被看見、被聽見、被聘用。','hp.about.sub':'嚴謹嚴選。精準媒合。全力推廣。','hp.about.s1':'位頂尖音樂家，遍及台灣與海外','hp.about.s2':'筆媒合與合作','hp.about.s3':'種樂器類別','hp.about.link':'更多關於我們 →',
+    'hp.about.eyebrow':'（關於 OPUS.Z）','hp.about.title':'我們的存在，是為了讓出色的音樂家被看見、被聽見、被聘用——以專注、意圖與影響力。','hp.about.link':'更多關於我們 →',
     'hp.smartinsights':'精選文章。',
     'hp.chat1':'你好！我們想找 3 月 3 日在台北的弦樂四重奏。',
     'hp.chat2':'正式晚間活動，約 2 小時，請問有空檔嗎？',
@@ -3925,6 +3913,8 @@ function switchLang(lang) {
   if (typeof window._applyCatAll === 'function') window._applyCatAll();
   // Re-split nav links after text update (char spans were overwritten by textContent=)
   if (typeof window.__navResplit === 'function') window.__navResplit();
+  // Re-split scroll-words after textContent= overwrote the per-word spans
+  if (typeof window.__refreshWords === 'function') window.__refreshWords();
 }
 
 // Wire lang toggle
@@ -3959,6 +3949,56 @@ function switchLang(lang) {
     }
     window.location.href = 'favourites.html';
   });
+})();
+
+// ── scroll-driven word reveal (告知感) — for .scroll-words elements (about-brief) ──
+(function(){
+  var MINO = 0.14, SPREAD = 7, swItems = [];
+  function tokenize(text){
+    var out = [], buf = '';
+    for (var i = 0; i < text.length; i++){
+      var ch = text[i];
+      if (/\s/.test(ch)) { if (buf){ out.push(buf); buf=''; } out.push(ch); }
+      else if (/[　-鿿＀-￯぀-ヿ]/.test(ch)) { if (buf){ out.push(buf); buf=''; } out.push(ch); }
+      else { buf += ch; }
+    }
+    if (buf) out.push(buf);
+    return out;
+  }
+  function buildWords(){
+    swItems = [];
+    document.querySelectorAll('.scroll-words').forEach(function(el){
+      var text = el.hasAttribute('data-i18n') ? el.textContent : (el.getAttribute('data-fulltext') || el.textContent);
+      el.setAttribute('data-fulltext', text);
+      el.innerHTML = '';
+      tokenize(text).forEach(function(tok){
+        if (/^\s+$/.test(tok)) { el.appendChild(document.createTextNode(tok)); }
+        else { var s = document.createElement('span'); s.className = 'sw'; s.textContent = tok; el.appendChild(s); }
+      });
+      swItems.push({ el: el, spans: [].slice.call(el.querySelectorAll('.sw')) });
+    });
+  }
+  function renderFX(){
+    var vh = window.innerHeight;
+    for (var k = 0; k < swItems.length; k++){
+      var it = swItems[k], r = it.el.getBoundingClientRect();
+      var s = vh * 0.86, e = vh * 0.32, p = (s - r.top) / (s - e);
+      p = p < 0 ? 0 : (p > 1 ? 1 : p);
+      var n = it.spans.length, head = p * (n + SPREAD);
+      for (var i = 0; i < n; i++){
+        var a = (head - i) / SPREAD; a = a < 0 ? 0 : (a > 1 ? 1 : a);
+        var sp = it.spans[i];
+        sp.style.opacity = (MINO + (1 - MINO) * a).toFixed(3);
+        sp.style.transform = 'translateY(' + ((1 - a) * 0.2).toFixed(3) + 'em)';
+      }
+    }
+  }
+  window.__refreshWords = function(){ buildWords(); renderFX(); };
+  buildWords();
+  var tick = false;
+  window.addEventListener('scroll', function(){ if (!tick){ tick = true; requestAnimationFrame(function(){ renderFX(); tick = false; }); } }, { passive: true });
+  window.addEventListener('resize', renderFX);
+  renderFX();
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
