@@ -1331,27 +1331,10 @@ nav.mega-open .nav-links a::before {
   .work-left { position: relative; height: auto; padding: 36px 28px 20px; }
   .work-cta { margin-top: 20px; }
   .work-photos { padding-bottom: 0; }
-  .work-card { position: sticky; top: 0; height: 100vh; padding: 0; align-items: flex-start; padding-top: 20px; }
-  .work-card-img { aspect-ratio: 1/1.414; height: min(70vh, 105vw); width: auto; }
-}
-/* Phones: the poster area is ONE screen — a horizontal swipe carousel instead of
-   a tall vertical scroll-stack (which left a big empty block below). */
-@media (max-width: 700px) {
-  .work-photos {
-    display: flex; flex-direction: row;
-    overflow-x: auto; overflow-y: hidden;
-    scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
-    gap: 14px; padding: 4px 24px 16px;
-    scrollbar-width: none;
-  }
-  .work-photos::-webkit-scrollbar { display: none; }
-  .work-card {
-    position: static !important; top: auto !important; height: auto !important;
-    padding: 0 !important; transform: none !important;   /* neutralise the scroll-stack JS */
-    flex: 0 0 80%; scroll-snap-align: center; align-items: stretch;
-  }
-  .work-card-img { height: auto !important; width: 100% !important; aspect-ratio: 1/1.414; }
-  .work-dots { display: flex; gap: 7px; margin-top: 14px; }
+  /* Each poster fills its own screen, centred; multiple posters use the SAME
+     vertical scroll-stack as desktop (each rises up from below as you scroll). */
+  .work-card { position: sticky; top: 0; height: 100vh; padding: 0; align-items: center; justify-content: center; }
+  .work-card-img { aspect-ratio: 1/1.414; height: min(82vh, 128vw); width: auto; }
 }
 
 /* ── SHOWREEL VIDEO GRID ── */
@@ -5233,23 +5216,8 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
 
   const SCALE_MIN  = 0.88;   // how small the outgoing card gets
   const LIFT_PX    = 40;     // how many px the outgoing card lifts up
-  const isPhone = () => window.matchMedia('(max-width:700px)').matches;
-
-  // Phones use a horizontal swipe carousel (CSS) — keep the dots in sync with it.
-  const photos = document.getElementById('work-photos');
-  if (photos) {
-    photos.addEventListener('scroll', function () {
-      if (!isPhone()) return;
-      const cs = Array.from(photos.querySelectorAll('.work-card'));
-      const center = photos.scrollLeft + photos.clientWidth / 2;
-      let best = 0, bestD = Infinity;
-      cs.forEach((c, i) => { const cc = c.offsetLeft + c.offsetWidth / 2; const d = Math.abs(cc - center); if (d < bestD) { bestD = d; best = i; } });
-      dots.forEach((d, di) => d.classList.toggle('wd-active', di === best));
-    }, { passive: true });
-  }
 
   function update() {
-    if (isPhone()) return;   // phone = CSS carousel; skip the vertical scroll-stack transforms
     const cards = Array.from(document.querySelectorAll('.work-card'));   // live: picks up added/removed cards
     if (!cards.length) return;
     cards.forEach((card, i) => {
