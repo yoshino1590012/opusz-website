@@ -1657,18 +1657,24 @@ nav.mega-open .nav-links a::before {
   .hiw-visual { position: relative; display: none; }
   .hiw-visual.show { display: block; }
 
-  /* step 1 — two overlapping portrait cards (deck) */
+  /* step 1 — two EQUAL-SIZE portrait cards, gently overlapping */
   .hiw-paths { position: relative; display: flex; flex-direction: row; flex-wrap: nowrap; justify-content: center; align-items: flex-start; width: auto; gap: 0; }
-  .hiw-path { position: static; width: 250px; flex: 0 0 250px; min-height: 0; }
-  .hiw-path:nth-child(1) { z-index: 2; transform: rotate(-2.5deg); margin-right: -86px; box-shadow: 0 22px 50px rgba(0,0,0,.18); }
+  .hiw-path { position: static; width: 248px; flex: 0 0 248px; height: 400px; min-height: 0; overflow: hidden; }
+  .hiw-path:nth-child(1) { z-index: 2; transform: rotate(-2.5deg); margin-right: -84px; box-shadow: 0 22px 50px rgba(0,0,0,.18); }
   .hiw-path:nth-child(2) { z-index: 1; transform: rotate(2.5deg); }
+  /* the public-commission card is only an illustration — trim it down to the
+     trial card's size by dropping the longer fields */
+  .hiw-path:not(.hiw-path--alt) .hiw-frow ~ .hiw-frow,
+  .hiw-path:not(.hiw-path--alt) > .hiw-fld { display: none; }
 
-  /* step 2 — fanned trio (overlapping) */
-  .hiw-fan { position: relative; display: block; flex-direction: row; width: 330px; height: 360px; }
-  .hiw-qcard { position: absolute !important; top: 22px; left: 50%; width: 188px; margin-left: -94px; max-width: none; }
-  .hiw-qcard--mid { z-index: 3; transform: translateY(-6px) !important; }
-  .hiw-qcard--right { z-index: 2; transform: translate(78px,16px) rotate(7deg) !important; }
-  .hiw-qcard--left { z-index: 1; transform: translate(-78px,16px) rotate(-7deg) !important; }
+  /* step 2 — three quote cards in a VERTICAL overlapping cascade (portrait-
+     friendly: each card peeks its avatar + name; the front one is fully shown) */
+  .hiw-fan { position: relative; display: block; width: 236px; height: 560px; }
+  .hiw-qcard { position: absolute !important; left: 50%; top: 0; width: 220px; margin-left: -110px; max-width: none; padding: 18px 18px; }
+  .hiw-qav { width: 58px; height: 58px; margin-bottom: 10px; }
+  .hiw-qcard--left  { z-index: 1; transform: rotate(-3deg) !important; }
+  .hiw-qcard--mid   { z-index: 2; top: 124px; transform: rotate(2deg) !important; }
+  .hiw-qcard--right { z-index: 3; top: 248px; transform: rotate(-2deg) !important; }
 
   /* step 3 — protected-deal trio, sized to fit */
   .hiw-visual--deal { width: 320px; }
