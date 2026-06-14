@@ -1933,7 +1933,7 @@
                 <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc1DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="e.g. One-on-one and small-group lessons for beginner to advanced students — technique, theory and performance prep, online or in person, weekdays or weekends."></textarea></div>
                 <div class="pb-field"><label>標籤 / Tags（可複選；清單沒有的可自己輸入）</label>
                   <div class="pb-tagpicker" id="pbSvc1TagPicker" data-card="1"></div>
-                  <div style="font-size:11px;color:var(--mid);margin-top:6px;line-height:1.5;">點下面欄位打開選單勾選你教學涵蓋的曲風與適合場合（電腦可用滾輪看完整清單）；清單沒有的，在選單最下方輸入框打字按 Enter 自訂。</div>
+                  <div style="font-size:11px;color:var(--mid);margin-top:6px;line-height:1.5;">點下面欄位打開選單，勾選教學對象/程度、課程形式與教學重點（電腦可用滾輪看完整清單）；清單沒有的，在選單最下方輸入框打字按 Enter 自訂。</div>
                 </div>
               </div>
               <div class="pb-subgroup" data-pbsvc="2">
@@ -4361,10 +4361,21 @@
 
   // ── Specialties tag picker：曲風＋場合複選 + 自訂標籤（取代舊的勾選框）──
   // 每個挑選器 element 上掛 _sel = { keys:[preset key…], customs:[字串…] }
+  // Performance card (0) presets — genre + occasion (these also drive the front-end filter).
   var PB_TAG_GENRE = [['Classical','古典'],['Baroque','古樂・巴洛克'],['Contemporary','當代・現代'],['Crossover','跨界'],['Jazz','爵士'],['Pop','流行・商業'],['Film','電影・遊戲配樂'],['Musical','音樂劇'],['World','世界・民謠']];
   var PB_TAG_OCCASION = [['Wedding','婚禮'],['Corporate','商演・企業活動'],['Banquet','宴會・餐會'],['Ceremony','典禮・開幕'],['Sacred','宗教・聖樂'],['PrivateParty','私人派對']];
-  function pbTagPresetByKey(k){ var a=PB_TAG_GENRE.concat(PB_TAG_OCCASION); for(var i=0;i<a.length;i++) if(a[i][0]===k) return a[i]; return null; }
-  function pbTagKeyByLabel(s){ s=String(s==null?'':s).trim(); if(!s) return null; var a=PB_TAG_GENRE.concat(PB_TAG_OCCASION); for(var i=0;i<a.length;i++) if(a[i][0]===s||a[i][1]===s) return a[i][0]; return null; }
+  // Lessons card (1) presets — teaching-specific, grouped (students / format / focus).
+  var PB_TAG_TEACH_LEVEL  = [['Children','兒童'],['Teens','青少年'],['Adults','成人'],['Beginner','初學'],['Advanced','進階'],['Exam','檢定考級'],['MusicMajor','音樂班・升學'],['Competition','比賽培訓'],['Audition','甄試・試奏準備']];
+  var PB_TAG_TEACH_FORMAT = [['Private','一對一'],['SmallGroup','小班教學'],['Online','線上課'],['InPerson','實體課'],['ParentChild','親子課']];
+  var PB_TAG_TEACH_FOCUS  = [['Technique','基礎技巧'],['Theory','樂理'],['SightReading','視奏'],['Improvisation','即興'],['Chamber','室內樂指導'],['Masterclass','大師班・工作坊']];
+  // Group config per card: [groupTitle, pairs[]]
+  var PB_TAG_GROUPS_PERF  = [['曲風 / Genre', PB_TAG_GENRE], ['適合場合 / Occasion', PB_TAG_OCCASION]];
+  var PB_TAG_GROUPS_TEACH = [['教學對象 / Students & Level', PB_TAG_TEACH_LEVEL], ['課程形式 / Format', PB_TAG_TEACH_FORMAT], ['教學重點 / Focus', PB_TAG_TEACH_FOCUS]];
+  // Every preset across all cards — used for label↔key lookup (load/save round-trip).
+  var PB_TAG_ALL = PB_TAG_GENRE.concat(PB_TAG_OCCASION, PB_TAG_TEACH_LEVEL, PB_TAG_TEACH_FORMAT, PB_TAG_TEACH_FOCUS);
+  function pbTagGroupsFor(c){ return (c && c.getAttribute('data-card') === '1') ? PB_TAG_GROUPS_TEACH : PB_TAG_GROUPS_PERF; }
+  function pbTagPresetByKey(k){ for(var i=0;i<PB_TAG_ALL.length;i++) if(PB_TAG_ALL[i][0]===k) return PB_TAG_ALL[i]; return null; }
+  function pbTagKeyByLabel(s){ s=String(s==null?'':s).trim(); if(!s) return null; for(var i=0;i<PB_TAG_ALL.length;i++) if(PB_TAG_ALL[i][0]===s||PB_TAG_ALL[i][1]===s) return PB_TAG_ALL[i][0]; return null; }
   function pbTagIsGenre(k){ for(var i=0;i<PB_TAG_GENRE.length;i++) if(PB_TAG_GENRE[i][0]===k) return true; return false; }
 
   function pbTagPickerEnsure(c){
@@ -4372,12 +4383,12 @@
     c._built = true;
     if(!c._sel) c._sel = { keys:[], customs:[] };
     var opt = function(pair){ return '<div class="pb-tp-opt" data-key="'+pair[0]+'"><span class="pb-tp-box">✓</span><span>'+pair[1]+' / '+pair[0]+'</span></div>'; };
+    var groupsHtml = pbTagGroupsFor(c).map(function(g){
+      return '<div class="pb-tp-group-title">'+g[0]+'</div>' + g[1].map(opt).join('');
+    }).join('');
     var html = '<div class="pb-tp-field"><span class="pb-tp-add">＋ 點此選擇 / 新增標籤</span></div>'
       + '<div class="pb-tp-panel">'
-      +   '<div class="pb-tp-group-title">曲風 / Genre</div>'
-      +   PB_TAG_GENRE.map(opt).join('')
-      +   '<div class="pb-tp-group-title">適合場合 / Occasion</div>'
-      +   PB_TAG_OCCASION.map(opt).join('')
+      +   groupsHtml
       +   '<div class="pb-tp-custom"><input type="text" placeholder="自訂標籤，打字後按 Enter"><button type="button">加入</button></div>'
       + '</div>';
     c.innerHTML = html;
