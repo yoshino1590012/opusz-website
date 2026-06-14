@@ -1677,8 +1677,8 @@
             <!-- Card (Musicians directory list card) -->
             <div class="pb-field-group" data-pbgroup="card">
               <div class="pb-group-title">列表卡片 / Card</div>
-              <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">這是你在 Musicians 列表那張卡片顯示的照片與文字（留空會自動沿用主頁設定）。照片請貼網址。</p>
-              <div class="pb-field"><label>卡片照片網址 / Card photo URL</label><input type="text" id="pbCardPhotoUrl" placeholder="https://… 圖片網址" oninput="pbOnInput()"></div>
+              <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">這是你在 Musicians 列表那張卡片顯示的照片與文字（留空會自動沿用主頁設定）。</p>
+              <div class="pb-field"><label>卡片照片 / Card photo</label><input type="text" id="pbCardPhotoUrl" oninput="pbOnInput()" style="display:none;"></div>
               <div class="pb-field"><label>顯示名稱 / Display name</label><input type="text" id="pbCardName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name"></div>
               <div class="pb-field"><label>樂器 / Instruments</label><div style="font-size:12px;color:var(--mid);line-height:1.5;" data-i18n-html="pbh_card_inst">樂器選擇已移到「<b>主視覺</b>」分頁的頭銜下方（可多選、連動前台篩選）。</div></div>
               <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbCardLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
@@ -1717,7 +1717,7 @@
               <div class="pb-field"><label>學經歷（中文）/ Credentials (one per line)</label><textarea id="pbAboutCreds" oninput="pbOnInput()" style="min-height:160px;" placeholder="每行一項：樂團、獎項、學歷"></textarea></div>
               <div class="pb-field"><label>🌐 學經歷（English）/ Credentials, English (one per line)</label><textarea id="pbAboutCredsEn" oninput="pbOnInput()" style="min-height:160px;" placeholder="One per line: orchestras, awards, education（留空＝英文版此段空白）"></textarea></div>
               <div class="pb-subgroup-title" style="margin-top:18px;">大頭照 / Avatar</div>
-              <div class="pb-field"><label>頭像網址 / Avatar image URL</label><input type="text" id="pbAvatarUrl" oninput="pbOnInput()" placeholder="https://..."></div>
+              <div class="pb-field"><label>頭像 / Avatar</label><input type="text" id="pbAvatarUrl" oninput="pbOnInput()" style="display:none;"></div>
               <div style="display:flex;align-items:center;gap:12px;margin:6px 0 2px;">
                 <div id="pbAvatarPrevWrap" style="width:72px;height:72px;border-radius:50%;overflow:hidden;position:relative;background:#e0e0e0;flex-shrink:0;border:2px solid #f0f0f0;">
                   <img id="pbAvatarPrevImg" alt="" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;">
@@ -4413,7 +4413,7 @@
         + '<div><label>標題（中文）</label><input type="text" class="pbHlTitle" value="'+pbEsc(data.title)+'"></div>'
         + '<div style="max-width:90px;flex:0 0 90px;"><label>年份</label><input type="text" class="pbHlYear" value="'+pbEsc(data.year)+'"></div>'
         + '<div style="flex:1 1 100%;"><label>🌐 標題（English）</label><input type="text" class="pbHlTitleEn" value="'+pbEsc(data.titleEn)+'" placeholder="Title (English) — 留空＝英文版此列標題空白"></div>'
-        + '<div style="flex:1 1 100%;"><label>圖片網址 / Image URL</label><input type="text" class="pbHlImage" id="'+imgId+'" value="'+pbEsc(data.imageUrl)+'" placeholder="https://..."></div>'
+        + '<div style="flex:1 1 100%;"><label>圖片 / Image</label><input type="text" class="pbHlImage" id="'+imgId+'" value="'+pbEsc(data.imageUrl)+'" style="display:none;"></div>'
         + '<div style="flex:1 1 100%;"><label>連結網址（選填）/ Link URL (optional)</label><input type="text" class="pbHlLink" value="'+pbEsc(data.linkUrl)+'" placeholder="https://… 有填才會在照片下方顯示「查看更多」"></div>'
         + '<div style="flex:1 1 100%;"><label>水平 X (%)</label><input type="range" class="pbHlX" min="0" max="100" step="1" value="'+hx+'" style="width:100%;"></div>'
         + '<div style="flex:1 1 100%;"><label>垂直 Y (%)</label><input type="range" class="pbHlY" min="0" max="100" step="1" value="'+hy+'" style="width:100%;"></div>'
@@ -4486,7 +4486,7 @@
         + '</span>'
         + '<button type="button" class="pb-row-del pb-banner-del" title="Remove" style="margin-top:0;">✕</button>'
       + '</div>'
-      + '<div class="pb-field" style="margin-bottom:8px;"><label>媒體網址 / Media URL</label><input type="text" class="pbBannerUrl" id="'+imgId+'" value="'+pbEsc(data.url)+'" placeholder="https://..."></div>'
+      + '<div class="pb-field" style="margin-bottom:8px;"><label>媒體網址（圖片可上傳，影片請貼網址）/ Media URL</label><input type="text" class="pbBannerUrl" id="'+imgId+'" value="'+pbEsc(data.url)+'" placeholder="https://…（影片網址；圖片用下方上傳）"></div>'
       + '<div style="font-size:11px;font-weight:700;color:var(--mid);margin:4px 0 4px;">'+t('pb_photo_note')+'</div>'
       + '<div class="pb-field" style="margin-bottom:6px;"><label>'+t('pb_desk_x')+'</label><input type="range" class="pbBannerX" min="0" max="100" step="1" value="'+x+'" style="width:100%;"></div>'
       + '<div class="pb-field" style="margin-bottom:8px;"><label>'+t('pb_desk_y')+'</label><input type="range" class="pbBannerY" min="0" max="100" step="1" value="'+y+'" style="width:100%;"></div>'
