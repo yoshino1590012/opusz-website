@@ -921,6 +921,10 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
      Desktop/tablet keep the photo + hover preview (full functionality). */
   .highlights-frame { display:none; }
   .highlights-list  { flex:1 1 100%; width:100%; }
+  /* No hover preview on mobile → kill the row-glide + left arrow so the year
+     never gets pushed past the right edge ("飛出格") on narrow screens. */
+  .hl-item.hl-active { transform:none; }
+  .hl-item::before   { display:none; }
 }
 
 /* ── Client Reviews ── */
@@ -1946,7 +1950,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 #martin-photo-editor, #bveToggle, #bvePanel, .bve-toggle, .bve-panel, #mpe-toast { display: none !important; }</style>
 </head>
 <body>
-<script src="nav.js?v=15"></script>
+<script src="nav.js?v=16"></script>
 <script src="partners-library.js?v=2"></script>
 
 
