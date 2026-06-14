@@ -874,10 +874,11 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 /* Right frame — portrait 3×4, large */
 .highlights-frame { width:340px; flex-shrink:0; position:sticky; top:110px; }
 .hl-frame-box {
-  position:relative; width:100%; aspect-ratio:3/4;
+  position:relative; width:100%; aspect-ratio:var(--hl-ratio, 3 / 4);
   border-radius:12px; overflow:clip;
   background:#f0f0f0;
   box-shadow:0 12px 48px rgba(0,0,0,.13);
+  transition:aspect-ratio .4s ease;
 }
 .hl-photo {
   position:absolute; inset:0; opacity:0;
@@ -4002,6 +4003,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   var current = -1;
   var DEFAULT_IDX = -1;   // photo shown by default (first highlight WITH an image)
   var _hlArr  = [];       // current highlights data (for the optional per-item link)
+  var _hlEditLock = -1;   // editor preview: pin the photo to the highlight being edited
 
   function photos(){ return document.querySelectorAll('.hl-photo'); }
 
@@ -4027,8 +4029,12 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     if (idx === current) { updateHlLink(idx); return; }
     current = idx;
     if (idle) idle.classList.add('hidden');
+    var frame = document.getElementById('hlFrameBox');
     photos().forEach(function(p){
-      p.classList.toggle('hl-ph-active', +p.dataset.ph === idx);
+      var on = (+p.dataset.ph === idx);
+      p.classList.toggle('hl-ph-active', on);
+      // frame follows THIS photo's real aspect ratio (landscape/portrait/square)
+      if (on && frame) frame.style.setProperty('--hl-ratio', p.dataset.ratio || '3 / 4');
     });
     updateHlLink(idx);
   }
@@ -4064,6 +4070,21 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     }
   }
   window.__bindHighlightHover = bindHighlightHover;
+
+  // Editor preview: pin the photo to the highlight the musician is currently editing,
+  // so adjusting card N's position shows card N (not a snap-back to the first card).
+  window.__hlShow = function(idx){
+    _hlEditLock = (typeof idx === 'number' && idx >= 0) ? idx : -1;
+    if (_hlEditLock >= 0){
+      showPhoto(_hlEditLock);
+      var list = document.getElementById('hlList');
+      if (list){
+        list.querySelectorAll('.hl-item').forEach(function(i){ i.classList.remove('hl-active'); });
+        var d = list.querySelector('.hl-item[data-hl="' + _hlEditLock + '"]');
+        if (d) d.classList.add('hl-active');
+      }
+    }
+  };
 
   // Rebuild the highlights list + frame from an array of {title, year, imageUrl}.
   window.__applyHighlights = function(arr){
@@ -4110,6 +4131,20 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
         bg.style.backgroundImage = 'url(' + hl.imageUrl + ')';
         bg.style.backgroundSize = 'cover';
         bg.style.backgroundPosition = hx + '% ' + hy + '%';
+        // Measure the real image so the frame can match its shape (no cropping)
+        (function(ph){
+          var im = new Image();
+          im.onload = function(){
+            if(im.naturalWidth && im.naturalHeight){
+              ph.dataset.ratio = im.naturalWidth + ' / ' + im.naturalHeight;
+              if(ph.classList.contains('hl-ph-active')){
+                var fb = document.getElementById('hlFrameBox');
+                if(fb) fb.style.setProperty('--hl-ratio', ph.dataset.ratio);
+              }
+            }
+          };
+          im.src = hl.imageUrl;
+        })(photo);
         if (hz) { bg.style.transform = 'scale(' + (1 + hz/100) + ')'; bg.style.transformOrigin = 'center center'; }
       } else {
         bg.style.background = HL_GRADIENTS[i % HL_GRADIENTS.length];
@@ -4126,9 +4161,13 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     DEFAULT_IDX = -1;
     for (var di = 0; di < arr.length; di++){ if (arr[di] && arr[di].imageUrl){ DEFAULT_IDX = di; break; } }
     current = -1;
-    if (DEFAULT_IDX >= 0) {
-      showPhoto(DEFAULT_IDX);
-      var _d = list.querySelector('.hl-item[data-hl="' + DEFAULT_IDX + '"]');
+    // Editor preview: if a highlight is being edited, keep showing THAT one across
+    // rebuilds; otherwise default to the first highlight that has an image.
+    var _showIdx = (_hlEditLock >= 0 && _hlEditLock < arr.length) ? _hlEditLock : DEFAULT_IDX;
+    if (_showIdx >= 0) {
+      showPhoto(_showIdx);
+      list.querySelectorAll('.hl-item').forEach(function(i){ i.classList.remove('hl-active'); });
+      var _d = list.querySelector('.hl-item[data-hl="' + _showIdx + '"]');
       if (_d) _d.classList.add('hl-active');
     } else {
       clearPhoto();
@@ -6636,6 +6675,10 @@ window.addEventListener('pageshow', function(e) {
     // Editor left the 預約 section → close it again
     if(e && e.data && e.data.type === 'close-avail'){
       try{ if(typeof window.closeAvail === 'function') window.closeAvail(); }catch(err){}
+    }
+    // Editor is editing highlight #index → pin the preview photo to it
+    if(e && e.data && e.data.type === 'hl-show' && typeof e.data.index === 'number'){
+      try{ if(typeof window.__hlShow === 'function') window.__hlShow(e.data.index); }catch(err){}
     }
   });
 })();

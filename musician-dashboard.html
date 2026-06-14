@@ -4427,10 +4427,23 @@
     row.querySelector('.pb-row-del').onclick = function(){ row.remove(); pbOnInput(); };
     row.querySelector('.pb-hl-up').onclick   = function(){ var p=row.previousElementSibling; if(p){ row.parentNode.insertBefore(row, p); pbOnInput(); } };
     row.querySelector('.pb-hl-down').onclick = function(){ var nx=row.nextElementSibling; if(nx){ row.parentNode.insertBefore(nx, row); pbOnInput(); } };
-    row.querySelectorAll('input').forEach(function(inp){ inp.addEventListener('input', function(){ pbOnInput(); }); });
+    row.querySelectorAll('input').forEach(function(inp){
+      inp.addEventListener('input', function(){ pbOnInput(); pbHlNotifyPreview(row); });
+      inp.addEventListener('focus', function(){ pbHlNotifyPreview(row); });  // clicking into a row pins the preview to it
+    });
     list.appendChild(row);
     // Attach drag/click uploader to this row's image input.
     pbAttachUploader(imgId, 'hl' + n, 800);
+  }
+  // Tell the preview which highlight (by its current position) is being edited,
+  // so it pins that photo instead of snapping back to the first one.
+  function pbHlNotifyPreview(row){
+    var list = document.getElementById('pbHighlightsList');
+    if(!list || !row) return;
+    var idx = Array.prototype.indexOf.call(list.children, row);
+    if(idx < 0) return;
+    var f = document.getElementById('pbPreview');
+    if(f && f.contentWindow) f.contentWindow.postMessage({ type:'hl-show', index: idx }, '*');
   }
   window.pbAddHighlightRow=function(){ pbAddHighlightRow(); if(window.pbApplyLangMode) pbApplyLangMode(); pbOnInput(); };
 
