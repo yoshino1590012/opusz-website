@@ -3568,7 +3568,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   <a href="#discover"      class="bn-item" data-sec="discover"><span data-i18n="bn.browse">Browse</span></a>
   <a href="#artists"       class="bn-item" data-sec="artists"><span data-i18n="bn.shows">Shows</span></a>
   <a href="#showreel-grid" class="bn-item" data-sec="showreel-grid">Showcase</a>
-  <a href="#services"      class="bn-item" data-sec="services"><span data-i18n="bn.services">Services</span></a>
+  <a href="#about"         class="bn-item" data-sec="about"><span data-i18n="bn.services">Services</span></a>
   <a href="#blog"          class="bn-item" data-sec="blog"><span data-i18n="bn.blog">Blog</span></a>
   <a href="#site-footer"   class="bn-item" data-sec="site-footer"><span data-i18n="bn.footer">Footer</span></a>
 </div>
@@ -4938,7 +4938,7 @@ applySvcImg(0);
   const bn      = document.getElementById('bottomNav');
   const slider  = document.getElementById('bnSlider');
   const items   = document.querySelectorAll('.bn-item');
-  const SEC_IDS = ['home','discover','artists','showreel-grid','services','blog','site-footer'];
+  const SEC_IDS = ['home','discover','artists','showreel-grid','about','blog','site-footer'];
 
   let _activeIdx    = -1;
   let _sliderReady  = false;
@@ -4961,12 +4961,16 @@ applySvcImg(0);
   }
 
   function _getActive() {
-    const trigger = window.innerHeight * 0.52; // section crosses 52% from top
+    const trigger = window.innerHeight * 0.5; // section crosses 50% from top
     let found = 0;
-    SEC_IDS.forEach((id, i) => {
-      const el = document.getElementById(id);
-      if (el && el.getBoundingClientRect().top <= trigger) found = i;
-    });
+    for (let i = 0; i < SEC_IDS.length; i++) {
+      const el = document.getElementById(SEC_IDS[i]);
+      if (!el) continue;
+      const r = el.getBoundingClientRect();
+      if (r.height < 2) continue;                          // skip hidden/zero-height anchors
+      if (r.top <= trigger && r.bottom > trigger) return i; // trigger line inside this section
+      if (r.top <= trigger) found = i;                      // fallback: last section above trigger
+    }
     return found;
   }
 
