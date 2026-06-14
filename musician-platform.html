@@ -1167,7 +1167,7 @@ nav.mega-open .nav-links a::before {
 .svc-btn { background: var(--black); color: var(--white); padding: 14px 28px; border-radius: 50px; font-size: 15px; font-weight: 500; text-decoration: none; width: fit-content; align-self: flex-end; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
 .svc-img { display: none; width: 100%; aspect-ratio: 4/5; border-radius: 12px; overflow: hidden; transition: background .4s; }
 /* scroll-driven word reveal (告知感動畫) — words fade from faint to solid as you scroll */
-.scroll-words .sw { display: inline-block; opacity: .14; will-change: opacity, transform; }
+.scroll-words .sw { display: inline-block; opacity: 0; will-change: opacity, transform; }
 @media (prefers-reduced-motion: reduce) { .scroll-words .sw { opacity: 1 !important; transform: none !important; } }
 .svc-img-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transition: background .4s; }
 .svc-desc { font-size: 15px; line-height: 1.6; color: var(--mid); }
@@ -3282,7 +3282,17 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 <section class="hp-about" id="aboutbrief" data-cms-section="aboutbrief" style="background:#fff;padding:clamp(90px,15vh,190px) 24px;border-top:1px solid #eee;">
   <div style="max-width:1100px;margin:0 auto;">
     <span data-i18n="hp.about.eyebrow" style="display:block;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#999;margin-bottom:30px;">(About OPUS.Z)</span>
-    <p class="scroll-words" data-i18n="hp.about.title" style="font-size:clamp(28px,4.4vw,64px);font-weight:400;line-height:1.16;letter-spacing:-.03em;max-width:20ch;margin:0 0 48px;color:#111;">We exist to make sure exceptional musicians are seen, heard, and hired — with focus, intention, and impact.</p>
+    <p class="scroll-words" data-i18n="hp.about.title" style="font-size:clamp(28px,4.4vw,64px);font-weight:400;line-height:1.16;letter-spacing:-.03em;max-width:20ch;margin:0 0 56px;color:#111;">We exist to make sure exceptional musicians are seen, heard, and hired — with focus, intention, and impact.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:32px;max-width:620px;margin:0 0 50px;">
+      <div style="border-top:2px solid #111;padding-top:20px;">
+        <div class="hpa-num" data-count="50" data-suffix="+" style="font-size:clamp(44px,6vw,84px);font-weight:800;letter-spacing:-.04em;line-height:.9;color:#111;">0</div>
+        <div data-i18n="hp.about.s1" style="margin-top:14px;font-size:14.5px;color:#666;line-height:1.5;">elite musicians on the platform</div>
+      </div>
+      <div style="border-top:2px solid #111;padding-top:20px;">
+        <div class="hpa-num" data-count="8" data-suffix="" style="font-size:clamp(44px,6vw,84px);font-weight:800;letter-spacing:-.04em;line-height:.9;color:#111;">0</div>
+        <div data-i18n="hp.about.s2" style="margin-top:14px;font-size:14.5px;color:#666;line-height:1.5;">instrument categories</div>
+      </div>
+    </div>
     <a href="about.html" data-i18n="hp.about.link" style="display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:#111;border-bottom:2px solid #111;padding-bottom:3px;text-decoration:none;">More about us →</a>
   </div>
 </section>
@@ -3550,7 +3560,7 @@ const I18N = {
     'about.collab':'(Live collaboration)','about.booking':'Booking request received',
     'about.realtime':'Real-time booking and<br>talent discovery',
     'blog.label':'(Blog)','blog.seeall':'See all',
-    'hp.about.eyebrow':'(About OPUS.Z)','hp.about.title':'We exist to make sure exceptional musicians are seen, heard, and hired — with focus, intention, and impact.','hp.about.link':'More about us →',
+    'hp.about.eyebrow':'(About OPUS.Z)','hp.about.title':'We exist to make sure exceptional musicians are seen, heard, and hired — with focus, intention, and impact.','hp.about.s1':'elite musicians on the platform','hp.about.s2':'instrument categories','hp.about.link':'More about us →',
     'hp.smartinsights':'Featured articles.',
     'hp.chat1':"Hi! We're looking for a string quartet for March 3rd in Taipei.",
     'hp.chat2':'Formal evening event, about 2 hours. Are you available?',
@@ -3721,7 +3731,7 @@ const I18N = {
     'about.collab':'（即時協作）','about.booking':'已收到預約請求',
     'about.realtime':'即時預約與<br>人才探索',
     'blog.label':'（部落格）','blog.seeall':'查看全部',
-    'hp.about.eyebrow':'（關於 OPUS.Z）','hp.about.title':'我們的存在，是為了讓出色的音樂家被看見、被聽見、被聘用——以專注、意圖與影響力。','hp.about.link':'更多關於我們 →',
+    'hp.about.eyebrow':'（關於 OPUS.Z）','hp.about.title':'我們的存在，是為了讓出色的音樂家被看見、被聽見、被聘用——以專注、意圖與影響力。','hp.about.s1':'位平台上的頂尖音樂家','hp.about.s2':'種樂器類別','hp.about.link':'更多關於我們 →',
     'hp.smartinsights':'精選文章。',
     'hp.chat1':'你好！我們想找 3 月 3 日在台北的弦樂四重奏。',
     'hp.chat2':'正式晚間活動，約 2 小時，請問有空檔嗎？',
@@ -3953,7 +3963,7 @@ function switchLang(lang) {
 
 // ── scroll-driven word reveal (告知感) — for .scroll-words elements (about-brief) ──
 (function(){
-  var MINO = 0.14, SPREAD = 7, swItems = [];
+  var MINO = 0, SPREAD = 7, swItems = [];   // 0 = 文字從「完全看不到」隨捲動浮現出來
   function tokenize(text){
     var out = [], buf = '';
     for (var i = 0; i < text.length; i++){
@@ -3999,6 +4009,28 @@ function switchLang(lang) {
   window.addEventListener('scroll', function(){ if (!tick){ tick = true; requestAnimationFrame(function(){ renderFX(); tick = false; }); } }, { passive: true });
   window.addEventListener('resize', renderFX);
   renderFX();
+})();
+
+// ── count-up for the About-brief stats (runs when they scroll into view) ──
+(function(){
+  function runCount(el){
+    var target = parseFloat(el.getAttribute('data-count')) || 0;
+    var suffix = el.getAttribute('data-suffix') || '';
+    var dur = 1400, start = null;
+    function step(ts){
+      if (start === null) start = ts;
+      var p = Math.min((ts - start) / dur, 1), eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(eased * target) + suffix;
+      if (p < 1) requestAnimationFrame(step); else el.textContent = target + suffix;
+    }
+    requestAnimationFrame(step);
+  }
+  var nums = document.querySelectorAll('.hpa-num[data-count]');
+  if (!nums.length) return;
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){ if (e.isIntersecting){ runCount(e.target); obs.unobserve(e.target); } });
+  }, { threshold: 0.6 });
+  nums.forEach(function(n){ obs.observe(n); });
 })();
 
 document.addEventListener('DOMContentLoaded', () => {
