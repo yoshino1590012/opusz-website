@@ -1165,7 +1165,7 @@ nav.mega-open .nav-links a::before {
 .svc-item.active .svc-name, .svc-item:hover .svc-name { color: var(--black); }
 .svc-right { position: sticky; top: 80px; align-self: start; padding: 60px 52px 40px 52px; display: flex; flex-direction: column; gap: 20px; }
 .svc-btn { background: var(--black); color: var(--white); padding: 14px 28px; border-radius: 50px; font-size: 15px; font-weight: 500; text-decoration: none; width: fit-content; align-self: flex-end; box-shadow: 0 8px 30px rgba(0,0,0,.18); }
-.svc-img { width: 100%; aspect-ratio: 4/5; border-radius: 12px; overflow: hidden; transition: background .4s; }
+.svc-img { display: none; width: 100%; aspect-ratio: 4/5; border-radius: 12px; overflow: hidden; transition: background .4s; }
 .svc-img-inner { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transition: background .4s; }
 .svc-desc { font-size: 15px; line-height: 1.6; color: var(--mid); }
 
@@ -1485,6 +1485,7 @@ nav.mega-open .nav-links a::before {
 .hiw-st { font-size: 18px; font-weight: 800; letter-spacing: -.3px; color: var(--black); }
 .hiw-sd { font-size: 13.5px; color: var(--gray); line-height: 1.6; margin-top: 5px; }
 .hiw-right { position: relative; min-height: 580px; }
+.hiw-stage { position: relative; }
 .hiw-visual { position: absolute; top: 0; left: 0; right: 0; background: #fff; border: 1px solid #ededed; border-radius: 20px; box-shadow: 0 26px 64px rgba(0,0,0,.10); padding: 26px 28px; opacity: 0; transform: translateY(18px) scale(.985); transition: opacity .5s ease, transform .5s ease; pointer-events: none; }
 .hiw-visual--paths { box-shadow: none; border: none; background: transparent; }
 .hiw-visual.show { opacity: 1; transform: none; pointer-events: auto; }
@@ -1503,13 +1504,13 @@ nav.mega-open .nav-links a::before {
 /* step-2 visual: three fanned quote cards (real avatars, no ratings) */
 .hiw-visual--fan { background: transparent; border: none; box-shadow: none; padding: 0; }
 .hiw-fan { position: relative; height: 540px; display: flex; align-items: center; justify-content: center; }
-/* Width + fan-spread scale with the viewport (clamp/vw) so the three cards
-   always fit their column — full size on wide screens, shrinking gracefully on
-   narrower desktops instead of flying out past the area. */
-.hiw-qcard { position: absolute; width: clamp(185px, 17.5vw, 300px); background: #fff; border-radius: 22px; box-shadow: 0 22px 56px rgba(0,0,0,.17); padding: clamp(20px, 2vw, 30px) clamp(18px, 1.8vw, 26px); }
+/* Fixed sizes that fit inside the 600px design stage (incl. rotation margin);
+   the stage itself is scaled as a whole to fit any screen, so these never need
+   to change with the viewport. */
+.hiw-qcard { position: absolute; width: 260px; background: #fff; border-radius: 22px; box-shadow: 0 22px 56px rgba(0,0,0,.17); padding: 28px 24px; }
 .hiw-qcard--mid { z-index: 3; }
-.hiw-qcard--right { z-index: 2; transform: translateX(clamp(85px, 10.5vw, 206px)) translateY(30px) rotate(8deg); }
-.hiw-qcard--left { z-index: 1; transform: translateX(calc(clamp(85px, 10.5vw, 206px) * -1)) translateY(30px) rotate(-8deg); }
+.hiw-qcard--right { z-index: 2; transform: translateX(135px) translateY(30px) rotate(8deg); }
+.hiw-qcard--left { z-index: 1; transform: translateX(-135px) translateY(30px) rotate(-8deg); }
 .hiw-qav { width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 16px; overflow: hidden; background: #eee; }
 .hiw-qav img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .hiw-qname { font-size: 19px; font-weight: 800; text-align: center; color: #111; }
@@ -1595,6 +1596,11 @@ nav.mega-open .nav-links a::before {
 @media(min-width:1081px){
   .hiw { height: 230vh; }
   .hiw-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; }
+  /* Visuals live in a fixed-design "stage" that JS scales to fit the available
+     width AND height — so the cards always fit fully, never clipped left/right
+     or top/bottom, at any monitor size. */
+  .hiw-right { display: flex; align-items: center; justify-content: center; min-height: 0; }
+  .hiw-stage { width: 600px; flex: 0 0 auto; transform-origin: center center; }
   /* Both entry cards sit side by side in the right column — never wrap. They flex
      to share the available width (min-width:0 lets them shrink below 430px), so on
      narrower desktops both stay fully visible instead of stacking + overflowing. */
@@ -1617,6 +1623,7 @@ nav.mega-open .nav-links a::before {
   .hiw-step:not(.active) .hiw-sd { display: none; }
   /* Right column: only the active visual is shown (tab swap, not stacked) */
   .hiw-right { min-height: 0; display: block; position: relative; }
+  .hiw-stage { width: auto; transform: none !important; height: auto !important; }
   .hiw-visual { position: static; transform: none; pointer-events: auto; opacity: 1; display: none; }
   .hiw-visual.show { display: block; }
   .hiw-paths { flex-direction: column; align-items: center; }
@@ -3147,6 +3154,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
         </ol>
       </div>
       <div class="hiw-right" id="hiwVisuals">
+      <div class="hiw-stage" id="hiwStage">
         <!-- v0 — two entry paths, each a faithful PORTRAIT card:
              a "Post a Project" job-board form  +  a "Trial" lesson pricing card -->
         <div class="hiw-visual hiw-visual--paths show" data-v="0">
@@ -3259,12 +3267,37 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
           <div class="hiw-deal-headline" data-i18n="hiw.v3.title">You make the music. We protect the deal.</div>
           <div class="hiw-deal-sub hiw-deal-sub--center" data-i18n="hiw.v3.sub">One agreement, signed on OPUS.Z and backed by us — both sides covered, so you can focus on the music.</div>
         </div>
+      </div><!-- /hiw-stage -->
       </div>
     </div>
   </div>
 </section>
 
 <!-- TESTIMONIALS -->
+
+<!-- ABOUT BRIEF（關於精華，連到 about.html）-->
+<section class="hp-about" id="aboutbrief" data-cms-section="aboutbrief" style="background:#fff;padding:clamp(70px,11vh,140px) 24px;border-top:1px solid #eee;">
+  <div style="max-width:1100px;margin:0 auto;">
+    <span data-i18n="hp.about.eyebrow" style="display:block;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:#999;">(About OPUS.Z)</span>
+    <h2 data-i18n="hp.about.title" style="font-size:clamp(30px,4.4vw,52px);font-weight:800;letter-spacing:-.02em;line-height:1.12;margin:16px 0 18px;max-width:20ch;color:#111;">We make sure exceptional musicians are seen, heard, and hired.</h2>
+    <p data-i18n="hp.about.sub" style="font-size:clamp(16px,1.5vw,20px);color:#555;font-weight:500;margin:0 0 48px;">Curate rigorously. Match precisely. Promote relentlessly.</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:24px;max-width:760px;margin-bottom:44px;">
+      <div style="border-top:2px solid #111;padding-top:18px;">
+        <div style="font-size:clamp(40px,5.5vw,72px);font-weight:800;letter-spacing:-.04em;line-height:.9;color:#111;">50+</div>
+        <div data-i18n="hp.about.s1" style="margin-top:12px;font-size:14px;color:#666;line-height:1.5;">elite musicians across Taiwan &amp; beyond</div>
+      </div>
+      <div style="border-top:2px solid #111;padding-top:18px;">
+        <div style="font-size:clamp(40px,5.5vw,72px);font-weight:800;letter-spacing:-.04em;line-height:.9;color:#111;">100+</div>
+        <div data-i18n="hp.about.s2" style="margin-top:12px;font-size:14px;color:#666;line-height:1.5;">bookings &amp; collaborations matched</div>
+      </div>
+      <div style="border-top:2px solid #111;padding-top:18px;">
+        <div style="font-size:clamp(40px,5.5vw,72px);font-weight:800;letter-spacing:-.04em;line-height:.9;color:#111;">8</div>
+        <div data-i18n="hp.about.s3" style="margin-top:12px;font-size:14px;color:#666;line-height:1.5;">instrument categories</div>
+      </div>
+    </div>
+    <a href="about.html" data-i18n="hp.about.link" style="display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700;color:#111;border-bottom:2px solid #111;padding-bottom:3px;text-decoration:none;">More about us →</a>
+  </div>
+</section>
 
 <!-- BLOG -->
 <section class="blog" id="blog" data-cms-section="blog">
@@ -4642,6 +4675,28 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
   if(!steps.length) return;
   var cur = -1;
   function isDesktop(){ return window.matchMedia('(min-width:1081px)').matches; }
+  // Scale the visuals "stage" to fit the available width AND height so the cards
+  // are never clipped (left/right or top/bottom) on any monitor — same design,
+  // just proportionally smaller when the space is tighter.
+  var stage   = document.getElementById('hiwStage');
+  var rightEl = document.getElementById('hiwVisuals');
+  var STAGE_W = 600;       // fixed design width of the stage
+  function fitStage(){
+    if(!stage || !rightEl) return;
+    if(!isDesktop()){ stage.style.transform=''; stage.style.height=''; rightEl.style.height=''; return; }
+    stage.style.transform = 'none';
+    stage.style.height = 'auto';
+    var natH = 0;
+    visuals.forEach(function(v){ natH = Math.max(natH, v.offsetHeight); });
+    if(!(natH > 0)) natH = 700;
+    stage.style.height = natH + 'px';
+    var availW = rightEl.clientWidth;
+    var availH = window.innerHeight - 190;   // leave room top/bottom + floating nav
+    var s = Math.min(availW / STAGE_W, availH / natH, 1.35);
+    if(!(s > 0)) s = 1;
+    stage.style.transform = 'scale(' + s + ')';
+    rightEl.style.height = Math.ceil(natH * s) + 'px';
+  }
   function setActive(i){
     if(i === cur) return; cur = i;
     steps.forEach(function(s, idx){ s.classList.toggle('active', idx === i); });
@@ -4678,8 +4733,14 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
     if(ticking) return; ticking = true;
     requestAnimationFrame(function(){ onScroll(); ticking = false; });
   }, { passive: true });
-  window.addEventListener('resize', onScroll);
+  window.addEventListener('resize', function(){ onScroll(); fitStage(); });
+  document.addEventListener('opusz:langchange', function(){ setTimeout(fitStage, 60); });
   onScroll();
+  fitStage();
+  // recompute after webfonts settle (text height can shift)
+  setTimeout(fitStage, 300);
+  setTimeout(fitStage, 1200);
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(fitStage); }
 })();
 
 // Vision section removed — no-op
