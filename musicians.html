@@ -921,7 +921,7 @@ function renderGrid(){
             '<span class="mcard-reviews">💬 '+m.reviews+' &nbsp;🤍 '+(m.saves||Math.round(m.reviews*0.22))+'</span>' +
           '</div>' +
         '</div>' +
-        '<div class="mcard-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+m.region+'</div>' +
+        '<div class="mcard-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+(m.region2 ? (m.region+' · '+m.region2) : m.region)+'</div>' +
         '<div class="mcard-name">'+m.name+'</div>' +
         '<div class="mcard-instrument">'+m.instrument+'</div>' +
         '<div class="mcard-bio">'+((currentLang==='en' && m.bioEn) ? m.bioEn : m.bio)+'</div>' +
@@ -1462,6 +1462,7 @@ window.addEventListener('load', applyAllSavedXYS);
         instruments: insts,
         country:    p.country || ((p.primaryRegion || '').split(',').pop() || '').trim() || 'Taiwan',
         region:     p.region  || ((p.primaryRegion || '').split(',')[0] || '').trim() || card.location || '—',
+        region2:    p.region2 || ((p.secondaryRegion || '').split(',')[0] || '').trim() || '',
         styles:     Array.isArray(p.styles) ? p.styles : [],
         occasions:  Array.isArray(p.occasions) ? p.occasions : [],
         style:      (Array.isArray(p.styles) && p.styles[0]) ? p.styles[0] : 'Classical',

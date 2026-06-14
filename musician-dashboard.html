@@ -1677,16 +1677,9 @@
             <!-- Card (Musicians directory list card) -->
             <div class="pb-field-group" data-pbgroup="card">
               <div class="pb-group-title">列表卡片 / Card</div>
-              <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">這是你在 Musicians 列表那張卡片顯示的照片與文字（留空會自動沿用主頁設定）。</p>
-              <div class="pb-field"><label>卡片照片 / Card photo</label><input type="text" id="pbCardPhotoUrl" oninput="pbOnInput()" style="display:none;"></div>
-              <div class="pb-field"><label>顯示名稱 / Display name</label><input type="text" id="pbCardName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name"></div>
-              <div class="pb-field"><label>樂器 / Instruments</label><div style="font-size:12px;color:var(--mid);line-height:1.5;" data-i18n-html="pbh_card_inst">樂器選擇已移到「<b>主視覺</b>」分頁的頭銜下方（可多選、連動前台篩選）。</div></div>
-              <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbCardLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
-              <div class="pb-field"><label>簡短介紹（中文）/ Short bio</label><textarea id="pbCardBio" oninput="pbOnInput()" placeholder="一句話介紹你自己"></textarea></div>
-              <div class="pb-field"><label>🌐 簡短介紹（English）/ Short bio (EN)</label><textarea id="pbCardBioEn" oninput="pbOnInput()" placeholder="A one-line intro（留空＝英文版沿用中文）"></textarea></div>
-              <div class="pb-field"><label>卡片音樂 / Card music (MP3)</label><input type="text" id="pbCardAudioUrl" oninput="pbOnInput()" placeholder="https://….mp3（或拖曳音檔上傳）"><div style="font-size:11px;color:var(--text-muted,#888);margin-top:4px;line-height:1.5;" data-i18n-html="pbh_card_music">在「音樂家列表」卡片左下角按播放鍵時會播放這首。<br>影片想轉成 MP3？可用<a href="https://www.freeconvert.com/convert/video-to-mp3" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">這個免費影片轉 MP3 工具</a>。</div></div>
+              <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">這是你在「音樂家」列表上那張卡片的長相。下面就是即時預覽，往下編輯就會即時更新。</p>
 
-              <div class="pb-subgroup-title" style="margin-top:18px;">預覽 / Card preview</div>
+              <div class="pb-subgroup-title" style="margin:2px 0 8px;">預覽 / Card preview</div>
               <div class="pbcard">
                 <div class="pbcard-photo">
                   <div class="pbcard-photo-pan" id="pbCardPreviewPan">
@@ -1701,6 +1694,14 @@
                   <div class="pbcard-bio" id="pbCardPreviewBio"></div>
                 </div>
               </div>
+
+              <div class="pb-field" style="margin-top:16px;"><label>卡片照片 / Card photo</label><input type="text" id="pbCardPhotoUrl" oninput="pbOnInput()" style="display:none;"></div>
+              <div class="pb-field"><label>顯示名稱 / Display name</label><input type="text" id="pbCardName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name"></div>
+              <div class="pb-field"><label>樂器 / Instruments</label><div style="font-size:12px;color:var(--mid);line-height:1.5;" data-i18n-html="pbh_card_inst">樂器選擇已移到「<b>主視覺</b>」分頁的頭銜下方（可多選、連動前台篩選）。</div></div>
+              <div class="pb-field"><label>地點 / Location</label><div style="font-size:12px;color:var(--mid);line-height:1.5;">地區自動沿用「<b>主視覺</b>」分頁設定的主要／次要地點（可一個或兩個），不需在此另外填。</div><input type="text" id="pbCardLocation" style="display:none;"></div>
+              <div class="pb-field"><label>簡短介紹（中文）/ Short bio</label><textarea id="pbCardBio" oninput="pbOnInput()" placeholder="一句話介紹你自己"></textarea></div>
+              <div class="pb-field"><label>🌐 簡短介紹（English）/ Short bio (EN)</label><textarea id="pbCardBioEn" oninput="pbOnInput()" placeholder="A one-line intro（留空＝英文版沿用中文）"></textarea></div>
+              <div class="pb-field"><label>卡片音樂 / Card music (MP3)</label><input type="text" id="pbCardAudioUrl" oninput="pbOnInput()" placeholder="https://….mp3（或拖曳音檔上傳）"><div style="font-size:11px;color:var(--text-muted,#888);margin-top:4px;line-height:1.5;" data-i18n-html="pbh_card_music">在「音樂家列表」卡片左下角按播放鍵時會播放這首。<br>影片想轉成 MP3？可用<a href="https://www.freeconvert.com/convert/video-to-mp3" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">這個免費影片轉 MP3 工具</a>。</div></div>
 
               <div class="pb-subgroup-title" style="margin-top:16px;">照片位置 / Photo position</div>
               <div class="pb-field"><label>水平 / X (%)</label><input type="range" id="pbCardPhotoX" min="0" max="100" step="1" value="50" oninput="pbOnInput()" style="width:100%;"></div>
@@ -4880,7 +4881,10 @@
     const setText = (id,val)=>{ const el=document.getElementById(id); if(el) el.textContent = val || ''; };
     setText('pbCardPreviewName',       (cd.name||'').replace(/\|/g,' '));
     setText('pbCardPreviewInstrument', cd.instrument);
-    setText('pbCardPreviewLocation',   cd.location);
+    // 卡片地區自動沿用主視覺的主要／次要地點（可一個或兩個）
+    var _hc1 = (document.getElementById('pbHeroCity')||{}).value || '';
+    var _hc2 = (document.getElementById('pbHeroCity2')||{}).value || '';
+    setText('pbCardPreviewLocation',   [_hc1,_hc2].filter(Boolean).join(' · ') || cd.location || '');
     setText('pbCardPreviewBio',        ((localStorage.getItem('opusz_dash_lang')||'zh')==='en' && cd.bioEn) ? cd.bioEn : cd.bio);
   }
 
