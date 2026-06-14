@@ -3292,7 +3292,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
     </div>
     <div class="hpa-stats-col">
       <div style="border-top:2px solid #111;padding-top:20px;">
-        <div class="hpa-num" data-count="50" data-suffix="+" style="font-size:clamp(48px,6vw,88px);font-weight:800;letter-spacing:-.04em;line-height:.9;color:#111;">0</div>
+        <div class="hpa-num" id="statMusicians" data-count="0" data-suffix="" style="font-size:clamp(48px,6vw,88px);font-weight:800;letter-spacing:-.04em;line-height:.9;color:#111;">0</div>
         <div data-i18n="hp.about.s1" style="margin-top:14px;font-size:14.5px;color:#666;line-height:1.5;">elite musicians on the platform</div>
       </div>
       <div style="border-top:2px solid #111;padding-top:20px;">
@@ -4031,6 +4031,7 @@ function switchLang(lang) {
     }
     requestAnimationFrame(step);
   }
+  window.__runCount = runCount;   // so the live musician-count fetch can re-trigger it
   var nums = document.querySelectorAll('.hpa-num[data-count]');
   if (!nums.length) return;
   var obs = new IntersectionObserver(function(entries){
@@ -8316,5 +8317,24 @@ window.addEventListener('keydown', function(e){
 <script type="module" src="newsletter.js?v=2"></script>
 <!-- Global in-page notification toasts (messages / announcements / community / jobs) -->
 <script type="module" src="notifications.js?v=1"></script>
+
+<!-- About-brief stat: live count of registered (published) musicians -->
+<script type="module">
+  import { getApps, initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  const cfg = { apiKey:"AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s", authDomain:"opusz-45280.firebaseapp.com", projectId:"opusz-45280", storageBucket:"opusz-45280.firebasestorage.app", messagingSenderId:"304745430147", appId:"1:304745430147:web:e2900cb48d5726e5c12fb6" };
+  try {
+    const app = getApps().length ? getApps()[0] : initializeApp(cfg);
+    const db  = getFirestore(app);
+    const snap = await getDocs(collection(db, 'musicians'));
+    let n = 0; snap.forEach(d => { if (d.data().published === true) n++; });
+    const el = document.getElementById('statMusicians');
+    if (el) {
+      el.setAttribute('data-count', n);
+      if (window.__runCount) window.__runCount(el);
+      else el.textContent = String(n);
+    }
+  } catch (e) { console.warn('[about-stat] musician count failed:', e && (e.code||e.message)); }
+</script>
 </body>
 </html>
