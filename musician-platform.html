@@ -1741,6 +1741,11 @@ nav.mega-open .nav-links a::before {
 .blog-dot-m { width: 18px; height: 18px; background: var(--black); border-radius: 50%; }
 .blog-hl { font-size: clamp(42px,5.5vw,72px); font-weight: 900; letter-spacing: -2px; }
 .blog-see-all { background: var(--black); color: var(--white); padding: 14px 28px; border-radius: 50px; font-size: 15px; font-weight: 500; text-decoration: none; flex-shrink: 0; }
+@media (max-width: 700px) {
+  .blog-header { flex-direction: column; align-items: flex-start; gap: 16px; margin-bottom: 32px; }
+  .blog-left { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .blog-hl { font-size: clamp(32px, 9vw, 44px); letter-spacing: -1px; line-height: 1.05; }
+}
 .blog-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 20px; }
 .blog-card { cursor: pointer; text-decoration: none; color: inherit; display: block; }
 .blog-tag { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: #888; margin-bottom: 6px; }
