@@ -4607,12 +4607,13 @@ window.addEventListener('scroll', () => {
   heroTarget = Math.max(0, Math.min(1, (sy - vh * 1.6) / (vh * 0.6)));
   if (!heroRafId) heroRafId = requestAnimationFrame(heroTick);
 
-  // ── Cinematic phrases: blur crossfade driven by scroll (0.6vh → 3.3vh) ──
-  // Each phrase: [scrollStart, scrollEnd] in vh units
+  // ── Cinematic phrases: blur crossfade driven by scroll (0.45vh → 2.15vh) ──
+  // Evenly spread across the (shortened) intro so each shows one at a time and
+  // they all finish by the card-shrink end (2.2vh). [scrollStart, scrollEnd] in vh.
   const phraseRanges = [
-    [0.20, 1.20],   // phrase 1
-    [0.90, 2.00],   // phrase 2
-    [1.70, 2.90],   // phrase 3
+    [0.45, 1.10],   // phrase 1
+    [1.00, 1.65],   // phrase 2
+    [1.55, 2.15],   // phrase 3
   ];
   const MAX_BLUR = 16; // px
   for (let i = 0; i < 3; i++) {
