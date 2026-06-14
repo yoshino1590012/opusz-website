@@ -499,6 +499,27 @@
     .pb-langmode-hint { font-size: 10.5px; color: var(--mid); margin: 0 0 16px; line-height: 1.45; }
     /* When a single language is chosen, the opposite-language fields are hidden. */
     .pb-field.pb-lang-hidden { display: none !important; }
+    /* ── Tag picker (Specialties): multi-select genre/occasion + custom tags ── */
+    .pb-tagpicker { position: relative; }
+    .pb-tp-field { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 42px; padding: 7px 10px; border: 1.5px solid var(--border); border-radius: 8px; cursor: pointer; background: #fff; transition: border-color .15s; }
+    .pb-tp-field:hover { border-color: #bbb; }
+    .pb-tp-field.open { border-color: var(--black); }
+    .pb-tp-chip { display: inline-flex; align-items: center; gap: 6px; background: #111; color: #fff; font-size: 12px; font-weight: 600; padding: 4px 8px; border-radius: 6px; line-height: 1.3; }
+    .pb-tp-chip.custom { background: #555; }
+    .pb-tp-chip .pb-tp-x { cursor: pointer; opacity: .7; font-weight: 700; font-size: 13px; }
+    .pb-tp-chip .pb-tp-x:hover { opacity: 1; }
+    .pb-tp-add { font-size: 12.5px; color: #888; font-weight: 600; pointer-events: none; }
+    /* In-flow expanding panel (not absolute) → never clipped; its own scroll shows ALL options */
+    .pb-tp-panel { margin-top: 6px; background: #fff; border: 1.5px solid #d8d8d8; border-radius: 10px; box-shadow: 0 6px 24px rgba(0,0,0,.10); max-height: 300px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 6px; display: none; }
+    .pb-tp-panel.open { display: block; }
+    .pb-tp-group-title { font-size: 11px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .05em; padding: 8px 8px 4px; }
+    .pb-tp-opt { display: flex; align-items: center; gap: 9px; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .pb-tp-opt:hover { background: #f4f4f4; }
+    .pb-tp-opt .pb-tp-box { width: 16px; height: 16px; border: 1.5px solid #bbb; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; color: #fff; flex-shrink: 0; }
+    .pb-tp-opt.sel .pb-tp-box { background: #111; border-color: #111; }
+    .pb-tp-custom { display: flex; gap: 6px; padding: 8px; border-top: 1px solid #eee; margin-top: 4px; }
+    .pb-tp-custom input { flex: 1; border: 1.5px solid var(--border); border-radius: 6px; padding: 7px 9px; font-size: 13px; font-family: inherit; outline: none; }
+    .pb-tp-custom button { border: none; background: #111; color: #fff; border-radius: 6px; padding: 0 14px; font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
     /* Scoped mirror of musicians.html directory card, for live card preview */
     .pbcard { border-radius: 12px; overflow: hidden; background: #fff; border: 1.5px solid #efefef; }
     .pbcard-photo { position: relative; aspect-ratio: 4/3; overflow: hidden; background: #f0f0f0; }
@@ -1887,40 +1908,20 @@
             <!-- Specialties / Services -->
             <div class="pb-field-group" data-pbgroup="services">
               <div class="pb-group-title">Specialties / 專長</div>
-              <div class="pb-subgroup">
-                <div class="pb-subgroup-title">曲風 / Genre（可複選；用於前台篩選，並自動成為演出標籤）</div>
-                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Classical" onchange="pbOnInput()"> 古典 / Classical</label>
-                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Baroque" onchange="pbOnInput()"> 古樂・巴洛克 / Early &amp; Baroque</label>
-                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Contemporary" onchange="pbOnInput()"> 當代・現代 / Contemporary</label>
-                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Crossover" onchange="pbOnInput()"> 跨界 / Crossover</label>
-                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Jazz" onchange="pbOnInput()"> 爵士 / Jazz</label>
-                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Pop" onchange="pbOnInput()"> 流行・商業 / Pop &amp; Commercial</label>
-                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Film" onchange="pbOnInput()"> 電影・遊戲配樂 / Film &amp; Game</label>
-                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="Musical" onchange="pbOnInput()"> 音樂劇 / Musical Theatre</label>
-                  <label class="pb-check"><input type="checkbox" class="pbStyleChk" value="World" onchange="pbOnInput()"> 世界・民謠 / World &amp; Folk</label>
-                </div>
-              </div>
-              <div class="pb-subgroup">
-                <div class="pb-subgroup-title">適合場合 / Occasion（可複選；用於前台篩選，並自動成為演出標籤）</div>
-                <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;">
-                  <label class="pb-check"><input type="checkbox" class="pbOccasionChk" value="Wedding" onchange="pbOnInput()"> 婚禮 / Wedding</label>
-                  <label class="pb-check"><input type="checkbox" class="pbOccasionChk" value="Corporate" onchange="pbOnInput()"> 商演・企業活動 / Corporate</label>
-                  <label class="pb-check"><input type="checkbox" class="pbOccasionChk" value="Banquet" onchange="pbOnInput()"> 宴會・餐會 / Banquet</label>
-                  <label class="pb-check"><input type="checkbox" class="pbOccasionChk" value="Ceremony" onchange="pbOnInput()"> 典禮・開幕 / Ceremony</label>
-                  <label class="pb-check"><input type="checkbox" class="pbOccasionChk" value="Sacred" onchange="pbOnInput()"> 宗教・聖樂 / Sacred</label>
-                  <label class="pb-check"><input type="checkbox" class="pbOccasionChk" value="PrivateParty" onchange="pbOnInput()"> 私人派對 / Private Party</label>
-                </div>
+              <div style="font-size:12px;color:var(--mid);line-height:1.6;margin:2px 0 14px;background:#f7f7f7;border-radius:8px;padding:10px 12px;">
+                💡 曲風與適合場合現在直接在下面卡片的「標籤」裡勾選——演出卡（Card 1）、教學卡（Card 2）各自選自己的標籤。清單沒有的可以自己打字新增。其中「演出卡」勾的曲風／場合，會用於前台音樂家列表的篩選器。
               </div>
               <div class="pb-subgroup" data-pbsvc="0">
                 <div class="pb-subgroup-title">Card 1 — Performance</div>
                 <label class="pb-check" style="margin-bottom:10px;"><input type="checkbox" id="pbSvc0Visible" onchange="pbOnInput()"> 顯示演出專長卡片 / Show this card</label>
                 <div class="pb-field"><label>標題（中文）</label><input type="text" id="pbSvc0Title" oninput="pbOnInput()" placeholder="服務名稱"></div>
                 <div class="pb-field"><label>🌐 標題（English）</label><input type="text" id="pbSvc0TitleEn" oninput="pbOnInput()" placeholder="Service name (English)"></div>
-                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc0Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務"></textarea></div>
-                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc0DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="Describe this service (English)"></textarea></div>
-                <div class="pb-field"><label>標籤・中文(每行一項)</label><textarea id="pbSvc0Tags" oninput="pbOnInput()" placeholder="每行一個標籤"></textarea></div>
-                <div class="pb-field"><label>🌐 標籤・English (one per line)</label><textarea id="pbSvc0TagsEn" oninput="pbOnInput()" placeholder="One tag per line (English)"></textarea></div>
+                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc0Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="範例：提供獨奏與室內樂演出，適用於音樂會、婚禮與私人活動。擅長克萊斯勒與海飛茲改編曲目，可依場合調整曲目與編制。"></textarea></div>
+                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc0DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="e.g. Solo and chamber performances for concerts, weddings and private events. Repertoire and ensemble size tailored to your occasion."></textarea></div>
+                <div class="pb-field"><label>標籤 / Tags（曲風＋場合，可複選；清單沒有的可自己輸入）</label>
+                  <div class="pb-tagpicker" id="pbSvc0TagPicker" data-card="0"></div>
+                  <div style="font-size:11px;color:var(--mid);margin-top:6px;line-height:1.5;">點下面欄位打開選單勾選曲風與適合場合（電腦可用滾輪看完整清單）；清單沒有的，在選單最下方輸入框打字按 Enter 自訂。這張「演出卡」勾的曲風／場合也會用於前台篩選器。</div>
+                </div>
               </div>
               <div class="pb-subgroup" data-pbsvc="1">
                 <div class="pb-subgroup-title">Card 2 — Lessons（教學專長）</div>
@@ -1928,18 +1929,20 @@
                 <div style="font-size:11px;color:var(--mid);margin-bottom:10px;line-height:1.5;">勾選後會自動開啟「課程方案」，並讓你出現在 Lessons 老師頁。</div>
                 <div class="pb-field"><label>標題（中文）</label><input type="text" id="pbSvc1Title" oninput="pbOnInput()" placeholder="服務名稱"></div>
                 <div class="pb-field"><label>🌐 標題（English）</label><input type="text" id="pbSvc1TitleEn" oninput="pbOnInput()" placeholder="Service name (English)"></div>
-                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc1Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務"></textarea></div>
-                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc1DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="Describe this service (English)"></textarea></div>
-                <div class="pb-field"><label>標籤・中文(每行一項)</label><textarea id="pbSvc1Tags" oninput="pbOnInput()" placeholder="每行一個標籤"></textarea></div>
-                <div class="pb-field"><label>🌐 標籤・English (one per line)</label><textarea id="pbSvc1TagsEn" oninput="pbOnInput()" placeholder="One tag per line (English)"></textarea></div>
+                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc1Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="範例：一對一小提琴教學，從零基礎到考級、檢定與比賽皆可。著重姿勢、音準與音樂性，課程依學生程度與目標客製。"></textarea></div>
+                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc1DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="e.g. One-on-one violin lessons from beginner to exam, audition and competition level. Focus on posture, intonation and musicality, tailored to each student."></textarea></div>
+                <div class="pb-field"><label>標籤 / Tags（可複選；清單沒有的可自己輸入）</label>
+                  <div class="pb-tagpicker" id="pbSvc1TagPicker" data-card="1"></div>
+                  <div style="font-size:11px;color:var(--mid);margin-top:6px;line-height:1.5;">點下面欄位打開選單勾選你教學涵蓋的曲風與適合場合（電腦可用滾輪看完整清單）；清單沒有的，在選單最下方輸入框打字按 Enter 自訂。</div>
+                </div>
               </div>
               <div class="pb-subgroup" data-pbsvc="2">
                 <div class="pb-subgroup-title">Card 3 — 其他專長（自訂）</div>
                 <label class="pb-check" style="margin-bottom:10px;"><input type="checkbox" id="pbSvc2Visible" onchange="pbOnInput()"> 顯示此專長卡片 / Show this card</label>
                 <div class="pb-field"><label>標題（中文）</label><input type="text" id="pbSvc2Title" oninput="pbOnInput()" placeholder="服務名稱"></div>
                 <div class="pb-field"><label>🌐 標題（English）</label><input type="text" id="pbSvc2TitleEn" oninput="pbOnInput()" placeholder="Service name (English)"></div>
-                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc2Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務"></textarea></div>
-                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc2DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="Describe this service (English)"></textarea></div>
+                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc2Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="範例：錄音編曲與配樂製作，提供影視、廣告與專輯的弦樂錄製與編寫，可遠端交付。"></textarea></div>
+                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc2DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="e.g. Studio recording, arranging and scoring for film, ads and albums — remote delivery available."></textarea></div>
                 <div class="pb-field"><label>標籤・中文(每行一項)</label><textarea id="pbSvc2Tags" oninput="pbOnInput()" placeholder="每行一個標籤"></textarea></div>
                 <div class="pb-field"><label>🌐 標籤・English (one per line)</label><textarea id="pbSvc2TagsEn" oninput="pbOnInput()" placeholder="One tag per line (English)"></textarea></div>
               </div>
@@ -1948,8 +1951,8 @@
                 <label class="pb-check" style="margin-bottom:10px;"><input type="checkbox" id="pbSvc3Visible" onchange="pbOnInput()"> 顯示此專長卡片 / Show this card</label>
                 <div class="pb-field"><label>標題（中文）</label><input type="text" id="pbSvc3Title" oninput="pbOnInput()" placeholder="服務名稱"></div>
                 <div class="pb-field"><label>🌐 標題（English）</label><input type="text" id="pbSvc3TitleEn" oninput="pbOnInput()" placeholder="Service name (English)"></div>
-                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc3Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="描述這項服務"></textarea></div>
-                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc3DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="Describe this service (English)"></textarea></div>
+                <div class="pb-field"><label>描述（中文）</label><textarea id="pbSvc3Desc" oninput="pbOnInput()" style="min-height:70px;" placeholder="範例：大師班與工作坊，為學校、樂團與音樂營提供主題講座與分部指導。"></textarea></div>
+                <div class="pb-field"><label>🌐 描述（English）</label><textarea id="pbSvc3DescEn" oninput="pbOnInput()" style="min-height:70px;" placeholder="e.g. Masterclasses and workshops for schools, orchestras and music camps — themed sessions and sectional coaching."></textarea></div>
                 <div class="pb-field"><label>標籤・中文(每行一項)</label><textarea id="pbSvc3Tags" oninput="pbOnInput()" placeholder="每行一個標籤"></textarea></div>
                 <div class="pb-field"><label>🌐 標籤・English (one per line)</label><textarea id="pbSvc3TagsEn" oninput="pbOnInput()" placeholder="One tag per line (English)"></textarea></div>
               </div>
@@ -4341,20 +4344,125 @@
   function pbAddPackageRow(data){
     data=data||{};
     pbMakeRow('pbPackagesList',
-      '<div><label>名稱 / Name</label><input type="text" class="pbPkgName" value="'+pbEsc(data.name)+'"></div>'
-      +'<div><label>時長 / Duration</label><input type="text" class="pbPkgDuration" value="'+pbEsc(data.duration)+'"></div>'
-      +'<div style="max-width:160px;flex:0 0 160px;"><label>價格 / Price</label><input type="number" class="pbPkgPrice" data-net="perf" value="'+pbEsc(data.price)+'"><div class="pb-net-hint"></div></div>');
+      '<div><label>名稱 / Name</label><input type="text" class="pbPkgName" placeholder="例：婚禮全場演奏方案" value="'+pbEsc(data.name)+'"></div>'
+      +'<div><label>時長 / Duration</label><input type="text" class="pbPkgDuration" placeholder="例：90 分鐘（含彩排）" value="'+pbEsc(data.duration)+'"></div>'
+      +'<div style="max-width:160px;flex:0 0 160px;"><label>價格 / Price</label><input type="number" class="pbPkgPrice" data-net="perf" placeholder="例：15000" value="'+pbEsc(data.price)+'"><div class="pb-net-hint"></div></div>');
   }
   function pbAddAddonRow(data){
     data=data||{};
     pbMakeRow('pbAddonsList',
-      '<div><label>名稱 / Name</label><input type="text" class="pbAddonName" value="'+pbEsc(data.name)+'"></div>'
-      +'<div style="flex:2 1 160px;"><label>說明 / Description</label><input type="text" class="pbAddonDesc" value="'+pbEsc(data.desc)+'"></div>'
-      +'<div style="max-width:160px;flex:0 0 160px;"><label>起價 / From (NT$)</label><input type="number" class="pbAddonFrom" data-net="perf" value="'+pbEsc(data.priceFrom)+'"><div class="pb-net-hint"></div></div>');
+      '<div><label>名稱 / Name</label><input type="text" class="pbAddonName" placeholder="例：加長 30 分鐘" value="'+pbEsc(data.name)+'"></div>'
+      +'<div style="flex:2 1 160px;"><label>說明 / Description</label><input type="text" class="pbAddonDesc" placeholder="例：於原定時間後延長演奏，適合宴客時間較長的場合" value="'+pbEsc(data.desc)+'"></div>'
+      +'<div style="max-width:160px;flex:0 0 160px;"><label>起價 / From (NT$)</label><input type="number" class="pbAddonFrom" data-net="perf" placeholder="例：2000" value="'+pbEsc(data.priceFrom)+'"><div class="pb-net-hint"></div></div>');
   }
   window.pbAddHourlyRow=function(){ pbAddHourlyRow(); pbOnInput(); };
   window.pbAddPackageRow=function(){ pbAddPackageRow(); pbOnInput(); };
   window.pbAddAddonRow=function(){ pbAddAddonRow(); pbOnInput(); };
+
+  // ── Specialties tag picker：曲風＋場合複選 + 自訂標籤（取代舊的勾選框）──
+  // 每個挑選器 element 上掛 _sel = { keys:[preset key…], customs:[字串…] }
+  var PB_TAG_GENRE = [['Classical','古典'],['Baroque','古樂・巴洛克'],['Contemporary','當代・現代'],['Crossover','跨界'],['Jazz','爵士'],['Pop','流行・商業'],['Film','電影・遊戲配樂'],['Musical','音樂劇'],['World','世界・民謠']];
+  var PB_TAG_OCCASION = [['Wedding','婚禮'],['Corporate','商演・企業活動'],['Banquet','宴會・餐會'],['Ceremony','典禮・開幕'],['Sacred','宗教・聖樂'],['PrivateParty','私人派對']];
+  function pbTagPresetByKey(k){ var a=PB_TAG_GENRE.concat(PB_TAG_OCCASION); for(var i=0;i<a.length;i++) if(a[i][0]===k) return a[i]; return null; }
+  function pbTagKeyByLabel(s){ s=String(s==null?'':s).trim(); if(!s) return null; var a=PB_TAG_GENRE.concat(PB_TAG_OCCASION); for(var i=0;i<a.length;i++) if(a[i][0]===s||a[i][1]===s) return a[i][0]; return null; }
+  function pbTagIsGenre(k){ for(var i=0;i<PB_TAG_GENRE.length;i++) if(PB_TAG_GENRE[i][0]===k) return true; return false; }
+
+  function pbTagPickerEnsure(c){
+    if(c._built) return;
+    c._built = true;
+    if(!c._sel) c._sel = { keys:[], customs:[] };
+    var opt = function(pair){ return '<div class="pb-tp-opt" data-key="'+pair[0]+'"><span class="pb-tp-box">✓</span><span>'+pair[1]+' / '+pair[0]+'</span></div>'; };
+    var html = '<div class="pb-tp-field"><span class="pb-tp-add">＋ 點此選擇 / 新增標籤</span></div>'
+      + '<div class="pb-tp-panel">'
+      +   '<div class="pb-tp-group-title">曲風 / Genre</div>'
+      +   PB_TAG_GENRE.map(opt).join('')
+      +   '<div class="pb-tp-group-title">適合場合 / Occasion</div>'
+      +   PB_TAG_OCCASION.map(opt).join('')
+      +   '<div class="pb-tp-custom"><input type="text" placeholder="自訂標籤，打字後按 Enter"><button type="button">加入</button></div>'
+      + '</div>';
+    c.innerHTML = html;
+    var field = c.querySelector('.pb-tp-field');
+    var panel = c.querySelector('.pb-tp-panel');
+    // open/close (toggle) — but ignore clicks on chip ✕
+    field.addEventListener('click', function(e){
+      if(e.target.classList.contains('pb-tp-x')) return;
+      var willOpen = !panel.classList.contains('open');
+      pbTagPickerCloseAll();
+      if(willOpen){ panel.classList.add('open'); field.classList.add('open'); }
+    });
+    // preset option toggle
+    panel.querySelectorAll('.pb-tp-opt').forEach(function(o){
+      o.addEventListener('click', function(){
+        var k = o.getAttribute('data-key');
+        var idx = c._sel.keys.indexOf(k);
+        if(idx === -1) c._sel.keys.push(k); else c._sel.keys.splice(idx,1);
+        pbTagPickerRender(c); pbOnInput();
+      });
+    });
+    // custom add
+    var cin = panel.querySelector('.pb-tp-custom input');
+    var cbtn = panel.querySelector('.pb-tp-custom button');
+    var addCustom = function(){
+      var v = (cin.value||'').trim();
+      if(!v){ return; }
+      var asKey = pbTagKeyByLabel(v);   // typed something that's actually a preset → select preset instead
+      if(asKey){ if(c._sel.keys.indexOf(asKey)===-1) c._sel.keys.push(asKey); }
+      else if(c._sel.customs.indexOf(v)===-1){ c._sel.customs.push(v); }
+      cin.value=''; pbTagPickerRender(c); pbOnInput();
+    };
+    cbtn.addEventListener('click', addCustom);
+    cin.addEventListener('keydown', function(e){ if(e.key==='Enter'){ e.preventDefault(); addCustom(); } });
+    pbTagPickerRender(c);
+  }
+
+  function pbTagPickerRender(c){
+    var sel = c._sel || { keys:[], customs:[] };
+    var field = c.querySelector('.pb-tp-field');
+    var panel = c.querySelector('.pb-tp-panel');
+    if(!field) return;
+    var chips = '';
+    sel.keys.forEach(function(k){ var p=pbTagPresetByKey(k); var label=p?p[1]:k;
+      chips += '<span class="pb-tp-chip" data-k="'+k+'">'+label+'<span class="pb-tp-x" data-rk="'+k+'">✕</span></span>'; });
+    sel.customs.forEach(function(t,i){
+      chips += '<span class="pb-tp-chip custom">'+pbEsc(t)+'<span class="pb-tp-x" data-rc="'+i+'">✕</span></span>'; });
+    field.innerHTML = chips + '<span class="pb-tp-add">'+(chips? '＋' : '＋ 點此選擇 / 新增標籤')+'</span>';
+    // chip remove handlers
+    field.querySelectorAll('.pb-tp-x').forEach(function(x){
+      x.addEventListener('click', function(e){
+        e.stopPropagation();
+        var rk=x.getAttribute('data-rk'); var rc=x.getAttribute('data-rc');
+        if(rk!==null && rk!==undefined && rk!==''){ var i=sel.keys.indexOf(rk); if(i!==-1) sel.keys.splice(i,1); }
+        else if(rc!==null && rc!==undefined && rc!==''){ sel.customs.splice(Number(rc),1); }
+        pbTagPickerRender(c); pbOnInput();
+      });
+    });
+    // sync option ticks
+    if(panel) panel.querySelectorAll('.pb-tp-opt').forEach(function(o){
+      o.classList.toggle('sel', sel.keys.indexOf(o.getAttribute('data-key'))!==-1);
+    });
+  }
+
+  function pbTagPickerCloseAll(){
+    document.querySelectorAll('.pb-tp-panel.open').forEach(function(p){ p.classList.remove('open'); });
+    document.querySelectorAll('.pb-tp-field.open').forEach(function(f){ f.classList.remove('open'); });
+  }
+  // click outside any picker → close panels
+  document.addEventListener('click', function(e){ if(!e.target.closest('.pb-tagpicker')) pbTagPickerCloseAll(); });
+
+  function pbTagPickerSet(id, keys, customs){
+    var c = document.getElementById(id); if(!c) return;
+    c._sel = { keys: (keys||[]).slice(), customs: (customs||[]).slice() };
+    pbTagPickerEnsure(c);
+    pbTagPickerRender(c);
+  }
+  function pbTagPickerGet(id){
+    var c = document.getElementById(id);
+    if(!c || !c._sel) return { keys:[], customs:[] };
+    return { keys: c._sel.keys.slice(), customs: c._sel.customs.slice() };
+  }
+  // build empty pickers on first paint so the fields show even before data loads
+  pbTagPickerSet('pbSvc0TagPicker', [], []);
+  pbTagPickerSet('pbSvc1TagPicker', [], []);
 
   // ── 價格即時換算：樂手填的是「公開全包價」＝客戶付的價；平台服務費內含，樂手實拿剩餘 ──
   // 演出（按小時／組合包／加購）抽 15% → 實拿 85%；課程抽 10% → 實拿 90%。
@@ -4716,24 +4824,42 @@
     v('pbPartners', Array.isArray(pbConfig.partners) ? pbConfig.partners.join('\n') : '');
 
     // Services / specialties
-    (pbConfig.services||[]).forEach(function(svc, i){
+    var _svcs = pbConfig.services||[];
+    _svcs.forEach(function(svc, i){
       v('pbSvc'+i+'Title', svc.title);
       v('pbSvc'+i+'Desc',  svc.description);
-      v('pbSvc'+i+'Tags',  Array.isArray(svc.tags) ? svc.tags.join('\n') : '');
       v('pbSvc'+i+'TitleEn', svc.titleEn);
       v('pbSvc'+i+'DescEn',  svc.descriptionEn);
-      v('pbSvc'+i+'TagsEn',  Array.isArray(svc.tagsEn) ? svc.tagsEn.join('\n') : '');
-      if(i >= 2) c('pbSvc'+i+'Visible', svc.visible === true);  // custom cards' own switch
+      // Cards 0/1 use the tag picker (set below); cards 2/3 keep the free-text textareas.
+      if(i >= 2){
+        v('pbSvc'+i+'Tags',  Array.isArray(svc.tags) ? svc.tags.join('\n') : '');
+        v('pbSvc'+i+'TagsEn',  Array.isArray(svc.tagsEn) ? svc.tagsEn.join('\n') : '');
+        c('pbSvc'+i+'Visible', svc.visible === true);  // custom cards' own switch
+      }
     });
 
-    // Genre (multi-select) → drives the public filter + performance tags
+    // Card 1 (Performance) tag picker: presets come from the GLOBAL styles+occasions
+    // (these drive the front-end filter); custom tags are svc[0].tags that aren't presets.
     var _styles = Array.isArray(pbConfig.styles) ? pbConfig.styles : [];
-    document.querySelectorAll('.pbStyleChk').forEach(function(c){ c.checked = _styles.indexOf(c.value) !== -1; });
-    // Occasion (multi-select). Legacy: 'Wedding' used to live in styles → still tick it.
-    var _occ = Array.isArray(pbConfig.occasions) ? pbConfig.occasions : [];
-    document.querySelectorAll('.pbOccasionChk').forEach(function(c){
-      c.checked = _occ.indexOf(c.value) !== -1 || (c.value === 'Wedding' && _styles.indexOf('Wedding') !== -1);
+    var _occ    = Array.isArray(pbConfig.occasions) ? pbConfig.occasions : [];
+    var _c0keys = [];
+    _styles.concat(_occ).forEach(function(k){ if(pbTagPresetByKey(k) && _c0keys.indexOf(k)===-1) _c0keys.push(k); });
+    var _c0cust = (Array.isArray(_svcs[0] && _svcs[0].tags) ? _svcs[0].tags : [])
+      .map(function(t){ return String(t==null?'':t).trim(); })
+      .filter(function(t){ return t!=='' && !pbTagKeyByLabel(t); });
+    pbTagPickerSet('pbSvc0TagPicker', _c0keys, _c0cust);
+
+    // Card 2 (Lessons) tag picker: presets + customs parsed straight from svc[1].tags/tagsEn.
+    var _s1 = _svcs[1] || {};
+    var _s1tags = (Array.isArray(_s1.tags) ? _s1.tags : []).concat(Array.isArray(_s1.tagsEn) ? _s1.tagsEn : []);
+    var _c1keys = [], _c1cust = [];
+    _s1tags.forEach(function(t){
+      var s = String(t==null?'':t).trim(); if(!s) return;
+      var k = pbTagKeyByLabel(s);
+      if(k){ if(_c1keys.indexOf(k)===-1) _c1keys.push(k); }
+      else if(_c1cust.indexOf(s)===-1){ _c1cust.push(s); }
     });
+    pbTagPickerSet('pbSvc1TagPicker', _c1keys, _c1cust);
 
     // Reviews
     (pbConfig.reviews||[]).forEach(function(rv, i){
@@ -4966,6 +5092,16 @@
       };
     });
 
+    // Read the two tag pickers once. Card 0 (Performance): preset keys → global
+    // styles/occasions (filter) + appear on the card via the public-page link;
+    // custom tags → svc[0].tags. Card 1 (Lessons): preset labels + customs → svc[1].tags/tagsEn.
+    var _pick0 = pbTagPickerGet('pbSvc0TagPicker');
+    var _pick1 = pbTagPickerGet('pbSvc1TagPicker');
+    var _stylesOut = [], _occOut = [];
+    _pick0.keys.forEach(function(k){ if(pbTagIsGenre(k)) _stylesOut.push(k); else _occOut.push(k); });
+    var _c1zh = _pick1.keys.map(function(k){ var p=pbTagPresetByKey(k); return p?p[1]:k; }).concat(_pick1.customs);
+    var _c1en = _pick1.keys.map(function(k){ var p=pbTagPresetByKey(k); return p?p[0]:k; }).concat(_pick1.customs);
+
     const services = [0,1,2,3].map(function(i){
       var o = {
         title:        txt('pbSvc'+i+'Title').trim(),
@@ -4975,6 +5111,8 @@
         descriptionEn: txt('pbSvc'+i+'DescEn').trim(),
         tagsEn:        lines('pbSvc'+i+'TagsEn')
       };
+      if(i === 0){ o.tags = _pick0.customs.slice(); o.tagsEn = _pick0.customs.slice(); }
+      else if(i === 1){ o.tags = _c1zh.slice(); o.tagsEn = _c1en.slice(); }
       // Cards 0/1 are the Performance/Lessons cards (visibility handled by their
       // own toggles). Cards 2/3 are custom extra specialties with their own switch.
       if(i >= 2) o.visible = chk('pbSvc'+i+'Visible');
@@ -5106,8 +5244,8 @@
       },
       partners:   lines('pbPartners'),
       services:   services,
-      styles:     Array.prototype.slice.call(document.querySelectorAll('.pbStyleChk:checked')).map(function(c){ return c.value; }),
-      occasions:  Array.prototype.slice.call(document.querySelectorAll('.pbOccasionChk:checked')).map(function(c){ return c.value; }),
+      styles:     _stylesOut,
+      occasions:  _occOut,
       reviews:    reviews,
       highlights: highlights,
       audio:      audio,
@@ -6070,7 +6208,7 @@
     // ── Audio 音檔 ──
     P('audio','#pbAudio0Title','Audio · 曲目','每首曲目填「標題」＋「MP3 網址」（或直接拖曳音檔上傳）。最多 6 首，放代表作讓客戶聽得到你。'),
     // ── Specialties / 專長 ──
-    P('services','.pbStyleChk','專長 · 曲風與場合','勾選你的曲風（古典、爵士…）與適合的演出場合（婚禮、商演…）。這些會用於前台的兩個篩選器，也會自動變成你的演出標籤。'),
+    P('services','#pbSvc0TagPicker','專長 · 標籤（曲風＋場合）','點欄位打開選單，勾選你的曲風（古典、爵士…）與適合的演出場合（婚禮、商演…）；清單沒有的可自己打字新增。演出卡勾的曲風／場合會用於前台篩選器，也會自動變成你的演出標籤。'),
     P('services','#pbSvc0Title','專長 · 演出專長卡','填「演出」這張卡的標題、描述與標籤（含英文）。這是客戶看你能做什麼的重點區。'),
     P('services','#pbSvc2Visible','專長 · 其他自訂卡','另外還有 2 張可自訂的專長卡，需要時才勾選顯示並填內容。'),
     // ── 亮點 / Highlights ──
