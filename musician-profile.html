@@ -911,6 +911,18 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .hl-frame-idle svg { opacity:.18; }
 .hl-frame-idle span { font-size:11px; font-weight:600; color:#ccc; letter-spacing:.07em; text-transform:uppercase; }
 .hl-frame-idle.hidden { opacity:0; pointer-events:none; }
+/* Click a highlight photo → zoom it (moderate size, NOT full-screen, animated). */
+.hl-frame-box.hl-zoomable { cursor:zoom-in; }
+.hl-zoom-overlay { position:fixed; inset:0; z-index:9999; display:flex; align-items:center; justify-content:center; padding:5vh 5vw; background:rgba(15,15,18,.72); backdrop-filter:blur(6px); opacity:0; pointer-events:none; transition:opacity .28s ease; }
+.hl-zoom-overlay.open { opacity:1; pointer-events:auto; }
+.hl-zoom-fig { margin:0; display:flex; flex-direction:column; align-items:center; gap:14px; transform:scale(.84); opacity:0; transition:transform .34s cubic-bezier(.2,.8,.25,1), opacity .28s ease; }
+.hl-zoom-overlay.open .hl-zoom-fig { transform:scale(1); opacity:1; }
+.hl-zoom-img { display:block; max-width:min(860px,90vw); max-height:82vh; width:auto; height:auto; object-fit:contain; border-radius:14px; box-shadow:0 24px 80px rgba(0,0,0,.5); cursor:zoom-out; }
+.hl-zoom-cap { color:#fff; text-align:center; font-size:14px; font-weight:600; max-width:80vw; }
+.hl-zoom-cap span { opacity:.6; font-weight:500; margin-left:8px; }
+.hl-zoom-close { position:fixed; top:24px; right:28px; width:40px; height:40px; border:none; border-radius:50%; background:rgba(255,255,255,.14); color:#fff; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:background .15s; }
+.hl-zoom-close:hover { background:rgba(255,255,255,.28); }
+@media (max-width:640px){ .hl-zoom-img { max-height:72vh; } }
 
 @media(max-width:900px){
   .highlights-body { flex-direction:column-reverse; }
@@ -4039,12 +4051,16 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       // frame follows THIS photo's real aspect ratio (landscape/portrait/square)
       if (on && frame) frame.style.setProperty('--hl-ratio', p.dataset.ratio || '3 / 4');
     });
+    // Enable the zoom cursor only when the shown highlight actually has an image.
+    if (frame) frame.classList.toggle('hl-zoomable', !!(_hlArr[idx] && _hlArr[idx].imageUrl));
     updateHlLink(idx);
   }
 
   function clearPhoto() {
     current = -1;
     photos().forEach(function(p){ p.classList.remove('hl-ph-active'); });
+    var frame = document.getElementById('hlFrameBox');
+    if (frame) frame.classList.remove('hl-zoomable');
     if (idle) idle.classList.remove('hidden');
     updateHlLink(-1);
   }
@@ -4179,6 +4195,47 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   };
 
   bindHighlightHover();
+
+  // ── Click a highlight photo → open a moderate (non-full-screen) animated zoom. ──
+  (function initHlZoom(){
+    var inEditor = new URLSearchParams(location.search).get('edit');
+    var frame = document.getElementById('hlFrameBox');
+    if (!frame || inEditor) return;   // skip inside the editor live-preview
+    var ov = document.createElement('div');
+    ov.className = 'hl-zoom-overlay';
+    ov.innerHTML = '<button class="hl-zoom-close" type="button" aria-label="Close">✕</button>'
+      + '<figure class="hl-zoom-fig"><img class="hl-zoom-img" alt=""><figcaption class="hl-zoom-cap"></figcaption></figure>';
+    document.body.appendChild(ov);
+    var img = ov.querySelector('.hl-zoom-img');
+    var cap = ov.querySelector('.hl-zoom-cap');
+    function close(){ ov.classList.remove('open'); }
+    function open(url, title, year){
+      if (!url) return;
+      img.src = url; img.alt = title || '';
+      cap.textContent = title || '';
+      if (year){ var s = document.createElement('span'); s.textContent = year; cap.appendChild(s); }
+      cap.style.display = (title || year) ? '' : 'none';
+      // The overlay/figure are already in the DOM at their closed (scaled-down) state,
+      // so toggling .open transitions straight to scale(1) — no rAF needed.
+      ov.classList.add('open');
+    }
+    frame.addEventListener('click', function(){
+      // Read straight from whatever photo is currently shown (DOM-driven, so it never
+      // depends on internal index state).
+      var activeBg = frame.querySelector('.hl-photo.hl-ph-active .hl-photo-bg');
+      if (!activeBg) return;
+      var m = (activeBg.style.backgroundImage || '').match(/url\((['"]?)(.*?)\1\)/);
+      if (!m || !m[2]) return;   // gradient placeholder (no real image) → ignore
+      var li = document.querySelector('#hlList .hl-item.hl-active');
+      var title = li ? (li.querySelector('.hl-item-title') || {}).textContent : '';
+      var year  = li ? (li.querySelector('.hl-item-year')  || {}).textContent : '';
+      open(m[2], title, year);
+    });
+    ov.addEventListener('click', function(e){
+      if (e.target === ov || e.target === img || e.target.closest('.hl-zoom-close')) close();
+    });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && ov.classList.contains('open')) close(); });
+  })();
 })();
 </script>
 
