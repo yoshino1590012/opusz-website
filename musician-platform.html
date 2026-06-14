@@ -4553,8 +4553,12 @@ function vidTick() {
 }
 
 function heroTick() {
-  // lerp factor 0.06 = strong damping, feels heavy & deliberate
-  heroCurrent += (heroTarget - heroCurrent) * 0.06;
+  // Adaptive damping: engage quickly when there's a big gap (snappy start when
+  // you flick the trackpad/touch), then ease gently as it closes in so it still
+  // glides to a stop instead of snapping. Base 0.06 keeps the coast-out feel.
+  const _hgap = heroTarget - heroCurrent;
+  const _hf = 0.06 + 0.30 * Math.min(1, Math.abs(_hgap) / 0.30);
+  heroCurrent += _hgap * _hf;
   applyHero(heroCurrent);
   if (Math.abs(heroTarget - heroCurrent) > 0.0003) {
     heroRafId = requestAnimationFrame(heroTick);
