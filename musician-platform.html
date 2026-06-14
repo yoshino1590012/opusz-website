@@ -1652,7 +1652,7 @@ nav.mega-open .nav-links a::before {
   .hiw-steps { gap: 6px; flex: 0 0 auto; }
   .hiw-step { padding: 9px 12px; }
   .hiw-sd { font-size: 12px; }
-  .hiw-right { flex: 1 1 0; min-width: 0; min-height: 0; overflow: hidden; display: flex; align-items: center; justify-content: center; position: relative; }
+  .hiw-right { flex: 1 1 0; min-width: 0; min-height: 0; display: flex; align-items: center; justify-content: center; position: relative; }
   .hiw-stage { position: relative; width: auto; height: auto !important; transform-origin: center center; }
   .hiw-visual { position: relative; display: none; }
   .hiw-visual.show { display: block; }
@@ -1667,14 +1667,14 @@ nav.mega-open .nav-links a::before {
   .hiw-path:not(.hiw-path--alt) .hiw-frow ~ .hiw-frow,
   .hiw-path:not(.hiw-path--alt) > .hiw-fld { display: none; }
 
-  /* step 2 — three quote cards in a VERTICAL overlapping cascade (portrait-
-     friendly: each card peeks its avatar + name; the front one is fully shown) */
-  .hiw-fan { position: relative; display: block; width: 236px; height: 560px; }
-  .hiw-qcard { position: absolute !important; left: 50%; top: 0; width: 220px; margin-left: -110px; max-width: none; padding: 18px 18px; }
-  .hiw-qav { width: 58px; height: 58px; margin-bottom: 10px; }
-  .hiw-qcard--left  { z-index: 1; transform: rotate(-3deg) !important; }
-  .hiw-qcard--mid   { z-index: 2; top: 124px; transform: rotate(2deg) !important; }
-  .hiw-qcard--right { z-index: 3; top: 248px; transform: rotate(-2deg) !important; }
+  /* step 2 — three quote cards in a zig-zag cascade: top-left, middle-right,
+     bottom-left (front). Cross-staggered so each card's photo + content shows. */
+  .hiw-fan { position: relative; display: block; width: 320px; height: 540px; }
+  .hiw-qcard { position: absolute !important; left: 50%; top: 0; width: 196px; margin-left: -98px; max-width: none; padding: 16px 16px; }
+  .hiw-qav { width: 54px; height: 54px; margin-bottom: 8px; }
+  .hiw-qcard--left  { z-index: 1; transform: translateX(-58px) rotate(-5deg) !important; }
+  .hiw-qcard--mid   { z-index: 2; top: 150px; transform: translateX(58px) rotate(4deg) !important; }
+  .hiw-qcard--right { z-index: 3; top: 300px; transform: translateX(-44px) rotate(-3deg) !important; }
 
   /* step 3 — protected-deal trio, sized to fit */
   .hiw-visual--deal { width: 320px; }
@@ -3266,8 +3266,8 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
             </div>
             <!-- right (behind) — Julia Liu -->
             <div class="hiw-qcard hiw-qcard--right">
-              <div class="hiw-qav"><img src="https://firebasestorage.googleapis.com/v0/b/opusz-45280.firebasestorage.app/o/musicians%2FhNknHnfAc4ZxVScioWRfEhhFfaq1%2Fphoto_1781101585349.jpg?alt=media&amp;token=ff9cb7f0-6fc2-42c8-b30c-9ac7aba014dc" alt="" loading="lazy"></div>
-              <div class="hiw-qname" data-i18n="hiw.q3.name">Julia Liu</div>
+              <div class="hiw-qav"><img src="assets/images/founder/martin.jpg" alt="" loading="lazy" style="object-position:center 16%"></div>
+              <div class="hiw-qname" data-i18n="hiw.q3.name">Martin Liao</div>
               <div class="hiw-qrole" data-i18n="hiw.q3.role">Violin</div>
               <div class="hiw-qrate"><span class="hiw-qstars">★★★★★</span><span class="hiw-qcount">4.8 (18)</span></div>
               <div class="hiw-qprice">NT$7,500</div>
@@ -3717,7 +3717,7 @@ const I18N = {
     'hiw.v2.msg3':"Hi! Saw your request and I'd love to help. I'll send over a short demo so you can…",
     'hiw.q1.name':'Meng Hua Lin','hiw.q1.role':'Percussion',
     'hiw.q2.name':'Tzu-Wei Kang','hiw.q2.role':'Piano',
-    'hiw.q3.name':'Julia Liu','hiw.q3.role':'Violin',
+    'hiw.q3.name':'Martin Liao','hiw.q3.role':'Violin',
     'hiw.v3.label':'(A protected agreement)',
     'hiw.v3.title':'You make the music. We protect the deal.','hiw.v3.sub':'One agreement, signed on OPUS.Z and backed by us — both sides covered, so you can focus on the music.',
     'hiw.v3.client':'Client','hiw.v3.musician':'Musician','hiw.v3.cl':'Brings the occasion','hiw.v3.opz':'Secures the agreement','hiw.v3.ml':'Brings the music',
@@ -3888,7 +3888,7 @@ const I18N = {
     'hiw.v2.msg3':'嗨！看到你的需求了，很樂意幫忙，我再附上一段試聽讓你…',
     'hiw.q1.name':'林孟樺','hiw.q1.role':'打擊樂',
     'hiw.q2.name':'康慈崴','hiw.q2.role':'鋼琴',
-    'hiw.q3.name':'Julia Liu','hiw.q3.role':'小提琴',
+    'hiw.q3.name':'廖梓彤 Martin Liao','hiw.q3.role':'小提琴',
     'hiw.v3.label':'（一份受保障的合約）',
     'hiw.v3.title':'你只管音樂，保障交給我們。','hiw.v3.sub':'一份合約，在 OPUS.Z 上簽訂、由平台保障——買賣雙方都有保障，你只需專注音樂。',
     'hiw.v3.client':'客戶','hiw.v3.musician':'音樂家','hiw.v3.cl':'提出需求','hiw.v3.opz':'保障合約','hiw.v3.ml':'帶來音樂',
@@ -4816,7 +4816,9 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
       var natH2 = shown.offsetHeight || 400;
       var aW = rightEl.clientWidth;
       var aH = rightEl.clientHeight;
-      var sp = Math.min(aW / natW, aH / natH2, 1) * 0.95;  // small margin for shadows
+      // step-1 (two entry cards) sits a touch smaller than the others
+      var fill = shown.classList.contains('hiw-visual--paths') ? 0.81 : 0.95;
+      var sp = Math.min(aW / natW, aH / natH2, 1) * fill;
       if(!(sp > 0)) sp = 1;
       stage.style.transform = 'scale(' + sp + ')';
       return;
