@@ -1503,10 +1503,13 @@ nav.mega-open .nav-links a::before {
 /* step-2 visual: three fanned quote cards (real avatars, no ratings) */
 .hiw-visual--fan { background: transparent; border: none; box-shadow: none; padding: 0; }
 .hiw-fan { position: relative; height: 540px; display: flex; align-items: center; justify-content: center; }
-.hiw-qcard { position: absolute; width: 300px; background: #fff; border-radius: 22px; box-shadow: 0 22px 56px rgba(0,0,0,.17); padding: 30px 26px; }
+/* Width + fan-spread scale with the viewport (clamp/vw) so the three cards
+   always fit their column — full size on wide screens, shrinking gracefully on
+   narrower desktops instead of flying out past the area. */
+.hiw-qcard { position: absolute; width: clamp(185px, 17.5vw, 300px); background: #fff; border-radius: 22px; box-shadow: 0 22px 56px rgba(0,0,0,.17); padding: clamp(20px, 2vw, 30px) clamp(18px, 1.8vw, 26px); }
 .hiw-qcard--mid { z-index: 3; }
-.hiw-qcard--right { z-index: 2; transform: translateX(206px) translateY(30px) rotate(8deg); }
-.hiw-qcard--left { z-index: 1; transform: translateX(-206px) translateY(30px) rotate(-8deg); }
+.hiw-qcard--right { z-index: 2; transform: translateX(clamp(85px, 10.5vw, 206px)) translateY(30px) rotate(8deg); }
+.hiw-qcard--left { z-index: 1; transform: translateX(calc(clamp(85px, 10.5vw, 206px) * -1)) translateY(30px) rotate(-8deg); }
 .hiw-qav { width: 96px; height: 96px; border-radius: 50%; margin: 0 auto 16px; overflow: hidden; background: #eee; }
 .hiw-qav img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .hiw-qname { font-size: 19px; font-weight: 800; text-align: center; color: #111; }
