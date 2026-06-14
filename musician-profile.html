@@ -1351,28 +1351,28 @@ button.btn-outline{font-family:inherit;cursor:pointer;}
   z-index: 2;
   background: #fff;
 }
-/* Sticky overlap (video → Lesson Plans). Enabled by JS only when the musician
-   actually has lessons (.has-cover / .bigvid-cover added in applyProfileConfig),
-   and only on desktop — phones use the fullscreen-overlay flow instead. The
+/* Sticky overlap (video → Lesson Plans). The .bigvid-cover class is added in
+   applyProfileConfig to the first visible section after the video, and the effect
+   runs on ALL widths incl. phones (no longer desktop-only). The
    spacer grows to 200vh so the pinned video stays dead-centre for an extra 100vh
    while the Lesson Plans section scrolls up and covers it 1:1. A full-bleed white
    ::before hides the video across the whole viewport width (the section itself is
    a centred 1280px column). Net page height is unchanged: +100vh spacer, -100vh
    margin. Scrolling back up reverses the same animation. */
-@media(min-width:900px){
-  /* Always cover (with or without lessons): the spacer is 200vh and whichever
-     section follows the video covers it — lessons if shown, else the stats row. */
-  .bigvid-spacer{ height:200vh; }
-  .bigvid-cover{
-    position:relative; z-index:2; margin-top:-100vh; min-height:100vh;
-    box-sizing:border-box; display:flex; flex-direction:column; justify-content:center;
-  }
-  /* Full-bleed white backing. Overshoots a few px on every edge so no sub-pixel
-     seam exposes the dark video/spacer behind it (that was the faint hairline). */
-  .bigvid-cover::before{
-    content:''; position:absolute; top:-4px; left:50%; transform:translateX(-50%);
-    width:100vw; height:calc(100% + 8px); background:#fff; z-index:-1;
-  }
+/* Always cover (with or without lessons), on EVERY width incl. phones: the
+   spacer is 200vh and whichever section follows the video covers it 1:1 as you
+   scroll — lessons if shown, else the stats row. (Previously desktop-only; phones
+   now share the exact same pinned-video → cover-up flow.) */
+.bigvid-spacer{ height:200vh; }
+.bigvid-cover{
+  position:relative; z-index:2; margin-top:-100vh; min-height:100vh;
+  box-sizing:border-box; display:flex; flex-direction:column; justify-content:center;
+}
+/* Full-bleed white backing. Overshoots a few px on every edge so no sub-pixel
+   seam exposes the dark video/spacer behind it (that was the faint hairline). */
+.bigvid-cover::before{
+  content:''; position:absolute; top:-4px; left:50%; transform:translateX(-50%);
+  width:100vw; height:calc(100% + 8px); background:#fff; z-index:-1;
 }
 .bigvid-poster{
   position: absolute; inset: 0;
@@ -6160,7 +6160,7 @@ window.addEventListener('pageshow', function(e) {
       var lessonsOn = (lessons.visible !== false) && (cfg.lessonsEnabled !== false);
       if(lessonSec) lessonSec.style.display = lessonsOn ? '' : 'none';
     }
-    // Sticky-overlap (video → next section). ALWAYS on (desktop, gated by CSS):
+    // Sticky-overlap (video → next section). ALWAYS on, every width incl. phones:
     // the first visible section after the video covers it as you scroll — the
     // Lesson Plans if shown, otherwise the Stats row (else Client Reviews).
     (function(){
