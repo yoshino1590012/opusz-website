@@ -4971,7 +4971,12 @@ applySvcImg(0);
   }
 
   function _update() {
-    const visible = window.scrollY > window.innerHeight * 1.2;
+    // Only show the bottom nav once the pinned hero intro is (essentially) done.
+    // While the hero is still pinned, its card-overlay buttons/watermark sit over
+    // the left of this pill and would eat clicks on the first few items.
+    const _heroEl = document.querySelector('.hero');
+    const _heroH  = _heroEl ? _heroEl.offsetHeight : window.innerHeight * 3.2;
+    const visible = window.scrollY > _heroH - window.innerHeight * 0.5;
     bn.style.display = visible ? 'flex' : 'none';
     if (!visible) { _sliderReady = false; return; }
 
