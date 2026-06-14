@@ -1524,7 +1524,7 @@ nav.mega-open .nav-links a::before {
    centred in the column so it doesn't sit too high. */
 .hiw-visual--deal { background: transparent; border: none; box-shadow: none; }
 .hiw-visual--deal .hiw-vlabel { text-align: center; color: #999; }
-@media(min-width:861px){
+@media(min-width:1081px){
   .hiw-visual--deal { top: 0; bottom: 0; display: flex; flex-direction: column; justify-content: center; }
 }
 .hiw-trio { display: flex; justify-content: center; align-items: center; margin: 4px 0 28px; }
@@ -1585,11 +1585,11 @@ nav.mega-open .nav-links a::before {
 .hiw-incl li::before { content: '•'; position: absolute; left: 3px; color: #c4c4c4; }
 .hiw-path-btn { margin-top: auto; padding: 12px; background: #111; color: #fff; border-radius: 50px; text-align: center; font-size: 12.5px; font-weight: 700; }
 .hiw-path-foot { margin-top: 14px; }
-.hiw-tl-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 18px; }
+.hiw-tl-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: auto; padding-top: 18px; flex-wrap: wrap; }
 .hiw-tl-l { font-size: 9px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #b0b0b0; }
 .hiw-tl-v { font-size: 11px; color: #888; margin-top: 2px; }
 .hiw-tl-row .hiw-path-btn { margin: 0; padding: 11px 18px; white-space: nowrap; }
-@media(min-width:861px){
+@media(min-width:1081px){
   .hiw { height: 230vh; }
   .hiw-sticky { position: sticky; top: 0; height: 100vh; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; }
   /* Both entry cards sit side by side in the right column — never wrap. They flex
@@ -1598,8 +1598,8 @@ nav.mega-open .nav-links a::before {
   .hiw-paths { flex-wrap: nowrap; gap: 16px; }
   .hiw-path { width: auto; flex: 1 1 0; min-width: 0; max-width: 360px; min-height: 560px; }
 }
-@media(max-width:860px){
-  /* Tab-style on phones: compact step list up top, ONE visual shown at a time
+@media(max-width:1080px){
+  /* Tab-style on smaller screens: compact step list up top, ONE visual shown at a time
      (the active step's). No more scrolling past all three stacked visuals. */
   .hiw-sticky { padding: 56px clamp(20px,5vw,40px); }
   .hiw-inner { grid-template-columns: 1fr; gap: 22px; }
@@ -4638,7 +4638,7 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
   var visuals = Array.prototype.slice.call(sec.querySelectorAll('.hiw-visual'));
   if(!steps.length) return;
   var cur = -1;
-  function isDesktop(){ return window.matchMedia('(min-width:861px)').matches; }
+  function isDesktop(){ return window.matchMedia('(min-width:1081px)').matches; }
   function setActive(i){
     if(i === cur) return; cur = i;
     steps.forEach(function(s, idx){ s.classList.toggle('active', idx === i); });
