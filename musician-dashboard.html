@@ -1682,7 +1682,8 @@
               <div class="pb-field"><label>顯示名稱 / Display name</label><input type="text" id="pbCardName" oninput="pbOnInput()" placeholder="你的藝名 / Your stage name"></div>
               <div class="pb-field"><label>樂器 / Instruments</label><div style="font-size:12px;color:var(--mid);line-height:1.5;" data-i18n-html="pbh_card_inst">樂器選擇已移到「<b>主視覺</b>」分頁的頭銜下方（可多選、連動前台篩選）。</div></div>
               <div class="pb-field"><label>地點 / Location</label><input type="text" id="pbCardLocation" oninput="pbOnInput()" placeholder="你的城市，國家 / Your city, country"></div>
-              <div class="pb-field"><label>簡短介紹 / Short bio</label><textarea id="pbCardBio" oninput="pbOnInput()" placeholder="一句話介紹你自己 / A one-line intro"></textarea></div>
+              <div class="pb-field"><label>簡短介紹（中文）/ Short bio</label><textarea id="pbCardBio" oninput="pbOnInput()" placeholder="一句話介紹你自己"></textarea></div>
+              <div class="pb-field"><label>🌐 簡短介紹（English）/ Short bio (EN)</label><textarea id="pbCardBioEn" oninput="pbOnInput()" placeholder="A one-line intro（留空＝英文版沿用中文）"></textarea></div>
               <div class="pb-field"><label>卡片音樂 / Card music (MP3)</label><input type="text" id="pbCardAudioUrl" oninput="pbOnInput()" placeholder="https://….mp3（或拖曳音檔上傳）"><div style="font-size:11px;color:var(--text-muted,#888);margin-top:4px;line-height:1.5;" data-i18n-html="pbh_card_music">在「音樂家列表」卡片左下角按播放鍵時會播放這首。<br>影片想轉成 MP3？可用<a href="https://www.freeconvert.com/convert/video-to-mp3" target="_blank" rel="noopener" style="color:#2563eb;text-decoration:underline;">這個免費影片轉 MP3 工具</a>。</div></div>
 
               <div class="pb-subgroup-title" style="margin-top:18px;">預覽 / Card preview</div>
@@ -1730,7 +1731,10 @@
 
             <!-- Booking -->
             <div class="pb-field-group" data-pbgroup="booking">
-              <div class="pb-group-title">預約</div>
+              <div class="pb-group-title">預約（演出檔期）/ Booking</div>
+              <div style="font-size:12.5px;color:#666;line-height:1.6;background:#f5f9ff;border:1px solid #e3ebff;border-radius:8px;padding:10px 12px;margin-bottom:14px;">
+                這裡設定的是<b>「演出」</b>的價格與方案——客戶在你頁面按<b>「查看檔期 / Check availability」</b>時看到的內容。<br><span style="color:#999;">（教學課程的價格請到左邊「課程方案」設定。）</span>
+              </div>
 
               <!-- 預約列文案 (查看檔期/免費報價) 已鎖定為平台官方文字，不開放音樂家編輯。 -->
 
@@ -4618,6 +4622,7 @@
     pbInstRender();
     v('pbCardLocation',   cd.location);
     v('pbCardBio',        cd.bio);
+    v('pbCardBioEn',      cd.bioEn);
     v('pbCardAudioUrl',   cd.audioUrl);
     v('pbCardPhotoX',     (typeof cd.photoX === 'number') ? cd.photoX : 50);
     v('pbCardPhotoY',     (typeof cd.photoY === 'number') ? cd.photoY : 50);
@@ -4863,7 +4868,7 @@
     setText('pbCardPreviewName',       (cd.name||'').replace(/\|/g,' '));
     setText('pbCardPreviewInstrument', cd.instrument);
     setText('pbCardPreviewLocation',   cd.location);
-    setText('pbCardPreviewBio',        cd.bio);
+    setText('pbCardPreviewBio',        ((localStorage.getItem('opusz_dash_lang')||'zh')==='en' && cd.bioEn) ? cd.bioEn : cd.bio);
   }
 
   function pbReadBooking(){
@@ -5049,6 +5054,7 @@
         instruments: pbInsts.slice(),
         location:   txt('pbCardLocation').trim(),
         bio:        txt('pbCardBio').trim(),
+        bioEn:      txt('pbCardBioEn').trim(),
         audioUrl:   txt('pbCardAudioUrl').trim(),
         photoX:     num('pbCardPhotoX')     !== undefined ? num('pbCardPhotoX')     : 50,
         photoY:     num('pbCardPhotoY')     !== undefined ? num('pbCardPhotoY')     : 50,
@@ -5302,7 +5308,12 @@
     if(sec === 'card') pbRenderCardPreview();
     // sync the center preview: highlight + scroll the matching on-page section
     var f = document.getElementById('pbPreview');
-    if(f && f.contentWindow) f.contentWindow.postMessage({ type:'pb-highlight', section: sec }, '*');
+    if(f && f.contentWindow){
+      f.contentWindow.postMessage({ type:'pb-highlight', section: sec }, '*');
+      // 預約 section → open the Check availability popup so they see what they're editing;
+      // close it again when they move to another section.
+      f.contentWindow.postMessage({ type: (sec === 'booking') ? 'open-avail' : 'close-avail' }, '*');
+    }
   };
 
   // ── Click-in-preview → jump to + flash the exact editor field ────────────

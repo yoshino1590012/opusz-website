@@ -3289,6 +3289,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     overlay.classList.remove('open');
     document.body.style.overflow = '';
   }
+  window.closeAvail = closeAvail;   // so the editor can close it when leaving the 預約 section
 
   window.openAvail = function(){
     // Reset calendar to current month every time modal opens
@@ -6627,6 +6628,14 @@ window.addEventListener('pageshow', function(e) {
     if(e && e.data && e.data.type === 'opusz-config'){
       try{ applyProfileConfig(e.data.config); }
       catch(err){ console.warn('[profileConfig] live update failed:', err); }
+    }
+    // Editor clicked the 預約 section → open Check availability so they see what they edit
+    if(e && e.data && e.data.type === 'open-avail'){
+      try{ if(typeof window.openAvail === 'function') window.openAvail(); }catch(err){}
+    }
+    // Editor left the 預約 section → close it again
+    if(e && e.data && e.data.type === 'close-avail'){
+      try{ if(typeof window.closeAvail === 'function') window.closeAvail(); }catch(err){}
     }
   });
 })();

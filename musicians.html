@@ -906,7 +906,7 @@ function renderGrid(){
         '<div class="mcard-location"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+m.region+'</div>' +
         '<div class="mcard-name">'+m.name+'</div>' +
         '<div class="mcard-instrument">'+m.instrument+'</div>' +
-        '<div class="mcard-bio">'+m.bio+'</div>' +
+        '<div class="mcard-bio">'+((currentLang==='en' && m.bioEn) ? m.bioEn : m.bio)+'</div>' +
       '</div>' +
     '</div>';
   }).join('');
@@ -1447,6 +1447,7 @@ window.addEventListener('load', applyAllSavedXYS);
         rating:     0,
         reviews:    0,
         bio:        card.bio || (cfg.about && cfg.about.bio) || p.bio || '',
+        bioEn:      card.bioEn || (cfg.about && cfg.about.bioEn) || '',
         audioUrl:   card.audioUrl || '',
         photoUrl:   cardPhoto,
         photoX:     (typeof card.photoX === 'number') ? card.photoX : 50,
