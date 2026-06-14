@@ -815,6 +815,10 @@ function getFiltered(){
   });
 
   list.sort(function(a,b){
+    // Musicians who set up a card/banner photo come first; those who haven't
+    // (blank placeholder card) sink to the end of the roster.
+    var ap = a.photoUrl ? 1 : 0, bp = b.photoUrl ? 1 : 0;
+    if(ap !== bp) return bp - ap;
     if(sort==='newest') return b.id - a.id;
     if(sort==='rating') return (b.rating - a.rating) || (b.reviews - a.reviews);
     // default = 'popular' → by popularity (review count), rating as tie-breaker
@@ -1429,9 +1433,13 @@ window.addEventListener('load', applyAllSavedXYS);
       const cfg  = p.config || {};
       const card = cfg.card || {};
       const heroMedia = (cfg.hero && cfg.hero.media) || {};
+      // Card image: only what the musician deliberately set — their list-card
+      // photo, or failing that their banner/hero photo. Do NOT fall back to the
+      // tiny profile avatar; if neither was designed, leave it blank so the card
+      // shows the neutral placeholder instead of hijacking their headshot.
       const cardPhoto = card.photoUrl
         || ((heroMedia.type === 'photo' && heroMedia.url) ? heroMedia.url : '')
-        || (cfg.about && cfg.about.avatarUrl) || '';
+        || '';
       realMusicians.push({
         id:         d.id,            // use Firebase UID as id
         uid:        d.id,
