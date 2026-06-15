@@ -1392,7 +1392,11 @@ Martin</textarea>
   };
 
   function seCfgForPreview(){
-    if(seCurrentPage==='home') return seReadInputs();
+    if(seCurrentPage==='home'){
+      var _hc = seReadInputs();
+      if(window.__sePreviewLang) _hc._previewLang = window.__sePreviewLang;  // preview-only: flip lang to match the size slider being dragged
+      return _hc;
+    }
     var c = seCurrentConfig || {i18n:{en:{},zh:{}}};
     // Don't push `posters` through the live-preview channel — the admin already
     // drives opzShows directly; re-applying saved posters would fight live edits.
@@ -2812,6 +2816,7 @@ Martin</textarea>
     var m = window.seActiveHeroPos();
     m[key] = Object.assign({}, m[key], { s:(parseInt(val,10)||100)/100 });
     var lbl=document.getElementById('seHzl_'+key); if(lbl) lbl.textContent=val+'%';
+    if(key==='headline'||key==='sub') window.__sePreviewLang='en';  // show EN while tuning EN size
     sePreview();   // live-apply scale to the preview
   };
   // Chinese-only size for 標題/副標 (stored as .sZh; if unset the EN .s is used).
@@ -2819,6 +2824,7 @@ Martin</textarea>
     var m = window.seActiveHeroPos();
     m[key] = Object.assign({}, m[key], { sZh:(parseInt(val,10)||100)/100 });
     var lbl=document.getElementById('seHzlZh_'+key); if(lbl) lbl.textContent=val+'%';
+    window.__sePreviewLang='zh';  // flip preview to 中文 so the change is visible
     sePreview();
   };
   // Width of the two hero buttons (per device). Stored as map._btnW (base px).

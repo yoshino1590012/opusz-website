@@ -476,7 +476,18 @@ try {
 // (same-origin iframe). Lets the owner see edits without saving/reloading.
 window.addEventListener('message', function(e){
   if (e && e.data && e.data.__opuszCmsPreview) {
-    waitForI18N(function(){ applyConfig(e.data.config); });
+    var cfg = e.data.config || {};
+    // Editor hint: when the user drags an EN-only / 中文-only size slider, flip the
+    // preview to that language so they SEE the size they're adjusting (the two are
+    // independent — they only look "linked" if you can't see the other language).
+    var pl = cfg._previewLang;
+    if ((pl === 'en' || pl === 'zh') && pl !== window._currentLang) {
+      try { localStorage.setItem('opusz_lang', pl); } catch(_){}
+      window._currentLang = pl;
+      if (typeof window.switchLang === 'function') { try { window.switchLang(pl); } catch(_){} }
+      document.dispatchEvent(new CustomEvent('opusz:langchange', { detail: { lang: pl } }));
+    }
+    waitForI18N(function(){ applyConfig(cfg); });
   }
 });
 
