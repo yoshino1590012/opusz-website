@@ -2573,13 +2573,23 @@ Martin</textarea>
     var _devLabel={desktop:'標準螢幕',macbook:'MacBook',ipad:'iPad',phone:'手機'}[seCurrentDevice]||'標準螢幕';
     var devNote='<div style="font-size:10px;color:#b45309;margin:2px 0 6px;">🖥️ 目前編輯「'+_devLabel+'」的位置與大小（四個螢幕各自獨立，互不影響）</div>';
     return devNote+'<div style="font-size:11px;font-weight:800;color:#0e7490;margin:10px 0 6px;">元素大小</div>'+defs.map(function(d){
-      var key=d[0], lbl=d[1]; var s=(hp[key]&&hp[key].s)?hp[key].s:1; var pct=Math.round(s*100);
+      var key=d[0], lbl=d[1];
       var max=(key==='brand')?400:200;   // brand gets a wider zoom range
-      return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
-        +'<span style="font-size:11px;color:#155e75;width:130px;flex-shrink:0;">'+lbl+'</span>'
-        +'<input type="range" min="50" max="'+max+'" step="5" value="'+pct+'" oninput="seHeroSetSize(\''+key+'\',this.value)" style="flex:1;">'
-        +'<span id="seHzl_'+key+'" style="font-size:11px;color:#0e7490;width:36px;text-align:right;">'+pct+'%</span>'
-        +'</div>';
+      var s=(hp[key]&&hp[key].s)?hp[key].s:1; var pct=Math.round(s*100);
+      function row(sublbl, val, setter, lid){
+        return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
+          +'<span style="font-size:11px;color:#155e75;width:130px;flex-shrink:0;">'+sublbl+'</span>'
+          +'<input type="range" min="50" max="'+max+'" step="5" value="'+val+'" oninput="'+setter+'" style="flex:1;">'
+          +'<span id="'+lid+'" style="font-size:11px;color:#0e7490;width:36px;text-align:right;">'+val+'%</span>'
+          +'</div>';
+      }
+      // 標題 + 副標：中文、英文各自一條滑桿（中文缺省＝沿用英文／目前大小）
+      if (key==='headline' || key==='sub') {
+        var sZh=(hp[key]&&hp[key].sZh!=null&&hp[key].sZh!=='')?hp[key].sZh:s; var pctZh=Math.round(sZh*100);
+        return row(lbl+'（英 EN）', pct, "seHeroSetSize('"+key+"',this.value)", 'seHzl_'+key)
+             + row(lbl+'（中文）', pctZh, "seHeroSetSizeZh('"+key+"',this.value)", 'seHzlZh_'+key);
+      }
+      return row(lbl, pct, "seHeroSetSize('"+key+"',this.value)", 'seHzl_'+key);
     }).join('')
     + '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">按鈕寬度 / Button width</div>'
     + (function(){
@@ -2803,6 +2813,13 @@ Martin</textarea>
     m[key] = Object.assign({}, m[key], { s:(parseInt(val,10)||100)/100 });
     var lbl=document.getElementById('seHzl_'+key); if(lbl) lbl.textContent=val+'%';
     sePreview();   // live-apply scale to the preview
+  };
+  // Chinese-only size for 標題/副標 (stored as .sZh; if unset the EN .s is used).
+  window.seHeroSetSizeZh = function(key, val){
+    var m = window.seActiveHeroPos();
+    m[key] = Object.assign({}, m[key], { sZh:(parseInt(val,10)||100)/100 });
+    var lbl=document.getElementById('seHzlZh_'+key); if(lbl) lbl.textContent=val+'%';
+    sePreview();
   };
   // Width of the two hero buttons (per device). Stored as map._btnW (base px).
   window.seHeroSetBtnW = function(val){

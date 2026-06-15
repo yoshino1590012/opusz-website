@@ -56,6 +56,8 @@ function ensureBrandCopies(count){
 function applyHeroPos(map){
   map = map || {};
   ensureBrandCopies(map._brandCount || 1);   // make the brand copies first
+  // Current front-end language → 標題/副標 can carry separate EN vs 中文 sizes.
+  var _lang = (function(){ try { var s = localStorage.getItem('opusz_lang'); if (s === 'en' || s === 'zh') return s; } catch(e){} return (window._currentLang === 'zh') ? 'zh' : 'en'; })();
   Object.keys(HERO_DRAG).forEach(function(k){
     if(k === 'brand') return;   // every brand copy handled below
     var el = document.querySelector(HERO_DRAG[k]); if(!el) return;
@@ -67,7 +69,9 @@ function applyHeroPos(map){
     var tx = (p.xPct != null) ? ('calc(' + p.xPct + ' * 100vw)') : ((p.x || 0) + 'px');
     var ty = (p.yPct != null) ? ('calc(' + p.yPct + ' * 100vh)') : ((p.y || 0) + 'px');
     el.style.translate = has ? (tx + ' ' + ty) : '';
-    el.style.scale     = (p.s && p.s !== 1) ? String(p.s) : '';
+    // 標題/副標：中文時用 sZh（沒設就回退到 s = 目前大小）；其他元素照常用 s。
+    var sc = ((k === 'headline' || k === 'sub') && _lang === 'zh' && p.sZh != null && p.sZh !== '') ? p.sZh : p.s;
+    el.style.scale     = (sc && sc !== 1) ? String(sc) : '';
   });
   // Rotating phrases share ONE position (the `phrases` key), applied to ALL three
   // .hp-phrase blocks so they never drift apart.
@@ -668,4 +672,6 @@ document.addEventListener('opusz:langchange', function(){
       ['en','zh'].forEach(function(l){ if (m.i18n[l]) Object.assign(window.I18N[l] = window.I18N[l]||{}, m.i18n[l]); });
     }
   } catch(e){}
+  // Re-apply hero sizes so 標題/副標 pick up the new language's size (EN vs 中文).
+  try { if (window.__opzHeroCfg) applyHeroPosResponsive(window.__opzHeroCfg); } catch(e){}
 });
