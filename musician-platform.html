@@ -4420,17 +4420,11 @@ function heroViewportH() {
 function resizeHeroCanvas() {
   const c = document.getElementById('heroCanvas');
   if (!c) return;
-  const w = window.innerWidth, h = heroViewportH();
-  // Skip when unchanged: assigning c.width/c.height reallocates AND clears the
-  // backing store — expensive. On iOS the address bar collapsing fires
-  // visualViewport 'resize' repeatedly mid-scroll, so without this guard the
-  // canvas was rebuilt on every one of those events → scroll jank.
-  if (c.width === w && c.height === h) return;
-  c.width  = w;
-  c.height = h;
+  c.width  = window.innerWidth;
+  c.height = heroViewportH();
   // Override the CSS "width:100%;height:100%" so canvas isn't scaled by the browser.
-  c.style.width  = w + 'px';
-  c.style.height = h + 'px';
+  c.style.width  = c.width  + 'px';
+  c.style.height = c.height + 'px';
 }
 
 // Draw frame[frameIndex] onto canvas with cover-crop + vertical pan (objY 0–100%)
@@ -4577,14 +4571,7 @@ function heroTick() {
   }
 }
 
-// Phones: blur() recomputed every scroll event is the single biggest GPU cost on
-// mobile (smooth on desktop, janky on phones). Opacity-only crossfade looks nearly
-// identical while scrolling but is virtually free. Desktop keeps the blur.
-const _heroLowPerf = (window.innerWidth <= 768);
-let _heroScrollPending = false;
-
-function onHeroScroll() {
-  _heroScrollPending = false;
+window.addEventListener('scroll', () => {
   const sy = window.scrollY;
   const vh = _effectiveVH;
 
@@ -4656,14 +4643,8 @@ function onHeroScroll() {
       blurPx = fo * MAX_BLUR;
     }
     el.style.opacity = opacity.toFixed(3);
-    el.style.filter  = (!_heroLowPerf && blurPx > 0.1) ? `blur(${blurPx.toFixed(1)}px)` : 'none';
+    el.style.filter  = blurPx > 0.1 ? `blur(${blurPx.toFixed(1)}px)` : 'none';
   }
-}
-
-// Coalesce the dense stream of scroll events into one rAF tick per frame so the
-// hero work runs at most once per painted frame (phones fire scroll very densely).
-window.addEventListener('scroll', () => {
-  if (!_heroScrollPending) { _heroScrollPending = true; requestAnimationFrame(onHeroScroll); }
 }, { passive: true });
 
 // Canvas already begins drawing when frame 0 loads (handled in preload onload above)
@@ -4689,17 +4670,8 @@ window.addEventListener('orientationchange', () => setTimeout(resyncHero, 250));
 // iOS fires visualViewport 'resize' as the address bar collapses. With monotonic
 // sizing this only ever grows the card to cover the newly-revealed area (never
 // shrinks it mid-scroll), so it's safe to run on every change and kills the flash.
-// But it fires VERY often mid-scroll; only do the (heavy) re-sync when the viewport
-// size actually changed — address-bar jiggles with no real size change are skipped.
-let _heroLastW = 0, _heroLastH = 0;
-function syncHeroIfChanged() {
-  const w = window.innerWidth, h = heroViewportH();
-  if (w === _heroLastW && h === _heroLastH) return;
-  _heroLastW = w; _heroLastH = h;
-  syncHero();
-}
 if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', syncHeroIfChanged);
+  window.visualViewport.addEventListener('resize', syncHero);
 }
 // iOS often reports a stale height on the very first frame → re-measure shortly after.
 setTimeout(syncHero, 120);
