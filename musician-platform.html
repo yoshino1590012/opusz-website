@@ -4379,11 +4379,6 @@ let   _scrubLoaded   = 0;
 // the nearest loaded one — far less memory, smooth scroll, barely-noticeable
 // coarser scrub. Desktop keeps every frame.
 const _SCRUB_STEP    = (window.innerWidth <= 768) ? 4 : 1;
-// Phones decode/draw a fresh full-screen frame every scroll tick. The desktop frames
-// are 1080×1440 — ~1.5M px each, which a phone CPU can't decode at 60fps (→ ~30fps).
-// frames-m/ holds 540×720 copies (¼ the pixels → ~4× cheaper decode+draw) of exactly
-// the frames mobile loads (every _SCRUB_STEP-th). Barely-softer image, far smoother.
-const _FRAME_DIR     = (window.innerWidth <= 768) ? 'assets/videos/frames-m/' : 'assets/videos/frames/';
 const _VID_INIT_OBJ_Y = 22;  // initial crop: musicians half-visible at page load
 let _vidTargetFrame  = 0;
 let _vidCurrentFrame = 0;
@@ -4469,7 +4464,7 @@ function drawScrubFrame(frameIndex, objY) {
   for (let i = 0; i < _SCRUB_TOTAL; i += _SCRUB_STEP) {
     const img = new Image();
     const n   = String(i + 1).padStart(4, '0');
-    img.src   = _FRAME_DIR + 'f' + n + '.jpg';
+    img.src   = 'assets/videos/frames/f' + n + '.jpg';
     const idx = i;
     img.onload = function() {
       _scrubFrames[idx] = img;
