@@ -4581,8 +4581,10 @@ function heroTick() {
 // mobile (smooth on desktop, janky on phones). Opacity-only crossfade looks nearly
 // identical while scrolling but is virtually free. Desktop keeps the blur.
 const _heroLowPerf = (window.innerWidth <= 768);
+let _heroScrollPending = false;
 
 function onHeroScroll() {
+  _heroScrollPending = false;
   const sy = window.scrollY;
   const vh = _effectiveVH;
 
@@ -4658,11 +4660,11 @@ function onHeroScroll() {
   }
 }
 
-// Run synchronously per scroll event (NOT wrapped in its own rAF): the canvas draw
-// already happens in vidTick's rAF, so an extra rAF hop here would set the target in
-// one frame and only draw on the NEXT — halving the visible scrub rate (felt like
-// 30fps on phones). Setting the target synchronously lets vidTick draw the same frame.
-window.addEventListener('scroll', onHeroScroll, { passive: true });
+// Coalesce the dense stream of scroll events into one rAF tick per frame so the
+// hero work runs at most once per painted frame (phones fire scroll very densely).
+window.addEventListener('scroll', () => {
+  if (!_heroScrollPending) { _heroScrollPending = true; requestAnimationFrame(onHeroScroll); }
+}, { passive: true });
 
 // Canvas already begins drawing when frame 0 loads (handled in preload onload above)
 resizeHeroCanvas();
