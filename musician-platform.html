@@ -4766,8 +4766,8 @@ setTimeout(syncHero, 600);
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
       syncTouch: true,
-      syncTouchLerp: 0.10,
-      touchInertiaMultiplier: 50,   // higher = a flick throws much farther (was 28 → felt "stuck")
+      syncTouchLerp: 0.09,
+      touchInertiaMultiplier: 28,
     });
     window.__lenis = lenis;
     const _lenisRaf = (time) => { lenis.raf(time); requestAnimationFrame(_lenisRaf); };
@@ -5007,28 +5007,15 @@ applySvcImg(0);
     return found;
   }
 
-  // Cache the hero height instead of reading offsetHeight (a forced reflow) every
-  // scroll tick; refresh only on resize.
-  let _heroHCache = 0;
-  function _measureHeroH() {
-    const _heroEl = document.querySelector('.hero');
-    _heroHCache = _heroEl ? _heroEl.offsetHeight : window.innerHeight * 3.2;
-  }
-
-  let _bnTick = 0;
   function _update() {
     // Only show the bottom nav once the pinned hero intro is (essentially) done.
     // While the hero is still pinned, its card-overlay buttons/watermark sit over
     // the left of this pill and would eat clicks on the first few items.
-    if (!_heroHCache) _measureHeroH();
-    const visible = window.scrollY > _heroHCache - window.innerHeight * 0.5;
+    const _heroEl = document.querySelector('.hero');
+    const _heroH  = _heroEl ? _heroEl.offsetHeight : window.innerHeight * 3.2;
+    const visible = window.scrollY > _heroH - window.innerHeight * 0.5;
     bn.style.display = visible ? 'flex' : 'none';
     if (!visible) { _sliderReady = false; return; }
-
-    // _getActive() does a getBoundingClientRect per section (forced reflows). The
-    // active-pill indicator doesn't need 60fps — once placed, refresh every other
-    // scroll tick to halve its per-frame layout cost.
-    if (_sliderReady && (++_bnTick & 1)) return;
 
     const idx = _getActive();
     if (idx !== _activeIdx) {
@@ -5042,7 +5029,7 @@ applySvcImg(0);
   }
 
   window.addEventListener('scroll', _update, { passive: true });
-  window.addEventListener('resize', () => { _sliderReady = false; _activeIdx = -1; _heroHCache = 0; _update(); });
+  window.addEventListener('resize', () => { _sliderReady = false; _activeIdx = -1; _update(); });
 })();
 
 // ── Nav auto colour: per-element independent black/white switching ──────────
@@ -5264,28 +5251,30 @@ document.querySelectorAll('a[href^="#"]').forEach(a => {
   function update() {
     const cards = Array.from(document.querySelectorAll('.work-card'));   // live: picks up added/removed cards
     if (!cards.length) return;
-    const vh = window.innerHeight;
-    // Pass 1 — READ every card rect up front. Reading all rects before writing any
-    // style avoids the read→write→read thrash that forced a reflow per card each frame.
-    const rects = cards.map(c => c.getBoundingClientRect());
-    // Pass 2 — WRITE styles only (no layout reads in between).
-    let activeDot = -1;
     cards.forEach((card, i) => {
       card.style.zIndex = (i + 1) * 10;   // stack order for ANY number of cards (CSS nth-child only covered 3)
+      const rect = card.getBoundingClientRect();
+      const vh   = window.innerHeight;
+
       // How far the NEXT card has scrolled up into this card (0 = not started, 1 = fully covered)
+      // We measure: how much of the next card is covering us from the bottom
       let progress = 0;
       if (i < cards.length - 1) {
-        progress = Math.max(0, Math.min(1, (vh - rects[i + 1].top) / vh));
+        const nextRect = cards[i + 1].getBoundingClientRect();
+        // nextRect.top goes from vh (just entering) to 0 (fully covering)
+        progress = Math.max(0, Math.min(1, (vh - nextRect.top) / vh));
       }
+
       const scale     = 1 - (1 - SCALE_MIN) * progress;
       const translateY = -LIFT_PX * progress;
       card.style.transform = `scale(${scale}) translateY(${translateY}px)`;
 
-      // Dot: active = card whose top is closest to viewport center (last match wins)
-      const midDist = Math.abs(rects[i].top + rects[i].height / 2 - vh / 2);
-      if (midDist < vh / 2) activeDot = i;
+      // Dot: active = card whose top is closest to viewport center
+      const midDist = Math.abs(rect.top + rect.height / 2 - vh / 2);
+      if (midDist < vh / 2) {
+        dots.forEach((d, di) => d.classList.toggle('wd-active', di === i));
+      }
     });
-    if (activeDot >= 0) dots.forEach((d, di) => d.classList.toggle('wd-active', di === activeDot));
   }
 
   window.addEventListener('scroll', update, { passive: true });
