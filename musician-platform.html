@@ -1571,7 +1571,7 @@ nav.mega-open .nav-links a::before {
 /* keep each card a fixed PORTRAIT width (taller than wide) and centre the pair,
    so a wide right column never stretches them back into landscape boxes */
 .hiw-paths { display: flex; justify-content: center; align-items: stretch; gap: 18px; flex-wrap: wrap; }
-.hiw-path { width: 430px; max-width: 100%; flex: 0 0 auto; display: flex; flex-direction: column; background: #fff; border: 1px solid #ececec; border-radius: 18px; padding: 26px 26px 22px; box-shadow: 0 18px 44px rgba(0,0,0,.07); }
+.hiw-path { width: 430px; max-width: 100%; flex: 0 0 auto; display: flex; flex-direction: column; background: #fff; border: 1px solid #ececec; border-radius: 18px; padding: 26px 26px 22px; box-shadow: 0 2px 6px rgba(0,0,0,.035), 0 14px 34px rgba(0,0,0,.06), 0 34px 70px rgba(0,0,0,.05); }
 /* two-column field rows (Event Date | Event Time, Location | Duration) */
 .hiw-frow { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
 .hiw-frow .hiw-fld { margin-top: 0; }
@@ -1608,7 +1608,7 @@ nav.mega-open .nav-links a::before {
   /* Visuals live in a fixed-design "stage" that JS scales to fit the available
      width AND height — so the cards always fit fully, never clipped left/right
      or top/bottom, at any monitor size. */
-  .hiw-right { display: flex; align-items: center; justify-content: center; min-height: 0; min-width: 0; overflow: hidden; }
+  .hiw-right { display: flex; align-items: center; justify-content: center; min-height: 0; min-width: 0; }
   .hiw-stage { width: 720px; flex: 0 0 auto; transform-origin: center center; }
   /* Both entry cards sit side by side in the right column — never wrap. They flex
      to share the available width (min-width:0 lets them shrink below 430px), so on
