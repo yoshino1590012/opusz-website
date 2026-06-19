@@ -2596,16 +2596,6 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
    Hide every in-page editor panel/overlay for public visitors. Admin editing uses
    JS APIs (window.opzEdit etc.), not these panels, so nothing admin-side breaks. */
 #photo-editor, #vid-editor, #re-drawer { display: none !important; }</style>
-<!-- Lenis smooth scroll (self-hosted) — smooths wheel AND touch so the canvas-scrub
-     hero glides on mobile instead of stuttering on raw native fling scroll. -->
-<style id="lenis-css">
-html.lenis, html.lenis body { height: auto; }
-.lenis.lenis-smooth { scroll-behavior: auto !important; }
-.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
-.lenis.lenis-stopped { overflow: hidden; }
-.lenis.lenis-smooth iframe { pointer-events: none; }
-</style>
-<script src="lenis.min.js"></script>
 </head>
 <body>
 
@@ -4704,8 +4694,7 @@ setTimeout(syncHero, 600);
   function hardReset() {
     targetY  = 0;
     currentY = 0;
-    if (window.__lenis) window.__lenis.scrollTo(0, { immediate: true });
-    else window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
     updateHeroDims();
     // Reset card scale state
     heroTarget  = 0;
@@ -4734,66 +4723,51 @@ setTimeout(syncHero, 600);
   window.addEventListener('pageshow', function() { if (!userHasScrolled()) hardReset(); });
   window.addEventListener('load', function() { if (!userHasScrolled()) hardReset(); });
 
-  // ── Nav hide/show (lerp-damped, animates top so nav keeps no compositing
-  //    layer → its mix-blend-mode children blend against real page content) ──
+  // ── Nav lerp ──
   const navEl      = document.querySelector('nav');
   const navH       = navEl ? navEl.offsetHeight : 64;
   let navTarget    = 0;   // 0 = fully visible, -navH = fully hidden
   let navCurrent   = 0;
-  let navRafId     = null;
-  function navTick() {
+
+  function tick() {
+    // Scroll — lower factor = heavier glide / more momentum past stop point
+    currentY += (targetY - currentY) * 0.058;
+    window.scrollTo(0, currentY);
+    // Nav hide/show: animate top (not transform) so nav has no compositing layer
+    // — this lets mix-blend-mode on children blend against real page content
     navCurrent += (navTarget - navCurrent) * 0.1;
     if (navEl) navEl.style.top = `${navCurrent}px`;
-    if (Math.abs(navTarget - navCurrent) < 0.05) {
-      navCurrent = navTarget;
-      if (navEl) navEl.style.top = `${navTarget}px`;
-      navRafId = null;
+
+    const scrollDone = Math.abs(targetY - currentY) < 0.3;
+    const navDone    = Math.abs(navTarget - navCurrent) < 0.05;
+    if (scrollDone && navDone) {
+      window.scrollTo(0, targetY); currentY = targetY;
+      if (navEl) navEl.style.top = `${navTarget}px`; navCurrent = navTarget;
+      rafId = null;
     } else {
-      navRafId = requestAnimationFrame(navTick);
+      rafId = requestAnimationFrame(tick);
     }
   }
-  function nudgeNav() { if (!navRafId) navRafId = requestAnimationFrame(navTick); }
 
-  // ── Lenis smooth scroll — smooths BOTH wheel and TOUCH. The old hand-rolled
-  //    engine only hijacked the desktop wheel; mobile used raw native fling
-  //    scroll (events get starved during momentum) so the 362-frame canvas-scrub
-  //    hero stuttered. syncTouch routes touch through the same rAF lerp → glides
-  //    on phones, matching the reference site (which also uses Lenis). ──
-  let lenis = null;
-  if (window.Lenis) {
-    lenis = new Lenis({
-      duration: 1.05,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      syncTouch: true,
-      syncTouchLerp: 0.09,
-      touchInertiaMultiplier: 28,
-    });
-    window.__lenis = lenis;
-    const _lenisRaf = (time) => { lenis.raf(time); requestAnimationFrame(_lenisRaf); };
-    requestAnimationFrame(_lenisRaf);
+  function nudge() { if (!rafId) rafId = requestAnimationFrame(tick); }
 
-    // Nav reacts to scroll direction (was driven by wheel deltaY before)
-    lenis.on('scroll', ({ scroll, direction }) => {
-      if (scroll < 80)            navTarget = 0;
-      else if (direction === 1)   navTarget = -navH;
-      else if (direction === -1)  navTarget = 0;
-      nudgeNav();
-    });
-  } else {
-    // Fallback (Lenis failed to load): native scroll still works; drive nav from it
-    let _lastY = window.scrollY || 0;
-    window.addEventListener('scroll', () => {
-      const y = window.scrollY || 0;
-      if (y < 80)            navTarget = 0;
-      else if (y > _lastY)   navTarget = -navH;
-      else if (y < _lastY)   navTarget = 0;
-      _lastY = y;
-      nudgeNav();
-    }, { passive: true });
-  }
+  window.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const maxY = document.documentElement.scrollHeight - window.innerHeight;
+    targetY = Math.max(0, Math.min(maxY, targetY + e.deltaY));
 
-  // Keyboard scroll (Lenis doesn't handle keys itself)
+    // Nav responds to wheel intent immediately — no waiting for scroll to catch up
+    if (targetY < 80) {
+      navTarget = 0;              // near top → always visible
+    } else if (e.deltaY > 0) {
+      navTarget = -navH;          // scrolling down → hide
+    } else if (e.deltaY < 0) {
+      navTarget = 0;              // scrolling up → show
+    }
+
+    nudge();
+  }, { passive: false });
+
   window.addEventListener('keydown', (e) => {
     const maxY = document.documentElement.scrollHeight - window.innerHeight;
     const map = {
@@ -4802,20 +4776,16 @@ setTimeout(syncHero, 600);
       End:       maxY,  Home: -maxY,
     };
     if (!(e.key in map)) return;
-    // Don't hijack keys while typing in a field
-    const a = document.activeElement;
-    if (a && (a.tagName === 'INPUT' || a.tagName === 'TEXTAREA' || a.isContentEditable)) return;
     e.preventDefault();
-    const cur = window.scrollY || 0;
-    window.__opuszScrollTo(Math.max(0, Math.min(maxY, cur + map[e.key])));
+    targetY = Math.max(0, Math.min(maxY, targetY + map[e.key]));
+    nudge();
   });
 
-  // Exposed so nav clicks (and any programmatic jump) can smooth-scroll
+  // Exposed so nav clicks (and any programmatic jump) can sync targetY
   window.__opuszScrollTo = function(y) {
     const maxY = document.documentElement.scrollHeight - window.innerHeight;
-    const dest = Math.max(0, Math.min(maxY, y));
-    if (lenis) lenis.scrollTo(dest);
-    else window.scrollTo({ top: dest, behavior: 'smooth' });
+    targetY = Math.max(0, Math.min(maxY, y));
+    nudge();
   };
 })();
 
