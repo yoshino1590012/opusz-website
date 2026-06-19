@@ -1496,7 +1496,7 @@ nav.mega-open .nav-links a::before {
 .hiw-right { position: relative; min-height: 580px; }
 .hiw-stage { position: relative; }
 .hiw-visual { position: absolute; top: 0; left: 0; right: 0; background: #fff; border: 1px solid #ededed; border-radius: 20px; box-shadow: 0 26px 64px rgba(0,0,0,.10); padding: 26px 28px; opacity: 0; transform: translateY(18px) scale(.985); transition: opacity .5s ease, transform .5s ease; pointer-events: none; }
-.hiw-visual--paths { box-shadow: none; border: none; background: transparent; }
+.hiw-visual--paths { box-shadow: none; border: none; background: transparent; padding-left: 8px; padding-right: 8px; }
 .hiw-visual.show { opacity: 1; transform: none; pointer-events: auto; }
 .hiw-vlabel { font-size: 13px; font-weight: 700; color: #111; margin-bottom: 14px; }
 .hiw-brief-box { background: #f5f4f2; border-radius: 12px; padding: 18px 20px; font-size: 15.5px; color: #444; line-height: 1.65; min-height: 132px; }
@@ -1608,13 +1608,13 @@ nav.mega-open .nav-links a::before {
   /* Visuals live in a fixed-design "stage" that JS scales to fit the available
      width AND height — so the cards always fit fully, never clipped left/right
      or top/bottom, at any monitor size. */
-  .hiw-right { display: flex; align-items: center; justify-content: center; min-height: 0; }
-  .hiw-stage { width: 600px; flex: 0 0 auto; transform-origin: center center; }
+  .hiw-right { display: flex; align-items: center; justify-content: center; min-height: 0; min-width: 0; overflow: hidden; }
+  .hiw-stage { width: 720px; flex: 0 0 auto; transform-origin: center center; }
   /* Both entry cards sit side by side in the right column — never wrap. They flex
      to share the available width (min-width:0 lets them shrink below 430px), so on
      narrower desktops both stay fully visible instead of stacking + overflowing. */
   .hiw-paths { flex-wrap: nowrap; gap: 16px; }
-  .hiw-path { width: auto; flex: 1 1 0; min-width: 0; max-width: 360px; min-height: 560px; }
+  .hiw-path { width: auto; flex: 1 1 0; min-width: 0; max-width: 440px; min-height: 520px; }
 }
 @media(max-width:1080px){
   /* Tab-style on smaller screens: compact step list up top, ONE visual shown at a time
@@ -4843,7 +4843,7 @@ document.querySelectorAll('.reveal').forEach(el => ro.observe(el));
   // just proportionally smaller when the space is tighter.
   var stage   = document.getElementById('hiwStage');
   var rightEl = document.getElementById('hiwVisuals');
-  var STAGE_W = 600;       // fixed design width of the stage
+  var STAGE_W = 720;       // fixed design width of the stage
   var isPhone = function(){ return window.matchMedia('(max-width:600px)').matches; };
   function fitStage(){
     if(!stage || !rightEl) return;
