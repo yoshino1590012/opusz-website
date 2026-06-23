@@ -612,15 +612,10 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 .nav-account-dropdown-fixed .acc-logout .acc-icon { background: #fff0f0; }
 .nav-account-dropdown-fixed .acc-logout .acc-icon svg { stroke: #c00; }
 
-/* ── Hover peek: a white panel slides down + fades in behind the nav when the
-      cursor is over it. Mirrors the mega-open colour treatment so the text stays
-      readable. The scroll hide/show behaviour is left untouched.
-      (.nav-peek is a manual hook used only for testing.) ── */
-nav::after{content:"";position:absolute;inset:0;background:#fff;opacity:0;transform:translateY(-100%);transition:opacity .3s ease, transform .3s ease;z-index:-1;pointer-events:none;}
-nav:hover::after, nav.nav-peek::after{opacity:1;transform:translateY(0);}
-nav.mega-open::after{opacity:0;}
-nav:hover, nav.nav-peek{mix-blend-mode:normal;--nav-fg:#000;}
-nav:hover .nav-links, nav.nav-peek .nav-links{mix-blend-mode:normal;}
-nav:hover .nav-links a, nav.nav-peek .nav-links a{color:#000;}
-nav:hover .nc-char, nav.nav-peek .nc-char{color:#000 !important;}
-nav:hover .lang-toggle .lt-opt.active, nav.nav-peek .lang-toggle .lt-opt.active{border-color:#000;color:#000;}
+/* ── Hover peek: a solid white bar slides down + fades in BEHIND the nav when
+      the cursor is over the bar. The nav keeps mix-blend-mode:difference, so every
+      item (logo, links, AND the right-side controls) auto-inverts to black against
+      the white and stays readable. Scroll hide/show behaviour is untouched. ── */
+body::before{content:"";position:fixed;top:0;left:0;right:0;height:76px;background:#fff;opacity:0;transform:translateY(-100%);transition:opacity .3s ease, transform .3s ease;z-index:199;pointer-events:none;}
+body:has(nav:hover)::before{opacity:1;transform:translateY(0);}
+body:has(nav.mega-open)::before{opacity:0;}
