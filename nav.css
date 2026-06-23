@@ -611,3 +611,16 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 .nav-account-dropdown-fixed .acc-logout { color: #c00 !important; }
 .nav-account-dropdown-fixed .acc-logout .acc-icon { background: #fff0f0; }
 .nav-account-dropdown-fixed .acc-logout .acc-icon svg { stroke: #c00; }
+
+/* ── Hover peek: a white panel slides down + fades in behind the nav when the
+      cursor is over it. Mirrors the mega-open colour treatment so the text stays
+      readable. The scroll hide/show behaviour is left untouched.
+      (.nav-peek is a manual hook used only for testing.) ── */
+nav::after{content:"";position:absolute;inset:0;background:#fff;opacity:0;transform:translateY(-100%);transition:opacity .3s ease, transform .3s ease;z-index:-1;pointer-events:none;}
+nav:hover::after, nav.nav-peek::after{opacity:1;transform:translateY(0);}
+nav.mega-open::after{opacity:0;}
+nav:hover, nav.nav-peek{mix-blend-mode:normal;--nav-fg:#000;}
+nav:hover .nav-links, nav.nav-peek .nav-links{mix-blend-mode:normal;}
+nav:hover .nav-links a, nav.nav-peek .nav-links a{color:#000;}
+nav:hover .nc-char, nav.nav-peek .nc-char{color:#000 !important;}
+nav:hover .lang-toggle .lt-opt.active, nav.nav-peek .lang-toggle .lt-opt.active{border-color:#000;color:#000;}
