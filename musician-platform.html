@@ -779,6 +779,7 @@ nav.mega-open .nav-links a::before {
   opacity: 1;
   transform: translateY(0);
 }
+@keyframes hcoReveal { from { opacity: 0; } to { opacity: 1; } }
 /* ── overlay button styles (SaaS reference: solid black + white outline, › icon) ── */
 .hco-btn-pri {
   display: inline-flex; align-items: center; gap: calc(var(--k)*6px);
@@ -2931,13 +2932,6 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
       <!-- Canvas scrub: frames pre-loaded as images, drawn instantly on scroll -->
       <canvas id="heroCanvas"></canvas>
 
-      <!-- Upper zone: OPUS.Z title + services. Sits above musicians in top of 9:16 frame -->
-      <div class="hc-upper" id="hcUpper">
-        <div class="hero-big-title">
-          <span class="ht-word"><span class="ht-c"><span class="ht-inner">O</span></span><span class="ht-c"><span class="ht-inner">P</span></span><span class="ht-c"><span class="ht-inner">U</span></span><span class="ht-c"><span class="ht-inner">S</span></span><span class="ht-c"><span class="ht-inner">.</span></span><span class="ht-c"><span class="ht-inner">Z</span></span></span>
-        </div>
-        <!-- hero-meta-row removed -->
-      </div>
 
       <!-- Phase-4 overlay: centred headline + subtitle + buttons (upper-centre) -->
       <div class="hc-card-overlay" id="hcCardOverlay">
@@ -4340,6 +4334,27 @@ function applyColRatios() {
   function revealHero() {
     if (heroEl && !heroEl.classList.contains('hero-revealed'))
       heroEl.classList.add('hero-revealed');
+    var _ov = document.getElementById('hcCardOverlay');
+    if (!_ov) return;
+    _ov.classList.add('hco-visible');
+    // Staggered entrance for the card content. The .hco-visible CSS rule gets
+    // overridden by the per-element inline transform the size/position editor
+    // writes, so set the reveal state directly inline (the CSS transitions on
+    // each element smooth it) — title -> subtitle -> buttons -> brand, in order.
+    var _seq = [
+      ['.hco-headline', 0,   'translateY(0)'],
+      ['.hco-sub',      150, 'translateY(0)'],
+      ['.hco-btns',     320, 'translateY(0)'],
+      ['.hco-brand',    480, 'translateX(-50%) translateY(0)']
+    ];
+    _seq.forEach(function(it){
+      var el = _ov.querySelector(it[0]); if(!el) return;
+      setTimeout(function(){
+        el.style.transition = 'none';
+        el.style.setProperty('transform', it[2], 'important');
+        el.style.animation = 'hcoReveal .6s ease forwards';
+      }, it[1]);
+    });
   }
 
   if (!introEl) {
@@ -4508,8 +4523,6 @@ function applyHero(progress) {
   heroCardEl.style.boxShadow = shadowP > 0
     ? `0 0 ${48*shadowP}px rgba(0,0,0,${0.14*shadowP}), 0 ${18*shadowP}px ${52*shadowP}px rgba(0,0,0,${0.20*shadowP})`
     : 'none';
-  // Phase-4 overlay: show info panels as soon as card starts shrinking
-  if (_hcOverlayEl) _hcOverlayEl.classList.toggle('hco-visible', progress > 0.04);
 }
 
 // ── Canvas scrub RAF loop ──
@@ -4589,7 +4602,7 @@ window.addEventListener('scroll', () => {
   }
 
   // ── Phase 4: card shrinks (1.6vh → 2.2vh) — starts when video hits ~5s ──
-  heroTarget = Math.max(0, Math.min(1, (sy - vh * 0.45) / (vh * 0.8)));
+  heroTarget = Math.max(0, Math.min(1, sy / (vh * 0.9)));
   if (!heroRafId) heroRafId = requestAnimationFrame(heroTick);
 
 }, { passive: true });
