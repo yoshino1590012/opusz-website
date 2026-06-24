@@ -4436,49 +4436,29 @@ function resizeHeroCanvas() {
   c.style.height = c.height + 'px';
 }
 
-// Draw frame[frameIndex] onto canvas with cover-crop + vertical pan (objY 0–100%)
+// Hero still photo — cover-fit, fixed centre crop (no scroll pan).
+// Replaces the 362-frame musician scrub: musicians no longer animate; the
+// frameIndex/objY args are ignored so scrolling never moves the photo.
 function drawScrubFrame(frameIndex, objY) {
   const c = document.getElementById('heroCanvas');
   if (!c) return;
-  const ctx = c.getContext('2d');
-  let fi  = Math.max(0, Math.min(Math.round(frameIndex), _SCRUB_TOTAL - 1));
-  let img = _scrubFrames[fi];
-  // Snap to nearest loaded frame when sampling a subset (mobile).
-  if (!img && _SCRUB_STEP > 1) {
-    fi = Math.max(0, Math.min(Math.round(fi / _SCRUB_STEP) * _SCRUB_STEP, _SCRUB_TOTAL - 1));
-    img = _scrubFrames[fi];
-    for (let d = 1; !img && d <= _SCRUB_STEP * 2; d++) {
-      img = _scrubFrames[fi - d] || _scrubFrames[fi + d] || null;
-    }
-  }
+  const img = _heroStill;
   if (!img || !img.complete || !img.naturalWidth) return;
+  const ctx = c.getContext('2d');
   const cw = c.width, ch = c.height;
   const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
-  const sw = img.naturalWidth  * scale;
-  const sh = img.naturalHeight * scale;
+  const sw = img.naturalWidth * scale, sh = img.naturalHeight * scale;
   const ox = (cw - sw) / 2;
-  const oy = (ch - sh) * (objY / 100);
+  const oy = (ch - sh) * 0.5;
   ctx.clearRect(0, 0, cw, ch);
   ctx.drawImage(img, ox, oy, sw, sh);
 }
 
-// Preload all frames (parallel, no blocking)
-(function preloadScrubFrames() {
-  for (let i = 0; i < _SCRUB_TOTAL; i += _SCRUB_STEP) {
-    const img = new Image();
-    const n   = String(i + 1).padStart(4, '0');
-    img.src   = 'assets/videos/frames/f' + n + '.jpg';
-    const idx = i;
-    img.onload = function() {
-      _scrubFrames[idx] = img;
-      _scrubLoaded++;
-      if (idx === 0) {  // first frame ready → draw immediately
-        resizeHeroCanvas();
-        drawScrubFrame(0, _VID_INIT_OBJ_Y);
-      }
-    };
-  }
-})();
+// Static hero photo (replaces the frame scrub). Load once and draw.
+var _heroStill = new Image();
+_heroStill.src = 'assets/images/hero-still.jpg?v=1';
+_heroStill.onload = function() { resizeHeroCanvas(); drawScrubFrame(0, 50); };
+if (_heroStill.complete && _heroStill.naturalWidth) { resizeHeroCanvas(); drawScrubFrame(0, 50); }
 
 // Cached card dimensions — recalculated on init & resize
 let _cardScaleMax = 1;

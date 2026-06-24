@@ -152,3 +152,16 @@
 
 ---
 最後更新：2026-06-12
+
+## 13. Hero 版本切換（2026-06-24）
+
+**目前線上＝靜態照片版**：首頁 Hero 主視覺改成一張靜態模糊照片（`assets/images/hero-still.jpg`），
+音樂家**不再隨捲動而動**；但「捲動→主視覺連同 Logo 縮小、露出後面照片」的動作**保留**。
+
+- 實作：`musician-platform.html` 的 `drawScrubFrame()` 改成只畫這張靜態圖（固定置中、不平移）；
+  原本載入 362 張影格的 `preloadScrubFrames` 改成只載入這張圖（`_heroStill`）。其餘 Hero 捲動邏輯（縮小、phases、背景照片露出）原封不動。
+- **要還原成「音樂家會動」的舊版**：回到 commit **cf4f9eb**（或更早）的 Hero——
+  `git checkout cf4f9eb -- musician-platform.html`（影格仍在 `assets/videos/frames/`）。跟下一個視窗說「Hero 換回動畫版」即可。
+
+---
+最後更新：2026-06-24
