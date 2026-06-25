@@ -4334,25 +4334,27 @@ function applyColRatios() {
   function revealHero() {
     if (heroEl && !heroEl.classList.contains('hero-revealed'))
       heroEl.classList.add('hero-revealed');
+  }
+  // Staggered content entrance — called ONLY after the intro black panel has
+  // finished sliding away, so the fade is actually seen (not hidden behind it).
+  // title -> subtitle -> buttons -> brand, in order. Uses a keyframe animation
+  // (reliable) because the .hco-visible transition reveal gets stuck at opacity 0.
+  function revealHeroContent() {
     var _ov = document.getElementById('hcCardOverlay');
     if (!_ov) return;
     _ov.classList.add('hco-visible');
-    // Staggered entrance for the card content. The .hco-visible CSS rule gets
-    // overridden by the per-element inline transform the size/position editor
-    // writes, so set the reveal state directly inline (the CSS transitions on
-    // each element smooth it) — title -> subtitle -> buttons -> brand, in order.
     var _seq = [
       ['.hco-headline', 0,   'translateY(0)'],
-      ['.hco-sub',      150, 'translateY(0)'],
-      ['.hco-btns',     320, 'translateY(0)'],
-      ['.hco-brand',    480, 'translateX(-50%) translateY(0)']
+      ['.hco-sub',      200, 'translateY(0)'],
+      ['.hco-btns',     400, 'translateY(0)'],
+      ['.hco-brand',    580, 'translateX(-50%) translateY(0)']
     ];
     _seq.forEach(function(it){
       var el = _ov.querySelector(it[0]); if(!el) return;
       setTimeout(function(){
         el.style.transition = 'none';
         el.style.setProperty('transform', it[2], 'important');
-        el.style.animation = 'hcoReveal .6s ease forwards';
+        el.style.animation = 'hcoReveal .7s ease forwards';
       }, it[1]);
     });
   }
@@ -4360,6 +4362,7 @@ function applyColRatios() {
   if (!introEl) {
     // bfcache / already removed — reveal immediately
     revealHero();
+    setTimeout(revealHeroContent, 250);
     return;
   }
 
@@ -4373,10 +4376,12 @@ function applyColRatios() {
   setTimeout(() => {
     try { introEl.classList.add('intro-exit'); } catch(e){}
     revealHero();
-    // Step 3: remove from DOM once animation finishes
+    // Remove the panel once it's slid off, and play the content entrance only
+    // AFTER it's gone so the staggered fade is actually visible.
     setTimeout(() => {
       try { introEl.remove(); } catch(e){}
     }, 800);
+    setTimeout(revealHeroContent, 820);
   }, 1600);
 })();
 
