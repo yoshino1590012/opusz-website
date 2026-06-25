@@ -4342,7 +4342,9 @@ function applyColRatios() {
   function revealHeroContent() {
     var _ov = document.getElementById('hcCardOverlay');
     if (!_ov) return;
-    _ov.classList.add('hco-visible');
+    // NOTE: do NOT add 'hco-visible' here — its CSS transition reveal fights the
+    // keyframe animation below and causes a visible flash on the later items
+    // (buttons / brand). The keyframe alone owns the reveal.
     var _seq = [
       ['.hco-headline', 0,   'translateY(0)'],
       ['.hco-sub',      200, 'translateY(0)'],
