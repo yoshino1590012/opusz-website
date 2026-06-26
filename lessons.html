@@ -1608,9 +1608,12 @@ window.addEventListener('load', function(){
       const card = cfg.card || {};
       const insts = Array.isArray(p.instruments) ? p.instruments : (p.instrument ? [p.instrument] : []);
       const heroMedia = (cfg.hero && cfg.hero.media) || {};
+      // Card cover = ONLY a photo the musician deliberately set (card cover, or a
+      // photo hero). NEVER fall back to their avatar (頭貼) — an avatar is a profile
+      // thumbnail, not a chosen preview image, so cards with no cover stay blank.
       const cardPhoto = card.photoUrl
         || ((heroMedia.type === 'photo' && heroMedia.url) ? heroMedia.url : '')
-        || (cfg.about && cfg.about.avatarUrl) || '';
+        || '';
       let lessonFrom = 0;
       if (Array.isArray(less.plans)) {
         const prices = less.plans.map(pl => Number(pl && pl.price)).filter(n => n > 0);
