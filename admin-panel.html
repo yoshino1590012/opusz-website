@@ -2619,7 +2619,7 @@ Martin</textarea>
     var _m=(typeof window.seActiveHeroPos==='function')?window.seActiveHeroPos():(window.seHeroPos||{});
     var t=_m._type||window.seHeroType||{};
     var defs=[['headline','標題行距',1.04],['sub','副標行距',1.55]];
-    return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">行距 / Line height</div>'+defs.map(function(d){
+    var lhHtml='<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">行距 / Line height</div>'+defs.map(function(d){
       var key=d[0], lbl=d[1], def=d[2];
       var lh=(t[key]&&t[key].lh)?Number(t[key].lh):def;
       return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
@@ -2628,6 +2628,20 @@ Martin</textarea>
         +'<span id="seHlh_'+key+'" style="font-size:11px;color:#0e7490;width:36px;text-align:right;">'+lh.toFixed(2)+'</span>'
         +'</div>';
     }).join('');
+    // Text alignment (靠左/置中/靠右) for headline & subtitle. Stored in _type[key].align.
+    // Default (unset) = 置中, matching the CSS default for .hco-left.
+    var alDefs=[['headline','標題對齊'],['sub','副標對齊']];
+    function alignRow(key,lbl){
+      var cur=(t[key]&&t[key].align)||'center';
+      function b(v,txt){ var on=(cur===v);
+        return '<button onclick="seHeroSetAlign(\''+key+'\',\''+v+'\')" style="font-size:11px;border:1px solid '+(on?'#0e7490':'#cbd5e1')+';background:'+(on?'#0e7490':'#fff')+';color:'+(on?'#fff':'#334155')+';border-radius:6px;padding:5px 12px;cursor:pointer;">'+txt+'</button>'; }
+      return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
+        +'<span style="font-size:11px;color:#155e75;width:90px;flex-shrink:0;">'+lbl+'</span>'
+        +'<div style="display:flex;gap:6px;">'+b('left','靠左')+b('center','置中')+b('right','靠右')+'</div>'
+        +'</div>';
+    }
+    var alHtml='<div style="font-size:11px;font-weight:800;color:#0e7490;margin:14px 0 6px;">文字對齊 / Align</div>'+alDefs.map(function(d){return alignRow(d[0],d[1]);}).join('');
+    return lhHtml+alHtml;
   }
   window.seHeroSetLineH = function(key,val){
     var m=window.seActiveHeroPos();
@@ -2636,6 +2650,14 @@ Martin</textarea>
     m._type[key].lh = Number(val);
     var lab=document.getElementById('seHlh_'+key); if(lab) lab.textContent=Number(val).toFixed(2);
     sePreview();
+  };
+  window.seHeroSetAlign = function(key,val){
+    var m=window.seActiveHeroPos();
+    m._type = m._type || {};
+    m._type[key] = m._type[key] || {};
+    m._type[key].align = val;
+    seBuildControls();   // refresh button highlight
+    sePreview();         // live-apply to the preview iframe
   };
 
   // Rotating phrases: alignment (left/center/right) + auto-wrap. Stored in

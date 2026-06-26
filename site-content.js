@@ -188,8 +188,9 @@ function applyHeroPosResponsive(cfg){
   });
 })();
 
-// Headline / subtitle line-height (行距). cfg.heroType = { headline:{lh}, sub:{lh} }.
-// Empty / missing → leave the CSS default in place.
+// Headline / subtitle line-height (行距) + text alignment (對齊).
+// cfg.heroType = { headline:{lh, align}, sub:{lh, align} }.
+// Empty / missing → leave the CSS default in place (which is centred).
 function applyHeroType(map){
   map = map || {};
   var SEL = { headline:'.hco-headline', sub:'.hco-sub' };
@@ -197,6 +198,17 @@ function applyHeroType(map){
     var el = document.querySelector(SEL[k]); if(!el) return;
     var t = map[k] || {};
     el.style.lineHeight = (t.lh != null && t.lh !== '') ? String(t.lh) : '';
+    // .hco-left is a centred flex column whose children are shrink-wrapped, so
+    // text-align alone can't move a single-line title. Set align-self (moves the
+    // block left/right) AND text-align (aligns wrapped lines within it). Anything
+    // other than left/right (incl. unset / 'center') → clear → CSS-default centre.
+    if (t.align === 'left' || t.align === 'right') {
+      el.style.alignSelf = (t.align === 'left') ? 'flex-start' : 'flex-end';
+      el.style.textAlign = t.align;
+    } else {
+      el.style.alignSelf = '';
+      el.style.textAlign = '';
+    }
   });
 }
 
