@@ -66,7 +66,12 @@ function applyHeroPos(map){
     // stay intact). PREFER viewport-fraction (xPct/yPct → vw/vh) so the offset is the
     // SAME relative position at any screen width; fall back to legacy px (x/y).
     var has = (p.xPct != null || p.yPct != null || p.x || p.y);
-    var tx = (p.xPct != null) ? ('calc(' + p.xPct + ' * 100vw)') : ((p.x || 0) + 'px');
+    // Cap the width used for the X offset at 2827px (= 1488 * 1.9, the point where
+    // the hero's --k text scaling clamps). Below that nothing changes; above it the
+    // text stops growing, so the offset must stop drifting too or the title/subtitle
+    // slide off the right edge on 4K / ultrawide screens (looked fine in the narrower
+    // editor). Same-relative position ≤2827px and on mobile → no change there.
+    var tx = (p.xPct != null) ? ('calc(' + p.xPct + ' * min(100vw, 2827px))') : ((p.x || 0) + 'px');
     var ty = (p.yPct != null) ? ('calc(' + p.yPct + ' * 100vh)') : ((p.y || 0) + 'px');
     el.style.translate = has ? (tx + ' ' + ty) : '';
     // 標題/副標：中文時用 sZh（沒設就回退到 s = 目前大小）；其他元素照常用 s。
@@ -78,7 +83,12 @@ function applyHeroPos(map){
   (function(){
     var p = map.phrases || {};
     var has = (p.xPct != null || p.yPct != null || p.x || p.y);
-    var tx = (p.xPct != null) ? ('calc(' + p.xPct + ' * 100vw)') : ((p.x || 0) + 'px');
+    // Cap the width used for the X offset at 2827px (= 1488 * 1.9, the point where
+    // the hero's --k text scaling clamps). Below that nothing changes; above it the
+    // text stops growing, so the offset must stop drifting too or the title/subtitle
+    // slide off the right edge on 4K / ultrawide screens (looked fine in the narrower
+    // editor). Same-relative position ≤2827px and on mobile → no change there.
+    var tx = (p.xPct != null) ? ('calc(' + p.xPct + ' * min(100vw, 2827px))') : ((p.x || 0) + 'px');
     var ty = (p.yPct != null) ? ('calc(' + p.yPct + ' * 100vh)') : ((p.y || 0) + 'px');
     var els = document.querySelectorAll('.hp-phrase');
     for (var i = 0; i < els.length; i++){
@@ -92,7 +102,7 @@ function applyHeroPos(map){
   Array.prototype.forEach.call(document.querySelectorAll('.hco-brand'), function(el){
     var bp = map[el.getAttribute('data-bk') || 'brand'] || {};
     var bHas = (bp.xPct != null || bp.yPct != null || bp.x || bp.y);
-    var btx = (bp.xPct != null) ? ('calc(' + bp.xPct + ' * 100vw)') : ((bp.x || 0) + 'px');
+    var btx = (bp.xPct != null) ? ('calc(' + bp.xPct + ' * min(100vw, 2827px))') : ((bp.x || 0) + 'px');
     var bty = (bp.yPct != null) ? ('calc(' + bp.yPct + ' * 100vh)') : ((bp.y || 0) + 'px');
     el.style.translate = bHas ? (btx + ' ' + bty) : '';
     el.style.scale = brandScale;
