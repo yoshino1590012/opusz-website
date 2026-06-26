@@ -4482,7 +4482,9 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
         var insts = Array.isArray(p.instruments) ? p.instruments : (p.instrument ? [p.instrument] : []);
         var inst = card.instrument || insts[0] || '';
         var city = p.region || ((p.primaryRegion||'').split(',')[0]||'').trim() || card.location || '';
-        var photo = card.photoUrl || ((hero.type==='photo' && hero.url) ? hero.url : '') || (cfg.about && cfg.about.avatarUrl) || '';
+        // Cover = only a deliberately-set image (card cover or photo hero); never
+        // the avatar (頭貼) — no cover → blank gradient placeholder, not a thumbnail.
+        var photo = card.photoUrl || ((hero.type==='photo' && hero.url) ? hero.url : '') || '';
         var px = (typeof card.photoX==='number')?card.photoX:50, py=(typeof card.photoY==='number')?card.photoY:50, ps=(typeof card.photoScale==='number')?card.photoScale:1;
         var price = priceOf(cfg);
         var imgInner = photo ? '<img src="'+esc(photo)+'" alt="'+esc(name)+'" decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+px+'% '+py+'%;transform:scale('+ps+');transform-origin:'+px+'% '+py+'%;">' : '';
