@@ -694,6 +694,9 @@ nav.mega-open .nav-links a::before {
      is unaffected (it's centred in the viewport, not anchored to this box's edge). */
   width: min(880px, 34.4vw);
 }
+/* Phones: the 34.4vw box would shrink to ~130px and squeeze the 2 manual subtitle
+   lines into 4. Mobile content is centred (not dragged right), so use a wide box. */
+@media (max-width: 700px) { .hco-left { width: min(94%, 880px); } }
 /* ── centred headline + subtitle ──
    White text + mix-blend-mode:difference = auto black/white inversion against
    whatever is behind (bright photo → black text, dark area → white text). */
