@@ -732,6 +732,14 @@ nav.mega-open .nav-links a::before {
 .hco-visible .hco-brand {
   opacity: 1; transform: translateX(-50%) translateY(0);
 }
+/* iOS Safari drops mix-blend-mode over the hero, so the default "auto" (blend) brand
+   renders pure white and vanishes over the light phone photo (same iOS bug that forced
+   the headline to a fixed colour). Give phones a fixed dark colour so the single OPUS.Z
+   wordmark stays visible. A brand colour chosen in the editor still overrides this
+   (applyBrandColor sets an inline colour, which wins). */
+@media (max-width: 700px) {
+  .hco-brand { mix-blend-mode: normal; color: #34363c; }
+}
 /* On phones let the headline wrap (avoid horizontal overflow from nowrap) */
 @media (max-width: 640px){
   .hco-headline { white-space: pre; }        /* one line by default; break only on manual \n */
