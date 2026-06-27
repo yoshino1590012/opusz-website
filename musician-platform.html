@@ -538,17 +538,8 @@ nav.mega-open .nav-links a::before {
   .hero-m-bg {
     display: block; position: absolute; inset: 0; z-index: 0;
     background: url('assets/images/hero/opus-hero-mobile.jpg') center center / cover no-repeat;
-    will-change: transform, opacity;
     backface-visibility: hidden;
   }
-  /* Entrance plays only AFTER the #intro black panel exits (JS adds .play), so the
-     slide-up + fade is actually seen — not finished behind the intro. Visible by
-     default (no .play) so the photo never stays hidden if the JS never runs. */
-  .hero-m-bg.play { animation: heroMobileIn 1.8s cubic-bezier(.16, 1, .3, 1) both; }
-}
-@keyframes heroMobileIn {
-  from { opacity: 0; transform: translateY(46px) scale(1.05); }
-  to   { opacity: 1; transform: translateY(0)    scale(1);    }
 }
 
 /* WRK-style: upper content zone — title + meta info, floats up in Phase 1 */
@@ -4399,7 +4390,6 @@ function applyColRatios() {
     // bfcache / already removed — reveal immediately
     revealHero();
     setTimeout(revealHeroContent, 250);
-    setTimeout(function(){ var mb=document.querySelector('.hero-m-bg'); if(mb) mb.classList.add('play'); }, 80);
     return;
   }
 
@@ -4419,9 +4409,6 @@ function applyColRatios() {
       try { introEl.remove(); } catch(e){}
     }, 800);
     setTimeout(revealHeroContent, 820);
-    // Mobile hero photo: start its slide-up + fade entrance only now (panel gone),
-    // in step with the content reveal — otherwise it finishes behind the intro.
-    setTimeout(function(){ var mb=document.querySelector('.hero-m-bg'); if(mb) mb.classList.add('play'); }, 820);
   }, 1600);
 })();
 
