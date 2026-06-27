@@ -188,6 +188,12 @@ function applyHeroPosResponsive(cfg){
   // Glass last (it overrides the colour controls when on).
   var _glass = _pick('_btnGlass', cfg.heroBtnGlass);
   try { applyHeroBtnGlass(!!_glass); } catch(e){}
+  // Fonts (family / weight / colour) are per-device too: phone & iPad inherit the
+  // desktop set (_pick falls back desktop → legacy global cfg.heroFonts) until they
+  // define their own _fonts, so editing fonts/colour on the phone tab never touches
+  // the computer view.
+  var _fonts = _pick('_fonts', cfg.heroFonts);
+  if (_fonts) { try { applyHeroFonts(_fonts); } catch(e){} }
 }
 // Re-apply when crossing the phone breakpoint (debounced).
 (function(){
@@ -350,17 +356,13 @@ function applyConfig(cfg){
   // applyHeroPosResponsive now also applies the per-device brand colour + button
   // styling (colour / shape / glass), so trigger it whenever ANY hero style key
   // is present — not just the position/phrase/type keys.
-  if ('heroPos' in cfg || 'heroPosPhone' in cfg || 'heroPosMacbook' in cfg || 'heroPosIpad' in cfg || 'heroPhrase' in cfg || 'heroType' in cfg || 'heroBrandColor' in cfg || 'heroBtn' in cfg || 'heroBtnShape' in cfg || 'heroBtnGlass' in cfg) {
+  if ('heroPos' in cfg || 'heroPosPhone' in cfg || 'heroPosMacbook' in cfg || 'heroPosIpad' in cfg || 'heroPhrase' in cfg || 'heroType' in cfg || 'heroBrandColor' in cfg || 'heroBtn' in cfg || 'heroBtnShape' in cfg || 'heroBtnGlass' in cfg || 'heroFonts' in cfg) {
     window.__opzHeroCfg = cfg;
     // applyHeroPosResponsive also applies the per-device phrase align + line-height,
-    // brand wordmark colour, and button colour/shape/glass (with desktop fallback).
+    // brand wordmark colour, button colour/shape/glass, AND fonts (with desktop
+    // fallback) — so per-device font/colour now lives there, not a global apply.
     try { applyHeroPosResponsive(cfg); } catch(e){}
   }
-
-  // 1c-2) per-element Hero fonts (font-family / weight / colour). Runs AFTER the
-  // pos/colour block so the chosen font wins; font-family isn't touched by
-  // applyHeroPos, so a later resize re-apply won't clear it.
-  if ('heroFonts' in cfg) { try { applyHeroFonts(cfg.heroFonts); } catch(e){} }
 
   // 1h) shows-page posters — count + per-poster frame (x/y/scale/blur/bgX/bgY) +
   //     image URLs. Drives the shows engine so add/remove/position done in the

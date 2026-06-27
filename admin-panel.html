@@ -1353,7 +1353,12 @@ Martin</textarea>
     if(!SE_FONT_ELS[el]){ panel.style.display='none'; return; }
     window.seHeroFonts = window.seHeroFonts || {};
     var def = SE_FONT_DEFAULTS[el] || {};
-    var cur = window.seHeroFonts[el] || {};
+    // Per-device: show the active device's own _fonts, else inherit the desktop set,
+    // else the legacy global. So the phone tab shows its own override (or the
+    // inherited desktop value) without touching the computer config.
+    var _mF = (typeof window.seActiveHeroPos==='function') ? window.seActiveHeroPos() : (window.seHeroPos||{});
+    var _dkF = window.seHeroPos || {};
+    var cur = (_mF._fonts && _mF._fonts[el]) || (_dkF._fonts && _dkF._fonts[el]) || window.seHeroFonts[el] || {};
     var fEn = cur.fontEn || def.fontEn || 'Inter';
     var fZh = cur.fontZh || def.fontZh || 'Noto Sans TC';
     var wt  = cur.weight || def.weight || 400;
@@ -1378,16 +1383,23 @@ Martin</textarea>
   window.seCloseFontPanel = function(){ var p=document.getElementById('seFontPanel'); if(p){ p.style.display='none'; p.innerHTML=''; } };
   window.seFontSet = function(el, prop, val){
     if(!SE_FONT_ELS[el]) return;
-    window.seHeroFonts = window.seHeroFonts || {};
+    // Write to the ACTIVE device's own _fonts (per-device), NOT the global set — so
+    // editing fonts/weight/colour on the phone tab never changes the computer view.
+    var m = window.seActiveHeroPos();
+    m._fonts = m._fonts || {};
     var def = SE_FONT_DEFAULTS[el] || {};
-    var base = window.seHeroFonts[el] || {};
-    // 首次編輯帶入完整預設,套用才不會缺欄
-    if(base.fontEn==null) base.fontEn = def.fontEn || 'Inter';
-    if(base.fontZh==null) base.fontZh = def.fontZh || 'Noto Sans TC';
-    if(base.weight==null) base.weight = def.weight || 400;
+    // Seed a fresh override from the currently-EFFECTIVE values (desktop _fonts, then
+    // legacy global) so a phone override starts from what's shown, not blank.
+    var _dk = window.seHeroPos || {};
+    var eff = (_dk._fonts && _dk._fonts[el]) || (window.seHeroFonts && window.seHeroFonts[el]) || {};
+    var base = m._fonts[el] || {};
+    if(base.fontEn==null) base.fontEn = eff.fontEn || def.fontEn || 'Inter';
+    if(base.fontZh==null) base.fontZh = eff.fontZh || def.fontZh || 'Noto Sans TC';
+    if(base.weight==null) base.weight = eff.weight || def.weight || 400;
+    if(base.color==null && eff.color!=null && eff.color!=='') base.color = eff.color;
     if(prop==='weight') val = parseInt(val,10) || 400;
     base[prop] = val;
-    window.seHeroFonts[el] = base;
+    m._fonts[el] = base;
     if(typeof sePreview==='function') sePreview();
   };
 
