@@ -738,7 +738,10 @@ nav.mega-open .nav-links a::before {
    wordmark stays visible. A brand colour chosen in the editor still overrides this
    (applyBrandColor sets an inline colour, which wins). */
 @media (max-width: 700px) {
-  .hco-brand { mix-blend-mode: normal; color: #34363c; }
+  /* Moved up to the centre area so it's easy to find & drag in the editor, and
+     given white + a soft shadow so it stays readable wherever it's placed (iOS
+     can't auto-contrast via blend). An editor-chosen colour still overrides this. */
+  .hco-brand { mix-blend-mode: normal; color: #ffffff; text-shadow: 0 1px 16px rgba(0,0,0,.45); bottom: 32%; }
 }
 /* On phones let the headline wrap (avoid horizontal overflow from nowrap) */
 @media (max-width: 640px){

@@ -2615,14 +2615,6 @@ Martin</textarea>
           +'<input type="range" min="120" max="360" step="2" value="'+bw+'" oninput="seHeroSetBtnW(this.value)" style="flex:1;">'
           +'<span id="seBtnWl" style="font-size:11px;color:#0e7490;width:42px;text-align:right;">'+bw+'</span>'
           +'</div>';
-      })()
-    + '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">品牌字 OPUS.Z 數量</div>'
-    + (function(){
-        var n=(hp._brandCount!=null)?hp._brandCount:1;
-        function b(v){ var on=(n===v); return '<button onclick="seHeroSetBrandCount('+v+')" style="font-size:12px;border:1px solid '+(on?'#0e7490':'#cbd5e1')+';background:'+(on?'#0e7490':'#fff')+';color:'+(on?'#fff':'#334155')+';border-radius:6px;padding:5px 12px;cursor:pointer;">'+v+'</button>'; }
-        var btns=''; for(var bi=1;bi<=8;bi++) btns+=b(bi);
-        return '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:4px;">'+btns+'</div>'
-          +'<div style="font-size:10px;color:#999;line-height:1.5;">複製出多個 OPUS.Z，每個可各自拖到不同位置（雜誌風）；大小用上面「品牌 OPUS.Z」滑桿一起調、會一起變。</div>';
       })();
   }
   // Line-height (行距) for the headline + subtitle. Stored in window.seHeroType =
