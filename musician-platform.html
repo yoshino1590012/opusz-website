@@ -685,7 +685,14 @@ nav.mega-open .nav-links a::before {
 .hco-btns { pointer-events: auto; }      /* only the buttons are clickable */
 .hco-left {
   display: flex; flex-direction: column; align-items: center; text-align: center;
-  width: min(94%, 880px);
+  /* Width scales with the viewport (34.4vw ≈ the old 880px at a 2560 screen) instead
+     of being a fixed 880px. A fixed box is a constant 440px half-width, which on
+     screens narrower than ~2180px pushes a right-aligned, right-dragged subtitle off
+     the right edge (fine on a wide monitor, clipped on a MacBook). Scaling it keeps
+     the right edge at a constant ~97% of the viewport on EVERY width → never clipped.
+     Capped at 880px so wide/4K monitors stay exactly as before. The centered headline
+     is unaffected (it's centred in the viewport, not anchored to this box's edge). */
+  width: min(880px, 34.4vw);
 }
 /* ── centred headline + subtitle ──
    White text + mix-blend-mode:difference = auto black/white inversion against
