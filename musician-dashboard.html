@@ -546,7 +546,7 @@
     .pb-row-add:hover { border-color: var(--black); background: #fafafa; }
     .pb-help-note { font-size: 12px; color: var(--mid); line-height: 1.6; margin: 4px 0 0; }
     /* 價格旁即時換算：你填 X → 你實拿 Y（平台抽成已內含）*/
-    .pb-net-hint { font-size: 11.5px; color: #16a34a; font-weight: 600; margin-top: 5px; line-height: 1.45; }
+    .pb-net-hint { display: none !important; }   /* fee/commission hint hidden for now */
     .pb-net-hint:empty { display: none; }
     .pb-net-hint b { font-weight: 800; }
 
@@ -1046,7 +1046,6 @@
           <div class="earn-card earn-main">
             <div class="earn-label" data-i18n="earn_total">今年總收入</div>
             <div class="earn-value" id="earnTotal">NT$0</div>
-            <div class="earn-sub" data-i18n="earn_total_sub">扣除 10% 平台服務費後</div>
           </div>
           <div class="earn-card">
             <div class="earn-label" data-i18n="earn_payout">待撥款金額</div>
@@ -1071,7 +1070,7 @@
               </div>
             </div>
           </div>
-          <div class="card card-pad">
+          <div class="card card-pad" style="display:none;"><!-- commission/fee breakdown hidden for now -->
             <div class="sec-title" style="margin-bottom:16px;" data-i18n="earn_commission">抽成明細</div>
             <div style="display:flex;flex-direction:column;gap:12px;">
               <div style="display:flex;justify-content:space-between;font-size:13.5px;">
@@ -3106,9 +3105,6 @@
     draftNote: '本政策仍在研擬中，內容可能隨時調整；正式版本將另行公告。',
     version: 1,
     sections: [
-      { title:'收費與抽成（演出）', body:'（草擬中，細節後續討論調整）' },
-      { title:'教學收費',          body:'（草擬中，細節後續討論調整）' },
-      { title:'付款與結算',        body:'（草擬中；目前採「交付後放款」）' },
       { title:'取消與退款',        body:'（草擬中，細節後續討論調整）' },
       { title:'錄音／影像使用權',   body:'（草擬中，細節後續討論調整）' },
       { title:'行為準則',          body:'（草擬中，細節後續討論調整）' },
@@ -6175,7 +6171,7 @@
     { sel:'#sbCommunityBtn',           page:null,          title:'社群 / Community',
       body:'音樂家專屬社群：跟其他樂手交流、分享演出與心得、看平台公告與活動。點這顆會開啟社群頁面，有新動態時也會在這顆跳紅點提醒你。' },
     { sel:'[data-page="policy"]',      page:'policy',      title:'平台政策（請務必先讀）',
-      body:'這裡是平台的合作規則：收費與抽成、教學收費、付款與結算方式等。第一次使用一定要讀過一遍；日後規則有更新，也都會公告在這一頁。' },
+      body:'這裡是平台的合作規則。第一次使用一定要讀過一遍；日後規則有更新，也都會公告在這一頁。' },
     { sel:'[data-page="settings"]',    page:'settings',    title:'設定 / Settings',
       body:'帳號相關設定都在這裡（登入、通知等）。需要時再進來調整即可。' },
     { sel:'#tourHelpBtn',              page:null,          title:'隨時再看一次',
