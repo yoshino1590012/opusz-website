@@ -451,6 +451,7 @@ nav.mega-open .nav-links a::before {
   transform-origin: center center;
   background: #f8f8f8;
   width: 100vw;         /* full viewport width → no upscaling ever */
+  -webkit-text-size-adjust: 100%; text-size-adjust: 100%;  /* stop Android/in-app browsers auto-inflating hero text → breaks layout */
   --k: 1.667;           /* 1 / 0.6 end-scale — scales px values back to intended visual size */
   display: flex;
   flex-direction: column;
@@ -4540,9 +4541,14 @@ function updateHeroDims() {
   // Anchored to the "MacBook 顯示器" editor design (1280px → --k 0.86), so the
   // saved layout renders identically at 1280 and scales proportionally elsewhere.
   // REF = 1280 / 0.86 ≈ 1488. Clamped so phones/ultrawides stay sane.
-  // Mobile (≤700) keeps its own separate layout, so we clear the inline override.
+  // Mobile (≤700) ALSO scales uniformly now — anchored to the editor's phone
+  // canvas (iPhone 16 = 393px → --k 1.351), so the dragged design renders 1:1 at
+  // 393px and scales proportionally on every other phone. This stops the old
+  // bug where text was a FIXED size while positions were viewport-relative, which
+  // made narrow/wide phones reflow into different layouts. REF = 393/1.351 ≈ 291.
   if (vw <= 700) {
-    heroCardEl.style.removeProperty('--k');
+    const kMobile = Math.max(1.0, Math.min(1.6, vw / 291));
+    heroCardEl.style.setProperty('--k', kMobile.toFixed(4));
   } else {
     const kUniform = Math.max(0.62, Math.min(1.9, vw / 1488));
     heroCardEl.style.setProperty('--k', kUniform.toFixed(4));
