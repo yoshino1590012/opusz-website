@@ -498,15 +498,20 @@
       }
       .pb-shell { display: block; position: absolute; inset: 0; border: 0; border-radius: 0; overflow: hidden; background: #111; }
 
-      /* ── Top bar: section picker (Shopify-style) ── */
+      /* ── Top bar: section picker (left) + Save & Publish (right), Shopify-style ── */
       .pb-topbar { display: flex; position: absolute; top: 0; left: 0; right: 0; height: 48px; z-index: 48;
-        align-items: center; padding: 0 12px; background: #fff; border-bottom: 1px solid var(--border); }
-      .pb-topbar-secbtn { display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center;
+        align-items: center; gap: 8px; padding: 0 10px 0 6px; background: #fff; border-bottom: 1px solid var(--border); }
+      .pb-topbar-secbtn { display: inline-flex; align-items: center; gap: 7px; flex: 1; min-width: 0; justify-content: flex-start;
         border: none; background: transparent; font-family: inherit; font-size: 15px; font-weight: 800; color: #111;
         cursor: pointer; padding: 8px; }
-      .pb-topbar-secbtn .pb-topbar-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw; }
-      .pb-topbar-secbtn .pb-chev { transition: transform .25s; }
+      .pb-topbar-secbtn .pb-topbar-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .pb-topbar-secbtn .pb-chev { transition: transform .25s; flex-shrink: 0; }
       .pb-shell.pb-secopen .pb-topbar-secbtn .pb-chev { transform: rotate(180deg); }
+      .pb-topbar-save { flex-shrink: 0; border: none; background: #111; color: #fff; font-family: inherit;
+        font-size: 13px; font-weight: 700; border-radius: 9px; padding: 9px 16px; cursor: pointer; white-space: nowrap; }
+      .pb-topbar-save:active { background: #000; }
+      /* On phone the Save action is in the top bar → hide the in-sheet publish button. */
+      #pbPublishBtn { display: none; }
 
       /* ── Live preview fills the screen (below the top bar) ── */
       .pb-center { position: absolute; top: 48px; left: 0; right: 0; bottom: 0; display: block; background: #111; }
@@ -525,7 +530,7 @@
       /* ── Bottom sheet = the editing form ── */
       .pb-right {
         position: absolute; left: 0; right: 0; bottom: 0; top: auto; width: auto;
-        height: var(--pb-sheet-h, 46vh); max-height: 92vh;
+        height: var(--pb-sheet-h, 46vh); max-height: calc(100% - 56px);  /* keep grip below the top bar */
         border: 0; border-radius: 18px 18px 0 0; padding: 0; background: #fff;
         box-shadow: 0 -8px 34px rgba(0,0,0,.22); z-index: 40;
         display: flex; flex-direction: column; overflow: hidden;
@@ -1464,14 +1469,10 @@
             </div>
             <div class="setting-row">
               <div class="setting-info">
-                <div class="sr-title" data-i18n="settings_visibility">個人檔案可見度</div>
-                <div class="sr-desc" data-i18n="settings_visibility_desc">你的個人檔案目前對所有客戶可見</div>
+                <div class="sr-title" data-i18n="settings_unpub_title">下架我的公開頁面</div>
+                <div class="sr-desc" data-i18n="settings_unpub_desc">暫時把你的公開檔案頁從 Musicians 列表隱藏。編輯內容會保留，之後在「編輯主頁」按「儲存並發布」即可重新上架。</div>
               </div>
-              <label class="toggle">
-                <input type="checkbox" checked onchange="showNotif(this.checked?'Profile is now visible':'Profile is now hidden')">
-                <div class="toggle-track"></div>
-                <div class="toggle-thumb"></div>
-              </label>
+              <button class="btn btn-outline btn-sm" onclick="pbUnpublish()" style="color:#c0392b;border-color:#e8b4b4;flex-shrink:0;">下架 / Unpublish</button>
             </div>
           </div>
 
@@ -1642,13 +1643,14 @@
         </div>
         <div class="pb-shell">
 
-          <!-- Phone only: TOP bar — tap to drop down the section list -->
+          <!-- Phone only: TOP bar — section picker (left) + Save & Publish (right) -->
           <div class="pb-topbar">
             <button type="button" class="pb-topbar-secbtn" onclick="pbToggleSections()" aria-label="切換編輯區塊">
               <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
               <span class="pb-topbar-title" id="pbTopTitle" data-i18n="pb_hero">主視覺</span>
               <svg class="pb-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
+            <button type="button" class="pb-topbar-save" onclick="pbPublish()" data-i18n="pb_save_publish">儲存並發布</button>
           </div>
 
           <!-- Phone only: dim backdrop behind the section list -->
@@ -2124,10 +2126,10 @@
                  own toggle in the Lessons section. Publish controls below are not a
                  pb-field-group, so they stay permanently visible under every tab. -->
 
-            <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border);">
-              <button id="pbPublishBtn" class="btn btn-primary" style="width:100%;justify-content:center;" onclick="pbPublish()">發布我的頁面 / Publish</button>
-              <button id="pbUnpublishBtn" onclick="pbUnpublish()" style="width:100%;justify-content:center;margin-top:8px;background:none;border:none;color:#c0392b;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:6px;">下架我的頁面 / Unpublish</button>
-              <button id="pbResetAllBtn" onclick="pbResetAll()" style="width:100%;justify-content:center;margin-top:4px;background:none;border:1px solid var(--border);border-radius:8px;color:#888;font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;padding:8px;">↺ 恢復空白模板 / Reset to template</button>
+            <!-- Unpublish moved to 設定 (Settings); Reset-to-template removed. On phone the
+                 Save & Publish action lives in the top bar, so #pbPublishBtn is hidden there. -->
+            <div class="pb-publish-block" style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border);">
+              <button id="pbPublishBtn" class="btn btn-primary" style="width:100%;justify-content:center;" onclick="pbPublish()">儲存並發布 / Save &amp; Publish</button>
               <div id="pbPublicUrlLine" style="margin-top:12px;font-size:12px;color:var(--text-muted);word-break:break-all;">
                 公開頁面網址 / Public URL：<span id="pbPublicUrl">登入後顯示 / shown after login</span>
               </div>
@@ -2273,6 +2275,7 @@
       settings_acc_head:'帳號', settings_acc_email:'電子郵件', settings_acc_change:'變更',
       settings_acc_pw:'密碼', settings_acc_reset:'重設',
       settings_visibility:'個人檔案可見度', settings_visibility_desc:'你的個人檔案目前對所有客戶可見',
+      settings_unpub_title:'下架我的公開頁面', settings_unpub_desc:'暫時把你的公開檔案頁從 Musicians 列表隱藏。編輯內容會保留，之後在「編輯主頁」按「儲存並發布」即可重新上架。',
       settings_pwa_head:'📱 安裝手機 App',
       settings_pwa_desc:'把樂手後台加到手機主畫面，像 App 一樣一鍵開啟、保持登入、隨時查看訊息與檔期。',
       settings_notif_head:'通知', settings_notif_msg_title:'新的客戶訊息',
@@ -2301,7 +2304,7 @@
       pb_lm_hint:'選擇你的公開頁語言：單選一種＝訪客只會看到該語言；雙語＝中英都要填，訪客可切換。',
       pb_card:'列表卡片', pb_audio:'音檔', pb_services:'專長', pb_videos:'影片', pb_theme:'主題',
       pb_highlights:'亮點', pb_partners:'合作夥伴', pb_lessons:'課程方案',
-      pb_stats:'數據', pb_desktop:'桌機', pb_mobile:'手機',
+      pb_stats:'數據', pb_desktop:'桌機', pb_mobile:'手機', pb_save_publish:'儲存並發布',
       pb_name_desk:'🖥 名字大小（桌機）', pb_name_mob:'📱 名字大小（手機）',
       pb_photo_note:'桌機與手機的照片位置各自獨立，互不影響',
       pb_desk_x:'桌機 水平 X (%)', pb_desk_y:'桌機 垂直 Y (%)',
@@ -2397,6 +2400,7 @@
       settings_acc_head:'Account', settings_acc_email:'Email Address', settings_acc_change:'Change',
       settings_acc_pw:'Password', settings_acc_reset:'Reset',
       settings_visibility:'Profile Visibility', settings_visibility_desc:'Your profile is currently visible to all clients',
+      settings_unpub_title:'Unpublish my public page', settings_unpub_desc:'Temporarily hide your public profile from the Musicians directory. Your edits are kept — press “Save & Publish” in Edit Page to go live again.',
       settings_pwa_head:'📱 Install Mobile App',
       settings_pwa_desc:"Add the musician dashboard to your phone's home screen for quick access — like a native app.",
       settings_notif_head:'Notifications', settings_notif_msg_title:'New Client Messages',
@@ -2425,7 +2429,7 @@
       pb_lm_hint:'Choose your public-profile language. Pick one → visitors only see that language. Both → fill in Chinese + English; visitors can switch.',
       pb_card:'List Card', pb_audio:'Audio', pb_services:'Specialties', pb_videos:'Showreel', pb_theme:'Theme',
       pb_highlights:'Highlights', pb_partners:'Partners', pb_lessons:'Lessons',
-      pb_stats:'Stats', pb_desktop:'Desktop', pb_mobile:'Mobile',
+      pb_stats:'Stats', pb_desktop:'Desktop', pb_mobile:'Mobile', pb_save_publish:'Save & Publish',
       pb_name_desk:'🖥 Name Size (Desktop)', pb_name_mob:'📱 Name Size (Mobile)',
       pb_photo_note:'Desktop & mobile positions are independent',
       pb_desk_x:'Desktop X (%)', pb_desk_y:'Desktop Y (%)',
@@ -2522,8 +2526,7 @@
     '➕ 新增組合包 / Add package':'➕ Add Package','➕ 新增加購 / Add add-on':'➕ Add Add-on',
     '➕ 新增亮點 / Add highlight':'➕ Add Highlight','➕ 新增影片 / Add video（最多 3 個）':'➕ Add Video (up to 3)',
     '查看方案 / View plans':'View Plans','重置顏色 / Reset to default':'Reset to Default',
-    '發布我的頁面 / Publish':'Publish My Page','下架我的頁面 / Unpublish':'Unpublish My Page',
-    '↺ 恢復空白模板 / Reset to template':'↺ Reset to Blank Template',
+    '儲存並發布 / Save & Publish':'Save & Publish','下架 / Unpublish':'Unpublish',
     '查看我的公開頁面 / View my public page →':'View My Public Page →',
     '儲存 / Save':'Save','⬆ 上傳照片 / Upload':'⬆ Upload','⬆ 上傳圖片 / Upload':'⬆ Upload',
     '編輯大頭照 / Edit avatar':'Edit avatar','＋ 新增樂器 / Add instrument…':'+ Add instrument…',
@@ -5748,7 +5751,7 @@
   window.pbClearPreviewInline = pbClearPreviewInline;
 
   // ── Bottom sheet (drag up/down) + section drawer (≣) ──
-  var PB_SHEET_STATES = ['46vh', '88vh', '88px'];   // half · full · peek
+  var PB_SHEET_STATES = ['46vh', 'calc(100% - 56px)', '88px'];   // half · full(below top bar) · peek
   var pbSheetIdx = 0;
   function pbApplySheetVar(){
     var shell = document.querySelector('.pb-shell');
@@ -5778,14 +5781,15 @@
     }
     function onMove(e){
       if(!dragging) return;
-      var h = Math.max(70, Math.min(window.innerHeight * 0.92, startH + (startY - clientY(e))));
+      var maxH = shell.clientHeight - 56;   // never rise under the top bar (48px + gap)
+      var h = Math.max(70, Math.min(maxH, startH + (startY - clientY(e))));
       shell.style.setProperty('--pb-sheet-h', h + 'px');
       if(e.cancelable) e.preventDefault();
     }
     function onUp(){
       if(!dragging) return; dragging = false; shell.classList.remove('pb-sheet-dragging');
       var h = right.getBoundingClientRect().height, vh = window.innerHeight;
-      var snaps = [ {px:88, idx:2}, {px:vh*0.46, idx:0}, {px:vh*0.88, idx:1} ];
+      var snaps = [ {px:88, idx:2}, {px:vh*0.46, idx:0}, {px:shell.clientHeight-56, idx:1} ];
       var best = snaps[0], bd = 1e9;
       snaps.forEach(function(s){ var d = Math.abs(s.px - h); if(d < bd){ bd = d; best = s; } });
       pbSheetIdx = best.idx; pbApplySheetVar();
