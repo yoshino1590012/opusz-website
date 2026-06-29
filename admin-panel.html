@@ -2590,12 +2590,13 @@ Martin</textarea>
     var devNote='<div style="font-size:10px;color:#b45309;margin:2px 0 6px;">🖥️ 目前編輯「'+_devLabel+'」的位置與大小（四個螢幕各自獨立，互不影響）</div>';
     return devNote+'<div style="font-size:11px;font-weight:800;color:#0e7490;margin:10px 0 6px;">元素大小</div>'+defs.map(function(d){
       var key=d[0], lbl=d[1];
-      var max=(key==='brand')?400:200;   // brand gets a wider zoom range
+      var max=(key==='brand')?700:400;   // widened range — brand goes hugest, others up to 4×
+      var min=20;                        // widened — allow much smaller too
       var s=(hp[key]&&hp[key].s)?hp[key].s:1; var pct=Math.round(s*100);
       function row(sublbl, val, setter, lid){
         return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
           +'<span style="font-size:11px;color:#155e75;width:130px;flex-shrink:0;">'+sublbl+'</span>'
-          +'<input type="range" min="50" max="'+max+'" step="5" value="'+val+'" oninput="'+setter+'" style="flex:1;">'
+          +'<input type="range" min="'+min+'" max="'+max+'" step="5" value="'+val+'" oninput="'+setter+'" style="flex:1;">'
           +'<span id="'+lid+'" style="font-size:11px;color:#0e7490;width:36px;text-align:right;">'+val+'%</span>'
           +'</div>';
       }
