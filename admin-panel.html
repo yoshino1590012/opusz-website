@@ -1406,7 +1406,12 @@ Martin</textarea>
   function seCfgForPreview(){
     if(seCurrentPage==='home'){
       var _hc = seReadInputs();
-      if(window.__sePreviewLang) _hc._previewLang = window.__sePreviewLang;  // preview-only: flip lang to match the size slider being dragged
+      // ONE-SHOT language hint: a size slider sets __sePreviewLang so the preview
+      // flips to the language being tuned. CONSUME it immediately — if it persisted
+      // it would be re-sent on every later sePreview() and hijack the preview back
+      // to that language, overriding the nav toggle and making position drags save
+      // into the WRONG language slot (the 中文-moves-English bug).
+      if(window.__sePreviewLang){ _hc._previewLang = window.__sePreviewLang; window.__sePreviewLang = null; }
       return _hc;
     }
     var c = seCurrentConfig || {i18n:{en:{},zh:{}}};
