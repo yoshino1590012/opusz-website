@@ -479,6 +479,41 @@
     #pbPhoneStatus svg [fill="#fff"] { fill: currentColor; }
     #pbPhoneStatus svg [stroke="#fff"] { stroke: currentColor; }
     .pb-right { width: 280px; flex-shrink: 0; border-left: 1px solid var(--border); padding: 18px; overflow-y: auto; }
+
+    /* ════ Page Builder — MOBILE (≤860px) ════
+       The 3-column desktop layout (nav 180px ｜ preview ｜ form 280px) overflows a
+       phone screen and chops the right-hand FORM off-screen. On mobile we stack to a
+       single column: section list → horizontal scroll tabs (sticky top), the editing
+       form full-width FIRST (what the user came for), live preview below. */
+    @media (max-width: 860px) {
+      #page-pagebuilder.page.active { height: auto; min-height: 0; }
+      .pb-shell { flex-direction: column; height: auto; min-height: 0; overflow: visible; border-radius: 12px; }
+
+      /* Section list → sticky, horizontally-scrollable pill tabs */
+      .pb-left {
+        width: 100%; flex-shrink: 0; display: flex; gap: 6px;
+        overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
+        padding: 8px; border-right: none; border-bottom: 1px solid var(--border);
+        background: #fafafa; position: sticky; top: 0; z-index: 6; scrollbar-width: none;
+      }
+      .pb-left::-webkit-scrollbar { display: none; }
+      .pb-sec-item {
+        width: auto; flex: 0 0 auto; white-space: nowrap;
+        padding: 8px 14px; border-left: none; border-radius: 999px;
+        border: 1.5px solid var(--border); background: #fff;
+      }
+      .pb-sec-item.active { border-color: var(--black); background: var(--black); color: #fff; }
+
+      /* Editing form first + full width (never cut off) */
+      .pb-right { order: 1; width: 100%; flex-shrink: 0; border-left: none; border-bottom: 1px solid var(--border); padding: 18px 16px; overflow: visible; }
+
+      /* Live preview below, in a bounded scrollable window */
+      .pb-center { order: 2; }
+      .pb-frame-wrap { height: 62vh; padding: 12px; min-height: 0; }
+      .pb-frame-inner { height: 100%; }
+      /* The faux-phone mockup is wider than a phone screen → scale to fit */
+      .pb-frame-inner.pb-phone { transform: scale(.80); transform-origin: top center; }
+    }
     .pb-field { margin-bottom: 16px; }
     .pb-field-group { display: none; }
     .pb-field-group.active { display: block; }
