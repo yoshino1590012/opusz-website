@@ -2677,11 +2677,14 @@ Martin</textarea>
     // Current shared phrase offset (per device) → drives the X/Y sliders below.
     var hp=(typeof window.seActiveHeroPos==='function')?window.seActiveHeroPos():(window.seHeroPos||{});
     var pp=hp.phrases||{};
-    var xp=(pp.xPct!=null)?pp.xPct:0, yp=(pp.yPct!=null)?pp.yPct:0;
+    // EN vs 中文 phrase position are independent (zh→xPctZh/yPctZh, fall back to EN).
+    var _phZh=(window.__seCurPreviewLang==='zh');
+    var xp=_phZh ? ((pp.xPctZh!=null)?pp.xPctZh:((pp.xPct!=null)?pp.xPct:0)) : ((pp.xPct!=null)?pp.xPct:0);
+    var yp=_phZh ? ((pp.yPctZh!=null)?pp.yPctZh:((pp.yPct!=null)?pp.yPct:0)) : ((pp.yPct!=null)?pp.yPct:0);
     function posRow(axis,lbl,val){
       return '<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">'
         +'<span style="font-size:11px;color:#155e75;width:90px;flex-shrink:0;">'+lbl+'</span>'
-        +'<input type="range" min="-0.5" max="0.5" step="0.01" value="'+val+'" oninput="seHeroSetPhrasePos(\''+axis+'\',this.value)" style="flex:1;">'
+        +'<input type="range" id="sePhrPosInput_'+axis+'" min="-0.5" max="0.5" step="0.01" value="'+val+'" oninput="seHeroSetPhrasePos(\''+axis+'\',this.value)" style="flex:1;">'
         +'<span id="sePhrPos_'+axis+'" style="font-size:11px;color:#0e7490;width:42px;text-align:right;">'+Math.round(val*100)+'%</span>'
         +'</div>';
     }
@@ -2714,10 +2717,23 @@ Martin</textarea>
     var m = window.seActiveHeroPos();
     m.phrases = Object.assign({}, m.phrases);
     var v = parseFloat(val) || 0;
-    if(axis==='x'){ m.phrases.xPct = v; m.phrases.x = 0; }
-    else          { m.phrases.yPct = v; m.phrases.y = 0; }
+    var _zh = (window.__seCurPreviewLang==='zh');   // save into the active language slot
+    if(axis==='x'){ if(_zh){ m.phrases.xPctZh=v; m.phrases.xZh=0; } else { m.phrases.xPct=v; m.phrases.x=0; } }
+    else          { if(_zh){ m.phrases.yPctZh=v; m.phrases.yZh=0; } else { m.phrases.yPct=v; m.phrases.y=0; } }
     var lab=document.getElementById('sePhrPos_'+axis); if(lab) lab.textContent=Math.round(v*100)+'%';
     sePreview();      // live-apply to the preview (visible when the phrase is in view)
+  };
+  // Refresh the phrase X/Y sliders to the active language's values WITHOUT rebuilding
+  // the panel (called when the preview language changes).
+  window.seSyncPhrasePosSliders = function(){
+    var hp=(typeof window.seActiveHeroPos==='function')?window.seActiveHeroPos():(window.seHeroPos||{});
+    var pp=hp.phrases||{}; var zh=(window.__seCurPreviewLang==='zh');
+    var xp=zh?((pp.xPctZh!=null)?pp.xPctZh:((pp.xPct!=null)?pp.xPct:0)):((pp.xPct!=null)?pp.xPct:0);
+    var yp=zh?((pp.yPctZh!=null)?pp.yPctZh:((pp.yPct!=null)?pp.yPct:0)):((pp.yPct!=null)?pp.yPct:0);
+    [['x',xp],['y',yp]].forEach(function(d){
+      var inp=document.getElementById('sePhrPosInput_'+d[0]); if(inp) inp.value=d[1];
+      var lab=document.getElementById('sePhrPos_'+d[0]); if(lab) lab.textContent=Math.round(d[1]*100)+'%';
+    });
   };
 
   // Brand OPUS.Z colour mode toggle: auto black/white (default) vs solid white.
@@ -3093,13 +3109,28 @@ Martin</textarea>
       window.addEventListener('message', function(e){
         if(!e || !e.data) return;
         if(e.data.__opuszCmsSelect && e.data.key){ seSelectSection(e.data.key); }
+        // Preview reported which language it is showing → cache it so drags and the
+        // phrase X/Y sliders save into the matching EN vs 中文 position slot.
+        if(e.data.__opuszPreviewLang && (e.data.lang==='en'||e.data.lang==='zh')){
+          if(window.__seCurPreviewLang !== e.data.lang){
+            window.__seCurPreviewLang = e.data.lang;
+            // Update phrase X/Y sliders in place (NOT a full rebuild — that would
+            // replace the size slider the owner may be mid-drag on).
+            try{ if(typeof window.seSyncPhrasePosSliders==='function') window.seSyncPhrasePosSliders(); }catch(_){}
+          }
+        }
         // Hero element was dragged in the preview → remember its offset for saving.
-        // Store viewport-fraction (xPct/yPct, width-independent) + px (legacy). Merge
-        // so an existing size (s) isn't wiped by a position update.
+        // EN and 中文 keep INDEPENDENT positions: 中文 → xPctZh/yPctZh, EN → xPct/yPct.
+        // Merge so an existing size (s) / the other language's position isn't wiped.
         if(e.data.__opuszHeroPos && e.data.key){
           var m = (typeof window.seActiveHeroPos==='function') ? window.seActiveHeroPos() : (window.seHeroPos = window.seHeroPos || {});
-          m[e.data.key] = Object.assign({}, m[e.data.key],
-            { x:e.data.x|0, y:e.data.y|0, xPct:e.data.xPct, yPct:e.data.yPct });
+          var cur = Object.assign({}, m[e.data.key]);
+          if(e.data.lang === 'zh'){
+            cur.xPctZh = e.data.xPct; cur.yPctZh = e.data.yPct; cur.xZh = e.data.x|0; cur.yZh = e.data.y|0;
+          } else {
+            cur.xPct = e.data.xPct; cur.yPct = e.data.yPct; cur.x = e.data.x|0; cur.y = e.data.y|0;
+          }
+          m[e.data.key] = cur;
         }
         // Clicked a Hero element in the preview → open its font panel (Canva-style).
         if(e.data.__opuszPick && e.data.key && seCurrentPage==='home'){

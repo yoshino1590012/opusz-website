@@ -34,6 +34,26 @@ const PAGE = (document.documentElement.getAttribute('data-cms-page') || 'home').
 // the INDEPENDENT CSS `translate` property — separate from `transform`, so the
 // reveal / card-scale ANIMATIONS (which use transform) are completely untouched.
 var HERO_DRAG = { headline:'.hco-headline', sub:'.hco-sub', btnFind:'.hco-btn-pri', btnProject:'.hco-btn-out', brand:'.hco-brand' };
+// Current front-end language ('zh' | 'en'). Saved choice wins over device default.
+function _heroCurLang(){
+  try { var s = localStorage.getItem('opusz_lang'); if (s === 'en' || s === 'zh') return s; } catch(e){}
+  return (window._currentLang === 'zh') ? 'zh' : 'en';
+}
+// Resolve an element's translate offset for the active language. EN and 中文 keep
+// INDEPENDENT positions (zh uses xPctZh/yPctZh; if unset it falls back to the EN
+// xPct/yPct so existing single-position designs are unchanged until 中文 is moved).
+function _heroPosCalc(p, useZh){
+  p = p || {};
+  var xPct = (useZh && p.xPctZh != null) ? p.xPctZh : p.xPct;
+  var yPct = (useZh && p.yPctZh != null) ? p.yPctZh : p.yPct;
+  var px   = (useZh && p.xZh   != null) ? p.xZh   : p.x;
+  var py   = (useZh && p.yZh   != null) ? p.yZh   : p.y;
+  if (xPct == null && yPct == null && !px && !py) return '';
+  // X capped at 2827px (where --k clamps) so offsets don't drift on 4K/ultrawide.
+  var tx = (xPct != null) ? ('calc(' + xPct + ' * min(100vw, 2827px))') : ((px || 0) + 'px');
+  var ty = (yPct != null) ? ('calc(' + yPct + ' * 100vh)') : ((py || 0) + 'px');
+  return tx + ' ' + ty;
+}
 // Ensure the right number of OPUS.Z brand copies (1–4) exist in the DOM.
 function ensureBrandCopies(count){
   count = Math.max(1, Math.min(8, parseInt(count,10) || 1));
@@ -56,43 +76,29 @@ function ensureBrandCopies(count){
 function applyHeroPos(map){
   map = map || {};
   ensureBrandCopies(map._brandCount || 1);   // make the brand copies first
-  // Current front-end language → 標題/副標 can carry separate EN vs 中文 sizes.
-  var _lang = (function(){ try { var s = localStorage.getItem('opusz_lang'); if (s === 'en' || s === 'zh') return s; } catch(e){} return (window._currentLang === 'zh') ? 'zh' : 'en'; })();
+  // Current front-end language → 標題/副標 carry INDEPENDENT EN vs 中文 sizes AND
+  // positions (EN length ≠ 中文 length, so they need their own placement).
+  var _lang = _heroCurLang();
+  var useZh = (_lang === 'zh');
   Object.keys(HERO_DRAG).forEach(function(k){
     if(k === 'brand') return;   // every brand copy handled below
     var el = document.querySelector(HERO_DRAG[k]); if(!el) return;
     var p = map[k] || {};
     // Position via independent `translate` (separate from `transform`, so animations
-    // stay intact). PREFER viewport-fraction (xPct/yPct → vw/vh) so the offset is the
-    // SAME relative position at any screen width; fall back to legacy px (x/y).
-    var has = (p.xPct != null || p.yPct != null || p.x || p.y);
-    // Cap the width used for the X offset at 2827px (= 1488 * 1.9, the point where
-    // the hero's --k text scaling clamps). Below that nothing changes; above it the
-    // text stops growing, so the offset must stop drifting too or the title/subtitle
-    // slide off the right edge on 4K / ultrawide screens (looked fine in the narrower
-    // editor). Same-relative position ≤2827px and on mobile → no change there.
-    var tx = (p.xPct != null) ? ('calc(' + p.xPct + ' * min(100vw, 2827px))') : ((p.x || 0) + 'px');
-    var ty = (p.yPct != null) ? ('calc(' + p.yPct + ' * 100vh)') : ((p.y || 0) + 'px');
-    el.style.translate = has ? (tx + ' ' + ty) : '';
+    // stay intact), resolved per-language (zh→xPctZh/yPctZh, else EN xPct/yPct).
+    el.style.translate = _heroPosCalc(p, useZh);
     // 標題/副標：中文時用 sZh（沒設就回退到 s = 目前大小）；其他元素照常用 s。
-    var sc = ((k === 'headline' || k === 'sub') && _lang === 'zh' && p.sZh != null && p.sZh !== '') ? p.sZh : p.s;
+    var sc = ((k === 'headline' || k === 'sub') && useZh && p.sZh != null && p.sZh !== '') ? p.sZh : p.s;
     el.style.scale     = (sc && sc !== 1) ? String(sc) : '';
   });
-  // Rotating phrases share ONE position (the `phrases` key), applied to ALL three
-  // .hp-phrase blocks so they never drift apart.
+  // Rotating phrases share ONE position (the `phrases` key, per-language), applied
+  // to ALL three .hp-phrase blocks so they never drift apart.
   (function(){
     var p = map.phrases || {};
-    var has = (p.xPct != null || p.yPct != null || p.x || p.y);
-    // Cap the width used for the X offset at 2827px (= 1488 * 1.9, the point where
-    // the hero's --k text scaling clamps). Below that nothing changes; above it the
-    // text stops growing, so the offset must stop drifting too or the title/subtitle
-    // slide off the right edge on 4K / ultrawide screens (looked fine in the narrower
-    // editor). Same-relative position ≤2827px and on mobile → no change there.
-    var tx = (p.xPct != null) ? ('calc(' + p.xPct + ' * min(100vw, 2827px))') : ((p.x || 0) + 'px');
-    var ty = (p.yPct != null) ? ('calc(' + p.yPct + ' * 100vh)') : ((p.y || 0) + 'px');
+    var t = _heroPosCalc(p, useZh);
     var els = document.querySelectorAll('.hp-phrase');
     for (var i = 0; i < els.length; i++){
-      els[i].style.translate = has ? (tx + ' ' + ty) : '';
+      els[i].style.translate = t;
       els[i].style.scale     = (p.s && p.s !== 1) ? String(p.s) : '';
     }
   })();
@@ -101,10 +107,7 @@ function applyHeroPos(map){
   var brandScale = (map.brand && map.brand.s && map.brand.s !== 1) ? String(map.brand.s) : '';
   Array.prototype.forEach.call(document.querySelectorAll('.hco-brand'), function(el){
     var bp = map[el.getAttribute('data-bk') || 'brand'] || {};
-    var bHas = (bp.xPct != null || bp.yPct != null || bp.x || bp.y);
-    var btx = (bp.xPct != null) ? ('calc(' + bp.xPct + ' * min(100vw, 2827px))') : ((bp.x || 0) + 'px');
-    var bty = (bp.yPct != null) ? ('calc(' + bp.yPct + ' * 100vh)') : ((bp.y || 0) + 'px');
-    el.style.translate = bHas ? (btx + ' ' + bty) : '';
+    el.style.translate = _heroPosCalc(bp, useZh);
     el.style.scale = brandScale;
   });
   // Re-wire drag so freshly-created copies become grabbable in editor mode.
@@ -536,6 +539,15 @@ window.addEventListener('message', function(e){
     (document.head || document.documentElement).appendChild(st);
   })();
 
+  // Tell the editor which language the preview is currently showing, so it saves
+  // dragged positions / phrase-slider moves into the matching EN vs 中文 slot.
+  function _reportPreviewLang(){
+    try { parent.postMessage({ __opuszPreviewLang:true, lang:_heroCurLang() }, '*'); } catch(_){}
+  }
+  _reportPreviewLang();
+  setTimeout(_reportPreviewLang, 400);
+  document.addEventListener('opusz:langchange', _reportPreviewLang);
+
   var hl = null, hlTarget = null;
   function ensureHl(){
     if (hl) return hl;
@@ -639,7 +651,7 @@ window.addEventListener('message', function(e){
       var o = curOffset(el);
       var vw = window.innerWidth || 1, vh = window.innerHeight || 1;
       // report BOTH px (legacy) and viewport-fraction (width-independent, preferred)
-      try{ parent.postMessage({__opuszHeroPos:true, key:key,
+      try{ parent.postMessage({__opuszHeroPos:true, key:key, lang:_heroCurLang(),
         x:Math.round(o.x), y:Math.round(o.y),
         xPct:+(o.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
       // A click without drag = SELECT this element → editor opens its font panel.
@@ -695,7 +707,7 @@ window.addEventListener('message', function(e){
         Array.prototype.forEach.call(phraseEls, function(p){ p.style.outline=''; });
         var o = curOffset(el);
         var vw = window.innerWidth || 1, vh = window.innerHeight || 1;
-        try{ parent.postMessage({__opuszHeroPos:true, key:'phrases',
+        try{ parent.postMessage({__opuszHeroPos:true, key:'phrases', lang:_heroCurLang(),
           x:Math.round(o.x), y:Math.round(o.y),
           xPct:+(o.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
       }
