@@ -14,7 +14,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased;}
 :root{--black:#000;--white:#fff;--gray:#ffffff;
   /* Theme tokens (Phase 2-C) — overridable via cfg.theme; defaults match current design */
-  --pf-accent:#1ab864; --pf-accent-hover:#149954; --pf-page-bg:#ffffff; --pf-text:#000000;}
+  --pf-accent:#7a1212; --pf-accent-hover:#5c0d0d; --pf-page-bg:#ffffff; --pf-text:#000000;}
 /* Hero media video (URL-based, injected by applyProfileConfig) */
 .hero-media-el{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; z-index:1; pointer-events:none; }
 body{font-family:'Inter','Helvetica Neue',sans-serif;background:var(--gray);overflow-x:hidden;}
@@ -6692,11 +6692,8 @@ window.addEventListener('pageshow', function(e) {
     if(cfg.theme && typeof cfg.theme === 'object'){
       var root = document.documentElement;
       var isColor = function(s){ return typeof s === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.test(s.trim()); };
-      if(isColor(cfg.theme.accent)){
-        root.style.setProperty('--pf-accent', cfg.theme.accent);
-        // Derive a slightly darker hover from the accent
-        root.style.setProperty('--pf-accent-hover', darken(cfg.theme.accent, 0.12));
-      }
+      // Accent (CTA buttons) is now a fixed brand maroon (#7a1212) for every
+      // musician — the Theme tab was removed, so a saved accent is NOT applied.
       if(isColor(cfg.theme.pageBg)) root.style.setProperty('--pf-page-bg', cfg.theme.pageBg);
       if(isColor(cfg.theme.text))   root.style.setProperty('--pf-text', cfg.theme.text);
     }
