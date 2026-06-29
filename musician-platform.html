@@ -458,7 +458,13 @@ nav.mega-open .nav-links a::before {
   overflow: hidden;
   border-radius: 0;     /* JS animates this from 0→20px as card shrinks — no corner gaps at full scale */
   z-index: 3;
-  will-change: transform, box-shadow;
+  will-change: transform;
+  /* STATIC card shadow (painted once, scales with the transform). At full screen
+     the card fills .hero-sticky so the shadow sits outside it and is clipped by
+     its overflow:hidden → invisible; as the card shrinks the shadow appears
+     inside the viewport. Keeping it static (instead of recomputing a 50px-blur
+     shadow every scroll frame) is what removes the mobile scroll jank. */
+  box-shadow: 0 0 52px rgba(0,0,0,.15), 0 22px 60px rgba(0,0,0,.22);
 }
 /* Mobile end-scale is 0.74, so --k = 1/0.74 ≈ 1.351 */
 @media (max-width: 700px) {
@@ -4035,7 +4041,16 @@ function switchLang(lang) {
     badge.style.display = count ? 'flex' : 'none';
     positionBadge();
     window.addEventListener('resize', positionBadge);
-    window.addEventListener('scroll', positionBadge, { passive: true });
+    // RAF-throttle on scroll: the old unthrottled getBoundingClientRect() ran a
+    // forced layout read on EVERY scroll event, interleaved with the hero's style
+    // writes → layout thrashing (a real mobile-scroll jank source). One read per
+    // frame, batched with the other scroll work, kills the thrash.
+    var _badgeTick = false;
+    window.addEventListener('scroll', function(){
+      if (_badgeTick) return;
+      _badgeTick = true;
+      requestAnimationFrame(function(){ positionBadge(); _badgeTick = false; });
+    }, { passive: true });
   }
 
   if (btn) btn.addEventListener('click', function() {
@@ -4569,6 +4584,9 @@ function updateHeroDims() {
 
 const _hcOverlayEl = document.getElementById('hcCardOverlay');
 function applyHero(progress) {
+  // Per frame we now touch ONLY the transform (compositor-only, no repaint) plus a
+  // cheap border-radius. The box-shadow is static CSS (see #heroCard) — recomputing
+  // its 50px blur every scroll frame was the main mobile jank, so it's gone from here.
   const scale = _cardScaleMax - (_cardScaleMax - _cardEndScale) * progress;
   heroCardEl.style.transform = `translate(-50%, -50%) scale(${scale})`;
 
@@ -4576,12 +4594,6 @@ function applyHero(progress) {
   // Reaches full 20px very quickly so corners look clean from the start of shrink
   const radius = Math.min(20, progress * 80);
   heroCardEl.style.borderRadius = `${radius}px`;
-
-  // Shadow fades in once card is nearly finished forming
-  const shadowP = Math.max(0, (progress - 0.55) / 0.45);
-  heroCardEl.style.boxShadow = shadowP > 0
-    ? `0 0 ${48*shadowP}px rgba(0,0,0,${0.14*shadowP}), 0 ${18*shadowP}px ${52*shadowP}px rgba(0,0,0,${0.20*shadowP})`
-    : 'none';
 }
 
 // ── Canvas scrub RAF loop ──
