@@ -4638,29 +4638,14 @@ window.addEventListener('scroll', () => {
     hcUpper.style.transform = `translateY(${(-p1e * hcUpper.offsetHeight).toFixed(1)}px)`;
   }
 
-  // ── Phase 2: video scrubs 0→5s, musicians rise to centre (0 → 1.6vh) ──
-  const p2  = Math.max(0, Math.min(1, sy / (vh * 1.6)));
-  const p2e = p2 * (2 - p2);  // ease-out-quad: immediate response on first scroll, same total range
+  // NOTE: the hero photo is now STATIC (the old 362-frame musician scrub was
+  // removed). drawScrubFrame ignores frame/objY, so redrawing the full-screen
+  // canvas on every scroll frame produced identical pixels — pure wasted work
+  // that choked phones (full-image redraw each frame === the reported jank).
+  // The canvas is drawn ONCE on load/resize; the CSS transform below does all
+  // the visible shrink, GPU-composited. So no per-scroll canvas redraw here.
 
-  // ── Phase 3: last ~1s plays, position locked at centre (1.6vh → 2.2vh) ──
-  const p3  = Math.max(0, Math.min(1, (sy - vh * 1.6) / (vh * 0.6)));
-  const p3e = p3 * p3 * (3 - 2 * p3);
-
-  // ── Phase 2 & 3: canvas frame scrub ──
-  {
-    const LAST = _SCRUB_TOTAL - 1;
-    if (p3 > 0) {
-      _vidTargetFrame = Math.round(((5/6) + p3e * (1/6)) * LAST);
-      _vidTargetObjY  = 46;
-    } else {
-      _vidTargetFrame = Math.round(p2e * (5/6) * LAST);
-      _vidTargetObjY  = _VID_INIT_OBJ_Y + p2e * (46 - _VID_INIT_OBJ_Y);
-    }
-    _vidDirty = true;
-    if (!_vidRafId) _vidRafId = requestAnimationFrame(vidTick);
-  }
-
-  // ── Phase 4: card shrinks (1.6vh → 2.2vh) — starts when video hits ~5s ──
+  // ── Card shrinks (the visible "photo folds into a card" effect) ──
   heroTarget = Math.max(0, Math.min(1, sy / (vh * 0.9)));
   if (!heroRafId) heroRafId = requestAnimationFrame(heroTick);
 
