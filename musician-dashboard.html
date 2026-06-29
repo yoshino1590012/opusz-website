@@ -481,11 +481,12 @@
     .pb-right { width: 280px; flex-shrink: 0; border-left: 1px solid var(--border); padding: 18px; overflow-y: auto; }
 
     /* ════════════ Page Builder — PHONE EDITOR (Shopify-style) ════════════
-       Portrait phone: the live preview fills the whole screen; editing happens in a
-       bottom sheet you can drag up/down; the section list is a slide-up drawer opened by
-       the ≣ button. Tapping a section in the preview opens its fields here too.
+       Portrait phone: a TOP bar holds the section picker (tap → list drops down from the
+       top); the live preview fills the screen; editing happens in a bottom sheet you can
+       drag up/down. Tapping a section in the preview opens its fields too.
        Landscape phones are wide enough → they fall through to the desktop 3-column editor. */
-    .pb-sheet-head { display: none; }       /* desktop: no phone chrome */
+    .pb-topbar { display: none; }           /* desktop: no phone chrome */
+    .pb-sheet-head { display: none; }
     .pb-sheet-backdrop { display: none; }
 
     @media (max-width: 860px) and (orientation: portrait) {
@@ -497,8 +498,18 @@
       }
       .pb-shell { display: block; position: absolute; inset: 0; border: 0; border-radius: 0; overflow: hidden; background: #111; }
 
-      /* ── Live preview fills the screen ── */
-      .pb-center { position: absolute; inset: 0; display: block; background: #111; }
+      /* ── Top bar: section picker (Shopify-style) ── */
+      .pb-topbar { display: flex; position: absolute; top: 0; left: 0; right: 0; height: 48px; z-index: 48;
+        align-items: center; padding: 0 12px; background: #fff; border-bottom: 1px solid var(--border); }
+      .pb-topbar-secbtn { display: inline-flex; align-items: center; gap: 8px; width: 100%; justify-content: center;
+        border: none; background: transparent; font-family: inherit; font-size: 15px; font-weight: 800; color: #111;
+        cursor: pointer; padding: 8px; }
+      .pb-topbar-secbtn .pb-topbar-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw; }
+      .pb-topbar-secbtn .pb-chev { transition: transform .25s; }
+      .pb-shell.pb-secopen .pb-topbar-secbtn .pb-chev { transform: rotate(180deg); }
+
+      /* ── Live preview fills the screen (below the top bar) ── */
+      .pb-center { position: absolute; top: 48px; left: 0; right: 0; bottom: 0; display: block; background: #111; }
       .pb-devbar { display: none; }
       .pb-frame-wrap { position: absolute; inset: 0; padding: 0; height: auto; min-height: 0; }
       .pb-frame-inner,
@@ -524,30 +535,24 @@
       .pb-shell.pb-sheet-dragging .pb-right { transition: none; }
       .pb-sheet-head { display: block; flex: none; touch-action: none; }
       .pb-sheet-grip { width: 40px; height: 5px; border-radius: 3px; background: #d4d4d4; margin: 9px auto 6px; }
-      .pb-sheet-bar { display: flex; align-items: center; gap: 10px; padding: 0 14px 10px; border-bottom: 1px solid var(--border); }
-      .pb-sheet-secbtn {
-        display: inline-flex; align-items: center; gap: 8px; flex: 1; min-width: 0;
-        border: none; background: #f3f3f3; border-radius: 10px; padding: 10px 12px;
-        font-family: inherit; font-size: 15px; font-weight: 700; color: #111; cursor: pointer; text-align: left;
-      }
-      .pb-sheet-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-      .pb-sheet-expand { border: none; background: #f3f3f3; border-radius: 10px; width: 42px; height: 40px; cursor: pointer; font-size: 15px; color: #555; flex: none; }
+      .pb-sheet-bar { display: flex; align-items: center; gap: 10px; padding: 2px 14px 10px; border-bottom: 1px solid var(--border); }
+      .pb-sheet-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 700; color: #555; }
+      .pb-sheet-expand { border: none; background: #f3f3f3; border-radius: 10px; width: 42px; height: 38px; cursor: pointer; font-size: 15px; color: #555; flex: none; }
       .pb-right .pb-field-group.active {
         flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px 28px;
       }
 
-      /* ── Section list → slide-up drawer ── */
-      .pb-sheet-backdrop { display: block; position: absolute; inset: 0; background: rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 44; }
+      /* ── Section list → drops DOWN from the top bar ── */
+      .pb-sheet-backdrop { display: block; position: absolute; top: 48px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 44; }
       .pb-shell.pb-secopen .pb-sheet-backdrop { opacity: 1; pointer-events: auto; }
       .pb-left {
-        position: absolute; left: 0; right: 0; bottom: 0; top: auto; width: auto; max-height: 74%;
-        transform: translateY(101%); transition: transform .28s cubic-bezier(.22,1,.36,1);
-        z-index: 46; background: #fff; border: 0; border-radius: 18px 18px 0 0;
-        box-shadow: 0 -8px 34px rgba(0,0,0,.3); display: block; overflow-y: auto; -webkit-overflow-scrolling: touch;
-        padding: 10px 10px calc(18px + env(safe-area-inset-bottom, 0px));
+        position: absolute; top: 48px; left: 0; right: 0; bottom: auto; width: auto; max-height: 70%;
+        transform: translateY(-110%); transition: transform .28s cubic-bezier(.22,1,.36,1);
+        z-index: 46; background: #fff; border: 0; border-radius: 0 0 18px 18px;
+        box-shadow: 0 12px 34px rgba(0,0,0,.3); display: block; overflow-y: auto; -webkit-overflow-scrolling: touch;
+        padding: 8px 10px 14px;
       }
       .pb-shell.pb-secopen .pb-left { transform: translateY(0); }
-      .pb-left::before { content: ''; display: block; width: 40px; height: 5px; border-radius: 3px; background: #d4d4d4; margin: 2px auto 12px; }
       .pb-sec-item { width: 100%; border-left: 0; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 600; margin-bottom: 2px; white-space: normal; }
       .pb-sec-item.active { background: #f0f0f0; color: #111; }
     }
@@ -1641,7 +1646,16 @@
         </div>
         <div class="pb-shell">
 
-          <!-- Phone only: dim backdrop behind the section drawer -->
+          <!-- Phone only: TOP bar — tap to drop down the section list -->
+          <div class="pb-topbar">
+            <button type="button" class="pb-topbar-secbtn" onclick="pbToggleSections()" aria-label="切換編輯區塊">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              <span class="pb-topbar-title" id="pbTopTitle" data-i18n="pb_hero">主視覺</span>
+              <svg class="pb-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+          </div>
+
+          <!-- Phone only: dim backdrop behind the section list -->
           <div class="pb-sheet-backdrop" onclick="pbToggleSections(false)"></div>
 
           <!-- LEFT: section list -->
@@ -1683,14 +1697,11 @@
           <!-- RIGHT: settings form -->
           <div class="pb-right">
 
-            <!-- Phone only: bottom-sheet header (drag handle + section picker + expand) -->
+            <!-- Phone only: bottom-sheet header (drag handle + current-section label + expand) -->
             <div class="pb-sheet-head">
               <div class="pb-sheet-grip"></div>
               <div class="pb-sheet-bar">
-                <button type="button" class="pb-sheet-secbtn" onclick="pbToggleSections()" aria-label="切換編輯區塊">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-                  <span class="pb-sheet-title" id="pbSheetTitle" data-i18n="pb_hero">主視覺</span>
-                </button>
+                <span class="pb-sheet-title" id="pbSheetTitle" data-i18n="pb_hero">主視覺</span>
                 <button type="button" class="pb-sheet-expand" onclick="pbCycleSheet()" aria-label="展開或收合面板">⌃</button>
               </div>
             </div>
@@ -5569,9 +5580,12 @@
       // close it again when they move to another section.
       f.contentWindow.postMessage({ type: (sec === 'booking') ? 'open-avail' : 'close-avail' }, '*');
     }
-    // ── Phone bottom-sheet: reflect the chosen section + close the section drawer ──
-    var _st = document.getElementById('pbSheetTitle');
-    if(_st && btn){ _st.textContent = (btn.textContent || '').trim(); }
+    // ── Phone: reflect the chosen section in the top bar + sheet label, close the list ──
+    var _label = btn ? (btn.textContent || '').trim() : '';
+    if(_label){
+      var _tt = document.getElementById('pbTopTitle');   if(_tt) _tt.textContent = _label;
+      var _st = document.getElementById('pbSheetTitle');  if(_st) _st.textContent = _label;
+    }
     if(window.pbToggleSections) window.pbToggleSections(false);
     // If the sheet was collapsed to a peek, pop it back up so the fields are visible.
     if(window.pbIsMobileFs && window.pbIsMobileFs() && window.pbEnsureSheetOpen) window.pbEnsureSheetOpen();
