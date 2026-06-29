@@ -621,7 +621,13 @@ window.addEventListener('message', function(e){
     return m ? (parseFloat(m[1].split(',')[0]) || 1) : 1;
   }
   function curOffset(el){
-    var tr = el.style.translate; if(!tr) return {x:0,y:0};
+    // Read the RESOLVED px translate (computed), so a drag continues smoothly from
+    // the element's current spot even when it was placed via a calc()/vw/vh offset
+    // (inline parsing of "calc(...)" → NaN → 0 made the 2nd drag jump to the origin).
+    var tr = '';
+    try { tr = getComputedStyle(el).translate; } catch(e){}
+    if (!tr || tr === 'none') tr = el.style.translate || '';
+    if (!tr) return {x:0,y:0};
     var p = tr.split(/\s+/); return {x:parseFloat(p[0])||0, y:parseFloat(p[1])||0};
   }
   function wireDragOn(el, key){
