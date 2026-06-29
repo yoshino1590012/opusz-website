@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>OPUS.Z · Dashboard</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -480,53 +480,76 @@
     #pbPhoneStatus svg [stroke="#fff"] { stroke: currentColor; }
     .pb-right { width: 280px; flex-shrink: 0; border-left: 1px solid var(--border); padding: 18px; overflow-y: auto; }
 
-    /* Rotate nudge: shown only when a touch phone is held PORTRAIT. Rotating to
-       landscape flips the orientation media query → banner auto-hides AND the layout
-       falls through to the full 3-column desktop editor (much nicer to edit on). */
-    .pb-rotate-hint { display: none; }
-    @media (max-width: 860px) and (orientation: portrait) and (pointer: coarse) {
-      .pb-rotate-hint {
-        display: flex; align-items: center; gap: 8px; margin: 0 0 10px;
-        padding: 11px 13px; background: #fff7e6; border: 1px solid #ffe2a8;
-        border-radius: 10px; color: #7a5800; font-size: 12.5px; line-height: 1.5; font-weight: 600;
-      }
-      .pb-rotate-hint b { color: #5a4100; }
-    }
+    /* ════════════ Page Builder — PHONE EDITOR (Shopify-style) ════════════
+       Portrait phone: the live preview fills the whole screen; editing happens in a
+       bottom sheet you can drag up/down; the section list is a slide-up drawer opened by
+       the ≣ button. Tapping a section in the preview opens its fields here too.
+       Landscape phones are wide enough → they fall through to the desktop 3-column editor. */
+    .pb-sheet-head { display: none; }       /* desktop: no phone chrome */
+    .pb-sheet-backdrop { display: none; }
 
-    /* ════ Page Builder — PORTRAIT PHONE (≤860px) ════
-       The 3-column desktop layout (nav 180px ｜ preview ｜ form 280px) overflows a
-       narrow portrait screen and chops the right-hand FORM off-screen. Held portrait we
-       stack to a single column: section list → horizontal scroll tabs (sticky top), the
-       editing form full-width FIRST (what the user came for), live preview below.
-       Held LANDSCAPE the phone is wide enough → keep the full desktop 3-column editor. */
     @media (max-width: 860px) and (orientation: portrait) {
-      #page-pagebuilder.page.active { height: auto; min-height: 0; }
-      .pb-shell { flex-direction: column; height: auto; min-height: 0; overflow: visible; border-radius: 12px; }
+      /* Take over everything under the topbar */
+      #page-pagebuilder.page.active {
+        position: fixed; left: 0; right: 0; bottom: 0;
+        top: calc(56px + env(safe-area-inset-top, 0px));
+        z-index: 30; height: auto; min-height: 0; display: block; background: #111;
+      }
+      .pb-shell { display: block; position: absolute; inset: 0; border: 0; border-radius: 0; overflow: hidden; background: #111; }
 
-      /* Section list → sticky, horizontally-scrollable pill tabs */
+      /* ── Live preview fills the screen ── */
+      .pb-center { position: absolute; inset: 0; display: block; background: #111; }
+      .pb-devbar { display: none; }
+      .pb-frame-wrap { position: absolute; inset: 0; padding: 0; height: auto; min-height: 0; }
+      .pb-frame-inner,
+      .pb-frame-inner.pb-phone {
+        width: 100% !important; max-width: 100% !important; height: 100% !important;
+        transform: none !important; margin: 0 !important; border-radius: 0; box-shadow: none;
+        background: #fff; padding: 0; flex: none; display: block;
+      }
+      .pb-frame-inner.pb-phone::after { display: none; }
+      .pb-frame-inner.pb-phone #pbPhoneStatus, #pbPhoneStatus { display: none !important; }
+      #pbPreview { width: 100% !important; height: 100% !important; border-radius: 0 !important; }
+
+      /* ── Bottom sheet = the editing form ── */
+      .pb-right {
+        position: absolute; left: 0; right: 0; bottom: 0; top: auto; width: auto;
+        height: var(--pb-sheet-h, 46vh); max-height: 92vh;
+        border: 0; border-radius: 18px 18px 0 0; padding: 0; background: #fff;
+        box-shadow: 0 -8px 34px rgba(0,0,0,.22); z-index: 40;
+        display: flex; flex-direction: column; overflow: hidden;
+        transition: height .26s cubic-bezier(.22,1,.36,1);
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .pb-shell.pb-sheet-dragging .pb-right { transition: none; }
+      .pb-sheet-head { display: block; flex: none; touch-action: none; }
+      .pb-sheet-grip { width: 40px; height: 5px; border-radius: 3px; background: #d4d4d4; margin: 9px auto 6px; }
+      .pb-sheet-bar { display: flex; align-items: center; gap: 10px; padding: 0 14px 10px; border-bottom: 1px solid var(--border); }
+      .pb-sheet-secbtn {
+        display: inline-flex; align-items: center; gap: 8px; flex: 1; min-width: 0;
+        border: none; background: #f3f3f3; border-radius: 10px; padding: 10px 12px;
+        font-family: inherit; font-size: 15px; font-weight: 700; color: #111; cursor: pointer; text-align: left;
+      }
+      .pb-sheet-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .pb-sheet-expand { border: none; background: #f3f3f3; border-radius: 10px; width: 42px; height: 40px; cursor: pointer; font-size: 15px; color: #555; flex: none; }
+      .pb-right .pb-field-group.active {
+        flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 16px 16px 28px;
+      }
+
+      /* ── Section list → slide-up drawer ── */
+      .pb-sheet-backdrop { display: block; position: absolute; inset: 0; background: rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 44; }
+      .pb-shell.pb-secopen .pb-sheet-backdrop { opacity: 1; pointer-events: auto; }
       .pb-left {
-        width: 100%; flex-shrink: 0; display: flex; gap: 6px;
-        overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch;
-        padding: 8px; border-right: none; border-bottom: 1px solid var(--border);
-        background: #fafafa; position: sticky; top: 0; z-index: 6; scrollbar-width: none;
+        position: absolute; left: 0; right: 0; bottom: 0; top: auto; width: auto; max-height: 74%;
+        transform: translateY(101%); transition: transform .28s cubic-bezier(.22,1,.36,1);
+        z-index: 46; background: #fff; border: 0; border-radius: 18px 18px 0 0;
+        box-shadow: 0 -8px 34px rgba(0,0,0,.3); display: block; overflow-y: auto; -webkit-overflow-scrolling: touch;
+        padding: 10px 10px calc(18px + env(safe-area-inset-bottom, 0px));
       }
-      .pb-left::-webkit-scrollbar { display: none; }
-      .pb-sec-item {
-        width: auto; flex: 0 0 auto; white-space: nowrap;
-        padding: 8px 14px; border-left: none; border-radius: 999px;
-        border: 1.5px solid var(--border); background: #fff;
-      }
-      .pb-sec-item.active { border-color: var(--black); background: var(--black); color: #fff; }
-
-      /* Editing form first + full width (never cut off) */
-      .pb-right { order: 1; width: 100%; flex-shrink: 0; border-left: none; border-bottom: 1px solid var(--border); padding: 18px 16px; overflow: visible; }
-
-      /* Live preview below, in a bounded scrollable window */
-      .pb-center { order: 2; }
-      .pb-frame-wrap { height: 62vh; padding: 12px; min-height: 0; }
-      .pb-frame-inner { height: 100%; }
-      /* The faux-phone mockup is wider than a phone screen → scale to fit */
-      .pb-frame-inner.pb-phone { transform: scale(.80); transform-origin: top center; }
+      .pb-shell.pb-secopen .pb-left { transform: translateY(0); }
+      .pb-left::before { content: ''; display: block; width: 40px; height: 5px; border-radius: 3px; background: #d4d4d4; margin: 2px auto 12px; }
+      .pb-sec-item { width: 100%; border-left: 0; border-radius: 12px; padding: 14px; font-size: 16px; font-weight: 600; margin-bottom: 2px; white-space: normal; }
+      .pb-sec-item.active { background: #f0f0f0; color: #111; }
     }
     .pb-field { margin-bottom: 16px; }
     .pb-field-group { display: none; }
@@ -760,8 +783,13 @@
       .sidebar.open { transform: translateX(0); box-shadow:0 0 40px rgba(0,0,0,.4); }
       .sb-hamburger { display:flex; }
 
-      /* Topbar tighter; show title centered-ish */
-      .topbar { padding: 0 12px; height:56px; }
+      /* Topbar tighter; show title centered-ish. viewport-fit=cover → pad for the
+         notch / status bar (top) and landscape side insets so nothing hides under it. */
+      .topbar {
+        height: auto; min-height: 56px;
+        padding: max(0px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
+        align-items: center;
+      }
       .topbar-title { font-size:15px; }
       .topbar-right { gap:6px; }
       .topbar-profile { padding:5px 6px; }
@@ -1611,9 +1639,10 @@
           <h1 data-i18n="pb_title">編輯主頁</h1>
           <p data-i18n="pb_subtitle">即時編輯你的公開檔案頁面，右側修改、中間預覽，按「儲存」發佈。</p>
         </div>
-        <!-- Phone-portrait only: nudge to rotate (CSS auto-hides on landscape) -->
-        <div class="pb-rotate-hint" data-i18n-html="pb_rotate_hint">📱 建議把手機<b>轉成橫的</b>編輯，畫面會自動變大、更好操作。</div>
         <div class="pb-shell">
+
+          <!-- Phone only: dim backdrop behind the section drawer -->
+          <div class="pb-sheet-backdrop" onclick="pbToggleSections(false)"></div>
 
           <!-- LEFT: section list -->
           <div class="pb-left" id="pbSecList">
@@ -1653,6 +1682,18 @@
 
           <!-- RIGHT: settings form -->
           <div class="pb-right">
+
+            <!-- Phone only: bottom-sheet header (drag handle + section picker + expand) -->
+            <div class="pb-sheet-head">
+              <div class="pb-sheet-grip"></div>
+              <div class="pb-sheet-bar">
+                <button type="button" class="pb-sheet-secbtn" onclick="pbToggleSections()" aria-label="切換編輯區塊">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+                  <span class="pb-sheet-title" id="pbSheetTitle" data-i18n="pb_hero">主視覺</span>
+                </button>
+                <button type="button" class="pb-sheet-expand" onclick="pbCycleSheet()" aria-label="展開或收合面板">⌃</button>
+              </div>
+            </div>
 
             <!-- Hero -->
             <div class="pb-field-group active" data-pbgroup="hero">
@@ -5528,6 +5569,12 @@
       // close it again when they move to another section.
       f.contentWindow.postMessage({ type: (sec === 'booking') ? 'open-avail' : 'close-avail' }, '*');
     }
+    // ── Phone bottom-sheet: reflect the chosen section + close the section drawer ──
+    var _st = document.getElementById('pbSheetTitle');
+    if(_st && btn){ _st.textContent = (btn.textContent || '').trim(); }
+    if(window.pbToggleSections) window.pbToggleSections(false);
+    // If the sheet was collapsed to a peek, pop it back up so the fields are visible.
+    if(window.pbIsMobileFs && window.pbIsMobileFs() && window.pbEnsureSheetOpen) window.pbEnsureSheetOpen();
   };
 
   // ── Click-in-preview → jump to + flash the exact editor field ────────────
@@ -5626,6 +5673,7 @@
     var inner = document.getElementById('pbFrameInner');
     var ifr   = document.getElementById('pbPreview');
     if(!wrap || !inner || !ifr) return;
+    if(window.pbIsMobileFs && window.pbIsMobileFs()){ pbClearPreviewInline(); return; }  // 手機全螢幕：CSS 接手
     if(inner.classList.contains('pb-phone')) return;   // 手機模式由 CSS 處理
     var devW = Math.max(PB_DESKTOP_MINW, window.innerWidth || 1536);
     var devH = Math.max(720, window.innerHeight || Math.round(devW * 0.5625));
@@ -5653,6 +5701,7 @@
   function pbFitPhone(){
     var wrap  = document.querySelector('.pb-frame-wrap');
     var inner = document.getElementById('pbFrameInner');
+    if(window.pbIsMobileFs && window.pbIsMobileFs()){ pbClearPreviewInline(); return; }  // 手機全螢幕：CSS 接手
     if(!wrap || !inner || !inner.classList.contains('pb-phone')) return;
     var boxW = 390 + 26, boxH = 844 + 26;   // content-box 螢幕 + 13px 邊框 ×2
     var availW = Math.max(160, wrap.clientWidth  - 36);  // 扣掉 wrap padding + 一點留白
@@ -5671,8 +5720,80 @@
     if(!pg || !pg.classList.contains('active')) return;   // only when the editor is visible
     var inner = document.getElementById('pbFrameInner');
     if(!inner) return;
+    if(window.pbIsMobileFs && window.pbIsMobileFs()){ pbClearPreviewInline(); return; }  // 手機全螢幕由 CSS 處理
     if(inner.classList.contains('pb-phone')) pbFitPhone(); else pbFitDesktop();
   };
+
+  // ── Phone full-screen editor: preview must simply fill (no desktop zoom / phone bezel). ──
+  // matchMedia mirrors the CSS breakpoint that swaps in the Shopify-style sheet layout.
+  window.pbIsMobileFs = function(){
+    try { return window.matchMedia('(max-width: 860px) and (orientation: portrait)').matches; }
+    catch(e){ return false; }
+  };
+  function pbClearPreviewInline(){
+    var inner = document.getElementById('pbFrameInner'), ifr = document.getElementById('pbPreview');
+    if(inner){ inner.style.transform=''; inner.style.transformOrigin=''; inner.style.margin=''; inner.style.marginBottom=''; inner.style.marginLeft=''; inner.style.marginRight=''; inner.style.width=''; inner.style.height=''; inner.style.maxWidth=''; }
+    if(ifr){ ifr.style.width='100%'; ifr.style.height='100%'; ifr.style.transform=''; ifr.style.transformOrigin=''; ifr.style.zoom=''; }
+  }
+  window.pbClearPreviewInline = pbClearPreviewInline;
+
+  // ── Bottom sheet (drag up/down) + section drawer (≣) ──
+  var PB_SHEET_STATES = ['46vh', '88vh', '88px'];   // half · full · peek
+  var pbSheetIdx = 0;
+  function pbApplySheetVar(){
+    var shell = document.querySelector('.pb-shell');
+    if(shell) shell.style.setProperty('--pb-sheet-h', PB_SHEET_STATES[pbSheetIdx]);
+  }
+  window.pbCycleSheet = function(){ pbSheetIdx = (pbSheetIdx + 1) % PB_SHEET_STATES.length; pbApplySheetVar(); };
+  window.pbEnsureSheetOpen = function(){ if(pbSheetIdx === 2){ pbSheetIdx = 0; pbApplySheetVar(); } };
+  window.pbToggleSections = function(force){
+    var shell = document.querySelector('.pb-shell'); if(!shell) return;
+    var open = (typeof force === 'boolean') ? force : !shell.classList.contains('pb-secopen');
+    shell.classList.toggle('pb-secopen', open);
+  };
+  // Drag the sheet header to resize; snaps to peek / half / full. Buttons inside still work.
+  (function pbSheetDragInit(){
+    var dragging = false, startY = 0, startH = 0, shell = null, right = null;
+    function clientY(e){ return e.touches && e.touches[0] ? e.touches[0].clientY : e.clientY; }
+    function onDown(e){
+      if(!window.pbIsMobileFs || !window.pbIsMobileFs()) return;
+      if(e.target.closest('button')) return;             // taps on ≣ / ⌃ act normally
+      shell = document.querySelector('.pb-shell'); right = document.querySelector('.pb-right');
+      if(!shell || !right) return;
+      dragging = true; shell.classList.add('pb-sheet-dragging');
+      startY = clientY(e); startH = right.getBoundingClientRect().height;
+      window.addEventListener('touchmove', onMove, { passive:false });
+      window.addEventListener('mousemove', onMove);
+      window.addEventListener('touchend', onUp); window.addEventListener('mouseup', onUp);
+    }
+    function onMove(e){
+      if(!dragging) return;
+      var h = Math.max(70, Math.min(window.innerHeight * 0.92, startH + (startY - clientY(e))));
+      shell.style.setProperty('--pb-sheet-h', h + 'px');
+      if(e.cancelable) e.preventDefault();
+    }
+    function onUp(){
+      if(!dragging) return; dragging = false; shell.classList.remove('pb-sheet-dragging');
+      var h = right.getBoundingClientRect().height, vh = window.innerHeight;
+      var snaps = [ {px:88, idx:2}, {px:vh*0.46, idx:0}, {px:vh*0.88, idx:1} ];
+      var best = snaps[0], bd = 1e9;
+      snaps.forEach(function(s){ var d = Math.abs(s.px - h); if(d < bd){ bd = d; best = s; } });
+      pbSheetIdx = best.idx; pbApplySheetVar();
+      window.removeEventListener('touchmove', onMove); window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('touchend', onUp); window.removeEventListener('mouseup', onUp);
+    }
+    function bind(){
+      var head = document.querySelector('.pb-sheet-head'); if(!head || head._pbBound) return;
+      head._pbBound = true;
+      head.addEventListener('touchstart', onDown, { passive:true });
+      head.addEventListener('mousedown', onDown);
+    }
+    if(document.readyState !== 'loading') bind(); else document.addEventListener('DOMContentLoaded', bind);
+  })();
+  // Re-fit the preview when the phone is rotated (portrait ⇄ landscape swaps layouts).
+  window.addEventListener('orientationchange', function(){
+    setTimeout(function(){ if(window.pbApplyCurrentDevice) window.pbApplyCurrentDevice(); }, 180);
+  });
 
   window.pbSetDevice = function(mode, btn){
     document.querySelectorAll('.pb-dev-btn').forEach(b=>b.classList.remove('active'));
