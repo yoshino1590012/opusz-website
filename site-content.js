@@ -524,6 +524,18 @@ window.addEventListener('message', function(e){
   try { isEdit = new URLSearchParams(location.search).get('cmsedit') === '1'; } catch(e){}
   if (!isEdit) return;
 
+  // The hero copy (headline/sub/buttons/brand) is revealed on the PUBLIC site by a
+  // one-shot entrance animation that ends by writing inline `opacity:1`. In the
+  // editor, any preview re-render can re-run or interrupt that animation, so the
+  // headline flickers (re-fades from 0) or vanishes (left stuck at opacity:0) when
+  // the owner just moves near it. In edit mode the elements must ALWAYS be visible
+  // to be positioned, so pin opacity on — `!important` beats the WAAPI animation.
+  (function(){
+    var st = document.createElement('style');
+    st.textContent = '.hco-headline,.hco-sub,.hco-btns,.hco-brand{opacity:1 !important;}';
+    (document.head || document.documentElement).appendChild(st);
+  })();
+
   var hl = null, hlTarget = null;
   function ensureHl(){
     if (hl) return hl;
