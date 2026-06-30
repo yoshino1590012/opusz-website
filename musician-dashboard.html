@@ -481,20 +481,24 @@
     .pb-right { width: 280px; flex-shrink: 0; border-left: 1px solid var(--border); padding: 18px; overflow-y: auto; }
 
     /* ════════════ Page Builder — PHONE EDITOR (Shopify-style) ════════════
-       Portrait phone: a TOP bar holds the section picker (tap → list drops down from the
-       top); the live preview fills the screen; editing happens in a bottom sheet you can
-       drag up/down. Tapping a section in the preview opens its fields too.
-       Landscape phones are wide enough → they fall through to the desktop 3-column editor. */
+       Phone in EITHER orientation: a TOP bar holds the section picker (tap → list drops
+       down) + Save & Publish; the live preview fills the screen; editing happens in a
+       bottom sheet you can drag up/down. Tapping a section in the preview opens its fields.
+       Only laptops/tablets (tall screens) keep the desktop 3-column editor. */
     .pb-topbar { display: none; }           /* desktop: no phone chrome */
     .pb-sheet-head { display: none; }
     .pb-sheet-backdrop { display: none; }
 
-    @media (max-width: 860px) and (orientation: portrait) {
-      /* Take over everything under the topbar */
+    /* Phone in EITHER orientation: narrow portrait, OR short-height landscape (a phone
+       held sideways). Tall landscape (laptops/tablets) keeps the desktop 3-column editor. */
+    @media (max-width: 860px) and (orientation: portrait),
+           (orientation: landscape) and (max-height: 600px) {
+      /* Fill the editor area below the topbar. Anchoring to .page-wrap (not the viewport)
+         means it works at any topbar height/orientation and never covers the sidebar. */
+      .page-wrap:has(> #page-pagebuilder.page.active) { position: relative; padding: 0; overflow: hidden; }
       #page-pagebuilder.page.active {
-        position: fixed; left: 0; right: 0; bottom: 0;
-        top: calc(56px + env(safe-area-inset-top, 0px));
-        z-index: 30; height: auto; min-height: 0; display: block; background: #111;
+        position: absolute; inset: 0;
+        z-index: 1; height: auto; min-height: 0; display: block; background: #111;
       }
       .pb-shell { display: block; position: absolute; inset: 0; border: 0; border-radius: 0; overflow: hidden; background: #111; }
 
@@ -5740,7 +5744,7 @@
   // ── Phone full-screen editor: preview must simply fill (no desktop zoom / phone bezel). ──
   // matchMedia mirrors the CSS breakpoint that swaps in the Shopify-style sheet layout.
   window.pbIsMobileFs = function(){
-    try { return window.matchMedia('(max-width: 860px) and (orientation: portrait)').matches; }
+    try { return window.matchMedia('(max-width: 860px) and (orientation: portrait), (orientation: landscape) and (max-height: 600px)').matches; }
     catch(e){ return false; }
   };
   function pbClearPreviewInline(){
