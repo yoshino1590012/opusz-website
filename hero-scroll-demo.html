@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hero 捲動效果 — 實機比較</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { background: #111; color: #fff; font-family: -apple-system, "PingFang TC", sans-serif; }
+
+  /* ── Top control bar (sticky) ── */
+  .bar {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(17,17,17,.92); backdrop-filter: blur(8px);
+    padding: 10px 12px calc(10px + env(safe-area-inset-top, 0px));
+    border-bottom: 1px solid #2a2a2a;
+  }
+  .bar h1 { font-size: 14px; font-weight: 700; margin-bottom: 8px; opacity: .9; }
+  .btns { display: flex; gap: 6px; }
+  .btns button {
+    flex: 1; padding: 11px 4px; border: 1px solid #3a3a3a; background: #1c1c1c;
+    color: #ddd; border-radius: 9px; font-size: 13px; font-weight: 700;
+    font-family: inherit; cursor: pointer; line-height: 1.3;
+  }
+  .btns button.on { background: #7a1212; border-color: #7a1212; color: #fff; }
+  .support { font-size: 11.5px; margin-top: 8px; opacity: .7; }
+  .support b { color: #ffd; }
+
+  /* ── Hint under the bar ── */
+  .hint { padding: 14px 16px; font-size: 13px; line-height: 1.7; color: #bbb; background: #161616; }
+  .hint .big { color: #fff; font-weight: 700; font-size: 14px; }
+
+  /* ── The hero (sticky, shrinks inside) ── */
+  .stage { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #0c0c0c; }
+  .card {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    transform-origin: center center;
+    width: 100vw; height: 100vh; height: 100dvh;
+    overflow: hidden; border-radius: 0;
+    background: #0c0c0c url('assets/images/hero/opus-hero-mobile.jpg') center/cover no-repeat;
+    will-change: transform;
+    box-shadow: 0 0 52px rgba(0,0,0,.5), 0 22px 60px rgba(0,0,0,.6);
+  }
+  .card .label {
+    position: absolute; left: 0; right: 0; bottom: 14%;
+    text-align: center; font-size: 22px; font-weight: 800;
+    text-shadow: 0 2px 18px rgba(0,0,0,.6); letter-spacing: .04em;
+  }
+
+  /* spacer to create scroll length */
+  .spacer { height: 180vh; }
+  .footer { padding: 40px 18px 80px; font-size: 13px; line-height: 1.8; color: #999; text-align: center; }
+
+  /* ── MODE: CSS scroll-timeline (only if supported) ── */
+  @supports (animation-timeline: scroll()) {
+    .mode-css .card {
+      animation: shrinkAnim linear both;
+      animation-timeline: scroll(root);
+      animation-range: 0 80vh;
+    }
+  }
+  @keyframes shrinkAnim {
+    from { transform: translate(-50%, -50%) scale(1);    border-radius: 0; }
+    20%  { border-radius: 20px; }
+    to   { transform: translate(-50%, -50%) scale(0.7);  border-radius: 20px; }
+  }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <h1>Hero 捲動效果 · 三種做法實機比較</h1>
+    <div class="btns">
+      <button id="b-js"     class="on" onclick="setMode('js')">① 目前做法<br>(JavaScript)</button>
+      <button id="b-css"    onclick="setMode('css')">② 新 CSS 技術<br>(瀏覽器底層)</button>
+      <button id="b-static" onclick="setMode('static')">③ 固定照片<br>(不縮放)</button>
+    </div>
+    <div class="support" id="support"></div>
+  </div>
+
+  <div class="hint" id="hint"></div>
+
+  <div class="stage" id="stage">
+    <div class="card" id="card"><div class="label" id="cardLabel">① JavaScript</div></div>
+  </div>
+  <div class="spacer"></div>
+
+  <div class="footer">
+    上下滑動感受每一種做法的順暢度。<br>切換上面三顆按鈕，用同一根手指、同樣力道滑，比較哪個跟手、哪個卡。
+  </div>
+
+<script>
+  var stage = document.getElementById('stage');
+  var card  = document.getElementById('card');
+  var hintEl = document.getElementById('hint');
+  var labelEl = document.getElementById('cardLabel');
+  var mode = 'js';
+
+  var cssSupported = (window.CSS && CSS.supports && CSS.supports('animation-timeline: scroll()'));
+  document.getElementById('support').innerHTML =
+    '你這支手機對「新 CSS 技術」的支援：<b>' + (cssSupported ? '✅ 支援（②會有縮放效果）' : '❌ 不支援（②會自動變成固定照片）') + '</b>';
+
+  var HINTS = {
+    js:     '<span class="big">① 目前做法（JavaScript）</span><br>就是你網站現在用的方式：用程式監聽捲動、逐格計算照片要縮多少。在 iPhone 上通常會「慢半拍、不跟手」。',
+    css:    '<span class="big">② 新 CSS 技術</span><br>把縮放交給瀏覽器底層處理，跟捲動完全同步。' + (cssSupported ? '你的手機支援，往下滑感受看看順不順。' : '你的手機不支援，所以②目前等同③固定照片。'),
+    static: '<span class="big">③ 固定照片</span><br>完全不做縮放，照片固定、頁面自然往下捲。這是 100% 保證最順的版本（純原生捲動，零負擔）。'
+  };
+  var LABELS = { js: '① JavaScript', css: '② CSS 新技術', static: '③ 固定照片' };
+
+  function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+
+  function onScroll(){
+    if (mode !== 'js') return;
+    var p = clamp(window.scrollY / (0.8 * window.innerHeight), 0, 1);
+    card.style.transform = 'translate(-50%, -50%) scale(' + (1 - 0.3*p).toFixed(4) + ')';
+    card.style.borderRadius = Math.min(20, p*80) + 'px';
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  window.setMode = function(m){
+    mode = m;
+    document.getElementById('b-js').classList.toggle('on', m==='js');
+    document.getElementById('b-css').classList.toggle('on', m==='css');
+    document.getElementById('b-static').classList.toggle('on', m==='static');
+    stage.parentElement; // noop
+    document.body.classList.toggle('mode-css', m==='css');
+    hintEl.innerHTML = HINTS[m];
+    labelEl.textContent = LABELS[m];
+    // reset inline styles so CSS/static modes start clean
+    if (m !== 'js') { card.style.transform = 'translate(-50%, -50%) scale(1)'; card.style.borderRadius = '0'; }
+    onScroll();
+  };
+
+  setMode('js');
+</script>
+</body>
+</html>
