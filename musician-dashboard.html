@@ -50,7 +50,7 @@
     .app.sb-collapsed .sb-collapse-btn { width:auto; padding:0 14px; background:#111; color:#fff; box-shadow:0 2px 10px rgba(0,0,0,.18); }
     .app.sb-collapsed .sb-collapse-btn:hover { background:#000; }
     .app.sb-collapsed .sb-collapse-label { display:inline; }
-    @media (max-width: 860px) { .sb-collapse-btn { display:none !important; } }  /* mobile uses the drawer hamburger */
+    @media (max-width: 860px), (orientation: landscape) and (max-height: 600px) { .sb-collapse-btn { display:none !important; } }  /* mobile uses the drawer hamburger */
 
     .sb-logo {
       padding: 24px 20px 20px;
@@ -784,8 +784,11 @@
     .sb-backdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,.45); z-index:40; opacity:0; transition:opacity .25s ease; }
     .sb-backdrop.show { display:block; opacity:1; }
 
-    /* ════════════ MOBILE LAYOUT (≤860px) ════════════ */
-    @media (max-width: 860px) {
+    /* ════════════ MOBILE LAYOUT (phones, either orientation) ════════════
+       Narrow portrait OR short-height landscape (a phone held sideways, even >860px wide
+       like a Pro Max). Without the landscape case, a wide landscape phone kept the desktop
+       sidebar in-flow → it bled through the full-screen editor. */
+    @media (max-width: 860px), (orientation: landscape) and (max-height: 600px) {
       .app { height: 100dvh; }
       /* Sidebar → off-canvas drawer */
       .sidebar {
