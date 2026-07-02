@@ -75,7 +75,11 @@ function ensureBrandCopies(count){
 }
 function applyHeroPos(map){
   map = map || {};
-  ensureBrandCopies(map._brandCount || 1);   // make the brand copies first
+  // The OPUS.Z wordmark is always a SINGLE copy. (The old multi-copy feature has
+  // no admin UI and left junk _brandCount:2 on the phone config → two OPUS.Z on
+  // mobile, which the owner flagged as a defect.) Force 1 and prune any extra
+  // clones. To restore multi-copy later, re-honour map._brandCount here + add a UI.
+  ensureBrandCopies(1);   // was: map._brandCount || 1
   // Current front-end language → 標題/副標 carry INDEPENDENT EN vs 中文 sizes AND
   // positions (EN length ≠ 中文 length, so they need their own placement).
   var _lang = _heroCurLang();
