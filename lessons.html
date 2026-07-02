@@ -265,6 +265,12 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 /* ── CARD (identical to musicians.html) ── */
 .mcard{border-radius:var(--radius);overflow:hidden;background:#fff;border:1.5px solid #efefef;transition:box-shadow .25s,transform .25s;cursor:pointer;position:relative;}
 .mcard:hover{box-shadow:0 14px 44px rgba(0,0,0,.13);transform:translateY(-3px);}
+/* Entrance: cards fade in + rise from below, staggered (delay set inline per card).
+   'backwards' fill holds the hidden state during the delay (no flash); no forwards
+   fill so the card reverts to natural state after — :hover transform keeps working. */
+@keyframes mcardIn{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+.mcard.anim-in{animation:mcardIn .7s cubic-bezier(.16,1,.3,1) backwards;}
+@media(prefers-reduced-motion:reduce){.mcard.anim-in{animation:none;}}
 .mcard-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#f0f0f0;}
 .mcard-photo-zoom{position:absolute;inset:0;transition:transform 0.55s cubic-bezier(0.25,0.46,0.45,0.94);transform-origin:center center;}
 .mcard:hover .mcard-photo-zoom{transform:scale(1.06);}
@@ -868,7 +874,10 @@ function getFiltered(){
   });
 }
 
-function renderGrid(){
+// Entrance animation runs ONCE (first real data render). renderGrid also fires on
+// play/stop and filter changes — don't re-animate then or every card would flash.
+var _gridEntranceDone = false;
+function renderGrid(animate){
   var list = getFiltered();
   var grid = document.getElementById('musicianGrid');
   var noRes = document.getElementById('noResults');
@@ -881,7 +890,10 @@ function renderGrid(){
   }
   noRes.style.display='none';
 
-  grid.innerHTML = list.map(function(m){
+  var _stagger = !!animate && !_gridEntranceDone;
+  grid.innerHTML = list.map(function(m, i){
+    var animCls = _stagger ? ' anim-in' : '';
+    var animStyle = _stagger ? ' style="animation-delay:' + (Math.min(i, 11) * 55) + 'ms"' : '';
     var isFav = favourites.indexOf(m.id)!==-1;
     var savedPhoto = localStorage.getItem('mono-mphoto-'+m.id)||'';
     var savedVideo = localStorage.getItem('mono-mvideo-'+m.id)||'';
@@ -905,7 +917,7 @@ function renderGrid(){
       ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>'
       : '<svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><polygon points="7 3 21 12 7 21 7 3"/></svg>';
     var photoLink = m.profileUrl||'#';
-    return '<div class="mcard'+(isPlaying?' mcard-playing':'')+'" data-id="'+m.id+'">' +
+    return '<div class="mcard'+(isPlaying?' mcard-playing':'')+animCls+'" data-id="'+m.id+'"'+animStyle+'>' +
       '<a href="'+photoLink+'" class="mcard-photo-link">' +
         '<div class="mcard-photo" style="position:relative;">' +
           '<div class="mcard-photo-zoom">'+mediaHtml+'</div>' +
@@ -928,6 +940,7 @@ function renderGrid(){
       '</div>' +
     '</div>';
   }).join('');
+  if(_stagger) _gridEntranceDone = true;   // entrance played once; future renders don't re-animate
   // Cached images can be complete before their onload binds, leaving them stuck
   // at opacity:0 — reveal any that are already loaded so they don't stay hidden.
   grid.querySelectorAll('.mcard-photo img').forEach(function(im){
@@ -1642,7 +1655,7 @@ window.addEventListener('load', function(){
       });
     });
     window.TEACHERS = (window.TEACHERS || []).concat(teachers);
-    if (typeof window.renderGrid === 'function') window.renderGrid();
+    if (typeof window.renderGrid === 'function') window.renderGrid(true);  // real-content render → staggered entrance
   } catch (e) {
     console.log('Lessons Firestore load error:', e);
   }
