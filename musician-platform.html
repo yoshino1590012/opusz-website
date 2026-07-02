@@ -4430,17 +4430,25 @@ function applyColRatios() {
       introEl.classList.add('intro-visible');
     });
   });
-  // Step 2: hold for ~1.4s then slide the black panel upward
-  setTimeout(() => {
+  // Step 2: hold the black panel until BOTH (a) a minimum brand-moment dwell AND
+  // (b) web fonts are ready + sizing is computed — so the hero is revealed already at
+  // its FINAL size. This kills the cold-load flash where a visitor briefly saw fallback
+  // fonts overflow the layout before the real fonts/sizing snapped in ("self-refresh").
+  // A hard 4s cap guarantees the panel never traps a visitor if a font load stalls.
+  function _introExit() {
+    if (introEl._exited) return; introEl._exited = true;
+    try { updateHeroDims(); } catch(e){}   // ensure --k sizing is current at reveal
     try { introEl.classList.add('intro-exit'); } catch(e){}
     revealHero();
     // Remove the panel once it's slid off, and play the content entrance only
     // AFTER it's gone so the staggered fade is actually visible.
-    setTimeout(() => {
-      try { introEl.remove(); } catch(e){}
-    }, 800);
+    setTimeout(() => { try { introEl.remove(); } catch(e){} }, 800);
     setTimeout(revealHeroContent, 820);
-  }, 1600);
+  }
+  var _introMinDwell = new Promise(function(r){ setTimeout(r, 1600); });
+  var _introFonts = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+  Promise.all([_introMinDwell, _introFonts]).then(_introExit);
+  setTimeout(_introExit, 4000);   // hard safety cap
 })();
 
 // ── Hero scroll animation ──
