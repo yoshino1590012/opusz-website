@@ -4535,7 +4535,7 @@ function drawScrubFrame(frameIndex, objY) {
 // Poster still — shown before the video is ready, and the fallback if it can't play.
 // (var _heroVid is hoisted, so drawScrubFrame safely sees `undefined` before assignment.)
 var _heroStill = new Image();
-_heroStill.src = 'assets/videos/hero-poster.jpg?v=1';
+_heroStill.src = 'assets/videos/hero-poster.jpg?v=2';
 _heroStill.onload = function() { resizeHeroCanvas(); drawScrubFrame(0, 50); };
 if (_heroStill.complete && _heroStill.naturalWidth) { resizeHeroCanvas(); drawScrubFrame(0, 50); }
 
@@ -4547,7 +4547,7 @@ _heroVid.playsInline = true; _heroVid.preload = 'auto';
 _heroVid.setAttribute('muted', ''); _heroVid.setAttribute('playsinline', '');
 _heroVid.setAttribute('webkit-playsinline', '');
 _heroVid.style.cssText = 'position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;';
-_heroVid.src = 'assets/videos/hero.mp4?v=1';
+_heroVid.src = 'assets/videos/hero.mp4?v=2';
 
 // Redraw the canvas per video frame. requestVideoFrameCallback fires once per decoded
 // frame (efficient, no overdraw); fall back to rAF where it isn't supported.
