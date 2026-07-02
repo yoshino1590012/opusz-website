@@ -539,15 +539,9 @@ nav.mega-open .nav-links a::before {
    Phones get a single still image instead of the canvas scrub, with a slow,
    smooth entrance (slides up + fades in + a subtle settle-zoom). Sits just above
    the canvas and below the text overlay. Desktop is untouched (display:none). */
+/* Phones now play the SAME hero video, centre-cropped by the canvas cover-fit
+   (drawScrubFrame centres the frame). The old mobile-only static photo is retired. */
 .hero-m-bg { display: none; }
-@media (max-width: 700px) {
-  #heroCanvas { display: none; }   /* photo replaces the scrub on phones → clean fade-in */
-  .hero-m-bg {
-    display: block; position: absolute; inset: 0; z-index: 0;
-    background: url('assets/images/hero/opus-hero-mobile.jpg') center center / cover no-repeat;
-    backface-visibility: hidden;
-  }
-}
 
 /* WRK-style: upper content zone — title + meta info, floats up in Phase 1 */
 .hc-upper {
@@ -4514,29 +4508,81 @@ function resizeHeroCanvas() {
   c.style.height = c.height + 'px';
 }
 
-// Hero still photo — cover-fit, fixed centre crop (no scroll pan).
-// Replaces the 362-frame musician scrub: musicians no longer animate; the
-// frameIndex/objY args are ignored so scrolling never moves the photo.
+// Hero main visual — a LOOPING VIDEO drawn onto the canvas (cover-fit, centre crop).
+// Drawing the video onto the existing canvas preserves everything the canvas already
+// gave us: the card scale-down on scroll, the background-photo reveal, and the
+// mix-blend text over the top. The still poster shows until the video is ready and is
+// the fallback if the video can't play. frameIndex/objY are ignored (no scroll pan).
 function drawScrubFrame(frameIndex, objY) {
   const c = document.getElementById('heroCanvas');
   if (!c) return;
-  const img = _heroStill;
-  if (!img || !img.complete || !img.naturalWidth) return;
+  const v = _heroVid;
+  const useVid = v && v.readyState >= 2 && v.videoWidth > 0;   // HAVE_CURRENT_DATA+
+  const src = useVid ? v : _heroStill;
+  const iw = useVid ? v.videoWidth  : (src && src.naturalWidth);
+  const ih = useVid ? v.videoHeight : (src && src.naturalHeight);
+  if (!iw || !ih) return;
   const ctx = c.getContext('2d');
   const cw = c.width, ch = c.height;
-  const scale = Math.max(cw / img.naturalWidth, ch / img.naturalHeight);
-  const sw = img.naturalWidth * scale, sh = img.naturalHeight * scale;
-  const ox = (cw - sw) / 2;
-  const oy = (ch - sh) * 0.5;
+  const scale = Math.max(cw / iw, ch / ih);   // cover-fit
+  const sw = iw * scale, sh = ih * scale;
+  const ox = (cw - sw) / 2;                    // centre horizontally
+  const oy = (ch - sh) * 0.5;                  // centre vertically → "影片正中間"
   ctx.clearRect(0, 0, cw, ch);
-  ctx.drawImage(img, ox, oy, sw, sh);
+  ctx.drawImage(src, ox, oy, sw, sh);
 }
 
-// Static hero photo (replaces the frame scrub). Load once and draw.
+// Poster still — shown before the video is ready, and the fallback if it can't play.
+// (var _heroVid is hoisted, so drawScrubFrame safely sees `undefined` before assignment.)
 var _heroStill = new Image();
-_heroStill.src = 'assets/images/hero-still.jpg?v=1';
+_heroStill.src = 'assets/videos/hero-poster.jpg?v=1';
 _heroStill.onload = function() { resizeHeroCanvas(); drawScrubFrame(0, 50); };
 if (_heroStill.complete && _heroStill.naturalWidth) { resizeHeroCanvas(); drawScrubFrame(0, 50); }
+
+// Looping hero video → canvas. muted + playsinline so autoplay is allowed on
+// desktop AND mobile. Kept in the DOM (1px, hidden) so Safari reliably plays it.
+var _heroVid = document.createElement('video');
+_heroVid.muted = true; _heroVid.defaultMuted = true; _heroVid.loop = true;
+_heroVid.playsInline = true; _heroVid.preload = 'auto';
+_heroVid.setAttribute('muted', ''); _heroVid.setAttribute('playsinline', '');
+_heroVid.setAttribute('webkit-playsinline', '');
+_heroVid.style.cssText = 'position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;';
+_heroVid.src = 'assets/videos/hero.mp4?v=1';
+
+// Redraw the canvas per video frame. requestVideoFrameCallback fires once per decoded
+// frame (efficient, no overdraw); fall back to rAF where it isn't supported.
+var _heroVidRunning = false;
+function _heroVidTick() {
+  drawScrubFrame(0, 50);
+  if (_heroVid.paused || _heroVid.ended) { _heroVidRunning = false; return; }
+  if (_heroVid.requestVideoFrameCallback) _heroVid.requestVideoFrameCallback(_heroVidTick);
+  else requestAnimationFrame(_heroVidTick);
+}
+function _heroVidStart() {
+  if (_heroVidRunning) return;
+  _heroVidRunning = true;
+  if (_heroVid.requestVideoFrameCallback) _heroVid.requestVideoFrameCallback(_heroVidTick);
+  else requestAnimationFrame(_heroVidTick);
+}
+_heroVid.addEventListener('playing', _heroVidStart);
+function _heroVidPlay() {
+  var p = _heroVid.play();
+  if (p && p.catch) p.catch(function(){ /* autoplay blocked → poster stays on canvas */ });
+}
+_heroVid.addEventListener('loadeddata', _heroVidPlay);
+try { document.body.appendChild(_heroVid); } catch (e) {}
+if (_heroVid.readyState >= 2) _heroVidPlay();
+
+// Save battery: only play while the hero is on screen.
+(function () {
+  var hero = document.getElementById('home');
+  if (!hero || !('IntersectionObserver' in window)) { return; }
+  new IntersectionObserver(function (entries) {
+    entries.forEach(function (e) {
+      if (e.isIntersecting) _heroVidPlay(); else _heroVid.pause();
+    });
+  }, { threshold: 0.02 }).observe(hero);
+})();
 
 // Cached card dimensions — recalculated on init & resize
 let _cardScaleMax = 1;
