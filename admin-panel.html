@@ -70,7 +70,7 @@
     .sb-hamburger:hover { background: #f0f0f0; }
     .sb-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.45); z-index: 60; }
     .sb-backdrop.show { display: block; }
-    @media (max-width: 860px) {
+    @media (max-width: 860px), (orientation: landscape) and (max-height: 600px) {
       .app { height: 100dvh; }
       .sidebar { position: fixed; top: 0; left: 0; bottom: 0; z-index: 70; transform: translateX(-100%); transition: transform .25s ease; box-shadow: 0 0 40px rgba(0,0,0,.4); }
       .sidebar.open { transform: translateX(0); }
@@ -83,6 +83,71 @@
       .topbar-right .admin-chip { display: none; }  /* hide ADMIN MODE chip on mobile */
       /* wide tables scroll horizontally instead of breaking the page */
       .page table { display: block; overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; }
+    }
+
+    /* ════════════ Site Editor — PHONE (Shopify-style, mirrors the musician dashboard) ════════════
+       Phone in either orientation: TOP bar holds the Pages/Sections picker (drops down) +
+       Save; the preview fills the screen; the controls become a drag-up/down bottom sheet. */
+    .se-topbar { display: none; }
+    .se-sheet-head { display: none; }
+    .se-nav-backdrop { display: none; }
+    @media (max-width: 860px), (orientation: landscape) and (max-height: 600px) {
+      /* Fill the editor area below the topbar; anchoring to .page-wrap works at any
+         topbar height and never covers the sidebar. */
+      .page-wrap:has(> #page-siteeditor.page.active) { position: relative; padding: 0; overflow: hidden; }
+      #page-siteeditor.page.active { position: absolute; inset: 0; z-index: 1; display: block; background: #111; }
+      #page-siteeditor .page-header { display: none; }
+      #seLayout { display: block; position: absolute; inset: 0; gap: 0; }
+
+      /* Top bar: Pages/Sections picker (left) + Save & Publish (right) */
+      .se-topbar { display: flex; position: absolute; top: 0; left: 0; right: 0; height: 48px; z-index: 48;
+        align-items: center; gap: 8px; padding: 0 10px 0 6px; background: #fff; border-bottom: 1px solid var(--border); }
+      .se-topbar-secbtn { display: inline-flex; align-items: center; gap: 7px; flex: 1; min-width: 0; justify-content: flex-start;
+        border: none; background: transparent; font-family: inherit; font-size: 15px; font-weight: 800; color: #111; cursor: pointer; padding: 8px; }
+      .se-topbar-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .se-chev { flex-shrink: 0; transition: transform .25s; }
+      #seLayout.se-navopen .se-chev { transform: rotate(180deg); }
+      .se-topbar-save { flex-shrink: 0; border: none; background: #2ea44f; color: #fff; font-family: inherit;
+        font-size: 13px; font-weight: 700; border-radius: 9px; padding: 9px 14px; cursor: pointer; white-space: nowrap; }
+
+      /* Preview fills the screen below the top bar */
+      .se-col-stage { position: absolute !important; top: 48px; left: 0; right: 0; bottom: 0; width: auto !important; min-width: 0; }
+      .se-devbar { display: none !important; }
+      #seStage { height: 100% !important; border-radius: 0 !important; padding: 8px !important; }
+
+      /* Controls → bottom sheet (drag up/down) */
+      .se-col-ctrl { position: absolute !important; left: 0; right: 0; bottom: 0; top: auto; width: auto !important;
+        height: var(--se-sheet-h, 46vh); max-height: calc(100% - 56px);
+        background: #fff; border-radius: 18px 18px 0 0; box-shadow: 0 -8px 34px rgba(0,0,0,.22);
+        z-index: 40; display: flex; flex-direction: column; overflow: hidden;
+        transition: height .26s cubic-bezier(.22,1,.36,1); padding: 0 0 env(safe-area-inset-bottom, 0px); }
+      #seLayout.se-sheet-dragging .se-col-ctrl { transition: none; }
+      .se-sheet-head { display: block; flex: none; touch-action: none; }
+      .se-sheet-grip { width: 40px; height: 5px; border-radius: 3px; background: #d4d4d4; margin: 9px auto 6px; }
+      .se-sheet-bar { display: flex; align-items: center; gap: 10px; padding: 2px 14px 10px; border-bottom: 1px solid var(--border); }
+      .se-sheet-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 800; color: #555; }
+      .se-sheet-expand { border: none; background: #f3f3f3; border-radius: 10px; width: 42px; height: 38px; cursor: pointer; font-size: 15px; color: #555; flex: none; }
+      /* everything below the sheet header scrolls */
+      .se-col-ctrl > #seSectionTitle,
+      .se-col-ctrl > #seFontPanel,
+      .se-col-ctrl > #seControls,
+      .se-col-ctrl > button,
+      .se-col-ctrl > #seSaveMsg,
+      .se-col-ctrl > #sePublishMsg { flex: none; }
+      .se-col-ctrl { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+      .se-col-ctrl > #seSectionTitle { display: none; }   /* shown in the sheet header instead */
+      .se-col-ctrl { padding-left: 16px; padding-right: 16px; }
+      .se-sheet-head { margin: 0 -16px; }
+
+      /* Pages/Sections → drop-down drawer from the top bar */
+      .se-nav-backdrop { display: block; position: absolute; top: 48px; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,.4); opacity: 0; pointer-events: none; transition: opacity .25s; z-index: 44; }
+      #seLayout.se-navopen .se-nav-backdrop { opacity: 1; pointer-events: auto; }
+      .se-col-nav { position: absolute !important; top: 48px; left: 0; right: 0; width: auto !important; max-height: 72%;
+        transform: translateY(-110%); transition: transform .28s cubic-bezier(.22,1,.36,1);
+        z-index: 46; background: #fff; border-radius: 0 0 18px 18px; box-shadow: 0 12px 34px rgba(0,0,0,.3);
+        overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px 12px 16px; }
+      #seLayout.se-navopen .se-col-nav { transform: translateY(0); }
+      .se-col-nav .se-sec-btn { padding: 13px 14px; font-size: 15px; margin-bottom: 5px; }
     }
 
     /* ── Page wrap ── */
@@ -884,8 +949,20 @@ Martin</textarea>
           <h1>網站編輯 / Site Editor</h1>
           <p>編輯公開網站內容（文字/圖片/連結）。目前：首頁 Hero。儲存後即發布。</p>
         </div>
-        <div style="display:flex;gap:18px;align-items:flex-start;">
-          <div style="width:172px;flex-shrink:0;">
+        <div id="seLayout" style="display:flex;gap:18px;align-items:flex-start;">
+          <!-- Phone only: top bar — tap to drop down the Pages/Sections list + Save -->
+          <div class="se-topbar">
+            <button type="button" class="se-topbar-secbtn" onclick="seToggleNav()" aria-label="切換編輯區段">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+              <span class="se-topbar-title" id="seTopTitle">主視覺 / Hero</span>
+              <svg class="se-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
+            <button type="button" class="se-topbar-save" onclick="sePublishAll(this)">儲存並發布</button>
+          </div>
+          <!-- Phone only: dim backdrop behind the nav drawer -->
+          <div class="se-nav-backdrop" onclick="seToggleNav(false)"></div>
+
+          <div class="se-col-nav" style="width:172px;flex-shrink:0;">
             <style>
               .se-sec-btn{ display:block;width:100%;text-align:left;padding:8px 10px;margin-bottom:4px;border:1px solid #e5e5e5;background:#fff;color:#333;border-radius:8px;font-size:12.5px;cursor:pointer;transition:all .12s; }
               .se-sec-btn:hover{ border-color:#bbb;background:#fafafa; }
@@ -896,8 +973,8 @@ Martin</textarea>
             <div style="font-size:11px;font-weight:700;color:#999;text-transform:uppercase;margin-bottom:8px;">區段 / Sections</div>
             <div id="seSectionList"></div>
           </div>
-          <div style="flex:1;min-width:0;">
-            <div style="display:flex;gap:6px;justify-content:center;margin-bottom:10px;flex-wrap:wrap;">
+          <div class="se-col-stage" style="flex:1;min-width:0;">
+            <div class="se-devbar" style="display:flex;gap:6px;justify-content:center;margin-bottom:10px;flex-wrap:wrap;">
               <button class="se-dev-btn active" data-dev="desktop" onclick="seSetDevice('desktop',this)">標準顯示螢幕</button>
               <button class="se-dev-btn" data-dev="macbook" onclick="seSetDevice('macbook',this)">MacBook 顯示器</button>
               <button class="se-dev-btn" data-dev="ipad" onclick="seSetDevice('ipad',this)">iPad 顯示器</button>
@@ -917,7 +994,15 @@ Martin</textarea>
               </div>
             </div>
           </div>
-          <div style="width:300px;flex-shrink:0;">
+          <div class="se-col-ctrl" style="width:300px;flex-shrink:0;">
+            <!-- Phone only: bottom-sheet header (drag handle + expand) -->
+            <div class="se-sheet-head">
+              <div class="se-sheet-grip"></div>
+              <div class="se-sheet-bar">
+                <span class="se-sheet-title" id="seSheetTitle">主視覺 / Hero</span>
+                <button type="button" class="se-sheet-expand" onclick="seCycleSheet()" aria-label="展開或收合面板">⌃</button>
+              </div>
+            </div>
             <div id="seSectionTitle" style="font-size:12px;font-weight:800;color:#111;margin-bottom:10px;">主視覺 / Hero</div>
             <div id="seFontPanel" style="display:none;"></div>
             <div id="seControls"></div>
@@ -1272,6 +1357,64 @@ Martin</textarea>
   };
   // Re-fit the current device when the admin window resizes.
   window.addEventListener('resize', function(){ if(document.getElementById('page-siteeditor') && document.getElementById('page-siteeditor').classList.contains('active')) seSetDevice(seCurrentDevice); });
+
+  // ── Site Editor phone UI (Shopify-style: top picker drawer + bottom-sheet controls) ──
+  window.seIsMobile = function(){
+    try { return window.matchMedia('(max-width: 860px), (orientation: landscape) and (max-height: 600px)').matches; }
+    catch(e){ return false; }
+  };
+  window.seToggleNav = function(force){
+    var lay = document.getElementById('seLayout'); if(!lay) return;
+    var open = (typeof force==='boolean') ? force : !lay.classList.contains('se-navopen');
+    lay.classList.toggle('se-navopen', open);
+  };
+  var SE_SHEET_STATES = ['46vh', 'calc(100% - 56px)', '88px'];   // half · full · peek
+  var seSheetIdx = 0;
+  function seApplySheet(){ var lay=document.getElementById('seLayout'); if(lay) lay.style.setProperty('--se-sheet-h', SE_SHEET_STATES[seSheetIdx]); }
+  window.seCycleSheet = function(){ seSheetIdx = (seSheetIdx+1) % SE_SHEET_STATES.length; seApplySheet(); };
+  window.seEnsureSheetOpen = function(){ if(seSheetIdx===2){ seSheetIdx=0; seApplySheet(); } };
+  // Drag the sheet header to resize; snaps to peek / half / full. Buttons still work.
+  (function seSheetDragInit(){
+    var dragging=false, startY=0, startH=0, lay=null, sheet=null;
+    function cy(e){ return e.touches&&e.touches[0]?e.touches[0].clientY:e.clientY; }
+    function down(e){
+      if(!window.seIsMobile || !window.seIsMobile()) return;
+      if(e.target.closest('button')) return;
+      lay=document.getElementById('seLayout'); sheet=document.querySelector('.se-col-ctrl');
+      if(!lay||!sheet) return;
+      dragging=true; lay.classList.add('se-sheet-dragging');
+      startY=cy(e); startH=sheet.getBoundingClientRect().height;
+      window.addEventListener('touchmove',move,{passive:false}); window.addEventListener('mousemove',move);
+      window.addEventListener('touchend',up); window.addEventListener('mouseup',up);
+    }
+    function move(e){ if(!dragging) return; var maxH=lay.clientHeight-56;
+      var h=Math.max(70, Math.min(maxH, startH+(startY-cy(e))));
+      lay.style.setProperty('--se-sheet-h', h+'px'); if(e.cancelable) e.preventDefault(); }
+    function up(){ if(!dragging) return; dragging=false; lay.classList.remove('se-sheet-dragging');
+      var h=sheet.getBoundingClientRect().height, vh=window.innerHeight;
+      var snaps=[{px:88,i:2},{px:vh*0.46,i:0},{px:lay.clientHeight-56,i:1}], best=snaps[0], bd=1e9;
+      snaps.forEach(function(s){ var d=Math.abs(s.px-h); if(d<bd){bd=d;best=s;} });
+      seSheetIdx=best.i; seApplySheet();
+      window.removeEventListener('touchmove',move); window.removeEventListener('mousemove',move);
+      window.removeEventListener('touchend',up); window.removeEventListener('mouseup',up); }
+    function bind(){ var head=document.querySelector('.se-sheet-head'); if(!head||head._b) return; head._b=1;
+      head.addEventListener('touchstart',down,{passive:true}); head.addEventListener('mousedown',down); }
+    if(document.readyState!=='loading') bind(); else document.addEventListener('DOMContentLoaded', bind);
+  })();
+  // Entering the Site Editor on a phone → force the phone preview (the full-screen one).
+  (function(){
+    var _origNav = window.navigate;
+    if(typeof _origNav==='function'){
+      window.navigate = function(id, el){
+        var r = _origNav.apply(this, arguments);
+        if(id==='siteeditor' && window.seIsMobile && window.seIsMobile()){
+          setTimeout(function(){ try{ seSetDevice('phone'); }catch(e){} }, 60);
+        }
+        return r;
+      };
+    }
+  })();
+
   function seReadInputs(){
     var cfg = { i18n:{ en:{}, zh:{} }, cms:{} };
     SE_FIELDS.forEach(function(ff){
@@ -1471,6 +1614,10 @@ Martin</textarea>
     document.querySelectorAll('#seSectionList .se-sec-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-sec')===key); });
     var sc = seSections().filter(function(s){return s.key===key;})[0];
     var title=document.getElementById('seSectionTitle'); if(title&&sc) title.textContent=sc.label;
+    if(sc){ var _tt=document.getElementById('seTopTitle'); if(_tt) _tt.textContent=sc.label;
+            var _st=document.getElementById('seSheetTitle'); if(_st) _st.textContent=sc.label; }
+    if(window.seToggleNav) window.seToggleNav(false);        // phone: close the picker drawer
+    if(window.seIsMobile && window.seIsMobile() && window.seEnsureSheetOpen) window.seEnsureSheetOpen();
     seBuildControls();
     seHighlight(key);
   };
