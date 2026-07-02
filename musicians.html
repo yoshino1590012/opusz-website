@@ -217,13 +217,14 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 /* ── CARD ── */
 .mcard{border-radius:var(--radius);overflow:hidden;background:#fff;border:1.5px solid #efefef;transition:box-shadow .25s,transform .25s;cursor:pointer;position:relative;}
 .mcard:hover{box-shadow:0 14px 44px rgba(0,0,0,.13);transform:translateY(-3px);}
-/* Entrance: cards fade in + rise from below, staggered (delay set inline per card).
-   'backwards' fill holds the hidden state during the delay (no flash) and, with no
-   forwards fill, the card reverts to its natural state after — so :hover transform
-   keeps working normally once the entrance finishes. */
-@keyframes mcardIn{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
-.mcard.anim-in{animation:mcardIn .7s cubic-bezier(.16,1,.3,1) backwards;}
-@media(prefers-reduced-motion:reduce){.mcard.anim-in{animation:none;}}
+/* Entrance: cards fade in + rise from below, revealed one-by-one by a JS sequencer
+   (playEntranceSequence) that waits for each card's photo before revealing it.
+   .pre-anim holds a card hidden until its turn; .anim-in plays the rise. No forwards
+   fill, so the card reverts to its natural state after — :hover transform still works. */
+@keyframes mcardIn{from{opacity:0;transform:translateY(32px);}to{opacity:1;transform:translateY(0);}}
+.mcard.pre-anim{opacity:0;}
+.mcard.anim-in{animation:mcardIn .72s cubic-bezier(.16,1,.3,1) backwards;}
+@media(prefers-reduced-motion:reduce){.mcard.pre-anim{opacity:1;}.mcard.anim-in{animation:none;}}
 .mcard-photo{position:relative;aspect-ratio:4/3;overflow:hidden;background:#f0f0f0;}
 .mcard-photo img{object-fit:contain;}
 /* Photo zoom wrapper — scales contents on hover without affecting absolute overlays */
@@ -852,6 +853,44 @@ function getFiltered(){
 // also called on play/stop and filter changes — we must NOT re-animate then, or
 // every card would flash on each interaction.
 var _gridEntranceDone = false;
+// Reveal cards one-by-one, left→right (DOM order = row-major), each rising in only
+// once ITS OWN photo has loaded — so the card never appears before its image, and
+// the whole grid flows in as "一氣呵成". A per-card cap stops one slow image from
+// stalling the sequence; a global safety net un-hides everything no matter what.
+var _ENTRANCE_GAP = 170;     // ms between consecutive cards (the perceived stagger)
+var _ENTRANCE_IMG_CAP = 1400; // ms max wait for a single card's photo before revealing anyway
+function playEntranceSequence(grid){
+  var cards = [].slice.call(grid.querySelectorAll('.mcard.pre-anim'));
+  // Safety: whatever happens, never leave a card stuck hidden.
+  setTimeout(function(){ cards.forEach(function(c){ c.classList.remove('pre-anim'); }); }, cards.length * _ENTRANCE_GAP + _ENTRANCE_IMG_CAP + 1500);
+  var i = 0;
+  function reveal(card){
+    var img = card.querySelector('.mcard-photo img');
+    if(img) img.style.opacity = 1;   // photo is ready → show it with the card
+    card.classList.remove('pre-anim');
+    card.classList.add('anim-in');
+  }
+  function step(){
+    if(i >= cards.length) return;
+    var card = cards[i];
+    var img = card.querySelector('.mcard-photo img');
+    function go(){
+      reveal(card);
+      i++;
+      setTimeout(step, _ENTRANCE_GAP);
+    }
+    if(img && !img.complete){
+      var fired = false;
+      var once = function(){ if(fired) return; fired = true; go(); };
+      img.addEventListener('load', once);
+      img.addEventListener('error', once);
+      setTimeout(once, _ENTRANCE_IMG_CAP);   // don't let one slow photo freeze the flow
+    } else {
+      go();
+    }
+  }
+  step();
+}
 function renderGrid(animate){
   var list = getFiltered();
   var grid = document.getElementById('musicianGrid');
@@ -879,8 +918,7 @@ function renderGrid(animate){
 
   var _stagger = !!animate && !_gridEntranceDone;
   grid.innerHTML = list.map(function(m, i){
-    var animCls = _stagger ? ' anim-in' : '';
-    var animStyle = _stagger ? ' style="animation-delay:' + (Math.min(i, 11) * 55) + 'ms"' : '';
+    var animCls = _stagger ? ' pre-anim' : '';   // hidden until the sequence reveals this card
     var isFav = favourites.indexOf(m.id) !== -1;
     var stars = renderStars(m.rating);
     // Load saved media
@@ -900,7 +938,7 @@ function renderGrid(animate){
       // Fade the photo in on load so it doesn't "pop"/flash when it finishes
       // decoding (the frame is blank grey until then). onload covers cached
       // images too; the inline fallback shows it if onload somehow doesn't fire.
-      mediaHtml = '<img src="'+m.photoUrl+'" alt="'+m.name+'" decoding="async" onload="this.style.opacity=1" onerror="this.style.opacity=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+cpx+'% '+cpy+'%;transform:scale('+cps+');transform-origin:'+cpx+'% '+cpy+'%;opacity:0;transition:opacity .35s ease;">';
+      mediaHtml = '<img src="'+m.photoUrl+'" alt="'+m.name+'" decoding="async" loading="eager" fetchpriority="high" onload="this.style.opacity=1" onerror="this.style.opacity=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+cpx+'% '+cpy+'%;transform:scale('+cps+');transform-origin:'+cpx+'% '+cpy+'%;opacity:0;transition:opacity .35s ease;">';
     } else if(savedPhoto){
       mediaHtml = '<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'">' +
         '<img src="'+savedPhoto+'" alt="'+m.name+'" style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;">' +
@@ -918,7 +956,7 @@ function renderGrid(animate){
       : '<svg width="15" height="15" viewBox="0 0 24 24" fill="#fff"><polygon points="7 3 21 12 7 21 7 3"/></svg>';
     var photoLink = m.profileUrl || '#';
     var photoLinkExtra = m.profileUrl ? '' : ' onclick="return false;"';
-    return '<div class="mcard' + (isPlaying?' mcard-playing':'') + animCls + '" data-id="'+m.id+'"'+animStyle+'>' +
+    return '<div class="mcard' + (isPlaying?' mcard-playing':'') + animCls + '" data-id="'+m.id+'">' +
       '<a href="'+photoLink+'" class="mcard-photo-link"'+photoLinkExtra+'>' +
         '<div class="mcard-photo" style="position:relative;">' +
           '<div class="mcard-photo-zoom">' + mediaHtml + '</div>' +
@@ -942,7 +980,7 @@ function renderGrid(animate){
       '</div>' +
     '</div>';
   }).join('');
-  if(_stagger) _gridEntranceDone = true;   // entrance played once; future renders don't re-animate
+  if(_stagger){ _gridEntranceDone = true; playEntranceSequence(grid); }
   // Safety net: a cached image may already be complete before its onload can
   // fire, which would leave it stuck at opacity:0 (invisible). Reveal any that
   // are already loaded.
