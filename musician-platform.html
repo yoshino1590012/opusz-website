@@ -4721,9 +4721,19 @@ function heroTick() {
   }
 }
 
+var _heroStickyEl = document.querySelector('.hero-sticky');
 window.addEventListener('scroll', () => {
   const sy = window.scrollY;
   const vh = _effectiveVH;
+
+  // ── Taylor-style parallax: the pinned hero drifts UP slowly (≈¼ speed) as the next
+  // section covers it. We only start the drift at the COVER point (hero height − 100vh
+  // = 0.8·vh here) — the covering section moves at full speed and always overtakes the
+  // ¼-speed hero, so there is never a gap below the hero. ──
+  if (_heroStickyEl) {
+    const _par = -0.22 * Math.max(0, sy - vh * 0.8);
+    _heroStickyEl.style.transform = 'translate3d(0,' + _par.toFixed(1) + 'px,0)';
+  }
 
   // ── Phase 1: title slides off top (0 → 0.4vh) ──
   const p1  = Math.max(0, Math.min(1, sy / (vh * 0.4)));
