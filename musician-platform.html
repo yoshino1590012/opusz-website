@@ -4467,7 +4467,9 @@ function applyColRatios() {
     setTimeout(() => {
       try { introEl.remove(); } catch(e){}
     }, 800);
-    setTimeout(revealHeroContent, 820);
+    // Start the text entrance ~50% earlier (was 820ms) — it now begins while the black
+    // panel is still sliding away, so the hero doesn't feel like it pauses before moving.
+    setTimeout(revealHeroContent, 410);
   }, 1600);
 })();
 
