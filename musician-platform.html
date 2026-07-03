@@ -4394,23 +4394,50 @@ function applyColRatios() {
     // NOTE: do NOT add 'hco-visible' here — its CSS transition reveal fights the
     // keyframe animation below and causes a visible flash on the later items
     // (buttons / brand). The keyframe alone owns the reveal.
+    //
+    // Taylor-Designer-style entrance: everything animates AT ONCE (no stagger) with a
+    // slow→fast→slow ease. Headline drops IN from above, subtitle rises from below; the
+    // two buttons split (one up, one down); the brand keeps its rise-from-below. The
+    // converging directions read as one cohesive, high-end motion.
+    var EASE = 'cubic-bezier(0.76, 0, 0.24, 1)';   // ease-in-out (slow → fast → slow)
+    var DUR  = 900;
+    var DN = 'translateY(-52px)', UP = 'translateY(52px)', Z = 'translateY(0px)';
+    // The buttons live inside .hco-btns — reveal the container so its children (which we
+    // animate individually, in opposite directions) actually show.
+    var _btns = _ov.querySelector('.hco-btns');
+    if (_btns) { _btns.style.setProperty('opacity','1','important'); _btns.style.setProperty('transform','none','important'); }
+    // [selector, fromTransform, toTransform, isButton(hover-sensitive → clear inline transform after)]
     var items = [
-      ['.hco-headline', 0,   'translateY(30px)',                  'translateY(0px)'],
-      ['.hco-sub',      140, 'translateY(30px)',                  'translateY(0px)'],
-      ['.hco-btns',     300, 'translateY(30px)',                  'translateY(0px)'],
-      ['.hco-brand',    450, 'translateX(-50%) translateY(30px)', 'translateX(-50%) translateY(0px)']
+      ['.hco-headline', DN, Z, false],                                                              // ↓ from top
+      ['.hco-sub',      UP, Z, false],                                                              // ↑ from bottom
+      ['.hco-btn-pri',  UP, Z, true],                                                               // ↑ from bottom
+      ['.hco-btn-out',  DN, Z, true],                                                               // ↓ from top
+      ['.hco-brand',    'translateX(-50%) translateY(52px)', 'translateX(-50%) translateY(0px)', false]  // ↑ keep
     ];
     items.forEach(function(it){
       var el = _ov.querySelector(it[0]); if(!el) return;
+      var clearT = it[3];
       el.style.transition = 'none';
-      function lockIn(){ el.style.setProperty('opacity','1','important'); el.style.setProperty('transform', it[3], 'important'); }
+      var a = null;
+      function lockIn(){
+        el.style.setProperty('opacity','1','important');
+        if (clearT) {
+          // Buttons have a :hover transform — cancel the filled animation and drop the
+          // inline transform so hover works again; opacity stays pinned visible.
+          if (a) { try { a.cancel(); } catch(e){} }
+          el.style.setProperty('opacity','1','important');
+          el.style.transform = '';
+        } else {
+          el.style.setProperty('transform', it[2], 'important');
+        }
+      }
       if (el.animate) {
-        var a = el.animate(
-          [ { opacity: 0, transform: it[2] }, { opacity: 1, transform: it[3] } ],
-          { duration: 720, delay: it[1], easing: 'cubic-bezier(.16,1,.3,1)', fill: 'both' }
+        a = el.animate(
+          [ { opacity: 0, transform: it[1] }, { opacity: 1, transform: it[2] } ],
+          { duration: DUR, delay: 0, easing: EASE, fill: 'both' }
         );
         a.onfinish = lockIn;            // guarantee final visible state after the fade
-        setTimeout(lockIn, it[1] + 900); // safety net if onfinish never fires
+        setTimeout(lockIn, DUR + 250);  // safety net if onfinish never fires
       } else {
         lockIn();
       }
