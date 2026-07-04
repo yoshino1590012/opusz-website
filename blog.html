@@ -335,7 +335,7 @@
 
     /* ── FEATURED: PHOTO CARDS ── */
     .feat__grid {
-      display: grid; grid-template-columns: repeat(3, 1fr);
+      display: grid; grid-template-columns: repeat(2, 1fr);
       border-bottom: 1px solid var(--line);
       margin-top: 18px;
     }
@@ -386,8 +386,8 @@
 
     /* ── MIXED LAYOUT ── */
     .mag-mixed {
-      display: grid; grid-template-columns: 300px 1fr 1fr;
-      grid-template-rows: 460px;      /* square-ish cards, left list ~300px wide */
+      display: grid; grid-template-columns: 300px 1fr;
+      grid-template-rows: 460px;      /* left list ~300px wide + one large card */
       border-bottom: 1px solid var(--line);
       margin-top: 0;
     }
@@ -579,7 +579,7 @@
 <!-- ── HERO REEL ── -->
 <section class="hero-reel" id="heroReel" data-cms-section="blog-hero">
 
-  <div class="reel-slide is-active" data-title="婚禮弦樂四重奏怎麼選？台灣婚禮音樂完整指南">
+  <div class="reel-slide is-active" data-title="OPUS.Z：我們正在重新定義音樂家的工作方式">
     <div class="rs-bg c8" data-photo-id="reel-1"></div>
     <div class="rs-overlay"></div>
     <div class="rs-body">
@@ -588,7 +588,7 @@
     </div>
   </div>
 
-  <div class="reel-slide" data-title="從皇家音樂院到台灣舞台——一位小提琴家的職涯選擇">
+  <div class="reel-slide" data-title="婚禮弦樂四重奏怎麼選？台灣婚禮音樂完整指南">
     <div class="rs-bg c2" data-photo-id="reel-2"></div>
     <div class="rs-overlay"></div>
     <div class="rs-body">
@@ -597,20 +597,10 @@
     </div>
   </div>
 
-  <div class="reel-slide" data-title="OPUS.Z：我們正在重新定義音樂家的工作方式">
-    <div class="rs-bg c4" data-photo-id="reel-3"></div>
-    <div class="rs-overlay"></div>
-    <div class="rs-body">
-      <div class="rs-tag" data-i18n="blog.tag.interview">Interview</div>
-      <h2 class="rs-title">從皇家音樂院到台灣舞台——<br>一位小提琴家的職涯選擇</h2>
-    </div>
-  </div>
-
   <div class="reel-bottom">
     <div class="reel-dots">
       <button class="rd rd-active" data-to="0"></button>
       <button class="rd" data-to="1"></button>
-      <button class="rd" data-to="2"></button>
     </div>
     <div class="reel-upnext">
       <span class="reel-un-label" data-i18n="blog.upnext">UP NEXT</span>
@@ -644,14 +634,6 @@
       <div class="feat__tag" data-i18n="blog.tag.industry">Industry</div>
       <h2 class="feat__title">婚禮弦樂四重奏怎麼選？台灣婚禮音樂完整指南</h2>
       <p class="feat__sub">從曲目選擇到現場準備，幫你找到最合適的婚禮音樂家陣容。</p>
-    </div>
-  </a>
-  <a class="feat__card reveal" href="blog-violinist-career.html" style="transition-delay:.14s">
-    <div class="feat__img"><div class="feat__img-in c4" data-photo-id="feat-3"></div></div>
-    <div class="feat__bd">
-      <div class="feat__tag" data-i18n="blog.tag.interview">Interview</div>
-      <h2 class="feat__title">從皇家音樂院到台灣舞台——一位小提琴家的職涯選擇</h2>
-      <p class="feat__sub">我們專訪 OPUS.Z 旗下的青年音樂家，聊聊她如何在國際與本地演出之間找到平衡。</p>
     </div>
   </a>
 </div>
@@ -689,16 +671,6 @@
       </div>
     </a>
   </div>
-
-  <!-- Center: large photo card -->
-  <a class="mag-large-card" href="#">
-    <div class="mag-large-card__bg c8" data-photo-id="large-1"></div>
-    <div class="mag-large-card__overlay"></div>
-    <div class="mag-large-card__body">
-      <div class="mag-large-card__tag" data-i18n="blog.tag.interview">Interview</div>
-      <div class="mag-large-card__title">古典音樂家如何在數位時代找到自己的定位</div>
-    </div>
-  </a>
 
   <!-- Right: large photo card -->
   <a class="mag-large-card" href="#">
