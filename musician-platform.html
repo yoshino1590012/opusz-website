@@ -4461,16 +4461,27 @@ function applyColRatios() {
   // Step 2: hold for ~1.6s (a quick brand-moment transition) then slide the panel up.
   setTimeout(() => {
     try { updateHeroDims(); } catch(e){}   // recompute --k sizing right before reveal
-    try { introEl.classList.add('intro-exit'); } catch(e){}
-    revealHero();
-    // Remove the panel once it's slid off, and play the content entrance only
-    // AFTER it's gone so the staggered fade is actually visible.
-    setTimeout(() => {
-      try { introEl.remove(); } catch(e){}
-    }, 800);
-    // Start the text entrance ~50% earlier (was 820ms) — it now begins while the black
-    // panel is still sliding away, so the hero doesn't feel like it pauses before moving.
-    setTimeout(revealHeroContent, 410);
+    try { introEl.classList.add('intro-exit'); } catch(e){}   // panel slides away (duration unchanged)
+    setTimeout(() => { try { introEl.remove(); } catch(e){} }, 800);
+
+    // Reveal the hero TEXT only once web fonts are READY. On a fresh/incognito first
+    // visit the font isn't cached, so before it loads the browser paints the fallback
+    // font — which is wider and makes the headline + big "OPUS.Z" overflow the screen
+    // for ~1s ("broken layout flash"). The title chars start clipped (translateY 112%)
+    // and the overlay starts opacity:0, so keeping them hidden until fonts.ready shows
+    // NOTHING broken — the panel still exits on time (revealing the video background),
+    // and the text animates in cleanly the moment the real font is ready (immediate on
+    // a cached load). A hard cap guarantees the text always appears.
+    var _fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+    var _revealed = false;
+    function _revealText(){
+      if (_revealed) return; _revealed = true;
+      try { updateHeroDims(); } catch(e){}
+      revealHero();
+      setTimeout(revealHeroContent, 60);
+    }
+    _fontsReady.then(_revealText);
+    setTimeout(_revealText, 2500);   // safety cap if a font stalls
   }, 1600);
 })();
 
