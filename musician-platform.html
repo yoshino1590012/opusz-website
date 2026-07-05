@@ -75,19 +75,6 @@
 <!-- Hero 字型編輯器可選字型（標題/副標/按鈕/品牌字 per-element 套用）-->
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=Cormorant+Garamond:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Marcellus&family=Montserrat:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@400;500;600;700;900&family=LXGW+WenKai+TC&display=swap" rel="stylesheet">
 <style>
-/* Metric-matched fallback for Inter: a local Arial re-scaled (via size-adjust +
-   ascent/descent overrides) to occupy the EXACT same space as Inter. While Inter is
-   still downloading (fresh visit / incognito), the hero text renders in this fallback
-   at Inter's real size — so it shows INSTANTLY, never overflows, and swaps to Inter
-   with zero reflow. Kills the "broken layout flash" without any reveal delay. */
-@font-face {
-  font-family: 'Inter Fallback';
-  src: local('Arial');
-  ascent-override: 90.44%;
-  descent-override: 22.52%;
-  line-gap-override: 0.00%;
-  size-adjust: 107.12%;
-}
 :root {
   --black: #000;
   --white: #fff;
@@ -99,7 +86,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
 html { overflow-x: clip; scrollbar-width: none; -ms-overflow-style: none; }
 html::-webkit-scrollbar { width: 0; height: 0; display: none; }
-body { font-family: 'Calibri','Inter','Inter Fallback','Helvetica Neue',sans-serif; background: var(--white); color: var(--black); overflow-x: clip; max-width: 100%; scrollbar-width: none; -ms-overflow-style: none; }
+body { font-family: 'Calibri','Inter','Helvetica Neue',sans-serif; background: var(--white); color: var(--black); overflow-x: clip; max-width: 100%; scrollbar-width: none; -ms-overflow-style: none; }
 body::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 /* ── NAV ── */
@@ -725,7 +712,7 @@ nav.mega-open .nav-links a::before {
   font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
   font-size: calc(var(--k)*42px); line-height: 1.04; font-weight: 800;
   letter-spacing: -0.035em; margin: 0 0 calc(var(--k)*14px);
-  white-space: pre-wrap;               /* keep manual \n; stay one line WHEN IT FITS, wrap when it would overflow (never breaks the layout — e.g. the long English default before i18n swaps in) */
+  white-space: pre;                    /* default ONE line; break ONLY where the editor puts \n (no auto-wrap) */
   /* Fixed dark colour — NOT mix-blend-mode: iOS Safari fails to blend over the <canvas>
      so the headline rendered white & illegible on iPhone (black in desktop preview).
      The overlay only appears over the light card, so a dark colour always reads. */
@@ -766,8 +753,8 @@ nav.mega-open .nav-links a::before {
 }
 /* On phones let the headline wrap (avoid horizontal overflow from nowrap) */
 @media (max-width: 640px){
-  .hco-headline { white-space: pre-wrap; }   /* fits→one line, overflows→wrap; never breaks the layout */
-  .hco-sub { white-space: pre-wrap; }        /* subtitle wraps if long; honours manual breaks */
+  .hco-headline { white-space: pre; }        /* one line by default; break only on manual \n */
+  .hco-sub { white-space: pre-line; }        /* subtitle still wraps if long; honours manual breaks */
 }
 /* ── initial hidden state ── */
 .hco-btns,
@@ -4471,15 +4458,18 @@ function applyColRatios() {
       introEl.classList.add('intro-visible');
     });
   });
-  // Step 2: hold for ~1.6s (a quick brand-moment transition) then slide the panel up and
-  // reveal the hero text IMMEDIATELY. No fonts.ready gate is needed: the metric-matched
-  // 'Inter Fallback' makes the pre-Inter text the exact same size as Inter, so it shows
-  // instantly, never overflows, and swaps to Inter with zero reflow — one-shot correct.
+  // Step 2: hold for ~1.6s (a quick brand-moment transition) then slide the panel up.
   setTimeout(() => {
     try { updateHeroDims(); } catch(e){}   // recompute --k sizing right before reveal
     try { introEl.classList.add('intro-exit'); } catch(e){}
     revealHero();
-    setTimeout(() => { try { introEl.remove(); } catch(e){} }, 800);
+    // Remove the panel once it's slid off, and play the content entrance only
+    // AFTER it's gone so the staggered fade is actually visible.
+    setTimeout(() => {
+      try { introEl.remove(); } catch(e){}
+    }, 800);
+    // Start the text entrance ~50% earlier (was 820ms) — it now begins while the black
+    // panel is still sliding away, so the hero doesn't feel like it pauses before moving.
     setTimeout(revealHeroContent, 410);
   }, 1600);
 })();
