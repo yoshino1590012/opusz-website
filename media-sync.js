@@ -56,10 +56,17 @@ const IS_USER_KEY = function(k){ return /^opusz_/.test(String(k)); };
       if(IS_USER_KEY(k)) return;   // never restore per-user/session state from the shared map
       try{ if(localStorage.getItem(k) == null){ localStorage.setItem(k, map[k]); changed = true; } }catch(e){}
     });
-    // The pages render from localStorage at parse time; if we just filled it, reload once.
-    if(changed && !sessionStorage.getItem('opusz_media_restored')){
-      sessionStorage.setItem('opusz_media_restored','1');
-      location.reload();
+    // Pages render from localStorage at parse time, and this async restore finishes
+    // AFTER that first paint. We used to `location.reload()` here so the render code
+    // would pick up the just-filled media — but to a first-time visitor (empty
+    // localStorage, e.g. scanning the QR on a new phone) that looked like the site
+    // "refreshed itself" for no reason. Instead, re-render in place WITHOUT reloading:
+    // fire an event pages can listen for, and call the known render hooks if present.
+    if(changed){
+      try { window.dispatchEvent(new CustomEvent('opusz-media-restored')); } catch(e){}
+      ['opzRenderPartners','opzRenderAll','opzApplyContent','renderAll'].forEach(function(fn){
+        try { if (typeof window[fn] === 'function') window[fn](); } catch(e){}
+      });
     }
   }catch(e){ console.warn('[media-sync] restore failed:', e); }
 })();
