@@ -4577,7 +4577,11 @@ _heroVid.muted = true; _heroVid.defaultMuted = true; _heroVid.loop = true;
 _heroVid.playsInline = true; _heroVid.preload = 'auto';
 _heroVid.setAttribute('muted', ''); _heroVid.setAttribute('playsinline', '');
 _heroVid.setAttribute('webkit-playsinline', '');
-_heroVid.style.cssText = 'position:absolute;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none;';
+// iOS Safari STOPS decoding a video that is off-screen or 1px — which freezes the
+// canvas we draw it onto ("video stopped moving"). Keep the element IN the viewport at
+// full size so iOS keeps decoding; opacity:0 + z-index behind everything makes it
+// invisible (the user only ever sees the <canvas>), while decoding stays alive.
+_heroVid.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.02;z-index:-1;pointer-events:none;';
 _heroVid.src = 'assets/videos/hero.mp4?v=3';
 
 // Redraw the canvas per video frame. requestVideoFrameCallback fires once per decoded
