@@ -4552,14 +4552,22 @@ function resizeHeroCanvas() {
 // gave us: the card scale-down on scroll, the background-photo reveal, and the
 // mix-blend text over the top. The still poster shows until the video is ready and is
 // the fallback if the video can't play. frameIndex/objY are ignored (no scroll pan).
+// WebCodecs hero: when supported, we decode the 1080p/30fps mp4 ourselves and draw each
+// frame here (_wcCurrent). This bypasses BOTH iOS power rules that a <video> hits — the
+// off-screen decode-pause AND the Low-Power-Mode autoplay block — so it plays at full
+// quality, zero interaction, EVERY mode. _wcCurrent is the latest decoded VideoFrame,
+// kept open so scroll redraws re-use it; _wcActive means the WebCodecs engine has taken over.
+var _wcCurrent = null;   // latest decoded VideoFrame (or null)
+var _wcActive  = false;  // true once WebCodecs has drawn ≥1 frame
 function drawScrubFrame(frameIndex, objY) {
   const c = document.getElementById('heroCanvas');
   if (!c) return;
   const v = _heroVid;
   const useVid = v && v.readyState >= 2 && v.videoWidth > 0;   // HAVE_CURRENT_DATA+
-  const src = useVid ? v : _heroStill;
-  const iw = useVid ? v.videoWidth  : (src && src.naturalWidth);
-  const ih = useVid ? v.videoHeight : (src && src.naturalHeight);
+  const wc = _wcCurrent;
+  const src = wc ? wc : (useVid ? v : _heroStill);
+  const iw = wc ? (wc.displayWidth  || wc.codedWidth)  : (useVid ? v.videoWidth  : (src && src.naturalWidth));
+  const ih = wc ? (wc.displayHeight || wc.codedHeight) : (useVid ? v.videoHeight : (src && src.naturalHeight));
   if (!iw || !ih) return;
   const ctx = c.getContext('2d');
   ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
@@ -4591,12 +4599,27 @@ _heroVid.setAttribute('webkit-playsinline', '');
 // full size so iOS keeps decoding; opacity:0 + z-index behind everything makes it
 // invisible (the user only ever sees the <canvas>), while decoding stays alive.
 _heroVid.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.02;z-index:-1;pointer-events:none;';
-_heroVid.src = 'assets/videos/hero.mp4?v=3';
+// WebCodecs is the PRIMARY engine when the browser supports it (iOS 16.4+ / all modern
+// desktop). We only fall back to this real <video> when WebCodecs is unsupported or fails —
+// activating it here (instead of always) avoids downloading the 11MB mp4 twice.
+var _WC_SUPPORTED = (typeof window.VideoDecoder === 'function') && window.isSecureContext;
+var _videoFallbackOn = false;
+function _activateVideoFallback() {
+  if (_videoFallbackOn || _wcActive) return;
+  _videoFallbackOn = true;
+  _heroVid.src = 'assets/videos/hero.mp4?v=3';
+  _heroVidPlay();
+}
+if (!_WC_SUPPORTED) _activateVideoFallback();   // old browsers → straight to the <video> engine
 
 // Redraw the canvas per video frame. requestVideoFrameCallback fires once per decoded
 // frame (efficient, no overdraw); fall back to rAF where it isn't supported.
 var _heroVidRunning = false;
 function _heroVidTick() {
+  if (_wcActive) { _heroVidRunning = false; return; }   // WebCodecs owns the canvas
+  // The real 30fps/1080p video just rendered a frame → drop the always-animate fallback
+  // frames instantly (seamless upgrade to full quality, no double-draw / flicker).
+  if (typeof _heroFrames !== 'undefined' && _heroFrames && _heroFrames.active()) _heroFrames.stop();
   drawScrubFrame(0, 50);
   if (_heroVid.paused || _heroVid.ended) { _heroVidRunning = false; return; }
   if (_heroVid.requestVideoFrameCallback) _heroVid.requestVideoFrameCallback(_heroVidTick);
@@ -4683,21 +4706,160 @@ var _heroFrames = (function () {
   };
 })();
 window._heroFrames = _heroFrames;
+// Start the always-animate frame loop IMMEDIATELY on load, so the hero is in motion the
+// instant the page opens — on EVERY device and mode, including iOS Low Power Mode which
+// hard-blocks video autoplay. The real 30fps/1080p <video> silently takes over the moment
+// it manages to play (see _heroVidTick, which stops these frames). Until then — and forever
+// in Low Power Mode — these keep it moving: no frozen poster, no play button, no gesture.
+try { _heroFrames.start(); } catch (e) {}
 
 // Driver: prefer the real <video> (higher quality); fall back to the canvas frame loop
 // only while the video is genuinely stuck (blocked / Low Power Mode). Runs only while the
 // hero is on screen; stops both engines when it's scrolled away (battery).
 (function () {
-  var lastT = -1, stalls = 0;
+  var lastT = -1;
   setInterval(function () {
     if (!_heroVid) return;
-    if (!_heroInView) { try { _heroVid.pause(); } catch (e) {} if (_heroFrames.active()) _heroFrames.stop(); stalls = 0; return; }
+    if (_wcActive) { if (_heroFrames.active()) _heroFrames.stop(); return; }   // WebCodecs engine owns the hero
+    if (!_heroInView) { try { _heroVid.pause(); } catch (e) {} if (_heroFrames.active()) _heroFrames.stop(); return; }
+    if (!_videoFallbackOn && !_WC_SUPPORTED) _activateVideoFallback();
     _heroVidPlay();  // keep trying the real video (no-op if already playing)
     var advancing = !_heroVid.paused && _heroVid.currentTime > 0.02 && _heroVid.currentTime !== lastT;
     lastT = _heroVid.currentTime;
-    if (advancing) { if (_heroFrames.active()) _heroFrames.stop(); stalls = 0; }         // video works → use it
-    else { stalls++; if (stalls >= 2 && !_heroFrames.active()) _heroFrames.start(); }    // ~1.6s stuck → frames
+    if (advancing) { if (_heroFrames.active()) _heroFrames.stop(); }   // video works → use it (higher quality)
+    else { if (!_heroFrames.active()) _heroFrames.start(); }           // video not (yet) playing → keep frames moving, zero wait
   }, 800);
+})();
+
+// ── WebCodecs hero engine — 1080p/30fps on EVERY device & mode ────────────────────────
+// A real <video> can't autoplay in iOS Low Power Mode and stops decoding off-screen. So
+// on browsers that support WebCodecs (iOS 16.4+, all modern desktop) we skip the <video>
+// entirely: fetch the mp4, demux it (mp4box), hardware-decode it ourselves, and paint each
+// frame straight onto the hero canvas at 30fps. iOS never sees a "playing video", so none
+// of its power rules apply → full quality, zero interaction, any mode. Any failure at any
+// step silently drops back to the <video>/frame-loop fallback (never worse than before).
+(function () {
+  if (!_WC_SUPPORTED) return;
+  var VID_URL = 'assets/videos/hero.mp4?v=3', FPS = 30, FRAME_MS = 1000 / FPS;
+  var BUFFER_MAX = 12;   // decoded frames held ahead (≈36MB at 1080p) — bounds memory
+  var failed = false;
+  function fail(e){ if (failed || _wcActive) return; failed = true; try { _activateVideoFallback(); } catch(_){} }
+
+  function loadMp4box(cb){
+    if (window.MP4Box) return cb();
+    var s = document.createElement('script');
+    s.src = 'assets/js/mp4box.all.min.js?v=1'; s.async = true;
+    s.onload = cb; s.onerror = function(){ fail(); };
+    document.head.appendChild(s);
+  }
+
+  // Pull the avcC (SPS/PPS) box out of the track → the decoder's `description`.
+  function avcDescription(mp4file, trackId){
+    var trak = mp4file.getTrackById(trackId);
+    var entries = trak.mdia.minf.stbl.stsd.entries;
+    for (var i = 0; i < entries.length; i++){
+      var box = entries[i].avcC || entries[i].hvcC;
+      if (box){
+        var ds = new DataStream(undefined, 0, DataStream.BIG_ENDIAN);
+        box.write(ds);
+        return new Uint8Array(ds.buffer, 8);   // strip the 8-byte box header
+      }
+    }
+    return null;
+  }
+
+  function start(){
+    var mp4 = MP4Box.createFile();
+    var samples = [];      // raw {type, tsUs, data} in decode order (kept for looping)
+    var totalUs = 0, track = null, gotAll = false;
+    var decoder = null, feedIdx = 0, loopCount = 0;
+    var ready = [];        // decoded VideoFrames waiting to be shown
+    var lastDraw = 0, playRAF = 0;
+
+    mp4.onError = function(){ fail(); };
+    mp4.onReady = function(info){
+      track = info.videoTracks[0];
+      if (!track){ fail(); return; }
+      var desc = null; try { desc = avcDescription(mp4, track.id); } catch(e){ fail(); return; }
+      try {
+        decoder = new VideoDecoder({
+          output: function(frame){
+            if (ready.length >= BUFFER_MAX + 4){ frame.close(); return; }  // safety valve
+            ready.push(frame);
+          },
+          error: function(){ fail(); }
+        });
+        var cfg = { codec: track.codec, codedWidth: track.video.width, codedHeight: track.video.height, optimizeForLatency: true };
+        if (desc) cfg.description = desc;
+        decoder.configure(cfg);
+      } catch(e){ fail(); return; }
+      mp4.setExtractionOptions(track.id, null, { nbSamples: track.nb_samples });
+      mp4.start();
+    };
+    mp4.onSamples = function(id, user, s){
+      var ts = track.timescale;
+      for (var i = 0; i < s.length; i++){
+        var smp = s[i];
+        var tUs = Math.round(smp.cts * 1e6 / ts);
+        samples.push({ type: smp.is_sync ? 'key' : 'delta', tsUs: tUs, data: smp.data });
+        totalUs = Math.max(totalUs, tUs + Math.round(smp.duration * 1e6 / ts));
+      }
+      if (samples.length >= track.nb_samples){ gotAll = true; kick(); }
+    };
+
+    // Feed encoded chunks to keep the decoder busy but memory bounded. Wraps seamlessly:
+    // frame 0 is an IDR keyframe, so re-feeding from 0 with a rising timestamp offset loops
+    // with no glitch and no decoder reset.
+    function feed(){
+      if (!decoder || decoder.state !== 'configured' || !gotAll) return;
+      while (decoder.decodeQueueSize < 8 && ready.length < BUFFER_MAX){
+        var smp = samples[feedIdx];
+        try {
+          decoder.decode(new EncodedVideoChunk({
+            type: smp.type,
+            timestamp: smp.tsUs + loopCount * totalUs,
+            data: smp.data
+          }));
+        } catch(e){ fail(); return; }
+        feedIdx++;
+        if (feedIdx >= samples.length){ feedIdx = 0; loopCount++; }
+      }
+    }
+
+    function play(ts){
+      if (failed) return;
+      playRAF = requestAnimationFrame(play);
+      if (!_heroInView){ return; }          // off-screen → idle (battery); resume when back
+      feed();
+      if (!lastDraw) lastDraw = ts;
+      if (ts - lastDraw < FRAME_MS) return; // pace to 30fps
+      if (!ready.length) return;            // decoder catching up — hold current frame
+      lastDraw = ts;
+      var frame = ready.shift();
+      var prev = _wcCurrent;
+      _wcCurrent = frame;                   // keep open so scroll redraws can reuse it
+      _wcActive = true;
+      if (_heroFrames.active()) _heroFrames.stop();
+      try { drawScrubFrame(0, 50); } catch(e){}
+      if (prev) { try { prev.close(); } catch(e){} }
+    }
+
+    function kick(){
+      if (playRAF) return;
+      feed();
+      playRAF = requestAnimationFrame(play);
+    }
+
+    // Fetch the whole clip (11MB, faststart) then demux. Frames engine keeps the hero moving
+    // during the download, so there's motion from t=0.
+    fetch(VID_URL).then(function(r){ if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function(buf){
+      buf.fileStart = 0;
+      mp4.appendBuffer(buf);
+      mp4.flush();
+    }).catch(function(){ fail(); });
+  }
+
+  loadMp4box(function(){ if (window.MP4Box && window.DataStream) start(); else fail(); });
 })();
 
 // Cached card dimensions — recalculated on init & resize
