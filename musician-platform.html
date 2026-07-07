@@ -4532,11 +4532,19 @@ function heroViewportH() {
 function resizeHeroCanvas() {
   const c = document.getElementById('heroCanvas');
   if (!c) return;
-  c.width  = window.innerWidth;
-  c.height = heroViewportH();
-  // Override the CSS "width:100%;height:100%" so canvas isn't scaled by the browser.
-  c.style.width  = c.width  + 'px';
-  c.style.height = c.height + 'px';
+  const cssW = window.innerWidth;
+  const cssH = heroViewportH();
+  // Back the canvas at the device's REAL pixel density so retina phones (2×–3×) get a
+  // crisp hero instead of a 1× frame the browser upscales (= blurry). Cap at 3 so the
+  // backing store stays bounded on very-high-DPR devices. drawScrubFrame / the frame
+  // loop cover-fit from c.width/c.height, so they fill the larger buffer automatically.
+  const dpr = Math.min(window.devicePixelRatio || 1, 3);
+  c.width  = Math.round(cssW * dpr);
+  c.height = Math.round(cssH * dpr);
+  // Override the CSS "width:100%;height:100%" so the canvas displays at CSS size while
+  // its backing store holds dpr× pixels (browser downsamples = sharp).
+  c.style.width  = cssW + 'px';
+  c.style.height = cssH + 'px';
 }
 
 // Hero main visual — a LOOPING VIDEO drawn onto the canvas (cover-fit, centre crop).
@@ -4554,6 +4562,7 @@ function drawScrubFrame(frameIndex, objY) {
   const ih = useVid ? v.videoHeight : (src && src.naturalHeight);
   if (!iw || !ih) return;
   const ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
   const cw = c.width, ch = c.height;
   const scale = Math.max(cw / iw, ch / ih);   // cover-fit
   const sw = iw * scale, sh = ih * scale;
@@ -4651,7 +4660,8 @@ var _heroFrames = (function () {
   function trim(){ for (var i = 0; i < COUNT; i++) { if (imgs[i] && !inWindow(i)) { imgs[i].src = ''; imgs[i] = null; } } }
   function draw(im){
     var c = document.getElementById('heroCanvas'); if (!c || !im || !im.naturalWidth) return;
-    var ctx = c.getContext('2d'), cw = c.width, ch = c.height, iw = im.naturalWidth, ih = im.naturalHeight;
+    var ctx = c.getContext('2d'); ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    var cw = c.width, ch = c.height, iw = im.naturalWidth, ih = im.naturalHeight;
     var s = Math.max(cw / iw, ch / ih), sw = iw * s, sh = ih * s;
     ctx.clearRect(0, 0, cw, ch); ctx.drawImage(im, (cw - sw) / 2, (ch - sh) * 0.5, sw, sh);
   }
