@@ -4608,14 +4608,13 @@ _heroVid.addEventListener('loadeddata', _heroVidPlay);
 try { document.body.appendChild(_heroVid); } catch (e) {}
 if (_heroVid.readyState >= 2) _heroVidPlay();
 
-// Save battery: only play while the hero is on screen.
+// Hero on-screen flag (drives play/pause + which engine runs — see the driver below).
+var _heroInView = true;
 (function () {
   var hero = document.getElementById('home');
   if (!hero || !('IntersectionObserver' in window)) { return; }
   new IntersectionObserver(function (entries) {
-    entries.forEach(function (e) {
-      if (e.isIntersecting) _heroVidPlay(); else _heroVid.pause();
-    });
+    entries.forEach(function (e) { _heroInView = e.isIntersecting; });
   }, { threshold: 0.02 }).observe(hero);
 })();
 
@@ -4631,6 +4630,64 @@ if (_heroVid.readyState >= 2) _heroVidPlay();
   document.addEventListener('visibilitychange', function () {
     if (!document.hidden) _heroVidPlay();
   });
+})();
+
+// ── ALWAYS-ANIMATE fallback (canvas frame loop) ──────────────────────────────
+// If the <video> can't autoplay (iOS Low Power Mode, strict autoplay policies), draw the
+// hero as a loop of image frames instead. Image frames are NOT subject to any autoplay
+// policy, so this animates on ANY device/mode with zero interaction. A sliding window
+// keeps only ~14 frames decoded at once → tiny memory, works on every phone.
+var _heroFrames = (function () {
+  var COUNT = 187, FPS = 12, BASE = 'assets/videos/hero-frames/';
+  function url(i){ i = ((i % COUNT) + COUNT) % COUNT; return BASE + 'f' + String(i + 1).padStart(3, '0') + '.jpg?v=1'; }
+  var imgs = new Array(COUNT), idx = 0, running = false, raf = 0, lastAt = 0;
+  var AHEAD = 10, BEHIND = 3;
+  function inWindow(i){ // circular distance from idx within [-BEHIND, +AHEAD]
+    var d = (i - idx + COUNT) % COUNT;            // frames ahead
+    var b = (idx - i + COUNT) % COUNT;            // frames behind
+    return d <= AHEAD || b <= BEHIND;
+  }
+  function ensure(i){ i = ((i % COUNT) + COUNT) % COUNT; if (!imgs[i]) { var im = new Image(); im.decoding = 'async'; im.src = url(i); imgs[i] = im; } }
+  function trim(){ for (var i = 0; i < COUNT; i++) { if (imgs[i] && !inWindow(i)) { imgs[i].src = ''; imgs[i] = null; } } }
+  function draw(im){
+    var c = document.getElementById('heroCanvas'); if (!c || !im || !im.naturalWidth) return;
+    var ctx = c.getContext('2d'), cw = c.width, ch = c.height, iw = im.naturalWidth, ih = im.naturalHeight;
+    var s = Math.max(cw / iw, ch / ih), sw = iw * s, sh = ih * s;
+    ctx.clearRect(0, 0, cw, ch); ctx.drawImage(im, (cw - sw) / 2, (ch - sh) * 0.5, sw, sh);
+  }
+  function tick(ts){
+    if (!running) return;
+    if (!lastAt) lastAt = ts;
+    if (ts - lastAt >= 1000 / FPS) {
+      lastAt = ts; idx = (idx + 1) % COUNT;
+      for (var a = 0; a <= AHEAD; a++) ensure(idx + a);
+      trim();
+    }
+    if (imgs[idx] && imgs[idx].naturalWidth) draw(imgs[idx]);
+    raf = requestAnimationFrame(tick);
+  }
+  return {
+    start: function(){ if (running) return; running = true; lastAt = 0; for (var a = 0; a <= AHEAD; a++) ensure(idx + a); raf = requestAnimationFrame(tick); },
+    stop:  function(){ running = false; if (raf) cancelAnimationFrame(raf); },
+    active: function(){ return running; }
+  };
+})();
+window._heroFrames = _heroFrames;
+
+// Driver: prefer the real <video> (higher quality); fall back to the canvas frame loop
+// only while the video is genuinely stuck (blocked / Low Power Mode). Runs only while the
+// hero is on screen; stops both engines when it's scrolled away (battery).
+(function () {
+  var lastT = -1, stalls = 0;
+  setInterval(function () {
+    if (!_heroVid) return;
+    if (!_heroInView) { try { _heroVid.pause(); } catch (e) {} if (_heroFrames.active()) _heroFrames.stop(); stalls = 0; return; }
+    _heroVidPlay();  // keep trying the real video (no-op if already playing)
+    var advancing = !_heroVid.paused && _heroVid.currentTime > 0.02 && _heroVid.currentTime !== lastT;
+    lastT = _heroVid.currentTime;
+    if (advancing) { if (_heroFrames.active()) _heroFrames.stop(); stalls = 0; }         // video works → use it
+    else { stalls++; if (stalls >= 2 && !_heroFrames.active()) _heroFrames.start(); }    // ~1.6s stuck → frames
+  }, 800);
 })();
 
 // Cached card dimensions — recalculated on init & resize
