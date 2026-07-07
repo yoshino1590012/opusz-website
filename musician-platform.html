@@ -4686,7 +4686,10 @@ window._heroFrames = _heroFrames;
     var advancing = !_heroVid.paused && _heroVid.currentTime > 0.02 && _heroVid.currentTime !== lastT;
     lastT = _heroVid.currentTime;
     if (advancing) { if (_heroFrames.active()) _heroFrames.stop(); stalls = 0; }         // video works → use it
-    else { stalls++; if (stalls >= 2 && !_heroFrames.active()) _heroFrames.start(); }    // ~1.6s stuck → frames
+    // Video can't autoplay (iOS Low Power Mode) → DON'T run the janky image-frame loop.
+    // Leave the clean static poster showing (smooth, no stutter); it plays the instant the
+    // visitor touches/scrolls (see the first-gesture kick above). Low Power = still image, not jank.
+    else { if (_heroFrames.active()) _heroFrames.stop(); }
   }, 800);
 })();
 
