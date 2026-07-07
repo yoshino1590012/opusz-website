@@ -4619,6 +4619,20 @@ if (_heroVid.readyState >= 2) _heroVidPlay();
   }, { threshold: 0.02 }).observe(hero);
 })();
 
+// iOS Low Power Mode blocks video AUTOplay, but allows playback started from a user
+// gesture. So kick the hero video off on the visitor's very first interaction (tap /
+// touch / scroll / key) — it then plays as soon as they do anything. Also resume when
+// the tab becomes visible again. (No-op if it's already playing.)
+(function () {
+  function _kick() { _heroVidPlay(); }
+  ['touchstart', 'pointerdown', 'click', 'scroll', 'wheel', 'keydown'].forEach(function (ev) {
+    window.addEventListener(ev, _kick, { once: true, passive: true });
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) _heroVidPlay();
+  });
+})();
+
 // Cached card dimensions — recalculated on init & resize
 let _cardScaleMax = 1;
 let _cardEndScale = 1;
