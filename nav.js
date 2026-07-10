@@ -62,7 +62,7 @@
 '    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>',
 '    <li><a href="recent-jobs.html" data-i18n="nav.jobs">Recent Jobs</a></li>',
 '    <li><a href="shows.html"   data-i18n="nav.news">Shows</a></li>',
-'    <li><a href="blog.html" data-i18n="nav.discover">Blog</a></li>',
+'    <li style="display:none"><a href="blog.html" data-i18n="nav.discover">Blog</a></li>',  /* Blog 分頁暫時隱藏 2026-07-10，還原刪 style */
 '  </ul>',
 '',
 '  <div class="nav-right">',
@@ -210,7 +210,7 @@
 '  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>',
 '  <a href="recent-jobs.html" data-i18n="nav.jobs">Recent Jobs</a>',
 '  <a href="shows.html" data-i18n="nav.news">Shows</a>',
-'  <a href="blog.html" data-i18n="nav.discover">Blog</a>',
+'  <a href="blog.html" data-i18n="nav.discover" style="display:none">Blog</a>',  /* Blog 分頁暫時隱藏 2026-07-10，還原刪 style */
 '</div>',
 '',
 '<!-- Musicians sub-drawer -->',

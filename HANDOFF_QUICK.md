@@ -165,3 +165,24 @@
 
 ---
 最後更新：2026-06-24
+
+## 14. 隱藏「精選文章(Blog)」＋部落格分頁（2026-07-10，暫時，之後可能再打開）
+
+業主要求**先隱藏**首頁「精選文章」區塊與全站「部落格」分頁（以後可能再開）。做法＝加 `style="display:none"`，**要還原就把該處的 `style="display:none"` 刪掉即可**。全部位置如下：
+
+**A. 首頁 `musician-platform.html`（5 處）**
+1. 精選文章區塊：`<section class="blog" id="blog" ...>` 加了 `style="display:none"`（有 HIDDEN 註解）
+2. 桌機頂部 nav：`<li ...><a href="blog.html" ...>Blog</a></li>` → `<li style="display:none">`
+3. 手機抽屜 nav：`<a href="blog.html" data-i18n="nav.discover" style="display:none">Blog</a>`
+4. footer：`<a href="#blog" data-i18n="footer.link.blog" style="display:none">Blog</a>`
+5. 手機底部導覽：`<a href="#blog" class="bn-item" data-sec="blog" style="display:none">`
+
+**B. 其他頁共用的 `nav.js`（2 處）** — 桌機/手機各一個 `Blog` li/a 加了 `style="display:none"`
+- ⚠️ 改 `nav.js` 已同步 bump 全站 `nav.js?v=16 → v=17`（14 個 html）。**還原時記得再 bump v=17 → v=18**，否則瀏覽器吃舊快取。
+
+**C. 沒動到的**：`blog.html` 及各篇 `blog-*.html` 頁面本身**還在、沒刪**（只是入口藏起來），直接打網址仍進得去。要完全下架再另議。
+
+搜尋關鍵字 `2026-07-10` 或 `Blog 分頁暫時隱藏` 可一次找到所有隱藏點。
+
+---
+最後更新：2026-07-10
