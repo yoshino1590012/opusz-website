@@ -160,7 +160,15 @@ function applyHeroPosResponsive(cfg){
   // NOTE: legacy cfg.heroPosMacbook is intentionally no longer read — editing the
   // "標準顯示螢幕" tab is now the single source of truth for all computers.
   var w = window.innerWidth || 9999;
+  var h = window.innerHeight || 9999;
+  // A PORTRAIT tablet (e.g. iPad upright) is treated as a big phone: it borrows the
+  // phone design (heroPosPhone) so it never needs its own tuning — the layout is an
+  // exact proportional enlargement of the phone (musician-platform's updateHeroDims
+  // scales --k off the same 291 phone anchor for this case). Landscape tablets keep
+  // their own heroPosIpad set (unchanged).
+  var portraitTablet = (w > 700 && w <= 1024 && h > w);
   var map = (w <= 700  && cfg.heroPosPhone)   ? cfg.heroPosPhone
+          : (portraitTablet && cfg.heroPosPhone) ? cfg.heroPosPhone
           : (w <= 1024 && cfg.heroPosIpad)    ? cfg.heroPosIpad
           : (cfg.heroPos || {});
   applyHeroPos(map);

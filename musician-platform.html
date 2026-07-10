@@ -4719,6 +4719,14 @@ function updateHeroDims() {
   if (vw <= 700) {
     const kMobile = Math.max(1.0, Math.min(1.6, vw / 291));
     heroCardEl.style.setProperty('--k', kMobile.toFixed(4));
+  } else if (vw <= 1024 && window.innerHeight > vw) {
+    // Portrait tablet (e.g. iPad upright) = a BIG PHONE. It reuses the phone design
+    // (positions/sizes come from heroPosPhone — see site-content.js picker) and we
+    // size it with the SAME 291 phone anchor, so the layout is an exact proportional
+    // enlargement of the 393px phone design (wider screen → bigger, same proportions).
+    // No separate iPad tuning needed. Cap so very large tablets stay sane.
+    const kTablet = Math.max(1.6, Math.min(3.6, vw / 291));
+    heroCardEl.style.setProperty('--k', kTablet.toFixed(4));
   } else {
     const kUniform = Math.max(0.62, Math.min(1.9, vw / 1488));
     heroCardEl.style.setProperty('--k', kUniform.toFixed(4));
@@ -4734,7 +4742,7 @@ function updateHeroDims() {
   // Card already fills viewport at scale=1 → no upscaling ever
   _cardScaleMax = 1;
   // End scale shrinks the card to its visual "card" size (60vw desktop, 69vw mobile)
-  _cardEndScale = vw <= 700 ? 0.69 : 0.60;
+  _cardEndScale = (vw <= 700 || (vw <= 1024 && window.innerHeight > vw)) ? 0.69 : 0.60;
 }
 
 const _hcOverlayEl = document.getElementById('hcCardOverlay');
@@ -8572,7 +8580,7 @@ window.addEventListener('keydown', function(e){
 <!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
-<script type="module" src="site-content.js?v=18"></script>
+<script type="module" src="site-content.js?v=19"></script>
   <script type="module" src="media-sync.js?v=3"></script>
 <script type="module" src="newsletter.js?v=2"></script>
 <!-- Global in-page notification toasts (messages / announcements / community / jobs) -->
