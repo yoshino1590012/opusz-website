@@ -364,6 +364,23 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   transform: translateX(0);
 }
 .hero-overlay{ transition: opacity .9s ease; }
+
+/* ── Scroll-cover (after the intro) ─────────────────────────────────────────
+   Mirrors the homepage hero's reveal: once the intro is done, the PHOTO pins to
+   the top (barely drifts up) at z-index:-1, so the white in-flow content below
+   naturally scrolls UP and COVERS it — while the name/info/overlay (positive
+   z-index, and .hero creates no stacking context) ride up ABOVE the cover:
+   photo z-1  <  white content (in-flow)  <  overlay z3  <  info z4  <  name z5.
+   Using z-index:-1 (instead of raising the content) means we DON'T turn .content
+   into a stacking context, so the fullscreen-video overlay inside it still works.
+   Enabled by body.hero-pinned, added on the 'hero-intro-done' event. */
+body.hero-pinned .hero-photo-wrap{
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: var(--pf-hero-h, 51vh);
+  z-index: -1;
+  will-change: transform;
+}
 .info-title{
   font-size:18px;
   font-weight:700;
@@ -5111,6 +5128,41 @@ document.addEventListener('keydown', function(e){
     }, 1500);
   };
   setTimeout(window.__startHeroIntro, 6000);   // safety net
+})();
+
+// ── Scroll-cover: after the intro, pin the hero photo so the white content below
+// scrolls UP and covers it (name + info ride up above the cover). Photo drifts up
+// a touch (parallax). Enabled on 'hero-intro-done'. See body.hero-pinned CSS. ──
+(function(){
+  var hero  = document.getElementById('heroSection');
+  var photo = document.getElementById('photoWrap');
+  if(!hero || !photo) return;
+  function setHeroH(){
+    // Match the pinned photo's height to the hero. Guard against a 0 reading
+    // (e.g. measured mid-layout) so the CSS var(--pf-hero-h, 51vh) fallback keeps
+    // the photo full-height instead of collapsing it.
+    var h = Math.round(hero.getBoundingClientRect().height);
+    if (h > 0) document.documentElement.style.setProperty('--pf-hero-h', h + 'px');
+  }
+  function onScroll(){
+    var h = hero.getBoundingClientRect().height || 1;
+    var y = window.scrollY || window.pageYOffset || 0;
+    var p = Math.min(1, Math.max(0, y / h));
+    // pinned photo drifts up slightly (max ~12% of hero height)
+    photo.style.transform = 'translateY(' + (-(p * h * 0.12)).toFixed(1) + 'px)';
+  }
+  var _wired = false;
+  function enable(){
+    if(_wired) return; _wired = true;
+    setHeroH();
+    document.body.classList.add('hero-pinned');
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive:true });
+    window.addEventListener('resize', function(){ setHeroH(); onScroll(); });
+  }
+  document.addEventListener('hero-intro-done', enable);
+  // bfcache / intro-skipped: if the intro isn't pending, enable shortly after load.
+  if(!hero.classList.contains('hero-intro')) setTimeout(enable, 400);
 })();
 
 // ── Hero banner slideshow (same logic as blog reel) ──
