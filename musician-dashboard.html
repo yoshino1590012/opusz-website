@@ -4125,10 +4125,10 @@
   }
 
   // Compress + upload one image; resolves to a Storage download URL.
-  function pbUploadImage(file, fieldKey, maxDim){
+  function pbUploadImage(file, fieldKey, maxDim, quality){
     return new Promise(function(resolve, reject){
       if(!_currentUser){ showNotif('請先登入 / Please log in'); reject(new Error('not-logged-in')); return; }
-      pbCompressImage(file, maxDim || 800, 0.82, async function(blob){
+      pbCompressImage(file, maxDim || 800, quality || 0.82, async function(blob){
         if(!blob){ reject(new Error('compress-failed')); return; }
         try{
           const path = 'musicians/' + pbEditUid() + '/' + fieldKey + '_' + Date.now() + '.jpg';
@@ -4142,7 +4142,7 @@
   }
 
   // Attach a click/drag uploader UI to a URL <input>.
-  function pbAttachUploader(inputId, fieldKey, maxDim){
+  function pbAttachUploader(inputId, fieldKey, maxDim, quality){
     const input = document.getElementById(inputId);
     if(!input || input.dataset.pbUploader) return; // guard: attach once
     input.dataset.pbUploader = '1';
@@ -4191,7 +4191,7 @@
       drop.style.opacity = '0.6';
       drop.style.pointerEvents = 'none';
       try{
-        const url = await pbUploadImage(file, fieldKey, maxDim);
+        const url = await pbUploadImage(file, fieldKey, maxDim, quality);
         input.value = url;
         input.dispatchEvent(new Event('input', { bubbles:true }));
         showThumb(url);
@@ -4743,7 +4743,7 @@
       el.addEventListener('change', function(){ pbOnInput(); });
     });
     list.appendChild(row);
-    pbAttachUploader(imgId, 'herobanner' + n, 1400);
+    pbAttachUploader(imgId, 'herobanner' + n, 2560, 0.9);   // hero banner: full-width Retina → keep it sharp (was 1400 → looked blurry upscaled)
     pbRelabelBannerRows();
     pbUpdateBannerAddBtn();
   }
