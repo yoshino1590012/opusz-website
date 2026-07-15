@@ -5949,10 +5949,13 @@ try {
     const panelEl = bg.closest('.cat-panel');
     // Fixed framing regardless of hover/active: the photo must NOT zoom or shift
     // when a panel expands — only the panel WIDTH changes (revealing more). Use the
-    // collapsed (resting) framing for both states so nothing jumps on mouseenter.
-    const x = s.xC;
-    const y = s.yC;
-    const z = s.zC;
+    // EXPANDED framing (xE/yE/zE) for both states: the image is sized for the
+    // expanded width (see _expectedW), and zE is the zoom tuned to COVER that width
+    // cleanly, so there's no aspect-distortion floor kick-in. (Using zC here made
+    // the wide panel stretch/squish the subjects.)
+    const x = s.xE;
+    const y = s.yE;
+    const z = s.zE;
     bg.style.backgroundPosition = `${x}% ${y}%`;
     _applyZoom(bg, cls, panelEl, z);
     if (panelEl) {
