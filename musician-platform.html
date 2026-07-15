@@ -1090,17 +1090,20 @@ nav.mega-open .nav-links a::before {
   height: clamp(340px,44vw,580px);
 }
 .cat-panel {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 44px;
   border-radius: 12px;
   overflow: hidden;
   position: relative;
   cursor: pointer;
-  /* Softer ease-out (less aggressive deceleration) → no "snap to stop" feel.
-     will-change hints GPU compositing for the bg layer underneath. */
-  transition: flex 0.79s cubic-bezier(0.33, 1, 0.68, 1);
+  /* 京典奇特 "featured" feel: animate flex-grow only, snappy 0.6s ease. */
+  transition: flex-grow 0.6s cubic-bezier(.6, 0, .2, 1);
 }
-.cat-panel.active { flex: 6; }
+/* Hover-driven expand copied from the 京典奇特 featured section: resting state is
+   all-equal; hovering a panel grows it (flex-grow:3) while the OTHERS make room
+   (flex-grow:.8); leaving the row returns everything to equal. */
+.cat-accordion:hover .cat-panel { flex-grow: 0.8; }
+.cat-accordion .cat-panel:hover { flex-grow: 3; }
 .cat-panel-bg {
   position: absolute; inset: 0;
   background-size: cover; background-position: center; background-repeat: no-repeat;
@@ -1121,7 +1124,7 @@ nav.mega-open .nav-links a::before {
   transition: opacity 0.35s ease;
   pointer-events: none;
 }
-.cat-panel.active .cat-panel-cta { opacity: 1; transition-delay: 0.2s; }
+.cat-panel:hover .cat-panel-cta { opacity: 1; transition-delay: 0.2s; }
 .cat-panel-cta-inner {
   color: #fff; font-size: 13px; font-weight: 500;
   letter-spacing: .04em; border: 1px solid rgba(255,255,255,.55);
@@ -1136,7 +1139,7 @@ nav.mega-open .nav-links a::before {
   transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.16,1,0.3,1);
   pointer-events: none;
 }
-.cat-panel.active .cat-panel-name {
+.cat-panel:hover .cat-panel-name {
   opacity: 1; transform: translateY(0); transition-delay: 0.15s;
 }
 .cat-caption {
@@ -2595,6 +2598,9 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
   /* Categories: prevent overflow, force wrap between 641–900px only */
   .cat-accordion { flex-wrap: wrap; height: auto; min-height: clamp(180px,30vw,320px); }
   .cat-panel { flex: 1 1 120px; min-width: 80px; }
+  /* wrapped layout: don't let hover grow a panel (would break the rows) */
+  .cat-accordion:hover .cat-panel,
+  .cat-accordion .cat-panel:hover { flex-grow: 1; }
   .categories { overflow: hidden; }
   .services { grid-template-columns: 1fr; padding: 0; min-height: unset; }
   .svc-left { padding: 20px 20px 40px 20px; overflow: hidden; }
