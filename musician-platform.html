@@ -5947,10 +5947,12 @@ try {
     if (!bg) return;
     if (s.url) { bg.style.backgroundImage = `url('${s.url}')`; _preload(cls, s.url); }
     const panelEl = bg.closest('.cat-panel');
-    const isActive = panelEl && panelEl.classList.contains('active');
-    const x = isActive ? s.xE : s.xC;
-    const y = isActive ? s.yE : s.yC;
-    const z = isActive ? s.zE : s.zC;
+    // Fixed framing regardless of hover/active: the photo must NOT zoom or shift
+    // when a panel expands — only the panel WIDTH changes (revealing more). Use the
+    // collapsed (resting) framing for both states so nothing jumps on mouseenter.
+    const x = s.xC;
+    const y = s.yC;
+    const z = s.zC;
     bg.style.backgroundPosition = `${x}% ${y}%`;
     _applyZoom(bg, cls, panelEl, z);
     if (panelEl) {
@@ -5987,9 +5989,11 @@ try {
     const panels  = acc.querySelectorAll('.cat-panel');
     const n       = panels.length;                        // 6
     const avail   = acc.clientWidth - padL - padR - gap * (n - 1);
-    const active  = panelEl.classList.contains('active');
+    // Always size the image for the EXPANDED width so its SCALE never changes when a
+    // panel widens — the panel just reveals more of the same image (no zoom-in on
+    // mouseenter). Was `active ? 6 : 1`, which snapped the bg-size bigger on hover.
     const totFlex = (n - 1) + 6;                         // 5×1 + 6 = 11
-    const myFlex  = active ? 6 : 1;
+    const myFlex  = 6;
     return Math.max(1, Math.round(avail * myFlex / totFlex));
   }
 
