@@ -7854,7 +7854,6 @@ window.addEventListener('keydown', function(e){
   var grid  = section.querySelector('.sv-grid');
   var c4    = section.querySelector('.sv-c4');
   var label = section.querySelector('.sv-label');
-  var sticky = section.querySelector('.sv-sticky');
   var cells = Array.from(section.querySelectorAll('.sv-cell'));
 
   // ── Read video config baked into HTML (permanent, survives everything) ──
@@ -7931,17 +7930,6 @@ window.addEventListener('keydown', function(e){
     var vw = window.innerWidth;
     var rect = section.getBoundingClientRect();
     var sectionH = section.offsetHeight;
-
-    // ── Entry reveal (goodman "featured film" feel) ──────────────────────────
-    // As the section scrolls up into place, WIPE the showcase up from its BOTTOM
-    // edge — the video is uncovered from the bottom rather than pushed up. Driven
-    // by the section top going from viewport-bottom (rect.top=vh → hidden) to
-    // viewport-top (rect.top=0 → fully revealed, just as it pins). clip-path
-    // inset(T 0 0 0) removes T% from the TOP, so shrinking T reveals bottom→up.
-    if (sticky) {
-      var revealP = Math.max(0, Math.min(1, (vh - rect.top) / vh));
-      sticky.style.clipPath = 'inset(' + ((1 - revealP) * 100).toFixed(2) + '% 0 0 0)';
-    }
 
     // Progress 0→1 as user scrolls through the section
     var scrolled  = -rect.top;
