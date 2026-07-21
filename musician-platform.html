@@ -1398,7 +1398,8 @@ nav.mega-open .nav-links a::before {
 /* ── SHOWREEL VIDEO GRID ── */
 .sv-section {
   background: #000;
-  height: 300vh;
+  height: 400vh;   /* +1 screen: the first screen is the REVEAL runway (poster
+                      uncovers the wall) before the zoom/label start (see JS). */
   position: relative;
   /* Pulled up one screen so the last poster overlaps the top of the (pinned)
      video wall; the poster (z-index:2, opaque) covers it, then scrolls up to
@@ -1497,7 +1498,7 @@ nav.mega-open .nav-links a::before {
    At narrow viewports the columns get thin → cells naturally become portrait.
    No layout changes needed — just tighten gaps and text. ── */
 @media (max-width: 900px) {
-  .sv-section { height: 280vh; }
+  .sv-section { height: 380vh; }   /* +1 screen reveal runway (see base rule) */
   .sv-grid    { gap: 5px; }
   .sv-cell    { border-radius: 7px; }
   .sv-label   { font-size: clamp(14px, 4vw, 26px); }
@@ -7940,10 +7941,14 @@ window.addEventListener('keydown', function(e){
     var rect = section.getBoundingClientRect();
     var sectionH = section.offsetHeight;
 
-    // Progress 0→1 as user scrolls through the section
+    // Progress 0→1, but HELD at 0 for the first screen — the REVEAL phase, while
+    // the poster section above scrolls off and uncovers the wall. The zoom + the
+    // "The Finest" label (both driven by p) only start once the poster has almost
+    // fully exited, so the two motions don't overlap.
     var scrolled  = -rect.top;
     var scrollable = sectionH - vh;
-    var p = Math.max(0, Math.min(1, scrolled / scrollable));
+    var REVEAL = vh;                                   // 1 screen of reveal first
+    var p = Math.max(0, Math.min(1, (scrolled - REVEAL) / (scrollable - REVEAL)));
 
     // Max scale: zoom the WHOLE GRID until c4 fills the viewport
     var maxScale = 2;
