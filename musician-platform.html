@@ -1247,6 +1247,10 @@ nav.mega-open .nav-links a::before {
 .work {
   background: var(--light);
   position: relative;
+  /* Sits ABOVE the showcase (which is pulled up behind it) so scrolling the
+     posters up UNCOVERS the video wall from the bottom — like the hero's exit
+     in reverse (the section above eats/reveals the fixed layer below). */
+  z-index: 2;
 }
 .work-inner {
   display: grid;
@@ -1396,6 +1400,11 @@ nav.mega-open .nav-links a::before {
   background: #000;
   height: 300vh;
   position: relative;
+  /* Pulled up one screen so the last poster overlaps the top of the (pinned)
+     video wall; the poster (z-index:2, opaque) covers it, then scrolls up to
+     REVEAL the wall from the bottom — goodman "featured film" / hero-in-reverse. */
+  z-index: 1;
+  margin-top: -100vh;
 }
 .sv-sticky {
   position: sticky;
