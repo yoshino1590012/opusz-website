@@ -924,6 +924,15 @@ Martin</textarea>
         <style>
           .se-dev-btn{ padding:6px 12px;border:1px solid #ddd;background:#fff;border-radius:8px;font-size:12px;cursor:pointer;color:#555; }
           .se-dev-btn.active{ background:#111;color:#fff;border-color:#111; }
+          /* Phase 1 — collapsible property groups: tame the long flat Hero panel into
+             tidy, one-click-expand cards (purely presentational, see seGroupifyPanel). */
+          .se-grp{ border:1px solid #e2e8f0;border-radius:9px;background:#fff;margin-bottom:8px;overflow:hidden; }
+          .se-grp-h{ display:flex;align-items:center;justify-content:space-between;gap:8px;padding:9px 11px;cursor:pointer;user-select:none;font-size:12px;font-weight:800;color:#0e7490;background:#fff;transition:background .12s; }
+          .se-grp-h:hover{ background:#f8fafc; }
+          .se-grp-h .se-grp-cv{ flex-shrink:0;opacity:.55;transition:transform .18s ease; }
+          .se-grp.open .se-grp-h .se-grp-cv{ transform:rotate(180deg); }
+          .se-grp-b{ display:none;padding:6px 11px 11px;border-top:1px solid #f1f5f9; }
+          .se-grp.open .se-grp-b{ display:block; }
           /* iPhone-style frame — bezel/radius/island all scale together via --sps,
              so the whole phone enlarges in proportion (not just the screen). */
           /* Uniform 13px black bezel on all sides. The screen (status bar + iframe)
@@ -2055,9 +2064,58 @@ Martin</textarea>
         +'<button onclick="seHeroPosReset()" style="margin-top:10px;font-size:11px;border:1px solid #67e8f9;background:#fff;border-radius:6px;padding:4px 9px;cursor:pointer;">↺ 重置位置與大小</button></div>'
       : '';
     box.innerHTML = heroHint + fieldsHtml + engHtml;
+    if(seCurrentSection==='hero'){ try{ seGroupifyPanel(box); }catch(e){} }   // Phase 1: collapsible groups
     seWireMedia();   // render pad previews + attach drag / drop listeners (Firebase media)
     if(engGrp) seEngLoad(engGrp);   // load + wire engine image pads
   };
+
+  // ── Phase 1: collapsible property groups ──────────────────────────────────────
+  // The Hero row-builders each emit a teal (font-weight:800; #0e7490) header followed by
+  // its rows, all flat. This re-wraps every such header + its rows into a click-to-expand
+  // card WITHOUT touching any field id/value/handler. Open/closed state survives the panel
+  // rebuilds that happen on every align/colour click (kept in _seOpenGrps, keyed by title).
+  window._seOpenGrps = window._seOpenGrps || {};
+  window.seGrpTog = function(h){
+    var g=h.parentNode; if(!g) return;
+    g.classList.toggle('open');
+    var lab=g.querySelector('.se-grp-h > span'); var t=lab?lab.textContent:'';
+    if(t) window._seOpenGrps[t]=g.classList.contains('open');
+  };
+  function _seIsHeader(el){
+    if(!el || el.nodeType!==1 || el.tagName!=='DIV') return false;
+    var s=el.getAttribute('style')||'';
+    return s.indexOf('font-weight:800')>-1 && s.indexOf('#0e7490')>-1;
+  }
+  function seGroupifyPanel(root){
+    if(!root) return;
+    var headers=Array.prototype.slice.call(root.querySelectorAll('div')).filter(_seIsHeader);
+    headers.forEach(function(hd){
+      var parent=hd.parentNode; if(!parent) return;
+      var titleText=hd.textContent;
+      var grp=document.createElement('div'); grp.className='se-grp';
+      var head=document.createElement('div'); head.className='se-grp-h'; head.setAttribute('onclick','seGrpTog(this)');
+      var title=document.createElement('span'); title.textContent=titleText;
+      var cv=document.createElement('span'); cv.className='se-grp-cv';
+      cv.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>';
+      head.appendChild(title); head.appendChild(cv);
+      var body=document.createElement('div'); body.className='se-grp-b';
+      var start=hd.nextSibling;                 // first row after this header
+      parent.insertBefore(grp, hd);
+      parent.removeChild(hd);
+      grp.appendChild(head); grp.appendChild(body);
+      var n=start;
+      while(n){
+        var next=n.nextSibling;
+        if(_seIsHeader(n)) break;               // next group starts
+        if(n.nodeType===1 && n.tagName==='BUTTON' && (n.getAttribute('onclick')||'').indexOf('seHeroPosReset')>-1) break; // leave reset outside
+        body.appendChild(n);
+        n=next;
+      }
+      if(window._seOpenGrps[titleText]) grp.classList.add('open');
+    });
+    // Nothing open yet → open the first group so the panel never looks empty.
+    if(!root.querySelector('.se-grp.open')){ var f=root.querySelector('.se-grp'); if(f) f.classList.add('open'); }
+  }
 
   // ── Engine-backed image editing (drives homepage opzEdit → site-data.json) ──
   // The preview iframe runs musician-platform.html, which exposes window.opzEdit.
