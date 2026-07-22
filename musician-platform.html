@@ -450,6 +450,11 @@ nav.mega-open .nav-links a::before {
 /* Everything after the hero rides above it and covers it as it scrolls up. */
 .marquee-section, .hiw, .categories, .work, .sv-section, .services,
 .hp-about, .blog, .contact, #site-footer { position: relative; z-index: 1; }
+/* Showcase EXIT (mirror of the entry): the About section is pulled up one screen
+   over the tail of the video wall and sits in FRONT of it (z-index:2), so
+   scrolling it up EATS the wall from the bottom — like the hero's exit. Paired
+   with the .sv-section exit runway (screen 4) so the zoom finishes first. */
+.hp-about { z-index: 2; margin-top: -100vh; }
 
 /* Hero card: renders at 100vw (viewport fill) at scale=1, shrinks to card via JS scale-down.
    Downscaling is always crisp. --k compensates px values for the card-mode end-scale. */
@@ -1398,8 +1403,9 @@ nav.mega-open .nav-links a::before {
 /* ── SHOWREEL VIDEO GRID ── */
 .sv-section {
   background: #000;
-  height: 400vh;   /* +1 screen: the first screen is the REVEAL runway (poster
-                      uncovers the wall) before the zoom/label start (see JS). */
+  height: 500vh;   /* screen 1 = REVEAL runway (poster uncovers the wall), then
+                      2 screens of zoom, then screen 4 = EXIT runway (the section
+                      below eats the wall). See the scroll JS. */
   position: relative;
   /* Pulled up one screen so the last poster overlaps the top of the (pinned)
      video wall; the poster (z-index:2, opaque) covers it, then scrolls up to
@@ -1498,7 +1504,7 @@ nav.mega-open .nav-links a::before {
    At narrow viewports the columns get thin → cells naturally become portrait.
    No layout changes needed — just tighten gaps and text. ── */
 @media (max-width: 900px) {
-  .sv-section { height: 380vh; }   /* +1 screen reveal runway (see base rule) */
+  .sv-section { height: 480vh; }   /* reveal + zoom + exit runways (see base rule) */
   .sv-grid    { gap: 5px; }
   .sv-cell    { border-radius: 7px; }
   .sv-label   { font-size: clamp(14px, 4vw, 26px); }
@@ -7947,8 +7953,11 @@ window.addEventListener('keydown', function(e){
     // fully exited, so the two motions don't overlap.
     var scrolled  = -rect.top;
     var scrollable = sectionH - vh;
-    var REVEAL = vh;                                   // 1 screen of reveal first
-    var p = Math.max(0, Math.min(1, (scrolled - REVEAL) / (scrollable - REVEAL)));
+    var REVEAL = vh;                                   // screen 1: reveal (held at p=0)
+    var ZOOM   = vh * 2;                               // screens 2-3: the zoom
+    // After REVEAL+ZOOM (p=1) the remaining scroll is the EXIT runway, during which
+    // the section below (.hp-about, pulled up) eats the fully-zoomed wall.
+    var p = Math.max(0, Math.min(1, (scrolled - REVEAL) / ZOOM));
 
     // Max scale: zoom the WHOLE GRID until c4 fills the viewport
     var maxScale = 2;
