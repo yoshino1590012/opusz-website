@@ -197,7 +197,9 @@ function applyHeroPosResponsive(cfg){
   var _brand = _pick('_brandColor', cfg.heroBrandColor);
   if (_brand != null) { try { applyBrandColor(_brand); } catch(e){} }
   // Show / hide the big OPUS.Z wordmark entirely (editor toggle → cfg.heroBrandHidden).
-  var _brandHidden = _pick('_brandHidden', cfg.heroBrandHidden);
+  // DEFAULT = hidden: unless the config explicitly stores `false`, the wordmark stays
+  // hidden (owner's request). Setting 顯示 in the editor writes an explicit false.
+  var _brandHidden = _pick('_brandHidden', (typeof cfg.heroBrandHidden==='boolean' ? cfg.heroBrandHidden : true));
   try { applyBrandHidden(!!_brandHidden); } catch(e){}
   var _btnStyle = _pick('_btn', cfg.heroBtn);
   if (_btnStyle != null) { try { applyHeroBtns(_btnStyle); } catch(e){} }

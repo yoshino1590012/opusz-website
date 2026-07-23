@@ -3301,7 +3301,7 @@ Martin</textarea>
     window.seHeroPosIpad    = (seCurrentConfig.heroPosIpad    && typeof seCurrentConfig.heroPosIpad==='object')    ? seCurrentConfig.heroPosIpad    : _copyDesk();
     window.seHeroPosPhone   = (seCurrentConfig.heroPosPhone   && typeof seCurrentConfig.heroPosPhone==='object')   ? seCurrentConfig.heroPosPhone   : _copyDesk();
     window.seHeroBrandColor = (typeof seCurrentConfig.heroBrandColor==='string' && seCurrentConfig.heroBrandColor) ? seCurrentConfig.heroBrandColor : 'auto';
-    window.seHeroBrandHidden = !!seCurrentConfig.heroBrandHidden;   // 隱藏大 OPUS.Z 品牌字
+    window.seHeroBrandHidden = (typeof seCurrentConfig.heroBrandHidden==='boolean') ? seCurrentConfig.heroBrandHidden : true;   // 預設隱藏大 OPUS.Z 品牌字
     window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
     window.seHeroBtnShape = (seCurrentConfig.heroBtnShape && typeof seCurrentConfig.heroBtnShape==='object') ? seCurrentConfig.heroBtnShape : {};
     window.seHeroBtnGlass = !!seCurrentConfig.heroBtnGlass;
