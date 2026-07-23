@@ -196,6 +196,9 @@ function applyHeroPosResponsive(cfg){
   }
   var _brand = _pick('_brandColor', cfg.heroBrandColor);
   if (_brand != null) { try { applyBrandColor(_brand); } catch(e){} }
+  // Show / hide the big OPUS.Z wordmark entirely (editor toggle → cfg.heroBrandHidden).
+  var _brandHidden = _pick('_brandHidden', cfg.heroBrandHidden);
+  try { applyBrandHidden(!!_brandHidden); } catch(e){}
   var _btnStyle = _pick('_btn', cfg.heroBtn);
   if (_btnStyle != null) { try { applyHeroBtns(_btnStyle); } catch(e){} }
   var _btnShape = _pick('_btnShape', cfg.heroBtnShape);
@@ -247,6 +250,12 @@ function applyBrandColor(val){
   Array.prototype.forEach.call(document.querySelectorAll('.hco-brand'), function(el){
     if (!val || val === 'auto') { el.style.color = ''; el.style.mixBlendMode = ''; }
     else { el.style.color = val; el.style.mixBlendMode = 'normal'; }
+  });
+}
+// Hide (display:none) or restore every OPUS.Z brand wordmark copy.
+function applyBrandHidden(hidden){
+  Array.prototype.forEach.call(document.querySelectorAll('.hco-brand'), function(el){
+    el.style.display = hidden ? 'none' : '';
   });
 }
 
@@ -371,7 +380,7 @@ function applyConfig(cfg){
   // applyHeroPosResponsive now also applies the per-device brand colour + button
   // styling (colour / shape / glass), so trigger it whenever ANY hero style key
   // is present — not just the position/phrase/type keys.
-  if ('heroPos' in cfg || 'heroPosPhone' in cfg || 'heroPosMacbook' in cfg || 'heroPosIpad' in cfg || 'heroPhrase' in cfg || 'heroType' in cfg || 'heroBrandColor' in cfg || 'heroBtn' in cfg || 'heroBtnShape' in cfg || 'heroBtnGlass' in cfg || 'heroFonts' in cfg) {
+  if ('heroPos' in cfg || 'heroPosPhone' in cfg || 'heroPosMacbook' in cfg || 'heroPosIpad' in cfg || 'heroPhrase' in cfg || 'heroType' in cfg || 'heroBrandColor' in cfg || 'heroBrandHidden' in cfg || 'heroBtn' in cfg || 'heroBtnShape' in cfg || 'heroBtnGlass' in cfg || 'heroFonts' in cfg) {
     window.__opzHeroCfg = cfg;
     // applyHeroPosResponsive also applies the per-device phrase align + line-height,
     // brand wordmark colour, button colour/shape/glass, AND fonts (with desktop

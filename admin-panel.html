@@ -1469,6 +1469,7 @@ Martin</textarea>
     var _dk = window.seHeroPos || {};
     cfg.heroBrandColor = (_dk._brandColor!=null) ? _dk._brandColor
       : ((typeof window.seHeroBrandColor==='string' && window.seHeroBrandColor) ? window.seHeroBrandColor : 'auto');
+    cfg.heroBrandHidden = !!window.seHeroBrandHidden;   // 隱藏大 OPUS.Z 品牌字（全站，非分螢幕）
     cfg.heroBtn      = (_dk._btn && typeof _dk._btn==='object') ? _dk._btn : (window.seHeroBtn || {});
     cfg.heroBtnShape = (_dk._btnShape && typeof _dk._btnShape==='object') ? _dk._btnShape : (window.seHeroBtnShape || {});
     cfg.heroBtnGlass = (_dk._btnGlass!=null) ? !!_dk._btnGlass : !!window.seHeroBtnGlass;
@@ -2968,10 +2969,24 @@ Martin</textarea>
     }).join('');
     var customVal=(!isAuto && /^#/.test(v))?v:'#000000';
     var custom='<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#155e75;cursor:pointer;">自訂<input type="color" value="'+customVal+'" oninput="seHeroSetBrandColor(this.value,false)" style="width:28px;height:24px;border:1px solid #ccc;border-radius:6px;padding:0;cursor:pointer;background:#fff;"></label>';
-    return '<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">品牌字 OPUS.Z 顏色</div>'
+    // Hide / show toggle for the whole big OPUS.Z wordmark.
+    var hidden=!!window.seHeroBrandHidden;
+    var hideRow='<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">大字 OPUS.Z 顯示</div>'
+      +'<div style="display:flex;gap:7px;margin-bottom:10px;">'
+      +'<button onclick="seHeroSetBrandHidden(false)" style="font-size:11px;border:1px solid '+(!hidden?'#0e7490':'#cbd5e1')+';background:'+(!hidden?'#0e7490':'#fff')+';color:'+(!hidden?'#fff':'#334155')+';border-radius:6px;padding:5px 13px;cursor:pointer;">顯示</button>'
+      +'<button onclick="seHeroSetBrandHidden(true)" style="font-size:11px;border:1px solid '+(hidden?'#0e7490':'#cbd5e1')+';background:'+(hidden?'#0e7490':'#fff')+';color:'+(hidden?'#fff':'#334155')+';border-radius:6px;padding:5px 13px;cursor:pointer;">隱藏</button>'
+      +'</div>';
+    return hideRow
+      +'<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">品牌字 OPUS.Z 顏色</div>'
+      +(hidden?'<div style="font-size:10px;color:#999;margin-bottom:6px;">（大字目前隱藏中，顏色設定暫時不會顯示）</div>':'')
       +'<div style="margin-bottom:8px;">'+autoBtn+'</div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;">'+swatches+custom+'</div>';
   }
+  window.seHeroSetBrandHidden = function(on){
+    window.seHeroBrandHidden = !!on;
+    seBuildControls();   // refresh 顯示/隱藏 highlight
+    sePreview();         // live-apply to the preview iframe
+  };
   // rebuild=true for discrete picks (swatch/auto → refresh highlight); false for the
   // continuous custom picker (rebuilding mid-drag would close the colour dialog).
   window.seHeroSetBrandColor = function(c, rebuild){
@@ -3286,6 +3301,7 @@ Martin</textarea>
     window.seHeroPosIpad    = (seCurrentConfig.heroPosIpad    && typeof seCurrentConfig.heroPosIpad==='object')    ? seCurrentConfig.heroPosIpad    : _copyDesk();
     window.seHeroPosPhone   = (seCurrentConfig.heroPosPhone   && typeof seCurrentConfig.heroPosPhone==='object')   ? seCurrentConfig.heroPosPhone   : _copyDesk();
     window.seHeroBrandColor = (typeof seCurrentConfig.heroBrandColor==='string' && seCurrentConfig.heroBrandColor) ? seCurrentConfig.heroBrandColor : 'auto';
+    window.seHeroBrandHidden = !!seCurrentConfig.heroBrandHidden;   // 隱藏大 OPUS.Z 品牌字
     window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
     window.seHeroBtnShape = (seCurrentConfig.heroBtnShape && typeof seCurrentConfig.heroBtnShape==='object') ? seCurrentConfig.heroBtnShape : {};
     window.seHeroBtnGlass = !!seCurrentConfig.heroBtnGlass;
