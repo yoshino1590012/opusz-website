@@ -1016,9 +1016,9 @@ Martin</textarea>
             <div id="seFontPanel" style="display:none;"></div>
             <div id="seControls"></div>
             <!-- One button does everything: saves text to Firebase AND publishes photos. -->
-            <button onclick="sePublishAll(this)" style="width:100%;padding:13px;border:none;border-radius:10px;background:#2ea44f;color:#fff;font-weight:800;cursor:pointer;font-size:15px;">🚀 儲存並發布到網站</button>
+            <button onclick="sePublishAll(this)" style="width:100%;padding:13px;border:none;border-radius:10px;background:#2ea44f;color:#fff;font-weight:800;cursor:pointer;font-size:15px;">🚀 發布照片變更</button>
             <div id="seSaveMsg" style="font-size:12px;margin-top:8px;text-align:center;"></div>
-            <div id="sePublishMsg" style="font-size:12px;margin-top:4px;text-align:center;color:#888;line-height:1.5;">文字會即時更新；照片約 30 秒後上線。</div>
+            <div id="sePublishMsg" style="font-size:12px;margin-top:4px;text-align:center;color:#888;line-height:1.5;">✏️ 文字・版面會<b>自動儲存並即時上線</b>，不用按鈕。<br>此鈕只在<b>換照片</b>後才需要按（照片約 30 秒後上線）。</div>
           </div>
         </div>
       </div>
@@ -1576,7 +1576,29 @@ Martin</textarea>
   function sePreview(){
     var ifr=document.getElementById('seFrame');
     if(ifr && ifr.contentWindow){ try{ ifr.contentWindow.postMessage({__opuszCmsPreview:true, config:seCfgForPreview()}, '*'); }catch(e){} }
+    if(window.seAutoSaveReady){ try{ window.seAutoSave(); }catch(e){} }
   }
+  // ── Auto-save (Shopify/Canva-style): any change → debounced write to Firestore, so
+  // the owner never has to press 發布. IMPORTANT: OPUS.Z's save IS the live site, so this
+  // publishes text/layout LIVE ~1.2s after you pause. (Photos still use 儲存並發布, which
+  // git-pushes via server.py.) seAutoSaveReady gates it OFF during programmatic loads so
+  // opening the editor / switching pages never writes stale data.
+  var seAutoTimer=null;
+  window.seAutoSaveReady=false;
+  window.seAutoSave=function(){
+    if(!window.seAutoSaveReady) return;
+    clearTimeout(seAutoTimer);
+    var m=document.getElementById('sePublishMsg');
+    if(m){ m.textContent='儲存中…'; m.style.color='#888'; }
+    seAutoTimer=setTimeout(function(){
+      try{
+        Promise.resolve(window.seSave && window.seSave()).then(function(){
+          var mm=document.getElementById('sePublishMsg');
+          if(mm){ mm.textContent='✓ 已自動儲存（文字・版面即時上線；照片仍需按「儲存並發布」）'; mm.style.color='#16a34a'; }
+        }).catch(function(){});
+      }catch(e){}
+    }, 1200);
+  };
   var seTimer=null;
   window.seOnInput = function(){ clearTimeout(seTimer); seTimer=setTimeout(sePreview, 250); };
   function _esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;'); }
@@ -1591,6 +1613,7 @@ Martin</textarea>
   // Switch the editor to another page: load it in the preview + swap the section list.
   window.seSelectPage = async function(key){
     var p = SE_PAGES.filter(function(x){return x.key===key;})[0]; if(!p) return;
+    window.seAutoSaveReady=false;   // 換頁載入期間先停用自動存，避免寫入舊/空資料
     seCurrentPage = key;
     document.querySelectorAll('#sePageList .se-sec-btn').forEach(function(b){ b.classList.toggle('active', b.getAttribute('data-page')===key); });
     var secs = seSections();
@@ -1607,6 +1630,7 @@ Martin</textarea>
     if(ifr){ ifr.src = p.file + '?cmsedit=1&_=' + (window.__opzPvBust || (window.__opzPvBust = Date.now())); }   // onload (set in seInit) re-highlights + previews + rebuilds controls
     seBuildSectionList();
     seBuildControls();
+    setTimeout(function(){ window.seAutoSaveReady=true; }, 900);   // 新頁載入穩定後恢復自動存
   };
 
   // Render the left section list (for the current page).
@@ -3357,6 +3381,7 @@ Martin</textarea>
             cur.xPct = e.data.xPct; cur.yPct = e.data.yPct; cur.x = e.data.x|0; cur.y = e.data.y|0;
           }
           m[e.data.key] = cur;
+          if(window.seAutoSaveReady){ try{ window.seAutoSave(); }catch(_){} }   // 拖曳後也自動存
         }
         // Clicked a Hero element in the preview → open its font panel (Canva-style).
         if(e.data.__opuszPick && e.data.key && seCurrentPage==='home'){
@@ -3365,6 +3390,9 @@ Martin</textarea>
         }
       });
     }
+    // Arm auto-save a moment after boot, so the initial programmatic previews (config
+    // just loaded) don't fire a redundant write. From here on, edits auto-save.
+    setTimeout(function(){ window.seAutoSaveReady=true; }, 1500);
   };
 
 
