@@ -456,8 +456,8 @@ nav.mega-open .nav-links a::before {
    > canvas 0), clipped by the card's overflow:hidden rounded corners. Because it's a child
    of #heroCard it scales WITH the card on scroll (shrinks, doesn't fade). pointer-events:none
    so it never blocks the buttons. */
-.hero-bottom-strip { position: absolute; left: 0; right: 0; bottom: 0; height: 72px; background: #fff; z-index: 1; pointer-events: none; }
-@media (max-width: 700px) { .hero-bottom-strip { height: 54px; } }
+.hero-bottom-strip { position: absolute; left: 0; right: 0; bottom: 0; height: 11vh; background: #fff; z-index: 0; pointer-events: none; }
+@media (max-width: 700px) { .hero-bottom-strip { height: 10vh; } }
 /* Everything after the hero rides above it and covers it as it scrolls up. */
 .marquee-section, .hiw, .categories, .work, .sv-section, .services,
 .hp-about, .blog, .contact, #site-footer { position: relative; z-index: 1; }
@@ -854,15 +854,15 @@ nav.mega-open .nav-links a::before {
 .hco-btn-pri:hover { background: #262626; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.22); }
 .hco-btn-out {
   display: inline-flex; align-items: center; gap: calc(var(--k)*6px);
-  background: #fff; color: #111;
+  background: #fff; color: #171717;
   padding: calc(var(--k)*12px) calc(var(--k)*20px);
   border-radius: calc(var(--k)*9px); font-size: calc(var(--k)*14px);
   font-weight: 600; letter-spacing: -0.01em; text-decoration: none;
-  border: 1px solid #e4e4e7; font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
+  border: 1.5px solid #171717; font-family: 'Inter','Helvetica Neue',Arial,sans-serif;
   box-shadow: 0 1px 2px rgba(0,0,0,.06);
   transition: background .2s, transform .15s, box-shadow .2s, border-color .2s; cursor: pointer;
 }
-.hco-btn-out:hover { background: #f7f7f8; border-color: #d4d4d8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.08); }
+.hco-btn-out:hover { background: #171717; color: #fff; border-color: #171717; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,.15); }
 /* Equal-width buttons: both match the longest label ("Create a Project"),
    centred, consistent across every screen size. */
 .hco-btn-pri, .hco-btn-out { justify-content: center; min-width: calc(var(--k)*186px); box-sizing: border-box; line-height: 1; }
@@ -3003,6 +3003,12 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
       <!-- Canvas scrub: frames pre-loaded as images, drawn instantly on scroll -->
       <canvas id="heroCanvas"></canvas>
 
+      <!-- Bottom white strip (format.furniture-style). Placed right after the canvas and
+           given z-index:0 so it covers the video's bottom band, yet the overlay (headline +
+           buttons, painted later in DOM) sits ON TOP of it — and the overlay keeps NO
+           z-index/transform, so the headline's mix-blend still works. Scales with the card. -->
+      <div class="hero-bottom-strip" aria-hidden="true"></div>
+
       <!-- Mobile-only static hero photo (covers the scrub on phones) + slow entrance animation -->
       <div class="hero-m-bg" aria-hidden="true"></div>
 
@@ -3023,11 +3029,6 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 
 
       <!-- hero-copyright removed -->
-
-      <!-- Bottom white strip (format.furniture-style): lives INSIDE the hero card (absolute,
-           over the video) so it SHRINKS together with the card as you scroll — not fading.
-           Empty for now (content TBD by owner). Clipped by the card's rounded corners. -->
-      <div class="hero-bottom-strip" aria-hidden="true"></div>
     </div>
     <!-- scroll-pill ("Scroll Down") removed per owner — not useful -->
   </div>
