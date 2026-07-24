@@ -334,6 +334,11 @@ function applyHeroFonts(map){
       if(famStr) el.style.fontFamily = famStr;
       if(f.weight) el.style.fontWeight = f.weight;
       if(f.color && k !== 'brand') el.style.color = f.color;   // brand colour via applyBrandColor
+      // Letter-spacing (字距) — stored in em. '' clears back to the CSS default.
+      if(f.ls != null){ el.style.letterSpacing = (f.ls === '') ? '' : (f.ls + 'em'); }
+      // Line-height (行距) per element — set only when defined so it overrides the
+      // applyHeroType value (which ran earlier) for headline/sub, and drives buttons/brand.
+      if(f.lh != null && f.lh !== '') el.style.lineHeight = String(f.lh);
     }
   });
 }

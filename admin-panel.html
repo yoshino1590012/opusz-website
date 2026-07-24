@@ -1556,6 +1556,9 @@ Martin</textarea>
     var fZh = cur.fontZh || def.fontZh || 'Noto Sans TC';
     var wt  = cur.weight || def.weight || 400;
     var col = cur.color || '';
+    var lsVal = (cur.ls!=null && cur.ls!=='') ? (+cur.ls) : 0;                    // 字距 letter-spacing (em)
+    var _lhDef = (el==='headline'?1.04:(el==='sub'?1.55:1.15));
+    var lhVal = (cur.lh!=null && cur.lh!=='') ? (+cur.lh) : _lhDef;                // 行距 line-height
     function opts(list, sel){ return list.map(function(o){ return '<option value="'+o.v+'"'+(o.v===sel?' selected':'')+'>'+o.label+'</option>'; }).join(''); }
     var weights=[300,400,500,600,700,800,900];
     var wopts=weights.map(function(w){ return '<option value="'+w+'"'+(w==wt?' selected':'')+'>'+w+'</option>'; }).join('');
@@ -1570,6 +1573,16 @@ Martin</textarea>
       + (el!=='brand'
           ? ('<label style="'+lbl+'">顏色</label><div style="display:flex;gap:8px;align-items:center;"><input type="color" value="'+(col||'#000000')+'" onchange="seFontSet(\''+el+'\',\'color\',this.value)" style="width:44px;height:32px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:0;"><button onclick="seFontSet(\''+el+'\',\'color\',\'\')" style="font-size:11px;border:1px solid #ddd;background:#fff;border-radius:6px;padding:7px 11px;cursor:pointer;font-family:inherit;">清除顏色</button></div>')
           : '<div style="font-size:11px;color:#888;line-height:1.5;">品牌字顏色請用下方「品牌字 OPUS.Z 顏色」那一區控制。</div>')
+      + '<label style="'+lbl+'margin-top:10px;">字距 / 字間距</label>'
+      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+      +   '<input type="range" min="-0.05" max="0.4" step="0.01" value="'+lsVal+'" oninput="seFontSet(\''+el+'\',\'ls\',this.value);var o=document.getElementById(\'seLs_'+el+'\');if(o)o.textContent=(+this.value).toFixed(2)+\'em\';" style="flex:1;">'
+      +   '<span id="seLs_'+el+'" style="font-size:11px;color:#0e7490;width:52px;text-align:right;">'+lsVal.toFixed(2)+'em</span>'
+      + '</div>'
+      + '<label style="'+lbl+'">行距 / 行間距</label>'
+      + '<div style="display:flex;align-items:center;gap:8px;">'
+      +   '<input type="range" min="0.8" max="2.2" step="0.05" value="'+lhVal+'" oninput="seFontSet(\''+el+'\',\'lh\',this.value);var o=document.getElementById(\'seLh_'+el+'\');if(o)o.textContent=(+this.value).toFixed(2);" style="flex:1;">'
+      +   '<span id="seLh_'+el+'" style="font-size:11px;color:#0e7490;width:52px;text-align:right;">'+lhVal.toFixed(2)+'</span>'
+      + '</div>'
       + '</div>';
     panel.innerHTML = html; panel.style.display='block';
   };
