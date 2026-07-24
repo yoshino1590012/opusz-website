@@ -447,6 +447,11 @@ nav.mega-open .nav-links a::before {
    instead of pushing it away. The card-shrink itself is JS scroll-driven so it's
    unaffected by fixed-vs-sticky. */
 .hero-sticky { position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #f8f8f8; z-index: 0; }
+/* Bottom white strip on the first hero screen (content TBD). Sits above the video card
+   (z-index 4 > heroCard 3); pointer-events:none so it never blocks the buttons; JS fades
+   its opacity out as you scroll (applyHero) so it doesn't smear over the shrink reveal. */
+.hero-bottom-strip { position: absolute; left: 0; right: 0; bottom: 0; height: 72px; background: #fff; z-index: 4; pointer-events: none; }
+@media (max-width: 700px) { .hero-bottom-strip { height: 54px; } }
 /* Everything after the hero rides above it and covers it as it scrolls up. */
 .marquee-section, .hiw, .categories, .work, .sv-section, .services,
 .hp-about, .blog, .contact, #site-footer { position: relative; z-index: 1; }
@@ -3013,6 +3018,10 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
 
       <!-- hero-copyright removed -->
     </div>
+    <!-- Bottom white strip (format.furniture-style): the hero video no longer reaches the
+         very bottom of the first screen — a white band sits there. Empty for now (content
+         TBD by owner). Fades out as the hero scrolls away (opacity driven in applyHero). -->
+    <div class="hero-bottom-strip" aria-hidden="true"></div>
     <!-- scroll-pill ("Scroll Down") removed per owner — not useful -->
   </div>
 </section>
@@ -4492,6 +4501,7 @@ function applyColRatios() {
 
 // ── Hero scroll animation ──
 const heroCardEl = document.getElementById('heroCard');
+const heroStripEl = document.querySelector('.hero-bottom-strip');
 
 // Lerp-based damped spring: animation "chases" scroll with inertia
 let heroTarget  = 0;
@@ -4773,6 +4783,9 @@ function applyHero(progress) {
   // Reaches full 20px very quickly so corners look clean from the start of shrink
   const radius = Math.min(20, progress * 80);
   heroCardEl.style.borderRadius = `${radius}px`;
+
+  // Bottom white strip: solid on the first screen, fades out quickly as the hero shrinks.
+  if (heroStripEl) heroStripEl.style.opacity = String(Math.max(0, 1 - progress / 0.12));
 }
 
 // ── Canvas scrub RAF loop ──
