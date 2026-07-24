@@ -4049,6 +4049,11 @@ function switchLang(lang) {
   if (typeof window.__navResplit === 'function') window.__navResplit();
   // Re-split scroll-words after textContent= overwrote the per-word spans
   if (typeof window.__refreshWords === 'function') window.__refreshWords();
+  // CRITICAL: re-apply the per-language hero layout. Hero position AND size are
+  // language-specific (中文 → sZh/xPctZh, EN → s/xPct). Without this, toggling language
+  // changed only the text and left the OTHER language's sizes/positions → 中文 rendered
+  // at the huge EN headline size and off-screen. (Defined in site-content.js.)
+  if (typeof window.opzApplyHeroLang === 'function') window.opzApplyHeroLang();
 }
 
 // Wire lang toggle
@@ -8666,7 +8671,7 @@ window.addEventListener('keydown', function(e){
 <!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
-<script type="module" src="site-content.js?v=22"></script>
+<script type="module" src="site-content.js?v=23"></script>
   <script type="module" src="media-sync.js?v=3"></script>
 <script type="module" src="newsletter.js?v=2"></script>
 <!-- Global in-page notification toasts (messages / announcements / community / jobs) -->

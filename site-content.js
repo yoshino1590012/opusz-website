@@ -215,6 +215,11 @@ function applyHeroPosResponsive(cfg){
   var _fonts = _pick('_fonts', cfg.heroFonts);
   if (_fonts) { try { applyHeroFonts(_fonts); } catch(e){} }
 }
+// Exposed so the homepage's switchLang() can RE-APPLY the per-language hero layout when
+// the visitor toggles EN⇄中文. Hero position AND size are language-specific (中文 uses
+// sZh/xPctZh, EN uses s/xPct); without this, switching language changed only the text and
+// left the OTHER language's sizes/positions in place → 中文 rendered at the huge EN size.
+window.opzApplyHeroLang = function(){ try { if (window.__opzHeroCfg) applyHeroPosResponsive(window.__opzHeroCfg); } catch(e){} };
 // Re-apply when crossing the phone breakpoint (debounced).
 (function(){
   var t;
