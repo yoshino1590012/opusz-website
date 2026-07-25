@@ -1473,6 +1473,7 @@ Martin</textarea>
     cfg.heroBtn      = (_dk._btn && typeof _dk._btn==='object') ? _dk._btn : (window.seHeroBtn || {});
     cfg.heroBtnShape = (_dk._btnShape && typeof _dk._btnShape==='object') ? _dk._btnShape : (window.seHeroBtnShape || {});
     cfg.heroBtnGlass = (_dk._btnGlass!=null) ? !!_dk._btnGlass : !!window.seHeroBtnGlass;
+    cfg.heroBtnFill  = (_dk._btnFill!=null)  ? !!_dk._btnFill  : !!window.seHeroBtnFill;
     if(window.seHeroType && typeof window.seHeroType==='object') cfg.heroType = window.seHeroType;
     if(window.seHeroPhrase && typeof window.seHeroPhrase==='object') cfg.heroPhrase = window.seHeroPhrase;
     if(window.seHeroFonts && typeof window.seHeroFonts==='object') cfg.heroFonts = window.seHeroFonts;
@@ -3124,9 +3125,12 @@ Martin</textarea>
         +'</div></div>';
     }
     var glassOn=!!seResolveStyle('_btnGlass', window.seHeroBtnGlass);
+    var fillOn=!!seResolveStyle('_btnFill', window.seHeroBtnFill);
     var glassRow='<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">按鈕樣式</div>'
       +'<label style="display:flex;align-items:center;gap:7px;font-size:12px;color:#334155;margin-bottom:'+(glassOn?'6':'8')+'px;cursor:pointer;">'
         +'<input type="checkbox" '+(glassOn?'checked':'')+' onchange="seHeroSetBtnGlass(this.checked)" style="width:15px;height:15px;cursor:pointer;"> 液態玻璃 Liquid Glass 效果</label>'
+      +'<label style="display:flex;align-items:center;gap:7px;font-size:12px;color:#334155;margin-bottom:8px;cursor:pointer;">'
+        +'<input type="checkbox" '+(fillOn?'checked':'')+' onchange="seHeroSetBtnFill(this.checked)" style="width:15px;height:15px;cursor:pointer;"> 游標填色動畫（滑過從游標處擴散、文字反白）</label>'
       +(glassOn?'<div style="font-size:10px;color:#b45309;margin-bottom:8px;line-height:1.5;">玻璃模式會套用透明玻璃外觀，上面的背景／文字／邊框顏色暫不適用。</div>':'');
     if(glassOn) return glassRow;   // colour controls hidden while glass is active
     return glassRow + defs.map(function(d){ return row(d[0],d[1],d[2],d[3],d[4]); }).join('');
@@ -3134,6 +3138,11 @@ Martin</textarea>
   window.seHeroSetBtnGlass = function(on){
     var m = window.seActiveHeroPos();
     m._btnGlass = !!on;
+    seBuildControls(); sePreview();
+  };
+  window.seHeroSetBtnFill = function(on){
+    var m = window.seActiveHeroPos();
+    m._btnFill = !!on;
     seBuildControls(); sePreview();
   };
   window.seHeroBtnSet = function(key, prop, val){
@@ -3382,6 +3391,7 @@ Martin</textarea>
     window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
     window.seHeroBtnShape = (seCurrentConfig.heroBtnShape && typeof seCurrentConfig.heroBtnShape==='object') ? seCurrentConfig.heroBtnShape : {};
     window.seHeroBtnGlass = !!seCurrentConfig.heroBtnGlass;
+    window.seHeroBtnFill = !!seCurrentConfig.heroBtnFill;
     window.seHeroFonts = (seCurrentConfig.heroFonts && typeof seCurrentConfig.heroFonts==='object') ? seCurrentConfig.heroFonts : {};
     window.seHeroType = (seCurrentConfig.heroType && typeof seCurrentConfig.heroType==='object') ? seCurrentConfig.heroType : {};
     window.seHeroPhrase = (seCurrentConfig.heroPhrase && typeof seCurrentConfig.heroPhrase==='object') ? seCurrentConfig.heroPhrase : {};
@@ -3395,6 +3405,7 @@ Martin</textarea>
       if(d._btn == null && window.seHeroBtn && Object.keys(window.seHeroBtn).length) d._btn = window.seHeroBtn;
       if(d._btnShape == null && window.seHeroBtnShape && Object.keys(window.seHeroBtnShape).length) d._btnShape = window.seHeroBtnShape;
       if(d._btnGlass == null && window.seHeroBtnGlass) d._btnGlass = true;
+      if(d._btnFill == null && window.seHeroBtnFill) d._btnFill = true;
     })();
     seBuildPageList();
     seBuildSectionList();

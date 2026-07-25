@@ -911,6 +911,25 @@ nav.mega-open .nav-links a::before {
 .hco-btns:has(.lg-glass) {
   transition: transform .55s cubic-bezier(.16,1,.3,1) 320ms !important;
 }
+/* ── Origin-fill button style (cursor-origin expanding fill on hover, à la 21st.dev
+   Origin Button). Toggled by .origin-fill; the circle + label wrapper are injected by JS
+   (see the origin-fill wiring). The circle is a CHILD span so its transform animates
+   normally (the button element's own transform is inert here). */
+.hco-btn-pri.origin-fill, .hco-btn-out.origin-fill { overflow: hidden; position: relative; }
+.hco-btn-pri.origin-fill .hco-fill, .hco-btn-out.origin-fill .hco-fill {
+  position: absolute; border-radius: 50%; pointer-events: none; z-index: 0;
+  transform: translate(-50%, -50%) scale(0);
+  transition: transform .5s cubic-bezier(.16, 1, .3, 1);
+}
+.hco-btn-pri.origin-fill .hco-btn-label, .hco-btn-out.origin-fill .hco-btn-label {
+  position: relative; z-index: 1; transition: color .35s cubic-bezier(.16, 1, .3, 1);
+  display: inline-flex; align-items: center;
+}
+/* Move the › arrow into the label (above the fill) so the expanding circle never hides it. */
+.hco-btn-pri.origin-fill::after, .hco-btn-out.origin-fill::after { display: none !important; }
+.hco-btn-pri.origin-fill .hco-btn-label::after, .hco-btn-out.origin-fill .hco-btn-label::after {
+  content: '\203A'; margin-left: calc(var(--k) * 6px); font-weight: 600;
+}
 
 /* ── SHARED ── */
 .dot-m { width: 20px; height: 20px; background: var(--black); border-radius: 50%; }
@@ -4054,6 +4073,8 @@ function switchLang(lang) {
   // changed only the text and left the OTHER language's sizes/positions → 中文 rendered
   // at the huge EN headline size and off-screen. (Defined in site-content.js.)
   if (typeof window.opzApplyHeroLang === 'function') window.opzApplyHeroLang();
+  // i18n above rewrote the button text (textContent), wiping the origin-fill spans — rebuild.
+  if (typeof window.opzWireOriginFill === 'function') window.opzWireOriginFill();
 }
 
 // Wire lang toggle
@@ -4542,16 +4563,69 @@ const heroCardEl = document.getElementById('heroCard');
   function wire(btn){
     if(!btn || btn.__growWired) return; btn.__growWired=true;
     btn.addEventListener('mouseenter', function(){
+      if(btn.classList.contains('origin-fill')) return;   // origin-fill style owns its own hover
       if(!btn.__hovering){ btn.__hovering=true; btn.__base=curScale(btn); }
       tween(btn, btn.__base*GROW);
     });
     btn.addEventListener('mouseleave', function(){
+      if(btn.classList.contains('origin-fill')) return;
       btn.__hovering=false;
       tween(btn, (btn.__base!=null?btn.__base:curScale(btn)/GROW));
     });
   }
   function wireAll(){ wire(document.querySelector('.hco-btn-pri')); wire(document.querySelector('.hco-btn-out')); }
   wireAll(); setTimeout(wireAll, 1200);
+})();
+
+// Origin-fill hover style (21st.dev "Origin Button" effect, re-created in vanilla): a circle
+// grows from the cursor to cover the button (0.5s eased), and the label inverts to the
+// background colour. Active only on buttons carrying .origin-fill (toggled by the editor's
+// 按鈕樣式 → 游標填色). The fill/label are injected here and re-injected after i18n rewrites
+// the button text (switchLang calls opzWireOriginFill via opzApplyHeroLang path below).
+(function(){
+  function coverD(w,h,x,y){ return Math.ceil(2*Math.max(Math.hypot(x,y),Math.hypot(w-x,y),Math.hypot(x,h-y),Math.hypot(w-x,h-y))); }
+  function ensureDom(btn){
+    if(btn.querySelector('.hco-fill') && btn.querySelector('.hco-btn-label')) return;
+    var txt=btn.textContent;
+    btn.textContent='';
+    var fill=document.createElement('span'); fill.className='hco-fill';
+    var label=document.createElement('span'); label.className='hco-btn-label'; label.textContent=txt;
+    btn.appendChild(fill); btn.appendChild(label);
+  }
+  function grow(e, btn){
+    if(!btn.classList.contains('origin-fill')) return;
+    ensureDom(btn);
+    var fill=btn.querySelector('.hco-fill'); if(!fill) return;
+    var r=btn.getBoundingClientRect();
+    var x=(e && e.clientX!=null) ? (e.clientX-r.left) : r.width/2;
+    var y=(e && e.clientY!=null) ? (e.clientY-r.top) : r.height/2;
+    var d=coverD(r.width,r.height,x,y);
+    var cs=getComputedStyle(btn);
+    fill.style.background=cs.color;                 // fill = current foreground colour
+    fill.style.left=x+'px'; fill.style.top=y+'px'; fill.style.width=d+'px'; fill.style.height=d+'px';
+    fill.style.transform='translate(-50%,-50%) scale(0)';
+    void fill.offsetWidth;                          // reflow so the grow animates from 0
+    fill.style.transform='translate(-50%,-50%) scale(1)';
+    btn.style.color=cs.backgroundColor;             // label + arrow → background colour
+  }
+  function shrink(btn){
+    var fill=btn.querySelector('.hco-fill');
+    if(fill) fill.style.transform='translate(-50%,-50%) scale(0)';
+    btn.style.color='';
+  }
+  function wire(btn){
+    if(!btn || btn.__ofWired) return; btn.__ofWired=true;
+    btn.addEventListener('pointerenter', function(e){ grow(e,btn); });
+    btn.addEventListener('pointerleave', function(){ shrink(btn); });
+  }
+  window.opzWireOriginFill=function(){
+    ['.hco-btn-pri','.hco-btn-out'].forEach(function(sel){
+      var b=document.querySelector(sel); if(!b) return;
+      wire(b);
+      if(b.classList.contains('origin-fill')) ensureDom(b);   // rebuild spans after i18n wiped them
+    });
+  };
+  window.opzWireOriginFill(); setTimeout(window.opzWireOriginFill, 1200);
 })();
 
 // Lerp-based damped spring: animation "chases" scroll with inertia
@@ -8671,7 +8745,7 @@ window.addEventListener('keydown', function(e){
 <!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
-<script type="module" src="site-content.js?v=23"></script>
+<script type="module" src="site-content.js?v=24"></script>
   <script type="module" src="media-sync.js?v=3"></script>
 <script type="module" src="newsletter.js?v=2"></script>
 <!-- Global in-page notification toasts (messages / announcements / community / jobs) -->

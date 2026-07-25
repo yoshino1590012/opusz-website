@@ -208,6 +208,8 @@ function applyHeroPosResponsive(cfg){
   // Glass last (it overrides the colour controls when on).
   var _glass = _pick('_btnGlass', cfg.heroBtnGlass);
   try { applyHeroBtnGlass(!!_glass); } catch(e){}
+  var _fill = _pick('_btnFill', cfg.heroBtnFill);
+  try { applyHeroBtnOrigin(!!_fill); } catch(e){}
   // Fonts (family / weight / colour) are per-device too: phone & iPad inherit the
   // desktop set (_pick falls back desktop → legacy global cfg.heroFonts) until they
   // define their own _fonts, so editing fonts/colour on the phone tab never touches
@@ -296,6 +298,15 @@ function applyHeroBtnGlass(on){
     var el = document.querySelector(sel); if(!el) return;
     el.classList.toggle('lg-glass', !!on);
   });
+}
+// Origin-fill hover style on both hero buttons (toggles .origin-fill; the effect itself is
+// wired in musician-platform.html via window.opzWireOriginFill).
+function applyHeroBtnOrigin(on){
+  ['.hco-btn-pri','.hco-btn-out'].forEach(function(sel){
+    var el = document.querySelector(sel); if(!el) return;
+    el.classList.toggle('origin-fill', !!on);
+  });
+  try { if (window.opzWireOriginFill) window.opzWireOriginFill(); } catch(e){}
 }
 function applyHeroBtns(map){
   map = map || {};
@@ -392,7 +403,7 @@ function applyConfig(cfg){
   // applyHeroPosResponsive now also applies the per-device brand colour + button
   // styling (colour / shape / glass), so trigger it whenever ANY hero style key
   // is present — not just the position/phrase/type keys.
-  if ('heroPos' in cfg || 'heroPosPhone' in cfg || 'heroPosMacbook' in cfg || 'heroPosIpad' in cfg || 'heroPhrase' in cfg || 'heroType' in cfg || 'heroBrandColor' in cfg || 'heroBrandHidden' in cfg || 'heroBtn' in cfg || 'heroBtnShape' in cfg || 'heroBtnGlass' in cfg || 'heroFonts' in cfg) {
+  if ('heroPos' in cfg || 'heroPosPhone' in cfg || 'heroPosMacbook' in cfg || 'heroPosIpad' in cfg || 'heroPhrase' in cfg || 'heroType' in cfg || 'heroBrandColor' in cfg || 'heroBrandHidden' in cfg || 'heroBtn' in cfg || 'heroBtnShape' in cfg || 'heroBtnGlass' in cfg || 'heroBtnFill' in cfg || 'heroFonts' in cfg) {
     window.__opzHeroCfg = cfg;
     // applyHeroPosResponsive also applies the per-device phrase align + line-height,
     // brand wordmark colour, button colour/shape/glass, AND fonts (with desktop
