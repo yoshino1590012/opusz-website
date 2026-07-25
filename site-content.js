@@ -84,6 +84,14 @@ function applyHeroPos(map){
   // positions (EN length ≠ 中文 length, so they need their own placement).
   var _lang = _heroCurLang();
   var useZh = (_lang === 'zh');
+  // Both CTA buttons (Find Artists / Create a Project) are LOCKED to ONE shared size
+  // so they can never end up different — owner wants them pixel-identical. Take the
+  // LARGER of the two saved scales → dragging EITHER button's size slider grows both
+  // together, and they always stay exactly the same size. (Width is already shared via
+  // _btnW below; equal border width in CSS keeps their heights equal too.)
+  var _btnFindS = (map.btnFind && map.btnFind.s) || 1;
+  var _btnProjS = (map.btnProject && map.btnProject.s) || 1;
+  var _btnLockedS = Math.max(_btnFindS, _btnProjS);
   Object.keys(HERO_DRAG).forEach(function(k){
     if(k === 'brand') return;   // every brand copy handled below
     var el = document.querySelector(HERO_DRAG[k]); if(!el) return;
@@ -93,6 +101,8 @@ function applyHeroPos(map){
     el.style.translate = _heroPosCalc(p, useZh);
     // 標題/副標：中文時用 sZh（沒設就回退到 s = 目前大小）；其他元素照常用 s。
     var sc = ((k === 'headline' || k === 'sub') && useZh && p.sZh != null && p.sZh !== '') ? p.sZh : p.s;
+    // The two buttons ignore their own per-slider value and share the locked scale.
+    if (k === 'btnFind' || k === 'btnProject') sc = _btnLockedS;
     el.style.scale     = (sc && sc !== 1) ? String(sc) : '';
   });
   // Rotating phrases share ONE position (the `phrases` key, per-language), applied

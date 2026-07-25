@@ -865,9 +865,12 @@ nav.mega-open .nav-links a::before {
   transform-origin: center; transition: box-shadow .55s cubic-bezier(.65,0,.35,1); cursor: pointer;
 }
 .hco-btn-out:hover { box-shadow: 0 8px 22px rgba(0,0,0,.14); }
-/* Equal-width buttons: both match the longest label ("Create a Project"),
-   centred, consistent across every screen size. */
-.hco-btn-pri, .hco-btn-out { justify-content: center; min-width: calc(var(--k)*186px); box-sizing: border-box; line-height: 1; }
+/* Equal-SIZE buttons: both share the same min-width AND the same border width so
+   their boxes are pixel-identical (border-box + equal padding/font/line-height → equal
+   height). The primary's border is the same colour as its fill, so forcing it to 1.5px
+   is invisible but makes it exactly as tall as the outline button. Both buttons are also
+   locked to ONE shared scale in site-content.js so they can never desync. */
+.hco-btn-pri, .hco-btn-out { justify-content: center; min-width: calc(var(--k)*186px); box-sizing: border-box; line-height: 1; border-width: 1.5px; }
 /* chevron › after each button label, nudges right on hover */
 .hco-btn-pri::after, .hco-btn-out::after {
   content: '\203A'; font-size: calc(var(--k)*17px); line-height: 0; font-weight: 600;
@@ -8745,7 +8748,7 @@ window.addEventListener('keydown', function(e){
 <!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
-<script type="module" src="site-content.js?v=24"></script>
+<script type="module" src="site-content.js?v=25"></script>
   <script type="module" src="media-sync.js?v=3"></script>
 <script type="module" src="newsletter.js?v=2"></script>
 <!-- Global in-page notification toasts (messages / announcements / community / jobs) -->
