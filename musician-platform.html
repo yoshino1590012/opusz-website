@@ -4604,6 +4604,11 @@ const heroCardEl = document.getElementById('heroCard');
     var y=(e && e.clientY!=null) ? (e.clientY-r.top) : r.height/2;
     var d=coverD(r.width,r.height,x,y);
     var cs=getComputedStyle(btn);
+    // Remember the button's OWN (editor-configured) inline text colour so we can put it
+    // back EXACTLY on mouse-out. Previously mouse-out reset color to '' , which wiped the
+    // editor's chosen colour → white-background buttons fell back to the CSS default white
+    // text = invisible (the "text turns white / disappears" bug). Snapshot once per hover.
+    if(btn.__ofColor==null) btn.__ofColor = btn.style.color || '';
     fill.style.background=cs.color;                 // fill = current foreground colour
     fill.style.left=x+'px'; fill.style.top=y+'px'; fill.style.width=d+'px'; fill.style.height=d+'px';
     fill.style.transform='translate(-50%,-50%) scale(0)';
@@ -4614,7 +4619,10 @@ const heroCardEl = document.getElementById('heroCard');
   function shrink(btn){
     var fill=btn.querySelector('.hco-fill');
     if(fill) fill.style.transform='translate(-50%,-50%) scale(0)';
-    btn.style.color='';
+    // Restore the exact colour we had before hover (config colour), not '' — so the text
+    // never gets stuck white/invisible after the mouse leaves.
+    btn.style.color = (btn.__ofColor != null ? btn.__ofColor : '');
+    btn.__ofColor = null;
   }
   function wire(btn){
     if(!btn || btn.__ofWired) return; btn.__ofWired=true;
