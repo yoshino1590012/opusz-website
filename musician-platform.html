@@ -4054,20 +4054,28 @@ try { Object.defineProperty(window, "_currentLang", { configurable:true, get:fun
 window.__hhResplitHeadline = function(){
   var h = document.querySelector('.hco-headline');
   if(!h) return;
-  var t = (h.textContent || '').trim();
-  if(!t) return;
+  var t = h.textContent || '';
+  if(!t.trim()) return;
   // Skip if already split for this exact text AND the spans are still present.
   if(h.__hhText === t && h.querySelector('.hh-word-inner')) return;
   h.__hhText = t;
-  var words = t.split(/\s+/);
+  // Preserve the ORIGINAL whitespace between words. The headline is white-space:pre, so
+  // its stacked lines come from real "\n" characters in the text — collapsing whitespace
+  // to single spaces would flatten the layout onto one line. Split into words + separators
+  // and re-emit every separator (spaces AND newlines) verbatim; only wrap the words.
+  var parts = t.split(/(\s+)/);
   h.innerHTML = '';
-  words.forEach(function(w, i){
-    var outer = document.createElement('span'); outer.className = 'hh-word';
-    var inner = document.createElement('span'); inner.className = 'hh-word-inner';
-    inner.textContent = w;
-    outer.appendChild(inner);
-    h.appendChild(outer);
-    if(i < words.length - 1) h.appendChild(document.createTextNode(' '));
+  parts.forEach(function(part){
+    if(!part) return;
+    if(/^\s+$/.test(part)){
+      h.appendChild(document.createTextNode(part));   // spaces / newlines kept exactly
+    } else {
+      var outer = document.createElement('span'); outer.className = 'hh-word';
+      var inner = document.createElement('span'); inner.className = 'hh-word-inner';
+      inner.textContent = part;
+      outer.appendChild(inner);
+      h.appendChild(outer);
+    }
   });
   h.classList.add('hh-split');
   // If the hero has ALREADY revealed (e.g. the visitor toggled language mid-view),
