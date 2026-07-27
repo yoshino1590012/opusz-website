@@ -840,6 +840,21 @@ nav.mega-open .nav-links a::before {
 }
 @keyframes hcoRise { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes hcoRiseBrand { from { opacity: 0; transform: translateX(-50%) translateY(28px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+/* ── Big headline: reveal WORD-BY-WORD, bottom line first (JS __hhResplitHeadline
+   splits the text into .hh-word > .hh-word-inner and sets --hh-d per word so the
+   LAST word — e.g. CLOSER — rises first, then MUSIC, then BRINGING). ── */
+.hco-headline.hh-split { opacity: 1; transform: none; }
+.hco-headline.hh-split .hh-word { display: inline-block; }
+/* Hidden resting state before the reveal; the per-word entrance is driven by JS
+   (window.__revealHeadlineWords via el.animate), which staggers each word bottom-line
+   first. fill:'both' holds this start state until each word's delay elapses. */
+.hco-headline.hh-split .hh-word-inner {
+  display: inline-block; opacity: 0; transform: translateY(48px);
+  will-change: transform, opacity;
+}
+@media (prefers-reduced-motion: reduce){
+  .hco-headline.hh-split .hh-word-inner { transform: none !important; opacity: 1 !important; }
+}
 /* ── overlay button styles (SaaS reference: solid black + white outline, › icon) ── */
 .hco-btn-pri {
   display: inline-flex; align-items: center; gap: calc(var(--k)*6px);
@@ -4031,6 +4046,66 @@ const I18N = {
 // Expose i18n to the CMS renderer (site-content.js) — same object refs so overrides persist
 window.I18N = I18N;
 try { Object.defineProperty(window, "_currentLang", { configurable:true, get:function(){ return _currentLang; }, set:function(v){ _currentLang = v; } }); } catch(e){}
+// Split the big hero headline into per-word spans and reveal them one-by-one from the
+// BOTTOM line up (e.g. CLOSER → MUSIC → BRINGING) instead of the whole block at once.
+// Must re-run after any text/language change because textContent= wipes the spans
+// (same pattern as __navResplit / __refreshWords). No-op for single-word/中文 headlines,
+// which simply rise as one smooth unit.
+window.__hhResplitHeadline = function(){
+  var h = document.querySelector('.hco-headline');
+  if(!h) return;
+  var t = (h.textContent || '').trim();
+  if(!t) return;
+  // Skip if already split for this exact text AND the spans are still present.
+  if(h.__hhText === t && h.querySelector('.hh-word-inner')) return;
+  h.__hhText = t;
+  var words = t.split(/\s+/);
+  h.innerHTML = '';
+  words.forEach(function(w, i){
+    var outer = document.createElement('span'); outer.className = 'hh-word';
+    var inner = document.createElement('span'); inner.className = 'hh-word-inner';
+    inner.textContent = w;
+    outer.appendChild(inner);
+    h.appendChild(outer);
+    if(i < words.length - 1) h.appendChild(document.createTextNode(' '));
+  });
+  h.classList.add('hh-split');
+  // If the hero has ALREADY revealed (e.g. the visitor toggled language mid-view),
+  // re-play the entrance for the freshly-built words. On first load the words stay
+  // hidden here and revealHeroContent() plays them once the intro panel clears.
+  if (window.__heroContentRevealed && typeof window.__revealHeadlineWords === 'function') {
+    window.__revealHeadlineWords(h, true);
+  }
+};
+
+// Reveal the big headline's words ONE AT A TIME, from the bottom line up (CLOSER →
+// MUSIC → BRINGING): each word rises from just below with a fade, and the last word
+// (bottom-most line) leads. Called by revealHeroContent() on first load and by
+// __hhResplitHeadline() after a mid-view language switch. animate=false (or reduced
+// motion) just pins everything visible with no motion.
+window.__revealHeadlineWords = function(hEl, animate){
+  if(!hEl) return;
+  var words = hEl.querySelectorAll('.hh-word-inner');
+  if(!words.length) return;
+  hEl.style.setProperty('opacity','1','important');
+  hEl.style.setProperty('transform','none','important');
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var N = words.length, STEP = 155, DUR = 820, RISE = 'translateY(48px)';
+  var EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';   // ease-out — smooth glide into place
+  Array.prototype.forEach.call(words, function(inner, i){
+    var delay = (N - 1 - i) * STEP;    // last word (bottom line) → 0ms → leads
+    function lock(){ inner.style.transition = 'none'; inner.style.setProperty('opacity','1','important'); inner.style.setProperty('transform','translateY(0px)','important'); }
+    if(!animate || reduce || !inner.animate){ lock(); return; }
+    inner.style.transition = 'none';
+    var a = inner.animate(
+      [ { opacity: 0, transform: RISE }, { opacity: 1, transform: 'translateY(0px)' } ],
+      { duration: DUR, delay: delay, easing: EASE, fill: 'both' }
+    );
+    a.onfinish = lock;
+    setTimeout(lock, delay + DUR + 300);   // safety net if onfinish never fires
+  });
+};
+
 function switchLang(lang) {
   _currentLang = lang;
   try { localStorage.setItem('opusz_lang', lang); } catch (e) {}   // persist across pages
@@ -4071,6 +4146,8 @@ function switchLang(lang) {
   if (typeof window.__navResplit === 'function') window.__navResplit();
   // Re-split scroll-words after textContent= overwrote the per-word spans
   if (typeof window.__refreshWords === 'function') window.__refreshWords();
+  // Re-split the big headline into words so it reveals bottom-line-first (CLOSER→MUSIC→BRINGING).
+  if (typeof window.__hhResplitHeadline === 'function') window.__hhResplitHeadline();
   // CRITICAL: re-apply the per-language hero layout. Hero position AND size are
   // language-specific (中文 → sZh/xPctZh, EN → s/xPct). Without this, toggling language
   // changed only the text and left the OTHER language's sizes/positions → 中文 rendered
@@ -4471,9 +4548,16 @@ function applyColRatios() {
     // animate individually, in opposite directions) actually show.
     var _btns = _ov.querySelector('.hco-btns');
     if (_btns) { _btns.style.setProperty('opacity','1','important'); _btns.style.setProperty('transform','none','important'); }
+    // Big headline: reveal WORD-BY-WORD from the bottom line up (CLOSER → MUSIC →
+    // BRINGING) rather than dropping in as one block. Split first (config i18n may have
+    // re-set the text after load, rebuilding the spans), mark the hero revealed, then
+    // play the staggered word entrance. Handled here instead of in `items` below.
+    if (typeof window.__hhResplitHeadline === 'function') { try { window.__hhResplitHeadline(); } catch(e){} }
+    window.__heroContentRevealed = true;
+    var _hEl = _ov.querySelector('.hco-headline');
+    if (_hEl && typeof window.__revealHeadlineWords === 'function') window.__revealHeadlineWords(_hEl, true);
     // [selector, fromTransform, toTransform, isButton(hover-sensitive → clear inline transform after)]
     var items = [
-      ['.hco-headline', DN, Z, false],                                                              // ↓ from top
       ['.hco-sub',      UP, Z, false],                                                              // ↑ from bottom
       ['.hco-btn-pri',  UP, Z, true],                                                               // ↑ from bottom
       ['.hco-btn-out',  DN, Z, true],                                                               // ↓ from top
