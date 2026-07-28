@@ -96,25 +96,31 @@ function applyHeroPos(map){
     if(k === 'brand') return;   // every brand copy handled below
     var el = document.querySelector(HERO_DRAG[k]); if(!el) return;
     var p = map[k] || {};
-    // The two CTA buttons read as ONE level, side-by-side pair: btnProject borrows
-    // btnFind's VERTICAL baseline (y/yPct + the zh variants) so they are ALWAYS on the
-    // same line and can never look crooked, while keeping its OWN horizontal x so they
-    // sit next to each other. This also self-heals older saved configs whose two Ys
-    // had drifted apart (the cause of the "one button lower than the other" bug).
-    if(k === 'btnProject'){
-      var _f = map.btnFind || {};
-      p = { xPct:p.xPct, xPctZh:p.xPctZh, x:p.x, xZh:p.xZh,
-            yPct:_f.yPct, yPctZh:_f.yPctZh, y:_f.y, yZh:_f.yZh };
+    // ── CTA BUTTONS: positioned as ONE GROUP, never as two free elements ──
+    // Both buttons move together by translating their shared .hco-btns container (done
+    // right after this loop) and are laid out side by side by flexbox, so they are
+    // ALWAYS level and the same height on every device and can never drift apart. Here
+    // we only clear any legacy per-button offset and apply their shared locked size.
+    if (k === 'btnFind' || k === 'btnProject'){
+      el.style.translate = '';
+      el.style.scale = (_btnLockedS && _btnLockedS !== 1) ? String(_btnLockedS) : '';
+      return;
     }
     // Position via independent `translate` (separate from `transform`, so animations
     // stay intact), resolved per-language (zh→xPctZh/yPctZh, else EN xPct/yPct).
     el.style.translate = _heroPosCalc(p, useZh);
     // 標題/副標：中文時用 sZh（沒設就回退到 s = 目前大小）；其他元素照常用 s。
     var sc = ((k === 'headline' || k === 'sub') && useZh && p.sZh != null && p.sZh !== '') ? p.sZh : p.s;
-    // The two buttons ignore their own per-slider value and share the locked scale.
-    if (k === 'btnFind' || k === 'btnProject') sc = _btnLockedS;
     el.style.scale     = (sc && sc !== 1) ? String(sc) : '';
   });
+  // Move the CTA button PAIR as a single unit: translate the whole .hco-btns container
+  // by the group anchor (stored under btnFind). Uses the CSS `translate` property so it
+  // never clobbers the container's transform-based reveal animation. ONE position →
+  // the two buttons are laid out by flexbox and can never go crooked or unequal.
+  (function(){
+    var cont = document.querySelector('.hco-btns'); if(!cont) return;
+    cont.style.translate = _heroPosCalc(map.btnFind || {}, useZh);
+  })();
   // Rotating phrases share ONE position (the `phrases` key, per-language), applied
   // to ALL three .hp-phrase blocks so they never drift apart.
   (function(){
@@ -748,52 +754,40 @@ window.addEventListener('message', function(e){
     el.style.cursor = 'move';
     el.style.pointerEvents = 'auto';   // brand is aria-hidden; ensure it's grabbable
     el.title = '拖曳調整位置';
-    // The two CTA buttons are a LEVEL PAIR: grabbing either one moves BOTH vertically
-    // in real time (each keeps its own horizontal x), exactly like the rotating phrases
-    // move together. This makes it impossible to leave them at different heights — the
-    // owner no longer has to hand-align them, and they never "snap apart" on release.
-    var _pairSel = (key === 'btnFind') ? '.hco-btn-out' : (key === 'btnProject') ? '.hco-btn-pri' : null;
-    var _pairKey = (key === 'btnFind') ? 'btnProject' : (key === 'btnProject') ? 'btnFind' : null;
-    var sib = _pairSel ? document.querySelector(_pairSel) : null;
+    // CTA buttons move as ONE GROUP: grabbing EITHER button drags their shared .hco-btns
+    // container, and the pair is saved under a single key ('btnFind'). Flexbox keeps the
+    // two buttons side by side, so they are always level and the same height — they can
+    // never be dragged out of alignment, on any device.
+    var _isBtn = (key === 'btnFind' || key === 'btnProject');
+    var _dragEl = _isBtn ? (el.closest('.hco-btns') || el) : el;   // buttons drag the whole group
+    var _saveKey = _isBtn ? 'btnFind' : key;                        // group saved under one key
     var on=false, sx=0, sy=0, ox=0, oy=0, moved=false;
     el.addEventListener('pointerdown', function(e){
-      on=true; moved=false; var o=curOffset(el); ox=o.x; oy=o.y; sx=e.clientX; sy=e.clientY;
+      on=true; moved=false; var o=curOffset(_dragEl); ox=o.x; oy=o.y; sx=e.clientX; sy=e.clientY;
       try{ el.setPointerCapture(e.pointerId); }catch(_){}
-      el.style.outline='2px solid #2563eb'; el.style.outlineOffset='2px';
-      if(sib){ sib.style.outline='2px solid #2563eb'; sib.style.outlineOffset='2px'; }
+      _dragEl.style.outline='2px solid #2563eb'; _dragEl.style.outlineOffset='2px';
       e.preventDefault(); e.stopPropagation();
     });
     el.addEventListener('pointermove', function(e){
       if(!on) return;
       var s = cardScale() || 1;
       var nx = ox + (e.clientX - sx)/s, ny = oy + (e.clientY - sy)/s;
-      el.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px';
+      _dragEl.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px';
       // Smart alignment guides (Canva-style): snap to screen centre / other elements'
       // centre lines and show dashed guides. Adjusts nx/ny in place when it snaps.
-      try{ var _sn = _opzSmartSnap(el, nx, ny, s); if(_sn){ nx=_sn.nx; ny=_sn.ny; el.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px'; } }catch(_g){}
-      // Move the paired CTA button to the SAME vertical offset (keep its own x) so the
-      // two buttons stay perfectly level while dragging either one.
-      if(sib){ var _so=curOffset(sib); sib.style.translate = Math.round(_so.x)+'px '+Math.round(ny)+'px'; }
+      try{ var _sn = _opzSmartSnap(_dragEl, nx, ny, s); if(_sn){ nx=_sn.nx; ny=_sn.ny; _dragEl.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px'; } }catch(_g){}
       // 6px 容差：真人單點常有微小晃動,別把「點選」誤判成「拖曳」(否則 pick 不送、字型面板不開)
       if(Math.abs(e.clientX-sx)>6 || Math.abs(e.clientY-sy)>6) moved=true;
       e.preventDefault(); e.stopPropagation();
     });
     function end(){
-      if(!on) return; on=false; el.style.outline='';
-      if(sib) sib.style.outline='';
-      var o = curOffset(el);
+      if(!on) return; on=false; _dragEl.style.outline='';
+      var o = curOffset(_dragEl);
       var vw = window.innerWidth || 1, vh = window.innerHeight || 1;
       // report BOTH px (legacy) and viewport-fraction (width-independent, preferred)
-      try{ parent.postMessage({__opuszHeroPos:true, key:key, lang:_heroCurLang(),
+      try{ parent.postMessage({__opuszHeroPos:true, key:_saveKey, lang:_heroCurLang(),
         x:Math.round(o.x), y:Math.round(o.y),
         xPct:+(o.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
-      // Persist the paired button too (its own x, the shared y) so the level pair
-      // survives a reload — the preview already moved it, now save it.
-      if(sib){ var _so=curOffset(sib);
-        try{ parent.postMessage({__opuszHeroPos:true, key:_pairKey, lang:_heroCurLang(),
-          x:Math.round(_so.x), y:Math.round(_so.y),
-          xPct:+(_so.x/vw).toFixed(5), yPct:+(_so.y/vh).toFixed(5) }, '*'); }catch(_){}
-      }
       try{ _opzClearGuides(); }catch(_g){}   // remove the dashed alignment guides
       // A click without drag = SELECT this element → editor opens its font panel.
       // brand copies all share one font, so normalise brand2/3… → 'brand'.
