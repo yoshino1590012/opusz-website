@@ -261,6 +261,33 @@ nav.mega-open .nav-links a::before {
 .nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
 .nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
 .nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+/* ═══ Mobile nav: transparent bar + FULL-SCREEN menu (click toggle, fade in/out) ═══ */
+@media (max-width: 900px){
+  nav, nav.mega-open { background: transparent !important; mix-blend-mode: difference !important; }
+  nav { z-index: 1200 !important; }
+  .nav-drawer{
+    position: fixed !important; inset: 0 !important; top:0 !important; right:0 !important; left:0 !important; bottom:0 !important;
+    max-width: none !important;
+    padding: 104px 34px calc(40px + env(safe-area-inset-bottom,0px)) !important;
+    background: #fff !important; box-shadow: none !important;
+    display: flex !important; flex-direction: column !important; gap: 2px !important;
+    overflow-y: auto !important; transform: none !important;
+    opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
+    transition: opacity .45s cubic-bezier(0.22,1,0.36,1), visibility .45s !important;
+    z-index: 1100 !important;
+  }
+  .nav-drawer.nd-visible{ opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+  .nav-drawer > a, .nav-drawer > .nd-musicians-btn{ font-size: 27px !important; padding: 16px 0 !important; }
+  #navDrawerExtra{ margin-top: auto !important; }
+  .nav-sub-drawer{
+    position: fixed !important; inset: 0 !important; max-width: none !important;
+    transform: none !important;
+    opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
+    transition: opacity .4s cubic-bezier(0.22,1,0.36,1), visibility .4s !important;
+    z-index: 1150 !important;
+  }
+  .nav-sub-drawer.ns-visible{ opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+}
 
 /* ── Elegant one-by-one entrance (XOO-style): each row rises up from below and
      fades in, slowly, clearly staggered so the menu "arranges itself" line by

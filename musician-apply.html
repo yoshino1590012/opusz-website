@@ -156,6 +156,33 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
 .nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
 .nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+/* ═══ Mobile nav: transparent bar + FULL-SCREEN menu (click toggle, fade in/out) ═══ */
+@media (max-width: 900px){
+  nav, nav.mega-open { background: transparent !important; mix-blend-mode: difference !important; }
+  nav { z-index: 1200 !important; }
+  .nav-drawer{
+    position: fixed !important; inset: 0 !important; top:0 !important; right:0 !important; left:0 !important; bottom:0 !important;
+    max-width: none !important;
+    padding: 104px 34px calc(40px + env(safe-area-inset-bottom,0px)) !important;
+    background: #fff !important; box-shadow: none !important;
+    display: flex !important; flex-direction: column !important; gap: 2px !important;
+    overflow-y: auto !important; transform: none !important;
+    opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
+    transition: opacity .45s cubic-bezier(0.22,1,0.36,1), visibility .45s !important;
+    z-index: 1100 !important;
+  }
+  .nav-drawer.nd-visible{ opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+  .nav-drawer > a, .nav-drawer > .nd-musicians-btn{ font-size: 27px !important; padding: 16px 0 !important; }
+  #navDrawerExtra{ margin-top: auto !important; }
+  .nav-sub-drawer{
+    position: fixed !important; inset: 0 !important; max-width: none !important;
+    transform: none !important;
+    opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
+    transition: opacity .4s cubic-bezier(0.22,1,0.36,1), visibility .4s !important;
+    z-index: 1150 !important;
+  }
+  .nav-sub-drawer.ns-visible{ opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+}
 .nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateY(0); transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.20s; }
 .nav-sub-drawer { position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.12); display: flex; flex-direction: column; transition: right 0.18s ease; z-index: 302; pointer-events: none; overflow: hidden; }
 .nav-sub-drawer.ns-visible { right: 0; pointer-events: auto; transition: right 0.6s cubic-bezier(0.22,1,0.36,1); }

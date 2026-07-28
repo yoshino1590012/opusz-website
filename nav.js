@@ -522,10 +522,25 @@
       }, 120);
     }
 
-    hamburgerBtn.addEventListener('mouseenter', openDrawer);
-    hamburgerBtn.addEventListener('mouseleave', closeDrawer);
-    navDrawer.addEventListener('mouseenter', openDrawer);
-    navDrawer.addEventListener('mouseleave', closeDrawer);
+    // The hamburger is a CLICK TOGGLE on every device: tap opens, tap again closes
+    // (with the exit animation). The old hover model never closed on touch (no
+    // mouseleave) so the mobile menu got stuck open. Tapping a link also closes it.
+    hamburgerBtn.addEventListener('click', function (e) {
+      e.preventDefault(); e.stopPropagation();
+      clearTimeout(drawerTimeout);
+      if (navDrawer.classList.contains('nd-visible')) {
+        navDrawer.classList.remove('nd-visible');
+        if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
+      } else {
+        navDrawer.classList.add('nd-visible');
+      }
+    });
+    navDrawer.addEventListener('click', function (e) {
+      if (e.target.closest('a')) {
+        navDrawer.classList.remove('nd-visible');
+        if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
+      }
+    });
 
     /* ── Mobile: relocate favourites / account / language INTO the drawer ──
        Moves the REAL controls (keeps all wiring) on ≤900px so the top bar shows
