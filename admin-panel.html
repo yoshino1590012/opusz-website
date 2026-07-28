@@ -3453,17 +3453,6 @@ Martin</textarea>
             cur.xPct = e.data.xPct; cur.yPct = e.data.yPct; cur.x = e.data.x|0; cur.y = e.data.y|0;
           }
           m[e.data.key] = cur;
-          // The two CTA buttons are a LEVEL PAIR: dragging EITHER one vertically moves
-          // BOTH (they share one Y baseline) so they can never end up crooked. Horizontal
-          // stays independent so they sit side by side. Matches the render lock in
-          // site-content.js (btnProject inherits btnFind's Y) → editor = live, WYSIWYG.
-          if(e.data.key === 'btnFind' || e.data.key === 'btnProject'){
-            var _other = (e.data.key === 'btnFind') ? 'btnProject' : 'btnFind';
-            var _o = Object.assign({}, m[_other]);
-            if(e.data.lang === 'zh'){ _o.yPctZh = cur.yPctZh; _o.yZh = cur.yZh; }
-            else { _o.yPct = cur.yPct; _o.y = cur.y; }
-            m[_other] = _o;
-          }
           if(window.seAutoSaveReady){ try{ window.seAutoSave(); }catch(_){} }   // 拖曳後也自動存
         }
         // Clicked a Hero element in the preview → open its font panel (Canva-style).

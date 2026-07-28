@@ -96,31 +96,21 @@ function applyHeroPos(map){
     if(k === 'brand') return;   // every brand copy handled below
     var el = document.querySelector(HERO_DRAG[k]); if(!el) return;
     var p = map[k] || {};
-    // ── CTA BUTTONS: positioned as ONE GROUP, never as two free elements ──
-    // Both buttons move together by translating their shared .hco-btns container (done
-    // right after this loop) and are laid out side by side by flexbox, so they are
-    // ALWAYS level and the same height on every device and can never drift apart. Here
-    // we only clear any legacy per-button offset and apply their shared locked size.
-    if (k === 'btnFind' || k === 'btnProject'){
-      el.style.translate = '';
-      el.style.scale = (_btnLockedS && _btnLockedS !== 1) ? String(_btnLockedS) : '';
-      return;
-    }
-    // Position via independent `translate` (separate from `transform`, so animations
-    // stay intact), resolved per-language (zh→xPctZh/yPctZh, else EN xPct/yPct).
+    // Each hero element — including EACH button INDEPENDENTLY — is positioned FREELY via
+    // its own `translate` (separate from `transform`, so reveal animations stay intact),
+    // resolved per-language (zh→xPctZh/yPctZh, else EN xPct/yPct). The owner moves the two
+    // buttons wherever they like; the editor's smart alignment guides (bigger snap window,
+    // see _opzSmartSnap) make lining them up level effortless when they want that.
     el.style.translate = _heroPosCalc(p, useZh);
+    // Make sure nothing left a container-level offset from an earlier build.
+    if (k === 'btnFind'){ var _c = document.querySelector('.hco-btns'); if(_c) _c.style.translate = ''; }
     // 標題/副標：中文時用 sZh（沒設就回退到 s = 目前大小）；其他元素照常用 s。
     var sc = ((k === 'headline' || k === 'sub') && useZh && p.sZh != null && p.sZh !== '') ? p.sZh : p.s;
+    // Both buttons still share ONE locked SIZE (equal scale) so they stay the same size;
+    // their POSITIONS are fully independent.
+    if (k === 'btnFind' || k === 'btnProject') sc = _btnLockedS;
     el.style.scale     = (sc && sc !== 1) ? String(sc) : '';
   });
-  // Move the CTA button PAIR as a single unit: translate the whole .hco-btns container
-  // by the group anchor (stored under btnFind). Uses the CSS `translate` property so it
-  // never clobbers the container's transform-based reveal animation. ONE position →
-  // the two buttons are laid out by flexbox and can never go crooked or unequal.
-  (function(){
-    var cont = document.querySelector('.hco-btns'); if(!cont) return;
-    cont.style.translate = _heroPosCalc(map.btnFind || {}, useZh);
-  })();
   // Rotating phrases share ONE position (the `phrases` key, per-language), applied
   // to ALL three .hp-phrase blocks so they never drift apart.
   (function(){
@@ -725,7 +715,8 @@ window.addEventListener('message', function(e){
   }
   // el already moved to (nx,ny) card-px; detect snaps, adjust nx/ny, draw guides.
   function _opzSmartSnap(el, nx, ny, s){
-    var THRESH = 6;   // iframe/screen px within which we snap
+    var THRESH = 16;   // iframe/screen px within which we snap (generous: easy to line
+                       // the two independent buttons up level without fighting the mouse)
     s = s || 1;
     var r = el.getBoundingClientRect();
     var cx = r.left + r.width/2, cy = r.top + r.height/2;
@@ -754,38 +745,33 @@ window.addEventListener('message', function(e){
     el.style.cursor = 'move';
     el.style.pointerEvents = 'auto';   // brand is aria-hidden; ensure it's grabbable
     el.title = '拖曳調整位置';
-    // CTA buttons move as ONE GROUP: grabbing EITHER button drags their shared .hco-btns
-    // container, and the pair is saved under a single key ('btnFind'). Flexbox keeps the
-    // two buttons side by side, so they are always level and the same height — they can
-    // never be dragged out of alignment, on any device.
-    var _isBtn = (key === 'btnFind' || key === 'btnProject');
-    var _dragEl = _isBtn ? (el.closest('.hco-btns') || el) : el;   // buttons drag the whole group
-    var _saveKey = _isBtn ? 'btnFind' : key;                        // group saved under one key
     var on=false, sx=0, sy=0, ox=0, oy=0, moved=false;
     el.addEventListener('pointerdown', function(e){
-      on=true; moved=false; var o=curOffset(_dragEl); ox=o.x; oy=o.y; sx=e.clientX; sy=e.clientY;
+      on=true; moved=false; var o=curOffset(el); ox=o.x; oy=o.y; sx=e.clientX; sy=e.clientY;
       try{ el.setPointerCapture(e.pointerId); }catch(_){}
-      _dragEl.style.outline='2px solid #2563eb'; _dragEl.style.outlineOffset='2px';
+      el.style.outline='2px solid #2563eb'; el.style.outlineOffset='2px';
       e.preventDefault(); e.stopPropagation();
     });
     el.addEventListener('pointermove', function(e){
       if(!on) return;
       var s = cardScale() || 1;
       var nx = ox + (e.clientX - sx)/s, ny = oy + (e.clientY - sy)/s;
-      _dragEl.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px';
-      // Smart alignment guides (Canva-style): snap to screen centre / other elements'
-      // centre lines and show dashed guides. Adjusts nx/ny in place when it snaps.
-      try{ var _sn = _opzSmartSnap(_dragEl, nx, ny, s); if(_sn){ nx=_sn.nx; ny=_sn.ny; _dragEl.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px'; } }catch(_g){}
+      el.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px';
+      // Smart alignment guides (Canva-style): each button is dragged INDEPENDENTLY, and
+      // this snaps its centre to the screen centre or to ANY other hero element's centre
+      // line (incl. the OTHER button) with a generous window + a dashed guide — so lining
+      // the two buttons up level is easy, without locking them together.
+      try{ var _sn = _opzSmartSnap(el, nx, ny, s); if(_sn){ nx=_sn.nx; ny=_sn.ny; el.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px'; } }catch(_g){}
       // 6px 容差：真人單點常有微小晃動,別把「點選」誤判成「拖曳」(否則 pick 不送、字型面板不開)
       if(Math.abs(e.clientX-sx)>6 || Math.abs(e.clientY-sy)>6) moved=true;
       e.preventDefault(); e.stopPropagation();
     });
     function end(){
-      if(!on) return; on=false; _dragEl.style.outline='';
-      var o = curOffset(_dragEl);
+      if(!on) return; on=false; el.style.outline='';
+      var o = curOffset(el);
       var vw = window.innerWidth || 1, vh = window.innerHeight || 1;
       // report BOTH px (legacy) and viewport-fraction (width-independent, preferred)
-      try{ parent.postMessage({__opuszHeroPos:true, key:_saveKey, lang:_heroCurLang(),
+      try{ parent.postMessage({__opuszHeroPos:true, key:key, lang:_heroCurLang(),
         x:Math.round(o.x), y:Math.round(o.y),
         xPct:+(o.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
       try{ _opzClearGuides(); }catch(_g){}   // remove the dashed alignment guides
