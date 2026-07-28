@@ -156,32 +156,52 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
 .nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
 .nd-musicians-btn:hover .nd-arrow { opacity: .7; }
-/* ═══ Mobile nav: transparent bar + FULL-SCREEN menu (click toggle, fade in/out) ═══ */
+/* ═══ Mobile nav: transparent bar + FULL-SCREEN menu — curtain DOWN on open, UP on
+      close; the menu text fades in one-by-one AFTER the curtain has arrived. ═══ */
 @media (max-width: 900px){
   nav, nav.mega-open { background: transparent !important; mix-blend-mode: difference !important; }
   nav { z-index: 1200 !important; }
   .nav-drawer{
     position: fixed !important; inset: 0 !important; top:0 !important; right:0 !important; left:0 !important; bottom:0 !important;
-    max-width: none !important;
+    width: 100% !important; max-width: none !important;
     padding: 104px 34px calc(40px + env(safe-area-inset-bottom,0px)) !important;
     background: #fff !important; box-shadow: none !important;
     display: flex !important; flex-direction: column !important; gap: 2px !important;
-    overflow-y: auto !important; transform: none !important;
-    opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
-    transition: opacity .45s cubic-bezier(0.22,1,0.36,1), visibility .45s !important;
+    overflow-y: auto !important;
+    opacity: 1 !important; visibility: visible !important;
+    transform: translateY(-100%) !important;
+    transition: transform .6s cubic-bezier(0.76,0,0.24,1) !important;
+    pointer-events: none !important;
     z-index: 1100 !important;
   }
-  .nav-drawer.nd-visible{ opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+  .nav-drawer.nd-visible{ transform: translateY(0) !important; pointer-events: auto !important; }
+  .nav-drawer > *{
+    opacity: 0 !important; transform: translateY(22px) !important;
+    transition: opacity .5s ease, transform .5s cubic-bezier(0.22,1,0.36,1) !important;
+    transition-delay: 0s !important;
+  }
+  .nav-drawer.nd-visible > *{ opacity: 1 !important; transform: translateY(0) !important; }
+  .nav-drawer.nd-visible > *:nth-child(1){ transition-delay: .50s !important; }
+  .nav-drawer.nd-visible > *:nth-child(2){ transition-delay: .58s !important; }
+  .nav-drawer.nd-visible > *:nth-child(3){ transition-delay: .66s !important; }
+  .nav-drawer.nd-visible > *:nth-child(4){ transition-delay: .74s !important; }
+  .nav-drawer.nd-visible > *:nth-child(5){ transition-delay: .82s !important; }
+  .nav-drawer.nd-visible > *:nth-child(6){ transition-delay: .90s !important; }
+  .nav-drawer.nd-visible > *:nth-child(7){ transition-delay: .98s !important; }
+  .nav-drawer.nd-visible > *:nth-child(8){ transition-delay: 1.06s !important; }
   .nav-drawer > a, .nav-drawer > .nd-musicians-btn{ font-size: 27px !important; padding: 16px 0 !important; }
   #navDrawerExtra{ margin-top: auto !important; }
   .nav-sub-drawer{
-    position: fixed !important; inset: 0 !important; max-width: none !important;
-    transform: none !important;
-    opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
-    transition: opacity .4s cubic-bezier(0.22,1,0.36,1), visibility .4s !important;
-    z-index: 1150 !important;
+    position: fixed !important; inset: 0 !important; width: 100% !important; max-width: none !important;
+    opacity: 1 !important; visibility: visible !important;
+    transform: translateY(-100%) !important;
+    transition: transform .55s cubic-bezier(0.76,0,0.24,1) !important;
+    pointer-events: none !important; z-index: 1150 !important;
   }
-  .nav-sub-drawer.ns-visible{ opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+  .nav-sub-drawer.ns-visible{ transform: translateY(0) !important; pointer-events: auto !important; }
+}
+@media (max-width: 900px) and (prefers-reduced-motion: reduce){
+  .nav-drawer, .nav-sub-drawer, .nav-drawer > *{ transition: none !important; }
 }
 .nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateY(0); transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.20s; }
 .nav-sub-drawer { position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.12); display: flex; flex-direction: column; transition: right 0.18s ease; z-index: 302; pointer-events: none; overflow: hidden; }
