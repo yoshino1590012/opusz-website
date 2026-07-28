@@ -877,9 +877,13 @@ nav.mega-open .nav-links a::before {
 }
 .hco-btns {
   display: flex; gap: calc(var(--k)*10px); justify-content: center;
-  margin-top: calc(var(--k)*4px); flex-wrap: wrap;
+  margin-top: calc(var(--k)*4px); flex-wrap: nowrap;
   transition: opacity .45s ease 320ms, transform .55s cubic-bezier(.16,1,.3,1) 320ms;
 }
+/* nowrap is deliberate: the two CTA buttons must ALWAYS stay on one row so they are
+   guaranteed level and equal height. Wrapping (the old default) let the longer button
+   drop to a second row on narrow/scaled widths → the "buttons at different heights"
+   bug. They are a single flex group and move together (see site-content.js). */
 /* ── revealed state ── */
 .hco-visible .hco-btns,
 .hco-visible .hco-headline,
