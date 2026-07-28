@@ -4078,11 +4078,13 @@ window.__hhResplitHeadline = function(){
     }
   });
   h.classList.add('hh-split');
-  // If the hero has ALREADY revealed (e.g. the visitor toggled language mid-view),
-  // re-play the entrance for the freshly-built words. On first load the words stay
-  // hidden here and revealHeroContent() plays them once the intro panel clears.
+  // If the hero has ALREADY revealed, just SHOW the freshly-built words at rest — do NOT
+  // re-play the entrance. The one-time word entrance belongs to revealHeroContent() alone.
+  // (The admin Site Editor re-applies the hero config repeatedly, which rebuilds these
+  // spans; re-animating each time made the title look like it was looping. On first load
+  // the words stay hidden here and revealHeroContent() plays the entrance once.)
   if (window.__heroContentRevealed && typeof window.__revealHeadlineWords === 'function') {
-    window.__revealHeadlineWords(h, true);
+    window.__revealHeadlineWords(h, false);
   }
 };
 
