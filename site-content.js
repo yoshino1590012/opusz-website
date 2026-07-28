@@ -96,10 +96,18 @@ function applyHeroPos(map){
     if(k === 'brand') return;   // every brand copy handled below
     var el = document.querySelector(HERO_DRAG[k]); if(!el) return;
     var p = map[k] || {};
+    // The two CTA buttons read as ONE level, side-by-side pair: btnProject borrows
+    // btnFind's VERTICAL baseline (y/yPct + the zh variants) so they are ALWAYS on the
+    // same line and can never look crooked, while keeping its OWN horizontal x so they
+    // sit next to each other. This also self-heals older saved configs whose two Ys
+    // had drifted apart (the cause of the "one button lower than the other" bug).
+    if(k === 'btnProject'){
+      var _f = map.btnFind || {};
+      p = { xPct:p.xPct, xPctZh:p.xPctZh, x:p.x, xZh:p.xZh,
+            yPct:_f.yPct, yPctZh:_f.yPctZh, y:_f.y, yZh:_f.yZh };
+    }
     // Position via independent `translate` (separate from `transform`, so animations
     // stay intact), resolved per-language (zh→xPctZh/yPctZh, else EN xPct/yPct).
-    // Elements are positioned FREELY; the editor's smart alignment guides (see
-    // wireDragOn) help the owner line them up, rather than forcing it here.
     el.style.translate = _heroPosCalc(p, useZh);
     // 標題/副標：中文時用 sZh（沒設就回退到 s = 目前大小）；其他元素照常用 s。
     var sc = ((k === 'headline' || k === 'sub') && useZh && p.sZh != null && p.sZh !== '') ? p.sZh : p.s;
