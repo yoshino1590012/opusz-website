@@ -1206,9 +1206,9 @@ Martin</textarea>
   // sub-group header shown inside that section's panel.
   var SE_FIELDS = [
     // ── Hero 主視覺 (#home) ──
-    {section:'hero', sec:'輪播標語 / Phrases（雙語同時顯示；想換行的地方按 Enter）', k:'hero.phrase0', zhk:'hero.phrase0.zh', both:true, multiline:true, label:'標語 1', en:'Find your perfect musician.', zh:'找到你完美的音樂家。'},
-    {section:'hero', k:'hero.phrase1', zhk:'hero.phrase1.zh', both:true, multiline:true, label:'標語 2', en:'You came to the right place.', zh:'你來對地方了。'},
-    {section:'hero', k:'hero.phrase2', zhk:'hero.phrase2.zh', both:true, multiline:true, label:'標語 3', en:"Taiwan's top musicians, on demand.", zh:'台灣頂尖音樂家，隨時為你。'},
+    // (輪播標語 / Phrases removed 2026-07-28 — the rotating-phrase overlay is no longer
+    //  rendered on the page, so its editor fields were retired. The dead CSS/JS/i18n for
+    //  #heroPhraseOverlay/.hp-phrase is inert and left in place.)
     {section:'hero', sec:'主標題 / Headline（想換行的地方按 Enter）', k:'hero.headline', multiline:true, label:'主標題', en:"Meet Taiwan's elite musicians.", zh:'遇見台灣菁英音樂家'},
     {section:'hero', sec:'副標 / Subtitle（想換行的地方按 Enter）', k:'hero.sub', multiline:true, label:'副標', en:'For performances and lessons. Connecting you with the very best.', zh:'演出與教學，媒合最頂尖的他們。'},
     {section:'hero', sec:'按鈕 / Buttons', k:'hero.findArtists', label:'尋找音樂家鈕', en:'Find Artists', zh:'尋找音樂家'},
@@ -2136,7 +2136,7 @@ Martin</textarea>
         +'<br>下方滑桿可調<b>每個元素的大小</b>。改完按上方「🚀 儲存並發布到網站」。'
         +seHeroSizeRows()
         +seHeroTypeRows()
-        +seHeroPhraseRows()
+        /* +seHeroPhraseRows() — rotating-phrases feature retired 2026-07-28 */
         +seHeroBrandColorRow()
         +seHeroBtnShapeRow()
         +seHeroBtnRows()
