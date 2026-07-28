@@ -143,22 +143,22 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
   transition: right 0.18s ease; z-index: 300; pointer-events: none;
 }
 .nav-drawer.nd-visible { right: 0; pointer-events: auto; transition: right 0.42s cubic-bezier(0.22,1,0.36,1); }
-.nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nav-drawer a { display: block; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06); opacity: 0; transform: translateY(24px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
 .nav-drawer a:last-child { border-bottom: none; }
 .nav-drawer a:hover { color: rgba(0,0,0,0.4); }
-.nav-drawer.nd-visible a { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
-.nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
-.nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
-.nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
-.nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
-.nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
-.nd-musicians-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-align: left; opacity: 0; transform: translateX(18px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
+.nav-drawer.nd-visible a { opacity: 1; transform: translateY(0); transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1), color .15s ease; }
+.nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.12s; }
+.nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.20s; }
+.nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.28s; }
+.nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.36s; }
+.nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.44s; }
+.nd-musicians-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: 12px 0; font-size: 17px; font-weight: 500; color: #000; background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-align: left; opacity: 0; transform: translateY(24px); transition: opacity .12s ease, transform .12s ease, color .15s ease; }
 .nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
 .nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
 .nd-musicians-btn:hover .nd-arrow { opacity: .7; }
-.nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateX(0); transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1), transform 0.38s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.15s; }
+.nav-drawer.nd-visible .nd-musicians-btn { opacity: 1; transform: translateY(0); transition: opacity 0.6s cubic-bezier(0.22,1,0.36,1), transform 0.6s cubic-bezier(0.22,1,0.36,1), color .15s ease; transition-delay: 0.20s; }
 .nav-sub-drawer { position: fixed; top: 0; right: -300px; bottom: 0; width: 300px; background: #fff; box-shadow: -12px 0 48px rgba(0,0,0,0.12); display: flex; flex-direction: column; transition: right 0.18s ease; z-index: 302; pointer-events: none; overflow: hidden; }
-.nav-sub-drawer.ns-visible { right: 0; pointer-events: auto; transition: right 0.38s cubic-bezier(0.22,1,0.36,1); }
+.nav-sub-drawer.ns-visible { right: 0; pointer-events: auto; transition: right 0.6s cubic-bezier(0.22,1,0.36,1); }
 .nsd-head { display: flex; align-items: center; gap: 12px; padding: 22px 24px 16px; border-bottom: 1px solid rgba(0,0,0,0.07); flex-shrink: 0; }
 .nsd-back { background: none; border: none; cursor: pointer; font-size: 20px; color: #000; padding: 4px; display: flex; align-items: center; opacity: .5; transition: opacity .15s; }
 .nsd-back:hover { opacity: 1; }

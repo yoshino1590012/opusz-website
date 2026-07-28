@@ -246,42 +246,45 @@ nav.mega-open .nav-links a::before {
   display: block; padding: 12px 0;
   font-size: 17px; font-weight: 500; color: var(--black);
   text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06);
-  opacity: 0; transform: translateX(18px);
-  transition: opacity .12s ease, transform .12s ease, color .15s ease;
 }
 .nav-drawer a:last-child { border-bottom: none; }
-.nav-drawer a:hover { color: rgba(0,0,0,0.4); }
-.nav-drawer.nd-visible a {
-  opacity: 1; transform: translateX(0);
-  transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1),
-              transform 0.38s cubic-bezier(0.22,1,0.36,1),
-              color .15s ease;
-}
-.nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
-.nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
-.nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
-.nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
-.nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+.nav-drawer a:hover { color: rgba(0,0,0,0.4); transition: color .15s ease; }
 
-/* Musicians sub-drawer trigger button */
+/* Musicians sub-drawer trigger button (layout only; entrance handled below) */
 .nd-musicians-btn {
   display: flex; align-items: center; justify-content: space-between;
   width: 100%; padding: 12px 0;
   font-size: 17px; font-weight: 500; color: var(--black);
   background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06);
   cursor: pointer; font-family: inherit; text-align: left;
-  opacity: 0; transform: translateX(18px);
-  transition: opacity .12s ease, transform .12s ease, color .15s ease;
 }
 .nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
 .nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
 .nd-musicians-btn:hover .nd-arrow { opacity: .7; }
-.nav-drawer.nd-visible .nd-musicians-btn {
-  opacity: 1; transform: translateX(0);
-  transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1),
-              transform 0.38s cubic-bezier(0.22,1,0.36,1),
-              color .15s ease;
-  transition-delay: 0.15s;
+
+/* ── Elegant one-by-one entrance (XOO-style): each row rises up from below and
+     fades in, slowly, clearly staggered so the menu "arranges itself" line by
+     line. Targets EVERY direct child of the drawer (links, the Musicians
+     button, and the appended controls box) so nothing is left un-animated. ── */
+.nav-drawer > * {
+  opacity: 0; transform: translateY(26px);
+  transition: opacity .2s ease, transform .2s ease;
+}
+.nav-drawer.nd-visible > * {
+  opacity: 1; transform: translateY(0);
+  transition: opacity .6s cubic-bezier(0.22,1,0.36,1),
+              transform .6s cubic-bezier(0.22,1,0.36,1);
+}
+.nav-drawer.nd-visible > *:nth-child(1) { transition-delay: .12s; }
+.nav-drawer.nd-visible > *:nth-child(2) { transition-delay: .20s; }
+.nav-drawer.nd-visible > *:nth-child(3) { transition-delay: .28s; }
+.nav-drawer.nd-visible > *:nth-child(4) { transition-delay: .36s; }
+.nav-drawer.nd-visible > *:nth-child(5) { transition-delay: .44s; }
+.nav-drawer.nd-visible > *:nth-child(6) { transition-delay: .52s; }
+.nav-drawer.nd-visible > *:nth-child(7) { transition-delay: .60s; }
+.nav-drawer.nd-visible > *:nth-child(8) { transition-delay: .68s; }
+@media (prefers-reduced-motion: reduce){
+  .nav-drawer > * { opacity: 1; transform: none; transition: none; }
 }
 
 /* Musicians sub-panel */

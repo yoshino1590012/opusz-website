@@ -340,22 +340,32 @@ nav.mega-open .nav-links a::before {
   display: block; padding: 12px 0;
   font-size: 17px; font-weight: 500; color: var(--black);
   text-decoration: none; border-bottom: 1px solid rgba(0,0,0,0.06);
-  opacity: 0; transform: translateX(18px);
-  transition: opacity .12s ease, transform .12s ease, color .15s ease;
 }
 .nav-drawer a:last-child { border-bottom: none; }
-.nav-drawer a:hover { color: rgba(0,0,0,0.4); }
-.nav-drawer.nd-visible a {
-  opacity: 1; transform: translateX(0);
-  transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1),
-              transform 0.38s cubic-bezier(0.22,1,0.36,1),
-              color .15s ease;
+.nav-drawer a:hover { color: rgba(0,0,0,0.4); transition: color .15s ease; }
+/* Elegant one-by-one entrance (XOO-style): rows rise up + fade in, slow, staggered.
+   Use `> *` (not per-selector) so the delay-setting nth-child rules win — an ID
+   selector like #navDrawerExtra would out-specify them and reset its delay to 0. */
+.nav-drawer > * {
+  opacity: 0; transform: translateY(26px);
+  transition: opacity .2s ease, transform .2s ease;
 }
-.nav-drawer.nd-visible a:nth-child(1) { transition-delay: 0.07s; }
-.nav-drawer.nd-visible a:nth-child(2) { transition-delay: 0.11s; }
-.nav-drawer.nd-visible a:nth-child(3) { transition-delay: 0.15s; }
-.nav-drawer.nd-visible a:nth-child(4) { transition-delay: 0.19s; }
-.nav-drawer.nd-visible a:nth-child(5) { transition-delay: 0.23s; }
+.nav-drawer.nd-visible > * {
+  opacity: 1; transform: translateY(0);
+  transition: opacity .6s cubic-bezier(0.22,1,0.36,1),
+              transform .6s cubic-bezier(0.22,1,0.36,1);
+}
+.nav-drawer.nd-visible > *:nth-child(1) { transition-delay: .12s; }
+.nav-drawer.nd-visible > *:nth-child(2) { transition-delay: .20s; }
+.nav-drawer.nd-visible > *:nth-child(3) { transition-delay: .28s; }
+.nav-drawer.nd-visible > *:nth-child(4) { transition-delay: .36s; }
+.nav-drawer.nd-visible > *:nth-child(5) { transition-delay: .44s; }
+.nav-drawer.nd-visible > *:nth-child(6) { transition-delay: .52s; }
+.nav-drawer.nd-visible > *:nth-child(7) { transition-delay: .60s; }
+.nav-drawer.nd-visible > *:nth-child(8) { transition-delay: .68s; }
+@media (prefers-reduced-motion: reduce){
+  .nav-drawer > * { opacity:1; transform:none; transition:none; }
+}
 
 /* Controls relocated into the drawer on mobile (favourites / account / language) */
 #navDrawerExtra { display: flex; align-items: center; flex-wrap: wrap; gap: 18px;
@@ -377,19 +387,10 @@ nav.mega-open .nav-links a::before {
   font-size: 17px; font-weight: 500; color: var(--black);
   background: none; border: none; border-bottom: 1px solid rgba(0,0,0,0.06);
   cursor: pointer; font-family: inherit; text-align: left;
-  opacity: 0; transform: translateX(18px);
-  transition: opacity .12s ease, transform .12s ease, color .15s ease;
 }
 .nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
 .nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
 .nd-musicians-btn:hover .nd-arrow { opacity: .7; }
-.nav-drawer.nd-visible .nd-musicians-btn {
-  opacity: 1; transform: translateX(0);
-  transition: opacity 0.38s cubic-bezier(0.22,1,0.36,1),
-              transform 0.38s cubic-bezier(0.22,1,0.36,1),
-              color .15s ease;
-  transition-delay: 0.15s;
-}
 
 /* Musicians sub-panel */
 .nav-sub-drawer {
@@ -8852,7 +8853,7 @@ window.addEventListener('keydown', function(e){
 <!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
-<script type="module" src="site-content.js?v=25"></script>
+<script type="module" src="site-content.js?v=26"></script>
   <script type="module" src="media-sync.js?v=3"></script>
 <script type="module" src="newsletter.js?v=2"></script>
 <!-- Global in-page notification toasts (messages / announcements / community / jobs) -->
