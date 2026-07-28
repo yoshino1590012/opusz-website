@@ -7,4 +7,4 @@
 # 200 = rewrite (the browser keeps showing /musician/<slug>). Old ?uid= links
 # still work. NOTE: this only matches the "/musician/" prefix WITH a slash, so
 # /musicians, /musician-profile, /musician-dashboard are untouched.
-/musician/*    /musician-profile.html    200
+/musician/*    /musician-profile    200
