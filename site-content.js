@@ -96,20 +96,11 @@ function applyHeroPos(map){
     if(k === 'brand') return;   // every brand copy handled below
     var el = document.querySelector(HERO_DRAG[k]); if(!el) return;
     var p = map[k] || {};
-    // GUARDRAIL: the two CTA buttons always share ONE vertical position so they can
-    // never end up left-high / right-low on any phone or screen. Create a Project keeps
-    // its own X (left/right) but INHERITS Find Artists' Y (height). Enforced at render
-    // time, so even mis-saved data displays aligned — and the editor preview (same render
-    // path) matches the live site.
-    var posP = p;
-    if (k === 'btnProject') {
-      var _bf = map.btnFind || {};
-      posP = { xPct:p.xPct, x:p.x, xPctZh:p.xPctZh, xZh:p.xZh,
-               yPct:_bf.yPct, y:_bf.y, yPctZh:_bf.yPctZh, yZh:_bf.yZh };
-    }
     // Position via independent `translate` (separate from `transform`, so animations
     // stay intact), resolved per-language (zh→xPctZh/yPctZh, else EN xPct/yPct).
-    el.style.translate = _heroPosCalc(posP, useZh);
+    // Elements are positioned FREELY; the editor's smart alignment guides (see
+    // wireDragOn) help the owner line them up, rather than forcing it here.
+    el.style.translate = _heroPosCalc(p, useZh);
     // 標題/副標：中文時用 sZh（沒設就回退到 s = 目前大小）；其他元素照常用 s。
     var sc = ((k === 'headline' || k === 'sub') && useZh && p.sZh != null && p.sZh !== '') ? p.sZh : p.s;
     // The two buttons ignore their own per-slider value and share the locked scale.
@@ -695,6 +686,54 @@ window.addEventListener('message', function(e){
     if (!tr) return {x:0,y:0};
     var p = tr.split(/\s+/); return {x:parseFloat(p[0])||0, y:parseFloat(p[1])||0};
   }
+  // ── Canva-style smart alignment guides (edit mode only) ───────────────────
+  // While dragging a hero element, snap its CENTRE to the screen centre or to any
+  // other hero element's centre line (within a small threshold) and show a dashed
+  // guide. Because positions are saved as viewport FRACTIONS, snapping to the screen
+  // centre / a shared centre line yields the SAME fraction on every device — so the
+  // alignment stays consistent across phones and screens instead of drifting.
+  function _opzGuideLayer(){
+    var c = document.getElementById('opzGuides');
+    if(!c){ c = document.createElement('div'); c.id = 'opzGuides';
+      c.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:2147483000;';
+      document.body.appendChild(c); }
+    return c;
+  }
+  function _opzClearGuides(){ var c = document.getElementById('opzGuides'); if(c) c.innerHTML = ''; }
+  function _opzDrawGuides(guides){
+    var c = _opzGuideLayer(); c.innerHTML = '';
+    guides.forEach(function(g){
+      var d = document.createElement('div');
+      if(g.axis === 'x') d.style.cssText = 'position:fixed;top:0;bottom:0;left:'+g.pos+'px;border-left:1px dashed #e5484d;';
+      else               d.style.cssText = 'position:fixed;left:0;right:0;top:'+g.pos+'px;border-top:1px dashed #e5484d;';
+      c.appendChild(d);
+    });
+  }
+  // el already moved to (nx,ny) card-px; detect snaps, adjust nx/ny, draw guides.
+  function _opzSmartSnap(el, nx, ny, s){
+    var THRESH = 6;   // iframe/screen px within which we snap
+    s = s || 1;
+    var r = el.getBoundingClientRect();
+    var cx = r.left + r.width/2, cy = r.top + r.height/2;
+    var xs = [window.innerWidth/2];    // screen vertical centre line
+    var ys = [window.innerHeight/2];   // screen horizontal centre line
+    var others = document.querySelectorAll('.hco-headline,.hco-sub,.hco-btn-pri,.hco-btn-out,.hco-brand');
+    for(var i=0;i<others.length;i++){
+      if(others[i] === el) continue;
+      var orr = others[i].getBoundingClientRect();
+      if(orr.width === 0 && orr.height === 0) continue;
+      xs.push(orr.left + orr.width/2);
+      ys.push(orr.top + orr.height/2);
+    }
+    var bestX = null, bestY = null;
+    xs.forEach(function(t){ var d = t - cx; if(Math.abs(d) < THRESH && (bestX === null || Math.abs(d) < Math.abs(bestX.d))) bestX = {p:t, d:d}; });
+    ys.forEach(function(t){ var d = t - cy; if(Math.abs(d) < THRESH && (bestY === null || Math.abs(d) < Math.abs(bestY.d))) bestY = {p:t, d:d}; });
+    var guides = [];
+    if(bestX){ nx += bestX.d/s; guides.push({axis:'x', pos:bestX.p}); }
+    if(bestY){ ny += bestY.d/s; guides.push({axis:'y', pos:bestY.p}); }
+    _opzDrawGuides(guides);
+    return {nx:nx, ny:ny};
+  }
   function wireDragOn(el, key){
     if(!el || el.__opzDrag) return;
     el.__opzDrag = true;
@@ -713,13 +752,9 @@ window.addEventListener('message', function(e){
       var s = cardScale() || 1;
       var nx = ox + (e.clientX - sx)/s, ny = oy + (e.clientY - sy)/s;
       el.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px';
-      // The two CTA buttons are a pair: dragging EITHER one moves BOTH to the same
-      // height (each keeps its own left/right position) so they can't split apart.
-      if(key === 'btnFind' || key === 'btnProject'){
-        var _oSel = (key === 'btnFind') ? '.hco-btn-out' : '.hco-btn-pri';
-        var _oEl = document.querySelector(_oSel);
-        if(_oEl){ var _oo = curOffset(_oEl); _oEl.style.translate = Math.round(_oo.x)+'px '+Math.round(ny)+'px'; }
-      }
+      // Smart alignment guides (Canva-style): snap to screen centre / other elements'
+      // centre lines and show dashed guides. Adjusts nx/ny in place when it snaps.
+      try{ var _sn = _opzSmartSnap(el, nx, ny, s); if(_sn){ nx=_sn.nx; ny=_sn.ny; el.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px'; } }catch(_g){}
       // 6px 容差：真人單點常有微小晃動,別把「點選」誤判成「拖曳」(否則 pick 不送、字型面板不開)
       if(Math.abs(e.clientX-sx)>6 || Math.abs(e.clientY-sy)>6) moved=true;
       e.preventDefault(); e.stopPropagation();
@@ -732,18 +767,7 @@ window.addEventListener('message', function(e){
       try{ parent.postMessage({__opuszHeroPos:true, key:key, lang:_heroCurLang(),
         x:Math.round(o.x), y:Math.round(o.y),
         xPct:+(o.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
-      // Button pair: also persist the OTHER button at the SAME Y (its own X kept), so
-      // the saved data matches the always-aligned render and both stay in sync.
-      if(key === 'btnFind' || key === 'btnProject'){
-        var _oKey = (key === 'btnFind') ? 'btnProject' : 'btnFind';
-        var _oSel2 = (key === 'btnFind') ? '.hco-btn-out' : '.hco-btn-pri';
-        var _oEl2 = document.querySelector(_oSel2);
-        if(_oEl2){ var _oo2 = curOffset(_oEl2);
-          try{ parent.postMessage({__opuszHeroPos:true, key:_oKey, lang:_heroCurLang(),
-            x:Math.round(_oo2.x), y:Math.round(o.y),
-            xPct:+(_oo2.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
-        }
-      }
+      try{ _opzClearGuides(); }catch(_g){}   // remove the dashed alignment guides
       // A click without drag = SELECT this element → editor opens its font panel.
       // brand copies all share one font, so normalise brand2/3… → 'brand'.
       if(!moved){

@@ -391,6 +391,33 @@ nav.mega-open .nav-links a::before {
 .nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
 .nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
 .nd-musicians-btn:hover .nd-arrow { opacity: .7; }
+/* ═══ Mobile nav: transparent bar + FULL-SCREEN menu (click toggle, fade in/out) ═══ */
+@media (max-width: 900px){
+  nav, nav.mega-open { background: transparent !important; mix-blend-mode: difference !important; }
+  nav { z-index: 1200 !important; }
+  .nav-drawer{
+    position: fixed !important; inset: 0 !important; top:0 !important; right:0 !important; left:0 !important; bottom:0 !important;
+    width: 100% !important; height: 100% !important; max-width: none !important;
+    padding: 104px 34px calc(40px + env(safe-area-inset-bottom,0px)) !important;
+    background: #fff !important; box-shadow: none !important;
+    display: flex !important; flex-direction: column !important; gap: 2px !important;
+    overflow-y: auto !important; transform: none !important;
+    opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
+    transition: opacity .45s cubic-bezier(0.22,1,0.36,1), visibility .45s !important;
+    z-index: 1100 !important;
+  }
+  .nav-drawer.nd-visible{ opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+  .nav-drawer > a, .nav-drawer > .nd-musicians-btn{ font-size: 27px !important; padding: 16px 0 !important; }
+  #navDrawerExtra{ margin-top: auto !important; }
+  .nav-sub-drawer{
+    position: fixed !important; inset: 0 !important; width: 100% !important; height: 100% !important; max-width: none !important;
+    transform: none !important;
+    opacity: 0 !important; visibility: hidden !important; pointer-events: none !important;
+    transition: opacity .4s cubic-bezier(0.22,1,0.36,1), visibility .4s !important;
+    z-index: 1150 !important;
+  }
+  .nav-sub-drawer.ns-visible{ opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+}
 
 /* Musicians sub-panel */
 .nav-sub-drawer {
@@ -4389,10 +4416,25 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 120);
   }
 
-  hamburgerBtn.addEventListener('mouseenter', openDrawer);
-  hamburgerBtn.addEventListener('mouseleave', closeDrawer);
-  navDrawer.addEventListener('mouseenter', openDrawer);
-  navDrawer.addEventListener('mouseleave', closeDrawer);
+  // The hamburger is a CLICK TOGGLE: tap opens, tap again closes (with the exit
+  // animation). The old hover model never closed on touch (no mouseleave) so the
+  // mobile menu got stuck open. Tapping any link inside also closes it.
+  hamburgerBtn.addEventListener('click', function (e) {
+    e.preventDefault(); e.stopPropagation();
+    clearTimeout(drawerTimeout);
+    if (navDrawer.classList.contains('nd-visible')) {
+      navDrawer.classList.remove('nd-visible');
+      if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
+    } else {
+      navDrawer.classList.add('nd-visible');
+    }
+  });
+  navDrawer.addEventListener('click', function (e) {
+    if (e.target.closest('a')) {
+      navDrawer.classList.remove('nd-visible');
+      if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
+    }
+  });
 
   /* ── Mobile: move favourites / account / language INTO the drawer ──
      Relocates the REAL controls (so all their wiring keeps working) on ≤900px,
@@ -8853,7 +8895,7 @@ window.addEventListener('keydown', function(e){
 <!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
-<script type="module" src="site-content.js?v=26"></script>
+<script type="module" src="site-content.js?v=27"></script>
   <script type="module" src="media-sync.js?v=3"></script>
 <script type="module" src="newsletter.js?v=2"></script>
 <!-- Global in-page notification toasts (messages / announcements / community / jobs) -->
