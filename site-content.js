@@ -748,11 +748,19 @@ window.addEventListener('message', function(e){
     el.style.cursor = 'move';
     el.style.pointerEvents = 'auto';   // brand is aria-hidden; ensure it's grabbable
     el.title = '拖曳調整位置';
+    // The two CTA buttons are a LEVEL PAIR: grabbing either one moves BOTH vertically
+    // in real time (each keeps its own horizontal x), exactly like the rotating phrases
+    // move together. This makes it impossible to leave them at different heights — the
+    // owner no longer has to hand-align them, and they never "snap apart" on release.
+    var _pairSel = (key === 'btnFind') ? '.hco-btn-out' : (key === 'btnProject') ? '.hco-btn-pri' : null;
+    var _pairKey = (key === 'btnFind') ? 'btnProject' : (key === 'btnProject') ? 'btnFind' : null;
+    var sib = _pairSel ? document.querySelector(_pairSel) : null;
     var on=false, sx=0, sy=0, ox=0, oy=0, moved=false;
     el.addEventListener('pointerdown', function(e){
       on=true; moved=false; var o=curOffset(el); ox=o.x; oy=o.y; sx=e.clientX; sy=e.clientY;
       try{ el.setPointerCapture(e.pointerId); }catch(_){}
       el.style.outline='2px solid #2563eb'; el.style.outlineOffset='2px';
+      if(sib){ sib.style.outline='2px solid #2563eb'; sib.style.outlineOffset='2px'; }
       e.preventDefault(); e.stopPropagation();
     });
     el.addEventListener('pointermove', function(e){
@@ -763,18 +771,29 @@ window.addEventListener('message', function(e){
       // Smart alignment guides (Canva-style): snap to screen centre / other elements'
       // centre lines and show dashed guides. Adjusts nx/ny in place when it snaps.
       try{ var _sn = _opzSmartSnap(el, nx, ny, s); if(_sn){ nx=_sn.nx; ny=_sn.ny; el.style.translate = Math.round(nx)+'px '+Math.round(ny)+'px'; } }catch(_g){}
+      // Move the paired CTA button to the SAME vertical offset (keep its own x) so the
+      // two buttons stay perfectly level while dragging either one.
+      if(sib){ var _so=curOffset(sib); sib.style.translate = Math.round(_so.x)+'px '+Math.round(ny)+'px'; }
       // 6px 容差：真人單點常有微小晃動,別把「點選」誤判成「拖曳」(否則 pick 不送、字型面板不開)
       if(Math.abs(e.clientX-sx)>6 || Math.abs(e.clientY-sy)>6) moved=true;
       e.preventDefault(); e.stopPropagation();
     });
     function end(){
       if(!on) return; on=false; el.style.outline='';
+      if(sib) sib.style.outline='';
       var o = curOffset(el);
       var vw = window.innerWidth || 1, vh = window.innerHeight || 1;
       // report BOTH px (legacy) and viewport-fraction (width-independent, preferred)
       try{ parent.postMessage({__opuszHeroPos:true, key:key, lang:_heroCurLang(),
         x:Math.round(o.x), y:Math.round(o.y),
         xPct:+(o.x/vw).toFixed(5), yPct:+(o.y/vh).toFixed(5) }, '*'); }catch(_){}
+      // Persist the paired button too (its own x, the shared y) so the level pair
+      // survives a reload — the preview already moved it, now save it.
+      if(sib){ var _so=curOffset(sib);
+        try{ parent.postMessage({__opuszHeroPos:true, key:_pairKey, lang:_heroCurLang(),
+          x:Math.round(_so.x), y:Math.round(_so.y),
+          xPct:+(_so.x/vw).toFixed(5), yPct:+(_so.y/vh).toFixed(5) }, '*'); }catch(_){}
+      }
       try{ _opzClearGuides(); }catch(_g){}   // remove the dashed alignment guides
       // A click without drag = SELECT this element → editor opens its font panel.
       // brand copies all share one font, so normalise brand2/3… → 'brand'.
