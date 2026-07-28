@@ -5176,6 +5176,15 @@ applyColRatios(); // set photo heights + start scroll animations
 
 // Recalculate when the visible viewport changes → keep card height === viewport
 function syncHero() {
+  // ── Ignore PINCH-ZOOM ──────────────────────────────────────────────────────
+  // iOS fires visualViewport 'resize' both when the address bar collapses (scale
+  // stays 1 → we DO want to re-fit) AND when the user pinch-zooms (scale > 1). If we
+  // re-fit during a pinch-zoom, we resize the hero card down to the shrunken *visual*
+  // viewport → the whole layout reflows: text re-wraps, the buttons cram together, and
+  // a white strip appears beside the narrowed canvas. A normal web page just magnifies
+  // uniformly. So while the user is zoomed in, do NOTHING and let the browser handle
+  // the zoom natively; when they zoom back to 1, this fires again and re-fits cleanly.
+  if (window.visualViewport && window.visualViewport.scale > 1.01) return;
   updateHeroDims();
   applyHero(heroCurrent);
   applyColRatios(); // re-compute px heights + seamless loop point
