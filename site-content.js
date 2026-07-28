@@ -194,6 +194,8 @@ function applyHeroPosResponsive(cfg){
   var _ty = (map && map._type)   || (cfg.heroPos && cfg.heroPos._type)   || cfg.heroType   || {};
   try { applyHeroPhrase(_ph); } catch(e){}
   try { applyHeroType(_ty); } catch(e){}
+  // Per-device headline / subtitle TEXT (phone & iPad can override the desktop text).
+  try { applyHeroTextOverride(map); } catch(e){}
   // Button width (per device). Empty → fall back to the CSS default min-width.
   var _bw = (map && map._btnW) || (cfg.heroPos && cfg.heroPos._btnW) || null;
   var _btns = document.querySelectorAll('.hco-btn-pri, .hco-btn-out');
@@ -268,6 +270,26 @@ function applyHeroType(map){
       el.style.alignSelf = '';
       el.style.textAlign = '';
     }
+  });
+}
+
+// Per-device headline / subtitle TEXT override. Desktop (base) uses the shared i18n
+// text; phone / iPad may carry their OWN text — INCLUDING line breaks — in
+// map._text = { headline:{en,zh}, sub:{en,zh} }. Empty / missing → inherit the base
+// i18n text. This is what lets the phone title be a single line while the desktop
+// title stays multi-line (the two are stored separately, so editing one never
+// touches the other). Line breaks render via the elements' white-space:pre / pre-line.
+function applyHeroTextOverride(map){
+  var t = (map && map._text) || {};
+  var lang = _heroCurLang();
+  var dict = (window.I18N && window.I18N[lang]) || {};
+  [['headline', '.hco-headline', 'hero.headline'],
+   ['sub',      '.hco-sub',      'hero.sub']].forEach(function(row){
+    var el = document.querySelector(row[1]); if(!el) return;
+    var o  = t[row[0]] || {};
+    var ov = (lang === 'zh') ? o.zh : o.en;                 // this device's override
+    var val = (ov != null && ov !== '') ? ov : dict[row[2]]; // else the shared base text
+    if (val != null) el.textContent = val;
   });
 }
 

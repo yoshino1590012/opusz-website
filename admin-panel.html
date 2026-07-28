@@ -1209,8 +1209,8 @@ Martin</textarea>
     // (輪播標語 / Phrases removed 2026-07-28 — the rotating-phrase overlay is no longer
     //  rendered on the page, so its editor fields were retired. The dead CSS/JS/i18n for
     //  #heroPhraseOverlay/.hp-phrase is inert and left in place.)
-    {section:'hero', sec:'主標題 / Headline（想換行的地方按 Enter）', k:'hero.headline', multiline:true, label:'主標題', en:"Meet Taiwan's elite musicians.", zh:'遇見台灣菁英音樂家'},
-    {section:'hero', sec:'副標 / Subtitle（想換行的地方按 Enter）', k:'hero.sub', multiline:true, label:'副標', en:'For performances and lessons. Connecting you with the very best.', zh:'演出與教學，媒合最頂尖的他們。'},
+    {section:'hero', sec:'主標題 / Headline（想換行的地方按 Enter）', k:'hero.headline', multiline:true, devText:true, label:'主標題', en:"Meet Taiwan's elite musicians.", zh:'遇見台灣菁英音樂家'},
+    {section:'hero', sec:'副標 / Subtitle（想換行的地方按 Enter）', k:'hero.sub', multiline:true, devText:true, label:'副標', en:'For performances and lessons. Connecting you with the very best.', zh:'演出與教學，媒合最頂尖的他們。'},
     {section:'hero', sec:'按鈕 / Buttons', k:'hero.findArtists', label:'尋找音樂家鈕', en:'Find Artists', zh:'尋找音樂家'},
     {section:'hero', k:'hero.createProject', label:'建立專案鈕', en:'Create a Project', zh:'建立專案'},
 
@@ -1442,6 +1442,20 @@ Martin</textarea>
       var zhEl=document.getElementById('se_zh_'+seSlug(ff.k));
       var enVal=enEl?enEl.value:undefined, zhVal=zhEl?zhEl.value:undefined;
       var zhKey=ff.zhk||ff.k;
+      // Per-device text override (手機/iPad 標題・副標): store on the ACTIVE device's
+      // heroPos map _text, NOT the shared i18n, so the desktop text stays untouched.
+      // (Stored raw, incl. line breaks; empty string → the renderer inherits the base.)
+      if(ff.devText && (seCurrentDevice==='phone'||seCurrentDevice==='ipad') && (enEl||zhEl)){
+        var _dm = (typeof window.seActiveHeroPos==='function') ? window.seActiveHeroPos() : null;
+        if(_dm){
+          _dm._text = _dm._text || {};
+          var _o = _dm._text[ff.k] || {};
+          if(enVal!=null) _o.en = enVal;
+          if(zhVal!=null) _o.zh = zhVal;
+          _dm._text[ff.k] = _o;
+        }
+        return;   // do NOT touch cfg.i18n → desktop text preserved
+      }
       if(ff.both){
         if(enVal!=null){ cfg.i18n.en[ff.k]=enVal; cfg.i18n.zh[ff.k]=enVal; }
         if(zhVal!=null){ cfg.i18n.en[zhKey]=zhVal; cfg.i18n.zh[zhKey]=zhVal; }
@@ -2107,18 +2121,40 @@ Martin</textarea>
 
       // ── Text field (i18n EN/中文) ──
       var zhKey=ff.zhk||ff.k;
-      var enV=(cur.en && cur.en[ff.k]!=null)?cur.en[ff.k]:ff.en;
-      var zhSrc=ff.both?cur.en:cur.zh;
-      var zhV=(zhSrc && zhSrc[zhKey]!=null)?zhSrc[zhKey]:ff.zh;
+      // Base (desktop / shared i18n) values — also used as the placeholder that shows
+      // what a blank per-device field will inherit.
+      var _baseEn=(cur.en && cur.en[ff.k]!=null)?cur.en[ff.k]:ff.en;
+      var _baseZhSrc=ff.both?cur.en:cur.zh;
+      var _baseZh=(_baseZhSrc && _baseZhSrc[zhKey]!=null)?_baseZhSrc[zhKey]:ff.zh;
+      // Per-device text override: on the phone / iPad tab, 標題・副標 edit the ACTIVE
+      // device's _text override (its own text + line breaks), NOT the shared i18n — so
+      // the desktop text is never touched. Blank → inherit the desktop text.
+      var _devTxt = ff.devText && (seCurrentDevice==='phone' || seCurrentDevice==='ipad');
+      var _devLbl = {phone:'手機',ipad:'iPad'}[seCurrentDevice] || '';
+      var enV, zhV;
+      if(_devTxt){
+        var _dm = (typeof window.seActiveHeroPos==='function') ? window.seActiveHeroPos() : {};
+        var _dov = (_dm._text && _dm._text[ff.k]) || {};
+        enV = (_dov.en!=null) ? _dov.en : '';
+        zhV = (_dov.zh!=null) ? _dov.zh : '';
+      } else {
+        enV=_baseEn; zhV=_baseZh;
+      }
       if(ff.multiline){
         // Multi-line text: <textarea> so the owner can press Enter to insert real
-        // line breaks (saved as \n; the page renders them via white-space:pre-line).
+        // line breaks (saved as \n; the page renders them via white-space:pre / pre-line).
         var taSty='width:100%;margin-bottom:5px;padding:7px 9px;border:1px solid #ddd;border-radius:7px;font-size:13px;box-sizing:border-box;resize:vertical;line-height:1.5;font-family:inherit;';
-        return head+'<div style="margin-bottom:12px;">'
-          +'<div style="font-size:12px;font-weight:600;color:#555;margin-bottom:5px;">'+esc(ff.label)+'</div>'
-          +'<textarea id="se_en_'+id+'" rows="2" placeholder="EN" oninput="seOnInput()" style="'+taSty+'">'+esc(enV)+'</textarea>'
-          +'<textarea id="se_zh_'+id+'" rows="2" placeholder="中文" oninput="seOnInput()" style="'+taSty+'">'+esc(zhV)+'</textarea>'
-          +'<div style="font-size:10px;color:#999;line-height:1.5;">💡 在想斷行的地方按 Enter 即可換行。</div>'
+        var _lbl  = _devTxt ? (esc(ff.label)+' — '+_devLbl+'版（留空＝沿用電腦）') : esc(ff.label);
+        var _phEn = _devTxt ? esc(_baseEn||'EN')  : 'EN';
+        var _phZh = _devTxt ? esc(_baseZh||'中文') : '中文';
+        var _hint = _devTxt
+          ? '💡 這是「'+_devLbl+'」專用文字，改它不會動到電腦版；留白＝沿用電腦版。想斷行按 Enter。'
+          : '💡 在想斷行的地方按 Enter 即可換行。';
+        return head+'<div style="margin-bottom:12px;'+(_devTxt?'border:1px solid #a5f3fc;background:#f0fdff;border-radius:9px;padding:9px;':'')+'">'
+          +'<div style="font-size:12px;font-weight:600;color:'+(_devTxt?'#0e7490':'#555')+';margin-bottom:5px;">'+_lbl+'</div>'
+          +'<textarea id="se_en_'+id+'" rows="2" placeholder="'+_phEn+'" oninput="seOnInput()" style="'+taSty+'">'+esc(enV)+'</textarea>'
+          +'<textarea id="se_zh_'+id+'" rows="2" placeholder="'+_phZh+'" oninput="seOnInput()" style="'+taSty+'">'+esc(zhV)+'</textarea>'
+          +'<div style="font-size:10px;color:#999;line-height:1.5;">'+_hint+'</div>'
           +'</div>';
       }
       return head+'<div style="margin-bottom:12px;">'
