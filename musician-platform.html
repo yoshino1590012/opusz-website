@@ -934,8 +934,14 @@ nav.mega-open .nav-links a::before {
    their boxes are pixel-identical (border-box + equal padding/font/line-height → equal
    height). The primary's border is the same colour as its fill, so forcing it to 1.5px
    is invisible but makes it exactly as tall as the outline button. Both buttons are also
-   locked to ONE shared scale in site-content.js so they can never desync. */
-.hco-btn-pri, .hco-btn-out { justify-content: center; min-width: calc(var(--k)*186px); box-sizing: border-box; line-height: 1; border-width: 1.5px; }
+   locked to ONE shared scale in site-content.js so they can never desync.
+   white-space:nowrap is CRITICAL: on a narrow phone the longer label ("Create a
+   Project") used to WRAP to 2 lines while the shorter one ("Find Artists") stayed
+   1 line → different heights. This never showed in the wide editor preview (roomy
+   container = both 1 line). Forcing nowrap keeps every label on ONE line so the two
+   buttons are always the same height regardless of text length or screen width. */
+.hco-btn-pri, .hco-btn-out { justify-content: center; min-width: calc(var(--k)*186px); box-sizing: border-box; line-height: 1; border-width: 1.5px; white-space: nowrap; }
+.hco-btn-pri .hco-btn-label, .hco-btn-out .hco-btn-label { white-space: nowrap; }
 /* chevron › after each button label, nudges right on hover */
 .hco-btn-pri::after, .hco-btn-out::after {
   content: '\203A'; font-size: calc(var(--k)*17px); line-height: 0; font-weight: 600;
