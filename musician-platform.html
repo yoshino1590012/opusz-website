@@ -457,7 +457,9 @@ nav.mega-open .nav-links a::before {
    of #heroCard it scales WITH the card on scroll (shrinks, doesn't fade). pointer-events:none
    so it never blocks the buttons. */
 .hero-bottom-strip { position: absolute; left: 0; right: 0; bottom: 0; height: 11vh; background: #fff; z-index: 0; pointer-events: none; }
-@media (max-width: 700px) { .hero-bottom-strip { height: 10vh; } }
+/* Non-desktop (phone + tablet, ≤1024px): drop the white bottom band entirely so the
+   hero image runs to the edge — kept on desktop where it blends into the section below. */
+@media (max-width: 1024px) { .hero-bottom-strip { display: none; } }
 /* Everything after the hero rides above it and covers it as it scrolls up. */
 .marquee-section, .hiw, .categories, .work, .sv-section, .services,
 .hp-about, .blog, .contact, #site-footer { position: relative; z-index: 1; }
