@@ -2,6 +2,60 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- Pretty URLs: this page is also served at /musician/<slug> (see _redirects).
+     Under that path the browser would resolve relative assets (nav.js, css, etc.)
+     against /musician/ and 404 them, so pin every relative URL to the site root.
+     Harmless on the normal /musician-profile path (root is the same place). -->
+<base href="/">
+<script>
+  /* ── Pretty-URL identity, available synchronously to everything below ──
+     __opuszSlug : the <slug> from a /musician/<slug> path (else null)
+     __opuszUid  : the ?uid= value, OR — once the loader resolves a slug — the
+                   real Firestore uid. Booking / messaging read THIS, so they work
+                   on both the pretty path and the legacy ?uid= link.
+     __opuszIsRealProfile : true on any real musician page (not the blank template). */
+  (function(){
+    var m = location.pathname.match(/^\/musician\/([^\/?#]+)/);
+    window.__opuszSlug = m ? decodeURIComponent(m[1]).toLowerCase() : null;
+    window.__opuszUid  = new URLSearchParams(location.search).get('uid') || null;
+    window.__opuszIsRealProfile = !!(window.__opuszUid || window.__opuszSlug);
+  })();
+  /* Turn a display name into a URL slug. Prefers the Latin part of a mixed name
+     ("廖梓彤 Martin liao" → "martin-liao", "劉柔彣Julia" → "julia"). A name with
+     NO Latin letters keeps its own characters ("張雅迪" → "張雅迪"): a Chinese URL
+     that looks clean in the address bar (it may %-encode when shared, which the
+     owner accepted over an uglier romanised guess). MUST stay identical
+     everywhere a slug is built or resolved, or links won't match. */
+  window.opzSlugify = function(name){
+    var s = String(name == null ? '' : name).toLowerCase();
+    var latin = s.replace(/[^a-z0-9\s-]+/g, ' ').replace(/[\s_]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    if (latin) return latin;                                  // has an English/romanised part → use it
+    // Purely non-Latin (e.g. Chinese) → drop whitespace + punctuation, keep the name characters.
+    return s.replace(/\s+/g, '').replace(/[!-\/:-@\[-`{-~，。、·‧・（）()「」『』〈〉《》【】！？；：、]+/g, '');
+  };
+  /* Build a deterministic slug → uid map from a raw Firestore REST document list.
+     Sorted by doc id so duplicate names get a STABLE "-2/-3" suffix that every
+     page computes the same way. Used to resolve a pretty URL back to a uid, and
+     (later) to emit pretty links. */
+  window.opzBuildSlugMap = function(docs){
+    var arr = (docs || []).map(function(d){
+      var f = (d && d.fields) || {};
+      var name = (f.name && f.name.stringValue) || '';
+      var id = (d && d.name || '').split('/').pop();
+      return { id: id, base: window.opzSlugify(name) || ('musician-' + id.slice(0, 6).toLowerCase()) };
+    }).sort(function(a, b){ return a.id < b.id ? -1 : a.id > b.id ? 1 : 0; });
+    var seen = {}, map = {};
+    arr.forEach(function(m){
+      var s = m.base, n = 1;
+      while (seen[s]) { n++; s = m.base + '-' + n; }   // first dup → base-2
+      seen[s] = true; map[s] = m.id;
+    });
+    return map;
+  };
+  window.opzResolveSlugToUid = function(slug, docs){
+    return window.opzBuildSlugMap(docs)[slug] || null;
+  };
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>OPUS.Z</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1951,7 +2005,7 @@ document.addEventListener('opusz:langchange', function(e){ if (typeof switchProf
 </script>
   <link rel="icon" href="/favicon.ico?v=7" />
   <link rel="icon" type="image/png" href="/favicon.png?v=7" />
-<link rel="stylesheet" href="nav.css?v=9">
+<link rel="stylesheet" href="nav.css?v=10">
   <script src="assets/js/analytics.js"></script>
 <style id="opz-no-scrollbar">*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}</style>
 <style>
@@ -1969,7 +2023,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
      anyway, so a slow/failed load can never leave the hero blank forever. */
   (function(){
     try{
-      if(new URLSearchParams(location.search).get('uid')){
+      if(window.__opuszIsRealProfile){   // ?uid= OR /musician/<slug>
         document.documentElement.classList.add('prof-pending');
         setTimeout(function(){ document.documentElement.classList.remove('prof-pending'); if(window.__startHeroIntro) window.__startHeroIntro(); }, 5000);
       }
@@ -2680,7 +2734,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   // musician (?uid=). These 'hl-img-*' keys are GLOBAL (not per-uid), so on a real
   // profile/preview the per-musician config must drive highlights — otherwise one
   // user's locally-saved photos would leak onto another's page on a shared device.
-  if (!new URLSearchParams(location.search).get('uid')) {
+  if (!window.__opuszIsRealProfile) {   // blank template only — real pages (?uid= or /musician/<slug>) use per-musician config
     for (var _i = 0; _i < 15; _i++) {
       var _saved = localStorage.getItem('hl-img-' + _i);
       if (_saved) applyHlImg(_i, _saved);
@@ -4268,7 +4322,9 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   // kills this ENTIRE script — which is why published public profiles were
   // showing only the blank template. Inside the function the guards are legal.
   (async () => {
-  const uid = new URLSearchParams(window.location.search).get('uid');
+  // uid may come from ?uid= directly, or be resolved below from a /musician/<slug> path.
+  let uid = window.__opuszUid;
+  const slug = window.__opuszSlug;
   // Reveal the hero ONCE — and only after the banner photo has actually loaded,
   // so the whole hero (name + photo + details) appears together instead of the
   // name popping in first and the photo trailing behind.
@@ -4306,9 +4362,18 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     ]);
     Promise.all([imgReady, fontReady]).then(reveal);
   };
-  if (!uid) { reveal(); return; } // no uid = show hardcoded Martin profile as-is
+  if (!uid && !slug) { reveal(); return; } // no uid / slug = show hardcoded Martin template as-is
 
   const API_KEY = "AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s";
+  const MUSICIANS_LIST_URL = 'https://firestore.googleapis.com/v1/projects/opusz-45280/databases/(default)/documents/musicians?pageSize=300&key=' + API_KEY;
+  // Fetch the musician list ONCE and cache it on window — shared by slug→uid
+  // resolution, the ?uid=→pretty-URL swap, and "people also viewed".
+  async function ensureMusicianList(){
+    if (Array.isArray(window.__opuszMusicians)) return window.__opuszMusicians;
+    try { const r = await fetch(MUSICIANS_LIST_URL); if (r.ok) { const j = await r.json(); window.__opuszMusicians = (j && j.documents) || []; } }
+    catch(e){ console.log('musician list fetch failed:', e); }
+    return window.__opuszMusicians || [];
+  }
   // Firestore REST decoder: typed JSON → plain object (same shape as snap.data()).
   const fsDec = (v) => {
     if (!v || typeof v !== 'object') return v;
@@ -4413,10 +4478,51 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     revealWhenReady(p);   // show the hero only once the banner photo has loaded
   }
 
-  // 1) INSTANT paint from the last-seen copy (repeat visits show immediately,
-  //    no flash). Keyed by uid; tolerant of a missing/corrupt entry.
+  // 0) PRETTY URL: resolve /musician/<slug> → uid by scanning the published
+  //    musician list and rebuilding the same deterministic slug map used to emit
+  //    links. No stored slug field, so it works for every musician with zero data
+  //    migration. The list we fetch is cached for "people also viewed" below.
+  let _slugDoc = null;
+  if (!uid && slug) {
+    const docs = await ensureMusicianList();
+    uid = window.opzResolveSlugToUid(slug, docs);
+    if (uid) {
+      window.__opuszUid = uid;                                  // booking / messaging read this
+      const hit = docs.find(d => (d.name || '').split('/').pop() === uid);
+      if (hit) _slugDoc = fsDoc(hit);                           // paint from it immediately (no localStorage yet)
+    }
+    if (!uid) { reveal(); return; }   // no musician with this slug → blank template, don't hang
+    // Already on the pretty path — just point the canonical at it for Google.
+    try {
+      let link = document.querySelector('link[rel="canonical"]');
+      if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
+      link.href = 'https://opuszmusic.com/musician/' + encodeURIComponent(slug);
+    } catch(e){}
+  }
+
+  // Landed via a legacy ?uid= link → rewrite the address bar to the pretty
+  // /musician/<slug> URL (no reload) and point the canonical there, so every
+  // entry point ends up showing — and being indexed as — the clean URL.
+  if (uid && !slug) {
+    ensureMusicianList().then(function(docs){
+      try {
+        const map = window.opzBuildSlugMap(docs);
+        const mySlug = Object.keys(map).find(function(s){ return map[s] === uid; });
+        if (!mySlug) return;
+        const pretty = '/musician/' + encodeURIComponent(mySlug);
+        history.replaceState(null, '', pretty);                 // ?uid=… → /musician/<slug>
+        let link = document.querySelector('link[rel="canonical"]');
+        if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
+        link.href = 'https://opuszmusic.com' + pretty;
+      } catch(e){ console.log('pretty-URL swap failed:', e); }
+    });
+  }
+
+  // 1) INSTANT paint — from the slug-resolved doc, or the last-seen localStorage
+  //    copy (repeat ?uid= visits show immediately, no flash). Tolerant of a
+  //    missing/corrupt entry.
   try {
-    const cached = JSON.parse(localStorage.getItem('opusz_profile_' + uid) || 'null');
+    const cached = _slugDoc || JSON.parse(localStorage.getItem('opusz_profile_' + uid) || 'null');
     if (cached) applyMusician(cached);
   } catch(e){}
 
@@ -4466,10 +4572,8 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       return min;
     };
     try {
-      var listUrl = 'https://firestore.googleapis.com/v1/projects/opusz-45280/databases/(default)/documents/musicians?pageSize=300&key=' + API_KEY;
-      var r = await fetch(listUrl);
-      if (!r.ok) return;
-      var j = await r.json(), docs = (j && j.documents) || [];
+      var docs = await ensureMusicianList();   // reuses the list already fetched above
+      if (!docs.length) return;
       var mine = null, others = [];
       docs.forEach(function(d){
         var p = fsDoc(d); if(!p) return;
@@ -5564,6 +5668,7 @@ document.addEventListener('keydown', function(e){
 <script>
 /* ── Page transition + bfcache fix ── */
 document.addEventListener('click', function(e) {
+  if (e.defaultPrevented) return;   // an inline onclick already handled it (e.g. the in-page "lesson plans" scroll) — don't hijack into a page nav
   var a = e.target.closest('a[href]');
   if (!a || a.target || e.metaKey || e.ctrlKey) return;
   var url; try { url = new URL(a.href, location.href); } catch(err) { return; }
@@ -7027,7 +7132,7 @@ window.addEventListener('pageshow', function(e) {
     const auth = getAuth(app);
     const db   = getFirestore(app);
     window.opzSendInquiry = async function(obj){
-      const uid = new URLSearchParams(location.search).get('uid');
+      const uid = window.__opuszUid || new URLSearchParams(location.search).get('uid');
       if (!uid) return false;   // hard-coded template/demo profile → nobody real to notify
       try { if (!auth.currentUser) await signInAnonymously(auth); } catch(e){ /* anon sign-in may be disabled */ }
       await addDoc(collection(db, 'inquiries'), Object.assign({
@@ -7050,7 +7155,7 @@ window.addEventListener('pageshow', function(e) {
     // logged-in customer on a real profile.
     window.opzMirrorToConversation = async function(payload){
       try{
-        var musicianUid = new URLSearchParams(location.search).get('uid');
+        var musicianUid = window.__opuszUid || new URLSearchParams(location.search).get('uid');
         if(!musicianUid || !window.OPUSZ_MSG) return;
         // Wait for the messaging layer's Firebase identity to resolve before giving
         // up — it loads async, so a synchronous currentUid() right after send is

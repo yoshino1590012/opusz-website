@@ -403,13 +403,13 @@ nav.mega-open .nav-links a::before {
     background: #fff !important; box-shadow: none !important;
     display: flex !important; flex-direction: column !important; gap: 2px !important;
     overflow-y: auto !important;
-    opacity: 1 !important; visibility: visible !important;
+    opacity: 0 !important; visibility: hidden !important;
     transform: translateY(-100%) !important;
-    transition: transform .6s cubic-bezier(0.76,0,0.24,1) !important;
+    transition: transform .6s cubic-bezier(0.76,0,0.24,1), opacity .4s ease, visibility .6s !important;
     pointer-events: none !important;
     z-index: 1100 !important;
   }
-  .nav-drawer.nd-visible{ transform: translateY(0) !important; pointer-events: auto !important; }
+  .nav-drawer.nd-visible{ transform: translateY(0) !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
   .nav-drawer > *{
     opacity: 0 !important; transform: translateY(22px) !important;
     transition: opacity .5s ease, transform .5s cubic-bezier(0.22,1,0.36,1) !important;
@@ -428,12 +428,12 @@ nav.mega-open .nav-links a::before {
   #navDrawerExtra{ margin-top: auto !important; }
   .nav-sub-drawer{
     position: fixed !important; inset: 0 !important; width: 100% !important; max-width: none !important;
-    opacity: 1 !important; visibility: visible !important;
+    opacity: 0 !important; visibility: hidden !important;
     transform: translateY(-100%) !important;
-    transition: transform .55s cubic-bezier(0.76,0,0.24,1) !important;
+    transition: transform .55s cubic-bezier(0.76,0,0.24,1), opacity .4s ease, visibility .55s !important;
     pointer-events: none !important; z-index: 1150 !important;
   }
-  .nav-sub-drawer.ns-visible{ transform: translateY(0) !important; pointer-events: auto !important; }
+  .nav-sub-drawer.ns-visible{ transform: translateY(0) !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
 }
 @media (max-width: 900px) and (prefers-reduced-motion: reduce){
   .nav-drawer, .nav-sub-drawer, .nav-drawer > *{ transition: none !important; }

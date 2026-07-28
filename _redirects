@@ -1,3 +1,10 @@
 # Cloudflare Pages redirects (mirrors netlify.toml)
 # Serve the homepage at the root URL.
 /    /musician-platform.html    200
+
+# Pretty musician URLs: /musician/<name-slug> is served BY the profile page,
+# which reads the slug from the path and resolves it to the real Firestore uid.
+# 200 = rewrite (the browser keeps showing /musician/<slug>). Old ?uid= links
+# still work. NOTE: this only matches the "/musician/" prefix WITH a slash, so
+# /musicians, /musician-profile, /musician-dashboard are untouched.
+/musician/*    /musician-profile.html    200
