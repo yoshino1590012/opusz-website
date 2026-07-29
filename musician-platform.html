@@ -495,10 +495,7 @@ nav.mega-open .nav-links a::before {
    the next section (合作廠商 / Partners, opaque, z-index 1) scrolls UP and COVERS it — the
    original "cover" exit — instead of the hero scrolling away. 100vh runway = the cover
    plays over one screen of scroll. */
-@media (max-width: 700px) {
-  .hero { height: 100vh; height: 100dvh; }
-  .hero-sticky { position: fixed; top: 0; left: 0; right: 0; }
-}
+@media (max-width: 700px) { .hero { height: 100vh; height: 100dvh; } }
 /* bg matches card so even if sub-pixel gaps appear at edges, no dark bleed-through */
 /* height uses dvh (the *visible* viewport) so on iOS Safari the address bar can't
    leave a dark strip of the photo grid above the centred hero card. vh fallback
@@ -509,6 +506,10 @@ nav.mega-open .nav-links a::before {
    The hero pins for the first ~80vh of the 180vh runway (the card shrinks during that),
    then scrolls up and the next section follows — exactly like the showreel's exit. */
 .hero-sticky { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #f8f8f8; z-index: 0; }
+/* MOBILE: pin the hero with position:fixed so the next section (Partners) scrolls UP and
+   COVERS it (the original "cover" exit) instead of the hero scrolling away. Placed AFTER
+   the base sticky rule so it actually wins at ≤700px (source order = specificity tie-break). */
+@media (max-width: 700px) { .hero-sticky { position: fixed; top: 0; left: 0; right: 0; } }
 /* Bottom white strip INSIDE the hero card (content TBD): absolute over the video (z-index 1
    > canvas 0), clipped by the card's overflow:hidden rounded corners. Because it's a child
    of #heroCard it scales WITH the card on scroll (shrinks, doesn't fade). pointer-events:none
