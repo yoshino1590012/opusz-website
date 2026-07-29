@@ -531,7 +531,13 @@ nav.mega-open .nav-links a::before {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 0;     /* JS animates this from 0→20px as card shrinks — no corner gaps at full scale */
+  /* Corner rounding is a CLASS toggle (.hero-rounded), NOT a per-frame inline write.
+     Writing border-radius every scroll frame repaints the whole full-screen card layer
+     → the "ka-ka-ka" shrink stutter. 0 at full scale (sharp full-bleed), one CSS
+     transition to 20px once it starts shrinking → the scale stays a pure GPU transform
+     (smooth, like the showreel's constant-radius video cells). */
+  border-radius: 0;
+  transition: border-radius .25s ease;
   z-index: 3;
   will-change: transform;
   /* STATIC card shadow (painted once, scales with the transform). At full screen
@@ -541,6 +547,9 @@ nav.mega-open .nav-links a::before {
      shadow every scroll frame) is what removes the mobile scroll jank. */
   box-shadow: 0 0 52px rgba(0,0,0,.15), 0 22px 60px rgba(0,0,0,.22);
 }
+/* Rounded corners once the card starts shrinking (toggled by JS at most once each way,
+   so it never repaints per frame — see applyHero). */
+#heroCard.hero-rounded { border-radius: 20px; }
 /* Mobile end-scale is 0.74, so --k = 1/0.74 ≈ 1.351 */
 @media (max-width: 700px) {
   #heroCard { --k: 1.351; }
@@ -5079,19 +5088,20 @@ function updateHeroDims() {
 }
 
 const _hcOverlayEl = document.getElementById('hcCardOverlay');
-var _lastHeroRadius = -1;
+var _heroRounded = false;
 function applyHero(progress) {
   // Per frame we touch ONLY a 3D transform → GPU-composited, no repaint (like the smooth
   // showreel's .sv-grid). translate3d forces its own layer so the scale never repaints.
   const scale = _cardScaleMax - (_cardScaleMax - _cardEndScale) * progress;
   heroCardEl.style.transform = `translate3d(-50%, -50%, 0) scale(${scale})`;
 
-  // Border-radius CHANGES force a paint, so writing it every scroll frame was a real
-  // mobile jank source. Round it and write ONLY when the integer px actually changes
-  // (≈20 writes over the whole shrink instead of one per frame) → the scale stays
-  // compositor-only and buttery. 0 at full scale (no corner gaps), grows to 20px.
-  const radius = Math.min(20, Math.round(progress * 80));
-  if (radius !== _lastHeroRadius) { heroCardEl.style.borderRadius = radius + 'px'; _lastHeroRadius = radius; }
+  // Corner rounding via a CLASS toggle (one CSS transition), NOT a per-frame inline
+  // border-radius write — writing border-radius every frame repaints the whole card
+  // layer and was THE cause of the "ka-ka-ka" shrink stutter. classList.toggle only
+  // mutates the DOM when the boolean flips, so this repaints at most once each way and
+  // the scale stays a pure composited transform.
+  const rounded = progress > 0.02;
+  if (rounded !== _heroRounded) { heroCardEl.classList.toggle('hero-rounded', rounded); _heroRounded = rounded; }
 }
 
 // ── Canvas scrub RAF loop ──
