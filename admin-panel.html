@@ -2030,12 +2030,14 @@ Martin</textarea>
         var id=seSlug(ff.k); var zhKey2=ff.zhk||ff.k;
         var enEl=document.getElementById('se_en_'+id);
         var zhEl=document.getElementById('se_zh_'+id);
-        // CRITICAL: on the phone/iPad tab a devText field (標題/副標) holds that device's
-        // OVERRIDE, not the shared base i18n. It reuses the same se_en_/se_zh_ id, so
-        // folding its value into the base `cur` here would overwrite the desktop text with
-        // the phone override when you switch tabs — THE "desktop 3 lines → 1 line" bug.
-        // Skip devText fields on phone/iPad; their draft lives in the device _text map.
-        if(ff.devText && (seCurrentDevice==='phone'||seCurrentDevice==='ipad')) return;
+        // CRITICAL: a per-device OVERRIDE field (標題/副標 on the phone/iPad tab) holds that
+        // device's text, NOT the shared base i18n, but reuses the same se_en_/se_zh_ id.
+        // Folding its value into the base `cur` clobbers the desktop text — THE "desktop 3
+        // lines → 1 line after switching tabs" bug. Detect it by the data-devov MARKER on
+        // the actual DOM field (NOT seCurrentDevice): when you switch phone→desktop, the
+        // device has already flipped to 'desktop' but the DOM still shows the phone override
+        // field, so a seCurrentDevice check missed it. The marker follows the rendered field.
+        if((enEl && enEl.getAttribute('data-devov')) || (zhEl && zhEl.getAttribute('data-devov'))) return;
         if(enEl) de[ff.k]=enEl.value;
         if(zhEl) dz[zhKey2]=zhEl.value;
         if(ff.type==='image'||ff.type==='video'){
@@ -2156,10 +2158,11 @@ Martin</textarea>
         var _hint = _devTxt
           ? '💡 這是「'+_devLbl+'」專用文字，改它不會動到電腦版；留白＝沿用電腦版。想斷行按 Enter。'
           : '💡 在想斷行的地方按 Enter 即可換行。';
+        var _ovAttr = _devTxt ? 'data-devov="1" ' : '';   // mark override fields so draft-preservation never folds them into the shared base
         return head+'<div style="margin-bottom:12px;'+(_devTxt?'border:1px solid #a5f3fc;background:#f0fdff;border-radius:9px;padding:9px;':'')+'">'
           +'<div style="font-size:12px;font-weight:600;color:'+(_devTxt?'#0e7490':'#555')+';margin-bottom:5px;">'+_lbl+'</div>'
-          +'<textarea id="se_en_'+id+'" rows="2" placeholder="'+_phEn+'" oninput="seOnInput()" style="'+taSty+'">'+esc(enV)+'</textarea>'
-          +'<textarea id="se_zh_'+id+'" rows="2" placeholder="'+_phZh+'" oninput="seOnInput()" style="'+taSty+'">'+esc(zhV)+'</textarea>'
+          +'<textarea '+_ovAttr+'id="se_en_'+id+'" rows="2" placeholder="'+_phEn+'" oninput="seOnInput()" style="'+taSty+'">'+esc(enV)+'</textarea>'
+          +'<textarea '+_ovAttr+'id="se_zh_'+id+'" rows="2" placeholder="'+_phZh+'" oninput="seOnInput()" style="'+taSty+'">'+esc(zhV)+'</textarea>'
           +'<div style="font-size:10px;color:#999;line-height:1.5;">'+_hint+'</div>'
           +'</div>';
       }
