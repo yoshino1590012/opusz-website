@@ -5078,17 +5078,19 @@ function updateHeroDims() {
 }
 
 const _hcOverlayEl = document.getElementById('hcCardOverlay');
+var _lastHeroRadius = -1;
 function applyHero(progress) {
-  // Per frame we now touch ONLY the transform (compositor-only, no repaint) plus a
-  // cheap border-radius. The box-shadow is static CSS (see #heroCard) — recomputing
-  // its 50px blur every scroll frame was the main mobile jank, so it's gone from here.
+  // Per frame we touch ONLY a 3D transform → GPU-composited, no repaint (like the smooth
+  // showreel's .sv-grid). translate3d forces its own layer so the scale never repaints.
   const scale = _cardScaleMax - (_cardScaleMax - _cardEndScale) * progress;
-  heroCardEl.style.transform = `translate(-50%, -50%) scale(${scale})`;
+  heroCardEl.style.transform = `translate3d(-50%, -50%, 0) scale(${scale})`;
 
-  // Border-radius: 0 when fully expanded (scale=1), grows as card shrinks
-  // Reaches full 20px very quickly so corners look clean from the start of shrink
-  const radius = Math.min(20, progress * 80);
-  heroCardEl.style.borderRadius = `${radius}px`;
+  // Border-radius CHANGES force a paint, so writing it every scroll frame was a real
+  // mobile jank source. Round it and write ONLY when the integer px actually changes
+  // (≈20 writes over the whole shrink instead of one per frame) → the scale stays
+  // compositor-only and buttery. 0 at full scale (no corner gaps), grows to 20px.
+  const radius = Math.min(20, Math.round(progress * 80));
+  if (radius !== _lastHeroRadius) { heroCardEl.style.borderRadius = radius + 'px'; _lastHeroRadius = radius; }
 }
 
 // ── Canvas scrub RAF loop ──
@@ -5142,7 +5144,10 @@ window.addEventListener('scroll', () => {
   // section covers it. We only start the drift at the COVER point (hero height − 100vh
   // = 0.8·vh here) — the covering section moves at full speed and always overtakes the
   // ¼-speed hero, so there is never a gap below the hero. ──
-  if (_heroStickyEl) {
+  // Parallax drifts the FIXED hero up ¼-speed as it's covered. Moving a position:fixed
+  // full-screen element via JS during iOS momentum scroll is a jank source, so skip it
+  // on phones — the hero simply stays put and the next section scrolls over it.
+  if (_heroStickyEl && window.innerWidth > 700) {
     const _par = -0.22 * Math.max(0, sy - vh * 0.8);
     _heroStickyEl.style.transform = 'translate3d(0,' + _par.toFixed(1) + 'px,0)';
   }
@@ -5163,13 +5168,20 @@ window.addEventListener('scroll', () => {
   // the visible shrink, GPU-composited. So no per-scroll canvas redraw here.
 
   // ── Card shrinks (the visible "photo folds into a card" effect) ──
-  // DISABLED on phones (≤700px) at the owner's request: on mobile the hero stays
-  // FULL-SIZE and the next section (合作廠商 / 分類) simply scrolls up and covers it
-  // (via z-index) — no shrink, no reveal of the photos behind. Desktop keeps the fold.
-  heroTarget = (window.innerWidth <= 700)
-    ? 0
-    : Math.max(0, Math.min(1, sy / (vh * 0.9)));
-  if (!heroRafId) heroRafId = requestAnimationFrame(heroTick);
+  heroTarget = Math.max(0, Math.min(1, sy / (vh * 0.9)));
+  if (window.innerWidth <= 700) {
+    // MOBILE: apply the shrink DIRECTLY from the scroll position — 1:1 with the finger,
+    // NO RAF lerp. The lerp "catches up" to the target with easing, which on iOS momentum
+    // scroll reads as the stutter/bounce ("噹") the owner reported. Direct-drive + the
+    // compositor-only 3D transform (see applyHero) = the same buttery feel as the
+    // sticky+transform showreel below.
+    heroCurrent = heroTarget;
+    applyHero(heroTarget);
+  } else if (!heroRafId) {
+    // DESKTOP: keep the RAF lerp — wheel input is discrete, so the easing glides the
+    // steps into a smooth motion.
+    heroRafId = requestAnimationFrame(heroTick);
+  }
 
 }, { passive: true });
 
