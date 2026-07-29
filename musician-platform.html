@@ -495,7 +495,7 @@ nav.mega-open .nav-links a::before {
    the next section (合作廠商 / Partners, opaque, z-index 1) scrolls UP and COVERS it — the
    original "cover" exit — instead of the hero scrolling away. 100vh runway = the cover
    plays over one screen of scroll. */
-@media (max-width: 700px) { .hero { height: 100vh; } }  /* stable vh, not dvh — see .hero-sticky note below */
+/* (mobile .hero height inherits the 320vh base runway now that the shrink is back on) */
 /* bg matches card so even if sub-pixel gaps appear at edges, no dark bleed-through */
 /* height uses dvh (the *visible* viewport) so on iOS Safari the address bar can't
    leave a dark strip of the photo grid above the centred hero card. vh fallback
@@ -5188,18 +5188,15 @@ window.addEventListener('scroll', () => {
   // trajectory, applied DIRECTLY on scroll (no RAF lerp) — identical to the .sv-grid zoom,
   // so the hero shrink and the video wall feel the same. The .hero runway is 320vh so the
   // 2-screen shrink completes while the hero is still pinned, then it scrolls away.
-  if (window.innerWidth <= 700) {
-    // MOBILE: shrink DISABLED (owner's decision). The hero stays full-size and simply
-    // scrolls up as the next section follows (the .hero runway is 100vh on phones). Reset
-    // to full scale once, not every scroll frame.
-    if (heroCurrent !== 0) { heroTarget = 0; heroCurrent = 0; applyHero(0); }
-  } else {
-    // DESKTOP: keep the shrink, matched to the showreel zoom (easeInOut over 2 screens).
-    var _p = Math.max(0, Math.min(1, sy / (vh * 2)));
-    var _eased = _p * _p * (3 - 2 * _p);
-    heroTarget = _eased; heroCurrent = _eased;
-    applyHero(_eased);
-  }
+  // Shrink is back ON for every device (owner re-enabled it on mobile now that the jank
+  // sources — per-frame border-radius repaint + iOS URL-bar reflow — are fixed). Same
+  // params as the showreel zoom: easeInOut over 2 screens, applied directly on scroll.
+  // On mobile the hero is position:fixed (see CSS) so it shrinks in place and the next
+  // section covers it; on desktop it's sticky and scrolls away.
+  var _p = Math.max(0, Math.min(1, sy / (vh * 2)));
+  var _eased = _p * _p * (3 - 2 * _p);
+  heroTarget = _eased; heroCurrent = _eased;
+  applyHero(_eased);
 
   // (Removed the "free the hero rendering once it scrolls off-screen" optimization: it
   // made scrolling BACK UP into the hero rebuild its whole render tree at the boundary →
