@@ -5193,7 +5193,7 @@ window.addEventListener('scroll', () => {
   // params as the showreel zoom: easeInOut over 2 screens, applied directly on scroll.
   // On mobile the hero is position:fixed (see CSS) so it shrinks in place and the next
   // section covers it; on desktop it's sticky and scrolls away.
-  var _p = Math.max(0, Math.min(1, sy / (vh * 2)));
+  var _p = Math.max(0, Math.min(1, sy / (vh * 1.3)));   // shrink spans ~1.3 screens (snappier — owner wanted it more responsive; was 2 screens)
   var _eased = _p * _p * (3 - 2 * _p);
   heroTarget = _eased; heroCurrent = _eased;
   applyHero(_eased);
