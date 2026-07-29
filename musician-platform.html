@@ -5163,7 +5163,12 @@ window.addEventListener('scroll', () => {
   // the visible shrink, GPU-composited. So no per-scroll canvas redraw here.
 
   // ── Card shrinks (the visible "photo folds into a card" effect) ──
-  heroTarget = Math.max(0, Math.min(1, sy / (vh * 0.9)));
+  // DISABLED on phones (≤700px) at the owner's request: on mobile the hero stays
+  // FULL-SIZE and the next section (合作廠商 / 分類) simply scrolls up and covers it
+  // (via z-index) — no shrink, no reveal of the photos behind. Desktop keeps the fold.
+  heroTarget = (window.innerWidth <= 700)
+    ? 0
+    : Math.max(0, Math.min(1, sy / (vh * 0.9)));
   if (!heroRafId) heroRafId = requestAnimationFrame(heroTick);
 
 }, { passive: true });
