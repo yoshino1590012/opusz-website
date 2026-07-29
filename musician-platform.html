@@ -5216,6 +5216,7 @@ applyHero(0);    // init at full scale
 applyColRatios(); // set photo heights + start scroll animations
 
 // Recalculate when the visible viewport changes → keep card height === viewport
+var _lastSyncVH = -1;   // last height we actually synced to; skip re-sync when unchanged (iOS URL-bar toggle)
 function syncHero() {
   // ── Ignore PINCH-ZOOM ──────────────────────────────────────────────────────
   // iOS fires visualViewport 'resize' both when the address bar collapses (scale
@@ -5226,6 +5227,16 @@ function syncHero() {
   // uniformly. So while the user is zoomed in, do NOTHING and let the browser handle
   // the zoom natively; when they zoom back to 1, this fires again and re-fits cleanly.
   if (window.visualViewport && window.visualViewport.scale > 1.01) return;
+  // ── Ignore the iOS address bar collapsing / expanding ────────────────────────
+  // The card height is the MONOTONIC largest viewport (heroViewportH), so when the
+  // address bar toggles on scroll the height does NOT actually change. Re-running the
+  // whole sync (photo-grid re-layout, canvas resize, video redraw) on every toggle just
+  // reflows the page and stutters for nothing — the "layout changes when the URL bar
+  // shows/hides" jank the owner reported. Skip when the measured height is unchanged;
+  // only genuine resizes (rotation → resyncHero resets the cache) get through.
+  var _vh = heroViewportH();
+  if (_vh === _lastSyncVH) return;
+  _lastSyncVH = _vh;
   updateHeroDims();
   applyHero(heroCurrent);
   applyColRatios(); // re-compute px heights + seamless loop point
@@ -5234,7 +5245,7 @@ function syncHero() {
 }
 // On a genuine viewport change (rotation / window resize) the large height itself
 // changes, so drop the monotonic cache and re-measure from scratch.
-function resyncHero() { _lvhCache = 0; syncHero(); }
+function resyncHero() { _lvhCache = 0; _lastSyncVH = -1; syncHero(); }
 window.addEventListener('resize', resyncHero);
 window.addEventListener('orientationchange', () => setTimeout(resyncHero, 250));
 // iOS fires visualViewport 'resize' as the address bar collapses. With monotonic
