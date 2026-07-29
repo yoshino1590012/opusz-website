@@ -491,9 +491,14 @@ nav.mega-open .nav-links a::before {
 
 /* ── HERO ── */
 .hero { position: relative; width: 100%; height: 320vh; z-index: 0; }  /* desktop runway: the shrink spans 2 screens (matched to the showreel zoom) while pinned, then the hero scrolls away */
-/* MOBILE: hero shrink is OFF (owner's decision) — no runway needed, the hero is one
-   screen and simply scrolls up as the next section follows. */
-@media (max-width: 700px) { .hero { height: 100vh; height: 100dvh; } }
+/* MOBILE: hero shrink is OFF (owner's decision). The hero is PINNED (position:fixed) and
+   the next section (合作廠商 / Partners, opaque, z-index 1) scrolls UP and COVERS it — the
+   original "cover" exit — instead of the hero scrolling away. 100vh runway = the cover
+   plays over one screen of scroll. */
+@media (max-width: 700px) {
+  .hero { height: 100vh; height: 100dvh; }
+  .hero-sticky { position: fixed; top: 0; left: 0; right: 0; }
+}
 /* bg matches card so even if sub-pixel gaps appear at edges, no dark bleed-through */
 /* height uses dvh (the *visible* viewport) so on iOS Safari the address bar can't
    leave a dark strip of the photo grid above the centred hero card. vh fallback
