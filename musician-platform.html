@@ -495,11 +495,12 @@ nav.mega-open .nav-links a::before {
 /* height uses dvh (the *visible* viewport) so on iOS Safari the address bar can't
    leave a dark strip of the photo grid above the centred hero card. vh fallback
    for older browsers. */
-/* Taylor/shows-style "cover" scroll: the hero is PINNED (fixed) and barely moves while
-   the card shrinks; the sections below (opaque, z-index 1) then scroll UP and cover it,
-   instead of pushing it away. The card-shrink itself is JS scroll-driven so it's
-   unaffected by fixed-vs-sticky. */
-.hero-sticky { position: fixed; top: 0; left: 0; right: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #f8f8f8; z-index: 0; }
+/* Sticky pin (same primitive as the smooth showreel .sv-sticky). position:sticky is
+   composited by the browser, so on iOS momentum scroll it stays buttery — whereas the
+   old position:fixed janked (iOS repaints fixed elements at low priority mid-scroll).
+   The hero pins for the first ~80vh of the 180vh runway (the card shrinks during that),
+   then scrolls up and the next section follows — exactly like the showreel's exit. */
+.hero-sticky { position: sticky; top: 0; height: 100vh; height: 100dvh; overflow: hidden; background: #f8f8f8; z-index: 0; }
 /* Bottom white strip INSIDE the hero card (content TBD): absolute over the video (z-index 1
    > canvas 0), clipped by the card's overflow:hidden rounded corners. Because it's a child
    of #heroCard it scales WITH the card on scroll (shrinks, doesn't fade). pointer-events:none
@@ -5144,13 +5145,9 @@ window.addEventListener('scroll', () => {
   // section covers it. We only start the drift at the COVER point (hero height − 100vh
   // = 0.8·vh here) — the covering section moves at full speed and always overtakes the
   // ¼-speed hero, so there is never a gap below the hero. ──
-  // Parallax drifts the FIXED hero up ¼-speed as it's covered. Moving a position:fixed
-  // full-screen element via JS during iOS momentum scroll is a jank source, so skip it
-  // on phones — the hero simply stays put and the next section scrolls over it.
-  if (_heroStickyEl && window.innerWidth > 700) {
-    const _par = -0.22 * Math.max(0, sy - vh * 0.8);
-    _heroStickyEl.style.transform = 'translate3d(0,' + _par.toFixed(1) + 'px,0)';
-  }
+  // (Parallax removed: the hero is now position:sticky, so the browser pins it natively
+  // and scrolls it away on its own — no JS transform on the sticky element, which would
+  // otherwise fight the sticky pinning.)
 
   // ── Phase 1: title slides off top (0 → 0.4vh) ──
   const p1  = Math.max(0, Math.min(1, sy / (vh * 0.4)));
