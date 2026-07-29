@@ -809,7 +809,7 @@ nav.mega-open .nav-links a::before {
   font-size: calc(var(--k)*15.5px); line-height: 1.55; font-weight: 450;
   letter-spacing: -0.005em;
   margin: 0 0 calc(var(--k)*24px);
-  white-space: pre-line;                        /* honour manual line breaks (\n) from the editor; wrap if needed */
+  white-space: pre;                             /* line breaks ONLY where the owner presses Enter — no auto-wrap (same as the headline; owner decides the breaks) */
   color: #6b7177;                               /* soft grey — fixed colour (see headline note) */
 }
 /* Brand name summoned back at the bottom of the white card.
@@ -840,7 +840,7 @@ nav.mega-open .nav-links a::before {
 /* On phones let the headline wrap (avoid horizontal overflow from nowrap) */
 @media (max-width: 640px){
   .hco-headline { white-space: pre; }        /* one line by default; break only on manual \n */
-  .hco-sub { white-space: pre-line; }        /* subtitle still wraps if long; honours manual breaks */
+  .hco-sub { white-space: pre; }        /* subtitle breaks ONLY on the owner's manual \n — no auto-wrap */
 }
 /* ── initial hidden state ── */
 .hco-btns,
