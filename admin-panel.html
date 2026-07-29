@@ -2030,6 +2030,12 @@ Martin</textarea>
         var id=seSlug(ff.k); var zhKey2=ff.zhk||ff.k;
         var enEl=document.getElementById('se_en_'+id);
         var zhEl=document.getElementById('se_zh_'+id);
+        // CRITICAL: on the phone/iPad tab a devText field (標題/副標) holds that device's
+        // OVERRIDE, not the shared base i18n. It reuses the same se_en_/se_zh_ id, so
+        // folding its value into the base `cur` here would overwrite the desktop text with
+        // the phone override when you switch tabs — THE "desktop 3 lines → 1 line" bug.
+        // Skip devText fields on phone/iPad; their draft lives in the device _text map.
+        if(ff.devText && (seCurrentDevice==='phone'||seCurrentDevice==='ipad')) return;
         if(enEl) de[ff.k]=enEl.value;
         if(zhEl) dz[zhKey2]=zhEl.value;
         if(ff.type==='image'||ff.type==='video'){
