@@ -4578,6 +4578,7 @@ document.addEventListener('DOMContentLoaded', () => {
 let _heroColRatios = { c1: null, c2: null };
 let _heroColSpeeds = { c1: 1.0, c2: 1.0 }; // multiplier: 1.0 = default speed, 2.0 = 2× faster
 let _crVer = 0;
+let _lastColSig = '';   // geometry signature of the last applied animation — skip rewrite when unchanged (see applyColRatios)
 const _colRatioStyle = (()=>{ const s=document.createElement('style'); document.head.appendChild(s); return s; })();
 
 // Base durations at default 50vh height (speed reference point)
@@ -4587,7 +4588,10 @@ function applyColRatios() {
   const col1 = document.querySelector('.hero-col:nth-child(1)');
   const col2 = document.querySelector('.hero-col:nth-child(2)');
   if (!col1 || !col2) return;
-  const N = 7, GAP = 24, vhHalf = window.innerHeight * 0.5;
+  // Use the STABLE monotonic viewport height (not window.innerHeight) so the iOS/Android
+  // address bar collapsing on scroll does NOT change the computed photo heights — that
+  // fluctuation is what made the background photos snap back to the top on every swipe.
+  const N = 7, GAP = 24, vhHalf = heroViewportH() * 0.5;
   const w1 = col1.offsetWidth || window.innerWidth / 2;
   const w2 = col2.offsetWidth || window.innerWidth / 2;
   // Default heights when no explicit ratio is set: the LEFT column (col1) is a bit
@@ -4611,6 +4615,16 @@ function applyColRatios() {
   const INIT_PX = 80;
   const delay1 = -(INIT_PX / Math.round(loop1abs)) * dur1;
   const delay2 = delay2base - (INIT_PX / Math.round(loop2abs)) * dur2;
+  // Idempotency guard: if the geometry that actually drives the scroll animation is
+  // unchanged (same photo heights / durations / phase), do NOT rewrite the <style>.
+  // Rewriting swaps the @keyframes name, which restarts the CSS animation from the top —
+  // i.e. the background photos jump back to the start point. This fires on every iOS
+  // URL-bar toggle (resize → resyncHero → applyColRatios), so guarding it here is what
+  // lets the columns keep scrolling smoothly through a swipe. Genuine changes (rotation,
+  // or a ratio/speed edit in the admin editor) alter the signature → animation rebuilds.
+  const _sig = [Math.round(h1), Math.round(h2), dur1.toFixed(2), dur2.toFixed(2), delay1.toFixed(4), delay2.toFixed(4)].join('|');
+  if (_sig === _lastColSig) return;
+  _lastColSig = _sig;
   _crVer++;
   const n1 = `hsc1_${_crVer}`, n2 = `hsc2_${_crVer}`;
   _colRatioStyle.textContent =
