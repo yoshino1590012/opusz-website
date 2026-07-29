@@ -5147,7 +5147,6 @@ function heroTick() {
 }
 
 var _heroStickyEl = document.querySelector('.hero-sticky');
-var _heroOffscreen = false;   // true once the hero has scrolled fully past its runway (layer freed)
 window.addEventListener('scroll', () => {
   const sy = window.scrollY;
   const vh = _effectiveVH;
@@ -5185,19 +5184,10 @@ window.addEventListener('scroll', () => {
   heroTarget = _eased; heroCurrent = _eased;
   applyHero(_eased);
 
-  // Release the hero's full-screen GPU layer once it has scrolled fully away (past the
-  // 320vh runway) — while you're down at the 7-video showreel, a permanent will-change
-  // hero layer + its big shadow competes with the videos for GPU memory/bandwidth and
-  // makes them stutter. `content-visibility:hidden` skips rendering it entirely when it's
-  // off-screen (re-renders instantly when you scroll back up).
-  var _heroGone = sy > vh * 3.35;
-  if (_heroGone !== _heroOffscreen) {
-    _heroOffscreen = _heroGone;
-    if (_heroStickyEl) {
-      _heroStickyEl.style.contentVisibility = _heroGone ? 'hidden' : '';
-      heroCardEl.style.willChange = _heroGone ? 'auto' : 'transform';
-    }
-  }
+  // (Removed the "free the hero rendering once it scrolls off-screen" optimization: it
+  // made scrolling BACK UP into the hero rebuild its whole render tree at the boundary →
+  // a one-time hitch on reverse-scroll. Not worth it. The hero keeps its permanent
+  // will-change layer as before.)
 
 }, { passive: true });
 
