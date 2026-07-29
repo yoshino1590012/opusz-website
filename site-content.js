@@ -283,12 +283,16 @@ function applyHeroTextOverride(map){
   var t = (map && map._text) || {};
   var lang = _heroCurLang();
   var dict = (window.I18N && window.I18N[lang]) || {};
-  [['headline', '.hco-headline', 'hero.headline'],
-   ['sub',      '.hco-sub',      'hero.sub']].forEach(function(row){
+  // NOTE: key by the FULL i18n key ('hero.headline'/'hero.sub') — that's exactly what the
+  // editor stores the override under (map._text['hero.headline']) AND how window.I18N keys
+  // the base text, so both the override and the fallback line up. (Keying by 'headline'
+  // here was the bug that made typed overrides never appear.)
+  [['hero.headline', '.hco-headline'],
+   ['hero.sub',      '.hco-sub']].forEach(function(row){
     var el = document.querySelector(row[1]); if(!el) return;
     var o  = t[row[0]] || {};
     var ov = (lang === 'zh') ? o.zh : o.en;                 // this device's override
-    var val = (ov != null && ov !== '') ? ov : dict[row[2]]; // else the shared base text
+    var val = (ov != null && ov !== '') ? ov : dict[row[0]]; // else the shared base text
     if (val != null) el.textContent = val;
   });
 }
