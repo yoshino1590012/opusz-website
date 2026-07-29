@@ -4776,6 +4776,14 @@ const heroCardEl = document.getElementById('heroCard');
 // the button text (switchLang calls opzWireOriginFill via opzApplyHeroLang path below).
 (function(){
   function coverD(w,h,x,y){ return Math.ceil(2*Math.max(Math.hypot(x,y),Math.hypot(w-x,y),Math.hypot(x,h-y),Math.hypot(w-x,h-y))); }
+  // Pick a SOLID high-contrast label colour for a given fill colour, so the text is ALWAYS
+  // readable after the fill — even when the button's own background is semi-transparent
+  // (using the background colour as the label colour made it faint/invisible).
+  function _ofContrast(c){
+    var m=(c||'').match(/[\d.]+/g); if(!m) return '#111';
+    var r=+m[0]||0, g=+m[1]||0, b=+m[2]||0;
+    return (0.299*r + 0.587*g + 0.114*b) > 140 ? '#111' : '#fff';   // light fill → dark text; dark fill → white text
+  }
   function ensureDom(btn){
     if(btn.querySelector('.hco-fill') && btn.querySelector('.hco-btn-label')) return;
     var txt=btn.textContent;
@@ -4803,7 +4811,7 @@ const heroCardEl = document.getElementById('heroCard');
     fill.style.transform='translate(-50%,-50%) scale(0)';
     void fill.offsetWidth;                          // reflow so the grow animates from 0
     fill.style.transform='translate(-50%,-50%) scale(1)';
-    btn.style.color=cs.backgroundColor;             // label + arrow → background colour
+    btn.style.color=_ofContrast(cs.color);          // label + arrow → a SOLID colour that contrasts with the fill → always readable
   }
   function shrink(btn){
     var fill=btn.querySelector('.hco-fill');
