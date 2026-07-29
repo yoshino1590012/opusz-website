@@ -391,8 +391,14 @@ nav.mega-open .nav-links a::before {
 .nd-musicians-btn:hover { color: rgba(0,0,0,0.4); }
 .nd-musicians-btn .nd-arrow { font-size: 18px; opacity: .35; transition: opacity .15s; }
 .nd-musicians-btn:hover .nd-arrow { opacity: .7; }
-/* ═══ Mobile nav: transparent bar + FULL-SCREEN menu — curtain DOWN on open, UP on
-      close; the menu text fades in one-by-one AFTER the curtain has arrived. ═══ */
+/* ═══ Mobile nav: FULL-SCREEN white curtain (XOO / adencys style).
+      OPEN  → the curtain drops straight DOWN from the top as a solid panel (PURE
+              translate, NO opacity fade), and only AFTER it lands do the menu rows
+              rise in one-by-one.
+      CLOSE → the rows leave FIRST (reverse of how they entered), THEN the curtain
+              lifts back UP. The two phases are driven by JS: it adds `.nd-closing`
+              (rows exit) and, after they're gone, removes `.nd-visible` (curtain up).
+      Key: the panel keeps opacity:1 the whole time — it's a real blind, not a fade. ═══ */
 @media (max-width: 900px){
   nav, nav.mega-open { background: transparent !important; mix-blend-mode: difference !important; }
   nav { z-index: 1200 !important; }
@@ -403,27 +409,43 @@ nav.mega-open .nav-links a::before {
     background: #fff !important; box-shadow: none !important;
     display: flex !important; flex-direction: column !important; gap: 2px !important;
     overflow-y: auto !important;
-    opacity: 0 !important; visibility: hidden !important;
+    opacity: 1 !important; visibility: hidden !important;
     transform: translateY(-100%) !important;
-    transition: transform .6s cubic-bezier(0.76,0,0.24,1), opacity .4s ease, visibility .6s !important;
+    transition: transform .55s cubic-bezier(0.76,0,0.24,1), visibility .55s !important;
     pointer-events: none !important;
     z-index: 1100 !important;
   }
-  .nav-drawer.nd-visible{ transform: translateY(0) !important; opacity: 1 !important; visibility: visible !important; pointer-events: auto !important; }
+  .nav-drawer.nd-visible{ transform: translateY(0) !important; visibility: visible !important; pointer-events: auto !important; }
+  /* rows start hidden below their slot; revealed only once the curtain has dropped */
   .nav-drawer > *{
     opacity: 0 !important; transform: translateY(22px) !important;
     transition: opacity .5s ease, transform .5s cubic-bezier(0.22,1,0.36,1) !important;
     transition-delay: 0s !important;
   }
   .nav-drawer.nd-visible > *{ opacity: 1 !important; transform: translateY(0) !important; }
-  .nav-drawer.nd-visible > *:nth-child(1){ transition-delay: .50s !important; }
-  .nav-drawer.nd-visible > *:nth-child(2){ transition-delay: .58s !important; }
-  .nav-drawer.nd-visible > *:nth-child(3){ transition-delay: .66s !important; }
-  .nav-drawer.nd-visible > *:nth-child(4){ transition-delay: .74s !important; }
-  .nav-drawer.nd-visible > *:nth-child(5){ transition-delay: .82s !important; }
-  .nav-drawer.nd-visible > *:nth-child(6){ transition-delay: .90s !important; }
-  .nav-drawer.nd-visible > *:nth-child(7){ transition-delay: .98s !important; }
-  .nav-drawer.nd-visible > *:nth-child(8){ transition-delay: 1.06s !important; }
+  .nav-drawer.nd-visible > *:nth-child(1){ transition-delay: .56s !important; }
+  .nav-drawer.nd-visible > *:nth-child(2){ transition-delay: .64s !important; }
+  .nav-drawer.nd-visible > *:nth-child(3){ transition-delay: .72s !important; }
+  .nav-drawer.nd-visible > *:nth-child(4){ transition-delay: .80s !important; }
+  .nav-drawer.nd-visible > *:nth-child(5){ transition-delay: .88s !important; }
+  .nav-drawer.nd-visible > *:nth-child(6){ transition-delay: .96s !important; }
+  .nav-drawer.nd-visible > *:nth-child(7){ transition-delay: 1.04s !important; }
+  .nav-drawer.nd-visible > *:nth-child(8){ transition-delay: 1.12s !important; }
+  /* CLOSING phase 1 — rows drop back down + fade out (reverse of the entrance), quick,
+     reverse stagger (the BOTTOM row leaves first). Curtain stays put (nd-visible still
+     on) until JS removes it. Placed AFTER the .nd-visible rules so it wins on close. */
+  .nav-drawer.nd-closing > *{
+    opacity: 0 !important; transform: translateY(22px) !important;
+    transition: opacity .26s ease, transform .26s cubic-bezier(0.76,0,0.24,1) !important;
+  }
+  .nav-drawer.nd-closing > *:nth-child(8){ transition-delay: 0s !important; }
+  .nav-drawer.nd-closing > *:nth-child(7){ transition-delay: .03s !important; }
+  .nav-drawer.nd-closing > *:nth-child(6){ transition-delay: .06s !important; }
+  .nav-drawer.nd-closing > *:nth-child(5){ transition-delay: .09s !important; }
+  .nav-drawer.nd-closing > *:nth-child(4){ transition-delay: .12s !important; }
+  .nav-drawer.nd-closing > *:nth-child(3){ transition-delay: .15s !important; }
+  .nav-drawer.nd-closing > *:nth-child(2){ transition-delay: .18s !important; }
+  .nav-drawer.nd-closing > *:nth-child(1){ transition-delay: .21s !important; }
   .nav-drawer > a, .nav-drawer > .nd-musicians-btn{ font-size: 27px !important; padding: 16px 0 !important; }
   #navDrawerExtra{ margin-top: auto !important; }
   .nav-sub-drawer{
@@ -4436,10 +4458,35 @@ document.addEventListener('DOMContentLoaded', () => {
   const navDrawer    = document.getElementById('navDrawer');
   const navSubDrawer = document.getElementById('navSubDrawer');
   let drawerTimeout;
+  let _ndCloseT;
+  function _isMobileNav(){ return window.matchMedia('(max-width: 900px)').matches; }
+
+  // Show the curtain: kill any in-flight close, drop the panel down, rows rise after.
+  function showDrawer() {
+    clearTimeout(drawerTimeout); clearTimeout(_ndCloseT);
+    navDrawer.classList.remove('nd-closing');
+    navDrawer.classList.add('nd-visible');
+  }
+  // Hide the curtain. On MOBILE this is two-phase: add `.nd-closing` so the rows exit
+  // first (reverse of entrance), then after they've gone lift the curtain by removing
+  // `.nd-visible`. On desktop the drawer is a side panel → just close it immediately.
+  function hideDrawer() {
+    clearTimeout(_ndCloseT);
+    if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
+    if (!navDrawer.classList.contains('nd-visible')) return;
+    if (_isMobileNav()) {
+      navDrawer.classList.add('nd-closing');        // phase 1: rows leave
+      _ndCloseT = setTimeout(function () {           // phase 2: curtain lifts
+        navDrawer.classList.remove('nd-visible');
+        navDrawer.classList.remove('nd-closing');
+      }, 340);
+    } else {
+      navDrawer.classList.remove('nd-visible');
+    }
+  }
 
   function openDrawer() {
-    clearTimeout(drawerTimeout);
-    navDrawer.classList.add('nd-visible');
+    showDrawer();
   }
   // The login / account dropdowns live OUTSIDE the drawer, so moving the cursor
   // onto them fires the drawer's mouseleave. Keep the drawer open while either
@@ -4453,17 +4500,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Don't close while sub-drawer is open — user may be moving mouse to it
     if (navSubDrawer && navSubDrawer.classList.contains('ns-visible')) return;
     if (_navMenuOpen()) return;
-    drawerTimeout = setTimeout(() => {
-      navDrawer.classList.remove('nd-visible');
-      if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
-    }, 120);
+    drawerTimeout = setTimeout(hideDrawer, 120);
   }
   function closeBoth() {
     if (_navMenuOpen()) return;
-    drawerTimeout = setTimeout(() => {
-      navDrawer.classList.remove('nd-visible');
-      if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
-    }, 120);
+    drawerTimeout = setTimeout(hideDrawer, 120);
   }
 
   // The hamburger is a CLICK TOGGLE: tap opens, tap again closes (with the exit
@@ -4472,18 +4513,16 @@ document.addEventListener('DOMContentLoaded', () => {
   hamburgerBtn.addEventListener('click', function (e) {
     e.preventDefault(); e.stopPropagation();
     clearTimeout(drawerTimeout);
-    if (navDrawer.classList.contains('nd-visible')) {
-      navDrawer.classList.remove('nd-visible');
-      if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
+    // While the curtain is mid-close, a tap should re-open it, not toggle to a
+    // half-state — treat `.nd-closing` as "not really open".
+    if (navDrawer.classList.contains('nd-visible') && !navDrawer.classList.contains('nd-closing')) {
+      hideDrawer();
     } else {
-      navDrawer.classList.add('nd-visible');
+      showDrawer();
     }
   });
   navDrawer.addEventListener('click', function (e) {
-    if (e.target.closest('a')) {
-      navDrawer.classList.remove('nd-visible');
-      if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
-    }
+    if (e.target.closest('a')) hideDrawer();
   });
 
   /* ── Mobile: move favourites / account / language INTO the drawer ──
