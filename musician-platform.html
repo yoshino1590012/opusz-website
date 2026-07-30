@@ -1127,6 +1127,15 @@ nav.mega-open .nav-links a::before {
   0%   { transform: translateX(0); }
   100% { transform: translateX(-50%); }
 }
+/* MOBILE: trim the sponsor / partners marquee band — it read too tall on phones.
+   Smaller vertical padding + slightly smaller items lowers the whole strip. */
+@media (max-width: 700px){
+  .marquee-section { padding: 18px 0; }
+  .marquee-name { font-size: 17px; }
+  .marquee-icon { width: 34px; height: 34px; }
+  .marquee-icon svg { width: 17px; height: 17px; }
+  .marquee-set { gap: 60px; padding-right: 60px; }
+}
 
 /* ── Recent Jobs Section ── */
 .rj-section {
