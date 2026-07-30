@@ -318,6 +318,11 @@ nav.mega-open .nav-links a::before {
 .hamburger { display: flex; flex-direction: column; gap: 6px; cursor: pointer; position: relative; z-index: 301; }
 .hamburger span { display: block; width: 26px; height: 2px; background: var(--nav-fg); transition: opacity .2s; }
 .hamburger:hover span { opacity: .5; }
+/* The hamburger + slide-in drawer are a MOBILE-only affordance. On desktop the full
+   horizontal nav is already shown, so a hamburger there just opens a redundant side
+   panel that has no click-outside close → it looked "stuck open". Hide it above the
+   mobile breakpoint so the drawer can't be opened on desktop at all. */
+@media (min-width: 901px){ .hamburger{ display: none !important; } }
 
 /* ── Slide-in Nav Drawer ── */
 .nav-drawer {
