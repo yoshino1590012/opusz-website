@@ -414,6 +414,11 @@ nav.mega-open .nav-links a::before {
 @media (max-width: 900px){
   nav, nav.mega-open { background: transparent !important; mix-blend-mode: difference !important; }
   nav { z-index: 1200 !important; }
+  /* Kill the desktop "hover-peek" white bar on mobile. It's a fixed white strip that
+     slides down behind the nav on `nav:hover` — great with a mouse, but on a touch
+     screen :hover STICKS after a tap, so tapping the logo/hamburger left a white
+     navigation strip parked at the top. Mobile never needs this peek. */
+  body::before{ display: none !important; }
   .nav-drawer{
     position: fixed !important; inset: 0 !important; top:0 !important; right:0 !important; left:0 !important; bottom:0 !important;
     width: 100% !important; max-width: none !important;
