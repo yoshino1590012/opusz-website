@@ -405,8 +405,12 @@ nav.mega-open .nav-links a::before {
    time; (2) our prefers-reduced-motion block only nukes `transition`, so a transition-based
    curtain silently became an instant pop for anyone with "Reduce Motion" on — the animation
    is immune to that. ndCurtainDown = blind drops from the top; ndCurtainUp = it lifts away. */
-@keyframes ndCurtainDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
-@keyframes ndCurtainUp   { from { transform: translateY(0); }     to { transform: translateY(-100%); } }
+/* translate3d (not translateY) keeps the panel on its OWN GPU layer for the whole
+   slide. Combined with backface-visibility:hidden + will-change below, this stops iOS
+   from tearing the compositor layer down at the end of the close — that teardown was
+   painting the full-screen white panel for one frame (the "white flash on close"). */
+@keyframes ndCurtainDown { from { transform: translate3d(0,-100%,0); } to { transform: translate3d(0,0,0); } }
+@keyframes ndCurtainUp   { from { transform: translate3d(0,0,0); }     to { transform: translate3d(0,-100%,0); } }
 @media (max-width: 900px){
   nav, nav.mega-open { background: transparent !important; mix-blend-mode: difference !important; }
   nav { z-index: 1200 !important; }
@@ -418,19 +422,23 @@ nav.mega-open .nav-links a::before {
     display: flex !important; flex-direction: column !important; gap: 2px !important;
     overflow-y: auto !important;
     opacity: 1 !important; visibility: hidden !important;
-    transform: translateY(-100%) !important;
-    transition: visibility .55s !important;
+    transform: translate3d(0,-100%,0) !important;
+    transition: none !important;
+    will-change: transform !important;
+    backface-visibility: hidden !important; -webkit-backface-visibility: hidden !important;
     pointer-events: none !important;
     z-index: 1100 !important;
   }
   /* OPEN: blind drops down (animation holds the final open position via `both`). */
   .nav-drawer.nd-visible{
-    transform: translateY(0) !important; visibility: visible !important; pointer-events: auto !important;
+    transform: translate3d(0,0,0) !important; visibility: visible !important; pointer-events: auto !important;
     animation: ndCurtainDown .55s cubic-bezier(0.76,0,0.24,1) both !important;
   }
-  /* CLOSE phase 2: JS swaps nd-visible → nd-up so the blind slides back up, then removes it. */
-  .nav-drawer.nd-up{
-    transform: translateY(-100%) !important; visibility: visible !important; pointer-events: none !important;
+  /* CLOSE: JS keeps nd-visible ON and just adds nd-up, so the panel's static open state
+     (visible, translate3d 0) never blinks off mid-close — only the animation slides it up.
+     All three classes are stripped together at the very end, when the panel is already
+     parked off-screen, so there is no covering-white frame to flash. */
+  .nav-drawer.nd-visible.nd-up{
     animation: ndCurtainUp .55s cubic-bezier(0.76,0,0.24,1) both !important;
   }
   /* rows start hidden below their slot; revealed only once the curtain has dropped */
@@ -4506,10 +4514,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (_isMobileNav()) {
       navDrawer.classList.add('nd-closing');                 // phase 1: rows leave
       _ndCloseT = setTimeout(function () {                    // phase 2: blind lifts
-        navDrawer.classList.remove('nd-visible', 'nd-closing');
+        // Keep nd-visible + nd-closing ON (panel stays a stable white cover); nd-up just
+        // adds the slide-up animation. No mid-close class swap → no white blink.
         navDrawer.classList.add('nd-up');
-        _ndUpT = setTimeout(function () {                     // phase 3: settle hidden
-          navDrawer.classList.remove('nd-up');
+        _ndUpT = setTimeout(function () {                     // phase 3: strip all at once
+          navDrawer.classList.remove('nd-visible', 'nd-closing', 'nd-up');
         }, 560);
       }, 240);
     } else {
