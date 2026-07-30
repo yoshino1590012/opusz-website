@@ -399,6 +399,14 @@ nav.mega-open .nav-links a::before {
               lifts back UP. The two phases are driven by JS: it adds `.nd-closing`
               (rows exit) and, after they're gone, removes `.nd-visible` (curtain up).
       Key: the panel keeps opacity:1 the whole time — it's a real blind, not a fade. ═══ */
+/* Curtain slide is driven by a KEYFRAME ANIMATION (not a CSS transition) on purpose:
+   (1) an animation ALWAYS plays the moment its class is applied — no dependence on the
+   browser detecting a property change, which is fragile when visibility flips at the same
+   time; (2) our prefers-reduced-motion block only nukes `transition`, so a transition-based
+   curtain silently became an instant pop for anyone with "Reduce Motion" on — the animation
+   is immune to that. ndCurtainDown = blind drops from the top; ndCurtainUp = it lifts away. */
+@keyframes ndCurtainDown { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+@keyframes ndCurtainUp   { from { transform: translateY(0); }     to { transform: translateY(-100%); } }
 @media (max-width: 900px){
   nav, nav.mega-open { background: transparent !important; mix-blend-mode: difference !important; }
   nav { z-index: 1200 !important; }
@@ -411,11 +419,20 @@ nav.mega-open .nav-links a::before {
     overflow-y: auto !important;
     opacity: 1 !important; visibility: hidden !important;
     transform: translateY(-100%) !important;
-    transition: transform .55s cubic-bezier(0.76,0,0.24,1), visibility .55s !important;
+    transition: visibility .55s !important;
     pointer-events: none !important;
     z-index: 1100 !important;
   }
-  .nav-drawer.nd-visible{ transform: translateY(0) !important; visibility: visible !important; pointer-events: auto !important; }
+  /* OPEN: blind drops down (animation holds the final open position via `both`). */
+  .nav-drawer.nd-visible{
+    transform: translateY(0) !important; visibility: visible !important; pointer-events: auto !important;
+    animation: ndCurtainDown .55s cubic-bezier(0.76,0,0.24,1) both !important;
+  }
+  /* CLOSE phase 2: JS swaps nd-visible → nd-up so the blind slides back up, then removes it. */
+  .nav-drawer.nd-up{
+    transform: translateY(-100%) !important; visibility: visible !important; pointer-events: none !important;
+    animation: ndCurtainUp .55s cubic-bezier(0.76,0,0.24,1) both !important;
+  }
   /* rows start hidden below their slot; revealed only once the curtain has dropped */
   .nav-drawer > *{
     opacity: 0 !important; transform: translateY(22px) !important;
@@ -4467,30 +4484,36 @@ document.addEventListener('DOMContentLoaded', () => {
   const navDrawer    = document.getElementById('navDrawer');
   const navSubDrawer = document.getElementById('navSubDrawer');
   let drawerTimeout;
-  let _ndCloseT;
+  let _ndCloseT, _ndUpT;
   function _isMobileNav(){ return window.matchMedia('(max-width: 900px)').matches; }
 
-  // Show the curtain: kill any in-flight close, drop the panel down, rows rise after.
+  // Show the curtain: kill any in-flight close, then add nd-visible → the ndCurtainDown
+  // keyframe plays (blind drops from the top); rows rise in afterwards.
   function showDrawer() {
-    clearTimeout(drawerTimeout); clearTimeout(_ndCloseT);
-    navDrawer.classList.remove('nd-closing');
+    clearTimeout(drawerTimeout); clearTimeout(_ndCloseT); clearTimeout(_ndUpT);
+    navDrawer.classList.remove('nd-closing', 'nd-up');
     navDrawer.classList.add('nd-visible');
   }
-  // Hide the curtain. On MOBILE this is two-phase: add `.nd-closing` so the rows exit
-  // first (reverse of entrance), then after they've gone lift the curtain by removing
-  // `.nd-visible`. On desktop the drawer is a side panel → just close it immediately.
+  // Hide the curtain. On MOBILE it's a sequence:
+  //   phase 1: add .nd-closing → the rows exit (reverse of entrance);
+  //   phase 2: swap nd-visible → .nd-up → the ndCurtainUp keyframe lifts the blind;
+  //   phase 3: strip .nd-up → back to the resting hidden state.
+  // On desktop the drawer is a side panel → just close it immediately.
   function hideDrawer() {
-    clearTimeout(_ndCloseT);
+    clearTimeout(_ndCloseT); clearTimeout(_ndUpT);
     if (navSubDrawer) navSubDrawer.classList.remove('ns-visible');
     if (!navDrawer.classList.contains('nd-visible')) return;
     if (_isMobileNav()) {
-      navDrawer.classList.add('nd-closing');        // phase 1: rows leave
-      _ndCloseT = setTimeout(function () {           // phase 2: curtain lifts
-        navDrawer.classList.remove('nd-visible');
-        navDrawer.classList.remove('nd-closing');
-      }, 340);
+      navDrawer.classList.add('nd-closing');                 // phase 1: rows leave
+      _ndCloseT = setTimeout(function () {                    // phase 2: blind lifts
+        navDrawer.classList.remove('nd-visible', 'nd-closing');
+        navDrawer.classList.add('nd-up');
+        _ndUpT = setTimeout(function () {                     // phase 3: settle hidden
+          navDrawer.classList.remove('nd-up');
+        }, 560);
+      }, 240);
     } else {
-      navDrawer.classList.remove('nd-visible');
+      navDrawer.classList.remove('nd-visible', 'nd-closing', 'nd-up');
     }
   }
 
