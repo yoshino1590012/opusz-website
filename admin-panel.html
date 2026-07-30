@@ -1571,14 +1571,34 @@ Martin</textarea>
     var fZh = cur.fontZh || def.fontZh || 'Noto Sans TC';
     var wt  = cur.weight || def.weight || 400;
     var col = cur.color || '';
-    var lsVal = (cur.ls!=null && cur.ls!=='') ? (+cur.ls) : 0;                    // 字距 letter-spacing (em)
+    // 字距 letter-spacing (em) + 行距 line-height — now stored PER-LANGUAGE
+    // (lsEn/lsZh, lhEn/lhZh). Each language's slider seeds from its own value, else
+    // the legacy shared ls/lh, else the default — so existing designs are unchanged.
+    var _lsBase = (cur.ls!=null && cur.ls!=='') ? (+cur.ls) : 0;
+    var lsEnVal = (cur.lsEn!=null && cur.lsEn!=='') ? (+cur.lsEn) : _lsBase;
+    var lsZhVal = (cur.lsZh!=null && cur.lsZh!=='') ? (+cur.lsZh) : _lsBase;
     var _lhDef = (el==='headline'?1.04:(el==='sub'?1.55:1.15));
-    var lhVal = (cur.lh!=null && cur.lh!=='') ? (+cur.lh) : _lhDef;                // 行距 line-height
+    var _lhBase = (cur.lh!=null && cur.lh!=='') ? (+cur.lh) : _lhDef;
+    var lhEnVal = (cur.lhEn!=null && cur.lhEn!=='') ? (+cur.lhEn) : _lhBase;
+    var lhZhVal = (cur.lhZh!=null && cur.lhZh!=='') ? (+cur.lhZh) : _lhBase;
     function opts(list, sel){ return list.map(function(o){ return '<option value="'+o.v+'"'+(o.v===sel?' selected':'')+'>'+o.label+'</option>'; }).join(''); }
     var weights=[300,400,500,600,700,800,900];
     var wopts=weights.map(function(w){ return '<option value="'+w+'"'+(w==wt?' selected':'')+'>'+w+'</option>'; }).join('');
     var sty='width:100%;box-sizing:border-box;border:1px solid #cdd9f0;border-radius:7px;padding:8px;font-size:13px;font-family:inherit;margin-bottom:10px;background:#fff;';
     var lbl='font-size:11px;font-weight:700;color:#555;display:block;margin-bottom:4px;';
+    // Per-language slider row for 字距(ls) / 行距(lh). `prop` is lsEn/lsZh/lhEn/lhZh,
+    // `lg` flips the live preview to that language so the change is visible while tuning.
+    function _spRow(sub, prop, val, lg, isLs){
+      var id='seSp_'+prop+'_'+el;
+      var rng = isLs ? 'min="-0.05" max="0.4" step="0.01"' : 'min="0.8" max="2.2" step="0.05"';
+      var out = isLs ? '(+this.value).toFixed(2)+\'em\'' : '(+this.value).toFixed(2)';
+      var disp = isLs ? (val.toFixed(2)+'em') : val.toFixed(2);
+      return '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
+        + '<span style="font-size:11px;color:#155e75;width:44px;flex-shrink:0;">'+sub+'</span>'
+        + '<input type="range" '+rng+' value="'+val+'" oninput="window.__sePreviewLang=\''+lg+'\';seFontSet(\''+el+'\',\''+prop+'\',this.value);var o=document.getElementById(\''+id+'\');if(o)o.textContent='+out+';" style="flex:1;">'
+        + '<span id="'+id+'" style="font-size:11px;color:#0e7490;width:52px;text-align:right;">'+disp+'</span>'
+        + '</div>';
+    }
     var html = '<div style="border:1px solid #2563eb;background:#f5f9ff;border-radius:12px;padding:13px 14px;margin-bottom:12px;">'
       + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><b style="font-size:13px;color:#1d4ed8;">✏️ 編輯字型：'+SE_FONT_ELS[el]+'</b>'
       + '<button onclick="seCloseFontPanel()" title="關閉" style="border:none;background:none;cursor:pointer;color:#888;font-size:16px;line-height:1;">✕</button></div>'
@@ -1588,16 +1608,12 @@ Martin</textarea>
       + (el!=='brand'
           ? ('<label style="'+lbl+'">顏色</label><div style="display:flex;gap:8px;align-items:center;"><input type="color" value="'+(col||'#000000')+'" onchange="seFontSet(\''+el+'\',\'color\',this.value)" style="width:44px;height:32px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:0;"><button onclick="seFontSet(\''+el+'\',\'color\',\'\')" style="font-size:11px;border:1px solid #ddd;background:#fff;border-radius:6px;padding:7px 11px;cursor:pointer;font-family:inherit;">清除顏色</button></div>')
           : '<div style="font-size:11px;color:#888;line-height:1.5;">品牌字顏色請用下方「品牌字 OPUS.Z 顏色」那一區控制。</div>')
-      + '<label style="'+lbl+'margin-top:10px;">字距 / 字間距</label>'
-      + '<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">'
-      +   '<input type="range" min="-0.05" max="0.4" step="0.01" value="'+lsVal+'" oninput="seFontSet(\''+el+'\',\'ls\',this.value);var o=document.getElementById(\'seLs_'+el+'\');if(o)o.textContent=(+this.value).toFixed(2)+\'em\';" style="flex:1;">'
-      +   '<span id="seLs_'+el+'" style="font-size:11px;color:#0e7490;width:52px;text-align:right;">'+lsVal.toFixed(2)+'em</span>'
-      + '</div>'
-      + '<label style="'+lbl+'">行距 / 行間距</label>'
-      + '<div style="display:flex;align-items:center;gap:8px;">'
-      +   '<input type="range" min="0.8" max="2.2" step="0.05" value="'+lhVal+'" oninput="seFontSet(\''+el+'\',\'lh\',this.value);var o=document.getElementById(\'seLh_'+el+'\');if(o)o.textContent=(+this.value).toFixed(2);" style="flex:1;">'
-      +   '<span id="seLh_'+el+'" style="font-size:11px;color:#0e7490;width:52px;text-align:right;">'+lhVal.toFixed(2)+'</span>'
-      + '</div>'
+      + '<label style="'+lbl+'margin-top:10px;">字距 / 字間距（英中獨立）</label>'
+      + _spRow('英 EN','lsEn',lsEnVal,'en',true)
+      + _spRow('中文','lsZh',lsZhVal,'zh',true)
+      + '<label style="'+lbl+'margin-top:6px;">行距 / 行間距（英中獨立）</label>'
+      + _spRow('英 EN','lhEn',lhEnVal,'en',false)
+      + _spRow('中文','lhZh',lhZhVal,'zh',false)
       + '</div>';
     panel.innerHTML = html; panel.style.display='block';
   };

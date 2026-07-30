@@ -392,11 +392,18 @@ function applyHeroFonts(map){
       if(famStr) el.style.fontFamily = famStr;
       if(f.weight) el.style.fontWeight = f.weight;
       if(f.color && k !== 'brand') el.style.color = f.color;   // brand colour via applyBrandColor
-      // Letter-spacing (字距) — stored in em. '' clears back to the CSS default.
-      if(f.ls != null){ el.style.letterSpacing = (f.ls === '') ? '' : (f.ls + 'em'); }
-      // Line-height (行距) per element — set only when defined so it overrides the
-      // applyHeroType value (which ran earlier) for headline/sub, and drives buttons/brand.
-      if(f.lh != null && f.lh !== '') el.style.lineHeight = String(f.lh);
+      // Letter-spacing (字距) + line-height (行距) are PER-LANGUAGE: EN uses lsEn/lhEn,
+      // 中文 uses lsZh/lhZh, each falling back to the legacy shared ls/lh (so older
+      // configs keep working). Re-runs on every EN⇄中 toggle via applyHeroPosResponsive.
+      var _zh = (typeof _heroCurLang === 'function' && _heroCurLang() === 'zh');
+      // Letter-spacing — ALWAYS applied (clear when the active language has none) so
+      // switching language never leaves the OTHER language's spacing stuck on.
+      var _lsv = _zh ? (f.lsZh != null ? f.lsZh : f.ls) : (f.lsEn != null ? f.lsEn : f.ls);
+      el.style.letterSpacing = (_lsv == null || _lsv === '') ? '' : (_lsv + 'em');
+      // Line-height — set only when THIS language defines one (applyHeroType already
+      // reset headline/sub before us, so no stale value carries across the toggle).
+      var _lhv = _zh ? (f.lhZh != null && f.lhZh !== '' ? f.lhZh : f.lh) : (f.lhEn != null && f.lhEn !== '' ? f.lhEn : f.lh);
+      if(_lhv != null && _lhv !== '') el.style.lineHeight = String(_lhv);
     }
   });
 }
