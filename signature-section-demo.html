@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>簽名區 示範 — OPUS.Z</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{font-family:-apple-system,"Helvetica Neue",Helvetica,Arial,"PingFang TC",sans-serif;color:#111;background:#efeee9;-webkit-font-smoothing:antialiased}
+
+  /* ── 上方：模擬 Hero 照片（往下滑才會進到簽名區）── */
+  .hero{height:100vh;background:#1a1a1a url('assets/images/hero-still.jpg') center/cover no-repeat;position:relative;display:flex;align-items:flex-end;padding:48px}
+  .hero::after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.15),rgba(0,0,0,.55))}
+  .hero .cap{position:relative;color:#fff;z-index:1;font-size:13px;letter-spacing:.25em;opacity:.85}
+  .hero .cap b{display:block;font-size:40px;letter-spacing:.02em;margin-top:8px}
+  .scrollcue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);color:#fff;font-size:11px;letter-spacing:.3em;z-index:1;opacity:.8}
+
+  /* ── 簽名區 ── */
+  .sig-section{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:120px 24px;gap:64px}
+  .quote{max-width:640px;width:100%;font-size:clamp(18px,2.4vw,26px);line-height:1.9;font-weight:400;letter-spacing:.01em}
+  .quote .ln{display:block;white-space:pre-wrap;color:#111}
+  .quote .ln.pending{opacity:0}
+
+  .sign-wrap{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .sign-display{width:min(360px,80vw);height:180px}
+  .sign-name{font-size:12px;letter-spacing:.35em;color:#8a8a82;text-transform:uppercase}
+  .sign-role{font-size:11px;letter-spacing:.25em;color:#b3b3a9}
+
+  /* ── 簽名板（音樂家用）── */
+  .pad-card{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);background:#fff;border:1px solid #e4e2da;border-radius:16px;box-shadow:0 10px 40px rgba(0,0,0,.12);padding:14px;width:min(420px,92vw);z-index:40}
+  .pad-card h3{font-size:13px;font-weight:600;margin-bottom:8px;color:#333;display:flex;justify-content:space-between;align-items:center}
+  .pad-card h3 .mini{font-weight:400;color:#999;font-size:11px}
+  .pad{width:100%;height:150px;border:1px dashed #cfcdc4;border-radius:10px;background:#fafaf7;touch-action:none;cursor:crosshair;display:block}
+  .pad-btns{display:flex;gap:8px;margin-top:8px}
+  .pad-btns button{flex:1;border:1px solid #ddd;background:#fff;border-radius:8px;padding:9px;font-family:inherit;font-size:13px;cursor:pointer}
+  .pad-btns .use{background:#111;color:#fff;border-color:#111}
+  .pad-hint{font-size:11px;color:#aaa;margin-top:6px;text-align:center}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="cap">VIOLINIST · 宜蘭, 台灣<b>廖梓彤 Martin Liao</b></div>
+  <div class="scrollcue">SCROLL ↓</div>
+</section>
+
+<section class="sig-section" id="sigSection">
+  <p class="quote" id="quote"
+     data-lines='["音樂，是我與世界對話的方式。","每一次上台，","我只留下真正重要的，","其餘的，都放下。"]'></p>
+
+  <div class="sign-wrap" id="signWrap">
+    <canvas class="sign-display" id="sigDisplay" width="720" height="360"></canvas>
+    <div class="sign-name">MARTIN LIAO</div>
+    <div class="sign-role">Violinist</div>
+  </div>
+</section>
+
+<div class="pad-card">
+  <h3>在這裡簽名 <span class="mini">手指 / Apple Pencil / 滑鼠</span></h3>
+  <canvas class="pad" id="pad" width="780" height="300"></canvas>
+  <div class="pad-btns">
+    <button id="clearBtn">清除重簽</button>
+    <button class="use" id="useBtn">用這個簽名 ↑</button>
+  </div>
+  <div class="pad-hint">簽完按「用這個簽名」，往上滑看它自己寫出來</div>
+</div>
+
+<script>
+/* ══════════ 1) 引言：由左到右、上排先出現的「解碼式」進場 ══════════ */
+(function(){
+  var q=document.getElementById('quote');
+  var lines=JSON.parse(q.dataset.lines);
+  var lineEls=lines.map(function(t){
+    var s=document.createElement('span'); s.className='ln pending'; s.dataset.text=t; s.textContent=t;
+    q.appendChild(s); return s;
+  });
+  var GLYPHS='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%*+=';
+  function rand(){ return GLYPHS[(Math.random()*GLYPHS.length)|0]; }
+  function reveal(el){
+    var text=el.dataset.text, len=text.length, start=null, per=70;  // 每字 70ms，由左到右
+    el.classList.remove('pending'); el.textContent='';
+    function frame(t){
+      if(!start) start=t;
+      var full=Math.floor(Math.min(len,(t-start)/per));            // 已定案的字數
+      var out=text.slice(0,full);
+      if(full<len){                                                 // 正在浮現的那個字：英數用亂碼點綴、中文直接浮現
+        var c=text.charAt(full);
+        out += /[a-zA-Z0-9]/.test(c) ? rand() : c;
+      }
+      el.textContent=out;
+      if(full<len) requestAnimationFrame(frame); else el.textContent=text;
+    }
+    requestAnimationFrame(frame);
+  }
+  var fired=false;
+  function run(){ if(fired) return; fired=true;
+    lineEls.forEach(function(el,i){ setTimeout(function(){ reveal(el); }, i*420); });   // 上排先、逐排延遲
+    setTimeout(drawSignature, lineEls.length*420 + 300);                                // 文字寫完換簽名
+  }
+  new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting) run(); }); },
+    {threshold:.4}).observe(document.getElementById('signWrap').parentNode);
+})();
+
+/* ══════════ 2) 簽名板：錄下筆跡（點＋筆順）══════════ */
+var pad=document.getElementById('pad'), pctx=pad.getContext('2d');
+function fit(c){ var r=c.getBoundingClientRect(), dpr=devicePixelRatio||1; c.width=r.width*dpr; c.height=r.height*dpr; c.getContext('2d').scale(dpr,dpr); return r; }
+var padRect=fit(pad);
+pctx.lineWidth=2.4; pctx.lineCap='round'; pctx.lineJoin='round'; pctx.strokeStyle='#111';
+var strokes=[], cur=null, drawing=false;
+function pos(e){ var r=pad.getBoundingClientRect(); var p=e.touches?e.touches[0]:e; return {x:p.clientX-r.left, y:p.clientY-r.top}; }
+function down(e){ e.preventDefault(); drawing=true; cur=[pos(e)]; strokes.push(cur); }
+function move(e){ if(!drawing)return; e.preventDefault(); var p=pos(e); var a=cur[cur.length-1];
+  pctx.beginPath(); pctx.moveTo(a.x,a.y); pctx.lineTo(p.x,p.y); pctx.stroke(); cur.push(p); }
+function up(){ drawing=false; }
+pad.addEventListener('pointerdown',down); pad.addEventListener('pointermove',move);
+window.addEventListener('pointerup',up);
+document.getElementById('clearBtn').onclick=function(){ strokes=[]; pctx.clearRect(0,0,pad.width,pad.height); };
+
+/* 儲存/載入（示範用 localStorage；正式版會存進 Firebase）*/
+function saveSig(){ try{ localStorage.setItem('opusz_demo_sig', JSON.stringify(strokes)); }catch(e){} }
+function loadSig(){ try{ return JSON.parse(localStorage.getItem('opusz_demo_sig')||'null'); }catch(e){ return null; } }
+document.getElementById('useBtn').onclick=function(){
+  if(!strokes.length){ alert('先簽個名吧 ✍️'); return; }
+  saveSig(); drawSignature(); document.getElementById('signWrap').scrollIntoView({behavior:'smooth'});
+};
+
+/* ══════════ 3) 顯示區：把錄下的簽名「一筆一筆重播寫出來」══════════ */
+var disp=document.getElementById('sigDisplay'), dctx=disp.getContext('2d');
+function drawSignature(){
+  var sig=strokes.length?strokes:loadSig();
+  if(!sig||!sig.length){ return; }
+  // 對齊：把簽名縮放置中到顯示畫布
+  var xs=[],ys=[]; sig.forEach(function(s){ s.forEach(function(p){ xs.push(p.x); ys.push(p.y); }); });
+  var minx=Math.min.apply(0,xs),maxx=Math.max.apply(0,xs),miny=Math.min.apply(0,ys),maxy=Math.max.apply(0,ys);
+  var W=disp.width,H=disp.height,pad2=40;
+  var sc=Math.min((W-pad2*2)/(maxx-minx||1),(H-pad2*2)/(maxy-miny||1));
+  var ox=(W-(maxx-minx)*sc)/2-minx*sc, oy=(H-(maxy-miny)*sc)/2-miny*sc;
+  var pts=[]; sig.forEach(function(s){ s.forEach(function(p,i){ pts.push({x:p.x*sc+ox,y:p.y*sc+oy,pen:i>0}); }); });
+  dctx.clearRect(0,0,W,H); dctx.lineWidth=3.4*sc/1; dctx.lineCap='round'; dctx.lineJoin='round'; dctx.strokeStyle='#111';
+  var total=pts.length, dur=1800, t0=null;
+  function frame(t){ if(!t0)t0=t; var k=Math.min(1,(t-t0)/dur); var n=Math.floor(k*total);
+    dctx.clearRect(0,0,W,H); dctx.beginPath();
+    for(var i=1;i<n;i++){ if(pts[i].pen){ dctx.moveTo(pts[i-1].x,pts[i-1].y); dctx.lineTo(pts[i].x,pts[i].y);} }
+    dctx.stroke();
+    if(k<1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}
+window.addEventListener('resize',function(){ padRect=fit(pad); pctx.lineWidth=2.4; pctx.lineCap='round'; pctx.lineJoin='round'; pctx.strokeStyle='#111'; });
+</script>
+</body>
+</html>
