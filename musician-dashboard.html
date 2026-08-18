@@ -1327,6 +1327,25 @@
               </div>
             </div>
 
+            <div class="form-section" style="margin-top:22px;padding-top:20px;border-top:1px solid var(--border);">
+              <div class="form-section-title" style="text-transform:uppercase;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--mid);margin-bottom:4px;">
+                <span data-i18n="form_sig_title">親筆簽名 &amp; 一句話</span>
+                <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--mid);margin-left:6px;" data-i18n="form_sig_sub">（會顯示在你公開個人頁的照片下方）</span>
+              </div>
+              <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label" data-i18n="form_sig_quote">個人一句話（一行一句，可多行）</label>
+                <textarea class="form-input" id="pfSigQuote" rows="4" placeholder="音樂，是我與世界對話的方式。&#10;每一次上台，我只留下真正重要的。"></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label" data-i18n="form_sig_pad">親筆簽名（手指 / Apple Pencil / 滑鼠，直接在下面簽）</label>
+                <canvas id="pfSigPad" width="900" height="320" style="width:100%;height:170px;border:1px dashed var(--border);border-radius:10px;background:#fafafa;touch-action:none;cursor:crosshair;display:block;"></canvas>
+                <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
+                  <button type="button" class="btn btn-outline" onclick="pfSigClear()" style="font-size:13px;padding:8px 14px;" data-i18n="form_sig_clear">清除重簽</button>
+                  <span id="pfSigStatus" style="font-size:12px;color:var(--mid);"></span>
+                </div>
+              </div>
+            </div>
+
             <div style="display:flex;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);">
               <button class="btn btn-primary" data-i18n="btn_save" onclick="saveProfile()">儲存變更</button>
               <button class="btn btn-outline" data-i18n="btn_cancel" onclick="loadProfileFields()">取消</button>
@@ -2254,6 +2273,8 @@
       avatar_change:'更換', form_basic:'基本資料', form_name:'顯示名稱',
       form_name_ph:'你的名字', form_phone:'聯絡電話', form_website:'個人網站 / 作品集',
       form_instruments_region:'樂器與地區',
+      form_sig_title:'親筆簽名 & 一句話', form_sig_sub:'（會顯示在你公開個人頁的照片下方）',
+      form_sig_quote:'個人一句話（一行一句，可多行）', form_sig_pad:'親筆簽名（手指 / Apple Pencil / 滑鼠，直接在下面簽）', form_sig_clear:'清除重簽',
       form_instruments_sync:'（改這裡會同步到公開個人頁、音樂家列表與社群卡片）',
       form_instruments:'已選樂器', form_instruments_empty:'尚未設定',
       form_primary_region:'主要地區', form_secondary_region:'次要地區（選填）',
@@ -2379,6 +2400,8 @@
       avatar_change:'Change', form_basic:'Basic Info', form_name:'Display Name',
       form_name_ph:'Your name', form_phone:'Contact Phone', form_website:'Website / Portfolio',
       form_instruments_region:'Instruments & Region',
+      form_sig_title:'Signature & a personal line', form_sig_sub:'(Shown on your public profile, below your photo)',
+      form_sig_quote:'A personal line (one per row, multiple allowed)', form_sig_pad:'Your signature (sign below with finger / Apple Pencil / mouse)', form_sig_clear:'Clear',
       form_instruments_sync:'(Changes here sync to your public page, musician directory, and community card)',
       form_instruments:'Selected Instruments', form_instruments_empty:'Not set yet',
       form_primary_region:'Primary Region', form_secondary_region:'Secondary Region (optional)',
@@ -3042,6 +3065,11 @@
     set('pfWhatsapp',  p.whatsapp  || '');
     set('pfLine',      p.line      || '');
 
+    // 親筆簽名 & 一句話 → 帶回已存的值
+    var _sig = (p.config && p.config.sig) || {};
+    set('pfSigQuote', _sig.quote || '');
+    try { if (window.pfSigRender) window.pfSigRender(Array.isArray(_sig.strokes) ? _sig.strokes : []); } catch(e){}
+
     // Instruments (editable) — prefer top-level, fall back to config.card.
     var _cd = (p.config && p.config.card) || {};
     pfInsts = Array.isArray(p.instruments) && p.instruments.length ? p.instruments.slice()
@@ -3083,6 +3111,11 @@
 
     if (!name) { showNotif('請輸入顯示名稱'); return; }
 
+    // 親筆簽名 & 一句話 → config.sig (strokes is a FLAT array of {x,y,b}; b=1 = new stroke start,
+    // because Firestore forbids nested arrays).
+    var sigQuote   = ((document.getElementById('pfSigQuote')||{value:''}).value || '').replace(/\s+$/,'');
+    var sigStrokes = Array.isArray(window.__pfSigStrokes) ? window.__pfSigStrokes : [];
+
     // Instruments + region from the editable controls.
     var insts = pfInsts.slice();
     var regStr = function(cId, ctId){
@@ -3114,7 +3147,9 @@
         'config.card.location':    primaryRegion,
         'config.hero.location':    primaryRegion,
         'config.hero.location2':   secondaryRegion,
-        'config.hero.title':       role
+        'config.hero.title':       role,
+        'config.sig.quote':        sigQuote,
+        'config.sig.strokes':      sigStrokes
       });
 
       // Keep in-memory state consistent so an already-open 編輯主頁 editor (and its
@@ -3125,6 +3160,7 @@
         region: s1.city, country: s1.country, region2: s2.city, country2: s2.country
       });
       _currentProfile.config = _currentProfile.config || {};
+      _currentProfile.config.sig = { quote: sigQuote, strokes: sigStrokes };
       _currentProfile.config.card = Object.assign({}, _currentProfile.config.card, { instruments: insts.slice(), instrument: insts[0] || '', location: primaryRegion });
       _currentProfile.config.hero = Object.assign({}, _currentProfile.config.hero, { location: primaryRegion, location2: secondaryRegion, title: role });
       try {
@@ -6652,5 +6688,30 @@
     </div>
   </div>
 </div>
+<script>
+/* 我的資料 → 親筆簽名板：手指/Pencil/滑鼠簽名，錄成扁平向量 [{x,y,b}]（b=1=新筆畫起點）。
+   window.__pfSigStrokes 由 saveProfile 讀取存進 config.sig.strokes；pfSigRender 帶回已存的簽名。 */
+(function(){
+  function init(){
+    var pad=document.getElementById('pfSigPad'); if(!pad) return;
+    var ctx=pad.getContext('2d'); ctx.lineWidth=3; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#111';
+    window.__pfSigStrokes=window.__pfSigStrokes||[];
+    var drawing=false,last=null;
+    function P(e){ var r=pad.getBoundingClientRect(); var t=(e.touches&&e.touches[0])||e; return {x:(t.clientX-r.left)/(r.width||1)*pad.width, y:(t.clientY-r.top)/(r.height||1)*pad.height}; }
+    function status(){ var el=document.getElementById('pfSigStatus'); if(el) el.textContent=(window.__pfSigStrokes.length?'已簽名 ✓':''); }
+    pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; var p=P(e); p.b=1; window.__pfSigStrokes.push(p); last=p; status(); });
+    pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); var p=P(e); p.b=0; ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); window.__pfSigStrokes.push(p); last=p; });
+    function end(){ drawing=false; }
+    pad.addEventListener('pointerup',end); pad.addEventListener('pointerleave',end); window.addEventListener('pointerup',end);
+    window.pfSigClear=function(){ window.__pfSigStrokes=[]; ctx.clearRect(0,0,pad.width,pad.height); status(); };
+    window.pfSigRender=function(strokes){ window.__pfSigStrokes=Array.isArray(strokes)?strokes.slice():[]; ctx.clearRect(0,0,pad.width,pad.height);
+      var s=window.__pfSigStrokes,prev=null;
+      for(var i=0;i<s.length;i++){ var p=s[i]; if(p.b){ prev=p; } else if(prev){ ctx.beginPath(); ctx.moveTo(prev.x,prev.y); ctx.lineTo(p.x,p.y); ctx.stroke(); prev=p; } }
+      status(); };
+    status();
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
 </body>
 </html>

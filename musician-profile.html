@@ -2120,6 +2120,65 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 <!-- CONTENT -->
 <div class="content">
 
+  <!-- ── 親筆簽名 & 一句話（Hero 照片下方；只有音樂家自己設定了才出現）── -->
+  <style>
+    .sig-block{max-width:1200px;margin:0 auto;padding:104px 24px 30px;display:flex;flex-direction:column;align-items:center;gap:52px;text-align:center}
+    .sig-quote{max-width:600px;font-size:clamp(17px,2.1vw,23px);line-height:1.95;color:#1a1a1a;font-weight:400}
+    .sig-quote .ln{display:block;white-space:pre-wrap;min-height:1.95em}
+    .sig-quote .ln.pending{opacity:0}
+    .sig-mark{display:flex;flex-direction:column;align-items:center;gap:10px}
+    .sig-canvas{width:min(320px,72vw);height:auto;aspect-ratio:12/5}
+    .sig-name{font-size:11px;letter-spacing:.32em;color:#9a9a92;text-transform:uppercase}
+  </style>
+  <section class="sig-block" id="sigBlock" style="display:none">
+    <p class="sig-quote" id="sigQuote"></p>
+    <div class="sig-mark">
+      <canvas class="sig-canvas" id="sigCanvas" width="720" height="300"></canvas>
+      <div class="sig-name" id="sigName"></div>
+    </div>
+  </section>
+  <script>
+  window.applySignatureBlock=function(cfg){
+    try{
+      var sig=(cfg&&cfg.sig)||{};
+      var quote=(sig.quote||'').trim();
+      var strokes=Array.isArray(sig.strokes)?sig.strokes:null;
+      var block=document.getElementById('sigBlock'); if(!block) return;
+      if(!quote && !(strokes&&strokes.length)){ block.style.display='none'; return; }
+      block.style.display='flex';
+      var nm=document.getElementById('sigName');
+      if(nm) nm.textContent=(window.MUSICIAN_NAME || ((document.getElementById('heroNameBig')||{}).textContent||'').trim().split('\n')[0].trim() || '');
+      var qEl=document.getElementById('sigQuote'); qEl.innerHTML=''; var lineEls=[];
+      (quote?quote.split('\n'):[]).forEach(function(t){
+        var s=document.createElement('span'); s.className='ln pending'; s.setAttribute('data-text',t); s.textContent=t; qEl.appendChild(s); lineEls.push(s);
+      });
+      var canvas=document.getElementById('sigCanvas'), ctx=canvas.getContext('2d');
+      var GL='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%*+='; function rnd(){return GL[(Math.random()*GL.length)|0];}
+      function reveal(el){ var text=el.getAttribute('data-text'),len=text.length,start=null,per=70; el.classList.remove('pending'); el.textContent='';
+        function fr(t){ if(!start)start=t; var full=Math.floor(Math.min(len,(t-start)/per)); var out=text.slice(0,full);
+          if(full<len){ var c=text.charAt(full); out+= /[a-zA-Z0-9]/.test(c)?rnd():c; } el.textContent=out;
+          if(full<len) requestAnimationFrame(fr); else el.textContent=text; } requestAnimationFrame(fr); }
+      function replay(){ if(!(strokes&&strokes.length)) return;
+        var xs=[],ys=[]; strokes.forEach(function(p){ xs.push(p.x); ys.push(p.y); });   // flat [{x,y,b}]
+        var minx=Math.min.apply(0,xs),maxx=Math.max.apply(0,xs),miny=Math.min.apply(0,ys),maxy=Math.max.apply(0,ys);
+        var W=canvas.width,H=canvas.height,pd=36,sc=Math.min((W-pd*2)/((maxx-minx)||1),(H-pd*2)/((maxy-miny)||1));
+        var ox=(W-(maxx-minx)*sc)/2-minx*sc, oy=(H-(maxy-miny)*sc)/2-miny*sc, pts=[];
+        strokes.forEach(function(p){ pts.push({x:p.x*sc+ox,y:p.y*sc+oy,pen:!p.b}); });   // pen=false at each stroke start (b=1)
+        ctx.clearRect(0,0,W,H); ctx.lineWidth=3.2; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#111';
+        var total=pts.length,dur=1900,t0=null;
+        function fr(t){ if(!t0)t0=t; var k=Math.min(1,(t-t0)/dur),n=Math.floor(k*total); ctx.clearRect(0,0,W,H); ctx.beginPath();
+          for(var i=1;i<n;i++){ if(pts[i].pen){ ctx.moveTo(pts[i-1].x,pts[i-1].y); ctx.lineTo(pts[i].x,pts[i].y);} } ctx.stroke();
+          if(k<1) requestAnimationFrame(fr); } requestAnimationFrame(fr); }
+      if(block.__io) block.__io.disconnect(); var fired=false;
+      block.__io=new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting&&!fired){ fired=true;
+        lineEls.forEach(function(el,i){ setTimeout(function(){ reveal(el); }, i*420); });
+        setTimeout(replay, lineEls.length*420+300);
+      } }); },{threshold:.35});
+      block.__io.observe(block);
+    }catch(e){ console.log('sig block err',e); }
+  };
+  </script>
+
   <!-- About: bio left + service cards right -->
   <div class="section">
     <div class="about-new-row">
@@ -4463,6 +4522,8 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       const applyCfg = function(){
         try { window.applyProfileConfig(p.config); }
         catch(e){ console.warn('[profileConfig] apply failed:', e); }
+        try { if (window.applySignatureBlock) window.applySignatureBlock(p.config); }
+        catch(e){ console.warn('[sigBlock] apply failed:', e); }
       };
       if (window.applyProfileConfig) applyCfg();
       else {
