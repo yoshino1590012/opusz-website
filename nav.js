@@ -59,7 +59,7 @@
 '  <ul class="nav-links">',
 '    <li><a href="musician-platform.html#home" data-i18n="nav.home">Home</a></li>',
 '    <li id="artists-nav-item"><a href="musicians.html" data-i18n="nav.artists">Musicians</a></li>',
-'    <li><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>',
+'    <li style="display:none"><a href="lessons.html" data-i18n="nav.lessons">Lessons</a></li>', /* Lessons 隱藏 2026-08-18 */
 '    <li><a href="recent-jobs.html" data-i18n="nav.jobs">Recent Jobs</a></li>',
 '    <li><a href="shows.html"   data-i18n="nav.news">Shows</a></li>',
 '    <li style="display:none"><a href="blog.html" data-i18n="nav.discover">Blog</a></li>',  /* Blog 分頁暫時隱藏 2026-07-10，還原刪 style */
@@ -207,7 +207,7 @@
 '    <span data-i18n="nav.artists">Musicians</span>',
 '    <span class="nd-arrow">›</span>',
 '  </button>',
-'  <a href="lessons.html" data-i18n="nav.lessons">Lessons</a>',
+'  <a href="lessons.html" data-i18n="nav.lessons" style="display:none">Lessons</a>', /* Lessons 隱藏 2026-08-18 */
 '  <a href="recent-jobs.html" data-i18n="nav.jobs">Recent Jobs</a>',
 '  <a href="shows.html" data-i18n="nav.news">Shows</a>',
 '  <a href="blog.html" data-i18n="nav.discover" style="display:none">Blog</a>',  /* Blog 分頁暫時隱藏 2026-07-10，還原刪 style */
