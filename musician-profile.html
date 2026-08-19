@@ -6996,6 +6996,10 @@ window.addEventListener('pageshow', function(e) {
 
     // Override the four editable sections with the current-language content.
     applyLocalizedSections();
+
+    // Live-preview the 名言 / 簽名 block too — the 編輯主頁 editor pushes config on every
+    // keystroke / stroke, so the signature under the hero updates as it's edited.
+    try { if (window.applySignatureBlock) window.applySignatureBlock(cfg); } catch(e){}
   }
 
   // Expose globally

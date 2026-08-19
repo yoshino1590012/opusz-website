@@ -1327,24 +1327,7 @@
               </div>
             </div>
 
-            <div class="form-section" style="margin-top:22px;padding-top:20px;border-top:1px solid var(--border);">
-              <div class="form-section-title" style="text-transform:uppercase;font-size:12px;font-weight:700;letter-spacing:.06em;color:var(--mid);margin-bottom:4px;">
-                <span data-i18n="form_sig_title">親筆簽名 &amp; 一句話</span>
-                <span style="font-size:10px;font-weight:500;text-transform:none;letter-spacing:0;color:var(--mid);margin-left:6px;" data-i18n="form_sig_sub">（會顯示在你公開個人頁的照片下方）</span>
-              </div>
-              <div class="form-group" style="margin-bottom:14px;">
-                <label class="form-label" data-i18n="form_sig_quote">個人一句話（一行一句，可多行）</label>
-                <textarea class="form-input" id="pfSigQuote" rows="4" placeholder="音樂，是我與世界對話的方式。&#10;每一次上台，我只留下真正重要的。"></textarea>
-              </div>
-              <div class="form-group">
-                <label class="form-label" data-i18n="form_sig_pad">親筆簽名（手指 / Apple Pencil / 滑鼠，直接在下面簽）</label>
-                <canvas id="pfSigPad" width="900" height="320" style="width:100%;height:170px;border:1px dashed var(--border);border-radius:10px;background:#fafafa;touch-action:none;cursor:crosshair;display:block;"></canvas>
-                <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
-                  <button type="button" class="btn btn-outline" onclick="pfSigClear()" style="font-size:13px;padding:8px 14px;" data-i18n="form_sig_clear">清除重簽</button>
-                  <span id="pfSigStatus" style="font-size:12px;color:var(--mid);"></span>
-                </div>
-              </div>
-            </div>
+            <!-- 親筆簽名 & 一句話 has moved to 編輯主頁 → 名言 / 簽名 (right under 主視覺). -->
 
             <div style="display:flex;gap:10px;margin-top:24px;padding-top:20px;border-top:1px solid var(--border);">
               <button class="btn btn-primary" data-i18n="btn_save" onclick="saveProfile()">儲存變更</button>
@@ -1685,6 +1668,7 @@
           <!-- LEFT: section list -->
           <div class="pb-left" id="pbSecList">
             <button class="pb-sec-item active" data-pbsec="hero"       onclick="pbSelectSection('hero',this)" data-i18n="pb_hero">主視覺</button>
+            <button class="pb-sec-item"        data-pbsec="signature"  onclick="pbSelectSection('signature',this)" data-i18n="pb_signature">名言 / 簽名</button>
             <button class="pb-sec-item"        data-pbsec="card"       onclick="pbSelectSection('card',this)" data-i18n="pb_card">列表卡片 / Card</button>
             <button class="pb-sec-item"        data-pbsec="booking"    onclick="pbSelectSection('booking',this)" data-i18n="pb_booking">預約演出檔期</button>
             <button class="pb-sec-item"        data-pbsec="about"      onclick="pbSelectSection('about',this)" data-i18n="pb_about">關於</button>
@@ -1818,6 +1802,26 @@
               <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">第 1 張是主照片；最多 4 張會自動輪播，留空的不顯示。每張可單獨調整位置與縮放。</p>
               <div id="pbBannerList"></div>
               <button type="button" class="pb-row-add" id="pbBannerAddBtn" onclick="pbAddBannerRow()">➕ 新增照片 / Add photo</button>
+            </div>
+
+            <!-- Quote & Signature (名言 / 簽名) — moved here from 我的資料 so all public-page
+                 editing lives in 編輯主頁, right under 主視覺 (this shows below the hero photo).
+                 Same element IDs are kept so the existing sig-pad init + save path still work. -->
+            <div class="pb-field-group" data-pbgroup="signature">
+              <div class="pb-group-title">名言 / 簽名</div>
+              <p style="font-size:12px;color:var(--text-muted);margin:0 0 12px;line-height:1.5;">會顯示在你公開個人頁的主視覺照片下方。</p>
+              <div class="pb-field">
+                <label>個人一句話（一行一句，可多行）/ Quote</label>
+                <textarea id="pfSigQuote" oninput="pbOnInput()" style="min-height:110px;" placeholder="音樂，是我與世界對話的方式。&#10;每一次上台，我只留下真正重要的。"></textarea>
+              </div>
+              <div class="pb-field">
+                <label>親筆簽名（手指 / Apple Pencil / 滑鼠，直接在下面簽）/ Signature</label>
+                <canvas id="pfSigPad" width="900" height="320" style="width:100%;height:170px;border:1px dashed var(--border);border-radius:10px;background:#fafafa;touch-action:none;cursor:crosshair;display:block;"></canvas>
+                <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
+                  <button type="button" class="btn btn-outline" onclick="pfSigClear(); if(window.pbOnInput) pbOnInput();" style="font-size:13px;padding:8px 14px;">清除重簽 / Clear</button>
+                  <span id="pfSigStatus" style="font-size:12px;color:var(--mid);"></span>
+                </div>
+              </div>
             </div>
 
             <!-- Card (Musicians directory list card) -->
@@ -2327,7 +2331,7 @@
       poster_submit_btn:'投稿海報', poster_clear_btn:'清除', poster_my:'我的海報投稿',
       pb_title:'編輯主頁', pb_subtitle:'即時編輯你的公開檔案頁面，右側修改、中間預覽，按「儲存」發佈。',
       pb_rotate_hint:'📱 建議把手機<b>轉成橫的</b>編輯，畫面會自動變大、更好操作。',
-      pb_hero:'主視覺', pb_booking:'預約演出檔期', pb_about:'關於',
+      pb_hero:'主視覺', pb_signature:'名言 / 簽名', pb_booking:'預約演出檔期', pb_about:'關於',
       pb_lm_zh:'中文', pb_lm_en:'English', pb_lm_both:'雙語',
       pb_lm_hint:'選擇你的公開頁語言：單選一種＝訪客只會看到該語言；雙語＝中英都要填，訪客可切換。',
       pb_card:'列表卡片', pb_audio:'音檔', pb_services:'專長', pb_videos:'影片', pb_theme:'主題',
@@ -2454,7 +2458,7 @@
       poster_submit_btn:'Submit Poster', poster_clear_btn:'Clear', poster_my:'My Submitted Posters',
       pb_title:'Edit Page', pb_subtitle:'Edit your public profile in real time — make changes on the right, preview in the center, then publish.',
       pb_rotate_hint:'📱 Tip: turn your phone <b>sideways</b> to edit — the screen gets bigger and easier to use.',
-      pb_hero:'Hero', pb_booking:'Performance Booking', pb_about:'About',
+      pb_hero:'Hero', pb_signature:'Quote & Signature', pb_booking:'Performance Booking', pb_about:'About',
       pb_lm_zh:'中文', pb_lm_en:'English', pb_lm_both:'Both',
       pb_lm_hint:'Choose your public-profile language. Pick one → visitors only see that language. Both → fill in Chinese + English; visitors can switch.',
       pb_card:'List Card', pb_audio:'Audio', pb_services:'Specialties', pb_videos:'Showreel', pb_theme:'Theme',
@@ -5343,6 +5347,16 @@
       heroExtraSlides = (pbConfig.hero && Array.isArray(pbConfig.hero.extraSlides)) ? pbConfig.hero.extraSlides : [];
     }
 
+    // 名言 / 簽名 (moved into 編輯主頁). Read the quote + hand-drawn strokes. If the fields
+    // aren't in the DOM yet (form read before populate), keep whatever sig we already had so
+    // a 發佈 never wipes an existing signature. Left undefined-safe: only attached below when set.
+    var _sigOut;
+    (function(){
+      var qEl = document.getElementById('pfSigQuote');
+      if(!qEl){ _sigOut = (pbConfig && pbConfig.sig) || (_currentProfile && _currentProfile.config && _currentProfile.config.sig) || undefined; return; }
+      _sigOut = { quote: (qEl.value || '').replace(/\s+$/,''), strokes: Array.isArray(window.__pfSigStrokes) ? window.__pfSigStrokes : [] };
+    })();
+
     pbConfig = {
       langMode:       (window.pbLangMode || 'both'),   // 'zh' | 'en' | 'both'
       hero: {
@@ -5409,6 +5423,9 @@
         text:   themeVal('pbThemeText',   '#000000')
       }
     };
+    // Attach 名言/簽名 only when we actually have a value (never write `undefined` —
+    // Firestore setDoc would reject it and break the whole 發佈).
+    if(_sigOut) pbConfig.sig = _sigOut;
     // ── Tier gate: teaching / lesson plans are Premium-only ──
     const _pro = pbIsPremiumActive();
     pbConfig.lessonsEnabled = _pro;
@@ -6689,8 +6706,9 @@
   </div>
 </div>
 <script>
-/* 我的資料 → 親筆簽名板：手指/Pencil/滑鼠簽名，錄成扁平向量 [{x,y,b}]（b=1=新筆畫起點）。
-   window.__pfSigStrokes 由 saveProfile 讀取存進 config.sig.strokes；pfSigRender 帶回已存的簽名。 */
+/* 編輯主頁 → 名言 / 簽名 板：手指/Pencil/滑鼠簽名，錄成扁平向量 [{x,y,b}]（b=1=新筆畫起點）。
+   window.__pfSigStrokes 由 pbReadForm（發佈）與 saveProfile 讀取存進 config.sig.strokes；
+   pfSigRender（loadProfileFields 呼叫）帶回已存的簽名。元素 ID 不變，故搬到編輯主頁後照舊運作。 */
 (function(){
   function init(){
     var pad=document.getElementById('pfSigPad'); if(!pad) return;
@@ -6701,7 +6719,8 @@
     function status(){ var el=document.getElementById('pfSigStatus'); if(el) el.textContent=(window.__pfSigStrokes.length?'已簽名 ✓':''); }
     pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; var p=P(e); p.b=1; window.__pfSigStrokes.push(p); last=p; status(); });
     pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); var p=P(e); p.b=0; ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); window.__pfSigStrokes.push(p); last=p; });
-    function end(){ drawing=false; }
+    // On stroke end, push the drawing into pbConfig so the 編輯主頁 live preview updates.
+    function end(){ if(drawing){ drawing=false; try{ if(window.pbOnInput) window.pbOnInput(); }catch(_){} } }
     pad.addEventListener('pointerup',end); pad.addEventListener('pointerleave',end); window.addEventListener('pointerup',end);
     window.pfSigClear=function(){ window.__pfSigStrokes=[]; ctx.clearRect(0,0,pad.width,pad.height); status(); };
     window.pfSigRender=function(strokes){ window.__pfSigStrokes=Array.isArray(strokes)?strokes.slice():[]; ctx.clearRect(0,0,pad.width,pad.height);
