@@ -6849,5 +6849,49 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
 </script>
+<script>
+/* 桌機簽名太小 → 彈出放大：點簽名板(滑鼠) 或 按「放大簽名」→ 彈出大畫布簽 → 完成存回。
+   手機/Pencil 仍可直接在小板上簽。座標一律用 900×320 空間，與小板一致，pfSigRender 照舊。 */
+(function(){
+  function init(){
+    var pad=document.getElementById('pfSigPad'); if(!pad || document.getElementById('opzSigModal')) return;
+    var m=document.createElement('div'); m.id='opzSigModal';
+    m.style.cssText='display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;';
+    m.innerHTML='<div style="background:#fff;border-radius:16px;padding:18px;width:min(760px,96vw);max-height:94vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.3);">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><b style="font-size:15px;color:#111;">親筆簽名 · Sign here</b>'
+      +'<button type="button" id="opzSigX" aria-label="close" style="border:none;background:none;font-size:22px;cursor:pointer;color:#888;line-height:1;">&times;</button></div>'
+      +'<canvas id="pfSigPadBig" width="900" height="320" style="width:100%;aspect-ratio:900/320;border:1px dashed #ccc;border-radius:12px;background:#fafafa;touch-action:none;cursor:crosshair;display:block;"></canvas>'
+      +'<div style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;"><button type="button" id="opzSigBigClear" class="btn btn-outline">清除重簽 / Clear</button>'
+      +'<button type="button" id="opzSigDone" class="btn btn-primary">完成 / Done</button></div>'
+      +'<p style="font-size:12px;color:#999;margin:10px 0 0;text-align:center;">在大畫布上簽比較好簽，完成後會自動存回</p></div>';
+    document.body.appendChild(m);
+    var big=document.getElementById('pfSigPadBig'), bctx=big.getContext('2d');
+    bctx.lineWidth=3; bctx.lineCap='round'; bctx.lineJoin='round'; bctx.strokeStyle='#111';
+    function drawAll(){ bctx.clearRect(0,0,big.width,big.height); var s=window.__pfSigStrokes||[],prev=null;
+      for(var i=0;i<s.length;i++){ var p=s[i]; if(p.b){prev=p;} else if(prev){ bctx.beginPath(); bctx.moveTo(prev.x,prev.y); bctx.lineTo(p.x,p.y); bctx.stroke(); prev=p; } } }
+    var drawing=false,last=null;
+    function P(e){ var r=big.getBoundingClientRect(); var t=(e.touches&&e.touches[0])||e; return {x:(t.clientX-r.left)/(r.width||1)*big.width, y:(t.clientY-r.top)/(r.height||1)*big.height}; }
+    big.addEventListener('pointerdown',function(e){ e.preventDefault(); try{big.setPointerCapture(e.pointerId);}catch(_){} drawing=true; window.__pfSigStrokes=window.__pfSigStrokes||[]; var p=P(e); p.b=1; window.__pfSigStrokes.push(p); last=p; });
+    big.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); var p=P(e); p.b=0; bctx.beginPath(); bctx.moveTo(last.x,last.y); bctx.lineTo(p.x,p.y); bctx.stroke(); window.__pfSigStrokes.push(p); last=p; });
+    function bend(){ drawing=false; } big.addEventListener('pointerup',bend); window.addEventListener('pointerup',bend);
+    var backup=null;
+    function open(){ window.__pfSigStrokes=window.__pfSigStrokes||[]; backup=window.__pfSigStrokes.map(function(p){return {x:p.x,y:p.y,b:p.b};}); m.style.display='flex'; drawAll(); }
+    function close(save){ m.style.display='none';
+      if(save){ if(window.pfSigRender) window.pfSigRender(window.__pfSigStrokes); try{ if(window.pbOnInput) window.pbOnInput(); }catch(_){} }
+      else { window.__pfSigStrokes=backup||[]; if(window.pfSigRender) window.pfSigRender(window.__pfSigStrokes); } }
+    document.getElementById('opzSigDone').onclick=function(){ close(true); };
+    document.getElementById('opzSigX').onclick=function(){ close(false); };
+    document.getElementById('opzSigBigClear').onclick=function(){ window.__pfSigStrokes=[]; drawAll(); };
+    m.addEventListener('click',function(e){ if(e.target===m) close(false); });
+    var btn=document.createElement('button'); btn.type='button'; btn.className='btn btn-outline';
+    btn.style.cssText='font-size:13px;padding:8px 14px;'; btn.textContent='放大簽名 / Bigger ⤢'; btn.onclick=open;
+    var st=document.getElementById('pfSigStatus'); if(st && st.parentNode) st.parentNode.insertBefore(btn, st);
+    // 桌機滑鼠點小簽名板 → 直接開大視窗（滑鼠在小板不好簽）；觸控/Pencil 仍走小板直接簽。
+    document.addEventListener('pointerdown',function(e){ if(e.target===pad && e.pointerType==='mouse'){ e.preventDefault(); e.stopPropagation(); open(); } }, true);
+    window.opzOpenSigModal=open;
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+})();
+</script>
 </body>
 </html>
