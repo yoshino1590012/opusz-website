@@ -1688,9 +1688,19 @@
 
           <!-- CENTER: live iframe preview -->
           <div class="pb-center">
-            <div class="pb-devbar">
-              <button class="pb-dev-btn active" id="pbDevDesktop" data-i18n="pb_desktop" onclick="pbSetDevice('desktop',this)">桌機</button>
-              <button class="pb-dev-btn"        id="pbDevMobile"  data-i18n="pb_mobile"  onclick="pbSetDevice('mobile',this)">手機</button>
+            <div class="pb-devbar" style="justify-content:space-between;">
+              <!-- LEFT: Undo / Redo — fixed here (always visible, never scrolls with the fields) -->
+              <div style="display:flex;align-items:center;gap:6px;flex:1;min-width:0;">
+                <button type="button" class="pb-dev-btn" id="pbUndoBtn" onclick="pbUndo()" title="上一步 / Undo（⌘Z）" aria-label="上一步" disabled style="opacity:.4;">↶ 上一步</button>
+                <button type="button" class="pb-dev-btn" id="pbRedoBtn" onclick="pbRedo()" title="下一步 / Redo（⌘⇧Z）" aria-label="下一步" disabled style="opacity:.4;">下一步 ↷</button>
+              </div>
+              <!-- CENTER: device toggle -->
+              <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+                <button class="pb-dev-btn active" id="pbDevDesktop" data-i18n="pb_desktop" onclick="pbSetDevice('desktop',this)">桌機</button>
+                <button class="pb-dev-btn"        id="pbDevMobile"  data-i18n="pb_mobile"  onclick="pbSetDevice('mobile',this)">手機</button>
+              </div>
+              <!-- RIGHT: live autosave status -->
+              <div id="pbSaveStatus" style="flex:1;min-width:0;text-align:right;font-size:12px;color:#16a34a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">✓ 自動儲存並即時上線</div>
             </div>
             <div class="pb-frame-wrap">
               <div class="pb-frame-inner" id="pbFrameInner">
@@ -2164,14 +2174,9 @@
             <!-- Unpublish moved to 設定 (Settings); Reset-to-template removed. On phone the
                  Save & Publish action lives in the top bar, so #pbPublishBtn is hidden there. -->
             <div class="pb-publish-block" style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border);">
-              <!-- No manual publish: every edit auto-saves to Firestore and goes live.
-                   Undo / Redo let the musician step a mistake back and forward. -->
-              <div style="display:flex;align-items:center;gap:8px;">
-                <button type="button" id="pbUndoBtn" class="btn btn-outline" onclick="pbUndo()" style="flex:1;justify-content:center;gap:6px;opacity:.4;" disabled>↶ 上一步 / Undo</button>
-                <button type="button" id="pbRedoBtn" class="btn btn-outline" onclick="pbRedo()" style="flex:1;justify-content:center;gap:6px;opacity:.4;" disabled>下一步 / Redo ↷</button>
-              </div>
-              <div id="pbSaveStatus" style="margin-top:10px;font-size:12.5px;color:#16a34a;text-align:center;min-height:16px;">✓ 編輯自動儲存並即時上線 / Auto-saved &amp; live</div>
-              <div id="pbPublicUrlLine" style="margin-top:12px;font-size:12px;color:var(--text-muted);word-break:break-all;">
+              <!-- No manual publish: edits auto-save & go live. Undo/Redo + save status now
+                   live in the fixed top toolbar (pb-devbar). Here we keep the public URL. -->
+              <div id="pbPublicUrlLine" style="margin-top:0;font-size:12px;color:var(--text-muted);word-break:break-all;">
                 公開頁面網址 / Public URL：<span id="pbPublicUrl">登入後顯示 / shown after login</span>
               </div>
               <a id="pbViewPublicLink" href="#" target="_blank" rel="noopener" style="display:none;margin-top:8px;font-size:13px;font-weight:600;color:var(--accent,#7c5cff);">查看我的公開頁面 / View my public page →</a>
