@@ -54,7 +54,7 @@
   <p>請回到電腦，重新點「用手機簽名」<br>再掃一次 QR code。</p>
 </div>
 
-<script src="sig-ink.js?v=3"></script>
+<script src="sig-ink.js?v=4"></script>
 <script type="module">
   import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -82,7 +82,7 @@
     var evs=(!first && e.getCoalescedEvents)?e.getCoalescedEvents():[e]; if(!evs||!evs.length) evs=[e];
     var r=pad.getBoundingClientRect(), w=r.width||1;
     for(var i=0;i<evs.length;i++){ var ev=evs[i], x=(ev.clientX-r.left)/w, y=(ev.clientY-r.top)/w, lp=strokes[strokes.length-1];
-      if(!first && lp && Math.hypot(x-lp.x,y-lp.y)<0.0022) continue;
+      if(!first && lp && Math.hypot(x-lp.x,y-lp.y)<0.0014) continue;
       var pt={x:Math.round(x*1e4)/1e4,y:Math.round(y*1e4)/1e4,b:first?1:0,t:Math.round(ev.timeStamp||performance.now())};
       if(ev.pointerType==='pen' && typeof ev.pressure==='number' && ev.pressure>0) pt.p=Math.round(ev.pressure*100)/100;
       strokes.push(pt); first=false; }
@@ -106,12 +106,14 @@
     if(mode==='erase'){ e.preventDefault();
       if(!drawing){ var r=pad.getBoundingClientRect(), w=r.width||1; erPos={x:(e.clientX-r.left)/w,y:(e.clientY-r.top)/w}; redraw(); return; }
       eraseAt(e); return; }
-    if(!drawing)return; e.preventDefault(); push(e,false); redraw(); });
+    if(!drawing)return; if(e.pointerType==='pen' && e.buttons===0){ return; }
+    e.preventDefault(); push(e,false); redraw(); });
   document.getElementById('undoBtn').onclick=function(){ if(window.OPZInk) strokes=window.OPZInk.undo(strokes); erPos=null; redraw(); };
   document.getElementById('eraseBtn').onclick=function(){ mode=(mode==='erase')?'pen':'erase';
     this.classList.toggle('on', mode==='erase'); erPos=null; redraw();
     document.getElementById('hint').textContent = (mode==='erase') ? '橡皮擦：在要擦掉的地方畫過去' : '用手指或觸控筆，在下面簽你的名字'; };
-  function end(){ drawing=false; } pad.addEventListener('pointerup',end); window.addEventListener('pointerup',end);
+  function end(){ drawing=false; }
+  pad.addEventListener('pointerup',end); pad.addEventListener('pointercancel',end); window.addEventListener('pointerup',end);
   document.getElementById('clearBtn').onclick=function(){ strokes=[]; erPos=null; redraw(); };
   window.addEventListener('resize',fit); fit();
 

@@ -12,7 +12,7 @@
 (function (g) {
   var NIB = -38 * Math.PI / 180;   // 筆尖角度：左下→右上為側鋒(細)，垂直方向最粗
   var NIB_MIN = 0.78;              // 側鋒最細比例（越小＝方向造成的粗細差越誇張。繞圈的簽名太小會「呼胖呼瘦」）
-  var W_MIN = 0.62, W_MAX = 1.42;  // 速度造成的粗細範圍
+  var W_MIN = 0.74, W_MAX = 1.38;  // 速度造成的粗細範圍
 
   function split(flat) {
     var out = [], cur = null;
@@ -76,15 +76,35 @@
     }
     spd = smooth(spd, 0, 4);
 
-    // 位置輕度去抖
-    var xs = smooth(pts.map(function (p) { return p.x; }), 0, 1);
-    var ys = smooth(pts.map(function (p) { return p.y; }), 0, 1);
+    // 轉角偵測：轉超過 CORNER 就當「這是你故意寫的角」，不准平滑、不准內插成弧
+    var CORNER = 52 * Math.PI / 180;
+    var corner = new Array(n);
+    for (var i = 0; i < n; i++) corner[i] = false;
+    for (var i = 1; i < n - 1; i++) {
+      var ax = pts[i].x - pts[i - 1].x, ay = pts[i].y - pts[i - 1].y;
+      var bx = pts[i + 1].x - pts[i].x, by = pts[i + 1].y - pts[i].y;
+      var la = Math.hypot(ax, ay), lb = Math.hypot(bx, by);
+      if (la < 1e-6 || lb < 1e-6) continue;
+      var ang = Math.abs(Math.atan2(ax * by - ay * bx, ax * bx + ay * by));
+      if (ang > CORNER) corner[i] = true;
+    }
+
+    // 位置去抖：很輕（只壓手抖，不搬動筆跡），轉角附近完全不動
+    var rx = pts.map(function (p) { return p.x; }), ry = pts.map(function (p) { return p.y; });
+    var xs = rx.slice(), ys = ry.slice();
+    for (var i = 1; i < n - 1; i++) {
+      if (corner[i] || corner[i - 1] || corner[i + 1]) continue;
+      xs[i] = (rx[i - 1] + 6 * rx[i] + rx[i + 1]) / 8;
+      ys[i] = (ry[i - 1] + 6 * ry[i] + ry[i + 1]) / 8;
+    }
     var prs = pts.map(function (p) { return (typeof p.pr === 'number' && p.pr > 0) ? p.pr : 0.5; });
 
-    // Catmull-Rom 加密
+    // Catmull-Rom 加密（碰到轉角就把控制點夾住 → 角保持尖的）
     var dense = [];
     for (var i = 0; i < n - 1; i++) {
-      var i0 = Math.max(0, i - 1), i1 = i, i2 = i + 1, i3 = Math.min(n - 1, i + 2);
+      var i1 = i, i2 = i + 1;
+      var i0 = corner[i1] ? i1 : Math.max(0, i - 1);
+      var i3 = corner[i2] ? i2 : Math.min(n - 1, i + 2);
       var seg = Math.hypot(xs[i2] - xs[i1], ys[i2] - ys[i1]);
       var sub = Math.max(2, Math.min(24, Math.ceil(seg / Math.max(0.5, step * 0.5))));
       for (var k = 0; k < sub; k++) {
@@ -170,7 +190,7 @@
       var m = S.length;
 
       if (m < 2) {                                  // 點 → 小墨點
-        strokes.push({ dot: true, x: S[0].x, y: S[0].y, r: base * 0.55, len: base });
+        strokes.push({ dot: true, x: S[0].x, y: S[0].y, r: base * 0.85, len: base });
         total += base; continue;
       }
 
@@ -194,7 +214,7 @@
       for (var i = 0; i < m; i++) {
         var s2 = i * step, e2 = len - s2;
         var tp = Math.pow(Math.min(1, Math.min(s2, e2) / (tip || 1)), 0.55);
-        ws[i] = Math.max(0.32, base * mod[i] * (0.22 + 0.78 * tp));
+        ws[i] = Math.max(0.55, base * mod[i] * (0.30 + 0.70 * tp));
       }
 
       // 左右外框

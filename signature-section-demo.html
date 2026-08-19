@@ -66,7 +66,7 @@
   <div class="pad-hint">簽完按「用這個簽名」，往上滑看它自己寫出來</div>
 </div>
 
-<script src="sig-ink.js?v=3"></script>
+<script src="sig-ink.js?v=4"></script>
 <script>
 /* ══════════ 1) 引言：由左到右、上排先出現的「解碼式」進場 ══════════ */
 (function(){
@@ -112,7 +112,7 @@ function push(e,first){
   var evs=(!first && e.getCoalescedEvents)?e.getCoalescedEvents():[e]; if(!evs||!evs.length) evs=[e];
   var r=pad.getBoundingClientRect(), w=r.width||1;
   for(var i=0;i<evs.length;i++){ var ev=evs[i], x=(ev.clientX-r.left)/w, y=(ev.clientY-r.top)/w, lp=strokes[strokes.length-1];
-    if(!first && lp && Math.hypot(x-lp.x,y-lp.y)<0.0022) continue;
+    if(!first && lp && Math.hypot(x-lp.x,y-lp.y)<0.0014) continue;
     var pt={x:Math.round(x*1e4)/1e4,y:Math.round(y*1e4)/1e4,b:first?1:0,t:Math.round(ev.timeStamp||performance.now())};
     if(ev.pointerType==='pen' && typeof ev.pressure==='number' && ev.pressure>0) pt.p=Math.round(ev.pressure*100)/100;
     strokes.push(pt); first=false; }
@@ -120,6 +120,7 @@ function push(e,first){
 pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; push(e,true); padDraw(); });
 pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); push(e,false); padDraw(); });
 window.addEventListener('pointerup',function(){ drawing=false; });
+pad.addEventListener('pointercancel',function(){ drawing=false; });
 document.getElementById('clearBtn').onclick=function(){ strokes=[]; padDraw(); };
 
 /* 儲存/載入（示範用 localStorage；正式版存進 Firebase）*/

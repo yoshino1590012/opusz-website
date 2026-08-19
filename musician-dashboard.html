@@ -6840,7 +6840,7 @@
     </div>
   </div>
 </div>
-<script src="sig-ink.js?v=3"></script>
+<script src="sig-ink.js?v=4"></script>
 <script>
 /* 編輯主頁 → 名言 / 簽名 板：手指/Pencil/滑鼠簽名，錄成扁平向量 [{x,y,b,t,p}]（b=1=新筆畫起點, t=時間戳, p=筆壓）。
    window.__pfSigStrokes 由 pbReadForm（發佈）與 saveProfile 讀取存進 config.sig.strokes；
@@ -6863,7 +6863,7 @@
     var r=c.getBoundingClientRect(), w=r.width||1;
     for(var i=0;i<evs.length;i++){
       var ev=evs[i], x=(ev.clientX-r.left)/w, y=(ev.clientY-r.top)/w, lp=arr[arr.length-1];
-      if(!first && lp && Math.hypot(x-lp.x,y-lp.y)<0.0022) continue;
+      if(!first && lp && Math.hypot(x-lp.x,y-lp.y)<0.0014) continue;
       var pt={x:Math.round(x*1e4)/1e4,y:Math.round(y*1e4)/1e4,b:first?1:0,t:Math.round(ev.timeStamp||performance.now())};
       if(ev.pointerType==='pen' && typeof ev.pressure==='number' && ev.pressure>0) pt.p=Math.round(ev.pressure*100)/100;
       arr.push(pt); first=false;
@@ -6945,9 +6945,10 @@
       if(window.__opzSigMode==='erase'){ e.preventDefault();
         if(!drawing){ window.__opzSigHover(pad,e); return; }
         window.__opzSigErase(pad,e); return; }
-      if(!drawing)return; e.preventDefault(); window.__opzSigPush(pad,e,false); window.__opzSigLive(pad); });
+      if(!drawing)return; if(e.pointerType==='pen' && e.buttons===0){ return; }
+      e.preventDefault(); window.__opzSigPush(pad,e,false); window.__opzSigLive(pad); });
     function end(){ if(drawing){ drawing=false; window.__opzSigAfter(); } }
-    pad.addEventListener('pointerup',end); pad.addEventListener('pointerleave',end); window.addEventListener('pointerup',end);
+    pad.addEventListener('pointerup',end); pad.addEventListener('pointercancel',end); window.addEventListener('pointerup',end);
     window.pfSigClear=function(){ window.__pfSigStrokes=[]; window.__opzRenderSig(pad,[]); status(); };
     window.pfSigRender=function(strokes){ window.__pfSigStrokes=Array.isArray(strokes)?strokes.slice():[]; window.__opzRenderSig(pad,window.__pfSigStrokes); status(); };
     // 切到編輯主頁時簽名板才有尺寸；尺寸一出現/改變就重新配合(高解析)並重畫既有簽名。
@@ -6986,8 +6987,9 @@
       if(window.__opzSigMode==='erase'){ e.preventDefault();
         if(!drawing){ window.__opzSigHover(big,e); return; }
         window.__opzSigErase(big,e); return; }
-      if(!drawing)return; e.preventDefault(); window.__opzSigPush(big,e,false); window.__opzSigLive(big); });
-    function bend(){ if(drawing && window.__opzSigMode==='erase') window.__opzSigAfter(); drawing=false; } big.addEventListener('pointerup',bend); window.addEventListener('pointerup',bend);
+      if(!drawing)return; if(e.pointerType==='pen' && e.buttons===0){ return; }
+      e.preventDefault(); window.__opzSigPush(big,e,false); window.__opzSigLive(big); });
+    function bend(){ if(drawing && window.__opzSigMode==='erase') window.__opzSigAfter(); drawing=false; } big.addEventListener('pointerup',bend); big.addEventListener('pointercancel',bend); window.addEventListener('pointerup',bend);
     var backup=null;
     function open(){ window.opzSigSetMode('pen'); window.__pfSigStrokes=window.__pfSigStrokes||[]; backup=window.__pfSigStrokes.map(function(p){ var o={x:p.x,y:p.y,b:p.b};
         if(typeof p.t==='number') o.t=p.t; if(typeof p.p==='number') o.p=p.p; return o; }); m.style.display='flex'; setTimeout(drawAll, 40); }
