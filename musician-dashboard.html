@@ -1832,7 +1832,9 @@
               <div class="pb-field">
                 <label>親筆簽名（手指 / Apple Pencil / 滑鼠，直接在下面簽）/ Signature</label>
                 <canvas id="pfSigPad" width="900" height="320" style="width:100%;height:170px;border:1px dashed var(--border);border-radius:10px;background:#fafafa;touch-action:none;cursor:crosshair;display:block;"></canvas>
-                <div style="margin-top:8px;display:flex;align-items:center;gap:10px;">
+                <div style="margin-top:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+                  <button type="button" class="btn btn-outline" onclick="opzSigUndoActive()" style="font-size:13px;padding:8px 14px;">上一步 / Undo ↩</button>
+                  <button type="button" id="pfSigEraseBtn" class="btn btn-outline" onclick="opzSigToggleErase()" style="font-size:13px;padding:8px 14px;">橡皮擦 / Erase</button>
                   <button type="button" class="btn btn-outline" onclick="pfSigClear(); if(window.pbOnInput) pbOnInput();" style="font-size:13px;padding:8px 14px;">清除重簽 / Clear</button>
                   <span id="pfSigStatus" style="font-size:12px;color:var(--mid);"></span>
                 </div>
@@ -6838,7 +6840,7 @@
     </div>
   </div>
 </div>
-<script src="sig-ink.js?v=2"></script>
+<script src="sig-ink.js?v=3"></script>
 <script>
 /* 編輯主頁 → 名言 / 簽名 板：手指/Pencil/滑鼠簽名，錄成扁平向量 [{x,y,b,t,p}]（b=1=新筆畫起點, t=時間戳, p=筆壓）。
    window.__pfSigStrokes 由 pbReadForm（發佈）與 saveProfile 讀取存進 config.sig.strokes；
@@ -6871,7 +6873,13 @@
   window.__opzSigLive=function(c){
     if(c.__opzRaf) return;
     c.__opzRaf=requestAnimationFrame(function(){ c.__opzRaf=0;
-      if(window.OPZInk) window.OPZInk.render(c, window.__pfSigStrokes||[], {mode:'raw'}); });
+      if(!window.OPZInk) return;
+      window.OPZInk.render(c, window.__pfSigStrokes||[], {mode:'raw'});
+      if(window.__opzSigMode==='erase' && c.__erPos){    // 擦頭的圈圈
+        var r=c.getBoundingClientRect(), w=r.width||1, g=c.getContext('2d');
+        g.save(); g.strokeStyle='rgba(0,0,0,.35)'; g.lineWidth=1; g.setLineDash([4,4]);
+        g.beginPath(); g.arc(c.__erPos.x*w, c.__erPos.y*w, window.__opzSigErR(c)*w, 0, 6.2832); g.stroke(); g.restore(); }
+    });
   };
   /* 帶回已存簽名 / 清空：置中縮放顯示（標記 __opzFitted，之後一動筆先「定位」再續畫） */
   window.__opzRenderSig=function(c, strokes){
@@ -6892,6 +6900,37 @@
       var o={x:(q.x*sc+ox)/W, y:(q.y*sc+oy)/W, b:q.b?1:0};
       if(typeof q.t==='number') o.t=q.t; if(typeof q.p==='number') o.p=q.p; return o; });
   };
+  /* ── 筆模式 / 橡皮擦 / 上一步 ───────────────────────────
+     橡皮擦是「擦掉筆跡點」，不是塗白：擦完還是乾淨向量，公開頁重播照樣漂亮。 */
+  window.__opzSigMode='pen';
+  window.__opzSigErR=function(c){ var r=c.getBoundingClientRect(); return 24/(r.width||1); };   // 半徑約 24px
+  function opzUnfit(c){ if(c.__opzFitted){ window.__opzSigBake(c); c.__opzFitted=false; } }
+  window.__opzSigUndo=function(c){ opzUnfit(c);
+    window.__pfSigStrokes=window.OPZInk?window.OPZInk.undo(window.__pfSigStrokes||[]):[];
+    window.__opzSigLive(c); window.__opzSigAfter(); };
+  window.__opzSigErase=function(c,e){ opzUnfit(c);
+    var r=c.getBoundingClientRect(), w=r.width||1;
+    var x=(e.clientX-r.left)/w, y=(e.clientY-r.top)/w;
+    c.__erPos={x:x,y:y};
+    if(window.OPZInk) window.__pfSigStrokes=window.OPZInk.erase(window.__pfSigStrokes||[], x, y, window.__opzSigErR(c));
+    window.__opzSigLive(c); };
+  window.__opzSigHover=function(c,e){ var r=c.getBoundingClientRect(), w=r.width||1;
+    c.__erPos={x:(e.clientX-r.left)/w, y:(e.clientY-r.top)/w}; window.__opzSigLive(c); };
+  window.__opzSigAfter=function(){ try{ if(window.pbOnInput) window.pbOnInput(); }catch(_){}
+    var el=document.getElementById('pfSigStatus'); if(el) el.textContent=((window.__pfSigStrokes||[]).length?'已簽名 ✓':''); };
+  /* 切換筆 / 橡皮擦（按鈕外觀一起換） */
+  window.opzSigSetMode=function(mode){
+    window.__opzSigMode=mode;
+    ['pfSigPad','pfSigPadBig'].forEach(function(id){ var c=document.getElementById(id);
+      if(c){ c.style.cursor=(mode==='erase')?'cell':'crosshair'; if(c.__erPos&&mode!=='erase'){ c.__erPos=null; window.__opzSigLive(c); } } });
+    ['pfSigEraseBtn','opzSigBigEraseBtn'].forEach(function(id){ var b=document.getElementById(id);
+      if(b){ b.style.background=(mode==='erase')?'#111':''; b.style.color=(mode==='erase')?'#fff':''; b.style.borderColor=(mode==='erase')?'#111':''; } });
+  };
+  window.opzSigToggleErase=function(){ window.opzSigSetMode(window.__opzSigMode==='erase'?'pen':'erase'); };
+  window.opzSigUndoActive=function(){ var m=document.getElementById('opzSigModal');
+    var big=document.getElementById('pfSigPadBig');
+    window.__opzSigUndo((m && m.style.display!=='none' && big) ? big : document.getElementById('pfSigPad')); };
+
   window.__opzSigStart=function(c,e){ if(c.__opzFitted){ window.__opzSigBake(c); c.__opzFitted=false; } window.__opzSigPush(c,e,true); };
   window.__opzSigFit=opzFit; window.__opzSigNP=opzNP; window.__opzSigSegW=opzSegW;   // 供大板 IIFE 共用
   function init(){
@@ -6899,9 +6938,15 @@
     var ctx=opzFit(pad); window.__pfSigStrokes=window.__pfSigStrokes||[];
     var drawing=false,last=null;
     function status(){ var el=document.getElementById('pfSigStatus'); if(el) el.textContent=(window.__pfSigStrokes.length?'已簽名 ✓':''); }
-    pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; window.__opzSigStart(pad,e); window.__opzSigLive(pad); status(); });
-    pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); window.__opzSigPush(pad,e,false); window.__opzSigLive(pad); });
-    function end(){ if(drawing){ drawing=false; try{ if(window.pbOnInput) window.pbOnInput(); }catch(_){} } }
+    pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true;
+      if(window.__opzSigMode==='erase'){ window.__opzSigErase(pad,e); return; }
+      window.__opzSigStart(pad,e); window.__opzSigLive(pad); status(); });
+    pad.addEventListener('pointermove',function(e){
+      if(window.__opzSigMode==='erase'){ e.preventDefault();
+        if(!drawing){ window.__opzSigHover(pad,e); return; }
+        window.__opzSigErase(pad,e); return; }
+      if(!drawing)return; e.preventDefault(); window.__opzSigPush(pad,e,false); window.__opzSigLive(pad); });
+    function end(){ if(drawing){ drawing=false; window.__opzSigAfter(); } }
     pad.addEventListener('pointerup',end); pad.addEventListener('pointerleave',end); window.addEventListener('pointerup',end);
     window.pfSigClear=function(){ window.__pfSigStrokes=[]; window.__opzRenderSig(pad,[]); status(); };
     window.pfSigRender=function(strokes){ window.__pfSigStrokes=Array.isArray(strokes)?strokes.slice():[]; window.__opzRenderSig(pad,window.__pfSigStrokes); status(); };
@@ -6924,30 +6969,42 @@
       +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><b style="font-size:15px;color:#111;">親筆簽名 · Sign here</b>'
       +'<button type="button" id="opzSigX" aria-label="close" style="border:none;background:none;font-size:22px;cursor:pointer;color:#888;line-height:1;">&times;</button></div>'
       +'<canvas id="pfSigPadBig" width="900" height="320" style="width:100%;aspect-ratio:900/320;border:1px dashed #ccc;border-radius:12px;background:#fafafa;touch-action:none;cursor:crosshair;display:block;"></canvas>'
-      +'<div style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;"><button type="button" id="opzSigBigClear" class="btn btn-outline">清除重簽 / Clear</button>'
+      +'<div style="margin-top:14px;display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;">'
+      +'<button type="button" id="opzSigBigUndo" class="btn btn-outline">上一步 / Undo ↩</button>'
+      +'<button type="button" id="opzSigBigEraseBtn" class="btn btn-outline">橡皮擦 / Erase</button>'
+      +'<button type="button" id="opzSigBigClear" class="btn btn-outline">清除重簽 / Clear</button>'
       +'<button type="button" id="opzSigDone" class="btn btn-primary">完成 / Done</button></div>'
       +'<p style="font-size:12px;color:#999;margin:10px 0 0;text-align:center;">在大畫布上簽比較好簽，完成後會自動存回</p></div>';
     document.body.appendChild(m);
     var big=document.getElementById('pfSigPadBig'), bctx=null;   // 用共用的正規化格式，跟小板/手機一致
     function drawAll(){ window.__opzRenderSig(big, window.__pfSigStrokes||[]); bctx=big.getContext('2d'); }
     var drawing=false,last=null;
-    big.addEventListener('pointerdown',function(e){ e.preventDefault(); try{big.setPointerCapture(e.pointerId);}catch(_){} drawing=true; window.__opzSigStart(big,e); window.__opzSigLive(big); });
-    big.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); window.__opzSigPush(big,e,false); window.__opzSigLive(big); });
-    function bend(){ drawing=false; } big.addEventListener('pointerup',bend); window.addEventListener('pointerup',bend);
+    big.addEventListener('pointerdown',function(e){ e.preventDefault(); try{big.setPointerCapture(e.pointerId);}catch(_){} drawing=true;
+      if(window.__opzSigMode==='erase'){ window.__opzSigErase(big,e); return; }
+      window.__opzSigStart(big,e); window.__opzSigLive(big); });
+    big.addEventListener('pointermove',function(e){
+      if(window.__opzSigMode==='erase'){ e.preventDefault();
+        if(!drawing){ window.__opzSigHover(big,e); return; }
+        window.__opzSigErase(big,e); return; }
+      if(!drawing)return; e.preventDefault(); window.__opzSigPush(big,e,false); window.__opzSigLive(big); });
+    function bend(){ if(drawing && window.__opzSigMode==='erase') window.__opzSigAfter(); drawing=false; } big.addEventListener('pointerup',bend); window.addEventListener('pointerup',bend);
     var backup=null;
-    function open(){ window.__pfSigStrokes=window.__pfSigStrokes||[]; backup=window.__pfSigStrokes.map(function(p){return {x:p.x,y:p.y,b:p.b};}); m.style.display='flex'; setTimeout(drawAll, 40); }
-    function close(save){ m.style.display='none';
+    function open(){ window.opzSigSetMode('pen'); window.__pfSigStrokes=window.__pfSigStrokes||[]; backup=window.__pfSigStrokes.map(function(p){ var o={x:p.x,y:p.y,b:p.b};
+        if(typeof p.t==='number') o.t=p.t; if(typeof p.p==='number') o.p=p.p; return o; }); m.style.display='flex'; setTimeout(drawAll, 40); }
+    function close(save){ m.style.display='none'; window.opzSigSetMode('pen');
       if(save){ if(window.pfSigRender) window.pfSigRender(window.__pfSigStrokes); try{ if(window.pbOnInput) window.pbOnInput(); }catch(_){} }
       else { window.__pfSigStrokes=backup||[]; if(window.pfSigRender) window.pfSigRender(window.__pfSigStrokes); } }
     document.getElementById('opzSigDone').onclick=function(){ close(true); };
     document.getElementById('opzSigX').onclick=function(){ close(false); };
     document.getElementById('opzSigBigClear').onclick=function(){ window.__pfSigStrokes=[]; drawAll(); };
+    document.getElementById('opzSigBigUndo').onclick=function(){ window.__opzSigUndo(big); };
+    document.getElementById('opzSigBigEraseBtn').onclick=function(){ window.opzSigToggleErase(); };
     m.addEventListener('click',function(e){ if(e.target===m) close(false); });
     var btn=document.createElement('button'); btn.type='button'; btn.className='btn btn-outline';
     btn.style.cssText='font-size:13px;padding:8px 14px;'; btn.textContent='放大簽名 / Bigger ⤢'; btn.onclick=open;
     var st=document.getElementById('pfSigStatus'); if(st && st.parentNode) st.parentNode.insertBefore(btn, st);
     // 桌機滑鼠點小簽名板 → 直接開大視窗（滑鼠在小板不好簽）；觸控/Pencil 仍走小板直接簽。
-    document.addEventListener('pointerdown',function(e){ if(e.target===pad && e.pointerType==='mouse'){ e.preventDefault(); e.stopPropagation(); open(); } }, true);
+    document.addEventListener('pointerdown',function(e){ if(e.target===pad && e.pointerType==='mouse' && window.__opzSigMode!=='erase'){ e.preventDefault(); e.stopPropagation(); open(); } }, true);
     window.opzOpenSigModal=open;
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();

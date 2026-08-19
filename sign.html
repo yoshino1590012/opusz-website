@@ -13,6 +13,9 @@
   header p{font-size:13px;color:#8a8880;margin-top:4px}
   .padwrap{flex:1;min-height:0;padding:14px 16px;display:flex;align-items:center;justify-content:center}
   canvas{width:100%;height:100%;max-height:100%;border:1px dashed #cfcdc4;border-radius:14px;background:#fff;touch-action:none;display:block}
+  .tools{flex-shrink:0;padding:0 16px;display:flex;gap:10px}
+  .tools button{flex:1;border:1px solid #ddd;background:#fff;color:#333;border-radius:12px;padding:12px;font-size:15px;font-family:inherit;font-weight:600;cursor:pointer}
+  .tools button.on{background:#111;color:#fff;border-color:#111}
   .bar{flex-shrink:0;padding:12px 16px calc(16px + env(safe-area-inset-bottom));display:flex;gap:10px;background:#f4f3ee}
   .bar button{flex:1;border:none;border-radius:12px;padding:16px;font-size:16px;font-family:inherit;font-weight:600;cursor:pointer}
   .clear{background:#fff;border:1px solid #ddd;color:#333}
@@ -31,6 +34,10 @@
   <p id="hint">用手指或觸控筆，在下面簽你的名字</p>
 </header>
 <div class="padwrap"><canvas id="pad" width="900" height="320"></canvas></div>
+<div class="tools">
+  <button id="undoBtn">上一步 ↩</button>
+  <button id="eraseBtn">橡皮擦</button>
+</div>
 <div class="bar">
   <button class="clear" id="clearBtn">清除重簽</button>
   <button class="send" id="sendBtn">傳送到電腦 →</button>
@@ -47,7 +54,7 @@
   <p>請回到電腦，重新點「用手機簽名」<br>再掃一次 QR code。</p>
 </div>
 
-<script src="sig-ink.js?v=2"></script>
+<script src="sig-ink.js?v=3"></script>
 <script type="module">
   import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
   import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -80,13 +87,32 @@
       if(ev.pointerType==='pen' && typeof ev.pressure==='number' && ev.pressure>0) pt.p=Math.round(ev.pressure*100)/100;
       strokes.push(pt); first=false; }
   }
-  var _raf=0;
+  var _raf=0, mode='pen', erPos=null;
+  function erR(){ var r=pad.getBoundingClientRect(); return 26/(r.width||1); }   // 擦頭半徑約 26px
   function redraw(){ if(_raf) return; _raf=requestAnimationFrame(function(){ _raf=0;
-    if(window.OPZInk) window.OPZInk.render(pad, strokes, {mode:'raw'}); }); }
-  pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; push(e,true); redraw(); });
-  pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); push(e,false); redraw(); });
+    if(!window.OPZInk) return;
+    window.OPZInk.render(pad, strokes, {mode:'raw'});
+    if(mode==='erase' && erPos){ var r=pad.getBoundingClientRect(), w=r.width||1, g=pad.getContext('2d');
+      g.save(); g.strokeStyle='rgba(0,0,0,.35)'; g.lineWidth=1; g.setLineDash([4,4]);
+      g.beginPath(); g.arc(erPos.x*w, erPos.y*w, erR()*w, 0, 6.2832); g.stroke(); g.restore(); }
+  }); }
+  function eraseAt(e){ var r=pad.getBoundingClientRect(), w=r.width||1;
+    erPos={x:(e.clientX-r.left)/w, y:(e.clientY-r.top)/w};
+    if(window.OPZInk) strokes=window.OPZInk.erase(strokes, erPos.x, erPos.y, erR());
+    redraw(); }
+  pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true;
+    if(mode==='erase'){ eraseAt(e); return; } push(e,true); redraw(); });
+  pad.addEventListener('pointermove',function(e){
+    if(mode==='erase'){ e.preventDefault();
+      if(!drawing){ var r=pad.getBoundingClientRect(), w=r.width||1; erPos={x:(e.clientX-r.left)/w,y:(e.clientY-r.top)/w}; redraw(); return; }
+      eraseAt(e); return; }
+    if(!drawing)return; e.preventDefault(); push(e,false); redraw(); });
+  document.getElementById('undoBtn').onclick=function(){ if(window.OPZInk) strokes=window.OPZInk.undo(strokes); erPos=null; redraw(); };
+  document.getElementById('eraseBtn').onclick=function(){ mode=(mode==='erase')?'pen':'erase';
+    this.classList.toggle('on', mode==='erase'); erPos=null; redraw();
+    document.getElementById('hint').textContent = (mode==='erase') ? '橡皮擦：在要擦掉的地方畫過去' : '用手指或觸控筆，在下面簽你的名字'; };
   function end(){ drawing=false; } pad.addEventListener('pointerup',end); window.addEventListener('pointerup',end);
-  document.getElementById('clearBtn').onclick=function(){ strokes=[]; redraw(); };
+  document.getElementById('clearBtn').onclick=function(){ strokes=[]; erPos=null; redraw(); };
   window.addEventListener('resize',fit); fit();
 
   document.getElementById('sendBtn').onclick=async function(){

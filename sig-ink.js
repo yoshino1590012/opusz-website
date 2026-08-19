@@ -275,5 +275,41 @@
     return function () { dead = true; cancelAnimationFrame(raf); };
   }
 
-  g.OPZInk = { render: render, play: play, build: build, paint: paint, fit: fit };
+  /* ── 筆跡編輯：上一步 / 橡皮擦 ─────────────────────────────
+     兩個都是「改點陣列」，不是把畫布塗白 → 資料還是乾淨的向量，之後重播照樣漂亮。 */
+
+  // 移除最後一筆（可以連按）
+  function undo(flat) {
+    if (!flat || !flat.length) return [];
+    var i = flat.length - 1;
+    while (i > 0 && !flat[i].b) i--;
+    return flat.slice(0, i);
+  }
+
+  // 擦掉半徑 r 之內的點；被擦斷的地方會自動變成兩筆（真的擦，不是整筆刪掉）
+  function erase(flat, x, y, r) {
+    if (!flat || !flat.length) return [];
+    var out = [], broken = false, r2 = r * r;
+    for (var i = 0; i < flat.length; i++) {
+      var p = flat[i];
+      if (p.b) broken = false;
+      var dx = p.x - x, dy = p.y - y;
+      if (dx * dx + dy * dy <= r2) { broken = true; continue; }
+      var q = { x: p.x, y: p.y, b: (p.b || broken) ? 1 : 0 };
+      if (typeof p.t === 'number') q.t = p.t;
+      if (typeof p.p === 'number') q.p = p.p;
+      out.push(q); broken = false;
+    }
+    // 只剩一個點的碎屑清掉（不然畫面會留一堆小黑點）
+    var res = [], start = 0;
+    for (var i = 0; i <= out.length; i++) {
+      if (i === out.length || (i > start && out[i].b)) {
+        if (i - start >= 2) for (var k = start; k < i; k++) res.push(out[k]);
+        start = i;
+      }
+    }
+    return res;
+  }
+
+  g.OPZInk = { render: render, play: play, build: build, paint: paint, fit: fit, undo: undo, erase: erase };
 })(window);
