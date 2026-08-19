@@ -1659,7 +1659,12 @@
               <span class="pb-topbar-title" id="pbTopTitle" data-i18n="pb_hero">主視覺</span>
               <svg class="pb-chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
-            <button type="button" class="pb-topbar-save" onclick="pbPublish()" data-i18n="pb_save_publish">儲存並發布</button>
+            <!-- No manual publish — edits auto-save & go live. Undo/Redo + live status. -->
+            <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+              <button type="button" id="pbUndoBtnM" onclick="pbUndo()" title="上一步 / Undo" aria-label="上一步" disabled style="background:none;border:none;color:#fff;font-size:19px;line-height:1;padding:6px 7px;cursor:pointer;opacity:.4;">↶</button>
+              <button type="button" id="pbRedoBtnM" onclick="pbRedo()" title="下一步 / Redo" aria-label="下一步" disabled style="background:none;border:none;color:#fff;font-size:19px;line-height:1;padding:6px 7px;cursor:pointer;opacity:.4;">↷</button>
+              <span id="pbSaveStatusM" style="font-size:11px;color:#4ade80;white-space:nowrap;padding-right:4px;"></span>
+            </div>
           </div>
 
           <!-- Phone only: dim backdrop behind the section list -->
@@ -2159,7 +2164,13 @@
             <!-- Unpublish moved to 設定 (Settings); Reset-to-template removed. On phone the
                  Save & Publish action lives in the top bar, so #pbPublishBtn is hidden there. -->
             <div class="pb-publish-block" style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border);">
-              <button id="pbPublishBtn" class="btn btn-primary" style="width:100%;justify-content:center;" onclick="pbPublish()">儲存並發布 / Save &amp; Publish</button>
+              <!-- No manual publish: every edit auto-saves to Firestore and goes live.
+                   Undo / Redo let the musician step a mistake back and forward. -->
+              <div style="display:flex;align-items:center;gap:8px;">
+                <button type="button" id="pbUndoBtn" class="btn btn-outline" onclick="pbUndo()" style="flex:1;justify-content:center;gap:6px;opacity:.4;" disabled>↶ 上一步 / Undo</button>
+                <button type="button" id="pbRedoBtn" class="btn btn-outline" onclick="pbRedo()" style="flex:1;justify-content:center;gap:6px;opacity:.4;" disabled>下一步 / Redo ↷</button>
+              </div>
+              <div id="pbSaveStatus" style="margin-top:10px;font-size:12.5px;color:#16a34a;text-align:center;min-height:16px;">✓ 編輯自動儲存並即時上線 / Auto-saved &amp; live</div>
               <div id="pbPublicUrlLine" style="margin-top:12px;font-size:12px;color:var(--text-muted);word-break:break-all;">
                 公開頁面網址 / Public URL：<span id="pbPublicUrl">登入後顯示 / shown after login</span>
               </div>
@@ -4401,6 +4412,13 @@
     // sections.lessonPlans left off from a Basic→Premium upgrade — are corrected
     // and the tier gate is re-applied before the first preview push.
     pbReadForm();
+    // Freeze the pre-edit baseline (used for the admin change-log so it stays cumulative,
+    // not per-keystroke), seed the undo history, and arm autosave a moment later so this
+    // programmatic load never triggers a write.
+    window._pbEditBaseline = JSON.parse(JSON.stringify(pbConfig || {}));
+    if(window.pbHistorySeed) window.pbHistorySeed();
+    window.pbAutoReady = false;
+    setTimeout(function(){ window.pbAutoReady = true; }, 900);
     // Push current config to the iframe once it's ready (it may still be loading)
     pbPushPreview();
     const frame = document.getElementById('pbPreview');
@@ -5593,7 +5611,98 @@
     const cardGrp = document.querySelector('.pb-field-group[data-pbgroup="card"]');
     if(cardGrp && cardGrp.classList.contains('active')) pbRenderCardPreview();
     pbRenderAvatarPreview();
+    pbHistoryPush();   // record an undo step (debounced)
+    pbAutoSave();      // Shopify/Canva-style: persist + go live (debounced)
   };
+
+  // ══════════════════════════════════════════════════════════════════════════
+  //  AUTO-SAVE + UNDO/REDO — no manual "儲存並發布" button. Mirrors the admin
+  //  Site Editor: every change → debounced silent publish to Firestore (edits go
+  //  live). Undo/Redo restore earlier snapshots. pbAutoReady gates writes OFF
+  //  during the programmatic load so opening the editor never saves stale/blank data.
+  // ══════════════════════════════════════════════════════════════════════════
+  window.pbAutoReady = false;
+  var _pbAutoTimer = null;
+  function pbSetSaveStatus(txt, color){
+    var d = document.getElementById('pbSaveStatus');   if(d){ d.textContent = txt; d.style.color = color || '#16a34a'; }
+    var m = document.getElementById('pbSaveStatusM');  if(m){ m.textContent = (txt.indexOf('儲存中')>-1?'儲存中…':(txt.indexOf('失敗')>-1?'⚠':'✓')); m.style.color = (txt.indexOf('失敗')>-1?'#f87171':'#4ade80'); }
+  }
+  window.pbAutoSave = function(){
+    if(!window.pbAutoReady) return;
+    clearTimeout(_pbAutoTimer);
+    pbSetSaveStatus('儲存中… / Saving…', '#888');
+    _pbAutoTimer = setTimeout(function(){
+      Promise.resolve(pbPublish({ silent:true }))
+        .then(function(){ pbSetSaveStatus('✓ 已自動儲存並上線 / Saved & live', '#16a34a'); })
+        .catch(function(){ pbSetSaveStatus('⚠ 儲存失敗，改動後會自動重試 / Save failed', '#dc2626'); });
+    }, 1200);
+  };
+
+  // ── history stack ──
+  var pbHistory = [];
+  var pbHistIdx = -1;
+  var _pbHistTimer = null;
+  var _pbRestoring = false;   // true while applying a snapshot → don't re-record
+  function pbSnapshot(){
+    return JSON.stringify({
+      config: pbConfig,
+      sigQuote: (document.getElementById('pfSigQuote')||{value:''}).value || '',
+      sigStrokes: Array.isArray(window.__pfSigStrokes) ? window.__pfSigStrokes : []
+    });
+  }
+  window.pbHistorySeed = function(){
+    pbHistory = [pbSnapshot()]; pbHistIdx = 0; pbUpdateUndoButtons();
+  };
+  function pbHistoryPush(){
+    if(_pbRestoring) return;
+    clearTimeout(_pbHistTimer);
+    _pbHistTimer = setTimeout(function(){
+      var snap = pbSnapshot();
+      if(pbHistory[pbHistIdx] === snap) return;      // nothing actually changed
+      pbHistory = pbHistory.slice(0, pbHistIdx + 1); // drop the redo tail
+      pbHistory.push(snap);
+      if(pbHistory.length > 60) pbHistory.shift();   // cap memory
+      pbHistIdx = pbHistory.length - 1;
+      pbUpdateUndoButtons();
+    }, 700);
+  }
+  function pbApplySnapshot(str){
+    var snap; try{ snap = JSON.parse(str); }catch(e){ return; }
+    _pbRestoring = true;
+    try{
+      pbConfig = pbDeepDefaults(snap.config || {});
+      pbPopulateForm();
+      var q = document.getElementById('pfSigQuote'); if(q) q.value = snap.sigQuote || '';
+      if(window.pfSigRender) window.pfSigRender(Array.isArray(snap.sigStrokes) ? snap.sigStrokes : []);
+      pbReadForm();
+      pbPushPreview();
+      if(window.pbRenderCardPreview)   pbRenderCardPreview();
+      if(window.pbRenderAvatarPreview) pbRenderAvatarPreview();
+    } finally { _pbRestoring = false; }
+    pbAutoSave();   // persist the restored state so 上一步/下一步 also goes live
+  }
+  window.pbUndo = function(){ if(pbHistIdx <= 0) return; pbHistIdx--; pbApplySnapshot(pbHistory[pbHistIdx]); pbUpdateUndoButtons(); };
+  window.pbRedo = function(){ if(pbHistIdx >= pbHistory.length - 1) return; pbHistIdx++; pbApplySnapshot(pbHistory[pbHistIdx]); pbUpdateUndoButtons(); };
+  function pbUpdateUndoButtons(){
+    var canU = pbHistIdx > 0, canR = pbHistIdx < pbHistory.length - 1;
+    [['pbUndoBtn', canU], ['pbUndoBtnM', canU], ['pbRedoBtn', canR], ['pbRedoBtnM', canR]].forEach(function(x){
+      var el = document.getElementById(x[0]); if(!el) return;
+      el.disabled = !x[1]; el.style.opacity = x[1] ? '1' : '.4'; el.style.pointerEvents = x[1] ? '' : 'none';
+    });
+  }
+  window.pbUpdateUndoButtons = pbUpdateUndoButtons;
+  // Keyboard: ⌘/Ctrl+Z = undo, ⌘/Ctrl+Shift+Z (or Ctrl+Y) = redo — only while 編輯主頁 is open.
+  document.addEventListener('keydown', function(e){
+    var pg = document.getElementById('page-pagebuilder');
+    if(!pg || !pg.classList.contains('active')) return;
+    var mod = e.metaKey || e.ctrlKey; if(!mod) return;
+    // Don't hijack ⌘Z while the caret is in a text field — let native text-undo win there.
+    var ae = document.activeElement, tn = ae && ae.tagName;
+    if(tn === 'INPUT' || tn === 'TEXTAREA' || tn === 'SELECT' || (ae && ae.isContentEditable)) return;
+    var k = (e.key || '').toLowerCase();
+    if(k === 'z' && !e.shiftKey){ e.preventDefault(); window.pbUndo(); }
+    else if((k === 'z' && e.shiftKey) || k === 'y'){ e.preventDefault(); window.pbRedo(); }
+  });
 
   // ── Language mode (zh / en / both) ─────────────────────────────────────────
   // Decides which languages the public profile shows. In a single-language mode
@@ -5905,8 +6014,9 @@
   };
 
   // ── Publish: push the page live to Firestore so it appears in the directory ──
-  window.pbPublish = async function(){
-    if(!_currentUser){ showNotif('請先登入 / Please log in'); return; }
+  window.pbPublish = async function(opts){
+    var silent = !!(opts && opts.silent);   // autosave path → no toast, no baseline reset
+    if(!_currentUser){ if(!silent) showNotif('請先登入 / Please log in'); return; }
     pbReadForm();
     // keep localStorage in sync so local preview matches what's published
     try{
@@ -5953,7 +6063,9 @@
 
       // ── 通知後台：記錄此次發布的改動 ──
       try {
-        var prev = (_currentProfile && _currentProfile.config) ? _currentProfile.config : {};
+        // Compare against the pre-edit baseline frozen at load (not the last autosave),
+        // so the admin change-log shows the cumulative change, not one keystroke.
+        var prev = window._pbEditBaseline || ((_currentProfile && _currentProfile.config) ? _currentProfile.config : {});
         var curr = pbConfig;
         var changes = [];
         var LABELS = {
@@ -5987,10 +6099,10 @@
         await setDoc(doc(db, 'profileEdits', pbEditUid()), editRecord, { merge: false });
       } catch(editErr){ console.warn('[profileEdits] log failed:', editErr); }
 
-      // 更新本地快取，讓下次發布可以比對
+      // 更新本地快取，讓其他讀取拿到最新（_pbEditBaseline 保持凍結，供改動比對用）
       if(_currentProfile) _currentProfile.config = JSON.parse(JSON.stringify(pbConfig));
 
-      showNotif('已發布 ✓ 你的公開頁面已上線');
+      if(!silent) showNotif('已發布 ✓ 你的公開頁面已上線');
       pbUpdatePublicUrl();
     }catch(e){
       console.error('[pagebuilder] publish failed:', e);
@@ -6478,8 +6590,8 @@
     // ── 數據 / Stats ──
     P('stats','#pbStat0Value','數據','每組填「數值＋後綴＋標籤」，例如 10／年／演出經驗。'),
     P('stats','#pbStat2Value','數據 · 第三格（自動）','第三格是「客戶評論數」，會依你實際收到的評論自動跳動，不能手動修改。'),
-    // ── 發布 ──
-    P(null,'#pbPublishBtn','⭐ 最後一步：發布','全部填好後，一定要按這顆「發布我的頁面」才會真正上線給客戶看！之後每次改完內容，都記得回來再按一次。下方還有你的公開頁面網址可以分享。')
+    // ── 自動儲存 ──
+    P(null,'#pbSaveStatus','⭐ 全部自動儲存！','不用按任何「發布」鈕——你改的每個地方都會自動儲存並即時上線給客戶看。改錯了？用「↶ 上一步 / 下一步 ↷」就能返回或還原。下方有你的公開頁面網址可以分享。')
   ];
 
   var idx = 0, active = false;
