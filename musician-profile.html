@@ -2123,9 +2123,16 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
   <!-- ── 親筆簽名 & 一句話（Hero 照片下方；只有音樂家自己設定了才出現）── -->
   <style>
     .sig-block{max-width:680px;margin:0 auto;padding:104px 24px 44px;display:flex;flex-direction:column;align-items:stretch;gap:40px}
-    .sig-quote{max-width:600px;margin:0 auto;font-size:clamp(17px,2.1vw,23px);line-height:1.95;color:#1a1a1a;font-weight:400;text-align:center}
-    .sig-quote .ln{display:block;white-space:pre-wrap;min-height:1.95em}
-    .sig-quote .ln.pending{opacity:0}
+    /* 名言：一行就是一行（除非音樂家自己換行）；太長會自動縮字級來塞下，不折行。 */
+    .sig-quote{max-width:min(1000px,94vw);margin:0 auto;font-size:clamp(16px,2.1vw,23px);line-height:1.9;color:#1a1a1a;font-weight:400;text-align:center}
+    .sig-quote .ln{display:block;white-space:nowrap;min-height:1.9em}
+    .sig-quote.wrapfallback .ln{white-space:normal}   /* 極長的一句話：縮到最小字級還塞不下才准折行 */
+    /* 逐字進場：外層是遮罩(只遮左右，不切上下)，內層從自己格子的左邊滑進來 */
+    .sig-quote .cw{display:inline-block;clip-path:inset(-45% 0 -45% 0)}
+    .sig-quote .ci{display:inline-block;transform:translateX(-0.62em);opacity:0;
+      transition:transform .72s cubic-bezier(.22,.72,.14,1),opacity .42s ease-out;will-change:transform,opacity}
+    .sig-quote .ln.on .ci{transform:none;opacity:1}
+    @media (prefers-reduced-motion:reduce){ .sig-quote .ci{transition:none;transform:none;opacity:1} }
     .sig-mark{align-self:flex-end;display:flex;flex-direction:column;align-items:flex-end;gap:8px}   /* 右下角，仿 Max Milkin */
     .sig-canvas{width:min(300px,66vw);height:auto;aspect-ratio:3/2}
     .sig-name{font-size:11px;letter-spacing:.32em;color:#9a9a92;text-transform:uppercase}
@@ -2150,15 +2157,44 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       var nm=document.getElementById('sigName');
       if(nm) nm.textContent=(window.MUSICIAN_NAME || ((document.getElementById('heroNameBig')||{}).textContent||'').trim().split('\n')[0].trim() || '');
       var qEl=document.getElementById('sigQuote'); qEl.innerHTML=''; var lineEls=[];
+      var STEP=26, LINE_GAP=260, CHAR_DUR=760;      // 每字間隔 / 換行停頓 / 單字動畫長度(ms)
+      var delay=0, totalMs=0;
       (quote?quote.split('\n'):[]).forEach(function(t){
-        var s=document.createElement('span'); s.className='ln pending'; s.setAttribute('data-text',t); s.textContent=t; qEl.appendChild(s); lineEls.push(s);
+        var line=document.createElement('span'); line.className='ln';
+        var chars=Array.from(t);                     // Array.from 才不會拆壞表情符號/組合字
+        chars.forEach(function(ch,i){
+          var cw=document.createElement('span'); cw.className='cw';
+          var ci=document.createElement('span'); ci.className='ci';
+          ci.textContent = (ch===' ') ? '\u00a0' : ch;
+          ci.style.transitionDelay=(i*STEP)+'ms, '+(i*STEP)+'ms';
+          cw.appendChild(ci); line.appendChild(cw);
+        });
+        line.__in=delay; line.__len=chars.length*STEP+CHAR_DUR;
+        delay += chars.length*STEP + LINE_GAP;
+        totalMs=Math.max(totalMs, line.__in+line.__len);
+        qEl.appendChild(line); lineEls.push(line);
       });
-      var canvas=document.getElementById('sigCanvas'), ctx=canvas.getContext('2d');
-      var GL='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#%*+='; function rnd(){return GL[(Math.random()*GL.length)|0];}
-      function reveal(el){ var text=el.getAttribute('data-text'),len=text.length,start=null,per=70; el.classList.remove('pending'); el.textContent='';
-        function fr(t){ if(!start)start=t; var full=Math.floor(Math.min(len,(t-start)/per)); var out=text.slice(0,full);
-          if(full<len){ var c=text.charAt(full); out+= /[a-zA-Z0-9]/.test(c)?rnd():c; } el.textContent=out;
-          if(full<len) requestAnimationFrame(fr); else el.textContent=text; } requestAnimationFrame(fr); }
+      // 一行就是一行：量最長那行，太寬就整段縮字級（不折行）
+      var MIN_PX=13;
+      function fitQuote(){
+        qEl.classList.remove('wrapfallback'); qEl.style.fontSize='';
+        var cw=qEl.clientWidth, maxw=0;
+        lineEls.forEach(function(el){ if(el.scrollWidth>maxw) maxw=el.scrollWidth; });
+        if(maxw>cw && cw>0){
+          var basePx=parseFloat(getComputedStyle(qEl).fontSize)||18;
+          var want=basePx*cw/maxw*0.995;
+          qEl.style.fontSize=Math.max(MIN_PX, want).toFixed(2)+'px';
+          if(want<MIN_PX) qEl.classList.add('wrapfallback');   // 真的太長就讓它折行，總比爆出畫面好
+        }
+      }
+      fitQuote();
+      try{ if(document.fonts && document.fonts.ready) document.fonts.ready.then(fitQuote); }catch(_){}
+      if(qEl.__ro) qEl.__ro.disconnect();
+      try{ var _lastW=0;   // 只在「寬度真的變了」時重算，避免改字級→高度變→又觸發的無限迴圈
+        qEl.__ro=new ResizeObserver(function(){ var w=qEl.clientWidth;
+          if(Math.abs(w-_lastW)>1){ _lastW=w; fitQuote(); } });
+        qEl.__ro.observe(qEl.parentNode||qEl); }catch(_){}
+      var canvas=document.getElementById('sigCanvas');
       function replay(){ if(!(strokes&&strokes.length)) return;
         // 鋼筆墨跡引擎（sig-ink.js）：曲線平滑＋速度/筆壓/筆尖角度決定粗細＋起收筆收尖，整筆填色輪廓。
         if(canvas.__opzStop) canvas.__opzStop();
@@ -2166,8 +2202,8 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
       }
       if(block.__io) block.__io.disconnect(); var fired=false;
       block.__io=new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting&&!fired){ fired=true;
-        lineEls.forEach(function(el,i){ setTimeout(function(){ reveal(el); }, i*420); });
-        setTimeout(replay, lineEls.length*420+300);
+        lineEls.forEach(function(el){ setTimeout(function(){ el.classList.add('on'); }, el.__in); });
+        setTimeout(replay, totalMs+220);
       } }); },{threshold:.35});
       block.__io.observe(block);
     }catch(e){ console.log('sig block err',e); }
