@@ -3022,6 +3022,17 @@
       // Populate profile tab fields
       loadProfileFields();
 
+      // 重整後回到你剛剛所在的頁面（例如編輯主頁），不要每次都跳回首頁。
+      // admin 編輯別人時已在上面強制導到編輯主頁，故此處排除。
+      if (!_isAdminEditing) {
+        try {
+          var _lastPg = localStorage.getItem('opusz_dash_page');
+          if (_lastPg && _lastPg !== 'overview' && document.getElementById('page-' + _lastPg)) {
+            window.navigate(_lastPg, document.querySelector('[data-page="' + _lastPg + '"]'));
+          }
+        } catch(e){}
+      }
+
       // PWA install prompt (skip when admin is editing someone else's profile)
       if (!_isAdminEditing) try { showPwaPrompt(_editUid); } catch(e) {}
 
@@ -3262,6 +3273,7 @@
     if (id === 'posters') posterInit();
     if (id === 'policy') window.loadPolicy();
     if (id === 'jobs') { jobsMarkSeen(); renderJobs(); }   // opening the board = "seen"
+    try { localStorage.setItem('opusz_dash_page', id); } catch(e){}   // 記住當前頁 → 重整後回到這裡
     closeSidebar();   // mobile: collapse the drawer after picking a page
   };
 
