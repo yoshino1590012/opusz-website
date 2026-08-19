@@ -98,5 +98,11 @@ service cloud.firestore {
                             || (request.auth != null
                                 && request.auth.uid == resource.data.authorUid);
     }
+
+    // ── 手機接力簽名的臨時房間：任何登入者（含手機匿名登入）可讀寫，用完即刪 ──
+    //    sessionId 是隨機不可猜的一次性 token（桌機產生、只在 QR 裡），內容只有簽名筆跡、無敏感資料。
+    match /signSessions/{sid} {
+      allow read, write: if request.auth != null;
+    }
   }
 }

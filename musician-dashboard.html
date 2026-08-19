@@ -6893,5 +6893,59 @@
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
 })();
 </script>
+<script type="module">
+/* 用手機接力簽名：桌機顯示 QR → 手機掃碼開 /sign 簽名 → 手機寫進 signSessions/{sid} →
+   桌機 onSnapshot 即時收到 → 套回簽名板。signSessions 需一條安全規則(見 firestore.rules)。 */
+  import { getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, doc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  function loadQR(cb){ if(window.QRCode) return cb();
+    var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js'; s.onload=cb; s.onerror=cb; document.head.appendChild(s); }
+  function rid(){ try{ return crypto.randomUUID().replace(/-/g,''); }catch(e){ return Date.now().toString(36)+Math.random().toString(36).slice(2,12); } }
+  var modal, unsub=null;
+  function build(){
+    modal=document.createElement('div'); modal.id='opzPhoneSignModal';
+    modal.style.cssText='display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);align-items:center;justify-content:center;padding:20px;';
+    modal.innerHTML='<div style="background:#fff;border-radius:16px;padding:22px;width:min(380px,94vw);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.3);">'
+      +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;"><b style="font-size:15px;color:#111;">用手機簽名</b>'
+      +'<button type="button" id="opzPsX" aria-label="close" style="border:none;background:none;font-size:22px;cursor:pointer;color:#888;">&times;</button></div>'
+      +'<p style="font-size:13px;color:#777;margin:0 0 14px;line-height:1.6;">用手機相機掃這個 QR code，在手機上簽名，簽完會自動傳回這個畫面。</p>'
+      +'<div id="opzPsQR" style="display:flex;justify-content:center;min-height:200px;align-items:center;"></div>'
+      +'<div id="opzPsLink" style="font-size:11px;color:#aaa;margin-top:12px;word-break:break-all;"></div>'
+      +'<div id="opzPsWait" style="font-size:13px;color:#0e7490;margin-top:12px;">等待手機簽名中…</div></div>';
+    document.body.appendChild(modal);
+    modal.querySelector('#opzPsX').onclick=closeM;
+    modal.addEventListener('click',function(e){ if(e.target===modal) closeM(); });
+  }
+  function closeM(){ if(unsub){ try{unsub();}catch(_){} unsub=null; } if(modal) modal.style.display='none'; }
+  window.opzPhoneSign=function(){
+    var db; try{ db=getFirestore(getApps()[0]); }catch(e){ alert('請先登入再用'); return; }
+    if(!modal) build();
+    var sid=rid(), url=location.origin.replace(/\/$/,'')+'/sign?s='+sid;
+    modal.style.display='flex';
+    modal.querySelector('#opzPsLink').textContent=url;
+    modal.querySelector('#opzPsWait').textContent='等待手機簽名中…';
+    var box=modal.querySelector('#opzPsQR'); box.innerHTML='';
+    loadQR(function(){ box.innerHTML='';
+      if(window.QRCode){ new window.QRCode(box,{text:url,width:200,height:200,correctLevel:window.QRCode.CorrectLevel.M}); }
+      else { box.innerHTML='<a href="'+url+'" target="_blank" style="font-size:14px;color:#111;">在手機打開此連結 →</a>'; } });
+    if(unsub){ try{unsub();}catch(_){} }
+    unsub=onSnapshot(doc(db,'signSessions',sid), function(snap){
+      var d=snap.data();
+      if(d && d.done && Array.isArray(d.strokes)){
+        window.__pfSigStrokes=d.strokes.slice();
+        if(window.pfSigRender) window.pfSigRender(window.__pfSigStrokes);
+        try{ if(window.pbOnInput) window.pbOnInput(); }catch(_){}
+        modal.querySelector('#opzPsWait').textContent='✓ 已從手機收到簽名！';
+        try{ deleteDoc(doc(db,'signSessions',sid)); }catch(_){}
+        setTimeout(closeM, 1300);
+      }
+    }, function(){});
+  };
+  function addBtn(){ var st=document.getElementById('pfSigStatus'); if(!st||!st.parentNode||document.getElementById('opzPhoneSignBtn')) return;
+    var b=document.createElement('button'); b.id='opzPhoneSignBtn'; b.type='button'; b.className='btn btn-outline';
+    b.style.cssText='font-size:13px;padding:8px 14px;'; b.textContent='用手機簽 / Phone 📱'; b.onclick=window.opzPhoneSign;
+    st.parentNode.insertBefore(b, st); }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',addBtn); else addBtn();
+</script>
 </body>
 </html>

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>親筆簽名 — OPUS.Z</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:-apple-system,"PingFang TC","Helvetica Neue",sans-serif;background:#f4f3ee;color:#111;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+  header{padding:16px 20px 8px;text-align:center}
+  header .brand{font-size:13px;letter-spacing:.3em;color:#b8b6ad;font-weight:700}
+  header h1{font-size:17px;font-weight:600;margin-top:6px}
+  header p{font-size:13px;color:#8a8880;margin-top:4px}
+  .padwrap{flex:1;padding:14px 16px;display:flex;align-items:center;justify-content:center}
+  canvas{width:100%;height:100%;max-height:100%;border:1px dashed #cfcdc4;border-radius:14px;background:#fff;touch-action:none;display:block}
+  .bar{padding:12px 16px calc(16px + env(safe-area-inset-bottom));display:flex;gap:10px}
+  .bar button{flex:1;border:none;border-radius:12px;padding:16px;font-size:16px;font-family:inherit;font-weight:600;cursor:pointer}
+  .clear{background:#fff;border:1px solid #ddd;color:#333}
+  .send{background:#111;color:#fff}
+  .send:disabled{opacity:.5}
+  .overlay{position:fixed;inset:0;background:#f4f3ee;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;z-index:10}
+  .overlay .big{font-size:56px;margin-bottom:16px}
+  .overlay h2{font-size:20px;font-weight:600;margin-bottom:8px}
+  .overlay p{font-size:15px;color:#8a8880;line-height:1.6}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">OPUS.Z</div>
+  <h1>親筆簽名</h1>
+  <p id="hint">用手指或觸控筆，在下面簽你的名字</p>
+</header>
+<div class="padwrap"><canvas id="pad" width="900" height="320"></canvas></div>
+<div class="bar">
+  <button class="clear" id="clearBtn">清除重簽</button>
+  <button class="send" id="sendBtn">傳送到電腦 →</button>
+</div>
+
+<div class="overlay" id="okOverlay">
+  <div class="big">✓</div>
+  <h2>已傳回你的電腦</h2>
+  <p>簽名已經送回你剛剛的電腦畫面，<br>這一頁可以關掉了。</p>
+</div>
+<div class="overlay" id="errOverlay">
+  <div class="big">⚠️</div>
+  <h2>連結無效</h2>
+  <p>請回到電腦，重新點「用手機簽名」<br>再掃一次 QR code。</p>
+</div>
+
+<script type="module">
+  import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+  import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+  var sid = new URLSearchParams(location.search).get('s') || '';
+  if(!/^[A-Za-z0-9_-]{8,64}$/.test(sid)){ document.getElementById('errOverlay').style.display='flex'; }
+
+  var cfg={ apiKey:"AIzaSyDe_1bECi6uRHqiUwIUb1hcJdixILUir4s", authDomain:"opusz-45280.firebaseapp.com", projectId:"opusz-45280" };
+  var app=getApps().length?getApps()[0]:initializeApp(cfg);
+  var auth=getAuth(app), db=getFirestore(app);
+  signInAnonymously(auth).catch(function(){});
+
+  // ── signature pad (stores flat [{x,y,b}] in 900x320 space, same as the platform) ──
+  var pad=document.getElementById('pad'), ctx=pad.getContext('2d');
+  ctx.lineWidth=3.2; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#111';
+  var strokes=[], drawing=false, last=null;
+  function P(e){ var r=pad.getBoundingClientRect(); var t=(e.touches&&e.touches[0])||e; return {x:(t.clientX-r.left)/(r.width||1)*pad.width, y:(t.clientY-r.top)/(r.height||1)*pad.height}; }
+  pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; var p=P(e); p.b=1; strokes.push(p); last=p; });
+  pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); var p=P(e); p.b=0; ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); strokes.push(p); last=p; });
+  function end(){ drawing=false; } pad.addEventListener('pointerup',end); window.addEventListener('pointerup',end);
+  document.getElementById('clearBtn').onclick=function(){ strokes=[]; ctx.clearRect(0,0,pad.width,pad.height); };
+
+  document.getElementById('sendBtn').onclick=async function(){
+    if(!strokes.length){ document.getElementById('hint').textContent='先簽個名再傳送 ✍️'; return; }
+    if(!/^[A-Za-z0-9_-]{8,64}$/.test(sid)){ document.getElementById('errOverlay').style.display='flex'; return; }
+    var btn=this; btn.disabled=true; btn.textContent='傳送中…';
+    try{
+      try{ if(!auth.currentUser) await signInAnonymously(auth); }catch(_){}
+      await setDoc(doc(db,'signSessions',sid), { strokes: strokes, done:true, ts: Date.now() });
+      document.getElementById('okOverlay').style.display='flex';
+    }catch(e){ btn.disabled=false; btn.textContent='傳送到電腦 →'; document.getElementById('hint').textContent='傳送失敗，請再試一次'; }
+  };
+</script>
+</body>
+</html>
