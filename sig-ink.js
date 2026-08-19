@@ -10,9 +10,12 @@
         raw = 座標已用寬度正規化(簽名板用)；fit = bbox 置中縮放(公開頁用)
    ═══════════════════════════════════════════════════════════════════════ */
 (function (g) {
+  /* 手感定案（2026-08-19，Martin）：大多數人用手指簽，所以「均勻、乾淨」優先。
+     筆壓完全不用（那是手指 vs Apple Pencil 唯一的差別來源），方向與筆速只留很小的變化，
+     真正的「筆感」交給起收筆的自然收尖。 */
   var NIB = -38 * Math.PI / 180;   // 筆尖角度：左下→右上為側鋒(細)，垂直方向最粗
-  var NIB_MIN = 0.78;              // 側鋒最細比例（越小＝方向造成的粗細差越誇張。繞圈的簽名太小會「呼胖呼瘦」）
-  var W_MIN = 0.74, W_MAX = 1.38;  // 速度造成的粗細範圍
+  var NIB_MIN = 0.90;              // 側鋒最細比例（越小＝方向造成的粗細差越誇張。繞圈的簽名太小會「呼胖呼瘦」）
+  var W_MIN = 0.84, W_MAX = 1.20;  // 速度造成的粗細範圍
 
   function split(flat) {
     var out = [], cur = null;
@@ -58,9 +61,9 @@
   }
 
   /* 一筆 → 等距取樣點 [{x,y,v,pr}]（v=速度 px/sample, pr=筆壓） */
-  function trace(pts, step) {
+  function trace(pts, step, dev) {
     var n = pts.length;
-    if (n === 1) return [{ x: pts[0].x, y: pts[0].y, v: 0, pr: pts[0].pr }];
+    if (n === 1) return [{ x: pts[0].x, y: pts[0].y, v: 0 }];
 
     // 速度（原始取樣間距）＋重平滑
     // 筆速用「前後各兩點的窗口」量：iPad/Safari 的時間戳常常好幾個點撞在同一毫秒，
@@ -76,35 +79,73 @@
     }
     spd = smooth(spd, 0, 4);
 
-    // 轉角偵測：轉超過 CORNER 就當「這是你故意寫的角」，不准平滑、不准內插成弧
+    // 先做一份「純去抖」的副本 → 用它來判斷轉角。
+    // （直接用原始點判斷會被手抖騙：抖動本身就是急轉方向，小圈圈裡整段都會被誤判成轉角而不准平滑。）
+    var _dev = dev || 0.7;
+    var px_ = pts.map(function (p) { return p.x; }), py_ = pts.map(function (p) { return p.y; });
+    for (var pass = 0; pass < 4; pass++) {
+      var ax_ = px_.slice(), ay_ = py_.slice();
+      for (var i = 1; i < n - 1; i++) {
+        var tx = (px_[i - 1] + 2 * px_[i] + px_[i + 1]) / 4 - px_[i];
+        var ty = (py_[i - 1] + 2 * py_[i] + py_[i + 1]) / 4 - py_[i];
+        var d = Math.hypot(tx, ty);
+        if (d > _dev) { tx *= _dev / d; ty *= _dev / d; }
+        ax_[i] = px_[i] + tx; ay_[i] = py_[i] + ty;
+      }
+      px_ = ax_; py_ = ay_;
+    }
+    var ref = [];
+    for (var i = 0; i < n; i++) ref.push({ x: px_[i], y: py_[i] });
+
+    // 轉角偵測：不能看「相鄰兩點」——手抖也是急轉方向，會把整條線都誤判成轉角而不准平滑。
+    // 改成看「前後各一小段路徑」的走向差：手抖幅度小、走向平均起來沒變，真正的轉角才會被抓到。
     var CORNER = 52 * Math.PI / 180;
+    var LOOK = Math.max(4, _dev * 9);                    // 判斷用的基線長度(px)
     var corner = new Array(n);
-    for (var i = 0; i < n; i++) corner[i] = false;
+    for (var i = 0; i < n; i++) corner[i] = 0;
     for (var i = 1; i < n - 1; i++) {
-      var ax = pts[i].x - pts[i - 1].x, ay = pts[i].y - pts[i - 1].y;
-      var bx = pts[i + 1].x - pts[i].x, by = pts[i + 1].y - pts[i].y;
+      var ax = 0, ay = 0, d = 0, k = i;
+      while (k > 0 && d < LOOK) { d += Math.hypot(ref[k].x - ref[k - 1].x, ref[k].y - ref[k - 1].y); k--; }
+      if (d < LOOK * 0.6) continue;
+      ax = ref[i].x - ref[k].x; ay = ref[i].y - ref[k].y;
+      var bx = 0, by = 0, d2 = 0, k2 = i;
+      while (k2 < n - 1 && d2 < LOOK) { d2 += Math.hypot(ref[k2 + 1].x - ref[k2].x, ref[k2 + 1].y - ref[k2].y); k2++; }
+      if (d2 < LOOK * 0.6) continue;
+      bx = ref[k2].x - ref[i].x; by = ref[k2].y - ref[i].y;
       var la = Math.hypot(ax, ay), lb = Math.hypot(bx, by);
       if (la < 1e-6 || lb < 1e-6) continue;
+      // 0 = 直線(全平滑)，1 = 明確的轉角(完全不動)；中間漸進 → 急彎也還吃得到一點平滑，
+      // 不會像開關那樣「一過門檻就整段變顆粒」。
       var ang = Math.abs(Math.atan2(ax * by - ay * bx, ax * bx + ay * by));
-      if (ang > CORNER) corner[i] = true;
+      corner[i] = Math.max(0, Math.min(1, (ang - CORNER * 0.62) / (CORNER * 0.55)));
     }
 
-    // 位置去抖：很輕（只壓手抖，不搬動筆跡），轉角附近完全不動
-    var rx = pts.map(function (p) { return p.x; }), ry = pts.map(function (p) { return p.y; });
-    var xs = rx.slice(), ys = ry.slice();
-    for (var i = 1; i < n - 1; i++) {
-      if (corner[i] || corner[i - 1] || corner[i + 1]) continue;
-      xs[i] = (rx[i - 1] + 6 * rx[i] + rx[i + 1]) / 8;
-      ys[i] = (ry[i - 1] + 6 * ry[i] + ry[i + 1]) / 8;
+    // 位置去抖：**有位移上限**的平滑。每一輪只准把點移動 maxDev 以內，
+    // 所以「手抖」(小幅高頻)會被磨掉，而你真正寫的線條/轉角一步都不會被搬走。
+    // → 手指(抖)和 Apple Pencil(穩)寫出來會收斂到差不多的品質。
+    var xs = pts.map(function (p) { return p.x; }), ys = pts.map(function (p) { return p.y; });
+    var maxDev = _dev;
+    for (var pass = 0; pass < 7; pass++) {
+      var nx = xs.slice(), ny = ys.slice();
+      for (var i = 1; i < n - 1; i++) {
+        var keep = Math.max(corner[i], corner[i - 1] * 0.8, corner[i + 1] * 0.8);
+        if (keep >= 1) continue;
+        var tx = (xs[i - 1] + 2 * xs[i] + xs[i + 1]) / 4 - xs[i];
+        var ty = (ys[i - 1] + 2 * ys[i] + ys[i + 1]) / 4 - ys[i];
+        var d = Math.hypot(tx, ty);
+        if (d > maxDev) { tx *= maxDev / d; ty *= maxDev / d; }
+        var f = 1 - keep;
+        nx[i] = xs[i] + tx * f; ny[i] = ys[i] + ty * f;
+      }
+      xs = nx; ys = ny;
     }
-    var prs = pts.map(function (p) { return (typeof p.pr === 'number' && p.pr > 0) ? p.pr : 0.5; });
 
     // Catmull-Rom 加密（碰到轉角就把控制點夾住 → 角保持尖的）
     var dense = [];
     for (var i = 0; i < n - 1; i++) {
       var i1 = i, i2 = i + 1;
-      var i0 = corner[i1] ? i1 : Math.max(0, i - 1);
-      var i3 = corner[i2] ? i2 : Math.min(n - 1, i + 2);
+      var i0 = (corner[i1] > 0.75) ? i1 : Math.max(0, i - 1);
+      var i3 = (corner[i2] > 0.75) ? i2 : Math.min(n - 1, i + 2);
       var seg = Math.hypot(xs[i2] - xs[i1], ys[i2] - ys[i1]);
       var sub = Math.max(2, Math.min(24, Math.ceil(seg / Math.max(0.5, step * 0.5))));
       for (var k = 0; k < sub; k++) {
@@ -112,12 +153,11 @@
         dense.push({
           x: catmull(xs[i0], xs[i1], xs[i2], xs[i3], t),
           y: catmull(ys[i0], ys[i1], ys[i2], ys[i3], t),
-          v: spd[i1] + (spd[i2] - spd[i1]) * t,
-          pr: prs[i1] + (prs[i2] - prs[i1]) * t
+          v: spd[i1] + (spd[i2] - spd[i1]) * t
         });
       }
     }
-    dense.push({ x: xs[n - 1], y: ys[n - 1], v: spd[n - 1], pr: prs[n - 1] });
+    dense.push({ x: xs[n - 1], y: ys[n - 1], v: spd[n - 1] });
 
     // 等距重取樣
     var out = [dense[0]], acc = 0;
@@ -130,12 +170,12 @@
         out.push({
           x: dense[i].x - (dense[i].x - dense[i - 1].x) * back,
           y: dense[i].y - (dense[i].y - dense[i - 1].y) * back,
-          v: dense[i].v, pr: dense[i].pr
+          v: dense[i].v
         });
         acc -= step;
       }
     }
-    if (out.length < 2) out.push({ x: dense[dense.length - 1].x + 0.01, y: dense[dense.length - 1].y, v: 0, pr: out[0].pr });
+    if (out.length < 2) out.push({ x: dense[dense.length - 1].x + 0.01, y: dense[dense.length - 1].y, v: 0 });
     return out;
   }
 
@@ -184,9 +224,9 @@
 
     for (var gI = 0; gI < groups.length; gI++) {
       var raw = groups[gI].map(function (p) {
-        return { x: p.x * sc + ox, y: p.y * sc + oy, pr: p.p, t: p.t };
+        return { x: p.x * sc + ox, y: p.y * sc + oy, t: p.t };
       });
-      var S = trace(raw, step);
+      var S = trace(raw, step, Math.max(0.45, Math.min(1.7, base * 0.32)));
       var m = S.length;
 
       if (m < 2) {                                  // 點 → 小墨點
@@ -205,8 +245,7 @@
         var dir = Math.atan2(b.y - a.y, b.x - a.x);
         var nib = NIB_MIN + (1 - NIB_MIN) * Math.abs(Math.sin(dir - NIB));
         var sp = W_MAX - (W_MAX - W_MIN) * Math.min(1, S[i].v / (refV * 2.1));
-        var pr = 0.86 + 0.28 * Math.min(1.2, S[i].pr);
-        mod[i] = nib * sp * pr;
+        mod[i] = nib * sp;
       }
       mod = blurLen(mod, step, Math.max(7, base * 4.5));
 
