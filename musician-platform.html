@@ -2285,6 +2285,10 @@ html.in-macbook-iframe .sf-dot    { font-size: clamp(25px, 22vw, 466px) !importa
 .bn-item.bn-active { color: #fff; font-weight: 600; }
 
 /* ── INTRO PRELOADER ── */
+/* 舊的進場黑幕（OPUS.Z 字母）已停用 —— 全站改用 page-transition.js 的「LOGO 一筆畫出來」進場。
+   下面這條把它藏起來；面板底下負責觸發 hero 進場的 JS 保留（只是不再顯示、也不再等 1.6 秒）。
+   要還原舊版：刪掉這條 display:none，並把下面 setTimeout 的 220 改回 1600。 */
+#intro { display: none !important; }
 #intro {
   position: fixed; inset: 0; z-index: 9999;
   background: #000;
@@ -2863,7 +2867,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
    JS APIs (window.opzEdit etc.), not these panels, so nothing admin-side breaks. */
 #photo-editor, #vid-editor, #re-drawer { display: none !important; }</style>
   <!-- 全站跳頁轉場（必須在 <head>：新頁第一次繪製就已經是黑的，才不會閃一下） -->
-  <script src="page-transition.js?v=3"></script>
+  <script src="page-transition.js?v=4"></script>
 </head>
 <body>
 
@@ -4830,7 +4834,7 @@ function applyColRatios() {
     // Start the text entrance ~50% earlier (was 820ms) — it now begins while the black
     // panel is still sliding away, so the hero doesn't feel like it pauses before moving.
     setTimeout(revealHeroContent, 410);
-  }, 1600);
+  }, 220);   // 原本 1600（舊進場停留時間）；舊面板已隱藏，這裡只留 hero 進場的觸發
 })();
 
 // ── Hero scroll animation ──
