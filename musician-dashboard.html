@@ -3028,6 +3028,7 @@
         try {
           var _lastPg = localStorage.getItem('opusz_dash_page');
           if (_lastPg && _lastPg !== 'overview' && document.getElementById('page-' + _lastPg)) {
+            if (_lastPg === 'pagebuilder') window.__pbSuppressTourOffer = true;   // 重整回到編輯主頁時別再跳導覽
             window.navigate(_lastPg, document.querySelector('[data-page="' + _lastPg + '"]'));
           }
         } catch(e){}
@@ -6500,7 +6501,6 @@
 <!-- Page-builder tutorial offer (Flow 2): appears when entering 編輯主頁 -->
 <div class="tour-welcome" id="pbTourIntro">
   <div class="tw-card">
-    <div class="tw-emoji">🎨</div>
     <h2 class="tw-title" data-i18n="tour_pb_title">要不要教你編輯主頁？</h2>
     <p class="tw-text" data-i18n="tour_pb_body">第一次編輯公開主頁嗎？我可以從上到下，一個區塊一個區塊帶你看怎麼填、為什麼要填，讓你輕鬆把主頁做起來。</p>
     <div class="tw-actions">
@@ -6776,11 +6776,15 @@
   // Shows the offer unless the welcome tour is running, a tour is already active,
   // or the user chose "don't show again".
   window.pbMaybeOfferTour = function(){
+    // 重整「還原到編輯主頁」時不要再跳導覽提示（見 loadProfileFields 後的頁面還原）。
+    if(window.__pbSuppressTourOffer){ window.__pbSuppressTourOffer = false; return; }
     if(active) return;                                  // welcome/pb tour already running
     if(!pbIntro) return;
     var skip = '1';
     try{ skip = localStorage.getItem(pbTourKey()); }catch(e){}
     if(skip) return;
+    // 只有「第一次進編輯主頁」才提示：一顯示就記住，之後永不再主動跳。要看教學用右上角的問號。
+    try{ localStorage.setItem(pbTourKey(), '1'); }catch(e){}
     setTimeout(function(){ if(!active) pbIntro.classList.add('show'); }, 400);
   };
 
