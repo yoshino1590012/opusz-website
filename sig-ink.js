@@ -11,8 +11,8 @@
    ═══════════════════════════════════════════════════════════════════════ */
 (function (g) {
   var NIB = -38 * Math.PI / 180;   // 筆尖角度：左下→右上為側鋒(細)，垂直方向最粗
-  var NIB_MIN = 0.34;              // 側鋒最細比例
-  var W_MIN = 0.34, W_MAX = 1.85;  // 速度造成的粗細範圍
+  var NIB_MIN = 0.78;              // 側鋒最細比例（越小＝方向造成的粗細差越誇張。繞圈的簽名太小會「呼胖呼瘦」）
+  var W_MIN = 0.62, W_MAX = 1.42;  // 速度造成的粗細範圍
 
   function split(flat) {
     var out = [], cur = null;
@@ -34,6 +34,24 @@
     return a;
   }
 
+  /* 沿線長度做平滑：sigma 是「多少 px 之內算同一段筆勢」。
+     這裡是關鍵——粗細必須在很長一段距離上慢慢變，才像真的筆；
+     用點數平滑等於只平滑了幾 px，會留下一節一節的肉瘤。 */
+  function blurLen(a, step, sigma) {
+    var r = Math.max(1, Math.round(sigma / step));
+    for (var pass = 0; pass < 3; pass++) {
+      var pre = [0];
+      for (var i = 0; i < a.length; i++) pre.push(pre[i] + a[i]);
+      var b = new Array(a.length);
+      for (var i = 0; i < a.length; i++) {
+        var lo = Math.max(0, i - r), hi = Math.min(a.length - 1, i + r);
+        b[i] = (pre[hi + 1] - pre[lo]) / (hi - lo + 1);
+      }
+      a = b;
+    }
+    return a;
+  }
+
   function catmull(p0, p1, p2, p3, t) {
     var t2 = t * t, t3 = t2 * t;
     return 0.5 * ((2 * p1) + (-p0 + p2) * t + (2 * p0 - 5 * p1 + 4 * p2 - p3) * t2 + (-p0 + 3 * p1 - 3 * p2 + p3) * t3);
@@ -45,14 +63,17 @@
     if (n === 1) return [{ x: pts[0].x, y: pts[0].y, v: 0, pr: pts[0].pr }];
 
     // 速度（原始取樣間距）＋重平滑
+    // 筆速用「前後各兩點的窗口」量：iPad/Safari 的時間戳常常好幾個點撞在同一毫秒，
+    // 一點一點量會忽快忽慢（結果就是筆畫呼胖呼瘦）。
     var spd = [];
     for (var i = 0; i < n; i++) {
-      var a = pts[Math.max(0, i - 1)], b = pts[i];
-      var d = Math.hypot(b.x - a.x, b.y - a.y);
-      var dt = (typeof a.t === 'number' && typeof b.t === 'number') ? Math.max(1, b.t - a.t) : 1;
+      var i0 = Math.max(0, i - 2), i1 = Math.min(n - 1, i + 2);
+      var d = 0;
+      for (var k = i0 + 1; k <= i1; k++) d += Math.hypot(pts[k].x - pts[k - 1].x, pts[k].y - pts[k - 1].y);
+      var dt = (typeof pts[i0].t === 'number' && typeof pts[i1].t === 'number')
+        ? Math.max(1, pts[i1].t - pts[i0].t) : Math.max(1, i1 - i0);
       spd.push(d / dt);
     }
-    spd[0] = spd[1] || 0;
     spd = smooth(spd, 0, 4);
 
     // 位置輕度去抖
@@ -130,9 +151,11 @@
     var allSpd = [];
     for (var gI = 0; gI < groups.length; gI++) {
       var G = groups[gI];
-      for (var i = 1; i < G.length; i++) {
-        var d = Math.hypot((G[i].x - G[i - 1].x) * sc, (G[i].y - G[i - 1].y) * sc);
-        var dt = (typeof G[i].t === 'number' && typeof G[i - 1].t === 'number') ? Math.max(1, G[i].t - G[i - 1].t) : 1;
+      for (var i = 2; i < G.length - 2; i++) {
+        var i0 = i - 2, i1 = i + 2, d = 0;
+        for (var k = i0 + 1; k <= i1; k++) d += Math.hypot((G[k].x - G[k - 1].x) * sc, (G[k].y - G[k - 1].y) * sc);
+        var dt = (typeof G[i0].t === 'number' && typeof G[i1].t === 'number')
+          ? Math.max(1, G[i1].t - G[i0].t) : Math.max(1, i1 - i0);
         allSpd.push(d / dt);
       }
     }
@@ -154,19 +177,25 @@
       var len = (m - 1) * step;
       var tip = Math.min(len * 0.22, base * 7);     // 起收筆收尖長度
 
-      // 筆寬
-      var ws = new Array(m);
+      // 筆寬：先把「速度×筆壓×筆尖」這組調變在長距離上抹平（避免抽動），
+      //       最後才乘上起收筆的收尖（收尖要保持乾脆，所以放在平滑之後）。
+      var mod = new Array(m);
       for (var i = 0; i < m; i++) {
-        var a = S[Math.max(0, i - 2)], b = S[Math.min(m - 1, i + 2)];
+        var a = S[Math.max(0, i - 3)], b = S[Math.min(m - 1, i + 3)];
         var dir = Math.atan2(b.y - a.y, b.x - a.x);
         var nib = NIB_MIN + (1 - NIB_MIN) * Math.abs(Math.sin(dir - NIB));
         var sp = W_MAX - (W_MAX - W_MIN) * Math.min(1, S[i].v / (refV * 2.1));
-        var pr = 0.62 + 0.76 * Math.min(1.2, S[i].pr);
-        var s = i * step, e = len - s;
-        var tp = Math.pow(Math.min(1, Math.min(s, e) / (tip || 1)), 0.55);
-        ws[i] = Math.max(0.32, base * nib * sp * pr * (0.18 + 0.82 * tp));
+        var pr = 0.86 + 0.28 * Math.min(1.2, S[i].pr);
+        mod[i] = nib * sp * pr;
       }
-      ws = smooth(ws, 0, 3);
+      mod = blurLen(mod, step, Math.max(7, base * 4.5));
+
+      var ws = new Array(m);
+      for (var i = 0; i < m; i++) {
+        var s2 = i * step, e2 = len - s2;
+        var tp = Math.pow(Math.min(1, Math.min(s2, e2) / (tip || 1)), 0.55);
+        ws[i] = Math.max(0.32, base * mod[i] * (0.22 + 0.78 * tp));
+      }
 
       // 左右外框
       var L = new Array(m), R = new Array(m);
