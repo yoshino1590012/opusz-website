@@ -7882,28 +7882,15 @@ window.addEventListener('keydown', function(e){
   if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA') return;
   if((e.key==='o'||e.key==='O')&&!e.metaKey&&!e.ctrlKey&&!e.altKey){
     e.preventDefault();
-    // fade out then navigate
-    document.documentElement.style.transition='opacity .22s ease';
-    document.documentElement.style.opacity='0';
-    setTimeout(()=>{ location.href='site-manager.html'; },230);
+    if (window.opzGoWithTransition) { window.opzGoWithTransition('site-manager.html'); return; }
+    location.href='site-manager.html';
   }
 }, true);
 
 /* ── Page transition ── */
 (function(){
-  // Fade-in on arrival
-  document.documentElement.style.opacity = '0';
-  document.documentElement.style.transform = 'translateY(10px)';
-  document.documentElement.style.transition = 'opacity .38s cubic-bezier(0.22,1,0.36,1), transform .38s cubic-bezier(0.22,1,0.36,1)';
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-    document.documentElement.style.opacity = '1';
-    document.documentElement.style.transform = 'translateY(0)';
-    // Clear transform after animation so position:fixed elements work correctly
-    setTimeout(()=>{
-      document.documentElement.style.transform = '';
-      document.documentElement.style.transition = '';
-    }, 450);
-  }));
+  // 到站的淡入已改成「黑幕往上掀開」（page-transition.js）。
+  // 這裡原本會在 <html> 上加 transform，那會讓 position:fixed 改以 <html> 為基準 → 黑幕/彈窗定位跑掉，故整段移除。
 
   // Hash anchor clicks: use replaceState so they don't pollute browser history
   // (without this, every #section click adds a history entry → back button goes through them all)
@@ -7920,11 +7907,8 @@ window.addEventListener('keydown', function(e){
       if (target) target.scrollIntoView({ behavior: 'smooth' });
       return;
     }
-    // Cross-page navigation: fade out then navigate
-    e.preventDefault();
-    document.documentElement.style.transition = 'opacity .22s ease';
-    document.documentElement.style.opacity = '0';
-    setTimeout(() => location.href = a.href, 230);
+    // 跨頁：交給 page-transition.js 的黑幕轉場（capture 階段已接手），這裡不再自己淡出跳頁
+    return;
   });
 
   // On back/forward: ensure page is visible (in case bfcache restored opacity:0 state)
@@ -9119,5 +9103,6 @@ window.addEventListener('keydown', function(e){
     }
   } catch (e) { console.warn('[about-stat] musician count failed:', e && (e.code||e.message)); }
 </script>
+<script src="page-transition.js?v=1"></script>
 </body>
 </html>

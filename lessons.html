@@ -1263,10 +1263,7 @@ document.addEventListener('click', function(e) {
     return;
   }
   if (url.pathname === location.pathname && !url.hash) return;
-  e.preventDefault();
-  document.documentElement.style.transition = 'opacity .22s ease';
-  document.documentElement.style.opacity = '0';
-  setTimeout(function() { location.href = a.href; }, 230);
+  return;   // 跨頁轉場改由 page-transition.js（黑幕從下往上蓋）處理
 });
 window.addEventListener('pageshow', function(e) {
   if (e.persisted) {
@@ -1695,5 +1692,6 @@ window.addEventListener('load', function(){
 <script src="assets/js/smooth-scroll.js" defer></script>
   <script type="module" src="media-sync.js?v=3"></script>
   <script type="module" src="footer.js?v=5"></script>
+<script src="page-transition.js?v=1"></script>
 </body>
 </html>
