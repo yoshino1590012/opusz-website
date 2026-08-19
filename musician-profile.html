@@ -2122,12 +2122,12 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
 
   <!-- ── 親筆簽名 & 一句話（Hero 照片下方；只有音樂家自己設定了才出現）── -->
   <style>
-    .sig-block{max-width:1200px;margin:0 auto;padding:104px 24px 30px;display:flex;flex-direction:column;align-items:center;gap:52px;text-align:center}
-    .sig-quote{max-width:600px;font-size:clamp(17px,2.1vw,23px);line-height:1.95;color:#1a1a1a;font-weight:400}
+    .sig-block{max-width:680px;margin:0 auto;padding:104px 24px 44px;display:flex;flex-direction:column;align-items:stretch;gap:40px}
+    .sig-quote{max-width:600px;margin:0 auto;font-size:clamp(17px,2.1vw,23px);line-height:1.95;color:#1a1a1a;font-weight:400;text-align:center}
     .sig-quote .ln{display:block;white-space:pre-wrap;min-height:1.95em}
     .sig-quote .ln.pending{opacity:0}
-    .sig-mark{display:flex;flex-direction:column;align-items:center;gap:10px}
-    .sig-canvas{width:min(320px,72vw);height:auto;aspect-ratio:12/5}
+    .sig-mark{align-self:flex-end;display:flex;flex-direction:column;align-items:flex-end;gap:8px}   /* 右下角，仿 Max Milkin */
+    .sig-canvas{width:min(300px,66vw);height:auto;aspect-ratio:3/2}
     .sig-name{font-size:11px;letter-spacing:.32em;color:#9a9a92;text-transform:uppercase}
   </style>
   <section class="sig-block" id="sigBlock" style="display:none">
@@ -2159,16 +2159,31 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
           if(full<len){ var c=text.charAt(full); out+= /[a-zA-Z0-9]/.test(c)?rnd():c; } el.textContent=out;
           if(full<len) requestAnimationFrame(fr); else el.textContent=text; } requestAnimationFrame(fr); }
       function replay(){ if(!(strokes&&strokes.length)) return;
-        var xs=[],ys=[]; strokes.forEach(function(p){ xs.push(p.x); ys.push(p.y); });   // flat [{x,y,b}]
+        // High-res (retina) + keep the signature's ORIGINAL aspect (no squish) + 鋼筆粗細變化。
+        var dpr=window.devicePixelRatio||1, rect=canvas.getBoundingClientRect();
+        var W=Math.max(1,rect.width), H=Math.max(1,rect.height);
+        canvas.width=Math.round(W*dpr); canvas.height=Math.round(H*dpr);
+        var g=canvas.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0);
+        g.lineCap='round'; g.lineJoin='round'; g.strokeStyle='#111';
+        var xs=strokes.map(function(p){return p.x;}), ys=strokes.map(function(p){return p.y;});
         var minx=Math.min.apply(0,xs),maxx=Math.max.apply(0,xs),miny=Math.min.apply(0,ys),maxy=Math.max.apply(0,ys);
-        var W=canvas.width,H=canvas.height,pd=36,sc=Math.min((W-pd*2)/((maxx-minx)||1),(H-pd*2)/((maxy-miny)||1));
-        var ox=(W-(maxx-minx)*sc)/2-minx*sc, oy=(H-(maxy-miny)*sc)/2-miny*sc, pts=[];
-        strokes.forEach(function(p){ pts.push({x:p.x*sc+ox,y:p.y*sc+oy,pen:!p.b}); });   // pen=false at each stroke start (b=1)
-        ctx.clearRect(0,0,W,H); ctx.lineWidth=3.2; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#111';
-        var total=pts.length,dur=1900,t0=null;
-        function fr(t){ if(!t0)t0=t; var k=Math.min(1,(t-t0)/dur),n=Math.floor(k*total); ctx.clearRect(0,0,W,H); ctx.beginPath();
-          for(var i=1;i<n;i++){ if(pts[i].pen){ ctx.moveTo(pts[i-1].x,pts[i-1].y); ctx.lineTo(pts[i].x,pts[i].y);} } ctx.stroke();
-          if(k<1) requestAnimationFrame(fr); } requestAnimationFrame(fr); }
+        var bw=(maxx-minx)||1, bh=(maxy-miny)||1, pd=Math.min(W,H)*0.12;
+        var sc=Math.min((W-pd*2)/bw,(H-pd*2)/bh);           // min → aspect preserved (letterboxed, never stretched)
+        var ox=(W-bw*sc)/2-minx*sc, oy=(H-bh*sc)/2-miny*sc;
+        var P=strokes.map(function(p){ return {x:p.x*sc+ox, y:p.y*sc+oy, b:p.b}; });
+        // 鋼筆：慢筆(點間距小)＝粗、快筆＝細。
+        var base=Math.max(1.8, Math.min(W,H)*0.024), wArr=[];
+        for(var i=0;i<P.length;i++){ if(i===0||P[i].b){ wArr.push(base); continue; }
+          var d=Math.hypot(P[i].x-P[i-1].x,P[i].y-P[i-1].y);
+          wArr.push(base*Math.max(0.4, Math.min(2.4, 3.6/(d*0.55+1.5)))); }
+        var wS=wArr.map(function(w,i){ return ((wArr[i-1]||w)+2*w+(wArr[i+1]||w))/4; });   // 柔化粗細跳動
+        var total=P.length, dur=2000, t0=null;
+        function fr(t){ if(!t0)t0=t; var k=Math.min(1,(t-t0)/dur), n=Math.floor(k*total);
+          g.clearRect(0,0,W,H);
+          for(var i=1;i<n;i++){ if(P[i].b) continue;
+            g.lineWidth=wS[i]; g.beginPath(); g.moveTo(P[i-1].x,P[i-1].y); g.lineTo(P[i].x,P[i].y); g.stroke(); }
+          if(k<1) requestAnimationFrame(fr); }
+        requestAnimationFrame(fr); }
       if(block.__io) block.__io.disconnect(); var fired=false;
       block.__io=new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting&&!fired){ fired=true;
         lineEls.forEach(function(el,i){ setTimeout(function(){ reveal(el); }, i*420); });

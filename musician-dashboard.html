@@ -6843,23 +6843,38 @@
    window.__pfSigStrokes 由 pbReadForm（發佈）與 saveProfile 讀取存進 config.sig.strokes；
    pfSigRender（loadProfileFields 呼叫）帶回已存的簽名。元素 ID 不變，故搬到編輯主頁後照舊運作。 */
 (function(){
+  // 統一格式：座標存「以寬度正規化」(x∈[0,1], y∈[0,ar])＝保留比例、與尺寸無關；
+  // 小板/大板/手機/公開頁全部一致。渲染 bbox 置中縮放；鋼筆＝慢筆粗快筆細；畫布配合尺寸×dpr。
+  function opzFit(c){ var r=c.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+    c.width=Math.max(1,Math.round(r.width*dpr)); c.height=Math.max(1,Math.round(r.height*dpr));
+    var x=c.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.lineCap='round'; x.lineJoin='round'; x.strokeStyle='#111'; return x; }
+  function opzNP(c,e){ var r=c.getBoundingClientRect(), t=(e.touches&&e.touches[0])||e, w=r.width||1; return {x:(t.clientX-r.left)/w, y:(t.clientY-r.top)/w}; }
+  function opzSegW(a,b,W){ var d=Math.hypot((b.x-a.x)*W,(b.y-a.y)*W); return Math.max(1.4, Math.min(5.0, 5.6 - d*0.30)); }
+  window.__opzRenderSig=function(c, strokes){
+    var ctx=opzFit(c), r=c.getBoundingClientRect(), W=r.width, H=r.height;
+    ctx.clearRect(0,0,W,H); if(!strokes||!strokes.length) return;
+    var xs=strokes.map(function(p){return p.x;}), ys=strokes.map(function(p){return p.y;});
+    var minx=Math.min.apply(0,xs),maxx=Math.max.apply(0,xs),miny=Math.min.apply(0,ys),maxy=Math.max.apply(0,ys);
+    var bw=(maxx-minx)||1e-3, bh=(maxy-miny)||1e-3, pd=Math.min(W,H)*0.10, sc=Math.min((W-pd*2)/bw,(H-pd*2)/bh);
+    var ox=(W-bw*sc)/2-minx*sc, oy=(H-bh*sc)/2-miny*sc;
+    var P=strokes.map(function(p){return {x:p.x*sc+ox,y:p.y*sc+oy,b:p.b};});
+    var base=Math.max(1.6,Math.min(W,H)*0.03);
+    for(var i=1;i<P.length;i++){ if(P[i].b) continue; var d=Math.hypot(P[i].x-P[i-1].x,P[i].y-P[i-1].y);
+      ctx.lineWidth=base*Math.max(0.4,Math.min(2.3,3.4/(d*0.5+1.4))); ctx.beginPath(); ctx.moveTo(P[i-1].x,P[i-1].y); ctx.lineTo(P[i].x,P[i].y); ctx.stroke(); } };
+  window.__opzSigFit=opzFit; window.__opzSigNP=opzNP; window.__opzSigSegW=opzSegW;   // 供大板 IIFE 共用
   function init(){
     var pad=document.getElementById('pfSigPad'); if(!pad) return;
-    var ctx=pad.getContext('2d'); ctx.lineWidth=3; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#111';
-    window.__pfSigStrokes=window.__pfSigStrokes||[];
+    var ctx=opzFit(pad); window.__pfSigStrokes=window.__pfSigStrokes||[];
     var drawing=false,last=null;
-    function P(e){ var r=pad.getBoundingClientRect(); var t=(e.touches&&e.touches[0])||e; return {x:(t.clientX-r.left)/(r.width||1)*pad.width, y:(t.clientY-r.top)/(r.height||1)*pad.height}; }
     function status(){ var el=document.getElementById('pfSigStatus'); if(el) el.textContent=(window.__pfSigStrokes.length?'已簽名 ✓':''); }
-    pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; var p=P(e); p.b=1; window.__pfSigStrokes.push(p); last=p; status(); });
-    pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); var p=P(e); p.b=0; ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); window.__pfSigStrokes.push(p); last=p; });
-    // On stroke end, push the drawing into pbConfig so the 編輯主頁 live preview updates.
+    pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; var p=opzNP(pad,e); p.b=1; window.__pfSigStrokes.push(p); last=p; status(); });
+    pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); var p=opzNP(pad,e); p.b=0; var w=pad.getBoundingClientRect().width; ctx.lineWidth=opzSegW(last,p,w); ctx.beginPath(); ctx.moveTo(last.x*w,last.y*w); ctx.lineTo(p.x*w,p.y*w); ctx.stroke(); window.__pfSigStrokes.push(p); last=p; });
     function end(){ if(drawing){ drawing=false; try{ if(window.pbOnInput) window.pbOnInput(); }catch(_){} } }
     pad.addEventListener('pointerup',end); pad.addEventListener('pointerleave',end); window.addEventListener('pointerup',end);
-    window.pfSigClear=function(){ window.__pfSigStrokes=[]; ctx.clearRect(0,0,pad.width,pad.height); status(); };
-    window.pfSigRender=function(strokes){ window.__pfSigStrokes=Array.isArray(strokes)?strokes.slice():[]; ctx.clearRect(0,0,pad.width,pad.height);
-      var s=window.__pfSigStrokes,prev=null;
-      for(var i=0;i<s.length;i++){ var p=s[i]; if(p.b){ prev=p; } else if(prev){ ctx.beginPath(); ctx.moveTo(prev.x,prev.y); ctx.lineTo(p.x,p.y); ctx.stroke(); prev=p; } }
-      status(); };
+    window.pfSigClear=function(){ window.__pfSigStrokes=[]; window.__opzRenderSig(pad,[]); status(); };
+    window.pfSigRender=function(strokes){ window.__pfSigStrokes=Array.isArray(strokes)?strokes.slice():[]; window.__opzRenderSig(pad,window.__pfSigStrokes); status(); };
+    // 切到編輯主頁時簽名板才有尺寸；尺寸一出現/改變就重新配合(高解析)並重畫既有簽名。
+    try{ if(window.ResizeObserver){ var _lw=0; new ResizeObserver(function(){ var w=pad.getBoundingClientRect().width; if(w>0 && Math.abs(w-_lw)>1 && !drawing){ _lw=w; window.__opzRenderSig(pad, window.__pfSigStrokes); } }).observe(pad); } }catch(_){}
     status();
   }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
@@ -6881,17 +6896,14 @@
       +'<button type="button" id="opzSigDone" class="btn btn-primary">完成 / Done</button></div>'
       +'<p style="font-size:12px;color:#999;margin:10px 0 0;text-align:center;">在大畫布上簽比較好簽，完成後會自動存回</p></div>';
     document.body.appendChild(m);
-    var big=document.getElementById('pfSigPadBig'), bctx=big.getContext('2d');
-    bctx.lineWidth=3; bctx.lineCap='round'; bctx.lineJoin='round'; bctx.strokeStyle='#111';
-    function drawAll(){ bctx.clearRect(0,0,big.width,big.height); var s=window.__pfSigStrokes||[],prev=null;
-      for(var i=0;i<s.length;i++){ var p=s[i]; if(p.b){prev=p;} else if(prev){ bctx.beginPath(); bctx.moveTo(prev.x,prev.y); bctx.lineTo(p.x,p.y); bctx.stroke(); prev=p; } } }
+    var big=document.getElementById('pfSigPadBig'), bctx=null;   // 用共用的正規化格式，跟小板/手機一致
+    function drawAll(){ window.__opzRenderSig(big, window.__pfSigStrokes||[]); bctx=big.getContext('2d'); }
     var drawing=false,last=null;
-    function P(e){ var r=big.getBoundingClientRect(); var t=(e.touches&&e.touches[0])||e; return {x:(t.clientX-r.left)/(r.width||1)*big.width, y:(t.clientY-r.top)/(r.height||1)*big.height}; }
-    big.addEventListener('pointerdown',function(e){ e.preventDefault(); try{big.setPointerCapture(e.pointerId);}catch(_){} drawing=true; window.__pfSigStrokes=window.__pfSigStrokes||[]; var p=P(e); p.b=1; window.__pfSigStrokes.push(p); last=p; });
-    big.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); var p=P(e); p.b=0; bctx.beginPath(); bctx.moveTo(last.x,last.y); bctx.lineTo(p.x,p.y); bctx.stroke(); window.__pfSigStrokes.push(p); last=p; });
+    big.addEventListener('pointerdown',function(e){ e.preventDefault(); try{big.setPointerCapture(e.pointerId);}catch(_){} drawing=true; window.__pfSigStrokes=window.__pfSigStrokes||[]; var p=window.__opzSigNP(big,e); p.b=1; window.__pfSigStrokes.push(p); last=p; });
+    big.addEventListener('pointermove',function(e){ if(!drawing||!bctx)return; e.preventDefault(); var p=window.__opzSigNP(big,e); p.b=0; var w=big.getBoundingClientRect().width; bctx.lineWidth=window.__opzSigSegW(last,p,w); bctx.beginPath(); bctx.moveTo(last.x*w,last.y*w); bctx.lineTo(p.x*w,p.y*w); bctx.stroke(); window.__pfSigStrokes.push(p); last=p; });
     function bend(){ drawing=false; } big.addEventListener('pointerup',bend); window.addEventListener('pointerup',bend);
     var backup=null;
-    function open(){ window.__pfSigStrokes=window.__pfSigStrokes||[]; backup=window.__pfSigStrokes.map(function(p){return {x:p.x,y:p.y,b:p.b};}); m.style.display='flex'; drawAll(); }
+    function open(){ window.__pfSigStrokes=window.__pfSigStrokes||[]; backup=window.__pfSigStrokes.map(function(p){return {x:p.x,y:p.y,b:p.b};}); m.style.display='flex'; setTimeout(drawAll, 40); }
     function close(save){ m.style.display='none';
       if(save){ if(window.pfSigRender) window.pfSigRender(window.__pfSigStrokes); try{ if(window.pbOnInput) window.pbOnInput(); }catch(_){} }
       else { window.__pfSigStrokes=backup||[]; if(window.pfSigRender) window.pfSigRender(window.__pfSigStrokes); } }

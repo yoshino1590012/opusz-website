@@ -60,15 +60,23 @@
   var auth=getAuth(app), db=getFirestore(app);
   signInAnonymously(auth).catch(function(){});
 
-  // ── signature pad (stores flat [{x,y,b}] in 900x320 space, same as the platform) ──
-  var pad=document.getElementById('pad'), ctx=pad.getContext('2d');
-  ctx.lineWidth=3.2; ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#111';
+  // ── signature pad ──
+  // 座標存「畫布 CSS 像素」(x,y 同一尺度)＝保留你當下簽的比例，不會被壓扁。
+  // 畫布內部解析度配合實際顯示尺寸×dpr ＝ 高解析、不糊。鋼筆：慢筆粗、快筆細。
+  var pad=document.getElementById('pad'), ctx=null;
   var strokes=[], drawing=false, last=null;
-  function P(e){ var r=pad.getBoundingClientRect(); var t=(e.touches&&e.touches[0])||e; return {x:(t.clientX-r.left)/(r.width||1)*pad.width, y:(t.clientY-r.top)/(r.height||1)*pad.height}; }
+  function fit(){ var r=pad.getBoundingClientRect(), dpr=window.devicePixelRatio||1;
+    pad.width=Math.max(1,Math.round(r.width*dpr)); pad.height=Math.max(1,Math.round(r.height*dpr));
+    ctx=pad.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0); ctx.lineCap='round'; ctx.lineJoin='round'; ctx.strokeStyle='#111'; redraw(); }
+  function P(e){ var r=pad.getBoundingClientRect(); var t=(e.touches&&e.touches[0])||e; var w=r.width||1; return {x:(t.clientX-r.left)/w, y:(t.clientY-r.top)/w}; }
+  function segW(a,b,w){ var d=Math.hypot((b.x-a.x)*w,(b.y-a.y)*w); return Math.max(1.4, Math.min(4.8, 5.4 - d*0.30)); }
+  function redraw(){ if(!ctx) return; var r=pad.getBoundingClientRect(), w=r.width; ctx.clearRect(0,0,w,r.height);
+    for(var i=1;i<strokes.length;i++){ if(strokes[i].b) continue; ctx.lineWidth=segW(strokes[i-1],strokes[i],w); ctx.beginPath(); ctx.moveTo(strokes[i-1].x*w,strokes[i-1].y*w); ctx.lineTo(strokes[i].x*w,strokes[i].y*w); ctx.stroke(); } }
   pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; var p=P(e); p.b=1; strokes.push(p); last=p; });
-  pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); var p=P(e); p.b=0; ctx.beginPath(); ctx.moveTo(last.x,last.y); ctx.lineTo(p.x,p.y); ctx.stroke(); strokes.push(p); last=p; });
+  pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); var p=P(e); p.b=0; var w=pad.getBoundingClientRect().width; ctx.lineWidth=segW(last,p,w); ctx.beginPath(); ctx.moveTo(last.x*w,last.y*w); ctx.lineTo(p.x*w,p.y*w); ctx.stroke(); strokes.push(p); last=p; });
   function end(){ drawing=false; } pad.addEventListener('pointerup',end); window.addEventListener('pointerup',end);
-  document.getElementById('clearBtn').onclick=function(){ strokes=[]; ctx.clearRect(0,0,pad.width,pad.height); };
+  document.getElementById('clearBtn').onclick=function(){ strokes=[]; redraw(); };
+  window.addEventListener('resize',fit); fit();
 
   document.getElementById('sendBtn').onclick=async function(){
     if(!strokes.length){ document.getElementById('hint').textContent='先簽個名再傳送 ✍️'; return; }
