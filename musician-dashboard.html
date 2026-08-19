@@ -6838,8 +6838,9 @@
     </div>
   </div>
 </div>
+<script src="sig-ink.js?v=1"></script>
 <script>
-/* 編輯主頁 → 名言 / 簽名 板：手指/Pencil/滑鼠簽名，錄成扁平向量 [{x,y,b}]（b=1=新筆畫起點）。
+/* 編輯主頁 → 名言 / 簽名 板：手指/Pencil/滑鼠簽名，錄成扁平向量 [{x,y,b,t,p}]（b=1=新筆畫起點, t=時間戳, p=筆壓）。
    window.__pfSigStrokes 由 pbReadForm（發佈）與 saveProfile 讀取存進 config.sig.strokes；
    pfSigRender（loadProfileFields 呼叫）帶回已存的簽名。元素 ID 不變，故搬到編輯主頁後照舊運作。 */
 (function(){
@@ -6850,25 +6851,56 @@
     var x=c.getContext('2d'); x.setTransform(dpr,0,0,dpr,0,0); x.lineCap='round'; x.lineJoin='round'; x.strokeStyle='#111'; return x; }
   function opzNP(c,e){ var r=c.getBoundingClientRect(), t=(e.touches&&e.touches[0])||e, w=r.width||1; return {x:(t.clientX-r.left)/w, y:(t.clientY-r.top)/w}; }
   function opzSegW(a,b,W){ var d=Math.hypot((b.x-a.x)*W,(b.y-a.y)*W); return Math.max(1.4, Math.min(5.0, 5.6 - d*0.30)); }
+
+  /* 收筆跡：用 coalesced events 拿到瀏覽器的高取樣率（線條更順），
+     並記下時間戳 t（算筆速→粗細）與 Apple Pencil 筆壓 p。太密的點會濾掉以免 Firestore 太肥。 */
+  window.__opzSigPush=function(c,e,first){
+    var arr=window.__pfSigStrokes=window.__pfSigStrokes||[];
+    var evs=(!first && e.getCoalescedEvents)?e.getCoalescedEvents():[e];
+    if(!evs || !evs.length) evs=[e];
+    var r=c.getBoundingClientRect(), w=r.width||1;
+    for(var i=0;i<evs.length;i++){
+      var ev=evs[i], x=(ev.clientX-r.left)/w, y=(ev.clientY-r.top)/w, lp=arr[arr.length-1];
+      if(!first && lp && Math.hypot(x-lp.x,y-lp.y)<0.0022) continue;
+      var pt={x:Math.round(x*1e4)/1e4,y:Math.round(y*1e4)/1e4,b:first?1:0,t:Math.round(ev.timeStamp||performance.now())};
+      if(ev.pointerType==='pen' && typeof ev.pressure==='number' && ev.pressure>0) pt.p=Math.round(ev.pressure*100)/100;
+      arr.push(pt); first=false;
+    }
+  };
+  /* 寫的當下即時重畫（rAF 節流）：raw 模式＝不置中縮放，字才不會邊寫邊跳。 */
+  window.__opzSigLive=function(c){
+    if(c.__opzRaf) return;
+    c.__opzRaf=requestAnimationFrame(function(){ c.__opzRaf=0;
+      if(window.OPZInk) window.OPZInk.render(c, window.__pfSigStrokes||[], {mode:'raw'}); });
+  };
+  /* 帶回已存簽名 / 清空：置中縮放顯示（標記 __opzFitted，之後一動筆先「定位」再續畫） */
   window.__opzRenderSig=function(c, strokes){
-    var ctx=opzFit(c), r=c.getBoundingClientRect(), W=r.width, H=r.height;
-    ctx.clearRect(0,0,W,H); if(!strokes||!strokes.length) return;
-    var xs=strokes.map(function(p){return p.x;}), ys=strokes.map(function(p){return p.y;});
-    var minx=Math.min.apply(0,xs),maxx=Math.max.apply(0,xs),miny=Math.min.apply(0,ys),maxy=Math.max.apply(0,ys);
-    var bw=(maxx-minx)||1e-3, bh=(maxy-miny)||1e-3, pd=Math.min(W,H)*0.10, sc=Math.min((W-pd*2)/bw,(H-pd*2)/bh);
-    var ox=(W-bw*sc)/2-minx*sc, oy=(H-bh*sc)/2-miny*sc;
-    var P=strokes.map(function(p){return {x:p.x*sc+ox,y:p.y*sc+oy,b:p.b};});
-    var base=Math.max(1.6,Math.min(W,H)*0.03);
-    for(var i=1;i<P.length;i++){ if(P[i].b) continue; var d=Math.hypot(P[i].x-P[i-1].x,P[i].y-P[i-1].y);
-      ctx.lineWidth=base*Math.max(0.4,Math.min(2.3,3.4/(d*0.5+1.4))); ctx.beginPath(); ctx.moveTo(P[i-1].x,P[i-1].y); ctx.lineTo(P[i].x,P[i].y); ctx.stroke(); } };
+    c.__opzFitted=!!(strokes&&strokes.length);
+    if(window.OPZInk){ window.OPZInk.render(c, strokes||[], {mode:'fit', pad:0.10}); return; }
+    var ctx=opzFit(c), r=c.getBoundingClientRect(); ctx.clearRect(0,0,r.width,r.height);
+  };
+  /* 把「置中縮放後看到的位置」寫回座標，續簽時畫面才不會突然跳掉 */
+  window.__opzSigBake=function(c){
+    var arr=window.__pfSigStrokes||[]; if(!arr.length) return;
+    var r=c.getBoundingClientRect(), W=r.width||1, H=r.height||1;
+    var minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;
+    for(var i=0;i<arr.length;i++){ var q=arr[i];
+      if(q.x<minx)minx=q.x; if(q.x>maxx)maxx=q.x; if(q.y<miny)miny=q.y; if(q.y>maxy)maxy=q.y; }
+    var bw=(maxx-minx)||1e-3, bh=(maxy-miny)||1e-3, pd=Math.min(W,H)*0.10;
+    var sc=Math.min((W-pd*2)/bw,(H-pd*2)/bh), ox=(W-bw*sc)/2-minx*sc, oy=(H-bh*sc)/2-miny*sc;
+    window.__pfSigStrokes=arr.map(function(q){
+      var o={x:(q.x*sc+ox)/W, y:(q.y*sc+oy)/W, b:q.b?1:0};
+      if(typeof q.t==='number') o.t=q.t; if(typeof q.p==='number') o.p=q.p; return o; });
+  };
+  window.__opzSigStart=function(c,e){ if(c.__opzFitted){ window.__opzSigBake(c); c.__opzFitted=false; } window.__opzSigPush(c,e,true); };
   window.__opzSigFit=opzFit; window.__opzSigNP=opzNP; window.__opzSigSegW=opzSegW;   // 供大板 IIFE 共用
   function init(){
     var pad=document.getElementById('pfSigPad'); if(!pad) return;
     var ctx=opzFit(pad); window.__pfSigStrokes=window.__pfSigStrokes||[];
     var drawing=false,last=null;
     function status(){ var el=document.getElementById('pfSigStatus'); if(el) el.textContent=(window.__pfSigStrokes.length?'已簽名 ✓':''); }
-    pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; var p=opzNP(pad,e); p.b=1; window.__pfSigStrokes.push(p); last=p; status(); });
-    pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); var p=opzNP(pad,e); p.b=0; var w=pad.getBoundingClientRect().width; ctx.lineWidth=opzSegW(last,p,w); ctx.beginPath(); ctx.moveTo(last.x*w,last.y*w); ctx.lineTo(p.x*w,p.y*w); ctx.stroke(); window.__pfSigStrokes.push(p); last=p; });
+    pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; window.__opzSigStart(pad,e); window.__opzSigLive(pad); status(); });
+    pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); window.__opzSigPush(pad,e,false); window.__opzSigLive(pad); });
     function end(){ if(drawing){ drawing=false; try{ if(window.pbOnInput) window.pbOnInput(); }catch(_){} } }
     pad.addEventListener('pointerup',end); pad.addEventListener('pointerleave',end); window.addEventListener('pointerup',end);
     window.pfSigClear=function(){ window.__pfSigStrokes=[]; window.__opzRenderSig(pad,[]); status(); };
@@ -6899,8 +6931,8 @@
     var big=document.getElementById('pfSigPadBig'), bctx=null;   // 用共用的正規化格式，跟小板/手機一致
     function drawAll(){ window.__opzRenderSig(big, window.__pfSigStrokes||[]); bctx=big.getContext('2d'); }
     var drawing=false,last=null;
-    big.addEventListener('pointerdown',function(e){ e.preventDefault(); try{big.setPointerCapture(e.pointerId);}catch(_){} drawing=true; window.__pfSigStrokes=window.__pfSigStrokes||[]; var p=window.__opzSigNP(big,e); p.b=1; window.__pfSigStrokes.push(p); last=p; });
-    big.addEventListener('pointermove',function(e){ if(!drawing||!bctx)return; e.preventDefault(); var p=window.__opzSigNP(big,e); p.b=0; var w=big.getBoundingClientRect().width; bctx.lineWidth=window.__opzSigSegW(last,p,w); bctx.beginPath(); bctx.moveTo(last.x*w,last.y*w); bctx.lineTo(p.x*w,p.y*w); bctx.stroke(); window.__pfSigStrokes.push(p); last=p; });
+    big.addEventListener('pointerdown',function(e){ e.preventDefault(); try{big.setPointerCapture(e.pointerId);}catch(_){} drawing=true; window.__opzSigStart(big,e); window.__opzSigLive(big); });
+    big.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); window.__opzSigPush(big,e,false); window.__opzSigLive(big); });
     function bend(){ drawing=false; } big.addEventListener('pointerup',bend); window.addEventListener('pointerup',bend);
     var backup=null;
     function open(){ window.__pfSigStrokes=window.__pfSigStrokes||[]; backup=window.__pfSigStrokes.map(function(p){return {x:p.x,y:p.y,b:p.b};}); m.style.display='flex'; setTimeout(drawAll, 40); }

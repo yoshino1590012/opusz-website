@@ -2130,6 +2130,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     .sig-canvas{width:min(300px,66vw);height:auto;aspect-ratio:3/2}
     .sig-name{font-size:11px;letter-spacing:.32em;color:#9a9a92;text-transform:uppercase}
   </style>
+  <script src="sig-ink.js?v=1"></script>
   <section class="sig-block" id="sigBlock" style="display:none">
     <p class="sig-quote" id="sigQuote"></p>
     <div class="sig-mark">
@@ -2159,31 +2160,10 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
           if(full<len){ var c=text.charAt(full); out+= /[a-zA-Z0-9]/.test(c)?rnd():c; } el.textContent=out;
           if(full<len) requestAnimationFrame(fr); else el.textContent=text; } requestAnimationFrame(fr); }
       function replay(){ if(!(strokes&&strokes.length)) return;
-        // High-res (retina) + keep the signature's ORIGINAL aspect (no squish) + 鋼筆粗細變化。
-        var dpr=window.devicePixelRatio||1, rect=canvas.getBoundingClientRect();
-        var W=Math.max(1,rect.width), H=Math.max(1,rect.height);
-        canvas.width=Math.round(W*dpr); canvas.height=Math.round(H*dpr);
-        var g=canvas.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0);
-        g.lineCap='round'; g.lineJoin='round'; g.strokeStyle='#111';
-        var xs=strokes.map(function(p){return p.x;}), ys=strokes.map(function(p){return p.y;});
-        var minx=Math.min.apply(0,xs),maxx=Math.max.apply(0,xs),miny=Math.min.apply(0,ys),maxy=Math.max.apply(0,ys);
-        var bw=(maxx-minx)||1, bh=(maxy-miny)||1, pd=Math.min(W,H)*0.12;
-        var sc=Math.min((W-pd*2)/bw,(H-pd*2)/bh);           // min → aspect preserved (letterboxed, never stretched)
-        var ox=(W-bw*sc)/2-minx*sc, oy=(H-bh*sc)/2-miny*sc;
-        var P=strokes.map(function(p){ return {x:p.x*sc+ox, y:p.y*sc+oy, b:p.b}; });
-        // 鋼筆：慢筆(點間距小)＝粗、快筆＝細。
-        var base=Math.max(1.8, Math.min(W,H)*0.024), wArr=[];
-        for(var i=0;i<P.length;i++){ if(i===0||P[i].b){ wArr.push(base); continue; }
-          var d=Math.hypot(P[i].x-P[i-1].x,P[i].y-P[i-1].y);
-          wArr.push(base*Math.max(0.4, Math.min(2.4, 3.6/(d*0.55+1.5)))); }
-        var wS=wArr.map(function(w,i){ return ((wArr[i-1]||w)+2*w+(wArr[i+1]||w))/4; });   // 柔化粗細跳動
-        var total=P.length, dur=2000, t0=null;
-        function fr(t){ if(!t0)t0=t; var k=Math.min(1,(t-t0)/dur), n=Math.floor(k*total);
-          g.clearRect(0,0,W,H);
-          for(var i=1;i<n;i++){ if(P[i].b) continue;
-            g.lineWidth=wS[i]; g.beginPath(); g.moveTo(P[i-1].x,P[i-1].y); g.lineTo(P[i].x,P[i].y); g.stroke(); }
-          if(k<1) requestAnimationFrame(fr); }
-        requestAnimationFrame(fr); }
+        // 鋼筆墨跡引擎（sig-ink.js）：曲線平滑＋速度/筆壓/筆尖角度決定粗細＋起收筆收尖，整筆填色輪廓。
+        if(canvas.__opzStop) canvas.__opzStop();
+        if(window.OPZInk) canvas.__opzStop=window.OPZInk.play(canvas, strokes, {mode:'fit', pad:0.08, duration:2600});
+      }
       if(block.__io) block.__io.disconnect(); var fired=false;
       block.__io=new IntersectionObserver(function(es){ es.forEach(function(x){ if(x.isIntersecting&&!fired){ fired=true;
         lineEls.forEach(function(el,i){ setTimeout(function(){ reveal(el); }, i*420); });

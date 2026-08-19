@@ -66,6 +66,7 @@
   <div class="pad-hint">簽完按「用這個簽名」，往上滑看它自己寫出來</div>
 </div>
 
+<script src="sig-ink.js?v=1"></script>
 <script>
 /* ══════════ 1) 引言：由左到右、上排先出現的「解碼式」進場 ══════════ */
 (function(){
@@ -102,52 +103,42 @@
     {threshold:.4}).observe(document.getElementById('signWrap').parentNode);
 })();
 
-/* ══════════ 2) 簽名板：錄下筆跡（點＋筆順）══════════ */
-var pad=document.getElementById('pad'), pctx=pad.getContext('2d');
-function fit(c){ var r=c.getBoundingClientRect(), dpr=devicePixelRatio||1; c.width=r.width*dpr; c.height=r.height*dpr; c.getContext('2d').scale(dpr,dpr); return r; }
-var padRect=fit(pad);
-pctx.lineWidth=2.4; pctx.lineCap='round'; pctx.lineJoin='round'; pctx.strokeStyle='#111';
-var strokes=[], cur=null, drawing=false;
-function pos(e){ var r=pad.getBoundingClientRect(); var p=e.touches?e.touches[0]:e; return {x:p.clientX-r.left, y:p.clientY-r.top}; }
-function down(e){ e.preventDefault(); drawing=true; cur=[pos(e)]; strokes.push(cur); }
-function move(e){ if(!drawing)return; e.preventDefault(); var p=pos(e); var a=cur[cur.length-1];
-  pctx.beginPath(); pctx.moveTo(a.x,a.y); pctx.lineTo(p.x,p.y); pctx.stroke(); cur.push(p); }
-function up(){ drawing=false; }
-pad.addEventListener('pointerdown',down); pad.addEventListener('pointermove',move);
-window.addEventListener('pointerup',up);
-document.getElementById('clearBtn').onclick=function(){ strokes=[]; pctx.clearRect(0,0,pad.width,pad.height); };
+/* ══════════ 2) 簽名板：錄下筆跡（扁平 [{x,y,b,t,p}]，與正式版同格式）══════════ */
+var pad=document.getElementById('pad');
+var strokes=[], drawing=false, _raf=0;
+function padDraw(){ if(_raf) return; _raf=requestAnimationFrame(function(){ _raf=0;
+  if(window.OPZInk) window.OPZInk.render(pad, strokes, {mode:'raw'}); }); }
+function push(e,first){
+  var evs=(!first && e.getCoalescedEvents)?e.getCoalescedEvents():[e]; if(!evs||!evs.length) evs=[e];
+  var r=pad.getBoundingClientRect(), w=r.width||1;
+  for(var i=0;i<evs.length;i++){ var ev=evs[i], x=(ev.clientX-r.left)/w, y=(ev.clientY-r.top)/w, lp=strokes[strokes.length-1];
+    if(!first && lp && Math.hypot(x-lp.x,y-lp.y)<0.0022) continue;
+    var pt={x:Math.round(x*1e4)/1e4,y:Math.round(y*1e4)/1e4,b:first?1:0,t:Math.round(ev.timeStamp||performance.now())};
+    if(ev.pointerType==='pen' && typeof ev.pressure==='number' && ev.pressure>0) pt.p=Math.round(ev.pressure*100)/100;
+    strokes.push(pt); first=false; }
+}
+pad.addEventListener('pointerdown',function(e){ e.preventDefault(); try{pad.setPointerCapture(e.pointerId);}catch(_){} drawing=true; push(e,true); padDraw(); });
+pad.addEventListener('pointermove',function(e){ if(!drawing)return; e.preventDefault(); push(e,false); padDraw(); });
+window.addEventListener('pointerup',function(){ drawing=false; });
+document.getElementById('clearBtn').onclick=function(){ strokes=[]; padDraw(); };
 
-/* 儲存/載入（示範用 localStorage；正式版會存進 Firebase）*/
-function saveSig(){ try{ localStorage.setItem('opusz_demo_sig', JSON.stringify(strokes)); }catch(e){} }
-function loadSig(){ try{ return JSON.parse(localStorage.getItem('opusz_demo_sig')||'null'); }catch(e){ return null; } }
+/* 儲存/載入（示範用 localStorage；正式版存進 Firebase）*/
+function saveSig(){ try{ localStorage.setItem('opusz_demo_sig2', JSON.stringify(strokes)); }catch(e){} }
+function loadSig(){ try{ return JSON.parse(localStorage.getItem('opusz_demo_sig2')||'null'); }catch(e){ return null; } }
 document.getElementById('useBtn').onclick=function(){
   if(!strokes.length){ alert('先簽個名吧 ✍️'); return; }
   saveSig(); drawSignature(); document.getElementById('signWrap').scrollIntoView({behavior:'smooth'});
 };
 
-/* ══════════ 3) 顯示區：把錄下的簽名「一筆一筆重播寫出來」══════════ */
-var disp=document.getElementById('sigDisplay'), dctx=disp.getContext('2d');
+/* ══════════ 3) 顯示區：鋼筆墨跡逐筆重播（sig-ink.js）══════════ */
+var disp=document.getElementById('sigDisplay');
 function drawSignature(){
   var sig=strokes.length?strokes:loadSig();
-  if(!sig||!sig.length){ return; }
-  // 對齊：把簽名縮放置中到顯示畫布
-  var xs=[],ys=[]; sig.forEach(function(s){ s.forEach(function(p){ xs.push(p.x); ys.push(p.y); }); });
-  var minx=Math.min.apply(0,xs),maxx=Math.max.apply(0,xs),miny=Math.min.apply(0,ys),maxy=Math.max.apply(0,ys);
-  var W=disp.width,H=disp.height,pad2=40;
-  var sc=Math.min((W-pad2*2)/(maxx-minx||1),(H-pad2*2)/(maxy-miny||1));
-  var ox=(W-(maxx-minx)*sc)/2-minx*sc, oy=(H-(maxy-miny)*sc)/2-miny*sc;
-  var pts=[]; sig.forEach(function(s){ s.forEach(function(p,i){ pts.push({x:p.x*sc+ox,y:p.y*sc+oy,pen:i>0}); }); });
-  dctx.clearRect(0,0,W,H); dctx.lineWidth=3.4*sc/1; dctx.lineCap='round'; dctx.lineJoin='round'; dctx.strokeStyle='#111';
-  var total=pts.length, dur=1800, t0=null;
-  function frame(t){ if(!t0)t0=t; var k=Math.min(1,(t-t0)/dur); var n=Math.floor(k*total);
-    dctx.clearRect(0,0,W,H); dctx.beginPath();
-    for(var i=1;i<n;i++){ if(pts[i].pen){ dctx.moveTo(pts[i-1].x,pts[i-1].y); dctx.lineTo(pts[i].x,pts[i].y);} }
-    dctx.stroke();
-    if(k<1) requestAnimationFrame(frame);
-  }
-  requestAnimationFrame(frame);
+  if(!sig||!sig.length||!window.OPZInk) return;
+  if(disp.__stop) disp.__stop();
+  disp.__stop=window.OPZInk.play(disp, sig, {mode:'fit', pad:0.08, duration:2200});
 }
-window.addEventListener('resize',function(){ padRect=fit(pad); pctx.lineWidth=2.4; pctx.lineCap='round'; pctx.lineJoin='round'; pctx.strokeStyle='#111'; });
+window.addEventListener('resize',padDraw);
 </script>
 </body>
 </html>
