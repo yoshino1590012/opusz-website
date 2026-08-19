@@ -2035,6 +2035,8 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
    public visitors. Admin/dashboard editing uses JS APIs (window.applyProfileConfig
    etc.), not these panels, so nothing admin-side breaks. */
 #martin-photo-editor, #bveToggle, #bvePanel, .bve-toggle, .bve-panel, #mpe-toast { display: none !important; }</style>
+  <!-- 全站跳頁轉場（必須在 <head>：新頁第一次繪製就已經是黑的，才不會閃一下） -->
+  <script src="page-transition.js?v=2"></script>
 </head>
 <body>
 <script src="nav.js?v=19"></script>
@@ -7321,6 +7323,5 @@ window.addEventListener('pageshow', function(e) {
       });
     };
   </script>
-<script src="page-transition.js?v=1"></script>
 </body>
 </html>
