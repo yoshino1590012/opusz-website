@@ -26,8 +26,11 @@
   var REVEAL = 780;   // 掀開(ms)
   var HOLD_MAX = 700; // 新頁最多等多久才開始掀（等它畫好，但不無限等）
   var DRAW = 1150;    // LOGO 一筆畫出來要多久(ms)
-  var DRAW_HOLD = 120;// 畫完停一下
-  var LOGO_FADE = 220;// 標誌淡出
+  var DRAW_HOLD = 160;// 畫完停一下
+  var LOGO_FADE = 560;// 標誌＋毛玻璃一起淡出（要同一個數字才會像「一起消失」）
+  /* 進場「電視開機」：黑幕從中間裂開一條縫、往上下撐開，露出**模糊化的頁面本身**。 */
+  var TV_OPEN = 720;  // 縫撐開到滿版要多久(ms)
+  var DRAW_IN = 460;  // 縫開始撐開後多久才動筆（刻意重疊，不要變成兩件事）
   /* 兩條線用「同一個時間、同一條曲線」→ 一起起步、一起煞車、一起完成（同速度的話短的那條
      185ms 就畫完了，剩下長的自己跑，看起來會像兩件事分開發生）。 */
   /* 慢起步 → 加速 → 煞車。實際進度：時間 20%→畫 6%、40%→29%、50%→50%、60%→71%、80%→94%。
@@ -52,7 +55,25 @@
     + 'height:min(38vmin,320px);width:auto;opacity:1;transition:opacity ' + LOGO_FADE + 'ms ease}'
     + '.opz-pfmark.gone{opacity:0}'
     + '.opz-pfmark mask path{stroke-dasharray:1}'
-    + '.opz-pfmark.draw mask path{transition:stroke-dashoffset ' + DRAW + 'ms ' + EASE_DRAW + ';stroke-dashoffset:0}';
+    + '.opz-pfmark.draw mask path{transition:stroke-dashoffset ' + DRAW + 'ms ' + EASE_DRAW + ';stroke-dashoffset:0}'
+    /* ── 電視開機 ── 上下兩塊黑各佔 51%（多的 1% 是重疊，避免視窗高度是奇數時中線露白）。
+       scaleY 往外側收＝縫從正中間往上下撐開。黑幕自己的底色這時要變透明，
+       否則毛玻璃拿去糊的「背景」會是那塊黑色，糊出來還是全黑。 */
+    + '.opz-pagefade.pf-tv{background:transparent}'
+    + '.opz-tv{position:absolute;left:0;width:100%;height:51%;background:#000;'
+    + 'will-change:transform;backface-visibility:hidden}'
+    + '.opz-tv-t{top:0;transform-origin:50% 0}'
+    + '.opz-tv-b{bottom:0;transform-origin:50% 100%}'
+    + '.opz-pagefade.pf-open .opz-tv{transform:scaleY(0);transition:transform ' + TV_OPEN + 'ms ' + EASE_OUT + '}'
+    /* 毛玻璃：糊的是**頁面本身**（backdrop-filter），不是一張圖。壓暗是為了讓白色標誌有對比。 */
+    + '.opz-glass{position:absolute;left:0;top:0;width:100%;height:100%;opacity:1;'
+    + 'background:rgba(0,0,0,.20);will-change:opacity;'
+    + '-webkit-backdrop-filter:blur(30px) brightness(.42) saturate(.9);'
+    + 'backdrop-filter:blur(30px) brightness(.42) saturate(.9);'
+    + 'transition:opacity ' + LOGO_FADE + 'ms ease}'
+    + '@supports not ((backdrop-filter:blur(2px)) or (-webkit-backdrop-filter:blur(2px)))'
+    + '{.opz-glass{background:rgba(0,0,0,.72)}}'      // 不支援毛玻璃就只壓暗，不會壞掉
+    + '.opz-glass.gone{opacity:0}';
   (document.head || document.documentElement).appendChild(st);
 
   /* 掛在 <html> 底下，body 還沒解析出來就能存在＝新頁第一幀就蓋著，不會閃 */
@@ -139,30 +160,50 @@
     return svg;
   }
 
-  /* ── 直接進站/重新整理：黑幕上把標誌一筆畫出來，畫完才掀開 ── */
+  /* ── 直接進站/重新整理：電視開機 → 模糊背景上把標誌一筆畫出來 → 標誌和毛玻璃一起淡出 ──
+     順序（仿 pedestal.com）：
+       ① 全黑（第一幀就黑，不會閃）
+       ② 中間裂一條縫、往上下撐開 → 露出的是**這一頁自己**，但被毛玻璃糊掉＋壓暗
+       ③ 縫快撐滿時開始動筆，標誌畫在毛玻璃上
+       ④ 畫完停一下 → **標誌和毛玻璃同時淡出**，頁面就地變清晰（不再往上掀黑幕）
+     ②之前會先等頁面畫好（最多 HOLD_MAX），因為毛玻璃糊的是頁面本身，
+     頁面還沒畫出來就開，會糊到一片空白。 */
   if (intro) {
-    var mark = mountMark();
-    var lifted = false;
-    var lift = function () {
-      if (lifted) return; lifted = true;
+    var glass = document.createElement('div'); glass.className = 'opz-glass';
+    var tvT = document.createElement('div'); tvT.className = 'opz-tv opz-tv-t';
+    var tvB = document.createElement('div'); tvB.className = 'opz-tv opz-tv-b';
+    fade.appendChild(glass); fade.appendChild(tvT); fade.appendChild(tvB);
+    fade.classList.add('pf-tv');       // 黑幕自己的底色交給上下兩塊，本體透明
+    var mark = mountMark();            // 標誌疊在最上層
+
+    var done = false;
+    var finish = function () {         // ④ 標誌 + 毛玻璃一起走
+      if (done) return; done = true;
       mark.classList.add('gone');
+      glass.classList.add('gone');
       setTimeout(function () {
-        sync();
-        fade.classList.add('pf-out');
-        void fade.offsetWidth;
-        fade.classList.remove('pf-cover');
-        fade.classList.add('pf-up');
-        setTimeout(function () { fade.className = 'opz-pagefade'; if (mark.parentNode) mark.parentNode.removeChild(mark); }, REVEAL + 120);
-      }, LOGO_FADE - 60);
+        fade.className = 'opz-pagefade';                 // 復位，之後的跳頁轉場照常用
+        while (fade.firstChild) fade.removeChild(fade.firstChild);
+      }, LOGO_FADE + 80);
     };
-    setTimeout(function () { mark.classList.add('draw'); }, 120);          // 開始畫
-    var afterDraw = 120 + DRAW + DRAW_HOLD;
-    if (document.readyState === 'complete') setTimeout(lift, afterDraw);
-    else {
-      window.addEventListener('load', function () { setTimeout(lift, 80); }, { once: true });
-      setTimeout(lift, afterDraw);                                          // 畫完就走，不等超慢的資源
-    }
-    setTimeout(lift, afterDraw + 1500);                                     // 最後保險
+
+    var opened = false;
+    var openTv = function () {         // ② 撐開 → ③ 動筆
+      if (opened) return; opened = true;
+      try { window.__opzHoldCurtain = false; } catch (e) {}
+      sync();
+      fade.classList.add('pf-open');
+      setTimeout(function () { mark.classList.add('draw'); }, DRAW_IN);
+      setTimeout(finish, DRAW_IN + DRAW + DRAW_HOLD);
+    };
+
+    /* 某些頁會自己壓住開場（__opzHoldCurtain），準備好再叫 __opzRevealCurtain() */
+    window.__opzRevealCurtain = openTv;
+    var autoOpen = function () { if (!window.__opzHoldCurtain) openTv(); };
+    if (document.readyState === 'complete') setTimeout(autoOpen, 60);
+    else window.addEventListener('load', function () { setTimeout(autoOpen, 40); }, { once: true });
+    setTimeout(autoOpen, HOLD_MAX);    // 一般保險：頁面太慢就先開
+    setTimeout(openTv, 3000);          // 絕對保險：永遠不會黑超過 3 秒
   }
 
   /* ── 進場：黑幕已經蓋著 → 等頁面畫好（最多 HOLD_MAX）→ 往上掀開 ── */
