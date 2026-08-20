@@ -29,8 +29,8 @@
   var DRAW_HOLD = 160;// 畫完停一下
   var LOGO_FADE = 560;// 標誌＋毛玻璃一起淡出（要同一個數字才會像「一起消失」）
   /* 進場「電視開機」：黑幕從中間裂開一條縫、往上下撐開，露出**模糊化的頁面本身**。 */
-  var TV_OPEN = 720;  // 縫撐開到滿版要多久(ms)
-  var DRAW_IN = 460;  // 縫開始撐開後多久才動筆（刻意重疊，不要變成兩件事）
+  var TV_OPEN = 1100; // 縫撐開到滿版要多久(ms)
+  var DRAW_IN = 780;  // 縫開始撐開後多久才動筆（刻意重疊，不要變成兩件事）
   /* 兩條線用「同一個時間、同一條曲線」→ 一起起步、一起煞車、一起完成（同速度的話短的那條
      185ms 就畫完了，剩下長的自己跑，看起來會像兩件事分開發生）。 */
   /* 慢起步 → 加速 → 煞車。實際進度：時間 20%→畫 6%、40%→29%、50%→50%、60%→71%、80%→94%。
@@ -38,6 +38,10 @@
   var EASE_DRAW = 'cubic-bezier(.55,0,.45,1)';
   var EASE_IN = 'cubic-bezier(.5,0,.9,.35)';    // 慢起步→加速，結尾不減速
   var EASE_OUT = 'cubic-bezier(.16,1,.3,1)';    // 延續高速→長長地減速（仿範本的指數衰減）
+  /* 縫撐開跟畫筆用**同一種默契**：慢起步→加速→慢慢煞車，才有「被一格一格打開」的感覺。
+     這裡不能用 EASE_OUT——它時間才走 10%、縫就已經開了 49%，看起來就是「咻」一下彈開。
+     這條的實際進度：時間 10%→開 0%、20%→4%、30%→12%、50%→50%、70%→87%、85%→97%。 */
+  var EASE_TV = 'cubic-bezier(.6,0,.4,1)';
 
   var reduce = false;
   try { reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
@@ -64,7 +68,7 @@
     + 'will-change:transform;backface-visibility:hidden}'
     + '.opz-tv-t{top:0;transform-origin:50% 0}'
     + '.opz-tv-b{bottom:0;transform-origin:50% 100%}'
-    + '.opz-pagefade.pf-open .opz-tv{transform:scaleY(0);transition:transform ' + TV_OPEN + 'ms ' + EASE_OUT + '}'
+    + '.opz-pagefade.pf-open .opz-tv{transform:scaleY(0);transition:transform ' + TV_OPEN + 'ms ' + EASE_TV + '}'
     /* 毛玻璃：糊的是**頁面本身**（backdrop-filter），不是一張圖。壓暗是為了讓白色標誌有對比。 */
     + '.opz-glass{position:absolute;left:0;top:0;width:100%;height:100%;opacity:1;'
     + 'background:rgba(0,0,0,.20);will-change:opacity;'
