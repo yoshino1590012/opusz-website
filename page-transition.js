@@ -163,6 +163,7 @@
     var revealed = false;
     var reveal = function () {
       if (revealed) return; revealed = true;
+      try { window.__opzHoldCurtain = false; } catch (e) {}
       sync();
       fade.classList.add('pf-out');
       void fade.offsetWidth;
@@ -170,10 +171,17 @@
       fade.classList.add('pf-up');
       setTimeout(function () { fade.className = 'opz-pagefade'; }, REVEAL + 120);
     };
-    var kick = function () { setTimeout(reveal, 40); };
+    /* A page can DEFER the lift until its own content is ready — e.g. the musician
+       profile waits for the hero photo + name so the curtain never opens onto a grey,
+       name-less hero. It sets window.__opzHoldCurtain=true (before this file runs) and
+       calls window.__opzRevealCurtain() the instant it's ready. */
+    window.__opzRevealCurtain = reveal;
+    var auto = function () { if (!window.__opzHoldCurtain) reveal(); };   // skip while a page is holding
+    var kick = function () { setTimeout(auto, 40); };
     if (document.readyState === 'complete') kick();
     else window.addEventListener('load', kick, { once: true });
-    setTimeout(reveal, HOLD_MAX);                        // 保險：頁面再慢也不會一直黑著
+    setTimeout(auto, HOLD_MAX);      // normal safety — only fires if nobody is holding
+    setTimeout(reveal, 4000);        // ABSOLUTE safety: never stay black > 4s, even if a holder never releases
   }
 
   /* ── 離場：蓋滿的「同一瞬間」換頁，中間不留空檔 ── */

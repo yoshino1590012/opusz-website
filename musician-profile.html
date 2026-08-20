@@ -2025,7 +2025,16 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     try{
       if(window.__opuszIsRealProfile){   // ?uid= OR /musician/<slug>
         document.documentElement.classList.add('prof-pending');
-        setTimeout(function(){ document.documentElement.classList.remove('prof-pending'); if(window.__startHeroIntro) window.__startHeroIntro(); }, 5000);
+        // Hold the page-transition black curtain: don't let it auto-lift on a timer.
+        // Our reveal() lifts it the instant the hero photo + name are ready, so the
+        // curtain never opens onto a grey / nameless hero. page-transition.js keeps a
+        // 4s absolute safety and this 5s net, so it can never stay black forever.
+        window.__opzHoldCurtain = true;
+        setTimeout(function(){
+          document.documentElement.classList.remove('prof-pending');
+          if(window.__startHeroIntro) window.__startHeroIntro();
+          if(window.__opzRevealCurtain) window.__opzRevealCurtain();
+        }, 5000);
       }
     }catch(e){}
   })();
@@ -2036,7 +2045,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
    etc.), not these panels, so nothing admin-side breaks. */
 #martin-photo-editor, #bveToggle, #bvePanel, .bve-toggle, .bve-panel, #mpe-toast { display: none !important; }</style>
   <!-- 全站跳頁轉場（必須在 <head>：新頁第一次繪製就已經是黑的，才不會閃一下） -->
-  <script src="page-transition.js?v=17"></script>
+  <script src="page-transition.js?v=18"></script>
 </head>
 <body>
 <script src="nav.js?v=19"></script>
@@ -4430,6 +4439,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     if (window.fitHeroName) window.fitHeroName();             // real font is in → re-measure to fit
     document.documentElement.classList.remove('prof-pending');
     if (window.__startHeroIntro) window.__startHeroIntro();   // play the intro now that photo + name are ready
+    if (window.__opzRevealCurtain) window.__opzRevealCurtain(); // lift the transition curtain in the SAME frame → photo + name appear together
   };
   const bannerUrl = (p) => {
     const m = p && p.config && p.config.hero && p.config.hero.media;
