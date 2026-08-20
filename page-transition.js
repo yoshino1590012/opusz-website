@@ -25,10 +25,14 @@
   var COVER = 420;    // 蓋上去(ms)
   var REVEAL = 780;   // 掀開(ms)
   var HOLD_MAX = 700; // 新頁最多等多久才開始掀（等它畫好，但不無限等）
-  var DRAW = 1000;    // LOGO 一筆畫出來要多久(ms)
+  var DRAW = 1150;    // LOGO 一筆畫出來要多久(ms)
   var DRAW_HOLD = 120;// 畫完停一下
   var LOGO_FADE = 220;// 標誌淡出
-  var STEM_RATIO = 0.185;  // 短的那條線長度 ≈ 主線的 18.5% → 同速度所以時間也照比例
+  /* 兩條線用「同一個時間、同一條曲線」→ 一起起步、一起煞車、一起完成（同速度的話短的那條
+     185ms 就畫完了，剩下長的自己跑，看起來會像兩件事分開發生）。 */
+  /* 慢起步 → 加速 → 煞車。實際進度：時間 20%→畫 6%、40%→29%、50%→50%、60%→71%、80%→94%。
+     （更誇張的 .78,0,.22,1 前 25% 只畫 5%，看起來會像卡住，所以收斂到這條。） */
+  var EASE_DRAW = 'cubic-bezier(.55,0,.45,1)';
   var EASE_IN = 'cubic-bezier(.5,0,.9,.35)';    // 慢起步→加速，結尾不減速
   var EASE_OUT = 'cubic-bezier(.16,1,.3,1)';    // 延續高速→長長地減速（仿範本的指數衰減）
 
@@ -48,8 +52,7 @@
     + 'height:min(38vmin,320px);width:auto;opacity:1;transition:opacity ' + LOGO_FADE + 'ms ease}'
     + '.opz-pfmark.gone{opacity:0}'
     + '.opz-pfmark mask path{stroke-dasharray:1;stroke-dashoffset:1}'
-    + '.opz-pfmark.draw #opzPfA{transition:stroke-dashoffset ' + DRAW + 'ms cubic-bezier(.62,.02,.3,1);stroke-dashoffset:0}'
-    + '.opz-pfmark.draw #opzPfB{transition:stroke-dashoffset ' + Math.round(DRAW * STEM_RATIO) + 'ms cubic-bezier(.62,.02,.3,1);stroke-dashoffset:0}';
+    + '.opz-pfmark.draw mask path{transition:stroke-dashoffset ' + DRAW + 'ms ' + EASE_DRAW + ';stroke-dashoffset:0}';
   (document.head || document.documentElement).appendChild(st);
 
   /* 掛在 <html> 底下，body 還沒解析出來就能存在＝新頁第一幀就蓋著，不會閃 */
