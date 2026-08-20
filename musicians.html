@@ -730,7 +730,7 @@ function setHero(){
     // (stored in Firestore siteContent/musicians → window.__musCms.hero).
     var h = (window.__musCms && window.__musCms.hero) || {};
     title = currentLang==='zh'
-      ? ((h.titleZh!=null && h.titleZh!=='') ? h.titleZh : '藝術家')
+      ? ((h.titleZh!=null && h.titleZh!=='') ? h.titleZh : '音樂家')
       : ((h.titleEn!=null && h.titleEn!=='') ? h.titleEn : 'Artists');
     // Subtitle removed on the All page (kept overridable via the admin CMS).
     sub   = currentLang==='zh'
