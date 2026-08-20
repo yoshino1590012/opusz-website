@@ -445,8 +445,8 @@ html,body{scrollbar-width:none;-ms-overflow-style:none;}html::-webkit-scrollbar,
       <span>›</span>
       <span id="heroBreCat">All</span>
     </div>
-    <h1 class="hero-title" id="heroTitle">Musicians for Hire</h1>
-    <p class="hero-sub" id="heroSub">Find world-class musicians for your event, recording, or project.</p>
+    <h1 class="hero-title" id="heroTitle">Artists</h1>
+    <p class="hero-sub" id="heroSub" style="display:none"></p>
     <div class="hero-search-wrap">
       <input class="hero-search" type="text" id="searchInput" placeholder="Search musicians...">
       <button class="hero-search-btn" onclick="doSearch()" id="searchBtn">Search</button>
@@ -730,16 +730,19 @@ function setHero(){
     // (stored in Firestore siteContent/musicians → window.__musCms.hero).
     var h = (window.__musCms && window.__musCms.hero) || {};
     title = currentLang==='zh'
-      ? ((h.titleZh!=null && h.titleZh!=='') ? h.titleZh : '尋找音樂家')
-      : ((h.titleEn!=null && h.titleEn!=='') ? h.titleEn : 'Musicians for Hire');
+      ? ((h.titleZh!=null && h.titleZh!=='') ? h.titleZh : '藝術家')
+      : ((h.titleEn!=null && h.titleEn!=='') ? h.titleEn : 'Artists');
+    // Subtitle removed on the All page (kept overridable via the admin CMS).
     sub   = currentLang==='zh'
-      ? ((h.subZh!=null && h.subZh!=='') ? h.subZh : '為您的活動、錄音或計劃尋找世界級音樂家。')
-      : ((h.subEn!=null && h.subEn!=='') ? h.subEn : 'Find world-class musicians for your event, recording, or project.');
+      ? ((h.subZh!=null && h.subZh!=='') ? h.subZh : '')
+      : ((h.subEn!=null && h.subEn!=='') ? h.subEn : '');
     bg    = '#1a1a2e';
     document.getElementById('heroBreCat').textContent = currentLang==='zh' ? '所有' : 'All';
   }
   document.getElementById('heroTitle').textContent = title;
-  document.getElementById('heroSub').textContent = sub;
+  var _subEl = document.getElementById('heroSub');
+  _subEl.textContent = sub;
+  _subEl.style.display = sub ? '' : 'none';   // hide the subtitle line entirely when empty
   document.getElementById('heroBg').style.background = 'linear-gradient(135deg, ' + bg + ' 0%, #0a0a0a 100%)';
   document.getElementById('searchInput').placeholder = currentLang==='zh' ? '搜尋音樂家...' : 'Search musicians...';
 }
