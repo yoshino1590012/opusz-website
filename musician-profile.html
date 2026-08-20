@@ -2045,7 +2045,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
    etc.), not these panels, so nothing admin-side breaks. */
 #martin-photo-editor, #bveToggle, #bvePanel, .bve-toggle, .bve-panel, #mpe-toast { display: none !important; }</style>
   <!-- 全站跳頁轉場（必須在 <head>：新頁第一次繪製就已經是黑的，才不會閃一下） -->
-  <script src="page-transition.js?v=18"></script>
+  <script src="page-transition.js?v=19"></script>
 </head>
 <body>
 <script src="nav.js?v=19"></script>
@@ -2146,7 +2146,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     @media (prefers-reduced-motion:reduce){ .sig-quote .ci{transition:none;transform:none;opacity:1} }
     .sig-mark{align-self:flex-end;display:flex;flex-direction:column;align-items:flex-end;gap:8px}   /* 右下角，仿 Max Milkin */
     .sig-canvas{width:min(300px,66vw);height:auto;aspect-ratio:3/2}
-    .sig-name{font-size:11px;letter-spacing:.32em;color:#9a9a92;text-transform:uppercase}
+    .sig-name{display:none;font-size:11px;letter-spacing:.32em;color:#9a9a92;text-transform:uppercase} /* 簽名下方的小灰字（姓名）隱藏 2026-08-20 */
   </style>
   <script src="sig-ink.js?v=5"></script>
   <section class="sig-block" id="sigBlock" style="display:none">
