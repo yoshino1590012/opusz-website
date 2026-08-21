@@ -2867,7 +2867,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
    JS APIs (window.opzEdit etc.), not these panels, so nothing admin-side breaks. */
 #photo-editor, #vid-editor, #re-drawer { display: none !important; }</style>
   <!-- 全站跳頁轉場（必須在 <head>：新頁第一次繪製就已經是黑的，才不會閃一下） -->
-  <script src="page-transition.js?v=21"></script>
+  <script src="page-transition.js?v=22"></script>
 </head>
 <body>
 
@@ -4240,32 +4240,39 @@ window.__hhResplitHeadline = function(){
   }
 };
 
-// Reveal the big headline's words ONE AT A TIME, from the bottom line up (CLOSER →
-// MUSIC → BRINGING): each word rises from just below with a fade, and the last word
-// (bottom-most line) leads. Called by revealHeroContent() on first load and by
+// Reveal the big headline's words ONE AT A TIME, TOP LINE FIRST (BRINGING → MUSIC →
+// CLOSER): each word floats up from below, fading in and coming out of a blur. The whole
+// hero reads top-to-bottom, so the headline has to lead in the same direction as the
+// subtitle and buttons that follow it. Called by revealHeroContent() on first load and by
 // __hhResplitHeadline() after a mid-view language switch. animate=false (or reduced
 // motion) just pins everything visible with no motion.
-window.__revealHeadlineWords = function(hEl, animate){
-  if(!hEl) return;
+// opts (from revealHeroContent) keeps the timing in ONE place for the whole hero;
+// returns how many stagger slots it used, so the caller can queue up behind it.
+window.__revealHeadlineWords = function(hEl, animate, opts){
+  if(!hEl) return 0;
   var words = hEl.querySelectorAll('.hh-word-inner');
-  if(!words.length) return;
+  if(!words.length) return 0;
   hEl.style.setProperty('opacity','1','important');
   hEl.style.setProperty('transform','none','important');
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var N = words.length, STEP = 155, DUR = 820, RISE = 'translateY(48px)';
-  var EASE = 'cubic-bezier(0.22, 1, 0.36, 1)';   // ease-out — smooth glide into place
+  var o = opts || {};
+  var STEP = o.step || 165, DUR = o.dur || 1100, RISE = (o.rise || 46) + 'px', BLUR = (o.blur == null ? 10 : o.blur);
+  var EASE = o.ease || 'cubic-bezier(.4,0,.15,1)';
+  var N = words.length;
   Array.prototype.forEach.call(words, function(inner, i){
-    var delay = (N - 1 - i) * STEP;    // last word (bottom line) → 0ms → leads
-    function lock(){ inner.style.transition = 'none'; inner.style.setProperty('opacity','1','important'); inner.style.setProperty('transform','translateY(0px)','important'); }
+    var delay = i * STEP;              // first word (top line) → 0ms → leads
+    function lock(){ inner.style.transition = 'none'; inner.style.filter = ''; inner.style.setProperty('opacity','1','important'); inner.style.setProperty('transform','translateY(0px)','important'); }
     if(!animate || reduce || !inner.animate){ lock(); return; }
     inner.style.transition = 'none';
     var a = inner.animate(
-      [ { opacity: 0, transform: RISE }, { opacity: 1, transform: 'translateY(0px)' } ],
+      [ { opacity: 0, transform: 'translateY(' + RISE + ')', filter: 'blur(' + BLUR + 'px)' },
+        { opacity: 1, transform: 'translateY(0px)',          filter: 'blur(0px)' } ],
       { duration: DUR, delay: delay, easing: EASE, fill: 'both' }
     );
     a.onfinish = lock;
     setTimeout(lock, delay + DUR + 300);   // safety net if onfinish never fires
   });
+  return N;
 };
 
 function switchLang(lang) {
@@ -4748,70 +4755,93 @@ function applyColRatios() {
   function revealHeroContent() {
     var _ov = document.getElementById('hcCardOverlay');
     if (!_ov) return;
-    // NOTE: do NOT add 'hco-visible' here — its CSS transition reveal fights the
-    // keyframe animation below and causes a visible flash on the later items
-    // (buttons / brand). The keyframe alone owns the reveal.
-    //
-    // Taylor-Designer-style entrance: everything animates AT ONCE (no stagger) with a
-    // slow→fast→slow ease. Headline drops IN from above, subtitle rises from below; the
-    // two buttons split (one up, one down); the brand keeps its rise-from-below. The
-    // converging directions read as one cohesive, high-end motion.
-    var EASE = 'cubic-bezier(0.76, 0, 0.24, 1)';   // ease-in-out (slow → fast → slow)
-    var DUR  = 900;
-    var DN = 'translateY(-52px)', UP = 'translateY(52px)', Z = 'translateY(0px)';
-    // The buttons live inside .hco-btns — reveal the container so its children (which we
-    // animate individually, in opposite directions) actually show.
-    var _btns = _ov.querySelector('.hco-btns');
-    if (_btns) { _btns.style.setProperty('opacity','1','important'); _btns.style.setProperty('transform','none','important'); }
-    // Big headline: reveal WORD-BY-WORD from the bottom line up (CLOSER → MUSIC →
-    // BRINGING) rather than dropping in as one block. Split first (config i18n may have
-    // re-set the text after load, rebuilding the spans), mark the hero revealed, then
-    // play the staggered word entrance. Handled here instead of in `items` below.
     if (typeof window.__hhResplitHeadline === 'function') { try { window.__hhResplitHeadline(); } catch(e){} }
     window.__heroContentRevealed = true;
+
+    /* Hero 進場（Martin 2026-08-20）：**由上往下依序**浮現 —— 標題三行 → 副標 → 兩顆按鈕 →
+       品牌字。每一個都是「從下面一點飄上來 + 從模糊變清晰 + 從透明淡入」，然後定格。
+       重點是**慢**：一個元素走 1.1 秒，彼此差 165ms，所以看得出來是一個一個上來的。
+       曲線用 ease-in-out（慢起步→加速→慢慢煞車），跟開場那條縫同一種默契；
+       不要用 .16,1,.3,1 那種一開始就衝到底的，會變成「彈」上來而不是「浮」上來。 */
+    var EASE = 'cubic-bezier(.4,0,.15,1)';
+    var DUR  = 1100;   // 單一元素浮上來要多久
+    var STEP = 165;    // 上下相鄰兩個元素差多久
+    var RISE = 46;     // 從下方多遠飄上來(px)
+    var BLUR = 10;     // 起始模糊(px)
+
+    // 按鈕的外框容器本身不做動畫（裡面兩顆各自做），先讓它可見
+    var _btns = _ov.querySelector('.hco-btns');
+    if (_btns) { _btns.style.setProperty('opacity','1','important'); _btns.style.setProperty('transform','none','important'); }
+
+    // ① 標題：逐行由上往下。回傳用掉幾個節拍，後面的東西接著排。
+    var slot = 0;
     var _hEl = _ov.querySelector('.hco-headline');
-    if (_hEl && typeof window.__revealHeadlineWords === 'function') window.__revealHeadlineWords(_hEl, true);
-    // [selector, fromTransform, toTransform, isButton(hover-sensitive → clear inline transform after)]
+    if (_hEl && typeof window.__revealHeadlineWords === 'function') {
+      slot = window.__revealHeadlineWords(_hEl, true, { step: STEP, dur: DUR, rise: RISE, blur: BLUR, ease: EASE }) || 0;
+    }
+
+    // ② 副標 → ③ 兩顆按鈕 → ④ 品牌字。[選擇器, 節拍偏移, from, to, 是不是按鈕]
+    //   按鈕差半拍就好，兩顆是一組，不要拉開太明顯。
+    //   品牌字用 translateX(-50%) 定位，位移要連著寫，不然會被推到旁邊去。
+    var Z = 'translateY(0px)', UP = 'translateY(' + RISE + 'px)';
     var items = [
-      ['.hco-sub',      UP, Z, false],                                                              // ↑ from bottom
-      ['.hco-btn-pri',  UP, Z, true],                                                               // ↑ from bottom
-      ['.hco-btn-out',  DN, Z, true],                                                               // ↓ from top
-      ['.hco-brand',    'translateX(-50%) translateY(52px)', 'translateX(-50%) translateY(0px)', false]  // ↑ keep
+      ['.hco-sub',     0,   UP, Z, false],
+      ['.hco-btn-pri', 1,   UP, Z, true ],
+      ['.hco-btn-out', 1.6, UP, Z, true ],
+      ['.hco-brand',   2.6, 'translateX(-50%) translateY(' + RISE + 'px)', 'translateX(-50%) translateY(0px)', false]
     ];
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     items.forEach(function(it){
       var el = _ov.querySelector(it[0]); if(!el) return;
-      var clearT = it[3];
+      var delay = (slot + it[1]) * STEP;
+      var isBtn = it[4];
       el.style.transition = 'none';
       var a = null;
       function lockIn(){
+        el.style.filter = '';
         el.style.setProperty('opacity','1','important');
-        if (clearT) {
-          // Buttons have a :hover transform — cancel the filled animation and drop the
-          // inline transform so hover works again; opacity stays pinned visible.
+        if (isBtn) {
+          // 按鈕有 :hover 的 transform／scale — 動畫收掉、把 inline transform 清掉，
+          // hover 才會恢復正常；opacity 釘在可見。
           if (a) { try { a.cancel(); } catch(e){} }
           el.style.setProperty('opacity','1','important');
           el.style.transform = '';
         } else {
-          el.style.setProperty('transform', it[2], 'important');
+          el.style.setProperty('transform', it[3], 'important');
         }
       }
-      if (el.animate) {
+      if (el.animate && !reduce) {
         a = el.animate(
-          [ { opacity: 0, transform: it[1] }, { opacity: 1, transform: it[2] } ],
-          { duration: DUR, delay: 0, easing: EASE, fill: 'both' }
+          [ { opacity: 0, transform: it[2], filter: 'blur(' + BLUR + 'px)' },
+            { opacity: 1, transform: it[3], filter: 'blur(0px)' } ],
+          { duration: DUR, delay: delay, easing: EASE, fill: 'both' }
         );
-        a.onfinish = lockIn;            // guarantee final visible state after the fade
-        setTimeout(lockIn, DUR + 250);  // safety net if onfinish never fires
+        a.onfinish = lockIn;                    // 保證動畫結束後停在可見狀態
+        setTimeout(lockIn, delay + DUR + 250);  // onfinish 沒觸發時的保險
       } else {
         lockIn();
       }
     });
   }
 
+  /* 什麼時候播？
+     直接進站／重新整理會先跑 LOGO 開場（page-transition.js 會把 window.__opzIntroPlaying
+     設成 true）。那時候整頁蓋著毛玻璃，內容在後面自己演完就等於沒演過 → 所以要等
+     'opz:intro-done'（毛玻璃快退乾淨時發出）才開始。站內點連結過來沒有開場，就照舊直接播。 */
+  function startHeroContent(){
+    if (window.__heroContentRevealed) return;
+    if (window.__opzIntroPlaying) {
+      document.addEventListener('opz:intro-done', function(){ revealHeroContent(); }, { once: true });
+      setTimeout(function(){ revealHeroContent(); }, 7000);   // 保險：開場壞掉也不會永遠空白
+    } else {
+      revealHeroContent();
+    }
+  }
+
   if (!introEl) {
     // bfcache / already removed — reveal immediately
     revealHero();
-    setTimeout(revealHeroContent, 250);
+    setTimeout(startHeroContent, 250);
     return;
   }
 
@@ -4831,9 +4861,8 @@ function applyColRatios() {
     setTimeout(() => {
       try { introEl.remove(); } catch(e){}
     }, 800);
-    // Start the text entrance ~50% earlier (was 820ms) — it now begins while the black
-    // panel is still sliding away, so the hero doesn't feel like it pauses before moving.
-    setTimeout(revealHeroContent, 410);
+    // 交給 startHeroContent 判斷：有 LOGO 開場就等毛玻璃退開，沒有就直接播。
+    setTimeout(startHeroContent, 410);
   }, 220);   // 原本 1600（舊進場停留時間）；舊面板已隱藏，這裡只留 hero 進場的觸發
 })();
 

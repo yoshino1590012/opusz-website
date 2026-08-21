@@ -87,6 +87,23 @@
   function ss(k, v) { try { return v === undefined ? sessionStorage.getItem(k) : sessionStorage.setItem(k, v); } catch (e) { return null; } }
   var covered = !reduce && ss('opz_pf') === '1';        // 站內點連結過來的
   var intro = !reduce && !covered;   // 只要不是站內點連結過來的（＝直接進站/重新整理）就播 LOGO 進場
+  /* 讓頁面知道「現在有東西擋著」→ 頁面內容的進場動畫要等擋的東西退開才播，
+     不然它會在毛玻璃／黑幕後面自己演完，掀開時已經定格＝看起來完全沒有進場。
+     擋的東西快退乾淨時會發出 'opz:intro-done'。開場（毛玻璃）跟跳頁（黑幕）都算。
+     這支在 <head> 同步執行，所以頁面自己的 script 讀得到這個旗標。 */
+  try { window.__opzIntroPlaying = intro || covered; } catch (e) {}
+
+  /* 對頁面廣播：擋著的東西退開了，換你進場。 */
+  var _told = false;
+  function introDone() {
+    if (_told) return; _told = true;
+    try { window.__opzIntroPlaying = false; } catch (e) {}
+    try { document.dispatchEvent(new CustomEvent('opz:intro-done')); }
+    catch (e) {                                   // 老瀏覽器沒有 CustomEvent 建構式
+      try { var ev = document.createEvent('Event'); ev.initEvent('opz:intro-done', true, false); document.dispatchEvent(ev); } catch (e2) {}
+    }
+  }
+  if (intro || covered) setTimeout(introDone, 6000);   // 保險：頁面內容永遠不會被卡住
   if (covered || intro) fade.classList.add('pf-cover'); // 一出生就蓋滿（無動畫）
   document.documentElement.appendChild(fade);
   try { sessionStorage.removeItem('opz_pf'); } catch (e) {}
@@ -185,6 +202,9 @@
       if (done) return; done = true;
       mark.classList.add('gone');
       glass.classList.add('gone');
+      /* 毛玻璃快退乾淨時（剩最後 120ms）通知頁面「換你進場」。不等它 100% 退完是
+         為了不要出現一個空白的停頓；這時毛玻璃已經淡掉約 8 成，文字浮上來剛好接得住。 */
+      setTimeout(introDone, Math.max(0, LOGO_FADE - 120));
       setTimeout(function () {
         fade.className = 'opz-pagefade';                 // 復位，之後的跳頁轉場照常用
         while (fade.firstChild) fade.removeChild(fade.firstChild);
@@ -221,6 +241,9 @@
       void fade.offsetWidth;
       fade.classList.remove('pf-cover');
       fade.classList.add('pf-up');
+      /* 黑幕往上掀到一半就通知頁面進場——這時畫面中下段已經露出來了，
+         文字浮上來的過程剛好被看見，不會等到全部掀完才開始。 */
+      setTimeout(introDone, Math.round(REVEAL * 0.45));
       setTimeout(function () { fade.className = 'opz-pagefade'; }, REVEAL + 120);
     };
     /* A page can DEFER the lift until its own content is ready — e.g. the musician
