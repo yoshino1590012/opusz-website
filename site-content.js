@@ -293,7 +293,17 @@ function applyHeroTextOverride(map){
     var o  = t[row[0]] || {};
     var ov = (lang === 'zh') ? o.zh : o.en;                 // this device's override
     var val = (ov != null && ov !== '') ? ov : dict[row[0]]; // else the shared base text
-    if (val != null) el.textContent = val;
+    if (val == null || el.textContent === val) return;      // 同一段字就別重寫（見下方）
+    el.textContent = val;
+    /* 大標題會被拆成一個個 <span> 來做進場動畫；寫 textContent 會把那些 span 整個洗掉。
+       這裡本來每次都無條件重寫（就算字一模一樣），時機又剛好卡在進場動畫開始之後 →
+       span 被洗掉、動畫失去對象，只剩下容器上被釘住的 opacity:1，
+       結果標題就「直接站在那裡」，然後才輪到副標和按鈕慢慢浮上來。
+       所以：字沒變就不要動它；真的變了就重新拆一次（__hhResplitHeadline 會自己判斷
+       要維持隱藏等進場、還是直接定在已顯示的狀態）。 */
+    if (row[1] === '.hco-headline' && typeof window.__hhResplitHeadline === 'function') {
+      try { window.__hhResplitHeadline(); } catch(e){}
+    }
   });
 }
 

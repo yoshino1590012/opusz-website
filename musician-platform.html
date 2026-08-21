@@ -4753,6 +4753,7 @@ function applyColRatios() {
   // title -> subtitle -> buttons -> brand, in order. Uses a keyframe animation
   // (reliable) because the .hco-visible transition reveal gets stuck at opacity 0.
   function revealHeroContent() {
+    if (window.__heroContentRevealed) return;   // 只准演一次（見 startHeroContent 的兩條觸發線）
     var _ov = document.getElementById('hcCardOverlay');
     if (!_ov) return;
     if (typeof window.__hhResplitHeadline === 'function') { try { window.__hhResplitHeadline(); } catch(e){} }
@@ -4771,29 +4772,46 @@ function applyColRatios() {
 
     // 按鈕的外框容器本身不做動畫（裡面兩顆各自做），先讓它可見
     var _btns = _ov.querySelector('.hco-btns');
-    if (_btns) { _btns.style.setProperty('opacity','1','important'); _btns.style.setProperty('transform','none','important'); }
-
-    // ① 標題：逐行由上往下。回傳用掉幾個節拍，後面的東西接著排。
-    var slot = 0;
-    var _hEl = _ov.querySelector('.hco-headline');
-    if (_hEl && typeof window.__revealHeadlineWords === 'function') {
-      slot = window.__revealHeadlineWords(_hEl, true, { step: STEP, dur: DUR, rise: RISE, blur: BLUR, ease: EASE }) || 0;
+    if (_btns) {
+      // transition:none 先關掉——這個容器 CSS 上帶著 opacity .45s ease 320ms，
+      // 不關掉的話它會自己再淡一次，跟裡面兩顆按鈕各自的進場疊在一起。
+      _btns.style.transition = 'none';
+      _btns.style.setProperty('opacity','1','important');
+      _btns.style.setProperty('transform','none','important');
     }
 
+    var Z = 'translateY(0px)', UP = 'translateY(' + RISE + 'px)';
     // ② 副標 → ③ 兩顆按鈕 → ④ 品牌字。[選擇器, 節拍偏移, from, to, 是不是按鈕]
     //   按鈕差半拍就好，兩顆是一組，不要拉開太明顯。
     //   品牌字用 translateX(-50%) 定位，位移要連著寫，不然會被推到旁邊去。
-    var Z = 'translateY(0px)', UP = 'translateY(' + RISE + 'px)';
     var items = [
       ['.hco-sub',     0,   UP, Z, false],
       ['.hco-btn-pri', 1,   UP, Z, true ],
       ['.hco-btn-out', 1.6, UP, Z, true ],
       ['.hco-brand',   2.6, 'translateX(-50%) translateY(' + RISE + 'px)', 'translateX(-50%) translateY(0px)', false]
     ];
+
+    // ① 標題：拆成一個個字後逐行由上往下。回傳用掉幾個節拍，後面的東西接著排。
+    var slot = 0;
+    var _hEl = _ov.querySelector('.hco-headline');
+    if (_hEl) {
+      if (_hEl.querySelectorAll('.hh-word-inner').length && typeof window.__revealHeadlineWords === 'function') {
+        slot = window.__revealHeadlineWords(_hEl, true, { step: STEP, dur: DUR, rise: RISE, blur: BLUR, ease: EASE }) || 0;
+      } else {
+        /* 保險：拆字失敗（有別的程式把標題的 textContent 重寫掉、span 就沒了）時，
+           整塊標題當成一個元素浮上來，至少不會變成「直接站在那裡」。
+           要先把容器上可能殘留的 opacity/transform !important 清掉——inline !important
+           的優先度比動畫高，不清掉動畫等於沒作用。 */
+        _hEl.style.removeProperty('opacity');
+        _hEl.style.removeProperty('transform');
+        items.unshift(['.hco-headline', -1, UP, Z, false]);
+        slot = 1;
+      }
+    }
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     items.forEach(function(it){
       var el = _ov.querySelector(it[0]); if(!el) return;
-      var delay = (slot + it[1]) * STEP;
+      var delay = Math.max(0, slot + it[1]) * STEP;
       var isBtn = it[4];
       el.style.transition = 'none';
       var a = null;
@@ -4831,8 +4849,14 @@ function applyColRatios() {
   function startHeroContent(){
     if (window.__heroContentRevealed) return;
     if (window.__opzIntroPlaying) {
-      document.addEventListener('opz:intro-done', function(){ revealHeroContent(); }, { once: true });
-      setTimeout(function(){ revealHeroContent(); }, 7000);   // 保險：開場壞掉也不會永遠空白
+      /* 兩條觸發線：正常是等 'opz:intro-done'，另一條是開場壞掉時的保險。
+         保險一定要在事件來的時候取消掉——不然 7 秒後會再演一次，
+         看起來就是「標題早就站在那裡了，然後又重新進場一次」（Martin 抓到的就是這個）。 */
+      var guard = setTimeout(function(){ revealHeroContent(); }, 7000);
+      document.addEventListener('opz:intro-done', function(){
+        clearTimeout(guard);
+        revealHeroContent();
+      }, { once: true });
     } else {
       revealHeroContent();
     }
@@ -9114,7 +9138,7 @@ window.addEventListener('keydown', function(e){
 <!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
-<script type="module" src="site-content.js?v=34"></script>
+<script type="module" src="site-content.js?v=35"></script>
   <script type="module" src="media-sync.js?v=3"></script>
 <script type="module" src="newsletter.js?v=2"></script>
 <!-- Global in-page notification toasts (messages / announcements / community / jobs) -->
