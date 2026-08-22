@@ -5518,14 +5518,8 @@ setTimeout(syncHero, 600);
     const maxY = document.documentElement.scrollHeight - window.innerHeight;
     targetY = Math.max(0, Math.min(maxY, targetY + e.deltaY));
 
-    // Nav responds to wheel intent immediately — no waiting for scroll to catch up
-    if (targetY < 80) {
-      navTarget = 0;              // near top → always visible
-    } else if (e.deltaY > 0) {
-      navTarget = -navH;          // scrolling down → hide
-    } else if (e.deltaY < 0) {
-      navTarget = 0;              // scrolling up → show
-    }
+    // Nav stays visible AT ALL TIMES — the links must never scroll away.
+    navTarget = 0;
 
     nudge();
   }, { passive: false });
