@@ -4273,8 +4273,9 @@ window.__revealHeadlineWords = function(hEl, animate, opts){
     if(!animate || reduce || !inner.animate){ lock(); return; }
     inner.style.transition = 'none';
     var a = inner.animate(
-      [ { opacity: 0, transform: 'translateY(' + RISE + ')', filter: 'blur(' + BLUR + 'px)' },
-        { opacity: 1, transform: 'translateY(0px)',          filter: 'blur(0px)' } ],
+      // No blur — words come in SHARP, just fading up (opacity 0→1 + slide up).
+      [ { opacity: 0, transform: 'translateY(' + RISE + ')' },
+        { opacity: 1, transform: 'translateY(0px)' } ],
       { duration: DUR, delay: delay, easing: EASE, fill: 'both' }
     );
     a.onfinish = lock;
@@ -4842,8 +4843,9 @@ function applyColRatios() {
       }
       if (el.animate && !reduce) {
         a = el.animate(
-          [ { opacity: 0, transform: it[2], filter: 'blur(' + BLUR + 'px)' },
-            { opacity: 1, transform: it[3], filter: 'blur(0px)' } ],
+          // No blur — subtitle / buttons / brand come in SHARP, just fading + sliding in.
+          [ { opacity: 0, transform: it[2] },
+            { opacity: 1, transform: it[3] } ],
           { duration: DUR, delay: delay, easing: EASE, fill: 'both' }
         );
         a.onfinish = lockIn;                    // 保證動畫結束後停在可見狀態
