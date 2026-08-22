@@ -116,8 +116,15 @@ nav.nav-on-light { --nav-fg: #000; }
 /* When mega-menu is open: always white bg + black text */
 nav.mega-open {
   background: #fff;
-  transition: background 0.22s ease;
+  transition: background 0.45s cubic-bezier(0.65,0,0.35,1);
   --nav-fg: #000;
+}
+/* 退場：nav 的白底跟大選單面板「同時、同速」一起淡出（0.62s），不再是面板先走、
+   白底拖到最後才 0.22s 突然收掉（那個 snap 就是 Martin 看到的「閃爍／兩段式」）。
+   保留 mega-open 讓文字維持黑、blend 維持 normal，只把背景淡成透明。 */
+nav.mega-open.mega-closing {
+  background: transparent !important;
+  transition: background 0.62s cubic-bezier(0.65,0,0.35,1) !important;
 }
 
 /* ── Hover peek: a solid white bar slides down + fades in BEHIND the nav when
@@ -4649,25 +4656,29 @@ document.addEventListener('DOMContentLoaded', () => {
   const megaMenu       = document.getElementById('artistsMegaMenu');
   const artistsLink    = artistsTrigger.querySelector('a');
   const navEl2         = document.querySelector('nav');
-  let mmTimeout;
+  let mmTimeout, mmCloseTimer;
 
   function openMega() {
-    clearTimeout(mmTimeout);
+    clearTimeout(mmTimeout); clearTimeout(mmCloseTimer);
+    // Re-opening mid-close: drop the exit state so the panel/nav don't stay faded.
+    megaMenu.classList.remove('mm-closing');
     megaMenu.classList.add('mm-visible');
     artistsLink.classList.add('mm-active');
-    if (navEl2) navEl2.classList.add('mega-open');
+    if (navEl2) { navEl2.classList.remove('mega-closing'); navEl2.classList.add('mega-open'); }
   }
   function closeMega() {
     mmTimeout = setTimeout(() => {
-      // 退場：加 mm-closing 觸發優雅動畫，再移除 mm-visible
+      // 退場：面板加 mm-closing 優雅淡出；同一刻 nav 也加 mega-closing，讓白底跟面板
+      // 「一起」在 0.62s 內淡掉（保留 mega-open → 文字/blend 不變，只淡背景）。
       megaMenu.classList.add('mm-closing');
       megaMenu.classList.remove('mm-visible');
       artistsLink.classList.remove('mm-active');
-      // 等退場動畫跑完（拉長後：面板 0.62s + 欄位反向 stagger 0.21s ≈ 0.83s）再清 class
-      setTimeout(() => {
+      if (navEl2) navEl2.classList.add('mega-closing');
+      // 等面板 + 白底都淡完（0.62s + 欄位反向 stagger 0.21s ≈ 0.83s）再一次清掉全部
+      mmCloseTimer = setTimeout(() => {
         megaMenu.classList.remove('mm-closing');
-        if (navEl2) navEl2.classList.remove('mega-open');
-      }, 900);
+        if (navEl2) navEl2.classList.remove('mega-open', 'mega-closing');
+      }, 880);
     }, 200);
   }
 
