@@ -601,25 +601,29 @@
     if (!artistsTrigger || !megaMenu) return;
     var artistsLink = artistsTrigger.querySelector('a');
     var navEl2      = document.querySelector('nav');
-    var mmTimeout;
+    var mmTimeout, mmCloseTimer;
 
     function openMega() {
-      clearTimeout(mmTimeout);
+      clearTimeout(mmTimeout); clearTimeout(mmCloseTimer);
+      megaMenu.classList.remove('mm-closing');           // re-opening mid-close → drop exit state
       megaMenu.classList.add('mm-visible');
       if (artistsLink) artistsLink.classList.add('mm-active');
-      if (navEl2) navEl2.classList.add('mega-open');
+      if (navEl2) { navEl2.classList.remove('mega-closing'); navEl2.classList.add('mega-open'); }
       applyNavBlendColors();   // flip nav controls to black over the white mega panel
     }
     function closeMega() {
       mmTimeout = setTimeout(function () {
+        // Panel fades (mm-closing) AND nav white bg fades (mega-closing) together over 0.62s,
+        // so the Musicians menu + the white nav bar retract as one — no late snap / flicker.
         megaMenu.classList.add('mm-closing');
         megaMenu.classList.remove('mm-visible');
         if (artistsLink) artistsLink.classList.remove('mm-active');
-        setTimeout(function () {
+        if (navEl2) navEl2.classList.add('mega-closing');
+        mmCloseTimer = setTimeout(function () {
           megaMenu.classList.remove('mm-closing');
-          if (navEl2) navEl2.classList.remove('mega-open');
-          applyNavBlendColors();   // restore white nav after the panel closes
-        }, 520);
+          if (navEl2) navEl2.classList.remove('mega-open', 'mega-closing');
+          applyNavBlendColors();   // restore normal nav after the whole thing has faded
+        }, 880);
       }, 200);
     }
 
@@ -728,7 +732,7 @@
       '.nav-links a{position:relative;}' +
       '.nav-links a::after{content:"";position:absolute;left:10px;right:10px;bottom:3px;' +
         'height:1px;background:#fff;transform:scaleX(0);transform-origin:right center;' +
-        'transition:transform .4s cubic-bezier(.25,.46,.45,.94);pointer-events:none;}' +
+        'transition:transform .55s cubic-bezier(.65,0,.35,1);pointer-events:none;}' +
       '.nav-links a:hover::after{transform:scaleX(1);transform-origin:left center;}' +
       // When the mega-menu turns the nav into a solid white bar, switch to a dark line.
       'nav.mega-open .nav-links a:hover::after{background:#000;}';

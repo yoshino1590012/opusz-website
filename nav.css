@@ -23,8 +23,14 @@ nav.nav-on-light { --nav-fg: #000; }
 /* When mega-menu is open: always white bg + black text */
 nav.mega-open {
   background: #fff;
-  transition: background 0.22s ease;
+  transition: background 0.45s cubic-bezier(0.65,0,0.35,1);
   --nav-fg: #000;
+}
+/* 退場：nav 白底跟大選單面板「同時、同速」淡出（0.62s），不再面板先走、白底慢半拍 snap。
+   保留 mega-open 讓文字/blend 不變，只淡背景。 */
+nav.mega-open.mega-closing {
+  background: transparent !important;
+  transition: background 0.62s cubic-bezier(0.65,0,0.35,1) !important;
 }
 
 /* Apply the colour var */
@@ -147,7 +153,7 @@ nav.mega-open .nav-logo-sub .nc-char {
   background: #fff;
   transform: scaleX(0);
   transform-origin: right center;
-  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: transform 0.55s cubic-bezier(0.65,0,0.35,1);
   pointer-events: none;
 }
 .nav-links a:hover .nav-ul {
@@ -394,35 +400,35 @@ nav.mega-open .nav-links a::before {
   display: grid; grid-template-columns: repeat(8, 1fr); gap: 0;
   opacity: 0; transform: translateY(-22px);
   pointer-events: none;
-  transition: opacity 0.18s ease, transform 0.18s ease;
+  transition: opacity 0.3s ease, transform 0.3s ease;
   z-index: 199;
   clip-path: inset(0 0 0 0);
 }
 .mega-menu.mm-visible {
   opacity: 1; transform: translateY(0);
   pointer-events: auto;
-  transition: opacity 0.46s cubic-bezier(0.22,1,0.36,1),
-              transform 0.46s cubic-bezier(0.22,1,0.36,1);
+  transition: opacity 0.62s cubic-bezier(0.65,0,0.35,1),
+              transform 0.62s cubic-bezier(0.65,0,0.35,1);
 }
-/* 退場：優雅地向上淡出 */
+/* 退場：跟進場一樣拉長、一樣明顯的加速→減速，才不會突然消失 */
 .mega-menu.mm-closing {
-  opacity: 0; transform: translateY(-16px);
+  opacity: 0; transform: translateY(-20px);
   pointer-events: none;
-  transition: opacity 0.38s cubic-bezier(0.4,0,0.2,1),
-              transform 0.38s cubic-bezier(0.4,0,0.2,1);
+  transition: opacity 0.62s cubic-bezier(0.65,0,0.35,1),
+              transform 0.62s cubic-bezier(0.65,0,0.35,1);
 }
 .mega-col {
   padding: 0 28px 0 0;
   border-right: 1px solid rgba(0,0,0,0.055);
   margin-right: 28px;
   opacity: 0; transform: translateY(-14px);
-  transition: opacity 0.14s ease, transform 0.14s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
 .mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
 .mega-menu.mm-visible .mega-col {
   opacity: 1; transform: translateY(0);
-  transition: opacity 0.4s cubic-bezier(0.22,1,0.36,1),
-              transform 0.4s cubic-bezier(0.22,1,0.36,1);
+  transition: opacity 0.5s cubic-bezier(0.65,0,0.35,1),
+              transform 0.5s cubic-bezier(0.65,0,0.35,1);
 }
 .mega-menu.mm-visible .mega-col:nth-child(1) { transition-delay: 0.05s; }
 .mega-menu.mm-visible .mega-col:nth-child(2) { transition-delay: 0.08s; }
@@ -435,7 +441,7 @@ nav.mega-open .nav-links a::before {
 /* 退場時欄位依序往上消失（反向 delay）*/
 .mega-menu.mm-closing .mega-col {
   opacity: 0; transform: translateY(-10px);
-  transition: opacity 0.28s ease, transform 0.28s ease;
+  transition: opacity 0.5s cubic-bezier(0.65,0,0.35,1), transform 0.5s cubic-bezier(0.65,0,0.35,1);
 }
 .mega-menu.mm-closing .mega-col:nth-child(8) { transition-delay: 0.00s; }
 .mega-menu.mm-closing .mega-col:nth-child(7) { transition-delay: 0.03s; }
@@ -666,6 +672,6 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
       the cursor is over the bar. The nav keeps mix-blend-mode:difference, so every
       item (logo, links, AND the right-side controls) auto-inverts to black against
       the white and stays readable. Scroll hide/show behaviour is untouched. ── */
-body::before{content:"";position:fixed;top:0;left:0;right:0;height:76px;background:#fff;opacity:0;transform:translateY(-100%);transition:opacity .3s ease, transform .3s ease;z-index:199;pointer-events:none;}
+body::before{content:"";position:fixed;top:0;left:0;right:0;height:76px;background:#fff;opacity:0;transform:translateY(-100%);transition:opacity .55s cubic-bezier(0.65,0,0.35,1), transform .55s cubic-bezier(0.65,0,0.35,1);z-index:199;pointer-events:none;}
 body:has(nav:hover)::before{opacity:1;transform:translateY(0);}
 body:has(nav.mega-open)::before{opacity:0;}
