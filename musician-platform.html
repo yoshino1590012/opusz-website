@@ -5125,12 +5125,15 @@ _heroVid.setAttribute('webkit-playsinline', '');
 _heroVid.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.02;z-index:-1;pointer-events:none;';
 /* 手機吃小檔。原本那支是 1920x1080 / 5.8Mbps / 11.3MB——用行動網路根本餵不動，
    影片一路卡著不動，畫面就停在靜態海報上（Martin 的朋友回報「沒開省電但影片不會動」）。
-   手機版是 1280x720 / 1.1Mbps / 2.2MB，小了 5 倍，滿版看起來一樣。
+   手機版 **維持 1920x1080**，只把位元率壓到 1.7Mbps → 3.1MB（小了 3.5 倍）。
+   **不要降解析度**：canvas 高度就是視窗高度（手機約 812），cover-fit 是按高度算的，
+   來源高度 720 會被放大 1.13 倍＝糊掉（第一版用 720p，Martin 一眼就看出畫質變差）；
+   1080 則是縮小後再顯示，銳利度跟原檔一樣。這支素材是淺景深，壓位元率幾乎看不出來。
    用 820px 當分界，橫放的手機和小平板也吃得到。 */
 var _heroVW = Math.max(window.innerWidth || 0, (document.documentElement || {}).clientWidth || 0)
               || (window.screen && window.screen.width) || 1920;   // 量到 0 就當桌機，別誤判成手機
 _heroVid.src = (_heroVW <= 820)
-  ? 'assets/videos/hero-mobile.mp4?v=1'
+  ? 'assets/videos/hero-mobile.mp4?v=2'
   : 'assets/videos/hero.mp4?v=3';
 
 // Redraw the canvas per video frame. requestVideoFrameCallback fires once per decoded
