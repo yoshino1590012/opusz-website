@@ -468,6 +468,16 @@ function applyConfig(cfg){
     // brand wordmark colour, button colour/shape/glass, AND fonts (with desktop
     // fallback) — so per-device font/colour now lives there, not a global apply.
     try { applyHeroPosResponsive(cfg); } catch(e){}
+    /* 通知頁面：業主的 Hero 版面（每個元素的位置／縮放／字體）已經套上去了。
+       首頁的標題／副標／按鈕進場動畫要等這一刻才播——因為在這之前它們是「預設大小」，
+       套上設定的瞬間會整批跳一次（手機上業主把標題縮到 0.65，跳得特別明顯）。
+       第一次來的訪客沒有 localStorage 快取，一定要等 Firestore 回來，所以這個等待是必要的。 */
+    try {
+      window.__opzHeroCfgApplied = true;
+      document.dispatchEvent(new CustomEvent('opusz:heroready'));
+    } catch(e){
+      try { var _ev = document.createEvent('Event'); _ev.initEvent('opusz:heroready', true, false); document.dispatchEvent(_ev); } catch(e2){}
+    }
   }
 
   // 1h) shows-page posters — count + per-poster frame (x/y/scale/blur/bgX/bgY) +

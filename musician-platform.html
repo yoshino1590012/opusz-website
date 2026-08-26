@@ -4860,20 +4860,25 @@ function applyColRatios() {
      直接進站／重新整理會先跑 LOGO 開場（page-transition.js 會把 window.__opzIntroPlaying
      設成 true）。那時候整頁蓋著毛玻璃，內容在後面自己演完就等於沒演過 → 所以要等
      'opz:intro-done'（毛玻璃快退乾淨時發出）才開始。站內點連結過來沒有開場，就照舊直接播。 */
+  /* 要等**兩件事**都好了才播進場：
+       ① 擋在前面的東西退開了（開場毛玻璃／跳頁黑幕）
+       ② 業主在後台排的 Hero 版面已經套上去了（site-content.js 發 'opusz:heroready'）
+     ②不能省：第一次來的訪客沒有 localStorage 快取，要等 Firestore 回來才知道
+     標題該多大、擺哪裡。在那之前是「預設大小」，套上去的瞬間整批會跳一次
+     （手機上業主把標題縮到 0.65，跳得特別明顯＝「文字被放得很大，過一下才變回來」）。
+     藏著等就不會被看到。兩邊各自都有保險，任何一邊壞掉都不會讓 hero 永遠空白。 */
   function startHeroContent(){
     if (window.__heroContentRevealed) return;
-    if (window.__opzIntroPlaying) {
-      /* 兩條觸發線：正常是等 'opz:intro-done'，另一條是開場壞掉時的保險。
-         保險一定要在事件來的時候取消掉——不然 7 秒後會再演一次，
-         看起來就是「標題早就站在那裡了，然後又重新進場一次」（Martin 抓到的就是這個）。 */
-      var guard = setTimeout(function(){ revealHeroContent(); }, 7000);
-      document.addEventListener('opz:intro-done', function(){
-        clearTimeout(guard);
-        revealHeroContent();
-      }, { once: true });
-    } else {
-      revealHeroContent();
+    var need = 0, got = 0;
+    function done(){ if (++got >= need) revealHeroContent(); }
+    function gate(isReady, evt, waitMs){
+      need++;
+      if (isReady) { done(); return; }
+      var guard = setTimeout(function(){ done(); }, waitMs);   // 保險
+      document.addEventListener(evt, function(){ clearTimeout(guard); done(); }, { once: true });
     }
+    gate(!window.__opzIntroPlaying,     'opz:intro-done',   7000);
+    gate(!!window.__opzHeroCfgApplied,  'opusz:heroready',  5000);
   }
 
   if (!introEl) {
@@ -5118,7 +5123,15 @@ _heroVid.setAttribute('webkit-playsinline', '');
 // full size so iOS keeps decoding; opacity:0 + z-index behind everything makes it
 // invisible (the user only ever sees the <canvas>), while decoding stays alive.
 _heroVid.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;object-fit:cover;opacity:0.02;z-index:-1;pointer-events:none;';
-_heroVid.src = 'assets/videos/hero.mp4?v=3';
+/* 手機吃小檔。原本那支是 1920x1080 / 5.8Mbps / 11.3MB——用行動網路根本餵不動，
+   影片一路卡著不動，畫面就停在靜態海報上（Martin 的朋友回報「沒開省電但影片不會動」）。
+   手機版是 1280x720 / 1.1Mbps / 2.2MB，小了 5 倍，滿版看起來一樣。
+   用 820px 當分界，橫放的手機和小平板也吃得到。 */
+var _heroVW = Math.max(window.innerWidth || 0, (document.documentElement || {}).clientWidth || 0)
+              || (window.screen && window.screen.width) || 1920;   // 量到 0 就當桌機，別誤判成手機
+_heroVid.src = (_heroVW <= 820)
+  ? 'assets/videos/hero-mobile.mp4?v=1'
+  : 'assets/videos/hero.mp4?v=3';
 
 // Redraw the canvas per video frame. requestVideoFrameCallback fires once per decoded
 // frame (efficient, no overdraw); fall back to rAF where it isn't supported.
@@ -9146,7 +9159,7 @@ window.addEventListener('keydown', function(e){
 <!-- Background colour palette removed — "Explore Classical Music Experts" section stays black via CSS (.categories { background:#000 }) -->
 
 <!-- CMS: render admin-editable content (Firestore siteContent/home) -->
-<script type="module" src="site-content.js?v=35"></script>
+<script type="module" src="site-content.js?v=36"></script>
   <script type="module" src="media-sync.js?v=3"></script>
 <script type="module" src="newsletter.js?v=2"></script>
 <!-- Global in-page notification toasts (messages / announcements / community / jobs) -->
