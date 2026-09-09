@@ -943,7 +943,7 @@ function renderGrid(animate){
       // Fade the photo in on load so it doesn't "pop"/flash when it finishes
       // decoding (the frame is blank grey until then). onload covers cached
       // images too; the inline fallback shows it if onload somehow doesn't fire.
-      mediaHtml = '<img src="'+m.photoUrl+'" alt="'+m.name+'" decoding="async" loading="eager" fetchpriority="high" onload="this.style.opacity=1" onerror="this.style.opacity=1" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+cpx+'% '+cpy+'%;transform:scale('+cps+');transform-origin:'+cpx+'% '+cpy+'%;opacity:0;transition:opacity .35s ease;">';
+      mediaHtml = '<img src="'+m.photoUrl+'" alt="'+m.name+'" decoding="async" loading="eager" fetchpriority="high" onload="this.style.opacity=1" onerror="mcardPhotoFail(this,\''+m.color+'\',\''+m.emoji+'\')" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:'+cpx+'% '+cpy+'%;transform:scale('+cps+');transform-origin:'+cpx+'% '+cpy+'%;opacity:0;transition:opacity .35s ease;">';
     } else if(savedPhoto){
       mediaHtml = '<div class="photo-pan" style="position:absolute;top:-100%;left:-100%;width:300%;height:300%;transform-origin:center center;'+xysStyle+'">' +
         '<img src="'+savedPhoto+'" alt="'+m.name+'" style="position:absolute;top:33.333%;left:33.333%;width:33.333%;height:33.333%;object-fit:contain;">' +
@@ -993,6 +993,25 @@ function renderGrid(animate){
     if(im.complete && im.naturalWidth) im.style.opacity = 1;
   });
 }
+
+/* 圖片載不出來時，換成跟「本來就沒照片」一樣的漸層＋樂器 emoji 底圖，
+   不要留一個破圖 icon 加 alt 文字（2026-09-09 Firebase Storage 帳單被關，
+   全站照片一次 402 全掛，整個名單看起來像壞掉的網站）。
+   這是永久的防護：以後任何一張照片掛掉都會這樣優雅退場。 */
+window.mcardPhotoFail = function(img, color, emoji){
+  try{
+    var zoom = img.parentNode; if(!zoom) return;
+    img.parentNode.removeChild(img);
+    if(zoom.querySelector('.mcard-photo-placeholder')) return;
+    var d = document.createElement('div');
+    d.className = 'mcard-photo-placeholder';
+    d.style.cssText = 'background:linear-gradient(135deg,'+(color||'#333')+',#1a1a1a);'
+      + 'color:rgba(255,255,255,.15);font-size:56px;position:absolute;inset:0;'
+      + 'display:flex;align-items:center;justify-content:center;';
+    d.textContent = emoji || '';
+    zoom.appendChild(d);
+  }catch(e){}
+};
 
 function renderStars(r){
   var full = Math.floor(r), half = (r-full)>=0.5;
