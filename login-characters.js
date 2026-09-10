@@ -266,7 +266,7 @@ CAST.forEach(function(c, idx){
     lid:new S(1,0.40,0.55), curve:new S(0,0.16,0.72), open:new S(0,0.16,0.72),
     eyeMode:'round',
     blinkAt:rnd(900,3800), blinkT:0, nod:0, shake:0, phase:rnd(0,6.28),
-    introRot:0, faceOp:1
+    introRot:0, faceOp:1, startle:0
   });
 });
 
@@ -384,7 +384,14 @@ function frame(now){
       ch.curve.set(c.id==='orange'?1:0.15); ch.open.set(c.id==='orange'?0.75:0);
     }
 
-    if (MOOD!=='shy' && MOOD!=='sad' && MOOD!=='intro'){
+    if (ch.startle > 0){
+      ch.startle -= dt;
+      ch.lid.set(1.40); ch.eyeMode='round';        // 眼睛瞪大
+      ch.ox.set(ux*maxO*0.35); ch.oy.set(-maxO*0.5);
+      ch.curve.set(0.05); ch.open.set(1.75);       // 嘴巴變 O
+    }
+
+    if (ch.startle <= 0 && MOOD!=='shy' && MOOD!=='sad' && MOOD!=='intro'){
       ch.blinkAt -= dt;
       if (ch.blinkAt<=0){ ch.blinkT=140; ch.blinkAt = rnd(2100,6200)*(Math.random()<0.2?0.1:1); }
       if (ch.blinkT>0){ ch.blinkT-=dt; ch.lid.set(0.06); }
@@ -721,6 +728,44 @@ if (emailEl) emailEl.addEventListener('change', function(){
   }).observe(document.body, { subtree:true, childList:true, characterData:true,
                               attributes:true, attributeFilter:['style','class'] });
 })();
+
+
+/* ══════════════════════════════════════════════════════════════════
+   戳一下 —— 果凍感
+   被戳的那隻：嚇一跳（眼睛睜大、嘴巴變 O），身體被壓一下。
+   旁邊的：被推得晃一下，離越近推越大。
+
+   作法是**往彈簧裡注入速度**（不是設定目標值），讓彈簧自己的阻尼
+   產生逐漸變小的來回擺動 —— 那就是果凍晃動的物理。
+   ══════════════════════════════════════════════════════════════════ */
+function poke(hitIdx, px){
+  chars.forEach(function(ch, i){
+    var c = ch.c, d = Math.abs(c.baseX - chars[hitIdx].c.baseX);
+    if (i === hitIdx){
+      ch.startle = 780;
+      ch.lean.z  += (px > c.baseX ? -1 : 1) * 14 * c.bend;   // 往被戳的反方向退
+      ch.bendS.z += (px > c.baseX ? -1 : 1) * 9  * c.bend;
+      ch.hK.z    -= 0.055;                                    // 被壓扁一下
+      ch.wK.z    += 0.045;
+    } else {
+      var dir = (c.baseX > chars[hitIdx].c.baseX) ? 1 : -1;   // 被推開
+      var f = Math.max(0.18, 1 - d/230);                      // 越近推越大
+      ch.lean.z  += dir * 11 * f * c.bend;
+      ch.bendS.z += dir * 6  * f * c.bend;
+      ch.hK.z    -= 0.022 * f;
+      ch.wK.z    += 0.018 * f;
+      if (f > 0.55) ch.startle = 420;                         // 很近的也小驚一下
+    }
+  });
+}
+
+chars.forEach(function(ch, i){
+  ch.g.style.pointerEvents = 'auto';
+  ch.g.addEventListener('pointerdown', function(e){
+    var p = toSvg(e.clientX, e.clientY);
+    poke(i, p.x);
+  });
+});
 
 startIntro();
 requestAnimationFrame(frame);
