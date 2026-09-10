@@ -27,30 +27,39 @@
 
     /* ── Left panel ── */
     .left-panel {
-      background: var(--black);
+      /* 淺底 —— 黑色那隻角色在黑底上會整個消失。文字也跟著轉深色。 */
+      background: #EDEBEF;
       display: flex; flex-direction: column;
       justify-content: space-between;
       padding: 40px 48px;
       position: relative; overflow: hidden;
     }
     @media(max-width:768px){ .left-panel { display: none; } }
-    .lp-logo { display: flex; align-items: center; gap: 10px; color: #fff; text-decoration: none; }
+    .lp-logo { display: flex; align-items: center; gap: 10px; color: #16161A; text-decoration: none; }
     .lp-logo-orb { width: 39px; height: 39px; background: url('assets/images/LOGO/opusz-logo-cropped.png?v=7') center/cover no-repeat; }
     .lp-logo-text { font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
     .lp-body { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+
+    /* 左欄改放角色之後的取捨（2026-09-11）：
+       只留「Logo + 標語 + 角色」，把說明段落和數據列先藏起來 ——
+       ① 版面才不會跟角色撞在一起，示範頁的留白是它好看的原因
+       ② 那三個數字（500+ 音樂家 / 2,400+ 委託 / 4.9★）**不是真的**，
+          平台目前實際只有 8 位音樂家。要恢復就把這兩行刪掉，
+          要改成真數字也可以，但別留著假的。 */
+    /* （隱藏規則改寫在下方原始宣告上，否則會被後面的定義蓋掉）*/
     .lp-headline {
       font-size: clamp(28px, 3.5vw, 42px); font-weight: 900;
-      color: #fff; line-height: 1.15; letter-spacing: -.03em;
+      color: #16161A; line-height: 1.15; letter-spacing: -.03em;
       margin-bottom: 20px;
     }
-    .lp-headline span { color: rgba(255,255,255,.35); }
-    .lp-desc { font-size: 15px; color: rgba(255,255,255,.5); line-height: 1.7; max-width: 340px; }
-    .lp-stats { display: flex; gap: 32px; }
-    .lp-stat-val { font-size: 26px; font-weight: 800; color: #fff; }
-    .lp-stat-label { font-size: 12px; color: rgba(255,255,255,.4); margin-top: 2px; }
+    .lp-headline span { color: rgba(22,22,26,.34); }
+    .lp-desc { display: none; }   /* 左欄改放角色後隱藏，留白才夠 */
+    .lp-stats { display: none; }  /* 500+/2,400+/4.9★ 都不是真的數字，先拿掉 */
+    .lp-stat-val { font-size: 26px; font-weight: 800; color: #16161A; }
+    .lp-stat-label { font-size: 12px; color: rgba(22,22,26,.45); margin-top: 2px; }
     .lp-bg-circle {
       position: absolute; border-radius: 50%;
-      background: rgba(255,255,255,.03);
+      background: rgba(22,22,26,.035);
       pointer-events: none;
     }
 
@@ -1817,5 +1826,8 @@
   // Init on load
   applyLang(_lang);
 </script>
+
+<!-- 登入頁角色動畫：掛進既有的左欄，不重排版面、不碰登入邏輯 -->
+<script src="login-characters.js?v=1" data-mount=".left-panel" data-error="#loginError,#regError,#otpError" data-success=".success-state"></script>
 </body>
 </html>
