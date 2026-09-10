@@ -33,7 +33,7 @@ var OPT = {
 var css = document.createElement('style');
 css.textContent =
   '.opz-cast-stage{background:'+OPT.bg+';display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative}'
-+ '.opz-cast-stage svg{width:100%;height:100%;display:block}'
++ '.opz-cast-stage svg{width:100%;height:100%;max-width:780px;max-height:640px;display:block;margin:auto}'
 + '.opz-cast-inline{position:absolute;left:0;right:0;bottom:0;height:58%;background:transparent;pointer-events:none;z-index:0}'
 + '.opz-cast-inline svg{height:100%}'
 + 'body.opz-cast-on:not(.opz-cast-inline-mode){display:grid!important;grid-template-columns:1fr 1fr;'
@@ -316,7 +316,7 @@ function frame(now){
     // 眼珠能跑的範圍拉大 —— 要看得出來它們真的在盯著你
     var maxO = (c.eye.type==='sclera') ? (c.eye.r-c.eye.pr)*1.05 : c.eye.r*1.15;
 
-    if (MOOD !== 'intro'){ ch.introRot = 0; ch.faceOp = 1; }
+    if (MOOD !== 'intro'){ ch.introRot = 0; ch.faceOp = 1; ch.slideX.set(0); }
 
     if (MOOD==='intro'){ applyIntro(ch, now); }
 
@@ -620,7 +620,17 @@ function applyIntro(ch, now){
   var t = (now - introT0 - (s.delay||0)) / s.dur;
   if (t < 0) t = 0;
   var span = 1 + ((s.tail||0)/s.dur);
-  if (t > span) return false;
+  if (t > span){
+    /* 進場已經結束。**一定要在這裡歸位**：瀏覽器在分頁沒被看的時候會跳格，
+       只要「結束的那一格」被跳過，這隻角色就會永遠停在畫面外（橘色就是這樣消失的）。*/
+    if (!ch.introDone){
+      ch.introDone = true;
+      ch.slideX.jump(0); ch.lift.jump(0);
+      ch.hK.jump(1); ch.wK.jump(1); ch.lean.jump(0); ch.bendS.jump(0);
+      ch.introRot = 0; ch.faceOp = 1;
+    }
+    return false;
+  }
   var p = s.pose(Math.min(t, span));
   ch.slideX.jump(p.slide); ch.lift.jump(p.lift);
   ch.hK.jump(p.hK); ch.wK.jump(p.wK);

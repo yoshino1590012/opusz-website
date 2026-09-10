@@ -19,7 +19,7 @@ body{margin:0;font-family:Archivo,"Noto Sans TC",system-ui,sans-serif;color:var(
 
 .stage{background:var(--stage);position:relative;display:flex;align-items:center;
   justify-content:center;overflow:hidden}
-#cast{width:100%;height:100%;display:block}
+#cast{width:100%;height:100%;max-width:780px;max-height:640px;display:block;margin:auto}
 
 /* 表單固定寬度、整欄置中 —— 寬螢幕上輸入框才不會橫跨整個半邊 */
 .panel{display:flex;flex-direction:column;justify-content:center;padding:56px 40px;background:#fff}
@@ -346,7 +346,7 @@ function frame(now){
     // 眼珠能跑的範圍拉大 —— 要看得出來它們真的在盯著你
     var maxO = (c.eye.type==='sclera') ? (c.eye.r-c.eye.pr)*1.05 : c.eye.r*1.15;
 
-    if (MOOD !== 'intro'){ ch.introRot = 0; ch.faceOp = 1; }
+    if (MOOD !== 'intro'){ ch.introRot = 0; ch.faceOp = 1; ch.slideX.set(0); }
 
     if (MOOD==='intro'){ applyIntro(ch, now); }
 
@@ -650,7 +650,17 @@ function applyIntro(ch, now){
   var t = (now - introT0 - (s.delay||0)) / s.dur;
   if (t < 0) t = 0;
   var span = 1 + ((s.tail||0)/s.dur);
-  if (t > span) return false;
+  if (t > span){
+    /* 進場已經結束。**一定要在這裡歸位**：瀏覽器在分頁沒被看的時候會跳格，
+       只要「結束的那一格」被跳過，這隻角色就會永遠停在畫面外（橘色就是這樣消失的）。*/
+    if (!ch.introDone){
+      ch.introDone = true;
+      ch.slideX.jump(0); ch.lift.jump(0);
+      ch.hK.jump(1); ch.wK.jump(1); ch.lean.jump(0); ch.bendS.jump(0);
+      ch.introRot = 0; ch.faceOp = 1;
+    }
+    return false;
+  }
   var p = s.pose(Math.min(t, span));
   ch.slideX.jump(p.slide); ch.lift.jump(p.lift);
   ch.hK.jump(p.hK); ch.wK.jump(p.wK);
