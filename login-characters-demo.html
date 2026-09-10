@@ -144,25 +144,25 @@ var CAST = [
     eye:{ type:'dot', y:166, dx:19, r:6.4, color:'#16161A', hi:true },
     mouth:{ y:196, w:8, kind:'blob' },
     gain:1.00, bend:1.00, bob:3.0, bobSpd:1.00,
-    enter:{ x:-300, y:-40, rot:-38, squat:0.55, delay:0, k:0.085 } },
+    enter:{ x:-420, y:-60, rot:-30, squat:0.55, delay:0,   k:0.085 } },
 
   { id:'dark', fill:'#16161A', glow:'#9A9AAA', baseX:288, topY:172, halfW:34, kind:'rect',
     eye:{ type:'sclera', y:212, dx:14, r:8.2, pr:4.4, color:'#16161A', white:'#FFFFFF' },
     mouth:null,
     gain:0.66, bend:0.74, bob:2.3, bobSpd:1.33,
-    enter:{ x:40, y:-420, rot:26, squat:0.80, delay:210, k:0.115 } },
+    enter:{ x:60,   y:-480, rot:22, squat:0.80, delay:210, k:0.115 } },
 
   { id:'yellow', fill:'#FFC91B', glow:'#FFE99A', baseX:372, topY:210, halfW:53, kind:'arch',
     eye:{ type:'dot', y:250, dx:0, ox:14, r:5.6, color:'#16161A', single:true },
     mouth:{ y:272, w:46, kind:'line', anchor:-0.78 },
     gain:0.82, bend:0.58, bob:2.6, bobSpd:0.82,
-    enter:{ x:170, y:60, rot:14, squat:0.30, delay:95, k:0.135 } },
+    enter:{ x:300,  y:80,  rot:12, squat:0.30, delay:95,  k:0.135 } },
 
   { id:'orange', fill:'#F4661E', glow:'#FFB489', baseX:178, topY:270, halfW:94, kind:'dome',
     eye:{ type:'dot', y:302, dx:27, r:7.2, color:'#16161A' },
     mouth:{ y:330, w:21, kind:'open' },
     gain:1.22, bend:0.40, bob:3.8, bobSpd:1.12,
-    enter:{ x:-260, y:70, rot:-16, squat:0.42, delay:330, k:0.10 } }
+    enter:{ x:-380, y:90,  rot:-14, squat:0.42, delay:330, k:0.10 } }
 ];
 
 /* ── 彈簧：每個會動的數值都有重量，會過衝一點再回穩 ── */
@@ -288,7 +288,8 @@ CAST.forEach(function(c, idx){
     c:c, g:g, body:body, eyes:eyes, mouth:mouth,
     lean:new S(0,0.10,0.80), bendS:new S(0,0.09,0.82),
     hK:new S(1,c.enter.k,0.76), wK:new S(1,c.enter.k,0.76),
-    lift:new S(0,0.11,0.78), ox:new S(0,0.15,0.70), oy:new S(0,0.15,0.70),
+    slideX:new S(0,0.11,0.78), lift:new S(0,0.11,0.78),
+    ox:new S(0,0.15,0.70), oy:new S(0,0.15,0.70),
     lid:new S(1,0.40,0.55), curve:new S(0,0.16,0.72), open:new S(0,0.16,0.72),
     arcAmt:new S(0,0.18,0.70),
     blinkAt:rnd(900,3800), blinkT:0, nod:0, shake:0, phase:rnd(0,6.28)
@@ -402,7 +403,8 @@ function frame(now){
     var lift = ch.lift.step() + bob + nodOff;
 
     ch.body.setAttribute('d', bodyPath(c, lean, bend, hK, wK));
-    ch.g.setAttribute('transform', 'translate(0,'+lift.toFixed(2)+')');
+    var slide = ch.slideX.step();
+    ch.g.setAttribute('transform', 'translate('+slide.toFixed(2)+','+lift.toFixed(2)+')');
 
     var eyeT = (GROUND - c.eye.y) / (GROUND - c.topY);
     var sp = spineAt(c, eyeT, lean, bend, hK);
@@ -478,7 +480,8 @@ function paintMouth(ch, ox, hK, wK, lean, bend){
 function settleNow(){
   chars.forEach(function(ch){
     ch.lean.jump(0); ch.bendS.jump(0); ch.hK.jump(1); ch.wK.jump(1);
-    ch.lift.jump(0); ch.lid.jump(1); ch.ox.jump(0); ch.oy.jump(0); ch.arcAmt.jump(0);
+    ch.slideX.jump(0); ch.lift.jump(0); ch.lid.jump(1);
+    ch.ox.jump(0); ch.oy.jump(0); ch.arcAmt.jump(0);
   });
   setMood('idle');
 }
@@ -487,16 +490,18 @@ function startIntro(){
   if (STILL || reduce){ settleNow(); return; }
   chars.forEach(function(ch){
     var e = ch.c.enter;
-    ch.lean.jump(e.x*0.5); ch.bendS.jump(e.rot*1.6);
-    ch.hK.jump(e.squat); ch.wK.jump(1 + (1-e.squat)*0.75);   // 又矮又胖
-    ch.lift.jump(e.y); ch.lid.jump(0.05);
+    ch.slideX.jump(e.x); ch.lift.jump(e.y);                  // 真的從畫面外進來
+    ch.lean.jump(e.rot*0.55); ch.bendS.jump(e.rot*0.35);     // 飛行中微微歪著
+    ch.hK.jump(e.squat); ch.wK.jump(1 + (1-e.squat)*0.55);   // 又矮又胖，之後抽長
+    ch.lid.jump(0.05);
   });
   var lastDelay = 0;
   chars.forEach(function(ch){
     var e = ch.c.enter;
     if (e.delay > lastDelay) lastDelay = e.delay;
     setTimeout(function(){
-      ch.lean.set(0); ch.bendS.set(0); ch.hK.set(1); ch.wK.set(1); ch.lift.set(0);
+      ch.slideX.set(0); ch.lift.set(0);
+      ch.lean.set(0); ch.bendS.set(0); ch.hK.set(1); ch.wK.set(1);
     }, e.delay);
     setTimeout(function(){ ch.lid.set(1); }, e.delay + 620);   // 站定才睜眼
   });
