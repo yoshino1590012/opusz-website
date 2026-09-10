@@ -49,6 +49,9 @@ body{
   padding:48px clamp(28px,6vw,76px);
   background:#fff;
 }
+/* 表單本身固定寬度並置中 —— 不然在寬螢幕上輸入框會橫跨整個半邊，
+   一條長到看不到盡頭的底線，完全不像登入表單。 */
+.panel > *{width:100%;max-width:360px;margin-left:auto;margin-right:auto}
 .mark{width:26px;height:26px;margin:0 auto 34px;display:block}
 h1{font-size:30px;font-weight:600;letter-spacing:-.02em;margin:0 0 7px;text-align:center}
 .sub{margin:0 0 36px;text-align:center;color:var(--mid);font-size:13.5px;font-weight:300}
