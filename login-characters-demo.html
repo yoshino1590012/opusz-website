@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>登入頁角色動畫 — 示範 | OPUS.Z</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap">
+<style>
+:root{
+  --stage:#EBEBEE;
+  --ink:#16161A;
+  --mid:#7A7A85;
+  --line:#E3E3E8;
+  --orange:#F4661E;
+  --purple:#6023E8;
+  --dark:#16161A;
+  --yellow:#FFC91B;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0;
+  font-family:Archivo,"Noto Sans TC",system-ui,sans-serif;
+  color:var(--ink);
+  background:#fff;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ── layout ───────────────────────────────── */
+.wrap{display:grid;grid-template-columns:1.15fr 1fr;min-height:100vh}
+@media (max-width:820px){
+  .wrap{grid-template-columns:1fr;grid-template-rows:44vh 1fr}
+}
+
+.stage{
+  background:var(--stage);
+  position:relative;
+  display:flex;align-items:flex-end;justify-content:center;
+  overflow:hidden;
+}
+#cast{width:100%;height:100%;display:block}
+
+/* ── form ─────────────────────────────────── */
+.panel{
+  display:flex;flex-direction:column;justify-content:center;
+  padding:48px clamp(28px,6vw,76px);
+  background:#fff;
+}
+.mark{width:26px;height:26px;margin:0 auto 34px;display:block}
+h1{font-size:30px;font-weight:600;letter-spacing:-.02em;margin:0 0 7px;text-align:center}
+.sub{margin:0 0 36px;text-align:center;color:var(--mid);font-size:13.5px;font-weight:300}
+
+.field{position:relative;margin-bottom:24px}
+.field label{
+  display:block;font-size:11.5px;color:var(--mid);margin-bottom:5px;letter-spacing:.02em;
+}
+.field input{
+  width:100%;border:0;border-bottom:1px solid var(--line);
+  padding:7px 34px 9px 0;font-size:15px;font-family:inherit;color:var(--ink);
+  background:transparent;outline:none;transition:border-color .2s;
+}
+.field input:focus{border-bottom-color:var(--ink)}
+.field input::placeholder{color:#C6C6CE}
+.peek{
+  position:absolute;right:0;bottom:6px;
+  width:30px;height:30px;border:0;background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;color:var(--mid);
+  border-radius:50%;transition:background .18s,color .18s;
+}
+.peek:hover{background:#F2F2F5;color:var(--ink)}
+.peek svg{width:18px;height:18px}
+
+.row{display:flex;align-items:center;justify-content:space-between;margin:-4px 0 30px;font-size:12.5px}
+.row label{display:flex;align-items:center;gap:7px;color:var(--mid);cursor:pointer;font-weight:300}
+.row input{accent-color:var(--ink);width:14px;height:14px}
+.row a{color:var(--mid);text-decoration:none}
+.row a:hover{color:var(--ink)}
+
+.btn{
+  width:100%;padding:13px;border-radius:9px;border:1px solid var(--ink);
+  font-family:inherit;font-size:14px;font-weight:500;cursor:pointer;
+  transition:transform .12s,background .2s,color .2s;
+}
+.btn:active{transform:scale(.985)}
+.btn-pri{background:var(--ink);color:#fff;margin-bottom:11px}
+.btn-pri:hover{background:#000}
+.btn-out{background:#F6F6F8;color:var(--ink);border-color:transparent;display:flex;align-items:center;justify-content:center;gap:9px}
+.btn-out:hover{background:#EFEFF3}
+
+.err{
+  height:17px;margin:11px 0 -4px;text-align:center;
+  font-size:12.5px;color:#D6412B;opacity:0;transition:opacity .2s;
+}
+.err.on{opacity:1}
+.foot{margin:26px 0 0;text-align:center;font-size:12.5px;color:var(--mid);font-weight:300}
+.foot a{color:var(--ink);text-decoration:none;font-weight:500}
+
+.hint{
+  position:fixed;right:14px;bottom:14px;z-index:9;
+  background:rgba(22,22,26,.9);color:#fff;font-size:11.5px;font-weight:300;
+  padding:8px 13px;border-radius:8px;line-height:1.6;max-width:280px;
+  font-family:"Noto Sans TC",sans-serif;
+}
+.hint b{font-weight:500;color:var(--yellow)}
+.hint{cursor:pointer;transition:opacity .25s}
+.hint:hover{opacity:.55}
+.hint.gone{display:none}
+@media (max-width:820px){ .hint{right:10px;left:10px;bottom:auto;top:10px;max-width:none} }
+
+@media (prefers-reduced-motion:reduce){
+  .ch{transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ══════════ 左：角色舞台 ══════════ -->
+  <div class="stage">
+    <svg id="cast" viewBox="38 58 444 352" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+  </div>
+
+  <!-- ══════════ 右：登入表單 ══════════ -->
+  <div class="panel">
+    <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="var(--ink)" stroke-width="1.6">
+      <path d="M12 2 L14.2 9.8 L22 12 L14.2 14.2 L12 22 L9.8 14.2 L2 12 L9.8 9.8 Z"/>
+    </svg>
+    <h1>Welcome back!</h1>
+    <p class="sub">Please enter your details</p>
+
+    <form id="loginForm" novalidate>
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" autocomplete="off" placeholder="anna@gmail.com">
+      </div>
+
+      <div class="field">
+        <label for="pw">Password</label>
+        <input id="pw" type="password" autocomplete="off" placeholder="••••••••">
+        <button type="button" class="peek" id="peek" aria-label="顯示密碼">
+          <svg id="peekIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">
+            <path d="M1.5 12S5.2 5.5 12 5.5 22.5 12 22.5 12 18.8 18.5 12 18.5 1.5 12 1.5 12Z"/>
+            <circle cx="12" cy="12" r="3.2"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="row">
+        <label><input type="checkbox" checked> Remember for 30 days</label>
+        <a href="#" onclick="return false">Forgot password?</a>
+      </div>
+
+      <button class="btn btn-pri" type="submit">Log In</button>
+      <button class="btn btn-out" type="button">
+        <svg viewBox="0 0 24 24" width="16" height="16"><path fill="#4285F4" d="M23 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.2a5.3 5.3 0 0 1-2.3 3.5v2.9h3.7c2.2-2 3.4-5 3.4-8.6z"/><path fill="#34A853" d="M12 24c3.1 0 5.7-1 7.6-2.8l-3.7-2.9c-1 .7-2.3 1.1-3.9 1.1-3 0-5.5-2-6.4-4.7H1.8v3C3.7 21.4 7.6 24 12 24z"/><path fill="#FBBC05" d="M5.6 14.7a7.2 7.2 0 0 1 0-4.6v-3H1.8a12 12 0 0 0 0 10.6l3.8-3z"/><path fill="#EA4335" d="M12 4.8c1.7 0 3.2.6 4.4 1.7l3.3-3.3C17.7 1.2 15.1 0 12 0 7.6 0 3.7 2.6 1.8 6.1l3.8 3C6.5 6.7 9 4.8 12 4.8z"/></svg>
+        Log in with Google
+      </button>
+
+      <p class="err" id="err">密碼不對喔，再試一次</p>
+    </form>
+
+    <p class="foot">Don't have an account? <a href="#" onclick="return false">Sign Up</a></p>
+  </div>
+</div>
+
+<div class="hint" onclick="this.classList.add('gone')" title="點一下關掉">
+  示範用：密碼打 <b>opusz</b> 會成功，其他都會失敗。<br>
+  試試看 → 移動滑鼠、點 Email、打字、按密碼旁邊的👁、故意打錯。<br><span style="opacity:.55">（點一下關掉這個提示）</span>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+var SVG = document.getElementById('cast');
+var NS  = 'http://www.w3.org/2000/svg';
+var GROUND = 360;                      // 角色站的地平線
+var reduce = false;
+try { reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch(e){}
+
+/* ── 角色設定 ────────────────────────────────────────────────
+   每個角色都有自己的個性，反應強度(gain)不同 —— 全部同步做同一件事
+   會很像機器人，差一點點才像四個活的東西。 */
+var CAST = [
+  { id:'purple', color:'var(--purple)', baseX:200, z:1,
+    body:'rect', x:152, y:118, w:96, h:242, rx:15,
+    eyeY:172, eyeDX:19, eyeR:6.2, eyeColor:'#16161A',
+    mouth:{ y:203, w:15, style:'small' },
+    gain:1.15, bobAmp:3.2, bobSpd:1.00, restRot:-2.5, shyRot:-5.5, leanRot:2.2 },
+
+  { id:'dark', color:'var(--dark)', baseX:290, z:2,
+    body:'rect', x:258, y:176, w:64, h:184, rx:10,
+    eyeY:216, eyeDX:13, eyeR:5.4, eyeColor:'#FFFFFF',
+    mouth:{ y:243, w:11, style:'none' },
+    gain:0.72, bobAmp:2.4, bobSpd:1.31, restRot:2.0,  shyRot:-7.0, leanRot:2.6 },
+
+  { id:'yellow', color:'var(--yellow)', baseX:378, z:3,
+    body:'arch', x:326, y:214, w:104, h:146,
+    eyeY:256, eyeDX:22, eyeR:6.0, eyeColor:'#16161A',
+    mouth:{ y:282, w:44, style:'long' },
+    gain:0.95, bobAmp:2.8, bobSpd:0.84, restRot:0,    shyRot:-9.5, leanRot:3.4 },
+
+  { id:'orange', color:'var(--orange)', baseX:186, z:4,
+    body:'dome', cx:186, r:96,
+    eyeY:302, eyeDX:26, eyeR:7.0, eyeColor:'#16161A',
+    mouth:{ y:330, w:20, style:'smile' },
+    gain:1.30, bobAmp:4.0, bobSpd:1.14, restRot:0,    shyRot:-12,  leanRot:4.2 }
+];
+
+/* ── 小工具：彈簧補間 ───────────────────────────────────────
+   每個會動的數值都用彈簧逼近目標，所以動作有重量、會過衝一點點再回穩，
+   不是機械式的線性移動。 */
+function Spring(v, k, d){ this.v=v; this.t=v; this.vel=0; this.k=k||0.14; this.d=d||0.75; }
+Spring.prototype.step = function(){
+  this.vel = (this.vel + (this.t - this.v) * this.k) * this.d;
+  this.v += this.vel;
+  return this.v;
+};
+Spring.prototype.set = function(t){ this.t = t; return this; };
+Spring.prototype.jump = function(v){ this.v = this.t = v; this.vel = 0; return this; };
+
+function rnd(a,b){ return a + Math.random()*(b-a); }
+function clamp(v,a,b){ return v<a?a:(v>b?b:v); }
+
+/* ── 建角色 ─────────────────────────────────────────────── */
+var chars = [];
+CAST.slice().sort(function(a,b){ return a.z-b.z; }).forEach(function(cfg){
+  var g = document.createElementNS(NS,'g');            // 外層：位移
+  var gr= document.createElementNS(NS,'g');            // 中層：旋轉（以腳底為軸）
+  var gs= document.createElementNS(NS,'g');            // 內層：縮放
+  g.appendChild(gr); gr.appendChild(gs);
+
+  // 身體
+  var body = document.createElementNS(NS,'path');
+  body.setAttribute('fill', cfg.color);
+  body.setAttribute('d', bodyPath(cfg));
+  gs.appendChild(body);
+
+  // 眼睛（點狀瞳孔；眨眼＝把點壓扁成一條線，就跟參考影片一樣）
+  var eyes = [];
+  [-1,1].forEach(function(s){
+    var wrap = document.createElementNS(NS,'g');
+    var pup  = document.createElementNS(NS,'ellipse');
+    pup.setAttribute('cx', 0); pup.setAttribute('cy', 0);
+    pup.setAttribute('rx', cfg.eyeR); pup.setAttribute('ry', cfg.eyeR);
+    pup.setAttribute('fill', cfg.eyeColor);
+    wrap.appendChild(pup);
+    wrap.setAttribute('transform','translate('+(cfg.baseX + s*cfg.eyeDX)+','+cfg.eyeY+')');
+    gs.appendChild(wrap);
+    eyes.push({ wrap:wrap, pup:pup, homeX:cfg.baseX + s*cfg.eyeDX, homeY:cfg.eyeY });
+  });
+
+  // 嘴巴：一條線（可彎成笑臉/垮臉）＋ 一個「O」（好奇時用）
+  var mouth = null, oh = null;
+  if (cfg.mouth.style !== 'none'){
+    mouth = document.createElementNS(NS,'path');
+    mouth.setAttribute('fill','none');
+    mouth.setAttribute('stroke', cfg.eyeColor);
+    mouth.setAttribute('stroke-width', cfg.mouth.style==='long' ? 3.4 : 3.8);
+    mouth.setAttribute('stroke-linecap','round');
+    gs.appendChild(mouth);
+  }
+  oh = document.createElementNS(NS,'ellipse');
+  oh.setAttribute('cx', cfg.baseX); oh.setAttribute('cy', cfg.mouth.y);
+  oh.setAttribute('rx', 5.2); oh.setAttribute('ry', 6.4);
+  oh.setAttribute('fill', cfg.eyeColor);
+  oh.setAttribute('opacity', 0);
+  gs.appendChild(oh);
+
+  SVG.appendChild(g);
+
+  chars.push({
+    cfg: cfg, g:g, gr:gr, gs:gs, eyes:eyes, mouth:mouth, oh:oh,
+    tx:new Spring(0,0.10,0.78), ty:new Spring(0,0.10,0.78),
+    rot:new Spring(0,0.15,0.66), sc:new Spring(1,0.12,0.76),
+    lx:new Spring(0,0.16,0.72), ly:new Spring(0,0.16,0.72),   // 眼球偏移
+    lid:new Spring(1,0.42,0.55),                              // 眼皮 1=睜 0=閉
+    blinkAt: rnd(1200, 4200), blinkT:0,
+    nod:0, shake:0, phase: rnd(0,6.28)
+  });
+});
+
+function bodyPath(c){
+  if (c.body === 'dome'){                                  // 半圓：平底站在地上
+    var r=c.r, cx=c.cx, y=GROUND;
+    return 'M '+(cx-r)+' '+y+' A '+r+' '+r+' 0 0 1 '+(cx+r)+' '+y+' Z';
+  }
+  if (c.body === 'arch'){                                   // 拱形：上緣全圓
+    var x=c.x, y=c.y, w=c.w, h=c.h, r=w/2;
+    return 'M '+x+' '+GROUND+' L '+x+' '+(y+r)+
+           ' A '+r+' '+r+' 0 0 1 '+(x+w)+' '+(y+r)+
+           ' L '+(x+w)+' '+GROUND+' Z';
+  }
+  var x=c.x, y=c.y, w=c.w, rx=c.rx;                         // 圓角長方形
+  return 'M '+(x+rx)+' '+y+' L '+(x+w-rx)+' '+y+
+         ' Q '+(x+w)+' '+y+' '+(x+w)+' '+(y+rx)+
+         ' L '+(x+w)+' '+GROUND+' L '+x+' '+GROUND+
+         ' L '+x+' '+(y+rx)+' Q '+x+' '+y+' '+(x+rx)+' '+y+' Z';
+}
+
+/* ── 狀態機 ──────────────────────────────────────────────── */
+var MOOD = 'intro';       // intro｜idle｜curious｜shy｜sad｜happy
+var lookAt = null;        // 世界座標的注視目標（null＝看滑鼠）
+var mouse  = { x:280, y:200 };
+var glanceUntil = 0, glancePairs = null;
+var moodUntil = 0;
+
+function setMood(m, ms){
+  MOOD = m;
+  moodUntil = ms ? performance.now() + ms : 0;
+}
+
+/* 螢幕座標 → SVG 座標 */
+function toSvg(clientX, clientY){
+  var r = SVG.getBoundingClientRect();
+  var vb = SVG.viewBox.baseVal;
+  var s = Math.min(r.width/vb.width, r.height/vb.height);   // meet
+  var ox = r.left + (r.width  - vb.width  * s)/2;
+  var oy = r.top  + (r.height - vb.height * s)/2;           // xMidYMid
+  return { x:vb.x + (clientX-ox)/s, y:vb.y + (clientY-oy)/s };
+}
+
+window.addEventListener('pointermove', function(e){
+  var p = toSvg(e.clientX, e.clientY);
+  mouse.x = p.x; mouse.y = p.y;
+}, { passive:true });
+
+/* ── 主迴圈 ──────────────────────────────────────────────── */
+var t0 = performance.now(), last = t0;
+function frame(now){
+  var dt = Math.min(48, now - last); last = now;
+  var el = now - t0;
+
+  if (moodUntil && now > moodUntil){ setMood('idle'); }
+
+  // 偶爾互看：兩個相鄰的角色轉頭看對方，看起來像在交換眼神
+  if (MOOD==='idle' && now > glanceUntil){
+    if (glancePairs){ glancePairs = null; glanceUntil = now + rnd(4500, 9000); }
+    else {
+      var i = Math.floor(rnd(0, chars.length-1));
+      glancePairs = [i, i+1];
+      glanceUntil = now + rnd(1100, 1900);
+    }
+  }
+
+  chars.forEach(function(c, i){
+    var cfg = c.cfg;
+
+    /* 1. 進場：從畫面外飛進來，彈簧會自然過衝一下再回穩 */
+    if (MOOD === 'intro'){ /* 目標已在 startIntro 設好 */ }
+
+    /* 2. 注視目標 */
+    var tgt = lookAt || mouse;
+    if (glancePairs && (i===glancePairs[0] || i===glancePairs[1])){
+      var other = chars[i===glancePairs[0] ? glancePairs[1] : glancePairs[0]];
+      if (other) tgt = { x:other.cfg.baseX, y:other.cfg.eyeY };
+    }
+
+    var eyeCx = cfg.baseX, eyeCy = cfg.eyeY;
+    var dx = tgt.x - eyeCx, dy = tgt.y - eyeCy;
+    var dist = Math.sqrt(dx*dx + dy*dy) || 1;
+    var reach = Math.min(1, dist/240);
+    var maxO = cfg.eyeR * 0.72;
+
+    if (MOOD === 'shy'){
+      // 撇開頭：眼睛往反方向、瞇起來
+      c.lx.set(-maxO * 0.9); c.ly.set(-maxO * 0.25);
+      c.rot.set(cfg.restRot + cfg.shyRot);
+      c.tx.set(-5); c.ty.set(0); c.sc.set(0.985);
+      c.lid.set(0.12);
+    } else if (MOOD === 'sad'){
+      c.lx.set(dx/dist * maxO * 0.3); c.ly.set(maxO * 0.85);   // 眼睛垂下來
+      c.rot.set(cfg.restRot); c.tx.set(0); c.ty.set(7); c.sc.set(0.965);
+      c.lid.set(0.55);
+    } else if (MOOD === 'happy'){
+      var hop = Math.abs(Math.sin(el/125 + c.phase)) * 15 * cfg.gain;
+      c.lx.set(0); c.ly.set(-maxO*0.35);
+      c.rot.set(cfg.restRot + Math.sin(el/125 + c.phase)*5);
+      c.tx.set(0); c.ty.set(-hop); c.sc.set(1.045);
+      c.lid.set(1);
+    } else if (MOOD === 'curious'){
+      // 好奇：整個往前傾、放大一點、眼睛睜大
+      c.lx.set(dx/dist * maxO * reach); c.ly.set(dy/dist * maxO * reach);
+      c.rot.set(cfg.restRot + clamp(dx*0.012, -cfg.leanRot, cfg.leanRot));
+      c.tx.set(clamp(dx*0.045, -14, 14) * cfg.gain);
+      c.ty.set(-6 * cfg.gain);
+      c.sc.set(1 + 0.045 * cfg.gain);
+      c.lid.set(1);
+    } else if (MOOD === 'idle'){
+      c.lx.set(dx/dist * maxO * reach); c.ly.set(dy/dist * maxO * reach);
+      c.rot.set(cfg.restRot + clamp(dx*0.008, -cfg.leanRot*0.7, cfg.leanRot*0.7));
+      c.tx.set(clamp(dx*0.022, -8, 8) * cfg.gain);
+      c.ty.set(0); c.sc.set(1);
+      c.lid.set(1);
+    }
+
+    /* 3. 眨眼：隨機間隔，偶爾連眨兩下 */
+    if (MOOD!=='shy' && MOOD!=='sad'){
+      c.blinkAt -= dt;
+      if (c.blinkAt <= 0){
+        c.blinkT = 150;
+        c.blinkAt = rnd(2200, 6500) * (Math.random()<0.18 ? 0.09 : 1);
+      }
+      if (c.blinkT > 0){ c.blinkT -= dt; c.lid.set(0.06); }
+    }
+
+    /* 4. 點頭 / 搖頭 */
+    var nodOff = 0, shakeOff = 0;
+    if (c.nod > 0){ c.nod -= dt; nodOff = Math.sin((1-c.nod/620)*Math.PI*2)*7*cfg.gain; }
+    if (c.shake > 0){ c.shake -= dt; shakeOff = Math.sin((1-c.shake/620)*Math.PI*3.2)*9*cfg.gain; }
+
+    /* 5. 待機時的呼吸感 */
+    var bob = (MOOD==='intro') ? 0 : Math.sin(el/1000*cfg.bobSpd + c.phase) * cfg.bobAmp;
+
+    /* 6. 套用 */
+    var tx = c.tx.step() + shakeOff;
+    var ty = c.ty.step() + bob + nodOff;
+    var rot= c.rot.step() + shakeOff*0.32;
+    var sc = c.sc.step();
+
+    c.g.setAttribute('transform', 'translate('+tx.toFixed(2)+','+ty.toFixed(2)+')');
+    c.gr.setAttribute('transform','rotate('+rot.toFixed(2)+' '+cfg.baseX+' '+GROUND+')');
+    c.gs.setAttribute('transform','translate('+cfg.baseX+' '+GROUND+') scale('+sc.toFixed(3)+') translate('+(-cfg.baseX)+' '+(-GROUND)+')');
+
+    var ox = c.lx.step(), oy = c.ly.step(), lid = clamp(c.lid.step(), 0.05, 1.25);
+    c.eyes.forEach(function(e){
+      e.wrap.setAttribute('transform','translate('+(e.homeX+ox).toFixed(2)+','+(e.homeY+oy).toFixed(2)+')');
+      e.pup.setAttribute('ry', (cfg.eyeR * lid).toFixed(2));
+    });
+
+    /* 7. 嘴巴 */
+    paintMouth(c);
+  });
+
+  requestAnimationFrame(frame);
+}
+
+function paintMouth(c){
+  var cfg = c.cfg, m = cfg.mouth, x = cfg.baseX, y = m.y, w = m.w;
+  var curiousNow = (MOOD==='curious');
+  c.oh.setAttribute('opacity', curiousNow ? 1 : 0);
+  c.oh.setAttribute('cy', y);
+  if (!c.mouth) return;
+  c.mouth.setAttribute('opacity', curiousNow ? 0 : 1);
+
+  var d;
+  if (MOOD==='sad')        d = 'M '+(x-w)+' '+(y+5)+' Q '+x+' '+(y-5)+' '+(x+w)+' '+(y+5);
+  else if (MOOD==='happy') d = 'M '+(x-w)+' '+(y-4)+' Q '+x+' '+(y+11)+' '+(x+w)+' '+(y-4);
+  else if (MOOD==='shy')   d = 'M '+(x-w*0.7)+' '+y+' Q '+x+' '+y+' '+(x+w*0.7)+' '+y;
+  else if (m.style==='smile') d = 'M '+(x-w)+' '+(y-2)+' Q '+x+' '+(y+8)+' '+(x+w)+' '+(y-2);
+  else if (m.style==='long')  d = 'M '+(x-w*0.35)+' '+y+' L '+(x+w)+' '+y;   // 黃色那隻的怪嘴，會凸出身體
+  else                        d = 'M '+(x-w)+' '+y+' Q '+x+' '+(y+2)+' '+(x+w)+' '+y;
+  c.mouth.setAttribute('d', d);
+}
+
+/* ── 進場 ───────────────────────────────────────────────── */
+/* ?still=1 → 略過進場，直接站定。方便截圖當素材，也方便測試各種表情。 */
+var STILL = false;
+try { STILL = new URLSearchParams(location.search).get('still') === '1'; } catch(e){}
+
+function settleNow(){
+  chars.forEach(function(c){
+    c.tx.jump(0); c.ty.jump(0); c.rot.jump(c.cfg.restRot); c.sc.jump(1);
+    c.lid.jump(1); c.lx.jump(0); c.ly.jump(0);
+  });
+  setMood('idle');
+}
+
+function startIntro(){
+  if (STILL){ settleNow(); return; }
+  chars.forEach(function(c, i){
+    var a = rnd(0, Math.PI*2);
+    c.tx.jump(Math.cos(a) * rnd(320, 520));
+    c.ty.jump(Math.sin(a) * rnd(-420, -260) - 120);
+    c.rot.jump(rnd(-160, 160));
+    c.sc.jump(0.45);
+    c.lid.jump(0.05);
+    c.lx.jump(0); c.ly.jump(0);
+  });
+  if (reduce){
+    chars.forEach(function(c){ c.tx.jump(0); c.ty.jump(0); c.rot.jump(c.cfg.restRot); c.sc.jump(1); c.lid.jump(1); });
+    setMood('idle'); return;
+  }
+  var delay = 90;
+  chars.forEach(function(c, i){
+    setTimeout(function(){
+      c.tx.set(0); c.ty.set(0); c.rot.set(c.cfg.restRot); c.sc.set(1);
+    }, delay + i*135);
+  });
+  // 站定之後才睜眼 —— 先有身體、再有生命
+  setTimeout(function(){ setMood('idle'); chars.forEach(function(c){ c.lid.set(1); }); }, delay + chars.length*135 + 420);
+}
+
+/* ── 跟表單互動 ─────────────────────────────────────────── */
+var email = document.getElementById('email');
+var pw    = document.getElementById('pw');
+var peek  = document.getElementById('peek');
+var err   = document.getElementById('err');
+var form  = document.getElementById('loginForm');
+var revealed = false;
+
+function focusOn(inputEl){
+  var r = inputEl.getBoundingClientRect();
+  var p = toSvg(r.left + 30, r.top + r.height/2);
+  lookAt = p;                       // 盯著那個欄位看
+  if (MOOD!=='shy') setMood('curious');
+}
+function focusOff(){
+  lookAt = null;
+  if (MOOD==='curious') setMood('idle');
+}
+
+[email, pw].forEach(function(el){
+  el.addEventListener('focus', function(){ if(!(el===pw && revealed)) focusOn(el); });
+  el.addEventListener('blur',  focusOff);
+});
+
+// 打字時偶爾點頭，像在跟著你唸
+var typeTick = 0;
+[email, pw].forEach(function(el){
+  el.addEventListener('input', function(){
+    if (MOOD==='shy') return;
+    if (lookAt) focusOn(el);
+    if (++typeTick % 5 === 0){
+      var c = chars[Math.floor(rnd(0, chars.length))];
+      if (c) c.nod = 620;
+    }
+    if (err.classList.contains('on')){ err.classList.remove('on'); if(MOOD==='sad') setMood('curious'); }
+  });
+});
+
+// Email 打完離開 → 格式對就點頭、不對就搖頭
+email.addEventListener('change', function(){
+  if (!email.value) return;
+  var ok = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value);
+  chars.forEach(function(c, i){
+    setTimeout(function(){ if(ok) c.nod = 620; else c.shake = 620; }, i*55);
+  });
+});
+
+/* 👁 顯示密碼 → 全部撇開頭，不偷看 */
+peek.addEventListener('click', function(){
+  revealed = !revealed;
+  pw.type = revealed ? 'text' : 'password';
+  peek.setAttribute('aria-label', revealed ? '隱藏密碼' : '顯示密碼');
+  document.getElementById('peekIcon').style.opacity = revealed ? .45 : 1;
+  if (revealed){
+    lookAt = null;
+    setMood('shy');
+  } else {
+    setMood('idle');
+    if (document.activeElement === pw) focusOn(pw);
+  }
+});
+
+/* 送出 */
+form.addEventListener('submit', function(e){
+  e.preventDefault();
+  if (pw.value === 'opusz'){
+    err.classList.remove('on');
+    lookAt = null;
+    setMood('happy', 2600);
+  } else {
+    err.classList.add('on');
+    lookAt = null;
+    setMood('sad', 2400);
+    chars.forEach(function(c, i){ setTimeout(function(){ c.shake = 620; }, i*70); });
+  }
+});
+
+startIntro();
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
