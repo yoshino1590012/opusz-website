@@ -145,7 +145,7 @@ try{ var _q=new URLSearchParams(location.search);
 var CAST = [
   { id:'purple', fill:'#6023E8', glow:'#C89BFF', baseX:198, topY:112, halfW:52, kind:'rect',
     eye:{ type:'dot', y:166, dx:19, r:6.4, color:'#16161A', hi:true },
-    mouth:{ y:196, w:8, kind:'blob' },
+    mouth:{ y:198, w:4.6, kind:'open' },
     gain:1.00, bend:1.00, bob:3.0, bobSpd:1.00,
     enter:{ x:-420, y:-60, rot:-30, squat:0.55, delay:0,   k:0.085 } },
 
@@ -157,13 +157,13 @@ var CAST = [
 
   { id:'yellow', fill:'#FFC91B', glow:'#FFE99A', baseX:372, topY:210, halfW:53, kind:'arch',
     eye:{ type:'dot', y:250, dx:0, ox:14, r:5.6, color:'#16161A', single:true },
-    mouth:{ y:272, w:46, kind:'line', anchor:-0.78 },
+    mouth:{ y:272, w:38, kind:'line', anchor:-0.76 },
     gain:0.82, bend:0.58, bob:2.6, bobSpd:0.82,
     enter:{ x:300,  y:80,  rot:12, squat:0.30, delay:95,  k:0.135 } },
 
   { id:'orange', fill:'#F4661E', glow:'#FFB489', baseX:178, topY:270, halfW:94, kind:'dome',
     eye:{ type:'dot', y:302, dx:27, r:7.2, color:'#16161A' },
-    mouth:{ y:330, w:21, kind:'open' },
+    mouth:{ y:332, w:8.8, kind:'open' },
     gain:1.22, bend:0.40, bob:3.8, bobSpd:1.12,
     enter:{ x:-380, y:90,  rot:-14, squat:0.42, delay:330, k:0.10 } }
 ];
@@ -295,7 +295,8 @@ CAST.forEach(function(c, idx){
     ox:new S(0,0.15,0.70), oy:new S(0,0.15,0.70),
     lid:new S(1,0.40,0.55), curve:new S(0,0.16,0.72), open:new S(0,0.16,0.72),
     eyeMode:'round',
-    blinkAt:rnd(900,3800), blinkT:0, nod:0, shake:0, phase:rnd(0,6.28)
+    blinkAt:rnd(900,3800), blinkT:0, nod:0, shake:0, phase:rnd(0,6.28),
+    introRot:0, faceOp:1
   });
 });
 
@@ -343,6 +344,8 @@ function frame(now){
     var reach = Math.min(1, dist/200);
     // 眼珠能跑的範圍拉大 —— 要看得出來它們真的在盯著你
     var maxO = (c.eye.type==='sclera') ? (c.eye.r-c.eye.pr)*1.05 : c.eye.r*1.15;
+
+    if (MOOD !== 'intro'){ ch.introRot = 0; ch.faceOp = 1; }
 
     if (MOOD==='intro'){ applyIntro(ch, now); }
 
@@ -429,7 +432,10 @@ function frame(now){
 
     ch.body.setAttribute('d', bodyPath(c, lean, bend, hK, wK));
     var slide = ch.slideX.step();
-    ch.g.setAttribute('transform', 'translate('+slide.toFixed(2)+','+lift.toFixed(2)+')');
+    var rr = ch.introRot || 0;
+    var cy = (GROUND + c.topY)/2;
+    ch.g.setAttribute('transform', 'translate('+slide.toFixed(2)+','+lift.toFixed(2)+')'
+      + (rr ? ' rotate('+rr.toFixed(1)+' '+c.baseX+' '+cy.toFixed(0)+')' : ''));
 
     var eyeT = (GROUND - c.eye.y) / (GROUND - c.topY);
     var sp = spineAt(c, eyeT, lean, bend, hK);
@@ -439,12 +445,13 @@ function frame(now){
     var showArc = (mode !== 'round');
 
     ch.eyes.forEach(function(e){
-      var homeX = sp.x + (c.eye.single ? (c.eye.ox||0) : e.side*c.eye.dx) * wK;
+      var homeX = sp.x + (c.eye.single ? (c.eye.ox||0) : e.side*c.eye.dx);   // 不乘 wK：五官等比例，不跟著身體壓扁
       e.wrap.setAttribute('transform','translate('+homeX.toFixed(2)+','+sp.y.toFixed(2)+')');
-      if (e.white) e.white.setAttribute('opacity', showArc?0:1);
-      e.pupil.setAttribute('opacity', showArc?0:1);
-      if (e.hi) e.hi.setAttribute('opacity', showArc?0:0.9);
-      e.arc.setAttribute('opacity', showArc?1:0);
+      var fo = ch.faceOp;
+      if (e.white) e.white.setAttribute('opacity', (showArc?0:1)*fo);
+      e.pupil.setAttribute('opacity', (showArc?0:1)*fo);
+      if (e.hi) e.hi.setAttribute('opacity', (showArc?0:0.9)*fo);
+      e.arc.setAttribute('opacity', (showArc?1:0)*fo);
       if (showArc){
         var w = c.eye.r*1.2;
         if (mode === 'squint')                    // ^ ^ 開心的瞇眼（只有開心才用）
@@ -473,6 +480,7 @@ function frame(now){
    嘴角往下垮＝難過，往上＝開心；open 控制張多大。 */
 function paintMouth(ch, ox, hK, wK, lean, bend){
   var c = ch.c; if (!ch.mouth) return;
+  ch.mouth.setAttribute('opacity', ch.faceOp);
   var mT = (GROUND - c.mouth.y) / (GROUND - c.topY);
   var m  = spineAt(c, mT, lean, bend, hK);
   var x  = m.x + ox*0.45, y = m.y;
@@ -481,7 +489,7 @@ function paintMouth(ch, ox, hK, wK, lean, bend){
 
   if (c.mouth.kind === 'line'){
     // 黃色那隻：一條伸出身體外的橫桿，會依情緒微彎
-    var w = c.mouth.w*wK, a = c.mouth.anchor||0;
+    var w = c.mouth.w, a = c.mouth.anchor||0;
     var x1 = x + w*a, x2 = x + w*(a+1), xm = (x1+x2)/2, th = 3.2;
     var sag = -cur*3.5;
     ch.mouth.setAttribute('d','M '+f1(x1)+' '+f1(y)+
@@ -491,81 +499,26 @@ function paintMouth(ch, ox, hK, wK, lean, bend){
     return;
   }
 
-  // 其餘都是「上緣直、下緣圓」的實心嘴：
-  //   cur > 0 笑 → 整條往下鼓；cur < 0 垮 → 整條往上拱（嘴角朝下）
-  //   op 控制張開的深度；完全閉起來就是一條細線
-  var w2 = (c.mouth.w + op*2.0) * wK;
-  var depth = 1.6 + op*8.5;
-  var lipY  = y - cur*1.2;
-  var midY  = y + cur*2.2;                       // 上緣的彎（笑時中間往下）
+  /* 可愛的 Q 版嘴：**上緣是一條直線、下緣是半圓**，又短又厚。
+     尺寸照參考影片量出來的比例：寬只有身體的 9%（大約兩顆眼睛寬），
+     長寬比 1.75 —— 之前我畫成身體的 22%，難怪又長又醜。 */
+  var w2 = c.mouth.w + op*1.6;
   if (cur < 0){
-    // 垮下來：嘴角明顯低於中間（∩），弧度要夠深、夠厚才看得出來是難過
-    var dip = 9.5*(-cur), th2 = 3.6;
+    // 垮下來：一條嘴角朝下的弧（∩），細細的一條就好
+    var dip = 7.5*(-cur), th2 = 3.0;
     ch.mouth.setAttribute('d',
-      'M '+f1(x-w2)+' '+f1(lipY+dip)+
-      ' Q '+f1(x)+' '+f1(lipY-dip*0.55)+' '+f1(x+w2)+' '+f1(lipY+dip)+
-      ' Q '+f1(x)+' '+f1(lipY-dip*0.55+th2)+' '+f1(x-w2)+' '+f1(lipY+dip)+' Z');
+      'M '+f1(x-w2)+' '+f1(y+dip)+
+      ' Q '+f1(x)+' '+f1(y-dip*0.6)+' '+f1(x+w2)+' '+f1(y+dip)+
+      ' Q '+f1(x)+' '+f1(y-dip*0.6+th2)+' '+f1(x-w2)+' '+f1(y+dip)+' Z');
     return;
   }
+  // 張開：上緣直線 + 下緣半橢圓。open 越大嘴巴越深，笑起來就越開
+  var depth = 2.2 + op*7.5 + cur*1.5;
+  var lip   = y - cur*1.0;
   ch.mouth.setAttribute('d',
-    'M '+f1(x-w2)+' '+f1(lipY)+
-    ' Q '+f1(x)+' '+f1(midY)+' '+f1(x+w2)+' '+f1(lipY)+     // 上緣（幾乎直）
-    ' Q '+f1(x)+' '+f1(midY+depth)+' '+f1(x-w2)+' '+f1(lipY)+' Z');  // 下緣（圓）
-}
-
-/* ══════════════════════════════════════════════════════════════════
-   進場：**四隻各有各的腳本**，不是同一條彈簧套四次。
-   所有數字都是把參考影片逐格量出來的（用顏色追每隻的外框大小）：
-
-     橘色  小球彈跳進場 → 落地才撐大    共 0.90s   寬度過衝 +11%
-     黃色  原地長高，**寬度完全不變**   共 0.45s   高度過衝 +7%
-     紫色  正方形 → 抽長，寬度先縮再彈  共 0.60s   高度過衝 +3.5%，會晃
-     黑色  從天花板摔下來               共 0.20s   落地壓扁
-
-   黑色比橘色快 4 倍 —— 這個時間差就是「有快有慢」的來源。
-   ══════════════════════════════════════════════════════════════════ */
-function ease(t){ return t<0?0:(t>1?1:t); }
-
-/* ── 動畫曲線 ────────────────────────────────────────────────────
-   全部都是「慢起步 → 加速 → 慢慢煞車」，沒有一段是等速的。
-   等速就是廉價感的來源；有質感的動作一定有加速度。 */
-
-// 長大用：先微微下蹲（預備動作）→ 中段最快 → 收尾過衝一點再回穩
-function inOutBack(t, s){
-  s = (s==null?1.05:s) * 1.525; t = ease(t) * 2;
-  if (t < 1) return 0.5 * (t*t*((s+1)*t - s));
-  t -= 2;   return 0.5 * (t*t*((s+1)*t + s) + 2);
-}
-// 純粹的慢-快-慢，不過衝
-function inOutCubic(t){ t=ease(t); return t<0.5 ? 4*t*t*t : 1-Math.pow(-2*t+2,3)/2; }
-// 自由落體：等加速度（現實中東西就是這樣掉的，越掉越快）
-function freeFall(t){ t=ease(t); return t*t; }
-
-/* 真實的彈跳：第一段是自由落下，之後每次反彈只剩 e 倍的速度，
-   所以彈得一次比一次矮、一次比一次快 —— 就跟真的球一樣。 */
-var BOUNCE_E = 0.60;
-function bounceSegs(){
-  var segs=[1];
-  for (var i=1;i<4;i++) segs.push(2*Math.pow(BOUNCE_E,i));
-  return segs;
-}
-function bounceH(u){                      // 回傳 0..1 的高度
-  var segs=bounceSegs(), total=0, i;
-  for (i=0;i<segs.length;i++) total+=segs[i];
-  var x=ease(u)*total, acc=0;
-  for (i=0;i<segs.length;i++){
-    if (x <= acc+segs[i]){
-      var k=(x-acc)/segs[i];
-      if (i===0) return 1-k*k;                                  // 第一次純落下
-      return Math.pow(BOUNCE_E,2*i) * (1-Math.pow(2*k-1,2));    // 之後的拋物線
-    }
-    acc+=segs[i];
-  }
-  return 0;
-}
-function bounceSpeed(u){                  // 用高度變化率當速度，拿來決定壓扁多少
-  var d=0.012;
-  return Math.min(1, Math.abs(bounceH(u+d)-bounceH(u-d))/d/2.2);
+    'M '+f1(x-w2)+' '+f1(lip)+
+    ' L '+f1(x+w2)+' '+f1(lip)+
+    ' A '+f1(w2)+' '+f1(depth)+' 0 0 1 '+f1(x-w2)+' '+f1(lip)+' Z');
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -605,11 +558,20 @@ var INTRO = {
   }},
 
   // 黑色：從天花板自由落體（越掉越快），落地壓扁再回彈
-  dark: { dur:540, delay:560, tail:340, pose:function(t){
-    if (t < 1) return { slide:0, lift:-560*(1-freeFall(t)), hK:1.03, wK:0.965, lean:0, bend:0 };
-    var v=ease((t-1)/(340/540));
-    var sq=Math.sin((1-v)*Math.PI)*(1-v)*0.20;      // 觸地那一下壓最扁，然後回彈
-    return { slide:0, lift:0, hK:1-sq, wK:1+sq*0.85, lean:0, bend:0 };
+  dark: { dur:640, delay:560, tail:420, pose:function(t){
+    if (t < 1){
+      // 自由落體 + 邊掉邊翻一圈。空中沒有外力，所以**角速度是等速的**（轉一圈剛好落地），
+      // 只有下墜是加速的 —— 這才符合物理。身體同時彎著，不是一根硬柱子。
+      var e=freeFall(t);
+      return { slide:26*(1-t), lift:-560*(1-e),
+               rot:-372*(1-t),
+               hK:1.02, wK:0.97,
+               lean:16*Math.sin(t*Math.PI*1.4), bend:-22*Math.sin(t*Math.PI*1.4) };
+    }
+    var v=ease((t-1)/(420/640));
+    var sq=Math.sin((1-v)*Math.PI)*(1-v)*0.22;      // 觸地那一下壓最扁，然後回彈
+    return { slide:0, lift:0, rot:0, hK:1-sq, wK:1+sq*0.9,
+             lean:9*Math.sin((1-v)*Math.PI*2)*(1-v), bend:0 };
   }}
 };
 
@@ -648,6 +610,10 @@ function applyIntro(ch, now){
   ch.slideX.jump(p.slide); ch.lift.jump(p.lift);
   ch.hK.jump(p.hK); ch.wK.jump(p.wK);
   ch.lean.jump(p.lean); ch.bendS.jump(p.bend);
+  ch.introRot = p.rot || 0;
+  // 身體長到 8 成之前不要露臉 —— 否則五官會跟著身體一起被壓扁。
+  // 先有身體、再有生命（參考影片也是這樣）。
+  ch.faceOp = (p.hK > 0.82 && p.wK > 0.82) ? 1 : 0;
   return true;
 }
 
