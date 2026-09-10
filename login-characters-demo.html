@@ -131,7 +131,10 @@ var SVG = document.getElementById('cast');
 var NS  = 'http://www.w3.org/2000/svg';
 var GROUND = 366;
 var reduce=false; try{ reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
-var STILL=false;  try{ STILL = new URLSearchParams(location.search).get('still')==='1'; }catch(e){}
+var STILL=false, FORCE='';
+try{ var _q=new URLSearchParams(location.search);
+     STILL = _q.get('still')==='1' || !!_q.get('mood');
+     FORCE = _q.get('mood')||''; }catch(e){}
 
 /* ══════════════════════════════════════════════════════════════════
    角色設定
@@ -192,7 +195,7 @@ function widthAt(c, t){
 
 function bodyPath(c, lean, bend, hK, wK){
   var h = (GROUND - c.topY) * hK;
-  var N = (c.kind === 'rect') ? 10 : 26;
+  var N = (c.kind === 'rect') ? 10 : 72;   // 圓弧取樣加密，不然邊緣會有稜角
   var L = [], R = [];
   for (var i=0; i<=N; i++){
     var t = i/N;
@@ -291,7 +294,7 @@ CAST.forEach(function(c, idx){
     slideX:new S(0,0.11,0.78), lift:new S(0,0.11,0.78),
     ox:new S(0,0.15,0.70), oy:new S(0,0.15,0.70),
     lid:new S(1,0.40,0.55), curve:new S(0,0.16,0.72), open:new S(0,0.16,0.72),
-    arcAmt:new S(0,0.18,0.70),
+    eyeMode:'round',
     blinkAt:rnd(900,3800), blinkT:0, nod:0, shake:0, phase:rnd(0,6.28)
   });
 });
@@ -316,11 +319,12 @@ var t0=performance.now(), last=t0;
 function frame(now){
   var dt = Math.min(50, now-last); last=now;
   var el = now - t0;
-  if (moodUntil && now>moodUntil) setMood('idle');
+  if (FORCE) MOOD = FORCE;
+  else if (moodUntil && now>moodUntil) setMood(lookAt ? 'curious' : 'idle');
 
-  if (MOOD==='idle' && now>glanceUntil){
-    if (glancePair){ glancePair=null; glanceUntil=now+rnd(4000,8500); }
-    else { var gi=Math.floor(rnd(0,chars.length-1)); glancePair=[gi,gi+1]; glanceUntil=now+rnd(1100,2000); }
+  if (!FORCE && (MOOD==='idle'||MOOD==='curious') && now>glanceUntil){
+    if (glancePair){ glancePair=null; glanceUntil=now+rnd(2600,5200); }
+    else { var gi=Math.floor(rnd(0,chars.length-1)); glancePair=[gi,gi+1]; glanceUntil=now+rnd(1200,2100); }
   }
 
   chars.forEach(function(ch, i){
@@ -346,15 +350,17 @@ function frame(now){
       ch.lean.set(-26*c.bend); ch.bendS.set(-12*c.bend);
       ch.hK.set(0.965); ch.wK.set(1.02); ch.lift.set(0);
       ch.ox.set(-maxO); ch.oy.set(-maxO*0.2);
-      ch.lid.set(0.10); ch.arcAmt.set(0.9);
-      ch.curve.set(0); ch.open.set(0);
+      // 「好吧我不看」：眼睛**閉成一條線**（不是瞇眼笑），嘴巴抿平
+      ch.lid.set(1); ch.eyeMode='closed';
+      ch.curve.set(-0.25); ch.open.set(0);
     }
     else if (MOOD==='sad'){
       ch.lean.set(0); ch.bendS.set(6*c.bend);
       ch.hK.set(0.90); ch.wK.set(1.06); ch.lift.set(0);
-      ch.ox.set(ux*maxO*0.35); ch.oy.set(maxO*0.75);
-      ch.lid.set(1); ch.arcAmt.set(1);
-      ch.curve.set(-1); ch.open.set(0.15);
+      ch.ox.set(ux*maxO*0.3); ch.oy.set(maxO*1.15);   // 眼珠垂到最下面
+      // 「啊…我完蛋了」：眼睛垂下來變小，嘴角往下垮，整個人縮一圈
+      ch.lid.set(0.48); ch.eyeMode='round';      // 眼皮垂下來一半
+      ch.curve.set(-1); ch.open.set(0);
     }
     else if (MOOD==='happy'){
       var hop = Math.abs(Math.sin(el/135 + ch.phase));
@@ -363,8 +369,16 @@ function frame(now){
       ch.hK.set(1.03 + hop*0.05); ch.wK.set(0.98 - hop*0.03);
       ch.lift.set(-hop*17*c.gain);
       ch.ox.set(0); ch.oy.set(-maxO*0.3);
-      ch.lid.set(1); ch.arcAmt.set(0.75);
+      ch.lid.set(1); ch.eyeMode='squint';       // ^ ^ 只有開心才用
       ch.curve.set(1); ch.open.set(1);
+    }
+    else if (MOOD==='aha'){
+      // 「哦～原來如此」：眼睛睜大、嘴巴張成 O、身體往後仰一點點
+      ch.lean.set(-10*c.bend); ch.bendS.set(-6*c.bend);
+      ch.hK.set(1.045); ch.wK.set(0.985); ch.lift.set(0);
+      ch.ox.set(ux*maxO*0.5); ch.oy.set(-maxO*0.45);
+      ch.lid.set(1.34); ch.eyeMode='round';
+      ch.curve.set(0.05); ch.open.set(1.7);    // 嘴巴張成 O（curve 不能為負，否則會走垮嘴那條）
     }
     else if (MOOD==='curious'){
       // 湊過去看：腳釘住、身體伸長並整個歪過去
@@ -373,16 +387,16 @@ function frame(now){
       ch.hK.set(1.055); ch.wK.set(0.975);
       ch.lift.set(0);
       ch.ox.set(ux*maxO); ch.oy.set(uy*maxO*0.85);
-      ch.lid.set(1.12); ch.arcAmt.set(0);
-      ch.curve.set(0); ch.open.set(0.85);
+      ch.lid.set(1.12); ch.eyeMode='round';
+      ch.curve.set(0.15); ch.open.set(0.7);
     }
     else { /* idle */
       ch.lean.set(clamp(dx*0.055, -20, 20) * c.bend);
       ch.bendS.set(clamp(dx*0.025, -9, 9) * c.bend);
       ch.hK.set(1); ch.wK.set(1); ch.lift.set(0);
       ch.ox.set(ux*maxO*reach); ch.oy.set(uy*maxO*0.8*reach);
-      ch.lid.set(1); ch.arcAmt.set(0);
-      ch.curve.set(c.id==='orange'?1:0); ch.open.set(c.id==='orange'?0.7:0);
+      ch.lid.set(1); ch.eyeMode='round';
+      ch.curve.set(c.id==='orange'?1:0.15); ch.open.set(c.id==='orange'?0.75:0);
     }
 
     if (MOOD!=='shy' && MOOD!=='sad' && MOOD!=='intro'){
@@ -394,7 +408,7 @@ function frame(now){
     if (ch.nod>0){ ch.nod-=dt; nodOff = Math.sin((1-ch.nod/600)*Math.PI*2)*8*c.gain; }
     if (ch.shake>0){ ch.shake-=dt; shOff = Math.sin((1-ch.shake/600)*Math.PI*3.2)*14*c.bend; }
 
-    var bob = (MOOD==='intro') ? 0 : Math.sin(el/1000*c.bobSpd + ch.phase)*c.bob;
+    var bob = 0;   // Martin：不要上下飄，站在同一個平面上
 
     var lean = ch.lean.step() + shOff;
     var bend = ch.bendS.step();
@@ -410,8 +424,8 @@ function frame(now){
     var sp = spineAt(c, eyeT, lean, bend, hK);
     var ox = ch.ox.step(), oy = ch.oy.step();
     var lid = clamp(ch.lid.step(), 0.05, 1.3);
-    var arcAmt = clamp(ch.arcAmt.step(), 0, 1);
-    var showArc = arcAmt > 0.45;
+    var mode = ch.eyeMode;                       // round｜squint｜closed
+    var showArc = (mode !== 'round');
 
     ch.eyes.forEach(function(e){
       var homeX = sp.x + (c.eye.single ? (c.eye.ox||0) : e.side*c.eye.dx) * wK;
@@ -421,8 +435,11 @@ function frame(now){
       if (e.hi) e.hi.setAttribute('opacity', showArc?0:0.9);
       e.arc.setAttribute('opacity', showArc?1:0);
       if (showArc){
-        var w = c.eye.r*1.25, up = (MOOD==='happy') ? -1 : 1;
-        e.arc.setAttribute('d','M '+(-w)+' '+(up*3)+' Q 0 '+(-up*4)+' '+w+' '+(up*3));
+        var w = c.eye.r*1.2;
+        if (mode === 'squint')                    // ^ ^ 開心的瞇眼（只有開心才用）
+          e.arc.setAttribute('d','M '+(-w)+' 3 Q 0 -4.5 '+w+' 3');
+        else                                      // — — 刻意閉上（不看）
+          e.arc.setAttribute('d','M '+(-w)+' 0 Q 0 1.4 '+w+' 0');
       } else {
         var pr = (c.eye.type==='sclera') ? c.eye.pr : c.eye.r;
         e.pupil.setAttribute('rx', pr.toFixed(2));
@@ -440,37 +457,49 @@ function frame(now){
   requestAnimationFrame(frame);
 }
 
-/* 嘴巴：實心、會開合、會彎 */
+/* 嘴巴：照參考影片重畫。
+   開心的嘴＝**上緣是直的、下緣是圓的實心塊**（像倒過來的 D），不是橄欖形。
+   嘴角往下垮＝難過，往上＝開心；open 控制張多大。 */
 function paintMouth(ch, ox, hK, wK, lean, bend){
   var c = ch.c; if (!ch.mouth) return;
   var mT = (GROUND - c.mouth.y) / (GROUND - c.topY);
   var m  = spineAt(c, mT, lean, bend, hK);
   var x  = m.x + ox*0.45, y = m.y;
-  var cur = ch.curve.step(), op = clamp(ch.open.step(), 0, 1.2);
+  var cur = ch.curve.step(), op = clamp(ch.open.step(), 0, 1.8);
+  var f1 = function(v){ return v.toFixed(1); };
 
   if (c.mouth.kind === 'line'){
+    // 黃色那隻：一條伸出身體外的橫桿，會依情緒微彎
     var w = c.mouth.w*wK, a = c.mouth.anchor||0;
-    var x1 = x + w*a, x2 = x + w*(a+1), xm=(x1+x2)/2;
-    var sag = cur*2 + op*3;
-    ch.mouth.setAttribute('d','M '+x1.toFixed(1)+' '+y.toFixed(1)+
-      ' Q '+xm.toFixed(1)+' '+(y+sag).toFixed(1)+' '+x2.toFixed(1)+' '+y.toFixed(1)+
-      ' L '+x2.toFixed(1)+' '+(y+3.2).toFixed(1)+
-      ' Q '+xm.toFixed(1)+' '+(y+sag+3.2).toFixed(1)+' '+x1.toFixed(1)+' '+(y+3.2).toFixed(1)+' Z');
+    var x1 = x + w*a, x2 = x + w*(a+1), xm = (x1+x2)/2, th = 3.2;
+    var sag = -cur*3.5;
+    ch.mouth.setAttribute('d','M '+f1(x1)+' '+f1(y)+
+      ' Q '+f1(xm)+' '+f1(y+sag)+' '+f1(x2)+' '+f1(y)+
+      ' L '+f1(x2)+' '+f1(y+th)+
+      ' Q '+f1(xm)+' '+f1(y+sag+th)+' '+f1(x1)+' '+f1(y+th)+' Z');
     return;
   }
-  if (c.mouth.kind === 'blob'){
-    var rw = (c.mouth.w + op*2.5)*wK, rh = 3.4 + op*3.4 - cur*1.2;
-    ch.mouth.setAttribute('d','M '+(x-rw).toFixed(1)+' '+y.toFixed(1)+
-      ' Q '+x.toFixed(1)+' '+(y+rh*2).toFixed(1)+' '+(x+rw).toFixed(1)+' '+y.toFixed(1)+
-      ' Q '+x.toFixed(1)+' '+(y+rh*0.5).toFixed(1)+' '+(x-rw).toFixed(1)+' '+y.toFixed(1)+' Z');
+
+  // 其餘都是「上緣直、下緣圓」的實心嘴：
+  //   cur > 0 笑 → 整條往下鼓；cur < 0 垮 → 整條往上拱（嘴角朝下）
+  //   op 控制張開的深度；完全閉起來就是一條細線
+  var w2 = (c.mouth.w + op*2.0) * wK;
+  var depth = 1.6 + op*8.5;
+  var lipY  = y - cur*1.2;
+  var midY  = y + cur*2.2;                       // 上緣的彎（笑時中間往下）
+  if (cur < 0){
+    // 垮下來：嘴角明顯低於中間（∩），弧度要夠深、夠厚才看得出來是難過
+    var dip = 9.5*(-cur), th2 = 3.6;
+    ch.mouth.setAttribute('d',
+      'M '+f1(x-w2)+' '+f1(lipY+dip)+
+      ' Q '+f1(x)+' '+f1(lipY-dip*0.55)+' '+f1(x+w2)+' '+f1(lipY+dip)+
+      ' Q '+f1(x)+' '+f1(lipY-dip*0.55+th2)+' '+f1(x-w2)+' '+f1(lipY+dip)+' Z');
     return;
   }
-  // open：橘色那隻的大嘴 —— 上緣依 curve 彎（笑／垮），下緣依 open 撐開
-  var w2 = c.mouth.w*wK, depth = 2.6 + op*10, topSag = cur*7;
   ch.mouth.setAttribute('d',
-    'M '+(x-w2).toFixed(1)+' '+y.toFixed(1)+
-    ' Q '+x.toFixed(1)+' '+(y+topSag).toFixed(1)+' '+(x+w2).toFixed(1)+' '+y.toFixed(1)+
-    ' Q '+x.toFixed(1)+' '+(y+topSag+depth).toFixed(1)+' '+(x-w2).toFixed(1)+' '+y.toFixed(1)+' Z');
+    'M '+f1(x-w2)+' '+f1(lipY)+
+    ' Q '+f1(x)+' '+f1(midY)+' '+f1(x+w2)+' '+f1(lipY)+     // 上緣（幾乎直）
+    ' Q '+f1(x)+' '+f1(midY+depth)+' '+f1(x-w2)+' '+f1(lipY)+' Z');  // 下緣（圓）
 }
 
 /* ══════════════════════════════════════════════════════════════════
@@ -481,9 +510,9 @@ function settleNow(){
   chars.forEach(function(ch){
     ch.lean.jump(0); ch.bendS.jump(0); ch.hK.jump(1); ch.wK.jump(1);
     ch.slideX.jump(0); ch.lift.jump(0); ch.lid.jump(1);
-    ch.ox.jump(0); ch.oy.jump(0); ch.arcAmt.jump(0);
+    ch.ox.jump(0); ch.oy.jump(0); ch.eyeMode='round';
   });
-  setMood('idle');
+  setMood(FORCE || 'idle');
 }
 
 function startIntro(){
@@ -521,7 +550,11 @@ function focusOn(el){
 function focusOff(){ lookAt=null; if (MOOD==='curious') setMood('idle'); }
 
 [email,pw].forEach(function(el){
-  el.addEventListener('focus', function(){ if(!(el===pw&&revealed)) focusOn(el); });
+  el.addEventListener('focus', function(){
+    if (el===pw && revealed) return;
+    focusOn(el);
+    if (el===pw && email.value) setMood('aha', 850);   // 「哦～要打密碼了」
+  });
   el.addEventListener('blur', focusOff);
 });
 
@@ -538,6 +571,7 @@ var tick=0;
 email.addEventListener('change', function(){
   if (!email.value) return;
   var ok = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email.value);
+  if (ok) setMood('aha', 1000);
   chars.forEach(function(ch,i){ setTimeout(function(){ if(ok) ch.nod=600; else ch.shake=600; }, i*60); });
 });
 
