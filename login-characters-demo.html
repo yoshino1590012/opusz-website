@@ -330,10 +330,10 @@ function frame(now){
   chars.forEach(function(ch, i){
     var c = ch.c;
 
-    var tgt = lookAt || mouse;
+    var tgt = lookAt || mouse, glanceTo = null;
     if (glancePair && (i===glancePair[0]||i===glancePair[1])){
       var o = chars[i===glancePair[0]?glancePair[1]:glancePair[0]];
-      if (o) tgt = { x:o.c.baseX, y:o.c.eye.y };
+      if (o){ tgt = { x:o.c.baseX, y:o.c.eye.y }; glanceTo = o; }
     }
 
     var ex = c.baseX, ey = c.eye.y;
@@ -344,7 +344,7 @@ function frame(now){
     // 眼珠能跑的範圍拉大 —— 要看得出來它們真的在盯著你
     var maxO = (c.eye.type==='sclera') ? (c.eye.r-c.eye.pr)*1.05 : c.eye.r*1.15;
 
-    if (MOOD==='intro'){ /* 目標由 startIntro 設定 */ }
+    if (MOOD==='intro'){ applyIntro(ch, now); }
 
     else if (MOOD==='shy'){
       ch.lean.set(-26*c.bend); ch.bendS.set(-12*c.bend);
@@ -391,9 +391,20 @@ function frame(now){
       ch.curve.set(0.15); ch.open.set(0.7);
     }
     else { /* idle */
+      if (glanceTo){
+        // 望向彼此時身體也要動：比對方高的**彎腰低頭**，比對方矮的**挺身抬頭**
+        var dir = (glanceTo.c.baseX > c.baseX) ? 1 : -1;
+        var taller = (c.topY < glanceTo.c.topY);           // topY 越小 = 越高
+        ch.lean.set(dir * (taller ? 26 : 12) * c.bend);
+        ch.bendS.set(dir * (taller ? 16 : -6) * c.bend);
+        ch.hK.set(taller ? 0.965 : 1.03);                  // 彎腰縮一點 / 挺身拉高
+        ch.wK.set(taller ? 1.02 : 0.99);
+        ch.lift.set(0);
+      } else {
       ch.lean.set(clamp(dx*0.055, -20, 20) * c.bend);
       ch.bendS.set(clamp(dx*0.025, -9, 9) * c.bend);
       ch.hK.set(1); ch.wK.set(1); ch.lift.set(0);
+      }
       ch.ox.set(ux*maxO*reach); ch.oy.set(uy*maxO*0.8*reach);
       ch.lid.set(1); ch.eyeMode='round';
       ch.curve.set(c.id==='orange'?1:0.15); ch.open.set(c.id==='orange'?0.75:0);
@@ -503,9 +514,69 @@ function paintMouth(ch, ox, hK, wK, lean, bend){
 }
 
 /* ══════════════════════════════════════════════════════════════════
-   進場：每隻的時間、方向、快慢都不一樣，而且是「變形長大」進來的 ——
-   先是矮胖的一塊，再抽長成自己的形狀（參考影片裡紫色一開始是個正方形）。
+   進場：**四隻各有各的腳本**，不是同一條彈簧套四次。
+   所有數字都是把參考影片逐格量出來的（用顏色追每隻的外框大小）：
+
+     橘色  小球彈跳進場 → 落地才撐大    共 0.90s   寬度過衝 +11%
+     黃色  原地長高，**寬度完全不變**   共 0.45s   高度過衝 +7%
+     紫色  正方形 → 抽長，寬度先縮再彈  共 0.60s   高度過衝 +3.5%，會晃
+     黑色  從天花板摔下來               共 0.20s   落地壓扁
+
+   黑色比橘色快 4 倍 —— 這個時間差就是「有快有慢」的來源。
    ══════════════════════════════════════════════════════════════════ */
+function ease(t){ return t<0?0:(t>1?1:t); }
+function outBack(t, s){ s=s||1.9; t=ease(t)-1; return t*t*((s+1)*t+s)+1; }   // 會過衝再回來
+function outCubic(t){ t=ease(t); return 1-Math.pow(1-t,3); }
+function inQuad(t){ t=ease(t); return t*t; }                                  // 加速下墜
+
+var INTRO = {
+  // 橘色：小球從左邊彈進來（空中拉長、觸地壓扁），落地後才撐開成大半圓
+  orange: { dur:900, pose:function(t){
+    var BALL=0.47;                         // 前 47% 是球
+    if (t < BALL){
+      var u = t/BALL;
+      var bounces = 3, ph = u*bounces, k = ph - Math.floor(ph);
+      var hgt = 150 * Math.pow(0.45, Math.floor(ph));      // 每彈一次矮一點
+      var air = 4*k*(1-k);                                  // 拋物線
+      var vel = Math.abs(1-2*k);                            // 0=最高點 1=快觸地
+      var squash = 1 - vel*0.55;                            // 觸地壓扁、空中拉長
+      return { slide:-300*(1-u), lift:-hgt*air,
+               hK:0.30*(2-squash), wK:0.34*(0.6+squash*0.75), lean:0, bend:0 };
+    }
+    var v = (t-BALL)/(1-BALL);
+    return { slide:0, lift:0,
+             hK:0.30 + (1-0.30)*outBack(v,1.5),
+             wK:0.34 + (1-0.34)*outBack(v,2.4), lean:0, bend:0 };
+  }},
+
+  // 黃色：原地長高。寬度一格都不變（影片量出來 94px 從頭到尾）
+  yellow: { dur:450, delay:420, pose:function(t){
+    return { slide:0, lift:0, hK:0.38 + (1-0.38)*outBack(t,1.6), wK:1, lean:0, bend:0 };
+  }},
+
+  // 紫色：先是正方形，晃兩下，再抽長成長方形；抽長時寬度縮、回穩時彈回來
+  purple: { dur:600, delay:420, pose:function(t){
+    var SQ = 104/254;                                        // 正方形時的高度比例
+    if (t < 0.28){                                           // 晃動晃動
+      var w = Math.sin(t/0.28*Math.PI*2.2)*7*(1-t/0.28);
+      return { slide:0, lift:0, hK:SQ, wK:1, lean:w, bend:w*0.5 };
+    }
+    var v=(t-0.28)/0.72, e=outBack(v,1.7);
+    return { slide:0, lift:0,
+             hK:SQ + (1-SQ)*e,
+             wK:1 + (1-e)*0.02 - Math.sin(ease(v)*Math.PI)*0.075,   // 抽長時變瘦，回穩時彈回
+             lean:0, bend:0 };
+  }},
+
+  // 黑色：從天花板摔下來，落地瞬間壓扁一下再回彈
+  dark: { dur:200, delay:300, tail:260, pose:function(t){
+    if (t < 1) return { slide:0, lift:-520*(1-inQuad(t)), hK:1.02, wK:0.97, lean:0, bend:0 };
+    var v = ease((t-1)/1.3);                                 // 落地後的壓扁回彈
+    var sq = Math.sin((1-v)*Math.PI)* (1-v) * 0.16;
+    return { slide:0, lift:0, hK:1-sq, wK:1+sq*0.8, lean:0, bend:0 };
+  }}
+};
+
 function settleNow(){
   chars.forEach(function(ch){
     ch.lean.jump(0); ch.bendS.jump(0); ch.hK.jump(1); ch.wK.jump(1);
@@ -515,26 +586,33 @@ function settleNow(){
   setMood(FORCE || 'idle');
 }
 
+var introT0 = 0;
 function startIntro(){
   if (STILL || reduce){ settleNow(); return; }
+  introT0 = performance.now();
+  var end = 0;
   chars.forEach(function(ch){
-    var e = ch.c.enter;
-    ch.slideX.jump(e.x); ch.lift.jump(e.y);                  // 真的從畫面外進來
-    ch.lean.jump(e.rot*0.55); ch.bendS.jump(e.rot*0.35);     // 飛行中微微歪著
-    ch.hK.jump(e.squat); ch.wK.jump(1 + (1-e.squat)*0.55);   // 又矮又胖，之後抽長
+    var s = INTRO[ch.c.id]; if(!s) return;
     ch.lid.jump(0.05);
+    var total = (s.delay||0) + s.dur*(1 + ((s.tail||0)/s.dur));
+    if (total > end) end = total;
+    setTimeout(function(){ ch.lid.set(1); }, (s.delay||0) + s.dur*0.75);   // 站定才睜眼
   });
-  var lastDelay = 0;
-  chars.forEach(function(ch){
-    var e = ch.c.enter;
-    if (e.delay > lastDelay) lastDelay = e.delay;
-    setTimeout(function(){
-      ch.slideX.set(0); ch.lift.set(0);
-      ch.lean.set(0); ch.bendS.set(0); ch.hK.set(1); ch.wK.set(1);
-    }, e.delay);
-    setTimeout(function(){ ch.lid.set(1); }, e.delay + 620);   // 站定才睜眼
-  });
-  setTimeout(function(){ setMood('idle'); }, lastDelay + 780);
+  setTimeout(function(){ chars.forEach(function(ch){ ch.eyeMode='round'; }); setMood('idle'); }, end + 60);
+}
+
+/* 進場期間：直接照腳本擺位，不走彈簧（彈簧會把四種不同的節奏抹平成同一種） */
+function applyIntro(ch, now){
+  var s = INTRO[ch.c.id]; if(!s) return false;
+  var t = (now - introT0 - (s.delay||0)) / s.dur;
+  if (t < 0) t = 0;
+  var span = 1 + ((s.tail||0)/s.dur);
+  if (t > span) return false;
+  var p = s.pose(Math.min(t, span));
+  ch.slideX.jump(p.slide); ch.lift.jump(p.lift);
+  ch.hK.jump(p.hK); ch.wK.jump(p.wK);
+  ch.lean.jump(p.lean); ch.bendS.jump(p.bend);
+  return true;
 }
 
 /* ── 跟表單互動 ── */
