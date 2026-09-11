@@ -400,10 +400,16 @@ nav.mega-open .nav-links a::before {
    ⚠️ 這段 CSS 在 nav.css 和 musician-platform.html 兩邊「必須一模一樣」，
       改一邊就要改另一邊，否則首頁跟內頁的動畫會不一致。 */
 .mega-menu {
-  position: fixed; top: 76px; left: 0; right: 0;
+  /* top:0（不是 76px）+ padding-top 112px：面板從「畫面最上緣」開始長下來，
+     內容位置不變（0+112 = 原本的 76+36）。
+     ⚠️ 這是 2026-09-11 修「白色區塊中間破洞」的關鍵，不要改回 top:76px：
+     白橫條是從 y=0 往下長的，面板若從 y=76 才開始長，白橫條還沒到位的那
+     ~500ms 中間就會露出一條最高 76px 的縫（實測 31 幀都有洞）。現在兩塊白
+     都從 y=0 往下長 → 白色永遠是連續的一整塊，物理上不可能有洞。 */
+  position: fixed; top: 0; left: 0; right: 0;
   background: #fff;
   box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
-  padding: 36px 40px 40px;
+  padding: 112px 40px 40px;
   display: grid; grid-template-columns: repeat(8, 1fr); gap: 0;
   opacity: 1;                               /* 永遠不透明 — 不再淡入淡出 */
   transform: translateY(-100%);
@@ -671,8 +677,7 @@ nav.mega-open .nav-fav-btn:hover { opacity:1; color:#e05; }
    ⚠️ 配套：JS 不再把 mega-open 加到 <nav> 上（改加 mega-on），
       所有 `nav.mega-open ...` 的白底/黑字規則因此自動失效 —— 不要再把它加回去。 */
 body::before{content:"";position:fixed;top:0;left:0;right:0;height:76px;background:#fff;opacity:1;transform:translateY(-100%);transition:transform .55s cubic-bezier(0.65,0,0.35,1);z-index:199;pointer-events:none;}
-body:has(nav:hover)::before{transform:translateY(0);}
-/* 大選單一開，白橫條就「被面板帶下來」— 若它還在半路(常見：滑過 nav 0.2 秒就
-   滑到 Musicians)，用 0.22s 快速補完，才不會在白條跟面板之間露出一條深色縫。
-   仍然是滑的、不是跳的，也仍然全程實體。 */
-body:has(nav.mega-on)::before{transform:translateY(0);transition:transform .22s cubic-bezier(0.33,1,0.68,1);}
+/* 大選單開著時白橫條留在下面，面板收完才放開它 → 它再自己實體往上滑走。
+   （不需要「加速追趕」：面板現在自己從 y=0 長下來，不會等白橫條。） */
+body:has(nav:hover)::before,
+body:has(nav.mega-on)::before{transform:translateY(0);}
