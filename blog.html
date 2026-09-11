@@ -199,28 +199,11 @@
     .nsd-group-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(0,0,0,0.35); padding: 14px 24px 6px; }
     .nsd-group a { display: block; padding: 10px 24px; font-size: 15px; font-weight: 500; color: #000; text-decoration: none; transition: background .12s, color .12s; }
     .nsd-group a:hover { background: #f5f5f5; }
-    .mega-menu {
-      position: absolute; top: 100%; left: 0; right: 0; background: #fff;
-      box-shadow: 0 24px 64px rgba(0,0,0,0.09), 0 4px 16px rgba(0,0,0,0.05);
-      padding: 36px 40px 40px; display: grid; grid-template-columns: repeat(8,1fr); gap: 0;
-      opacity: 0; transform: translateY(-22px); pointer-events: none;
-      transition: opacity 0.22s ease, transform 0.22s ease;
-    }
-    .mega-menu.mm-visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
-    .mega-col { padding: 0 16px; border-left: none; opacity: 0; transform: translateY(8px); transition: opacity 0.28s ease, transform 0.28s ease; }
-    .mega-col:first-child { border-left: none; padding-left: 0; }
-    .mega-col:last-child { border-right: none; margin-right: 0; padding-right: 0; }
-    .mega-menu.mm-visible .mega-col { opacity: 1; transform: translateY(0); }
-    .mega-menu.mm-visible .mega-col:nth-child(1) { transition-delay: 0.05s; }
-    .mega-menu.mm-visible .mega-col:nth-child(2) { transition-delay: 0.08s; }
-    .mega-menu.mm-visible .mega-col:nth-child(3) { transition-delay: 0.11s; }
-    .mega-menu.mm-visible .mega-col:nth-child(4) { transition-delay: 0.14s; }
-    .mega-menu.mm-visible .mega-col:nth-child(5) { transition-delay: 0.17s; }
-    .mega-menu.mm-visible .mega-col:nth-child(6) { transition-delay: 0.20s; }
-    .mega-col-title { display: block; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #111; margin-bottom: 10px; text-decoration: none; }
-    .mega-col ul { list-style: none; padding: 0; }
-    .mega-col ul li a { display: block; padding: 5px 0; font-size: 13px; color: #555; text-decoration: none; transition: color .12s; }
-    .mega-col ul li a:hover { color: #000; }
+    /* ── 大選單(mega menu)樣式：統一由 nav.css 提供，這裡「不要」再放一份 ──
+       2026-09-11：這幾頁本來各自留了一份舊版樣式（position:absolute、0.22s、
+       而且沒有退場動畫），會蓋掉 nav.css，導致內頁的下拉動畫跟首頁不一樣。
+       已全部刪除改成吃 nav.css。以後要改大選單動畫，只改 nav.css ＋
+       musician-platform.html（首頁有自己一套 inline nav）這兩個地方。 */
     /* ── Lang Toggle ── */
     .lang-toggle { display: flex; align-items: center; gap: 2px; background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; font-size: 13px; font-weight: 600; color: var(--nav-fg); }
     .lang-toggle .lt-opt { padding: 3px 8px; border-radius: 5px; transition: background .2s, color .2s; }
@@ -564,7 +547,7 @@
 </style>
   <link rel="icon" href="/favicon.ico?v=7" />
   <link rel="icon" type="image/png" href="/favicon.png?v=7" />
-<link rel="stylesheet" href="nav.css?v=11">
+<link rel="stylesheet" href="nav.css?v=12">
   <script src="assets/js/analytics.js"></script>
 <style id="opz-no-scrollbar">*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}</style>
 <style id="opz-no-fe-editors">/* Legacy front-end editors retired — editing now lives in the admin Site Editor.
