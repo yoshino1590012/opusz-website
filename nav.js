@@ -608,7 +608,9 @@
       megaMenu.classList.remove('mm-closing');           // re-opening mid-close → drop exit state
       megaMenu.classList.add('mm-visible');
       if (artistsLink) artistsLink.classList.add('mm-active');
-      if (navEl2) { navEl2.classList.remove('mega-closing'); navEl2.classList.add('mega-open'); }
+      // 只加 mega-on（給 body::before 用）。刻意不再加 mega-open —— 那會讓 nav 自己
+      // 補一片白底並把混合模式切成 normal，就是進場閃屏的原因。
+      if (navEl2) navEl2.classList.add('mega-on');
       applyNavBlendColors();   // flip nav controls to black over the white mega panel
     }
     function closeMega() {
@@ -618,12 +620,12 @@
         megaMenu.classList.add('mm-closing');
         megaMenu.classList.remove('mm-visible');
         if (artistsLink) artistsLink.classList.remove('mm-active');
-        if (navEl2) navEl2.classList.add('mega-closing');
         mmCloseTimer = setTimeout(function () {
           megaMenu.classList.remove('mm-closing');
-          if (navEl2) navEl2.classList.remove('mega-open', 'mega-closing');
+          // 面板收完才放開白橫條 → 它接著自己實體往上滑走（不是淡出）
+          if (navEl2) navEl2.classList.remove('mega-on');
           applyNavBlendColors();   // restore normal nav after the whole thing has faded
-        }, 880);
+        }, 640);   // 面板 620ms 收完就交棒，白橫條不用乾等
       }, 200);
     }
 

@@ -220,6 +220,22 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
 .nsd-group-title { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(0,0,0,0.35); padding: 14px 24px 6px; }
 .nsd-group a { display: block; padding: 10px 24px; font-size: 15px; font-weight: 500; color: #000; text-decoration: none; transition: background .12s, color .12s; }
 .nsd-group a:hover { background: #f5f5f5; }
+/* ── 滑到 nav 上時滑下來的白色橫條（2026-09-11 再修）───────────────────
+   全程 100% 實體，只做上下位移。**大選單打開時它繼續留在下面**，所以
+   畫面上方的白「從頭到尾都是這一條」：
+     - 進場不會閃：以前是 nav 自己「啪」地補上整片白底 + 混合模式從
+       difference 跳成 normal，而那時候這條白橫條常常才滑到一半（實測 -57.7px），
+       整片白突然補滿 + 全部文字重新算色 = 業主看到的閃屏。
+     - 退場不會淡出：以前上面那條白是 nav 的背景色，只能用淡的收掉；
+       現在交還給這條橫條，它是實體往上滑走的。
+   ⚠️ 配套：JS 不再把 mega-open 加到 <nav> 上（改加 mega-on），
+      所有 `nav.mega-open ...` 的白底/黑字規則因此自動失效 —— 不要再把它加回去。 */
+body::before{content:"";position:fixed;top:0;left:0;right:0;height:76px;background:#fff;opacity:1;transform:translateY(-100%);transition:transform .55s cubic-bezier(0.65,0,0.35,1);z-index:199;pointer-events:none;}
+body:has(nav:hover)::before{transform:translateY(0);}
+/* 大選單一開，白橫條就「被面板帶下來」— 若它還在半路(常見：滑過 nav 0.2 秒就
+   滑到 Musicians)，用 0.22s 快速補完，才不會在白條跟面板之間露出一條深色縫。
+   仍然是滑的、不是跳的，也仍然全程實體。 */
+body:has(nav.mega-on)::before{transform:translateY(0);transition:transform .22s cubic-bezier(0.33,1,0.68,1);}
 /* ── 大選單面板（2026-09-11 重做進退場）────────────────────
    Martin 的要求：不要「淡淡的→明顯」，面板全程 100% 實體，只做位移。
    做法：面板整塊往上藏到 nav 後面（translateY(-100%)），再用 clip-path 把
@@ -1552,18 +1568,17 @@ document.addEventListener('DOMContentLoaded', function(){
       megaMenu.classList.remove('mm-closing');
       megaMenu.classList.add('mm-visible');
       if(artistsLink) artistsLink.classList.add('mm-active');
-      if(navEl){ navEl.classList.remove('mega-closing'); navEl.classList.add('mega-open'); }
+      if(navEl) navEl.classList.add('mega-on');   // 不加 mega-open（見 body::before 註解）
     }
     function closeMega(){
       mmTimeout = setTimeout(function(){
         megaMenu.classList.add('mm-closing');
         megaMenu.classList.remove('mm-visible');
         if(artistsLink) artistsLink.classList.remove('mm-active');
-        if(navEl) navEl.classList.add('mega-closing');
         mmCloseTimer = setTimeout(function(){
           megaMenu.classList.remove('mm-closing');
-          if(navEl) navEl.classList.remove('mega-open','mega-closing');
-        }, 880);
+          if(navEl) navEl.classList.remove('mega-on');
+        }, 640);
       }, 200);
     }
     artistsTrigger.addEventListener('mouseenter', openMega);
