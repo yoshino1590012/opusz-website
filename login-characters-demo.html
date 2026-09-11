@@ -416,9 +416,10 @@ function frame(now){
 
     if (ch.startle > 0){
       ch.startle -= dt;
-      ch.lid.set(1.40); ch.eyeMode='round';        // 眼睛瞪大
-      ch.ox.set(ux*maxO*0.35); ch.oy.set(-maxO*0.5);
-      ch.curve.set(0.05); ch.open.set(1.75);       // 嘴巴變 O
+      // 驚訝：眼睛瞪很大、瞳孔往上、嘴巴張成明顯的 O（之前太小看不出來）
+      ch.lid.set(1.85); ch.eyeMode='round';
+      ch.ox.set(ux*maxO*0.25); ch.oy.set(-maxO*0.65);
+      ch.curve.set(0.02); ch.open.set(2.6);
     }
 
     if (ch.startle <= 0 && MOOD!=='shy' && MOOD!=='sad' && MOOD!=='intro'){
@@ -493,10 +494,10 @@ function paintMouth(ch, ox, hK, wK, lean, bend){
   var mT = (GROUND - c.mouth.y) / (GROUND - c.topY);
   var m  = spineAt(c, mT, lean, bend, hK);
   var x  = m.x + ox*0.45, y = m.y;
-  var cur = ch.curve.step(), op = clamp(ch.open.step(), 0, 1.8);
+  var cur = ch.curve.step(), op = clamp(ch.open.step(), 0, 2.8);
   var f1 = function(v){ return v.toFixed(1); };
 
-  if (c.mouth.kind === 'line'){
+  if (c.mouth.kind === 'line' && ch.startle <= 0){
     // 黃色那隻：一條伸出身體外的橫桿，會依情緒微彎
     var w = c.mouth.w, a = c.mouth.anchor||0;
     var x1 = x + w*a, x2 = x + w*(a+1), xm = (x1+x2)/2, th = 3.2;
@@ -749,19 +750,20 @@ function poke(hitIdx, px){
   chars.forEach(function(ch, i){
     var c = ch.c, d = Math.abs(c.baseX - chars[hitIdx].c.baseX);
     if (i === hitIdx){
-      ch.startle = 780;
-      ch.lean.z  += (px > c.baseX ? -1 : 1) * 14 * c.bend;   // 往被戳的反方向退
-      ch.bendS.z += (px > c.baseX ? -1 : 1) * 9  * c.bend;
-      ch.hK.z    -= 0.055;                                    // 被壓扁一下
-      ch.wK.z    += 0.045;
+      ch.startle = 900;
+      ch.lean.z  += (px > c.baseX ? -1 : 1) * 6.5 * c.bend;   // 往被戳的反方向退（力道減半）
+      ch.bendS.z += (px > c.baseX ? -1 : 1) * 4.0 * c.bend;
+      ch.hK.z    -= 0.026;                                     // 被壓一下
+      ch.wK.z    += 0.020;
+      ch.lift.z  -= 1.8;                                       // 輕輕一跳
     } else {
       var dir = (c.baseX > chars[hitIdx].c.baseX) ? 1 : -1;   // 被推開
       var f = Math.max(0.18, 1 - d/230);                      // 越近推越大
-      ch.lean.z  += dir * 11 * f * c.bend;
-      ch.bendS.z += dir * 6  * f * c.bend;
-      ch.hK.z    -= 0.022 * f;
-      ch.wK.z    += 0.018 * f;
-      if (f > 0.55) ch.startle = 420;                         // 很近的也小驚一下
+      ch.lean.z  += dir * 4.8 * f * c.bend;                   // 被推開（力道減半）
+      ch.bendS.z += dir * 2.6 * f * c.bend;
+      ch.hK.z    -= 0.010 * f;
+      ch.wK.z    += 0.008 * f;
+      if (f > 0.55) ch.startle = 520;                          // 很近的也小驚一下
     }
   });
 }
