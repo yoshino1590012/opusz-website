@@ -1,5 +1,5 @@
 /* ============================================================================
-   OPUS.Z — Shared instrument taxonomy (single source of truth)
+   Dushen — Shared instrument taxonomy (single source of truth)
    Loaded by musicians.html (public listing/filter) and
    musician-dashboard.html (the instrument picker dropdown).
 

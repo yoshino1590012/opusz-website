@@ -1,5 +1,5 @@
 /* ============================================================================
-   OPUS.Z — Shared messaging engine (real Firestore)
+   Dushen — Shared messaging engine (real Firestore)
    Loaded as <script type="module" src="messaging.js"> on any page that needs
    conversations. Exposes window.OPUSZ_MSG and fires `opusz-msg-ready` once the
    Firebase app + auth are initialised.

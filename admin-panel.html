@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>OPUS.Z · Admin</title>
+  <title>Dushen · Admin</title>
   <!-- Hero 字型編輯器可選字型（讓右欄面板能顯示字型本身的樣子）-->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,7 +13,7 @@
   <meta name="theme-color" content="#1a1a1a">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="OPUS.Z 管理">
+  <meta name="apple-mobile-web-app-title" content="渡聲管理">
   <link rel="apple-touch-icon" href="/icon-192.png">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -367,7 +367,7 @@
     <div class="sb-logo">
       <a href="musician-platform.html" class="sb-logo-inner" style="text-decoration:none;">
         <div class="sb-logo-orb"></div>
-        <span class="sb-logo-text">OPUS.Z</span>
+        <span class="sb-logo-text">Dushen</span>
         <span class="admin-badge">Admin</span>
       </a>
     </div>
@@ -793,18 +793,18 @@
           </div>
           <textarea id="inviteText" style="display:block;width:100%;box-sizing:border-box;margin:0;border:none;outline:none;resize:vertical;padding:24px 26px;font-family:inherit;font-size:14.5px;line-height:2;color:#2a2a2a;letter-spacing:.01em;background:#fbfbfa;min-height:360px;">親愛的朋友，
 
-我想邀請你，成為 OPUS.Z 的創始音樂家之一。
+我想邀請你，成為渡聲的創始音樂家之一。
 
-OPUS.Z 是一個專為台灣頂尖音樂家打造的平台——讓你的演出與教學，被真正需要的人看見。我們嚴選每一位成員，而我，希望你是其中之一。
+渡聲是一個專為台灣頂尖音樂家打造的平台——讓你的演出與教學，被真正需要的人看見。我們嚴選每一位成員，而我，希望你是其中之一。
 
 作為受邀的夥伴，你可以使用專屬邀請碼直接完成註冊，免去審核：
 
 　　邀請碼：OPUSZ2026
-　　註冊網址：https://opuszmusic.com/musician-login
+　　註冊網址：https://dushenmusic.com/musician-login
 
 只需填寫基本資料即可上線，其餘檔案內容，日後都能在後台從容完善。
 
-期待在 OPUS.Z 與你同行。
+期待在渡聲與你同行。
 
 Martin</textarea>
         </div>
@@ -1485,7 +1485,7 @@ Martin</textarea>
     var _dk = window.seHeroPos || {};
     cfg.heroBrandColor = (_dk._brandColor!=null) ? _dk._brandColor
       : ((typeof window.seHeroBrandColor==='string' && window.seHeroBrandColor) ? window.seHeroBrandColor : 'auto');
-    cfg.heroBrandHidden = !!window.seHeroBrandHidden;   // 隱藏大 OPUS.Z 品牌字（全站，非分螢幕）
+    cfg.heroBrandHidden = !!window.seHeroBrandHidden;   // 隱藏大渡聲品牌字（全站，非分螢幕）
     cfg.heroBtn      = (_dk._btn && typeof _dk._btn==='object') ? _dk._btn : (window.seHeroBtn || {});
     cfg.heroBtnShape = (_dk._btnShape && typeof _dk._btnShape==='object') ? _dk._btnShape : (window.seHeroBtnShape || {});
     cfg.heroBtnGlass = (_dk._btnGlass!=null) ? !!_dk._btnGlass : !!window.seHeroBtnGlass;
@@ -1550,7 +1550,7 @@ Martin</textarea>
     { v:'Noto Serif TC', label:'思源宋體' },
     { v:'LXGW WenKai TC', label:'霞鶩文楷' }
   ];
-  var SE_FONT_ELS = { headline:'標題', sub:'副標', btnFind:'按鈕 · Find Artists', btnProject:'按鈕 · Create a Project', brand:'品牌字 OPUS.Z' };
+  var SE_FONT_ELS = { headline:'標題', sub:'副標', btnFind:'按鈕 · Find Artists', btnProject:'按鈕 · Create a Project', brand:'品牌字渡聲' };
   var SE_FONT_DEFAULTS = {
     headline:{ fontEn:'Inter', fontZh:'Noto Sans TC', weight:800 },
     sub:{ fontEn:'Inter', fontZh:'Noto Sans TC', weight:500 },
@@ -1609,7 +1609,7 @@ Martin</textarea>
       + '<label style="'+lbl+'">粗細 / Weight</label><select onchange="seFontSet(\''+el+'\',\'weight\',this.value)" style="'+sty+'">'+wopts+'</select>'
       + (el!=='brand'
           ? ('<label style="'+lbl+'">顏色</label><div style="display:flex;gap:8px;align-items:center;"><input type="color" value="'+(col||'#000000')+'" onchange="seFontSet(\''+el+'\',\'color\',this.value)" style="width:44px;height:32px;border:1px solid #ddd;border-radius:6px;cursor:pointer;padding:0;"><button onclick="seFontSet(\''+el+'\',\'color\',\'\')" style="font-size:11px;border:1px solid #ddd;background:#fff;border-radius:6px;padding:7px 11px;cursor:pointer;font-family:inherit;">清除顏色</button></div>')
-          : '<div style="font-size:11px;color:#888;line-height:1.5;">品牌字顏色請用下方「品牌字 OPUS.Z 顏色」那一區控制。</div>')
+          : '<div style="font-size:11px;color:#888;line-height:1.5;">品牌字顏色請用下方「品牌字渡聲顏色」那一區控制。</div>')
       + '<label style="'+lbl+'margin-top:10px;">字距 / 字間距（英中獨立）</label>'
       + _spRow('英 EN','lsEn',lsEnVal,'en',true)
       + _spRow('中文','lsZh',lsZhVal,'zh',true)
@@ -1677,7 +1677,7 @@ Martin</textarea>
     if(window.seAutoSaveReady){ try{ window.seAutoSave(); }catch(e){} }
   }
   // ── Auto-save (Shopify/Canva-style): any change → debounced write to Firestore, so
-  // the owner never has to press 發布. IMPORTANT: OPUS.Z's save IS the live site, so this
+  // the owner never has to press 發布. IMPORTANT: 渡聲's save IS the live site, so this
   // publishes text/layout LIVE ~1.2s after you pause. (Photos still use 儲存並發布, which
   // git-pushes via server.py.) seAutoSaveReady gates it OFF during programmatic loads so
   // opening the editor / switching pages never writes stale data.
@@ -2207,7 +2207,7 @@ Martin</textarea>
     // Hero: Canva-style drag hint + reset (the actual dragging happens in the preview).
     var heroHint = (seCurrentSection==='hero')
       ? '<div style="font-size:12px;color:#155e75;background:#ecfeff;border:1px solid #a5f3fc;border-radius:8px;padding:9px 11px;margin-bottom:12px;line-height:1.6;">'
-        +'🖱️ <b>可直接在中間預覽用滑鼠拖曳</b>：標題、副標、兩個按鈕、OPUS.Z 品牌字，拖到任意位置（不影響動畫）。'
+        +'🖱️ <b>可直接在中間預覽用滑鼠拖曳</b>：標題、副標、兩個按鈕、渡聲品牌字，拖到任意位置（不影響動畫）。'
         +'<br>下方滑桿可調<b>每個元素的大小</b>。改完按上方「🚀 儲存並發布到網站」。'
         +seHeroSizeRows()
         +seHeroTypeRows()
@@ -2948,7 +2948,7 @@ Martin</textarea>
   // Size sliders for each draggable hero element. Brand can grow bigger (up to 400%).
   function seHeroSizeRows(){
     var _hpActive = (typeof window.seActiveHeroPos==='function') ? window.seActiveHeroPos() : (window.seHeroPos||{});
-    var defs=[['headline','標題'],['sub','副標'],['btnFind','按鈕 · Find Artists'],['btnProject','按鈕 · Create a Project'],['brand','品牌 OPUS.Z']];
+    var defs=[['headline','標題'],['sub','副標'],['btnFind','按鈕 · Find Artists'],['btnProject','按鈕 · Create a Project'],['brand','品牌渡聲']];
     var hp=_hpActive;
     var _devLabel={desktop:'標準螢幕',macbook:'MacBook',ipad:'iPad',phone:'手機'}[seCurrentDevice]||'標準螢幕';
     var devNote='<div style="font-size:10px;color:#b45309;margin:2px 0 6px;">🖥️ 目前編輯「'+_devLabel+'」的位置與大小（四個螢幕各自獨立，互不影響）</div>';
@@ -3100,8 +3100,8 @@ Martin</textarea>
     });
   };
 
-  // Brand OPUS.Z colour mode toggle: auto black/white (default) vs solid white.
-  // Brand OPUS.Z colour: "自動黑白" (blend) OR pick any colour from the palette.
+  // Brand Dushen colour mode toggle: auto black/white (default) vs solid white.
+  // Brand 渡聲 colour: "自動黑白" (blend) OR pick any colour from the palette.
   // Resolve a per-device hero-style value: prefer the CURRENT device's own value,
   // else fall back to the desktop (標準螢幕) map, else the legacy global default.
   function seResolveStyle(prop, legacy){
@@ -3122,15 +3122,15 @@ Martin</textarea>
     }).join('');
     var customVal=(!isAuto && /^#/.test(v))?v:'#000000';
     var custom='<label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:#155e75;cursor:pointer;">自訂<input type="color" value="'+customVal+'" oninput="seHeroSetBrandColor(this.value,false)" style="width:28px;height:24px;border:1px solid #ccc;border-radius:6px;padding:0;cursor:pointer;background:#fff;"></label>';
-    // Hide / show toggle for the whole big OPUS.Z wordmark.
+    // Hide / show toggle for the whole big Dushen wordmark.
     var hidden=!!window.seHeroBrandHidden;
-    var hideRow='<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">大字 OPUS.Z 顯示</div>'
+    var hideRow='<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">大字渡聲顯示</div>'
       +'<div style="display:flex;gap:7px;margin-bottom:10px;">'
       +'<button onclick="seHeroSetBrandHidden(false)" style="font-size:11px;border:1px solid '+(!hidden?'#0e7490':'#cbd5e1')+';background:'+(!hidden?'#0e7490':'#fff')+';color:'+(!hidden?'#fff':'#334155')+';border-radius:6px;padding:5px 13px;cursor:pointer;">顯示</button>'
       +'<button onclick="seHeroSetBrandHidden(true)" style="font-size:11px;border:1px solid '+(hidden?'#0e7490':'#cbd5e1')+';background:'+(hidden?'#0e7490':'#fff')+';color:'+(hidden?'#fff':'#334155')+';border-radius:6px;padding:5px 13px;cursor:pointer;">隱藏</button>'
       +'</div>';
     return hideRow
-      +'<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">品牌字 OPUS.Z 顏色</div>'
+      +'<div style="font-size:11px;font-weight:800;color:#0e7490;margin:12px 0 6px;">品牌字渡聲顏色</div>'
       +(hidden?'<div style="font-size:10px;color:#999;margin-bottom:6px;">（大字目前隱藏中，顏色設定暫時不會顯示）</div>':'')
       +'<div style="margin-bottom:8px;">'+autoBtn+'</div>'
       +'<div style="display:flex;flex-wrap:wrap;gap:7px;align-items:center;">'+swatches+custom+'</div>';
@@ -3271,7 +3271,7 @@ Martin</textarea>
     var lab=document.getElementById('seBtnWl'); if(lab) lab.textContent=m._btnW;
     sePreview();
   };
-  // Number of OPUS.Z brand copies (1–4, per device). Stored as map._brandCount.
+  // Number of Dushen brand copies (1–4, per device). Stored as map._brandCount.
   window.seHeroSetBrandCount = function(n){
     var m = window.seActiveHeroPos();
     m._brandCount = Math.max(1, Math.min(8, parseInt(n,10) || 1));
@@ -3470,7 +3470,7 @@ Martin</textarea>
     window.seHeroPosIpad    = (seCurrentConfig.heroPosIpad    && typeof seCurrentConfig.heroPosIpad==='object')    ? seCurrentConfig.heroPosIpad    : _copyDesk();
     window.seHeroPosPhone   = (seCurrentConfig.heroPosPhone   && typeof seCurrentConfig.heroPosPhone==='object')   ? seCurrentConfig.heroPosPhone   : _copyDesk();
     window.seHeroBrandColor = (typeof seCurrentConfig.heroBrandColor==='string' && seCurrentConfig.heroBrandColor) ? seCurrentConfig.heroBrandColor : 'auto';
-    window.seHeroBrandHidden = (typeof seCurrentConfig.heroBrandHidden==='boolean') ? seCurrentConfig.heroBrandHidden : true;   // 預設隱藏大 OPUS.Z 品牌字
+    window.seHeroBrandHidden = (typeof seCurrentConfig.heroBrandHidden==='boolean') ? seCurrentConfig.heroBrandHidden : true;   // 預設隱藏大渡聲品牌字
     window.seHeroBtn = (seCurrentConfig.heroBtn && typeof seCurrentConfig.heroBtn==='object') ? seCurrentConfig.heroBtn : {};
     window.seHeroBtnShape = (seCurrentConfig.heroBtnShape && typeof seCurrentConfig.heroBtnShape==='object') ? seCurrentConfig.heroBtnShape : {};
     window.seHeroBtnGlass = !!seCurrentConfig.heroBtnGlass;
@@ -3993,20 +3993,20 @@ Martin</textarea>
     {
       title:'錄音／影像使用權',
       titleEn:'Recording & Image Rights',
-      body:'1. 演出、教學或拍攝中產生的錄音、錄影與照片，著作權原則上歸音樂家本人所有。\n2. 音樂家上傳至 OPUS.Z 的檔案照片、音檔與影片，即授權平台於網站、社群及行銷素材中無償使用，以推廣其檔案與媒合服務；音樂家可隨時於後台移除，移除後平台不再於新素材使用。\n3. 委託方如需於活動中錄音、錄影或將成果作商業使用，應事先與音樂家另行約定授權範圍；平台不代為授權第三方使用音樂家之演出內容。\n4. 未經音樂家書面同意，任何一方不得將演出或教學內容用於 AI 訓練、重製散布或轉售。',
-      bodyEn:'1. Recordings, videos, and photographs produced during a performance, lesson, or shoot are, as a rule, owned by the musician.\n2. Photos, audio files, and videos that a musician uploads to OPUS.Z are licensed to the platform for free use on the website, social media, and marketing materials to promote their profile and the matching service; the musician may remove them from their dashboard at any time, after which the platform will not use them in new materials.\n3. If a client wishes to record or film during an event or use the results commercially, they must arrange a separate licence with the musician in advance; the platform does not grant third parties a licence to use musicians\' performance content on their behalf.\n4. Without the musician\'s written consent, no party may use performance or lesson content for AI training, reproduction, distribution, or resale.'
+      body:'1. 演出、教學或拍攝中產生的錄音、錄影與照片，著作權原則上歸音樂家本人所有。\n2. 音樂家上傳至渡聲的檔案照片、音檔與影片，即授權平台於網站、社群及行銷素材中無償使用，以推廣其檔案與媒合服務；音樂家可隨時於後台移除，移除後平台不再於新素材使用。\n3. 委託方如需於活動中錄音、錄影或將成果作商業使用，應事先與音樂家另行約定授權範圍；平台不代為授權第三方使用音樂家之演出內容。\n4. 未經音樂家書面同意，任何一方不得將演出或教學內容用於 AI 訓練、重製散布或轉售。',
+      bodyEn:'1. Recordings, videos, and photographs produced during a performance, lesson, or shoot are, as a rule, owned by the musician.\n2. Photos, audio files, and videos that a musician uploads to Dushen are licensed to the platform for free use on the website, social media, and marketing materials to promote their profile and the matching service; the musician may remove them from their dashboard at any time, after which the platform will not use them in new materials.\n3. If a client wishes to record or film during an event or use the results commercially, they must arrange a separate licence with the musician in advance; the platform does not grant third parties a licence to use musicians\' performance content on their behalf.\n4. Without the musician\'s written consent, no party may use performance or lesson content for AI training, reproduction, distribution, or resale.'
     },
     {
       title:'行為準則',
       titleEn:'Code of Conduct',
-      body:'為維持 OPUS.Z 的專業與信任，所有使用者（音樂家與委託方）同意遵守下列準則：\n1. 誠實揭露：資歷、經歷與作品須真實，不得造假或冒用他人身分、作品。\n2. 專業守時：依約準時出席演出與課程；如需取消或變更，應儘早通知對方並依「取消與退款」規定辦理。\n3. 互相尊重：禁止任何形式的騷擾、歧視、威脅或不當言行。\n4. 誠信溝通：報價、需求與條件應清楚誠實，不得惡意誤導。\n5. 平台誠信：不得以不實評價或其他方式操弄媒合與評價機制。\n違反者，平台得視情節暫停或終止帳號（詳見「帳號審核與停權」）。',
-      bodyEn:'To maintain OPUS.Z\'s professionalism and trust, all users (musicians and clients) agree to:\n1. Honest representation: credentials, experience, and work samples must be genuine; impersonation or misuse of others\' content is prohibited.\n2. Professionalism & punctuality: attend performances and lessons on time as agreed; if cancellation or rescheduling is needed, notify the other party as early as possible and follow the Cancellations & Refunds policy.\n3. Mutual respect: harassment, discrimination, threats, and inappropriate conduct of any kind are prohibited.\n4. Honest communication: quotes, requirements, and terms must be clear and truthful; deliberate misrepresentation is not permitted.\n5. Platform integrity: do not manipulate the matching or review system through false ratings or other means.\nViolations may result in temporary suspension or termination of the account (see Account Review & Suspension).'
+      body:'為維持渡聲的專業與信任，所有使用者（音樂家與委託方）同意遵守下列準則：\n1. 誠實揭露：資歷、經歷與作品須真實，不得造假或冒用他人身分、作品。\n2. 專業守時：依約準時出席演出與課程；如需取消或變更，應儘早通知對方並依「取消與退款」規定辦理。\n3. 互相尊重：禁止任何形式的騷擾、歧視、威脅或不當言行。\n4. 誠信溝通：報價、需求與條件應清楚誠實，不得惡意誤導。\n5. 平台誠信：不得以不實評價或其他方式操弄媒合與評價機制。\n違反者，平台得視情節暫停或終止帳號（詳見「帳號審核與停權」）。',
+      bodyEn:'To maintain Dushen\'s professionalism and trust, all users (musicians and clients) agree to:\n1. Honest representation: credentials, experience, and work samples must be genuine; impersonation or misuse of others\' content is prohibited.\n2. Professionalism & punctuality: attend performances and lessons on time as agreed; if cancellation or rescheduling is needed, notify the other party as early as possible and follow the Cancellations & Refunds policy.\n3. Mutual respect: harassment, discrimination, threats, and inappropriate conduct of any kind are prohibited.\n4. Honest communication: quotes, requirements, and terms must be clear and truthful; deliberate misrepresentation is not permitted.\n5. Platform integrity: do not manipulate the matching or review system through false ratings or other means.\nViolations may result in temporary suspension or termination of the account (see Account Review & Suspension).'
     },
     {
       title:'帳號審核與停權',
       titleEn:'Account Review & Suspension',
-      body:'1. 嚴選審核：OPUS.Z 為嚴選制平台，音樂家註冊後須經審核資歷與作品，通過後方能公開上架；平台保留審核及是否收錄之最終決定權。\n2. 帳號責任：請妥善保管帳號與密碼，因帳號外洩所生之風險由持有人自負。\n3. 停權事由：有下列情形之一者，平台得暫停或終止帳號——提供不實資料或冒用他人身分／作品；違反「行為準則」或對他人造成騷擾、損害；多次無故缺席或臨時取消已確認之委託；從事詐騙、違法或損害平台與其他使用者權益之行為。\n4. 申訴：帳號遭停權者，可於收到通知後來信客服提出申訴，平台將於合理期間內回覆。',
-      bodyEn:'1. Selective admission: OPUS.Z is a curated platform; musicians must pass a review of their credentials and work after registration before their profile is published; the platform retains final discretion over admission.\n2. Account responsibility: please keep your account credentials secure; the account holder bears responsibility for risks arising from unauthorised access.\n3. Grounds for suspension: the platform may suspend or terminate an account if the user: provides false information or impersonates another person or their work; violates the Code of Conduct or causes harassment or harm to others; repeatedly fails to attend or cancels confirmed engagements without adequate notice; engages in fraud, illegal activity, or conduct harmful to the platform or other users.\n4. Appeals: users whose accounts are suspended may submit an appeal to customer support after receiving notice; the platform will respond within a reasonable time.'
+      body:'1. 嚴選審核：渡聲為嚴選制平台，音樂家註冊後須經審核資歷與作品，通過後方能公開上架；平台保留審核及是否收錄之最終決定權。\n2. 帳號責任：請妥善保管帳號與密碼，因帳號外洩所生之風險由持有人自負。\n3. 停權事由：有下列情形之一者，平台得暫停或終止帳號——提供不實資料或冒用他人身分／作品；違反「行為準則」或對他人造成騷擾、損害；多次無故缺席或臨時取消已確認之委託；從事詐騙、違法或損害平台與其他使用者權益之行為。\n4. 申訴：帳號遭停權者，可於收到通知後來信客服提出申訴，平台將於合理期間內回覆。',
+      bodyEn:'1. Selective admission: Dushen is a curated platform; musicians must pass a review of their credentials and work after registration before their profile is published; the platform retains final discretion over admission.\n2. Account responsibility: please keep your account credentials secure; the account holder bears responsibility for risks arising from unauthorised access.\n3. Grounds for suspension: the platform may suspend or terminate an account if the user: provides false information or impersonates another person or their work; violates the Code of Conduct or causes harassment or harm to others; repeatedly fails to attend or cancels confirmed engagements without adequate notice; engages in fraud, illegal activity, or conduct harmful to the platform or other users.\n4. Appeals: users whose accounts are suspended may submit an appeal to customer support after receiving notice; the platform will respond within a reasonable time.'
     },
     {
       title:'隱私與資料',

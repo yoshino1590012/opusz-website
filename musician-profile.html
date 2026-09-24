@@ -57,7 +57,7 @@
   };
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>OPUS.Z</title>
+<title>Dushen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Warm up the connections used to load the profile (data + banner photo) ASAP. -->
@@ -4484,7 +4484,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     const region = p.primaryRegion || '';
     const bio = p.bio || '';
 
-    document.title = name + ' — OPUS.Z';
+    document.title = name + ' — Dushen';
 
     const heroNameBig = document.getElementById('heroNameBig');
     if (heroNameBig) heroNameBig.querySelectorAll('span').forEach(s => s.textContent = name);
@@ -4583,7 +4583,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
     try {
       let link = document.querySelector('link[rel="canonical"]');
       if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
-      link.href = 'https://opuszmusic.com/musician/' + encodeURIComponent(slug);
+      link.href = 'https://dushenmusic.com/musician/' + encodeURIComponent(slug);
     } catch(e){}
   }
 
@@ -4600,7 +4600,7 @@ html.prof-pending .hero-info .info-location { visibility: hidden !important; }
         history.replaceState(null, '', pretty);                 // ?uid=… → /musician/<slug>
         let link = document.querySelector('link[rel="canonical"]');
         if (!link) { link = document.createElement('link'); link.rel = 'canonical'; document.head.appendChild(link); }
-        link.href = 'https://opuszmusic.com' + pretty;
+        link.href = 'https://dushenmusic.com' + pretty;
       } catch(e){ console.log('pretty-URL swap failed:', e); }
     });
   }

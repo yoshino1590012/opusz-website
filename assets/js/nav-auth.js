@@ -1,5 +1,5 @@
 /**
- * nav-auth.js — shared login state for all OPUS.Z pages
+ * nav-auth.js — shared login state for all Dushen pages
  * When logged in, transforms the existing navLoginBtn in-place into "My Account"
  * so it inherits each page's nav layout, animations, and colour changes automatically.
  */

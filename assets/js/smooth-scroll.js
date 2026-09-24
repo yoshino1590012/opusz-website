@@ -1,5 +1,5 @@
 /* ─────────────────────────────────────────────────────────────
-   OPUS.Z — Global lerp-damped smooth scroll
+   Dushen — Global lerp-damped smooth scroll
    Matches the inertial feel from musician-platform.html.
    Drop-in: <script src="assets/js/smooth-scroll.js" defer></script>
 

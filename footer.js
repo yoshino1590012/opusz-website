@@ -73,7 +73,7 @@
     +   '<div class="sf-newsletter">'
     +     '<p class="sf-nl-label" data-i18n="newsletter.label">Newsletter</p>'
     +     '<h2 class="sf-nl-title" data-i18n="newsletter.title">Stay close to the music.</h2>'
-    +     '<p class="sf-nl-body" data-i18n="newsletter.body">Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.</p>'
+    +     '<p class="sf-nl-body" data-i18n="newsletter.body">Get exclusive updates on new musicians, upcoming shows, and industry insights from Dushen — delivered to your inbox.</p>'
     +     '<form name="newsletter" method="POST" class="sf-nl-form">'
     +       '<input type="email" name="email" placeholder="Enter email" required data-i18n-ph="newsletter.email_ph">'
     +       '<button type="submit" data-i18n="newsletter.btn">SUBSCRIBE</button>'
@@ -108,15 +108,15 @@
     +   '</div>'
     + '</div>'
     + '<div class="sf-copy-bar">'
-    +   '<span data-i18n="footer.copy">© 2026 OPUS.Z. All rights reserved.</span>'
+    +   '<span data-i18n="footer.copy">© 2026 Dushen. All rights reserved.</span>'
     +   '<div class="sf-copy-right">'
     +     '<a href="#" data-i18n="footer.privacy">Privacy Policy</a>'
     +     '<a href="#" data-i18n="footer.terms">Terms of Service</a>'
     +   '</div>'
     + '</div>'
     + '<div class="sf-brand" aria-hidden="true">'
-    +   '<span class="sf-letter">O</span><span class="sf-letter">P</span><span class="sf-letter">U</span>'
-    +   '<span class="sf-letter">S</span><span class="sf-letter sf-dot">.</span><span class="sf-letter">Z</span>'
+    +   '<span class="sf-letter">D</span><span class="sf-letter">U</span><span class="sf-letter">S</span>'
+    +   '<span class="sf-letter">H</span><span class="sf-letter">E</span><span class="sf-letter">N</span>'
     + '</div>';
 
   var footer = document.createElement('footer');
@@ -133,7 +133,7 @@
     document.head.appendChild(fl);
   }
 
-  // Big "OPUS.Z" wordmark animation — letters thicken/widen/slant toward the
+  // Big "Dushen" wordmark animation — letters thicken/widen/slant toward the
   // cursor (mirrors the homepage footer). Pointer-only; no-op on touch.
   (function(){
     var brand = footer.querySelector('.sf-brand');
@@ -186,24 +186,24 @@
     en: {
       'newsletter.label':'Newsletter',
       'newsletter.title':'Stay close to the music.',
-      'newsletter.body':'Get exclusive updates on new musicians, upcoming shows, and industry insights from OPUS.Z — delivered to your inbox.',
+      'newsletter.body':'Get exclusive updates on new musicians, upcoming shows, and industry insights from Dushen — delivered to your inbox.',
       'newsletter.email_ph':'Enter email','newsletter.btn':'SUBSCRIBE','newsletter.note':'No spam. Unsubscribe anytime.',
       'footer.link.home':'Home','footer.link.discover':'Discover','footer.link.allmusicians':'All Musicians','footer.link.recentjobs':'Recent Jobs',
       'footer.link.strings':'Strings','footer.link.piano':'Piano','footer.link.woodwinds':'Woodwinds','footer.link.chamber':'Chamber Music',
       'footer.link.contact':'Contact','footer.link.about':'About','footer.link.blog':'Blog','footer.link.musicians':'Musicians',
       'footer.link.instagram':'Instagram','footer.link.youtube':'YouTube','footer.link.tiktok':'TikTok','footer.link.facebook':'Facebook',
-      'footer.copy':'© 2026 OPUS.Z. All rights reserved.','footer.privacy':'Privacy Policy','footer.terms':'Terms of Service'
+      'footer.copy':'© 2026 Dushen. All rights reserved.','footer.privacy':'Privacy Policy','footer.terms':'Terms of Service'
     },
     zh: {
       'newsletter.label':'電子報',
       'newsletter.title':'與音樂保持連結。',
-      'newsletter.body':'訂閱 OPUS.Z，獲得最新音樂家、近期演出與產業洞察，直接送到你的信箱。',
+      'newsletter.body':'訂閱渡聲，獲得最新音樂家、近期演出與產業洞察，直接送到你的信箱。',
       'newsletter.email_ph':'輸入電子郵件','newsletter.btn':'訂閱','newsletter.note':'不寄垃圾信，隨時可取消訂閱。',
       'footer.link.home':'首頁','footer.link.discover':'探索','footer.link.allmusicians':'所有音樂家','footer.link.recentjobs':'近期委託',
       'footer.link.strings':'弦樂','footer.link.piano':'鋼琴','footer.link.woodwinds':'木管','footer.link.chamber':'室內樂',
       'footer.link.contact':'聯絡','footer.link.about':'關於','footer.link.blog':'部落格','footer.link.musicians':'音樂家',
       'footer.link.instagram':'Instagram','footer.link.youtube':'YouTube','footer.link.tiktok':'TikTok','footer.link.facebook':'Facebook',
-      'footer.copy':'© 2026 OPUS.Z. 版權所有。','footer.privacy':'隱私權政策','footer.terms':'服務條款'
+      'footer.copy':'© 2026 渡聲. 版權所有。','footer.privacy':'隱私權政策','footer.terms':'服務條款'
     }
   };
   function footerLang(){

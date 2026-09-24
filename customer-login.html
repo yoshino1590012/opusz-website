@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sign In — OPUS.Z</title>
+<title>Sign In — Dushen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
@@ -223,12 +223,12 @@ input[type="password"].shake {
 
 <a href="musician-platform.html" class="opz-back">
   <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-  回到 OPUS.Z
+  回到渡聲
 </a>
 
 <div class="logo-wrap">
   <div class="logo-img"></div>
-  <div class="logo-name">OPUS.Z</div>
+  <div class="logo-name">渡聲音樂</div>
 </div>
 
 <div class="card">
@@ -289,7 +289,7 @@ input[type="password"].shake {
 </div>
 
 <div class="page-footer">
-  <a href="musician-platform.html">OPUS.Z</a> · Professional Music Services
+  <a href="musician-platform.html">Dushen</a> · Professional Music Services
 </div>
 
 <!-- Firebase Auth SDK -->
@@ -312,7 +312,7 @@ const app  = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const functions = getFunctions(app, 'us-central1');
 
-// Send the verification email via our branded ZeptoMail sender (info@opuszmusic.com)
+// Send the verification email via our branded ZeptoMail sender (info@dushenmusic.com)
 // so it lands in the inbox, not spam. Falls back to Firebase's built-in email.
 async function sendBrandedVerify(user, email) {
   try {

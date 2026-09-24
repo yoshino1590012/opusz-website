@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OPUS.Z · Sign In</title>
+  <title>Dushen · Sign In</title>
   <style>
 
 /* ── 返回鍵（2026-09-11）──────────────────────────────────────────
@@ -55,7 +55,7 @@
     }
     @media(max-width:768px){ .left-panel { display: none; } }
     .lp-logo {
-      /* 左上角已經改放「← 回到 OPUS.Z」的返回鍵（本來這個 Logo 也是連回首頁，
+      /* 左上角已經改放「← 回到渡聲」的返回鍵（本來這個 Logo 也是連回首頁，
          兩個東西做同一件事又疊在一起）。品牌名在返回鍵和表單裡都還在。 */
       display: none;
     }
@@ -274,7 +274,7 @@
   <meta name="theme-color" content="#7a1212" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="apple-mobile-web-app-title" content="OPUS.Z" />
+  <meta name="apple-mobile-web-app-title" content="Dushen" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   <script src="assets/js/analytics.js"></script>
 <style id="opz-no-scrollbar">*{scrollbar-width:none!important;-ms-overflow-style:none!important}*::-webkit-scrollbar{width:0!important;height:0!important;display:none!important}</style>
@@ -284,7 +284,7 @@
 <body>
 <a href="musician-platform.html" class="opz-back">
   <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-  回到 OPUS.Z
+  回到渡聲
 </a>
 
 
@@ -295,7 +295,7 @@
 
   <a href="musician-platform.html" class="lp-logo">
     <div class="lp-logo-orb"></div>
-    <span class="lp-logo-text">OPUS.Z</span>
+    <span class="lp-logo-text">Dushen</span>
   </a>
 
   <div class="lp-body">
@@ -335,13 +335,13 @@
 
     <a href="musician-platform.html" class="mobile-logo">
       <div class="mobile-logo-orb"></div>
-      <span style="font-size:16px;font-weight:800;">OPUS.Z</span>
+      <span style="font-size:16px;font-weight:800;">Dushen</span>
     </a>
 
     <!-- ═══════════ STEP 0: LOGIN ═══════════ -->
     <div class="step active" id="step-login">
       <div class="step-title" data-i18n="loginTitle">Welcome back</div>
-      <div class="step-sub" data-i18n="loginSub">Sign in to your OPUS.Z musician account.</div>
+      <div class="step-sub" data-i18n="loginSub">Sign in to your Dushen musician account.</div>
 
       <div class="alert alert-error" id="loginError" data-i18n="loginErrDefault">Email or password is incorrect.</div>
 
@@ -375,7 +375,7 @@
       <button class="btn-sec" id="loginCreateBtn" onclick="goStep('register-email')" data-i18n="loginCreate">Create a musician account</button>
 
       <div class="switch-link" style="margin-top:16px;">
-        <a href="musician-platform.html" data-i18n="loginBackHome">← Back to OPUS.Z</a>
+        <a href="musician-platform.html" data-i18n="loginBackHome">← Back to Dushen</a>
       </div>
     </div>
 
@@ -471,7 +471,7 @@
       <div class="alert alert-success" id="verifySuccess" style="display:none;" data-i18n="verifySuccessMsg">✓ Email verified! Continuing to profile setup…</div>
 
       <div id="verifyInstructions" style="background:#f8f8f8;border-radius:10px;padding:16px;margin-bottom:20px;font-size:13px;color:#555;line-height:1.6;" data-i18n-html="verifyInstructions">
-        1. Open the email from OPUS.Z<br>
+        1. Open the email from Dushen<br>
         2. Click the <strong>verification link</strong><br>
         3. Come back here and click the button below
       </div>
@@ -628,7 +628,7 @@
       <div class="form-group" style="margin-top:4px;">
         <label style="display:flex;align-items:flex-start;gap:9px;font-size:13.5px;color:#333;line-height:1.5;cursor:pointer;">
           <input type="checkbox" id="setupAgree" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;">
-          <span id="setupAgreeLabel" data-i18n-html="setupAgreeLabel">我已閱讀並同意 OPUS.Z 的 <a href="#" onclick="openPolicyModal();return false;" style="font-weight:600;text-decoration:underline;">樂手條款與平台政策</a>。</span>
+          <span id="setupAgreeLabel" data-i18n-html="setupAgreeLabel">我已閱讀並同意渡聲的 <a href="#" onclick="openPolicyModal();return false;" style="font-weight:600;text-decoration:underline;">樂手條款與平台政策</a>。</span>
         </label>
         <div class="form-error" id="setupAgreeErr" data-i18n="setupAgreeErr">請先閱讀並勾選同意樂手條款。</div>
       </div>
@@ -650,7 +650,7 @@
       <div class="success-check">
         <div class="success-icon">🎉</div>
         <div class="step-title" style="text-align:center;" data-i18n="successTitle">You're all set!</div>
-        <div class="step-sub" style="text-align:center;" data-i18n="successSub">Welcome to OPUS.Z. Redirecting to your dashboard...</div>
+        <div class="step-sub" style="text-align:center;" data-i18n="successSub">Welcome to Dushen. Redirecting to your dashboard...</div>
         <div style="display:flex;justify-content:center;margin-top:20px;">
           <div class="spinner" style="border-color:rgba(0,0,0,.15);border-top-color:var(--black);"></div>
         </div>
@@ -749,7 +749,7 @@
   window.closePolicyModal = function(){ var m=document.getElementById('policyModal'); if(m) m.style.display='none'; };
   document.addEventListener('click', function(e){ var m=document.getElementById('policyModal'); if(m && e.target===m) m.style.display='none'; });
 
-  // Send the verification email via our branded ZeptoMail sender (info@opuszmusic.com)
+  // Send the verification email via our branded ZeptoMail sender (info@dushenmusic.com)
   // so it lands in the inbox, not spam. Falls back to Firebase's built-in email
   // if the Cloud Function is unreachable, so signup never breaks.
   async function sendBrandedVerify(user, email, name) {
@@ -1384,13 +1384,13 @@
       lpHeadline: 'Your music.<br><span>Your stage.</span><br>Your platform.',
       lpDesc: 'Join world-class classical musician platform. Connect with clients, manage bookings, and build your career — all in one place.',
       lpMusicians: 'Musicians', lpBookings: 'Bookings', lpRating: 'Avg. Rating',
-      loginTitle: 'Welcome back', loginSub: 'Sign in to your OPUS.Z musician account.',
+      loginTitle: 'Welcome back', loginSub: 'Sign in to your Dushen musician account.',
       loginErrDefault: 'Email or password is incorrect.',
       loginLabelEmail: 'Email', loginLabelPw: 'Password',
       loginPwPlaceholder: 'Enter your password',
       loginRemember: 'Remember me', loginForgot: 'Forgot password?',
       loginBtn: 'Sign In', loginOr: 'or',
-      loginCreate: 'Create a musician account', loginBackHome: '← Back to OPUS.Z',
+      loginCreate: 'Create a musician account', loginBackHome: '← Back to Dushen',
       forgotBack: 'Back', forgotTitle: 'Reset password',
       forgotSub: "Enter your email and we'll send you a reset link.",
       forgotSuccess: 'Reset link sent! Check your inbox.',
@@ -1404,7 +1404,7 @@
       regErrMatch: 'Passwords do not match.', regBtn: 'Continue',
       regTerms: 'By signing up you agree to our <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.',
       verifyTitle: 'Check your inbox', verifySub1: 'We sent a verification link to',
-      verifyInstructions: '1. Open the email from OPUS.Z<br>2. Click the <strong>verification link</strong><br>3. Come back here and click the button below',
+      verifyInstructions: '1. Open the email from Dushen<br>2. Click the <strong>verification link</strong><br>3. Come back here and click the button below',
       verifyBtn: "I've verified my email ✓",
       verifyResendQ: "Didn't receive it?", verifyResend: 'Resend email',
       verifySuccessMsg: '✓ Email verified! Continuing to profile setup…',
@@ -1440,7 +1440,7 @@
       setupLinksLabel: 'Portfolio links', setupLinksSpan: '— optional',
       setupYtPlaceholder: 'YouTube video URL', setupSitePlaceholder: 'Personal website',
       setupPhoneLabel: 'Phone', setupPhoneErr: 'Please enter your phone number.',
-      setupAgreeLabel: 'I have read and agree to OPUS.Z\'s <a href="#" onclick="openPolicyModal();return false;" style="font-weight:600;text-decoration:underline;">Musician Terms & Platform Policy</a>.',
+      setupAgreeLabel: 'I have read and agree to Dushen\'s <a href="#" onclick="openPolicyModal();return false;" style="font-weight:600;text-decoration:underline;">Musician Terms & Platform Policy</a>.',
       setupAgreeErr: 'Please read and accept the terms.',
       setupGenErr: '⚠️ Some required fields are empty. Please scroll up to complete them.',
       setupBtn: 'Submit application',
@@ -1460,19 +1460,19 @@
       statusContinueBtn: 'Continue Application →', statusHomeBtn: 'Back to Home',
       statusBackLogin: 'Sign in with a different account',
       successTitle: "You're all set!",
-      successSub: 'Welcome to OPUS.Z. Redirecting to your dashboard...',
+      successSub: 'Welcome to Dushen. Redirecting to your dashboard...',
     },
     zh: {
       lpHeadline: '你的音樂。<br><span>你的舞台。</span><br>你的平台。',
       lpDesc: '加入頂尖古典音樂家平台，媒合客戶、管理演出，在同一個地方建立你的音樂事業。',
       lpMusicians: '音樂家', lpBookings: '演出委託', lpRating: '平均評分',
-      loginTitle: '歡迎回來', loginSub: '登入你的 OPUS.Z 樂手帳號。',
+      loginTitle: '歡迎回來', loginSub: '登入你的渡聲樂手帳號。',
       loginErrDefault: '電子郵件或密碼錯誤。',
       loginLabelEmail: '電子郵件', loginLabelPw: '密碼',
       loginPwPlaceholder: '輸入你的密碼',
       loginRemember: '保持登入', loginForgot: '忘記密碼？',
       loginBtn: '登入', loginOr: '或',
-      loginCreate: '建立樂手帳號', loginBackHome: '← 回到 OPUS.Z',
+      loginCreate: '建立樂手帳號', loginBackHome: '← 回到渡聲',
       forgotBack: '返回', forgotTitle: '重設密碼',
       forgotSub: '輸入你的電子郵件，我們將寄送重設連結。',
       forgotSuccess: '重設連結已寄出！請查看信箱。',
@@ -1486,7 +1486,7 @@
       regErrMatch: '兩次輸入的密碼不一致。', regBtn: '繼續',
       regTerms: '註冊即表示你同意我們的 <a href="#">服務條款</a> 與 <a href="#">隱私政策</a>。',
       verifyTitle: '查看信箱', verifySub1: '我們已傳送驗證連結至',
-      verifyInstructions: '1. 開啟 OPUS.Z 寄送的信件<br>2. 點擊信中的 <strong>驗證連結</strong><br>3. 回到這裡點擊下方按鈕',
+      verifyInstructions: '1. 開啟渡聲寄送的信件<br>2. 點擊信中的 <strong>驗證連結</strong><br>3. 回到這裡點擊下方按鈕',
       verifyBtn: '我已驗證電子郵件 ✓',
       verifyResendQ: '沒收到？', verifyResend: '重新寄送',
       verifySuccessMsg: '✓ 電子郵件已驗證！正在前往資料填寫…',
@@ -1522,7 +1522,7 @@
       setupLinksLabel: '作品連結', setupLinksSpan: '— optional',
       setupYtPlaceholder: 'YouTube 影片網址', setupSitePlaceholder: '個人網站',
       setupPhoneLabel: '聯絡電話 / Phone', setupPhoneErr: '請填寫聯絡電話。',
-      setupAgreeLabel: '我已閱讀並同意 OPUS.Z 的 <a href="#" onclick="openPolicyModal();return false;" style="font-weight:600;text-decoration:underline;">樂手條款與平台政策</a>。',
+      setupAgreeLabel: '我已閱讀並同意渡聲的 <a href="#" onclick="openPolicyModal();return false;" style="font-weight:600;text-decoration:underline;">樂手條款與平台政策</a>。',
       setupAgreeErr: '請先閱讀並勾選同意樂手條款。',
       setupGenErr: '⚠️ 有必填欄位未填寫，已自動捲動到需要補填的地方，請向上查看。',
       setupBtn: '送出申請 / Submit application',
@@ -1542,7 +1542,7 @@
       statusContinueBtn: '繼續完成申請 →', statusHomeBtn: '返回首頁',
       statusBackLogin: '使用其他帳號登入',
       successTitle: 'You\'re all set!',
-      successSub: 'Welcome to OPUS.Z. Redirecting to your dashboard...',
+      successSub: 'Welcome to Dushen. Redirecting to your dashboard...',
     }
   };
 

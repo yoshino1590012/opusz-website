@@ -1,5 +1,5 @@
 /* ============================================================================
- * nav.js — Shared OPUS.Z navigation component (single-file, no build step)
+ * nav.js — Shared Dushen navigation component (single-file, no build step)
  * ----------------------------------------------------------------------------
  * Injects the global nav (orb, logo, nav-links, favourites, login/account,
  * language toggle, hamburger drawer, sub-drawer, mega menu) into any page and
@@ -48,8 +48,8 @@
 '<!-- Logo text: own stacking context with mix-blend-mode:difference -->',
 '<a href="musician-platform.html#home" id="navLogoFixed">',
 '  <div class="nav-logo-text">',
-'    <span class="nav-logo-name" data-tid="nav-logo">OPUS.Z</span>',
-'    <span class="nav-logo-sub">MUSIC</span>',
+'    <span class="nav-logo-name" data-tid="nav-logo">渡聲音樂</span>',
+'    <span class="nav-logo-sub">DUSHEN MUSIC</span>',
 '  </div>',
 '</a>',
 '',
