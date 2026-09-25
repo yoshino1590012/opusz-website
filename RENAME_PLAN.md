@@ -150,3 +150,41 @@ grep -rho "opusz-45280" --include='*.html' --include='*.js' --include='*.json' .
 ```
 
 上線後要實測：註冊、登入、寄通知信、換語言、收藏 —— 這五項只要有一項掛掉就是改壞了。
+
+---
+
+# 📌 執行進度（2026-09-25 更新）
+
+## ✅ 已完成
+
+| # | 事項 | 備註 |
+|---|---|---|
+| 1 | 程式全部改名 | 分支 `rename/dushen`，**尚未合併到 main** |
+| 2 | Firebase Auth 授權網域 | 已加 dushenmusic.com / www，舊網域保留 |
+| 3 | 網域 dushenmusic.com | Porkbun 購入，NS 指向 Cloudflare |
+| 4 | Cloudflare Pages 綁定 | 主網域 + www，SSL 已簽發 |
+| 5 | **寄信**（ZeptoMail）| 網域已 Verified，掛在 `agent_1`（＝現有 API 金鑰可直接用，不必換）|
+| 6 | **收信**（Cloudflare Email Routing）| `info@dushenmusic.com` → `tzutung.liao@gmail.com` |
+| 7 | Martin 的音樂家簡介 | Firebase 5 個欄位已改（備份在 `~/opusz-backups/`）|
+| 8 | ZeptoMail 帳號驗證表單 | 已送出，3 個工作天內審核（過了額度 100/天 → 10,000）|
+
+## ⏳ 未完成
+
+| # | 事項 | 誰做 |
+|---|---|---|
+| 9 | 合併 `rename/dushen` → main（＝正式上線）| Claude |
+| 10 | Firebase `siteContent` 的 16 處舊品牌字 | Claude，**要跟 9 同時做** |
+| 11 | 舊網域 opuszmusic.com → 301 轉址 | Claude |
+| 12 | Google Search Console 新資源 + sitemap | Martin |
+| 13 | 舊網域續約到 2028（目前 2027-05-27 到期）| Martin |
+
+## 🔑 這次學到的關鍵事實（別重複踩）
+
+- **Zoho Mail 免費版只能綁 1 個網域** → 收信改用 Cloudflare Email Routing（免費轉寄），不是 Zoho。
+- **ZeptoMail 沒有網域數量限制**，而且新網域要選**同一個 agent**（`agent_1`），現有 API 金鑰才不用換。
+- **SPF 只能有一筆**。正確內容：
+  `v=spf1 include:zohomail.com include:_spf.mx.cloudflare.net ~all`
+  ⚠️ `zeptomail.zoho.com` **沒有 SPF 記錄**，寫進去會讓整個 SPF 驗證失敗 —— 不要用。
+- ZeptoMail 的 SPF 其實靠 `bounce-zem` CNAME → `cluster89.zeptomail.com` 負責，不是靠主網域 SPF。
+- Cloudflare Email Routing 會**拒絕**在有非 Cloudflare MX 記錄時設定 → 要先刪掉舊的 MX。
+- 舊網域 opuszmusic.com 的收信仍在 Zoho，**兩邊架構不同，別搞混**。

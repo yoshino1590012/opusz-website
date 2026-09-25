@@ -1,7 +1,7 @@
 {
-  "name": "OPUS.Z 樂手後台",
-  "short_name": "OPUS.Z",
-  "description": "OPUS.Z 樂手後台 — 管理檔期、訊息與你的公開檔案。",
+  "name": "渡聲樂手後台",
+  "short_name": "渡聲",
+  "description": "渡聲樂手後台 — 管理檔期、訊息與你的公開檔案。",
   "start_url": "/musician-dashboard.html",
   "scope": "/",
   "display": "standalone",

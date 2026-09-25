@@ -7,4 +7,4 @@ Disallow: /mobile-editor.html
 Disallow: /musician-dashboard.html
 Disallow: /musician-login.html
 
-Sitemap: https://opuszmusic.com/sitemap.xml
+Sitemap: https://dushenmusic.com/sitemap.xml

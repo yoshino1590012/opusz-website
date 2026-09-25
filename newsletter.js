@@ -1,5 +1,5 @@
 /**
- * OPUS.Z — newsletter subscription capture.
+ * Dushen — newsletter subscription capture.
  * Replaces the old (dead) Netlify form handling. Intercepts any newsletter
  * form on the page and writes the email into Firestore `subscribers`, keyed by
  * the lowercased email so re-subscribing never creates duplicates.
@@ -73,7 +73,7 @@ function wire(form) {
 }
 
 // ── Contact "Contact Us" form → Firestore `inquiries` (kind:contact) ──────────
-// A Cloud Function emails the company inbox (info@opuszmusic.com) on create.
+// A Cloud Function emails the company inbox (info@dushenmusic.com) on create.
 async function sendContact(fields) {
   if (!auth.currentUser) await signInAnonymously(auth);
   await addDoc(collection(db, "inquiries"), {

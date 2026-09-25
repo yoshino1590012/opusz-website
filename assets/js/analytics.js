@@ -1,5 +1,5 @@
 /**
- * analytics.js — Google Analytics 4 for all OPUS.Z pages.
+ * analytics.js — Google Analytics 4 for all Dushen pages.
  * Property: opusz-45280 · Measurement ID: G-KQXXFSQHNQ
  *
  * Loads gtag.js once, configures GA4, and exposes a helper for conversion

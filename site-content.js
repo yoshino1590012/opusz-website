@@ -54,7 +54,7 @@ function _heroPosCalc(p, useZh){
   var ty = (yPct != null) ? ('calc(' + yPct + ' * 100vh)') : ((py || 0) + 'px');
   return tx + ' ' + ty;
 }
-// Ensure the right number of OPUS.Z brand copies (1–4) exist in the DOM.
+// Ensure the right number of Dushen brand copies (1–4) exist in the DOM.
 function ensureBrandCopies(count){
   count = Math.max(1, Math.min(8, parseInt(count,10) || 1));
   var first = document.querySelector('.hco-brand'); if(!first) return;
@@ -75,8 +75,8 @@ function ensureBrandCopies(count){
 }
 function applyHeroPos(map){
   map = map || {};
-  // The OPUS.Z wordmark is always a SINGLE copy. (The old multi-copy feature has
-  // no admin UI and left junk _brandCount:2 on the phone config → two OPUS.Z on
+  // The Dushen wordmark is always a SINGLE copy. (The old multi-copy feature has
+  // no admin UI and left junk _brandCount:2 on the phone config → two Dushen on
   // mobile, which the owner flagged as a defect.) Force 1 and prune any extra
   // clones. To restore multi-copy later, re-honour map._brandCount here + add a UI.
   ensureBrandCopies(1);   // was: map._brandCount || 1
@@ -214,7 +214,7 @@ function applyHeroPosResponsive(cfg){
   }
   var _brand = _pick('_brandColor', cfg.heroBrandColor);
   if (_brand != null) { try { applyBrandColor(_brand); } catch(e){} }
-  // Show / hide the big OPUS.Z wordmark entirely (editor toggle → cfg.heroBrandHidden).
+  // Show / hide the big Dushen wordmark entirely (editor toggle → cfg.heroBrandHidden).
   // DEFAULT = hidden: unless the config explicitly stores `false`, the wordmark stays
   // hidden (owner's request). Setting 顯示 in the editor writes an explicit false.
   var _brandHidden = _pick('_brandHidden', (typeof cfg.heroBrandHidden==='boolean' ? cfg.heroBrandHidden : true));
@@ -313,7 +313,7 @@ function applyBrandColor(val){
     else { el.style.color = val; el.style.mixBlendMode = 'normal'; }
   });
 }
-// Hide (display:none) or restore every OPUS.Z brand wordmark copy.
+// Hide (display:none) or restore every Dushen brand wordmark copy.
 function applyBrandHidden(hidden){
   Array.prototype.forEach.call(document.querySelectorAll('.hco-brand'), function(el){
     el.style.display = hidden ? 'none' : '';
@@ -723,7 +723,7 @@ window.addEventListener('message', function(e){
   }, true);
 
   // ── Canva-style drag for hero elements (editor preview only) ───────────────
-  // Drag headline / subtitle / buttons / OPUS.Z to any position. We change the
+  // Drag headline / subtitle / buttons / Dushen to any position. We change the
   // independent `translate` property (not `transform`), so animations are intact.
   // Drag delta is divided by the card's current scale so 1 screen-px = 1 card-px,
   // and the offset is reported to the parent editor to be saved.

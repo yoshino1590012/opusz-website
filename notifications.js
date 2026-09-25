@@ -1,5 +1,5 @@
 /* ============================================================================
-   OPUS.Z — Global in-page notification toasts
+   Dushen — Global in-page notification toasts
    Loaded on every front-end page (injected by nav.js; added directly on the
    homepage which has no nav.js). Shows a slide-in toast — top-right on desktop,
    drops down from the top on mobile (Line-style) — whenever, WHILE you browse:

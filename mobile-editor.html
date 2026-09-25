@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mobile Editor — OPUS.Z</title>
+<title>Mobile Editor — Dushen</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
 body {
@@ -209,7 +209,7 @@ input[type=color] {
 
 <!-- Toolbar -->
 <div class="toolbar">
-  <span class="tb-logo">OPUS.Z</span>
+  <span class="tb-logo">Dushen</span>
   <span class="tb-badge">📱 Mobile Editor</span>
   <div class="sep"></div>
   <span class="tb-lbl">Page</span>
@@ -355,7 +355,7 @@ input[type=color] {
       </div>
       <div class="ctrl-body open">
         <div class="ctrl-input-label">Hero title</div>
-        <input class="ctrl-input" type="text" id="textHeroTitle" placeholder="e.g. OPUS.Z" oninput="liveContent()">
+        <input class="ctrl-input" type="text" id="textHeroTitle" placeholder="e.g. Dushen" oninput="liveContent()">
         <div class="ctrl-input-label">Hero description</div>
         <textarea class="ctrl-input" id="textHeroDesc" placeholder="e.g. No generic gigs…" oninput="liveContent()"></textarea>
         <div class="ctrl-input-label">Button 1 label</div>
@@ -655,7 +655,7 @@ function generateCss() {
   // Custom CSS
   if (s.customCss && s.customCss.trim()) lines.push(s.customCss.trim());
 
-  return `/* OPUS.Z Mobile Overrides — max-width: ${w}px */\n@media (max-width: ${w}px) {\n  ${lines.join('\n  ')}\n}`;
+  return `/* Dushen Mobile Overrides — max-width: ${w}px */\n@media (max-width: ${w}px) {\n  ${lines.join('\n  ')}\n}`;
 }
 
 // ────────────────────────────────────────────────────────────────────

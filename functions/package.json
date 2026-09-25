@@ -1,6 +1,6 @@
 {
   "name": "opusz-functions",
-  "description": "Email notifications for OPUS.Z (inquiries → musician inbox)",
+  "description": "Email notifications for Dushen (inquiries → musician inbox)",
   "engines": { "node": "20" },
   "main": "index.js",
   "dependencies": {

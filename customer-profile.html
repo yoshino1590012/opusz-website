@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>My Profile — OPUS.Z</title>
+<title>My Profile — Dushen</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
@@ -507,7 +507,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
     <div class="grat-header">
       <button class="grat-close" id="gratClose">✕</button>
       <div class="grat-title">Confirm Job Completion</div>
-      <div class="grat-subtitle">Confirming this will notify OPUS.Z to release payment to the musician.</div>
+      <div class="grat-subtitle">Confirming this will notify Dushen to release payment to the musician.</div>
     </div>
     <div class="grat-job-card">
       <div class="grat-job-title" id="gratJobTitle">—</div>
@@ -733,7 +733,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
           + '</div>';
       } else if(b.status === 'awaiting_payment'){
         confirmRow = '<div class="cp-bk-confirm-row">'
-          + '<span class="cp-confirm-note" style="color:#9333ea;">⏳ Payment release pending — OPUS.Z will process shortly</span>'
+          + '<span class="cp-confirm-note" style="color:#9333ea;">⏳ Payment release pending — Dushen will process shortly</span>'
           + '</div>';
       }
 
@@ -784,7 +784,7 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
     if(tipAmt > 0){
       calcEl.className = 'grat-calc';
       noteEl.className = 'grat-note';
-      noteEl.textContent = '100% of this gratuity (NT$' + tipAmt.toLocaleString() + ') goes directly to the musician — OPUS.Z keeps nothing.';
+      noteEl.textContent = '100% of this gratuity (NT$' + tipAmt.toLocaleString() + ') goes directly to the musician — Dushen keeps nothing.';
     } else {
       calcEl.className = 'grat-calc zero';
       noteEl.className = 'grat-note zero';
@@ -858,8 +858,8 @@ nav.mega-open .nav-links a:hover .nav-ul { background: #000; }
     var toast = document.createElement('div');
     toast.style.cssText = 'position:fixed;bottom:32px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:13px 24px;border-radius:50px;font-size:13px;font-weight:600;z-index:5000;box-shadow:0 8px 32px rgba(0,0,0,.25);opacity:1;transition:opacity .35s;white-space:nowrap;pointer-events:none;';
     toast.textContent = tipAmt > 0
-      ? '✓ Confirmed! Gratuity NT$' + tipAmt.toLocaleString() + ' added. OPUS.Z will release payment shortly.'
-      : '✓ Confirmed! OPUS.Z will release payment to the musician shortly.';
+      ? '✓ Confirmed! Gratuity NT$' + tipAmt.toLocaleString() + ' added. Dushen will release payment shortly.'
+      : '✓ Confirmed! Dushen will release payment to the musician shortly.';
     document.body.appendChild(toast);
     setTimeout(function(){ toast.style.opacity = '0'; setTimeout(function(){ toast.remove(); }, 400); }, 3500);
   });
@@ -1069,7 +1069,7 @@ window.addEventListener('pageshow', function(e) {
     { id:'demo', title:'範例 · 你的公開委托會長這樣', posted:'示範', eventDate:'（演出日）', location:'（地點）', budget:'（預算）', status:'open', responses:0, demo:true }
   ];
   // Guided example shown when the customer has no real conversations yet.
-  var DEMO_THREAD = { id:'demo', demo:true, subject:'範例 · 委托工作室怎麼用', musician:'OPUS.Z 教學', initials:'示', unread:false, time:'示範', ts:1,
+  var DEMO_THREAD = { id:'demo', demo:true, subject:'範例 · 委托工作室怎麼用', musician:'渡聲教學', initials:'示', unread:false, time:'示範', ts:1,
       brief:{ type:'（這裡會顯示你選的委托類型）', date:'（演出 / 上課日期）', location:'（地點）', budget:'（預算）',
               notes:'這是示範：你對樂手送出委托後，雙方都會在這裡看到當初的需求重點。' },
       deal:{ status:'示範', price:'—', date:'—', terms:'交付後放款', funded:'—', released:'—' },

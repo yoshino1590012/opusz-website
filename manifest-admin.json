@@ -1,7 +1,7 @@
 {
-  "name": "OPUS.Z 管理後台",
-  "short_name": "OPUS.Z 管理",
-  "description": "OPUS.Z 平台管理後台 — 審核樂手申請、訊息、管理音樂家與客戶。",
+  "name": "渡聲管理後台",
+  "short_name": "渡聲管理",
+  "description": "渡聲平台管理後台 — 審核樂手申請、訊息、管理音樂家與客戶。",
   "start_url": "/admin-panel.html",
   "scope": "/",
   "display": "standalone",
