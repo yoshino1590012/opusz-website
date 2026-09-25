@@ -1,6 +1,9 @@
 # Cloudflare Pages redirects (mirrors netlify.toml)
 # Serve the homepage at the root URL.
-/    /musician-platform.html    200
+# ⚠️ 目標必須用「乾淨版」(不帶 .html)。寫成 /musician-platform.html 的話，
+# Cloudflare Pages 會先把它正規化成無副檔名網址，結果 200 rewrite 變成 308 轉址，
+# 首頁就多一跳 —— Google Search Console 的「變更網址」會因此判定 301 檢查不通過。
+/    /musician-platform    200
 
 # Pretty musician URLs: /musician/<name-slug> is served BY the profile page,
 # which reads the slug from the path and resolves it to the real Firestore uid.
