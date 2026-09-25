@@ -6,8 +6,9 @@
 ---
 
 ## 1. 平台在幹嘛
-**OPUS.Z** = 媒合「台灣頂尖古典音樂家」與「工作機會（演出＋教學）」的平台。
-正式站 = **opuszmusic.com**（首頁＝`musician-platform.html`）。品牌調性：菁英、嚴選、頂尖。
+**渡聲 Dushen**（2026-09-25 前叫 OPUS.Z）= 媒合「台灣頂尖古典音樂家」與「工作機會（演出＋教學）」的平台。
+正式站 = **dushenmusic.com**（首頁＝`musician-platform.html`）。品牌調性：菁英、嚴選、頂尖。
+> 舊網域 **opuszmusic.com 已 301 轉址**到新站，仍需續約（目前 2027-05-27 到期，到期＝所有舊連結全斷）。
 
 ## 2. 架構（誰負責什麼）
 | 東西 | 在哪 |
@@ -186,3 +187,34 @@
 
 ---
 最後更新：2026-07-10
+
+## 15. 🔴 改名：OPUS.Z → 渡聲 Dushen（2026-09-25 完成）
+
+**品牌寫法**（照抄，別自己發明）：
+- LOGO 主行 `渡聲音樂`，滑過展開副行 `DUSHEN MUSIC`（`.nav-logo-name` / `.nav-logo-sub`）
+- 內文：**該行有中文 → 渡聲；純英文 → Dushen**
+- 頁尾巨大浮水印 `DUSHEN`（拆成 6 個 `.sf-letter`，首頁 inline + `footer.js` 兩份）
+
+**絕對不要改的舊字串**（改了會出事）：
+| 字串 | 處數 | 原因 |
+|---|---|---|
+| `opusz_*` localStorage key | 156 | 改了＝全站使用者被登出、語言/收藏重置 |
+| `opuszXxx` JS 函式名 | 124 | 純內部 |
+| `opusz-45280` | 73 | Firebase 專案 ID，Google 不准改名，**永久** |
+| `OPUSZ_MSG` / `OPUSZ_INST` / `OPUSZ_FAMILIES` / `OPUSZ_FAMILY_LABEL` | 60 | 程式常數 |
+| `OPUSZ2026`、`OPUSZ-FOUNDER`、`OPUSZ-INVITE6` | 4 | **已發出去的邀請碼/優惠碼**，改了別人註冊不了 |
+| JSON-LD 的 `alternateName` 裡的舊名 | 4 | **故意保留**，讓 Google 把舊品牌認到新品牌 |
+| GitHub repo 名 `opusz-website` | — | 沒必要改 |
+
+**信件架構（新舊不同，別搞混）**：
+- **寄信**：ZeptoMail，網域 dushenmusic.com 已驗證，掛 `agent_1`（＝現有 API 金鑰照用）
+- **收信**：**Cloudflare Email Routing**（免費轉寄）`info@dushenmusic.com` → `tzutung.liao@gmail.com`
+  - ⚠️ 不是 Zoho！Zoho Mail 免費版只能綁 1 個網域（舊網域還在 Zoho）
+- **SPF 只能有一筆**：`v=spf1 include:zohomail.com include:_spf.mx.cloudflare.net ~all`
+  - ⚠️ `zeptomail.zoho.com` **沒有 SPF 記錄**，寫進去會讓全站信件驗證失敗
+  - ZeptoMail 的 SPF 其實靠 `bounce-zem` CNAME → `cluster89.zeptomail.com`
+
+**完整紀錄看 `RENAME_PLAN.md`。**
+
+---
+最後更新：2026-09-25
