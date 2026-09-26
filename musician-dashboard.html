@@ -1162,23 +1162,6 @@
               </div>
             </div>
           </div>
-          <div class="card card-pad" style="display:none;"><!-- commission/fee breakdown hidden for now -->
-            <div class="sec-title" style="margin-bottom:16px;" data-i18n="earn_commission">抽成明細</div>
-            <div style="display:flex;flex-direction:column;gap:12px;">
-              <div style="display:flex;justify-content:space-between;font-size:13.5px;">
-                <span style="color:var(--mid);" data-i18n="earn_gross">總收入</span>
-                <span style="font-weight:600;">NT$0</span>
-              </div>
-              <div style="display:flex;justify-content:space-between;font-size:13.5px;">
-                <span style="color:var(--mid);">Dushen commission (10%)</span>
-                <span style="font-weight:600;color:var(--red);">— NT$0</span>
-              </div>
-              <div style="border-top:1px solid var(--border);padding-top:12px;display:flex;justify-content:space-between;font-size:14.5px;">
-                <span style="font-weight:700;" data-i18n="earn_net">實際撥款</span>
-                <span style="font-weight:800;color:var(--green);">NT$0</span>
-              </div>
-            </div>
-          </div>
         </div>
 
         <div class="card">
@@ -2283,7 +2266,7 @@
       msg_select:'選擇對話開始聊天', msg_select_desc:'當客戶傳訊息給你時，會出現在左側',
       msg_placeholder:'輸入訊息...',
       earn_title:'收入', earn_subtitle:'你的收入、撥款與交易紀錄。',
-      earn_total:'今年總收入', earn_total_sub:'扣除 10% 平台服務費後',
+      earn_total:'今年總收入', earn_total_sub:'',
       earn_payout:'待撥款金額', earn_payout_sub:'完成演出後撥款',
       earn_gigs:'已完成演出', earn_gigs_sub:'累計場次',
       earn_monthly:'每月收入', earn_no_records:'尚無收入紀錄',
@@ -2410,7 +2393,7 @@
       msg_select:'Select a conversation to start chatting', msg_select_desc:'Messages from clients will appear on the left',
       msg_placeholder:'Type a message...',
       earn_title:'Earnings', earn_subtitle:'Your earnings, payouts, and transaction history.',
-      earn_total:'Total Earnings This Year', earn_total_sub:'After 10% platform fee',
+      earn_total:'Total Earnings This Year', earn_total_sub:'',
       earn_payout:'Pending Payout', earn_payout_sub:'Paid after performance',
       earn_gigs:'Completed Gigs', earn_gigs_sub:'Total sessions',
       earn_monthly:'Monthly Earnings', earn_no_records:'No earnings yet',
@@ -4677,6 +4660,7 @@
     return { fee: fee, take: price - fee, capped: capped };
   }
   window.pbUpdateNetHint = function(inp){
+    return;   // 2026-09-26 業主要求拿掉所有收費/抽成顯示 → 實拿換算停用
     if(!inp || !inp.getAttribute) return;
     var net = inp.getAttribute('data-net'); if(!net || !(net in PB_FEE)) return;
     var hint = inp.parentNode ? inp.parentNode.querySelector('.pb-net-hint') : null;
@@ -6206,7 +6190,7 @@
   }
 
   function fmtNTd(n){ n = Number(n)||0; return 'NT$' + Math.round(n).toLocaleString('en-US'); }
-  var DASH_DEAL_ZH = { pending:'待客戶確認', active:'進行中（款項託管中）', completed:'已完成', released:'已放款', cancelled:'已取消' };
+  var DASH_DEAL_ZH = { pending:'待客戶確認', active:'進行中', completed:'已完成', released:'已放款', cancelled:'已取消' };
   // Proposal / escrow card from the musician's point of view (read-only this phase).
   function dealCardHtml(deal, convId){
     if(!deal) return '';
@@ -6229,9 +6213,7 @@
       + '</div>'
       + row('方案', esc(deal.plan||'—'))
       + row('客戶付', price ? fmtNTd(price) : '待報價')
-      + (price ? row('你實拿', fmtNTd(take)+'（平台 '+fee+'%'+(capped?('，上限 '+fmtNTd(cap)):'')+'）', '#16a34a') : '')
       + row('款項', '入金 '+(Number(deal.funded)?fmtNTd(deal.funded):'—')+'｜放款 '+(Number(deal.released)?fmtNTd(deal.released):'—'))
-      + (st==='active' ? '<div style="font-size:11px;color:#999;margin-top:8px;">款項已進入平台託管，課程／演出完成後客戶確認即放款。</div>' : '')
       + (st==='released' ? '<div style="font-size:11px;color:#1a9c54;margin-top:8px;">款項已放款，交易完成。</div>' : '')
       + (canRequote ? '<button onclick="openRequote(\''+esc(convId||'')+'\')" style="width:100%;margin-top:10px;background:#fff;color:#111;border:1px solid #111;border-radius:8px;padding:9px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;">改報價 / 客製報價</button>'
                        + (st==='active' ? '<div style="font-size:11px;color:#d48806;margin-top:6px;">注意：改價後客戶需重新確認並付款。</div>' : '') : '')
@@ -6254,10 +6236,10 @@
     ov.innerHTML =
       '<div style="background:#fff;border-radius:16px;max-width:380px;width:100%;padding:22px 22px 20px;font-family:inherit;box-shadow:0 20px 60px rgba(0,0,0,.3);">'
       + '<div style="font-size:17px;font-weight:800;margin-bottom:4px;">改報價 / 客製報價</div>'
-      + '<div style="font-size:12px;color:#888;margin-bottom:16px;">'+kindLabel+'方案 · 平台服務費 '+fee+'%（內含）'+(cap>0?('，上限 '+fmtNTd(cap)):'')+'</div>'
+      + '<div style="font-size:12px;color:#888;margin-bottom:16px;">'+kindLabel+'方案</div>'
       + '<label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px;">方案名稱</label>'
       + '<input id="rqPlan" type="text" value="'+esc(deal.plan||'')+'" placeholder="例如：月方案 Monthly / 客製 4 堂" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:14px;font-family:inherit;margin-bottom:14px;">'
-      + '<label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px;">客戶付的價格（全包價 NT$）</label>'
+      + '<label style="font-size:12px;font-weight:700;color:#555;display:block;margin-bottom:5px;">客戶付的價格（NT$）</label>'
       + '<input id="rqPrice" type="number" value="'+(Number(deal.price)||'')+'" placeholder="例如：8000" style="width:100%;box-sizing:border-box;border:1px solid #ddd;border-radius:8px;padding:10px;font-size:14px;font-family:inherit;">'
       + '<div id="rqCalc" style="background:#f7f9ff;border:1px solid #e3ebff;border-radius:10px;padding:11px 13px;margin-top:12px;font-size:13px;line-height:1.7;color:#333;"></div>'
       + '<div style="display:flex;gap:10px;margin-top:18px;">'
@@ -6275,9 +6257,9 @@
       if(p > 0){
         var pf = p * fee / 100; var capped = (cap > 0 && pf > cap); if(capped) pf = cap;
         var take = p - pf;
-        calc.innerHTML = '客戶付 <b>'+fmtNTd(p)+'</b>　·　平台費 '+fmtNTd(pf)+'（'+fee+'%'+(capped?'，已達上限':'')+'）　·　你實拿 <b style="color:#16a34a;">'+fmtNTd(take)+'</b>';
+        calc.innerHTML = '客戶付 <b>'+fmtNTd(p)+'</b>';
       } else {
-        calc.innerHTML = '<span style="color:#999;">輸入金額後，這裡顯示你的實拿金額。</span>';
+        calc.innerHTML = '<span style="color:#999;">輸入金額後，這裡會顯示報價金額。</span>';
       }
     }
     priceI.addEventListener('input', rqUpdate); rqUpdate();

@@ -1222,13 +1222,10 @@ window.addEventListener('pageshow', function(e) {
       + '<h4>狀態 / Status</h4><span class="wr-deal-status st-'+esc(st)+'">'+esc(statusZh)+'</span>'
       + '<h4>方案 / Plan</h4><div class="wr-deal-val">'+esc(d.plan||'—')+'</div>'
       + '<h4>價格 / Price</h4><div class="wr-deal-val">'+(price ? fmtNT(price) : '待樂手報價')+'</div>'
-      + (price ? '<div style="font-size:11px;color:#16a34a;font-weight:600;margin-top:2px;">平台服務費已內含，無額外加價</div>' : '')
-      + '<h4>付款條件 / Terms</h4><div class="wr-deal-val" style="font-weight:500;">'+esc(d.terms||'—')+'</div>'
       + '<h4>款項 / Payment</h4><div class="wr-deal-val">已入金 '+(Number(d.funded)?fmtNT(d.funded):'—')+'<br>已放款 '+(Number(d.released)?fmtNT(d.released):'—')+'</div>'
       + '<h4>動作 / Actions</h4>';
     if(st==='pending' && price>0){
-      html += '<button id="wrDealPay" class="wr-deal-btn">確認並付款 '+fmtNT(price)+'</button>'
-            + '<div style="font-size:11px;color:#999;font-weight:500;margin-top:6px;">款項先進入平台託管，課程／演出完成後才撥付給樂手。</div>';
+      html += '<button id="wrDealPay" class="wr-deal-btn">確認並付款 '+fmtNT(price)+'</button>';
     } else if(st==='pending'){
       html += '<div class="wr-deal-val" style="color:#999;font-weight:500;font-size:12px;">等待樂手提供報價，報價後即可在此確認付款。</div>';
     } else if(st==='active'){
@@ -1281,7 +1278,7 @@ window.addEventListener('pageshow', function(e) {
         var p = Number(t.deal.price)||0;
         OPUSZ_MSG.setDeal(t.id, { status:'active', funded:p }, {
           fromRole:'customer',
-          sysText:'客戶已確認方案「'+(t.deal.plan||'')+'」，款項 '+fmtNT(p)+' 進入平台託管，方案啟動。'
+          sysText:'客戶已確認方案「'+(t.deal.plan||'')+'」，方案啟動。'
         });
       });
       var relBtn = document.getElementById('wrDealRelease');

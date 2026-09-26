@@ -715,9 +715,6 @@
     draftNote: '本政策仍在研擬中，內容可能隨時調整；正式版本將另行公告。',
     version: 1,
     sections: [
-      { title:'收費與抽成（演出）', body:'（草擬中，細節後續討論調整）' },
-      { title:'教學收費',          body:'（草擬中，細節後續討論調整）' },
-      { title:'付款與結算',        body:'（草擬中；目前採「交付後放款」）' },
       { title:'取消與退款',        body:'（草擬中，細節後續討論調整）' },
       { title:'錄音／影像使用權',   body:'（草擬中，細節後續討論調整）' },
       { title:'行為準則',          body:'（草擬中，細節後續討論調整）' },
@@ -1189,7 +1186,7 @@
   // 'pending') and leave the heavier fields (photo/bio/education/experience) blank.
   // Codes are intentionally simple — small private launch, and the owner can still
   // see and remove any musician. Ask the owner to change/add codes here anytime.
-  var APP_INVITE_CODES = ['OPUSZ2026'];
+  var APP_INVITE_CODES = ['DUSHEN2026', 'OPUSZ2026'];   // OPUSZ2026 = 舊碼，已發出去，保留有效
   var _inviteValid = false;
   window.checkInvite = function(){
     var el  = document.getElementById('setupInvite');
