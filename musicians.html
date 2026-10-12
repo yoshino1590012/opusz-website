@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Musicians — Dushen</title>
 <link rel="canonical" href="https://dushenmusic.com/musicians">
+<meta name="description" content="渡聲音樂家名錄：台灣古典音樂家——聲樂、弦樂、鋼琴、管樂、室內樂，提供演出與教學。">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -899,6 +900,11 @@ function renderGrid(animate){
   if(!list.length){
     grid.innerHTML = '';
     noRes.style.display = 'block';
+    // An empty category page (?cat=…) has nothing for Google to index — mark it
+    // noindex so Search Console stops flagging it as a soft 404.
+    if(/[?&]cat=/.test(location.search) && !document.querySelector('meta[name="robots"]')){
+      var _ni = document.createElement('meta'); _ni.name = 'robots'; _ni.content = 'noindex'; document.head.appendChild(_ni);
+    }
     document.getElementById('noResultsText').textContent = currentLang==='zh' ? '找不到符合條件的音樂家，請嘗試調整篩選條件。' : 'No musicians found. Try adjusting your filters.';
     return;
   }

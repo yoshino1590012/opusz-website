@@ -8,3 +8,8 @@ Disallow: /musician-dashboard.html
 Disallow: /musician-login.html
 
 Sitemap: https://dushenmusic.com/sitemap.xml
+
+# 本機編輯器 (server.py) 用的 API 路徑，正式站上不存在
+Disallow: /upload/
+Disallow: /save-
+Disallow: /git-push
