@@ -1488,7 +1488,46 @@ window.addEventListener('load', applyAllSavedXYS);
   const CARD_COLORS = ['#1a1a2e','#16213e','#0f3460','#1a0c0c','#0a2a1a','#1a150a','#101a2e','#1e1a0a','#0a1a10','#1a0a1a'];
 
   try {
-    const snap = await getDocs(collection(db, 'musicians'));
+    // Read via the Firestore REST API (plain fetch) instead of the SDK's getDocs:
+    // Googlebot never completes the SDK's streaming connection, so it saw this
+    // page stuck on "Loading…" forever and flagged it as a soft 404. Falls back
+    // to the SDK if the REST call fails. Same {id, data()} shape either way.
+    const snap = await (async () => {
+      try {
+        const decode = v => {
+          if (v == null) return null;
+          if ('stringValue' in v) return v.stringValue;
+          if ('booleanValue' in v) return v.booleanValue;
+          if ('integerValue' in v) return Number(v.integerValue);
+          if ('doubleValue' in v) return v.doubleValue;
+          if ('nullValue' in v) return null;
+          if ('timestampValue' in v) return v.timestampValue;
+          if ('referenceValue' in v) return v.referenceValue;
+          if ('geoPointValue' in v) return v.geoPointValue;
+          if ('bytesValue' in v) return v.bytesValue;
+          if ('arrayValue' in v) return (v.arrayValue.values || []).map(decode);
+          if ('mapValue' in v) { const o = {}, f = v.mapValue.fields || {}; for (const k in f) o[k] = decode(f[k]); return o; }
+          return null;
+        };
+        const base = 'https://firestore.googleapis.com/v1/projects/' + firebaseConfig.projectId +
+                     '/databases/(default)/documents/musicians?pageSize=300&key=' + firebaseConfig.apiKey;
+        const docs = []; let token = '';
+        do {
+          const r = await fetch(base + (token ? '&pageToken=' + encodeURIComponent(token) : ''));
+          if (!r.ok) throw new Error('REST ' + r.status);
+          const j = await r.json();
+          (j.documents || []).forEach(doc => {
+            const data = decode({ mapValue: { fields: doc.fields || {} } });
+            docs.push({ id: doc.name.split('/').pop(), data: () => data });
+          });
+          token = j.nextPageToken || '';
+        } while (token);
+        return { forEach: fn => docs.forEach(fn), docs, size: docs.length };
+      } catch (err) {
+        console.log('REST load failed, falling back to SDK:', err);
+        return getDocs(collection(db, 'musicians'));
+      }
+    })();
     // Public directory shows ONLY real, published musicians (no demo/template).
     const realMusicians = [];
     let colorIdx = 0;
